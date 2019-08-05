@@ -1,7 +1,8 @@
 import bpy
 import os
 from . import w3d_structs
-from . import w3d_io_binary
+import w3d_io_binary
+from w3d_io_binary import *
 
 def read_mesh_header(file):
     result = w3d_structs.MeshHeader(
@@ -49,6 +50,8 @@ def load(givenfilepath, context, import_settings):
 
     file = open(givenfilepath,"rb")
     filesize = os.path.getsize(givenfilepath)
+
+    print('Filesize' , filesize)
 
     meshes = []
 

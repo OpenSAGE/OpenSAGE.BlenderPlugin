@@ -3,6 +3,7 @@
 import bpy
 import struct
 from mathutils import Vector, Quaternion
+import w3d_structs
 from . import w3d_structs
 
 def GetChunkSize(data):
