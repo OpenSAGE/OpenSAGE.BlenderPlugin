@@ -189,9 +189,7 @@ def read_mesh(self, file, chunkEnd):
                 faces = mesh_faces)
 
 #######################################################################################
-
 # load Skeleton file
-
 #######################################################################################
 
 def load_skeleton_file(self, sklpath):
@@ -255,10 +253,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
         #has to point in y direction that the rotation is applied correctly
         bone.tail = Vector((0.0, 0.1, 0.0))
 
-
-
     #pose the bones
-
     bpy.ops.object.mode_set(mode = 'POSE')
     script_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -275,6 +270,15 @@ def create_armature(self, hierarchy, amtName, subObjects):
     bpy.ops.object.mode_set(mode = 'OBJECT')
 
     return rig
+    
+#######################################################################################
+# helper methods
+#######################################################################################
+
+def link_object_to_active_scene(obj):
+    bpy.context.collection.objects.link(obj)
+    bpy.context.view_layer.objects.active = obj
+    obj.select_set(True)
 
 #######################################################################################
 # Load
@@ -360,9 +364,6 @@ def load(self, context, import_settings):
     for m in meshes: #need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]
         
-        # Link the object to the active scene
-        bpy.context.collection.objects.link(mesh_ob)
-        bpy.context.view_layer.objects.active = mesh_ob
-        mesh_ob.select_set(True)
+        link_object_to_active_scene(mesh_ob)
     
     return {'FINISHED'}
