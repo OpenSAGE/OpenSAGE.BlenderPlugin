@@ -133,7 +133,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
 
         import_settings = {}
 
-        import_w3d.load(self.filepath, context, import_settings)
+        import_w3d.load(self, context, import_settings)
+        print ('finished')
         return {'FINISHED'}
 
 def menu_func_export(self, context):

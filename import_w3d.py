@@ -1,11 +1,16 @@
 import bpy
 import os
-from . import w3d_structs
-import w3d_io_binary
-from w3d_io_binary import *
+import bmesh
+from io_mesh_w3d.w3d_io_binary import *
+from io_mesh_w3d.w3d_structs import *
+
+def skip_unknown_chunk(self, file, chunkType, chunkSize):
+    self.report({'ERROR'}, "unknown chunktype in File: %s" % chunkType)
+    print("!!!unknown chunktype in File: %s" % chunkType)
+    file.seek(chunkSize,1)
 
 def read_mesh_header(file):
-    result = w3d_structs.MeshHeader(
+    result = MeshHeader(
         version = GetVersion(ReadLong(file)), 
         attrs =  ReadLong(file), 
         meshName = ReadFixedString(file),
@@ -23,10 +28,11 @@ def read_mesh_header(file):
         minCorner = ReadVector(file),
         maxCorner = ReadVector(file),
         sphCenter = ReadVector(file),
-        sphRadius =	 ReadFloat(file))
+        sphRadius =	ReadFloat(file))
     return result
 
-def read_mesh(file, chunkEnd):
+def read_mesh(self, file, chunkEnd):
+    mesh_header = MeshHeader()
     mesh_verts_infs = []
     mesh_verts      = []
     mesh_normals    = []
@@ -39,17 +45,20 @@ def read_mesh(file, chunkEnd):
 
         if chunkType == 2:
             mesh_verts = ReadMeshVerticesArray(file, subChunkEnd)
-
+        elif chunkType == 31:
+            mesh_header = read_mesh_header(file)
+        else:
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
     
-    return w3d_structs.Mesh(verts = mesh_verts)
+    return Mesh(verts = mesh_verts)
 
 
-def load(givenfilepath, context, import_settings):
+def load(self, context, import_settings):
     """Start the w3d import"""
-    print('Loading file', givenfilepath)
+    print('Loading file', self.filepath)
 
-    file = open(givenfilepath,"rb")
-    filesize = os.path.getsize(givenfilepath)
+    file = open(self.filepath, "rb")
+    filesize = os.path.getsize(self.filepath)
 
     print('Filesize' , filesize)
 
@@ -61,8 +70,36 @@ def load(givenfilepath, context, import_settings):
         chunkEnd = file.tell() + chunkSize
 
         if chunkType == 0:
-            m = read_mesh(file, chunkEnd)
+            m = read_mesh(self, file, chunkEnd)
             meshes.append(m)
             file.seek(chunkEnd,0)
+        else:
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
 
+    file.close()
+    
+    for m in meshes:
+        vertices = m.verts 
+        faces = []
+        
+        for f in m.faces:
+            faces.append(f.vertIds)
+           
+        #create the mesh
+        mesh = bpy.data.meshes.new(m.header.meshName)
+        mesh.from_pydata(vertices, [], faces)
+        #mesh.uv_textures.new("UVW")
+        
+        bm = bmesh.new()
+        bm.from_mesh(mesh)
+        
+        #create the uv map
+        #uv_layer = bm.loops.layer.uv.verify()
+        #bm.faces.layers.tex.verify()
+        
+        bm.to_mesh(mesh)
+        
+        mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
+        mesh_ob['userText'] = m.userText
+    
     return {'FINISHED'}

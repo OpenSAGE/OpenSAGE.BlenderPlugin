@@ -3,8 +3,7 @@
 import bpy
 import struct
 from mathutils import Vector, Quaternion
-import w3d_structs
-from . import w3d_structs
+from io_mesh_w3d.w3d_structs import *
 
 def GetChunkSize(data):
     return (data & 0x7FFFFFFF)
@@ -13,7 +12,7 @@ def MakeChunkSize(data):
 	return (data | 0x80000000)
 
 def GetVersion(data):
-    return w3d_structs.Version(major = (data)>>16, minor = (data) & 0xFFFF)
+    return Version(major = (data)>>16, minor = (data) & 0xFFFF)
     
 def MakeVersion(version):
 	return (((version.major) << 16) | (version.minor))
@@ -29,7 +28,7 @@ def ReadString(file):
 def WriteString(file, string):
 	file.write(bytes(string, 'UTF-8'))
 	#write binary 0
-	file.write(w3d_structs.pack('B', 0))
+	file.write(struct.pack('B', 0))
    
 def ReadFixedString(file):
     return ((str(file.read(16)))[2:18]).split("\\")[0]
@@ -58,7 +57,7 @@ def WriteLongFixedString(file, string):
 		file.write(struct.pack("B", 0))
  
 def ReadRGBA(file):
-    return w3d_structs.RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
+    return RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
     
 def WriteRGBA(file, rgba):
 	file.write(struct.pack("B", rgba.r))
@@ -67,22 +66,22 @@ def WriteRGBA(file, rgba):
 	file.write(struct.pack("B", rgba.a))   
  
 def ReadLong(file):
-    return (struct.unpack("<L", file.read(4))[0])
+    return struct.unpack("<L", file.read(4))[0]
     
 def WriteLong(file, num):
 	file.write(struct.pack("<L", num))
 
 def ReadShort(file):
-    return (struct.unpack("<H", file.read(2))[0])
+    return struct.unpack("<H", file.read(2))[0]
     
 def WriteShort(file, num):
 	file.write(struct.pack("<H", num))
 
 def ReadUnsignedShort(file):
-    return (struct.unpack("<h", file.read(2))[0])  
+    return struct.unpack("<h", file.read(2))[0] 
     
 def ReadFloat(file):
-    return (struct.unpack("<f", file.read(4))[0])
+    return struct.unpack("<f", file.read(4))[0]
 
 def ReadLongArray(file,chunkEnd):
     LongArray = []
@@ -123,7 +122,7 @@ def ReadMeshVerticesArray(file, chunkEnd):
 def ReadMeshVertexInfluences(file, chunkEnd):
     vertInfs = []
     while file.tell()  < chunkEnd:
-        vertInf = w3d_structs.MeshVertexInfluences()
+        vertInf = MeshVertexInfluences()
         vertInf.boneIdx = ReadShort(file)
         vertInf.xtraIdx = ReadShort(file)
         vertInf.boneInf = ReadShort(file)/100
