@@ -1,5 +1,9 @@
 #Written by Stephan Vedder and Michael Schnabel
 #Last Modification 05.08.2019
+import bpy
+import struct
+from mathutils import Vector, Quaternion
+from . import w3d_structs
 
 def GetChunkSize(data):
     return (data & 0x7FFFFFFF)
@@ -8,7 +12,7 @@ def MakeChunkSize(data):
 	return (data | 0x80000000)
 
 def GetVersion(data):
-    return struct_w3d.Version(major = (data)>>16, minor = (data) & 0xFFFF)
+    return w3d_structs.Version(major = (data)>>16, minor = (data) & 0xFFFF)
     
 def MakeVersion(version):
 	return (((version.major) << 16) | (version.minor))
@@ -24,7 +28,7 @@ def ReadString(file):
 def WriteString(file, string):
 	file.write(bytes(string, 'UTF-8'))
 	#write binary 0
-	file.write(struct.pack('B', 0))
+	file.write(w3d_structs.pack('B', 0))
    
 def ReadFixedString(file):
     return ((str(file.read(16)))[2:18]).split("\\")[0]
@@ -53,7 +57,7 @@ def WriteLongFixedString(file, string):
 		file.write(struct.pack("B", 0))
  
 def ReadRGBA(file):
-    return struct_w3d.RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
+    return w3d_structs.RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
     
 def WriteRGBA(file, rgba):
 	file.write(struct.pack("B", rgba.r))
@@ -108,3 +112,20 @@ def WriteQuaternion(file, quat):
 	WriteFloat(file, quat[2])
 	WriteFloat(file, quat[3])
 	WriteFloat(file, quat[0])
+
+def ReadMeshVerticesArray(file, chunkEnd):
+    verts = []
+    while file.tell() < chunkEnd:
+        verts.append(ReadVector(file))
+    return verts
+
+def ReadMeshVertexInfluences(file, chunkEnd):
+    vertInfs = []
+    while file.tell()  < chunkEnd:
+        vertInf = w3d_structs.MeshVertexInfluences()
+        vertInf.boneIdx = ReadShort(file)
+        vertInf.xtraIdx = ReadShort(file)
+        vertInf.boneInf = ReadShort(file)/100
+        vertInf.xtraInf = ReadShort(file)/100
+        vertInfs.append(vertInf)
+    return vertInfs
