@@ -9,8 +9,29 @@ def skip_unknown_chunk(self, file, chunkType, chunkSize):
     print("!!!unknown chunktype in File: %s" % chunkType)
     file.seek(chunkSize,1)
 
+#######################################################################################
+# Faces
+#######################################################################################	
+    
+def read_mesh_face(file):
+    return MeshFace(
+        vertIds = (ReadLong(file), ReadLong(file), ReadLong(file)),
+        attrs = ReadLong(file),
+        normal = ReadVector(file),
+        distance = ReadFloat(file))
+
+def read_mesh_face_array(file, chunkEnd):
+    faces = []
+    while file.tell() < chunkEnd:
+        faces.append(read_mesh_face(file))
+    return faces
+    
+#######################################################################################
+# Mesh
+#######################################################################################	
+
 def read_mesh_header(file):
-    result = MeshHeader(
+    return MeshHeader(
         version = GetVersion(ReadLong(file)), 
         attrs =  ReadLong(file), 
         meshName = ReadFixedString(file),
@@ -29,13 +50,13 @@ def read_mesh_header(file):
         maxCorner = ReadVector(file),
         sphCenter = ReadVector(file),
         sphRadius =	ReadFloat(file))
-    return result
 
 def read_mesh(self, file, chunkEnd):
     mesh_header = MeshHeader()
     mesh_verts_infs = []
     mesh_verts      = []
     mesh_normals    = []
+    mesh_faces      = []
 
     print("New mesh!")
     while file.tell() < chunkEnd:
@@ -47,10 +68,14 @@ def read_mesh(self, file, chunkEnd):
             mesh_verts = ReadMeshVerticesArray(file, subChunkEnd)
         elif chunkType == 31:
             mesh_header = read_mesh_header(file)
+        elif chunkType == 32:
+            mesh_faces = read_mesh_face_array(file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
     
-    return Mesh(verts = mesh_verts)
+    return Mesh(header = mesh_header, 
+                verts = mesh_verts,
+                faces = mesh_faces)
 
 
 def load(self, context, import_settings):
@@ -79,27 +104,31 @@ def load(self, context, import_settings):
     file.close()
     
     for m in meshes:
-        vertices = m.verts 
         faces = []
         
         for f in m.faces:
             faces.append(f.vertIds)
            
         #create the mesh
-        mesh = bpy.data.meshes.new(m.header.meshName)
-        mesh.from_pydata(vertices, [], faces)
-        #mesh.uv_textures.new("UVW")
+        mesh = bpy.data.meshes.new(name=m.header.meshName)
+        mesh.from_pydata(m.verts, [], faces)
+        mesh.update()
+        mesh.validate()
         
         bm = bmesh.new()
         bm.from_mesh(mesh)
-        
-        #create the uv map
-        #uv_layer = bm.loops.layer.uv.verify()
-        #bm.faces.layers.tex.verify()
         
         bm.to_mesh(mesh)
         
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
+        
+    for m in meshes: #need an extra loop because the order of the meshes is random
+        mesh_ob = bpy.data.objects[m.header.meshName]
+        
+        # Link the object to the active scene
+        bpy.context.collection.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
     
     return {'FINISHED'}
