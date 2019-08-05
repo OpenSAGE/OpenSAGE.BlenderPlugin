@@ -31,9 +31,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     bl_options = {'UNDO', 'PRESET'}
    
     filename_ext = '.w3d'
-    filter_glob = StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
     
-    ui_tab = EnumProperty(
+    ui_tab: EnumProperty(
             items=(('GENERAL', "General", "General settings"),
                 #('MESHES', "Meshes", "Mesh settings"),
                 #('OBJECTS', "Objects", "Object settings"),
@@ -43,7 +43,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
             description="Export setting categories",
     )      
 
-    export_mode = EnumProperty(
+    export_mode: EnumProperty(
             name="Export Mode",
              items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"), 
                 ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"), 
@@ -52,7 +52,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 ),			
             default='M',)	
 
-    export_compress = EnumProperty(
+    export_compress: EnumProperty(
             name="Compression",
              items=(('U', "Uncompressed", "This will not compress the animations"), 
                 ('TC', "TimeCoded", "This will export the animation with keyframes"), 
@@ -60,7 +60,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 ),			
             default='TC',)
 
-    will_save_settings = BoolProperty(default=False)
+    will_save_settings: BoolProperty(default=False)
 
     # Custom scene property for saving settings
     scene_key = "w3dExportSettings"
@@ -126,7 +126,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_options = {'UNDO'}
     
     filename_ext = '.w3d'
-    filter_glob = StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     def execute(self, context):
         from . import import_w3d
