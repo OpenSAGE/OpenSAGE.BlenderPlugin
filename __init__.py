@@ -91,7 +91,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
     
     def execute(self, context):
-        from . import w3d_export
+        from . import export_w3d
 
         if self.will_save_settings:
             self.save_settings(context)
@@ -102,7 +102,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['w3d_mode'] = export_mode
         export_settings['w3d_compression'] = animation_compression
 
-        return w3d_export.save(self.filepath, context, export_settings)
+        return export_w3d.save(self.filepath, context, export_settings)
 
     def draw(self, context):
         self.layout.prop(self, 'ui_tab', expand=True)
@@ -131,7 +131,9 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         from . import import_w3d
 
-        import_w3d.load(self.filepath, context)
+        import_settings = {}
+
+        import_w3d.load(self.filepath, context, import_settings)
         return {'FINISHED'}
 
 def menu_func_export(self, context):
