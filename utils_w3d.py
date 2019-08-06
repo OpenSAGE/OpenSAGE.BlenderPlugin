@@ -1,5 +1,6 @@
 import os
 import bpy
+from mathutils import Vector, Quaternion
 
 #######################################################################################
 # helper methods
@@ -30,10 +31,8 @@ def create_armature(self, hierarchy, amtName, subObjects):
     #rig.show_x_ray = True
     rig.track_axis = "POS_X"
     
-    #bpy.context.scene.objects.link(rig) # Link the object to the active scene
-    #bpy.context.scene.objects.active = rig
-    #bpy.ops.object.mode_set(mode = 'EDIT')
-    #bpy.context.scene.update()
+    link_object_to_active_scene(rig)
+    bpy.ops.object.mode_set(mode = 'EDIT')
 
     non_bone_pivots = []
 
