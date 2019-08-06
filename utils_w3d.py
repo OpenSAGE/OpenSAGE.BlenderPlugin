@@ -70,3 +70,68 @@ def create_armature(self, hierarchy, amtName, subObjects):
     bpy.ops.object.mode_set(mode = 'OBJECT')
 
     return rig
+    
+#######################################################################################
+# loadTexture
+#######################################################################################
+
+def load_texture(self, mesh, texName, tex_type, destBlend):
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    default_tex = script_directory + "/default_tex.dds"
+
+    found_img = False
+    basename = os.path.splitext(texName)[0]
+    
+    #test if image file has already been loaded
+    for image in bpy.data.images:
+        if basename == os.path.splitext(image.name)[0]:
+            img = image
+            found_img = True
+
+    # Create texture slot in material
+    mTex = mesh.materials[0].texture_slots.add()
+    mTex.use_map_alpha = True
+
+    if found_img == False:
+        tgapath = os.path.dirname(self.filepath) + "/" + basename + ".tga"
+        ddspath = os.path.dirname(self.filepath) + "/" + basename + ".dds"
+        tgapath = InsensitivePath(tgapath)
+        ddspath = InsensitivePath(ddspath)
+        img = None
+
+        try:
+            img = bpy.data.images.load(tgapath)
+        except:
+            try:
+                img = bpy.data.images.load(ddspath)
+            except:
+                self.report({'ERROR'}, "Cannot load texture " + basename)
+                print("!!! texture file not found " + basename)
+                img = bpy.data.images.load(default_tex)
+
+        cTex = bpy.data.textures.new(texName, type = 'IMAGE')
+        cTex.image = img
+
+        if destBlend == 0:
+            cTex.use_alpha = True
+        else:
+            cTex.use_alpha = False
+
+        if tex_type == "normal":
+            cTex.use_normal_map = True
+            cTex.filter_size = 0.1
+            cTex.use_filter_size_min = True
+
+        mTex.texture = cTex	
+    else:
+        mTex.texture = bpy.data.textures[texName]
+
+    mTex.texture_coords = 'UV'
+    mTex.mapping = 'FLAT'
+
+    if tex_type == "normal":
+       mTex.normal_map_space = 'TANGENT'
+       mTex.use_map_color_diffuse = False
+       mTex.use_map_normal = True
+       mTex.normal_factor = 1.0
+       mTex.diffuse_color_factor = 0.0

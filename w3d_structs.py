@@ -359,6 +359,6 @@ class Mesh(Struct):
     shaders = []
     vertMatls = []
     textures = []
-    matlPass = MeshMaterialPass()
+    materialPass = MeshMaterialPass()
     bumpMaps = MeshBumpMapArray()
     aabbtree = MeshAABBTree()
