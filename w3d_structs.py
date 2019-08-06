@@ -134,7 +134,7 @@ class HLodHeader(Struct):
     modelName = ""
     hierarchyName = ""
 
-W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000702
+W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 class HLodArrayHeader(Struct):
     modelCount = 0
     maxScreenSize = 0.0

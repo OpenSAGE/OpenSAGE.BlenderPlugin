@@ -752,10 +752,10 @@ def load(self, context, import_settings):
         chunkSize = get_chunk_size(read_long(file))
         chunkEnd = file.tell() + chunkSize
 
-        if chunkType == 0:
+        if chunkType == W3D_CHUNK_MESH:
             meshes.append(read_mesh(self, file, chunkEnd))
-        #elif chunkType == W3D_CHUNK_HIERARCHY:
-        #    hierarchy = read_hierarchy(self, file, chunkEnd)
+        elif chunkType == W3D_CHUNK_HIERARCHY:
+            hierarchy = read_hierarchy(self, file, chunkEnd)
         #elif chunkType == W3D_CHUNK_ANIMATION:
         #    animation = read_animation(self, file, chunkEnd)
         #elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:

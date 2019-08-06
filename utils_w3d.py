@@ -7,7 +7,7 @@ from mathutils import Vector, Quaternion
 #######################################################################################
 
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
-    message = "WARNING: unknown chunktype in File: %s" % chunkType
+    message = "WARNING: unknown chunktype in File: %s" % hex(chunkType)
     #self.report({'ERROR'}, message)
     print(message)
     file.seek(chunkSize, 1)
@@ -48,17 +48,14 @@ def create_armature(self, hierarchy, amtName, subObjects):
 
         if pivot.parentID > 0:
             parent_pivot =  hierarchy.pivots[pivot.parentID]
-            parent = amt.edit_bones[parent_pivot.name]
-            bone.parent = parent
-            size = pivot.position.x
-
+            bone.parent = amt.edit_bones[parent_pivot.name]
+            
         bone.head = Vector((0.0, 0.0, 0.0))
         #has to point in y direction that the rotation is applied correctly
-        bone.tail = Vector((0.0, 0.1, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
 
     #pose the bones
     bpy.ops.object.mode_set(mode = 'POSE')
-    script_directory = os.path.dirname(os.path.abspath(__file__))
 
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
