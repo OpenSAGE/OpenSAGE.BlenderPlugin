@@ -19,13 +19,12 @@ def read_hierarchy_header(file):
 def read_pivots(file, chunkEnd):
     pivots = []
     while file.tell() < chunkEnd:
-        pivot = HierarchyPivot(
+        pivots.append(HierarchyPivot(
             name = ReadFixedString(file),
             parentID = ReadLong(file),
             position = ReadVector(file),
             eulerAngles = ReadVector(file),
-            rotation = ReadQuaternion(file))
-        pivots.append(pivot)
+            rotation = ReadQuaternion(file)))
     return pivots
   
 # TODO: this isnt correct anymore i think  
@@ -39,8 +38,8 @@ def read_pivot_fixups(file, chunkEnd):
 def read_hierarchy(self, file, chunkEnd):
     #print("\n### NEW HIERARCHY: ###")
     hierarchyHeader = HierarchyHeader()
-    pivots = []
-    pivot_fixups = []
+    Pivots = []
+    Pivot_fixups = []
 
     while file.tell() < chunkEnd:
         chunkType = ReadLong(file)
@@ -48,15 +47,15 @@ def read_hierarchy(self, file, chunkEnd):
         subChunkEnd = file.tell() + chunkSize
 
         if chunkType == 257:
-            hierarchyHeader = read_hierarchyHeader(file)
+            hierarchyHeader = read_hierarchy_header(file)
         elif chunkType == 258:
-            pivots = read_pivots(file, subChunkEnd)
+            Pivots = read_pivots(file, subChunkEnd)
         elif chunkType == 259:
-            pivot_fixups = read_pivot_fixups(file, subChunkEnd)
+            Pivot_fixups = read_pivot_fixups(file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return Hierarchy(header = hierarchyHeader, pivots = pivots, pivot_fixups = pivot_fixups)
+    return Hierarchy(header = hierarchyHeader, pivots = Pivots, pivot_fixups = Pivot_fixups)
     
 #######################################################################################
 # Animation
@@ -651,7 +650,7 @@ def read_mesh(self, file, chunkEnd):
     mesh_bump_maps          = MeshBumpMapArray()
     mesh_aabbtree           = MeshAABBTree()
 
-    print("NEW MESH!")
+    #print("NEW MESH!")
     while file.tell() < chunkEnd:
         chunkType = ReadLong(file)
         chunkSize = GetChunkSize(ReadLong(file))
@@ -719,15 +718,15 @@ def read_mesh(self, file, chunkEnd):
 
 #TODO: can be combined with load mesh?
 def load_skeleton_file(self, sklpath):
-    #print("\n### SKELETON: ###")
+    print('\n### SKELETON: ###', sklpath)
     hierarchy = Hierarchy()
-    file = open(self.filepath, "rb")
-    filesize = os.path.getsize(self.filepath)
+    file = open(sklpath, "rb")
+    filesize = os.path.getsize(sklpath)
 
     while file.tell() < filesize:
         chunkType = ReadLong(file)
-        Chunksize =  GetChunkSize(ReadLong(file))
-        chunkEnd = file.tell() + Chunksize
+        chunksize =  GetChunkSize(ReadLong(file))
+        chunkEnd = file.tell() + chunksize
         
         if chunkType == 256:
             hierarchy = read_hierarchy(self, file, chunkEnd)
