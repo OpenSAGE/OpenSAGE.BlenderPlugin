@@ -149,7 +149,17 @@ classes = (
     ImportW3D
 )
 
-register, unregister = bpy.utils.register_classes_factory(classes)
+def register():
+    for c in classes:
+        bpy.utils.register_class(c)
+    bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+
+def unregister():
+    for c in reversed(classes):
+        bpy.utils.unregister_class(c)
+    bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
+    bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
 if __name__ == "__main__":
     register()
