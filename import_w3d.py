@@ -74,10 +74,10 @@ def read_animation_channel(self, file, chunkEnd):
     padding_ = read_short(file) 
 
     data = []
-    if vectorLen == 1:
+    if vector_len == 1:
         while file.tell() < chunkEnd:
             data.append(read_float(file))
-    elif vectorLen == 4:
+    elif vector_len == 4:
         while file.tell() < chunkEnd:
             data.append(read_quaternion(file))
     else:
@@ -123,13 +123,13 @@ def read_compressed_animation_header(file):
 
 def read_time_coded_animation_channel(self, file, chunkEnd):
     channel = TimeCodedAnimationChannel(
-        numTimeCodes = read_long(file),
-        pivot = read_short(file),
-        vectorLen = read_unsigned_byte(file),
-        channelType = read_unsigned_byte(file))
+    numTimeCodes = read_long(file),
+    pivot = read_short(file),
+    vectorLen = read_unsigned_byte(file),
+    channelType = read_unsigned_byte(file))
     
     while file.tell() < chunkEnd:
-        if channelType == 6: 
+        if channel.channelType == 6: 
             channel.data.append(read_quaternion(file))
         else:
             channel.data.append(read_float(file))
@@ -271,12 +271,12 @@ def read_box(file):
 def read_texture(self, file, chunkEnd):
     tex = Texture()
     while file.tell() < chunkEnd:
-        chunktype = read_long(file)
-        chunksize = get_chunk_size(read_long(file))
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
 
-        if chunktype == W3D_CHUNK_TEXTURE_NAME:
+        if chunkType == W3D_CHUNK_TEXTURE_NAME:
             tex.name = read_string(file)
-        elif chunktype == W3D_CHUNK_TEXTURE_INFO:
+        elif chunkType == W3D_CHUNK_TEXTURE_INFO:
             tex.textureInfo = TextureInfo(
                 attributes = read_short(file),
                 animationType = read_short(file), 
@@ -291,11 +291,11 @@ def read_texture_array(self, file, chunkEnd):
     textures = []
     
     while file.tell() < chunkEnd:
-        chunktype = read_long(file)
-        chunksize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + chunksize
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
 
-        if chunktype == W3D_CHUNK_TEXTURE:
+        if chunkType == W3D_CHUNK_TEXTURE:
             textures.append(read_texture(self, file, subChunkEnd))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -482,8 +482,8 @@ def read_normal_map_header(file, chunkEnd):
         reserved = read_long(file))
 
 def read_normal_map_entry_struct(self, file, chunkEnd, entryStruct):
-    type = read_long(file) #1 texture, 2 bumpScale/ specularExponent, 5 color, 7 alphaTest
-    size = read_long(file)
+    chunkType = read_long(file) #1 texture, 2 bumpScale/ specularExponent, 5 color, 7 alphaTest
+    chunkSize = read_long(file)
     name = read_string(file)
 
     if name == "DiffuseTexture":
@@ -514,14 +514,14 @@ def read_normal_map(self, file, chunkEnd):
     entryStruct = MeshNormalMapEntryStruct()
 
     while file.tell() < chunkEnd:
-        chunktype = read_long(file)
-        chunksize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + Chunksize
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
 
-        if chunktype == 82:
+        if chunkType == 82:
             header = read_normal_map_header(file, subChunkEnd)
-        elif chunktype == 83:
-            entryStruct = read_normal_map_entry_struct(self, file, subChunkEnd, EntryStruct)
+        elif chunkType == 83:
+            entryStruct = read_normal_map_entry_struct(self, file, subChunkEnd, entryStruct)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -531,11 +531,11 @@ def read_bump_map_array(self, file, chunkEnd):
     normalMap = MeshNormalMap()
 
     while file.tell() < chunkEnd:
-        chunktype = read_long(file)
-        chunksize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + Chunksize
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
 
-        if chunktype == 81:
+        if chunkType == 81:
             normalMap = read_normal_map(self, file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -580,15 +580,15 @@ def read_aabbtree(self, file, chunkEnd):
     aabbtree = MeshAABBTree()
 
     while file.tell() < chunkEnd:
-        chunktype = read_long(file)
-        chunksize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + Chunksize
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
 
-        if chunktype == 145:
+        if chunkType == 145:
             aabbtree.header = read_aabbtree_header(file, subChunkEnd)
-        elif Chunktype == 146:
+        elif chunkType == 146:
             aabbtree.polyIndices = read_aabbtree_poly_indices(file, subChunkEnd)
-        elif Chunktype == 147:
+        elif chunkType == 147:
             aabbtree.nodes = read_aabbtree_nodes(file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -624,9 +624,9 @@ def read_mesh(self, file, chunkEnd):
     mesh_header             = MeshHeader()
     mesh_vertices_infs      = []
     mesh_vertices           = []
-    mesh_vertices_2      = []
+    mesh_vertices_2         = []
     mesh_normals            = []
-    mesh_normals_2       = []
+    mesh_normals_2          = []
     mesh_tangents           = []
     mesh_binormals          = []
     mesh_triangles          = []
