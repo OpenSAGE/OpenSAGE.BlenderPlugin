@@ -6,6 +6,26 @@ from mathutils import Vector, Quaternion
 # helper methods
 #######################################################################################
 
+def InsensitiveOpen(path):
+    #find the file on unix
+    dir = os.path.dirname(path)
+    name = os.path.basename(path)
+
+    for filename in os.listdir(dir):
+        if filename.lower()==name.lower():
+            path = os.path.join(dir,filename)
+            return open(path,"rb")
+
+def InsensitivePath(path):
+     #find the file on unix
+    dir = os.path.dirname(path)
+    name = os.path.basename(path)
+    
+    for filename in os.listdir(dir):
+        if filename.lower()==name.lower():
+            path = os.path.join(dir,filename)
+    return path
+
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
     message = "WARNING: unknown chunktype in File: %s" % hex(chunkType)
     #self.report({'ERROR'}, message)

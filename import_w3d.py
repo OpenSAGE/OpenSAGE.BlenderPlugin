@@ -73,15 +73,13 @@ def read_animation_channel(self, file, chunkEnd):
     pivot_ = read_short(file)
     padding_ = read_short(file) 
 
-    data = []
+    data_ = []
     if vector_len == 1:
         while file.tell() < chunkEnd:
-            data.append(read_float(file))
+            data_.append(read_float(file))
     elif vector_len == 4:
         while file.tell() < chunkEnd:
-            data.append(read_quaternion(file))
-    else:
-        skip_unknown_chunk(self, file, chunkType, chunkSize)
+            data_.append(read_quaternion(file))
 
     return AnimationChannel(
         firstFrame = first_frame, 
@@ -123,13 +121,13 @@ def read_compressed_animation_header(file):
 
 def read_time_coded_animation_channel(self, file, chunkEnd):
     channel = TimeCodedAnimationChannel(
-    numTimeCodes = read_long(file),
-    pivot = read_short(file),
-    vectorLen = read_unsigned_byte(file),
-    channelType = read_unsigned_byte(file))
+        numTimeCodes = read_long(file),
+        pivot = read_short(file),
+        vectorLen = read_unsigned_byte(file),
+        type = read_unsigned_byte(file))
     
     while file.tell() < chunkEnd:
-        if channel.channelType == 6: 
+        if channel.type == 6: 
             channel.data.append(read_quaternion(file))
         else:
             channel.data.append(read_float(file))
@@ -141,15 +139,15 @@ def read_adaptive_delta_channel(file):
         numTimeCodes = read_long(file),
         pivot = read_short(file),
         vectorLen = read_unsigned_byte(file),
-        channelType = read_unsigned_byte(file),
+        type = read_unsigned_byte(file),
         scale = read_float(file))
     
-    if channelType == 6: 
+    if channel.type == 6: 
         channel.initialValue = read_quaternion(file)
     else:
         channel.initialValue = read_float(file)
             
-    count = (channel.numTimeCodes + 15) >> 4;
+    count = (channel.numTimeCodes + 15) >> 4
     index = 0
     while index < count:
         #TODO
@@ -177,9 +175,9 @@ def read_compressed_animation(self, file, chunkEnd):
         if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
             result.header = read_compressed_animation_header(file)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-            if header_.flavor == 0:
-                result.timeCodedChannels.append(read_time_coded_animation_channel(file))
-            elif header_.flavor == 1:
+            if result.header.flavor == 0:
+                result.timeCodedChannels.append(read_time_coded_animation_channel(self, file, subChunkEnd))
+            elif result.header.flavor == 1:
                 result.adaptiveDeltaChannels.append(read_adaptive_delta_channel(file))
         #elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
         #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
@@ -343,7 +341,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
         subChunkEnd = file.tell() + chunkSize
 
         if chunkType == 57: 
-            certexMaterialIds = read_long_array(file, subChunkEnd)
+            vertexMaterialIds = read_long_array(file, subChunkEnd)
         elif chunkType == 58:
             shaderIds = read_long_array(file, subChunkEnd)
         elif chunkType == 59:
@@ -477,7 +475,7 @@ def read_mesh_shader_array(file, chunkEnd):
 
 def read_normal_map_header(file, chunkEnd): 
     return MeshNormalMapHeader(
-        number = ReadSignedByte(file), 
+        number = read_unsigned_byte(file), 
         typeName = read_long_fixed_string(file), 
         reserved = read_long(file))
 
@@ -715,8 +713,8 @@ def load_skeleton_file(self, sklpath):
 
     while file.tell() < filesize:
         chunkType = read_long(file)
-        chunksize =  get_chunk_size(read_long(file))
-        chunkEnd = file.tell() + chunksize
+        chunkSize =  get_chunk_size(read_long(file))
+        chunkEnd = file.tell() + chunkSize
         
         if chunkType == W3D_CHUNK_HIERARCHY:
             hierarchy = read_hierarchy(self, file, chunkEnd)
