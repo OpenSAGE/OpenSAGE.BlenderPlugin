@@ -9,13 +9,13 @@ def GetChunkSize(data):
     return (data & 0x7FFFFFFF)
     
 def MakeChunkSize(data):
-	return (data | 0x80000000)
+    return (data | 0x80000000)
 
 def GetVersion(data):
     return Version(major = (data)>>16, minor = (data) & 0xFFFF)
     
 def MakeVersion(version):
-	return (((version.major) << 16) | (version.minor))
+    return (((version.major) << 16) | (version.minor))
 
 def ReadString(file):
     bytes = []
@@ -26,56 +26,56 @@ def ReadString(file):
     return (b"".join(bytes)).decode("utf-8")
     
 def WriteString(file, string):
-	file.write(bytes(string, 'UTF-8'))
-	#write binary 0
-	file.write(struct.pack('B', 0))
+    file.write(bytes(string, 'UTF-8'))
+    #write binary 0
+    file.write(struct.pack('B', 0))
    
 def ReadFixedString(file):
     return ((str(file.read(16)))[2:18]).split("\\")[0]
     
 def WriteFixedString(file, string):
-	#truncate the string to 16
-	nullbytes = 16-len(string)
-	if(nullbytes<0):
-		print("Warning: Fixed string is too long")
+    #truncate the string to 16
+    nullbytes = 16-len(string)
+    if(nullbytes<0):
+        print("Warning: Fixed string is too long")
 
-	file.write(bytes(string, 'UTF-8'))
-	for i in range(nullbytes):
-		file.write(struct.pack("B", 0))
+    file.write(bytes(string, 'UTF-8'))
+    for i in range(nullbytes):
+        file.write(struct.pack("B", 0))
 
 def ReadLongFixedString(file):
     return ((str(file.read(32)))[2:34]).split("\\")[0]
     
 def WriteLongFixedString(file, string):
-	#truncate the string to 32
-	nullbytes = 32-len(string)
-	if(nullbytes<0):
-		print("Warning: Fixed string is too long")
+    #truncate the string to 32
+    nullbytes = 32-len(string)
+    if(nullbytes<0):
+        print("Warning: Fixed string is too long")
 
-	file.write(bytes(string, 'UTF-8'))
-	for i in range(nullbytes):
-		file.write(struct.pack("B", 0))
+    file.write(bytes(string, 'UTF-8'))
+    for i in range(nullbytes):
+        file.write(struct.pack("B", 0))
  
 def ReadRGBA(file):
     return RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
     
 def WriteRGBA(file, rgba):
-	file.write(struct.pack("B", rgba.r))
-	file.write(struct.pack("B", rgba.g))
-	file.write(struct.pack("B", rgba.b))
-	file.write(struct.pack("B", rgba.a))   
+    file.write(struct.pack("B", rgba.r))
+    file.write(struct.pack("B", rgba.g))
+    file.write(struct.pack("B", rgba.b))
+    file.write(struct.pack("B", rgba.a))   
  
 def ReadLong(file):
     return struct.unpack("<L", file.read(4))[0]
     
 def WriteLong(file, num):
-	file.write(struct.pack("<L", num))
+    file.write(struct.pack("<L", num))
 
 def ReadShort(file):
     return struct.unpack("<H", file.read(2))[0]
     
 def WriteShort(file, num):
-	file.write(struct.pack("<H", num))
+    file.write(struct.pack("<H", num))
 
 def ReadUnsignedShort(file):
     return struct.unpack("<h", file.read(2))[0] 
@@ -90,16 +90,22 @@ def ReadLongArray(file,chunkEnd):
     return LongArray
     
 def WriteLongArray(file, array):
-	for a in array:
-		WriteLong(file, a)
+    for a in array:
+        WriteLong(file, a)
+        
+def ReadUnsignedByte(file):
+    return struct.unpack("<B", file.read(1))[0]
+
+def WriteUnsignedByte(file, byte):
+    file.write(struct.pack("<B", byte))
     
 def ReadVector(file):
     return Vector((ReadFloat(file), ReadFloat(file), ReadFloat(file)))
     
 def WriteVector(file, vec):
-	WriteFloat(file, vec[0])
-	WriteFloat(file, vec[1])
-	WriteFloat(file, vec[2])
+    WriteFloat(file, vec[0])
+    WriteFloat(file, vec[1])
+    WriteFloat(file, vec[2])
 
 def ReadQuaternion(file):
     quat = (ReadFloat(file), ReadFloat(file), ReadFloat(file), ReadFloat(file))
@@ -107,25 +113,14 @@ def ReadQuaternion(file):
     return Quaternion((quat[3], quat[0], quat[1], quat[2]))
     
 def WriteQuaternion(file, quat):
-	#changes the order from wxyz to xyzw
-	WriteFloat(file, quat[1])
-	WriteFloat(file, quat[2])
-	WriteFloat(file, quat[3])
-	WriteFloat(file, quat[0])
+    #changes the order from wxyz to xyzw
+    WriteFloat(file, quat[1])
+    WriteFloat(file, quat[2])
+    WriteFloat(file, quat[3])
+    WriteFloat(file, quat[0])
 
-def ReadMeshVerticesArray(file, chunkEnd):
+def read_mesh_vertices_array(file, chunkEnd):
     verts = []
     while file.tell() < chunkEnd:
         verts.append(ReadVector(file))
     return verts
-
-def ReadMeshVertexInfluences(file, chunkEnd):
-    vertInfs = []
-    while file.tell()  < chunkEnd:
-        vertInf = MeshVertexInfluences()
-        vertInf.boneIdx = ReadShort(file)
-        vertInf.xtraIdx = ReadShort(file)
-        vertInf.boneInf = ReadShort(file)/100
-        vertInf.xtraInf = ReadShort(file)/100
-        vertInfs.append(vertInf)
-    return vertInfs

@@ -49,15 +49,15 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"), 
                 ('A', "Animation", "This will export the animation without any geometry data or skeletons"), 
                 ('HAM', "HierarchicalAnimatedModel", "This will export the meshes with the hierarchy and animation into one file")
-                ),			
-            default='M',)	
+                ),          
+            default='M',)   
 
     export_compress: EnumProperty(
             name="Compression",
              items=(('U', "Uncompressed", "This will not compress the animations"), 
                 ('TC', "TimeCoded", "This will export the animation with keyframes"), 
                 ('AD', "AdaptiveDelta", "This will use adaptive delta compression to reduce size"), 
-                ),			
+                ),          
             default='TC',)
 
     will_save_settings: BoolProperty(default=False)
@@ -134,6 +134,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         import_settings = {}
 
         import_w3d.load(self, context, import_settings)
+            
         print ('finished')
         return {'FINISHED'}
 
