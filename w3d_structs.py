@@ -31,28 +31,33 @@ class Version(Struct):
 # Hierarchy
 #######################################################################################
 
+W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 class HierarchyHeader(Struct):
     version = Version()
     name = ""
-    pivotCount = 0
-    centerPos = Vector((0.0, 0.0 ,0.0))
+    numPivots = 0
+    center = Vector((0.0, 0.0 ,0.0))
 
+W3D_CHUNK_PIVOTS = 0x00000102
 class HierarchyPivot(Struct):
     name = ""
-    parentID = -1
-    position = Vector((0.0, 0.0 ,0.0))
+    parentIdx = -1
+    translation = Vector((0.0, 0.0 ,0.0))
     eulerAngles = Vector((0.0, 0.0 ,0.0))
     rotation = Quaternion((1.0, 0.0, 0.0, 0.0))
 
+W3D_CHUNK_HIERARCHY = 0x00000100
+W3D_CHUNK_PIVOT_FIXUPS = 0x00000103
 class Hierarchy(Struct):
     header = HierarchyHeader()
     pivots = []
-    pivot_fixups = [] #used if pivots are corrupted?
+    pivot_fixups = []
 
 #######################################################################################
 # Animation
 #######################################################################################
 
+W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 class AnimationHeader(Struct):
     version = Version()
     name = ""
@@ -60,73 +65,91 @@ class AnimationHeader(Struct):
     numFrames = 0
     frameRate = 0
 
+W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
 class AnimationChannel(Struct):
     firstFrame = 0
     lastFrame = 0
     vectorLen = 0
     type = 0
     pivot = 0
-    pad = 0 #padding
+    padding = 0
     data = []
 
+W3D_CHUNK_ANIMATION = 0x00000200
 class Animation(Struct):
     header = AnimationHeader()
     channels = [] 
+    
 
+W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 class CompressedAnimationHeader(Struct):
     version = Version()
     name = ""
-    hieraName = ""
+    hierarchyName = ""
     numFrames = 0
     frameRate = 0
     flavor = 0
 
-class TimeCodedAnimationKey(Struct):
-    frame = 0
-    value = 0
-
 class TimeCodedAnimationChannel(Struct):
-    timeCodesCount = 0
-    pivot = 0
+    numTimeCodes = 0
+    pivot = -1
     vectorLen = 0
     type = 0
-    timeCodedKeys = []
+    data = []
 
-class TimeCodedAnimationVector(Struct):
-    magicNum = 0 #what is this for? compression type?
+class AdaptiveDeltaAnimationChannel(Struct):
+    numTimeCodes = 0
+    pivot = -1
     vectorLen = 0
     type = 0
-    timeCodesCount = 0 
-    pivot = 0
-    timeCodedKeys = []
+    scale = 0.0
+    initialValue = None
+    data = []
+    
+class TimeCodedBitChannel(Struct):
+    data = 0
 
+class MotionChannel(Struct):
+    data = 0
+
+W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
+W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL = 0x00000282
+W3D_CHUNK_COMPRESSED_BIT_CHANNEL = 0x00000283
+W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL = 0x00000284
 class CompressedAnimation(Struct): 
     header = CompressedAnimationHeader()
-    channels = []
-    vectors = []
+    timeCodedChannels = []
+    adaptiveDeltaChannels = []
+    timeCodedBitChannels = []
+    motionChannels = []
 
 #######################################################################################
 # HLod
 #######################################################################################
 
+W3D_CHUNK_HLOD_HEADER = 0x00000701
 class HLodHeader(Struct):
     version = Version()
     lodCount = 1
     modelName = ""
-    HTreeName = ""
+    hierarchyName = ""
 
+W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000702
 class HLodArrayHeader(Struct):
     modelCount = 0
-    maxScreenSize = 333333333330000000000000000.0 #just a default value
+    maxScreenSize = 0.0
 
+W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
 class HLodSubObject(Struct):
-    name = ""
     boneIndex = 0
+    name = ""
 
+W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
 class HLodArray(Struct):
     header = HLodArrayHeader()
     subObjects = []
 
+W3D_CHUNK_HLOD = 0x00000700
 class HLod(Struct):
     header = HLodHeader()
     lodArray = HLodArray()
@@ -135,9 +158,11 @@ class HLod(Struct):
 # Box
 ####################################################################################### 
 
+W3D_CHUNK_BOX = 0x00000740
 class Box(Struct): 
     version = Version()
-    attributes = 1
+    boxType = 0
+    collisionTypes = 0
     name = ""
     color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
@@ -147,14 +172,17 @@ class Box(Struct):
 # Texture
 ####################################################################################### 
 
+W3D_CHUNK_TEXTURE_INFO = 0x00000033
 class TextureInfo(Struct):
     attributes = 0 
-    animType = 0 
+    animationType = 0 
     frameCount = 0 
     frameRate = 0.0 
 
+W3D_CHUNK_TEXTURES = 0x00000030
+W3D_CHUNK_TEXTURE = 0x00000031
+W3D_CHUNK_TEXTURE_NAME = 0x00000032
 class Texture(Struct):
-    linkMap = 0
     name = ""
     textureInfo = TextureInfo()
 
@@ -188,7 +216,8 @@ class MeshMaterial(Struct):
     vmArgs0 = "" #mapping / animation type of the texture
     vmArgs1 = "" #mapping / animation type of the texture
 
-class MeshMaterialSetInfo(Struct):
+W3D_CHUNK_MATERIAL_INFO = 0x00000028
+class MaterialInfo(Struct):
     passCount = 1 #always 1
     vertMatlCount = 0
     shaderCount = 0
@@ -205,10 +234,10 @@ class MeshVertexInfluences(Struct):
     xtraInf = 0.0
 
 #######################################################################################
-# Faces
+# Triangle
 ####################################################################################### 
 
-class MeshFace(Struct):
+class MeshTriangle(Struct):
     vertIds = []
     attrs = 13 # SURFACE_TYPE_DEFAULT
     normal = Vector((0.0, 0.0 ,0.0))
@@ -288,6 +317,7 @@ class MeshAABBTree(Struct):
 # Mesh
 ####################################################################################### 
 
+W3D_CHUNK_MESH_HEADER = 0x0000001F
 class MeshHeader(Struct):
     version = Version()
     attrs = 0
@@ -307,17 +337,25 @@ class MeshHeader(Struct):
     sphCenter = Vector((0.0, 0.0 ,0.0))
     sphRadius = 0.0
 
+W3D_CHUNK_MESH = 0x00000000
+W3D_CHUNK_VERTICES = 0x00000002
+W3D_CHUNK_VERTICES_2 = 0xC00
+W3D_CHUNK_VERTEX_NORMALS = 0x00000003
+W3D_CHUNK_NORMALS_2 = 0xC01
+W3D_CHUNK_MESH_USER_TEXT = 0x0000000C
+W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
+W3D_CHUNK_TRIANGLES = 0x00000020
 class Mesh(Struct):
     header = MeshHeader()
     verts = []
-    verts_copy = []
+    verts_2 = []
     normals = []
-    normals_copy = []
+    normals_2 = []
     vertInfs = []
-    faces = []
+    triangles = []
     userText  = ""
     shadeIds = []
-    matInfo = MeshMaterialSetInfo()
+    matInfo = MaterialInfo()
     shaders = []
     vertMatls = []
     textures = []
