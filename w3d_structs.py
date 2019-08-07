@@ -322,6 +322,7 @@ class MaterialInfo(Struct):
 # Vertices
 #######################################################################################
 
+
 class MeshVertexInfluence(Struct):
     boneIdx = 0
     xtraIdx = 0
@@ -343,7 +344,9 @@ class MeshTriangle(Struct):
 # Shader
 #######################################################################################
 
+
 W3D_CHUNK_SHADERS = 0x00000029
+
 
 class MeshShader(Struct):
     # filled with some standard values
@@ -457,6 +460,7 @@ W3D_CHUNK_TRIANGLES = 0x00000020
 W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
 W3D_CHUNK_TANGENTS = 0x60
 W3D_CHUNK_BITANGENTS = 0x61
+
 
 class Mesh(Struct):
     header = MeshHeader()
