@@ -1,5 +1,7 @@
+# <pep8 compliant>
 #Written by Stephan Vedder and Michael Schnabel
 #Last Modification 08.2019
+
 import bpy
 
 def save(givenfilepath, context, export_settings):

@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 #Written by Stephan Vedder and Michael Schnabel
 #Last Modification 08.2019
+=======
+# <pep8 compliant>
+>>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 import os
 import bpy
 from mathutils import Vector, Quaternion
@@ -22,7 +26,7 @@ def InsensitivePath(path):
      #find the file on unix
     dir = os.path.dirname(path)
     name = os.path.basename(path)
-    
+
     for filename in os.listdir(dir):
         if filename.lower()==name.lower():
             path = os.path.join(dir,filename)
@@ -33,12 +37,12 @@ def skip_unknown_chunk(self, file, chunkType, chunkSize):
     #self.report({'ERROR'}, message)
     print(message)
     file.seek(chunkSize, 1)
-    
+
 def link_object_to_active_scene(obj):
     bpy.context.collection.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
-    
+
 #######################################################################################
 # create Armature
 #######################################################################################
@@ -46,19 +50,19 @@ def link_object_to_active_scene(obj):
 def create_armature(self, hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = True
-    
+
     rig = bpy.data.objects.new(amtName, amt)
     rig.location = hierarchy.header.centerPos
     rig.rotation_mode = 'QUATERNION'
     #rig.show_x_ray = True
     rig.track_axis = "POS_X"
-    
+
     link_object_to_active_scene(rig)
     bpy.ops.object.mode_set(mode = 'EDIT')
 
     non_bone_pivots = []
 
-    for obj in subObjects: 
+    for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
     #create the bones from the pivots
@@ -71,7 +75,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
         if pivot.parentID > 0:
             parent_pivot =  hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
-            
+
         bone.head = Vector((0.0, 0.0, 0.0))
         #has to point in y direction that the rotation is applied correctly
         bone.tail = Vector((0.0, 1.0, 0.0))
@@ -92,7 +96,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     bpy.ops.object.mode_set(mode = 'OBJECT')
 
     return rig
-    
+
 #######################################################################################
 # loadTexture
 #######################################################################################
@@ -103,7 +107,7 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
 
     found_img = False
     basename = os.path.splitext(texName)[0]
-    
+
     #test if image file has already been loaded
     for image in bpy.data.images:
         if basename == os.path.splitext(image.name)[0]:
@@ -144,7 +148,7 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
             cTex.filter_size = 0.1
             cTex.use_filter_size_min = True
 
-        mTex.texture = cTex	
+        mTex.texture = cTex
     else:
         mTex.texture = bpy.data.textures[texName]
 
