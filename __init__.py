@@ -23,16 +23,17 @@ bl_info = {
     'support': 'OFFICIAL',
     'category': 'Import-Export'}
 
+
 # Export class
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export from Westwood 3D file format (.w3d)'''
     bl_idname = 'export_mesh.westwood_w3d'
     bl_label = 'Export W3D'
     bl_options = {'UNDO', 'PRESET'}
-   
+
     filename_ext = '.w3d'
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
-    
+
     ui_tab: EnumProperty(
             items=(('GENERAL', "General", "General settings"),
                 #('MESHES', "Meshes", "Mesh settings"),
@@ -41,23 +42,23 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 ('ANIMATION', "Animation", "Animation settings")),
             name="ui_tab",
             description="Export setting categories",
-    )      
+    )
 
     export_mode: EnumProperty(
             name="Export Mode",
-             items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"), 
-                ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"), 
-                ('A', "Animation", "This will export the animation without any geometry data or skeletons"), 
+             items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"),
+                ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"),
+                ('A', "Animation", "This will export the animation without any geometry data or skeletons"),
                 ('HAM', "HierarchicalAnimatedModel", "This will export the meshes with the hierarchy and animation into one file")
-                ),          
-            default='M',)   
+                ),
+            default='M',)
 
     export_compress: EnumProperty(
             name="Compression",
-             items=(('U', "Uncompressed", "This will not compress the animations"), 
-                ('TC', "TimeCoded", "This will export the animation with keyframes"), 
-                ('AD', "AdaptiveDelta", "This will use adaptive delta compression to reduce size"), 
-                ),          
+             items=(('U', "Uncompressed", "This will not compress the animations"),
+                ('TC', "TimeCoded", "This will export the animation with keyframes"),
+                ('AD', "AdaptiveDelta", "This will use adaptive delta compression to reduce size"),
+                ),
             default='TC',)
 
     will_save_settings: BoolProperty(default=False)
@@ -89,7 +90,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                         if x.startswith("export_") and all_props.get(x) is not None}
 
         context.scene[self.scene_key] = export_props
-    
+
     def execute(self, context):
         from . import export_w3d
 
@@ -118,13 +119,14 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'export_compress')
-        
+
+
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
     bl_idname = 'import_mesh.westwood_w3d'
     bl_label = 'Import W3D'
     bl_options = {'UNDO'}
-    
+
     filename_ext = '.w3d'
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
@@ -134,20 +136,24 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         import_settings = {}
 
         import_w3d.load(self, context, import_settings)
-            
+
         print ('finished')
         return {'FINISHED'}
+
 
 def menu_func_export(self, context):
     self.layout.operator(ExportW3D.bl_idname, text='Westwood W3D (.w3d)')
 
+
 def menu_func_import(self, context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
+
 
 classes = (
     ExportW3D,
     ImportW3D
 )
+
 
 def register():
     for c in classes:
@@ -155,11 +161,13 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
+
 def unregister():
     for c in reversed(classes):
         bpy.utils.unregister_class(c)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
+
 
 if __name__ == "__main__":
     register()
