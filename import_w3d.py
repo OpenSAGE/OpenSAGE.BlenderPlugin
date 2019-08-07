@@ -1,9 +1,11 @@
+#Written by Stephan Vedder and Michael Schnabel
+#Last Modification 08.2019
 import bpy
 import os
 import bmesh
-from io_mesh_w3d.w3d_io_binary import *
 from io_mesh_w3d.w3d_structs import *
-from io_mesh_w3d.utils_w3d import *
+from io_mesh_w3d.w3d_io_binary import *
+from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture
     
 #######################################################################################
 # Hierarchy
@@ -27,8 +29,6 @@ def read_pivots(file, chunkEnd):
             rotation = read_quaternion(file)))
     return pivots
   
-# TODO: this isnt correct anymore i think  
-# if the exported pivots are corrupted these fixups are used
 def read_pivot_fixups(file, chunkEnd):
     pivot_fixups = []
     while file.tell() < chunkEnd:

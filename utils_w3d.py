@@ -1,3 +1,5 @@
+#Written by Stephan Vedder and Michael Schnabel
+#Last Modification 08.2019
 import os
 import bpy
 from mathutils import Vector, Quaternion

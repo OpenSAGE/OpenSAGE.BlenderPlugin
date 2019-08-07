@@ -1,5 +1,5 @@
 #Written by Stephan Vedder and Michael Schnabel
-#Last Modification 05.08.2019
+#Last Modification 08.2019
 from mathutils import Vector, Quaternion
 
 class Struct:
