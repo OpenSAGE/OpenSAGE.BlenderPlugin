@@ -1,4 +1,4 @@
-
+# <pep8 compliant>
 #Written by Stephan Vedder and Michael Schnabel
 #Last Modification 08.2019
 import bpy
@@ -6,7 +6,7 @@ import os
 import bmesh
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture
+from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_armature, link_object_to_active_scene
     
 #######################################################################################
 # Hierarchy
@@ -336,20 +336,24 @@ def read_mesh_texture_coord_array(file, chunkEnd):
 def read_mesh_texture_stage(self, file, chunkEnd):
     textureIds = []
     textureCoords = []
+    perFaceTextureCoords = []
 
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
         chunkSize = get_chunk_size(read_long(file))
         subChunkEnd = file.tell() + chunkSize
 
-        if chunkType == 73:
+        if chunkType == W3D_CHUNK_TEXTURE_STAGE:
             textureIds = read_long_array(file, subChunkEnd)
-        elif chunkType == 74:
+        elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
             textureCoords = read_mesh_texture_coord_array(file, subChunkEnd)
+        elif chunkType == W3D_CHUNK_PER_FACE_TEXCOORD_IDS:
+            while file.tell() < subChunkEnd:
+                perFaceTextureCoords.append(read_vector(file))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshTextureStage(txIds=textureIds, txCoords=textureCoords)
+    return MeshTextureStage(txIds=textureIds, txCoords=textureCoords, perFaceTexCoords=perFaceTextureCoords)
 
 
 def read_mesh_material_pass(self, file, chunkEnd):
@@ -357,6 +361,9 @@ def read_mesh_material_pass(self, file, chunkEnd):
     vertexMaterialIds = []
     shaderIds = []
     DCG = []
+    DIG = []
+    SCG = []
+    shaderMatIds = []
     textureStage = MeshTextureStage()
 
     while file.tell() < chunkEnd:
@@ -364,25 +371,31 @@ def read_mesh_material_pass(self, file, chunkEnd):
         chunkSize = get_chunk_size(read_long(file))
         subChunkEnd = file.tell() + chunkSize
 
-        if chunkType == 57:
+        if chunkType == W3D_CHUNK_VERTEX_MATERIAL_IDS:
             vertexMaterialIds = read_long_array(file, subChunkEnd)
-        elif chunkType == 58:
+        elif chunkType == W3D_CHUNK_SHADER_IDS:
             shaderIds = read_long_array(file, subChunkEnd)
-        elif chunkType == 59:
+        elif chunkType == W3D_CHUNK_DCG:
             while file.tell() < subChunkEnd:
                 DCG.append(read_rgba(file))
-        elif chunkType == 63:  # dont know what this is -> size is always 4 and value 0
-            #print("<<< unknown Chunk 63 >>>")
-            file.seek(chunkSize, 1)
-        elif chunkType == 72:
+        elif chunkType == W3D_CHUNK_DIG:
+            while file.tell() < subChunkEnd:
+                DIG.append(read_rgba(file))
+        elif chunkType == W3D_CHUNK_SCG:
+            while file.tell() < subChunkEnd:
+                SCG.append(read_rgba(file))
+        elif chunkType == W3D_CHUNK_SHADER_MATERIAL_ID:
+            while file.tell() < subChunkEnd:
+                shaderMatIds.append(read_long(file))
+        elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
             textureStage = read_mesh_texture_stage(self, file, subChunkEnd)
-        elif chunkType == 74:
+        elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
             textureStage.txCoords = read_mesh_texture_coord_array(
                 file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, txStage=textureStage)
+    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, dig=DIG, scg=SCG, shaderMaterialIds=shaderMatIds, txStage=textureStage)
 
 
 def read_material(self, file, chunkEnd):
@@ -392,9 +405,9 @@ def read_material(self, file, chunkEnd):
         chunkType = read_long(file)
         chunkSize = get_chunk_size(read_long(file))
 
-        if chunkType == 44:
+        if chunkType == W3D_CHUNK_VERTEX_MATERIAL_NAME:
             material.vmName = read_string(file)
-        elif chunkType == 45:
+        elif chunkType == W3D_CHUNK_VERTEX_MATERIAL_INFO:
             material.vmInfo = VertexMaterial(
                 attributes=read_long(file),
                 ambient=read_rgba(file),
@@ -404,9 +417,9 @@ def read_material(self, file, chunkEnd):
                 shininess=read_float(file),
                 opacity=read_float(file),
                 translucency=read_float(file))
-        elif chunkType == 46:
+        elif chunkType == W3D_CHUNK_VERTEX_MAPPER_ARGS0:
             material.vmArgs0 = read_string(file)
-        elif chunkType == 47:
+        elif chunkType == W3D_CHUNK_VERTEX_MAPPER_ARGS1:
             material.vmArgs1 = read_string(file)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -422,7 +435,7 @@ def read_mesh_material_array(self, file, chunkEnd):
         chunkSize = get_chunk_size(read_long(file))
         subChunkEnd = file.tell()+chunkSize
 
-        if chunkType == 43:
+        if chunkType == W3D_CHUNK_VERTEX_MATERIAL:
             materials.append(read_material(self, file, subChunkEnd))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -446,7 +459,7 @@ def read_mesh_vertex_influences(file, chunkEnd):
     vertInfs = []
 
     while file.tell() < chunkEnd:
-        vertInf = MeshVertexInfluences(
+        vertInf = MeshVertexInfluence(
             boneIdx=read_short(file),
             xtraIdx=read_short(file),
             boneInf=read_short(file)/100,
@@ -673,7 +686,7 @@ def read_mesh(self, file, chunkEnd):
     mesh_normals = []
     mesh_normals_2 = []
     mesh_tangents = []
-    mesh_binormals = []
+    mesh_bitangents = []
     mesh_triangles = []
     mesh_vertice_materials = []
     mesh_shade_ids = []
@@ -707,26 +720,26 @@ def read_mesh(self, file, chunkEnd):
             mesh_header = read_mesh_header(file)
         elif chunkType == W3D_CHUNK_TRIANGLES:
             mesh_triangles = read_mesh_triangle_array(file, subChunkEnd)
-        elif chunkType == 34:
+        elif chunkType == W3D_CHUNK_VERTEX_SHADE_INDICES:
             mesh_shade_ids = read_long_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_MATERIAL_INFO:
             mesh_material_set_info = read_material_info(file)
-        elif chunkType == 41:
+        elif chunkType == W3D_CHUNK_SHADERS:
             mesh_shaders = read_mesh_shader_array(file, subChunkEnd)
-        elif chunkType == 42:
+        elif chunkType == W3D_CHUNK_VERTEX_MATERIALS:
             mesh_vertice_materials = read_mesh_material_array(
                 self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_TEXTURES:
             mesh_textures = read_texture_array(self, file, subChunkEnd)
-        elif chunkType == 56:
+        elif chunkType == W3D_CHUNK_MATERIAL_PASS:
             mesh_material_pass = read_mesh_material_pass(
                 self, file, subChunkEnd)
         #elif chunkType == 80:
         #    mesh_bump_maps = read_bump_map_array(self, file, subChunkEnd)
-        #elif chunkType == 96:
-        #    mesh_tangents = read_mesh_vertices_array(file, subChunkEnd)
-        #elif chunkType == 97:
-        #    mesh_binormals == read_mesh_vertices_array(file, subChunkEnd)
+        elif chunkType == W3D_CHUNK_TANGENTS:
+            mesh_tangents = read_mesh_vertices_array(file, subChunkEnd)
+        elif chunkType == W3D_CHUNK_BITANGENTS:
+            mesh_bitangents == read_mesh_vertices_array(file, subChunkEnd)
         #elif chunkType == 144:
         #    mesh_aabbtree = read_aabbtree(self, file, subChunkEnd)
         else:
@@ -739,6 +752,8 @@ def read_mesh(self, file, chunkEnd):
                 normals_2=mesh_normals_2,
                 vertInfs=mesh_vertices_infs,
                 triangles=mesh_triangles,
+                tangents=mesh_tangents,
+                bitangents=mesh_bitangents,
                 userText=mesh_userText,
                 shadeIds=mesh_shade_ids,
                 matInfo=mesh_material_set_info,

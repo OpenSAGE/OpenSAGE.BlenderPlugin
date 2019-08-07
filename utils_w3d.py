@@ -1,9 +1,6 @@
-<<<<<<< HEAD
+# <pep8 compliant>
 #Written by Stephan Vedder and Michael Schnabel
 #Last Modification 08.2019
-=======
-# <pep8 compliant>
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 import os
 import bpy
 from mathutils import Vector, Quaternion

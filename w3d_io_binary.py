@@ -1,42 +1,26 @@
-<<<<<<< HEAD
-# Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
-=======
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 05.08.2019
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
+# Last Modification 08.2019
 import bpy
 import struct
 from mathutils import Vector, Quaternion
 from io_mesh_w3d.w3d_structs import RGBA, Version
 
 
-
 def get_chunk_size(data):
-<<<<<<< HEAD
     return data & 0x7FFFFFFF
-=======
-    return (data & 0x7FFFFFFF)
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 
 
 def make_chunk_size(data):
     return data | 0x80000000
 
 
-
 def get_version(data):
-<<<<<<< HEAD
     return Version(major=data >> 16, minor=data & 0xFFFF)
-=======
-    return Version(major=(data) >> 16, minor=(data) & 0xFFFF)
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 
 
 def make_version(version):
     return (version.major << 16) | version.minor
-
 
 
 def read_string(file):
@@ -50,12 +34,7 @@ def read_string(file):
 
 def write_string(file, string):
     file.write(bytes(string, 'UTF-8'))
-<<<<<<< HEAD
     file.write(struct.pack('B', 0b0))
-=======
-    #write binary 0
-    file.write(struct.pack('B', 0))
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 
 
 def read_fixed_string(file):
@@ -65,11 +44,7 @@ def read_fixed_string(file):
 def write_fixed_string(file, string):
     # truncate the string to 16
     nullbytes = 16-len(string)
-<<<<<<< HEAD
     if nullbytes < 0:
-=======
-    if(nullbytes < 0):
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
         print("Warning: Fixed string is too long")
 
     file.write(bytes(string, 'UTF-8'))
@@ -77,7 +52,6 @@ def write_fixed_string(file, string):
     while i < nullbytes:
         file.write(struct.pack("B", 0b0))
         i += 1
-
 
 
 def read_long_fixed_string(file):
@@ -87,7 +61,6 @@ def read_long_fixed_string(file):
 def write_long_fixed_string(file, string):
     # truncate the string to 32
     nullbytes = 32-len(string)
-<<<<<<< HEAD
     if nullbytes < 0:
         print("Warning: Fixed string is too long")
 
@@ -96,14 +69,6 @@ def write_long_fixed_string(file, string):
     while i < nullbytes:
         file.write(struct.pack("B", 0b0))
         i += 1
-=======
-    if(nullbytes < 0):
-        print("Warning: Fixed string is too long")
-
-    file.write(bytes(string, 'UTF-8'))
-    for i in range(nullbytes):
-        file.write(struct.pack("B", 0))
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
 
 
 def read_rgba(file):
@@ -141,7 +106,6 @@ def write_float(file, num):
     file.write(struct.pack("<f", num))
 
 
-
 def read_long_array(file, chunkEnd):
     longArray = []
     while file.tell() < chunkEnd:
@@ -175,11 +139,7 @@ def write_vector(file, vec):
 def read_quaternion(file):
     quat = (read_float(file), read_float(file),
             read_float(file), read_float(file))
-<<<<<<< HEAD
     # change order from xyzw to wxyz
-=======
-    #change order from xyzw to wxyz
->>>>>>> eaabe7251cbedca0b1242d3daf89da6e71e4923a
     return Quaternion((quat[3], quat[0], quat[1], quat[2]))
 
 

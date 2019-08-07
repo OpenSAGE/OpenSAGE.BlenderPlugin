@@ -4,6 +4,7 @@
 
 from mathutils import Vector, Quaternion
 
+
 class Struct:
     def __init__(self, *argv, **argd):
         if len(argd):
@@ -246,16 +247,38 @@ class Texture(Struct):
 #######################################################################################
 
 
+W3D_CHUNK_TEXTURE_STAGE = 0x00000048
+W3D_CHUNK_TEXTURE_IDS = 0x00000049
+W3D_CHUNK_STAGE_TEXCOORDS = 0x0000004A
+W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B
+
+
 class MeshTextureStage(Struct):
     txIds = []
     txCoords = []
+    perFaceTxCoords = []
+
+
+W3D_CHUNK_MATERIAL_PASS = 0x00000038
+W3D_CHUNK_VERTEX_MATERIAL_IDS = 0x00000039
+W3D_CHUNK_SHADER_IDS = 0x0000003A
+W3D_CHUNK_DCG = 0x0000003B
+W3D_CHUNK_DIG = 0x0000003C
+W3D_CHUNK_SCG = 0x0000003E
+W3D_CHUNK_SHADER_MATERIAL_ID = 0x3F
 
 
 class MeshMaterialPass(Struct):
     vmIds = []
     shaderIds = []
     dcg = []
+    dig = []
+    scg = []
+    shaderMaterialIds = []
     txStage = MeshTextureStage()  # has to be an array
+
+
+W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
 
 
 class VertexMaterial(Struct):
@@ -270,6 +293,13 @@ class VertexMaterial(Struct):
     opacity = 0.0
     # how much light passes through the material. (default = 0) -float
     translucency = 0.0
+
+
+W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
+W3D_CHUNK_VERTEX_MATERIAL = 0x0000002B
+W3D_CHUNK_VERTEX_MATERIAL_NAME = 0x0000002C
+W3D_CHUNK_VERTEX_MAPPER_ARGS0 = 0x0000002E
+W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F
 
 
 class MeshMaterial(Struct):
@@ -292,8 +322,7 @@ class MaterialInfo(Struct):
 # Vertices
 #######################################################################################
 
-
-class MeshVertexInfluences(Struct):
+class MeshVertexInfluence(Struct):
     boneIdx = 0
     xtraIdx = 0
     boneInf = 0.0
@@ -314,9 +343,10 @@ class MeshTriangle(Struct):
 # Shader
 #######################################################################################
 
+W3D_CHUNK_SHADERS = 0x00000029
 
 class MeshShader(Struct):
-    #filled with some standard values
+    # filled with some standard values
     depthCompare = 3
     depthMask = 1
     colorMask = 0
@@ -424,7 +454,9 @@ W3D_CHUNK_NORMALS_2 = 0xC01
 W3D_CHUNK_MESH_USER_TEXT = 0x0000000C
 W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
 W3D_CHUNK_TRIANGLES = 0x00000020
-
+W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
+W3D_CHUNK_TANGENTS = 0x60
+W3D_CHUNK_BITANGENTS = 0x61
 
 class Mesh(Struct):
     header = MeshHeader()
@@ -434,6 +466,8 @@ class Mesh(Struct):
     normals_2 = []
     vertInfs = []
     triangles = []
+    tangents = []
+    bitangents = []
     userText = ""
     shadeIds = []
     matInfo = MaterialInfo()
