@@ -5,7 +5,7 @@ import bpy
 import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_material, create_armature, create_uvlayer, link_object_to_active_scene
+from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, load_texture_to_mat, create_vert_material, create_bump_material, create_armature, create_uvlayer, link_object_to_active_scene
 
 #######################################################################################
 # Hierarchy
@@ -735,8 +735,8 @@ def read_mesh(self, file, chunkEnd):
         elif chunkType == W3D_CHUNK_MATERIAL_PASS:
             mesh_material_pass = read_mesh_material_pass(
                 self, file, subChunkEnd)
-        #elif chunkType == 80:
-        #    mesh_bump_maps = read_bump_map_array(self, file, subChunkEnd)
+        elif chunkType == 80:
+            mesh_bump_maps = read_bump_map_array(self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_TANGENTS:
             mesh_tangents = read_mesh_vertices_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_BITANGENTS:
@@ -878,18 +878,22 @@ def load(self, context, import_settings):
         mesh.validate()
 
         #create the uv map
-        create_uvlayer(mesh,triangles,m.materialPass)
+        create_uvlayer(mesh, triangles, m.materialPass)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
 
         for vertMat in m.vertMatls:
-            mesh.materials.append(create_material(m, vertMat))
+            mesh.materials.append(create_vert_material(m, vertMat))
 
         destBlend = 0
 
         for texture in m.textures:
-            load_texture(self, mesh, texture.name, "diffuse", destBlend)
+            load_texture_to_mat(self, texture.name,
+                                destBlend, mesh.materials[0])
+
+        # This mesh uses the new texture stuff
+        mesh.materials.append(create_bump_material(self, m))
 
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]

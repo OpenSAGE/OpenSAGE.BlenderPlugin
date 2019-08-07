@@ -109,7 +109,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
 # create material
 #######################################################################################
 
-def create_material(mesh, vertMat):
+def create_vert_material(mesh, vertMat):
     mat = bpy.data.materials.new(mesh.header.meshName + "." + vertMat.vmName)
     mat.use_nodes = True
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
@@ -122,6 +122,27 @@ def create_material(mesh, vertMat):
     # mat.diffuse_color = (vertMat.vmInfo.diffuse.r,
     #                      vertMat.vmInfo.diffuse.g, vertMat.vmInfo.diffuse.b,
     #                      vertMat.vmInfo.translucency)
+    return mat
+
+
+def create_bump_material(self, mesh):
+    print("Create bump material")
+    entries = mesh.bumpMaps.normalMap.entryStruct
+
+    print(mesh.bumpMaps.normalMap.entryStruct.normalMap)
+    print(mesh.bumpMaps.normalMap.entryStruct.diffuseTexName)
+
+    if entries.normalMap == "":
+        return None
+
+    mat = bpy.data.materials.new(mesh.header.meshName + ".BumpMaterial")
+    mat.use_nodes = True
+    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
+    principled.base_color_texture.image = load_texture(
+        self, entries.diffuseTexName, 0)
+    principled.normalmap_texture.image = load_texture(
+        self, entries.normalMap, 0)
+
     return mat
 
 #######################################################################################
@@ -149,9 +170,7 @@ def create_uvlayer(mesh, tris, matPass):
 # load texture
 #######################################################################################
 
-def load_texture(self, mesh, texName, tex_type, destBlend):
-    script_directory = os.path.dirname(os.path.abspath(__file__))
-
+def load_texture(self, texName, destBlend):
     found_img = False
     basename = os.path.splitext(texName)[0]
 
@@ -176,7 +195,10 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
             print("Trying dds: " + ddspath)
             img = load_image(ddspath)
 
-    # Set the image as input to our node material
-    mat = mesh.materials[0]
+    return img
+
+
+def load_texture_to_mat(self, texName, destBlend, mat):
+    img = load_texture(self, texName, destBlend)
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
