@@ -1,3 +1,4 @@
+# <pep8 compliant>
 import bpy
 
 
