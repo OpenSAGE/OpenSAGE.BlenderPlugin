@@ -6,7 +6,7 @@ import os
 import bmesh
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_armature, link_object_to_active_scene
+from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_material, create_armature, link_object_to_active_scene
 
 #######################################################################################
 # Hierarchy
@@ -896,10 +896,13 @@ def load(self, context, import_settings):
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
 
+        for vertMat in m.vertMatls:
+            mesh.materials.append(create_material(m, vertMat))
+
         destBlend = 0
 
-        #for texture in m.textures:
-            #load_texture(self, mesh, texture.name, "diffuse", destBlend)
+        for texture in m.textures:
+            load_texture(self, mesh, texture.name, "diffuse", destBlend)
 
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]

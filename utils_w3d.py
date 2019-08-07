@@ -5,9 +5,13 @@ import os
 import bpy
 from mathutils import Vector, Quaternion
 
+from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
+from bpy_extras.image_utils import load_image
+
 #######################################################################################
 # helper methods
 #######################################################################################
+
 
 def InsensitiveOpen(path):
     #find the file on unix
@@ -15,9 +19,10 @@ def InsensitiveOpen(path):
     name = os.path.basename(path)
 
     for filename in os.listdir(dir):
-        if filename.lower()==name.lower():
-            path = os.path.join(dir,filename)
-            return open(path,"rb")
+        if filename.lower() == name.lower():
+            path = os.path.join(dir, filename)
+            return open(path, "rb")
+
 
 def InsensitivePath(path):
      #find the file on unix
@@ -25,9 +30,10 @@ def InsensitivePath(path):
     name = os.path.basename(path)
 
     for filename in os.listdir(dir):
-        if filename.lower()==name.lower():
-            path = os.path.join(dir,filename)
+        if filename.lower() == name.lower():
+            path = os.path.join(dir, filename)
     return path
+
 
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
     message = "WARNING: unknown chunktype in File: %s" % hex(chunkType)
@@ -35,14 +41,16 @@ def skip_unknown_chunk(self, file, chunkType, chunkSize):
     print(message)
     file.seek(chunkSize, 1)
 
+
 def link_object_to_active_scene(obj):
     bpy.context.collection.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
 #######################################################################################
-# create Armature
+# create armature
 #######################################################################################
+
 
 def create_armature(self, hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
@@ -55,7 +63,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     rig.track_axis = "POS_X"
 
     link_object_to_active_scene(rig)
-    bpy.ops.object.mode_set(mode = 'EDIT')
+    bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
 
@@ -65,12 +73,12 @@ def create_armature(self, hierarchy, amtName, subObjects):
     #create the bones from the pivots
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
-                continue #do not create a bone
+                continue  # do not create a bone
 
         bone = amt.edit_bones.new(pivot.name)
 
         if pivot.parentID > 0:
-            parent_pivot =  hierarchy.pivots[pivot.parentID]
+            parent_pivot = hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
 
         bone.head = Vector((0.0, 0.0, 0.0))
@@ -78,11 +86,11 @@ def create_armature(self, hierarchy, amtName, subObjects):
         bone.tail = Vector((0.0, 1.0, 0.0))
 
     #pose the bones
-    bpy.ops.object.mode_set(mode = 'POSE')
+    bpy.ops.object.mode_set(mode='POSE')
 
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
-            continue #do not create a bone
+            continue  # do not create a bone
 
         bone = rig.pose.bones[pivot.name]
         bone.location = pivot.position
@@ -90,12 +98,34 @@ def create_armature(self, hierarchy, amtName, subObjects):
         bone.rotation_euler = pivot.eulerAngles
         bone.rotation_quaternion = pivot.rotation
 
-    bpy.ops.object.mode_set(mode = 'OBJECT')
+    bpy.ops.object.mode_set(mode='OBJECT')
 
     return rig
 
+
 #######################################################################################
-# loadTexture
+# create material
+#######################################################################################
+
+def create_material(mesh, vertMat):
+    mat = bpy.data.materials.new(mesh.header.meshName + "." + vertMat.vmName)
+    mat.use_nodes = True
+    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
+    principled.base_color = (vertMat.vmInfo.diffuse.r,
+                             vertMat.vmInfo.diffuse.g, 
+                             vertMat.vmInfo.diffuse.b)
+                  
+
+    # mat.specular_color = (vertMat.vmInfo.specular.r,
+    #                       vertMat.vmInfo.specular.g, vertMat.vmInfo.specular.b)
+    # mat.diffuse_color = (vertMat.vmInfo.diffuse.r,
+    #                      vertMat.vmInfo.diffuse.g, vertMat.vmInfo.diffuse.b,
+    #                      vertMat.vmInfo.translucency)
+    return mat
+
+
+#######################################################################################
+# load texture
 #######################################################################################
 
 def load_texture(self, mesh, texName, tex_type, destBlend):
@@ -105,56 +135,29 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
     found_img = False
     basename = os.path.splitext(texName)[0]
 
-    #test if image file has already been loaded
+    # Test if the image file already exists
     for image in bpy.data.images:
         if basename == os.path.splitext(image.name)[0]:
             img = image
             found_img = True
+            print ("Found an existing image")
 
-    # Create texture slot in material
-    mTex = mesh.materials[0].texture_slots.add()
-    mTex.use_map_alpha = True
-
+    # Try to load the image file
     if found_img == False:
         tgapath = os.path.dirname(self.filepath) + "/" + basename + ".tga"
         ddspath = os.path.dirname(self.filepath) + "/" + basename + ".dds"
         tgapath = InsensitivePath(tgapath)
         ddspath = InsensitivePath(ddspath)
-        img = None
+        
 
-        try:
-            img = bpy.data.images.load(tgapath)
-        except:
-            try:
-                img = bpy.data.images.load(ddspath)
-            except:
-                self.report({'ERROR'}, "Cannot load texture " + basename)
-                print("!!! texture file not found " + basename)
-                img = bpy.data.images.load(default_tex)
-
-        cTex = bpy.data.textures.new(texName, type = 'IMAGE')
-        cTex.image = img
-
-        if destBlend == 0:
-            cTex.use_alpha = True
-        else:
-            cTex.use_alpha = False
-
-        if tex_type == "normal":
-            cTex.use_normal_map = True
-            cTex.filter_size = 0.1
-            cTex.use_filter_size_min = True
-
-        mTex.texture = cTex
-    else:
-        mTex.texture = bpy.data.textures[texName]
-
-    mTex.texture_coords = 'UV'
-    mTex.mapping = 'FLAT'
-
-    if tex_type == "normal":
-       mTex.normal_map_space = 'TANGENT'
-       mTex.use_map_color_diffuse = False
-       mTex.use_map_normal = True
-       mTex.normal_factor = 1.0
-       mTex.diffuse_color_factor = 0.0
+        print ("Trying tga: " + tgapath)
+        img = load_image(tgapath)
+           
+        if img == None:
+            print ("Trying dds: " + ddspath)
+            img = load_image(ddspath)
+         
+    # Set the image as input to our node material
+    mat =  mesh.materials[0]
+    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
+    principled.base_color_texture.image = img
