@@ -3,10 +3,9 @@
 # Last Modification 08.2019
 import bpy
 import os
-import bmesh
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_material, create_armature, link_object_to_active_scene
+from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, create_material, create_armature, create_uvlayer, link_object_to_active_scene
 
 #######################################################################################
 # Hierarchy
@@ -878,20 +877,8 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        bm = bmesh.new()
-        bm.from_mesh(mesh)
-
         #create the uv map
-        uv_layer = mesh.uv_layers.new(name = "texcoords",do_init = False)
-
-        index = 0
-        if len(m.materialPass.txStage.txCoords) > 0:
-            for f in bm.faces:
-                tri = triangles[index]
-                for l in f.loops:
-                    idx = tri[l.index % 3]
-                    uv_layer.data[l.index].uv = m.materialPass.txStage.txCoords[idx]
-                index += 1
+        create_uvlayer(mesh,triangles,m.materialPass)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText

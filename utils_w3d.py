@@ -3,6 +3,8 @@
 # Last Modification 08.2019
 import os
 import bpy
+import bmesh
+
 from mathutils import Vector, Quaternion
 
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
@@ -70,7 +72,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
-    #create the bones from the pivots
+    # create the bones from the pivots
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
                 continue  # do not create a bone
@@ -82,10 +84,10 @@ def create_armature(self, hierarchy, amtName, subObjects):
             bone.parent = amt.edit_bones[parent_pivot.name]
 
         bone.head = Vector((0.0, 0.0, 0.0))
-        #has to point in y direction that the rotation is applied correctly
+        # has to point in y direction that the rotation is applied correctly
         bone.tail = Vector((0.0, 1.0, 0.0))
 
-    #pose the bones
+    # Pose the bones
     bpy.ops.object.mode_set(mode='POSE')
 
     for pivot in hierarchy.pivots:
@@ -112,9 +114,8 @@ def create_material(mesh, vertMat):
     mat.use_nodes = True
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color = (vertMat.vmInfo.diffuse.r,
-                             vertMat.vmInfo.diffuse.g, 
+                             vertMat.vmInfo.diffuse.g,
                              vertMat.vmInfo.diffuse.b)
-                  
 
     # mat.specular_color = (vertMat.vmInfo.specular.r,
     #                       vertMat.vmInfo.specular.g, vertMat.vmInfo.specular.b)
@@ -123,6 +124,26 @@ def create_material(mesh, vertMat):
     #                      vertMat.vmInfo.translucency)
     return mat
 
+#######################################################################################
+# create uvlayer
+#######################################################################################
+
+
+def create_uvlayer(mesh, tris, matPass):
+    bm = bmesh.new()
+    bm.from_mesh(mesh)
+
+    uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
+
+    index = 0
+    if len(matPass.txStage.txCoords) > 0:
+        for f in bm.faces:
+            tri = tris[index]
+            for l in f.loops:
+                idx = tri[l.index % 3]
+                uv_layer.data[l.index].uv = matPass.txStage.txCoords[idx]
+            index += 1
+
 
 #######################################################################################
 # load texture
@@ -130,7 +151,6 @@ def create_material(mesh, vertMat):
 
 def load_texture(self, mesh, texName, tex_type, destBlend):
     script_directory = os.path.dirname(os.path.abspath(__file__))
-    default_tex = script_directory + "/default_tex.dds"
 
     found_img = False
     basename = os.path.splitext(texName)[0]
@@ -140,7 +160,7 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
         if basename == os.path.splitext(image.name)[0]:
             img = image
             found_img = True
-            print ("Found an existing image")
+            print("Found an existing image")
 
     # Try to load the image file
     if found_img == False:
@@ -148,16 +168,15 @@ def load_texture(self, mesh, texName, tex_type, destBlend):
         ddspath = os.path.dirname(self.filepath) + "/" + basename + ".dds"
         tgapath = InsensitivePath(tgapath)
         ddspath = InsensitivePath(ddspath)
-        
 
-        print ("Trying tga: " + tgapath)
+        print("Trying tga: " + tgapath)
         img = load_image(tgapath)
-           
+
         if img == None:
-            print ("Trying dds: " + ddspath)
+            print("Trying dds: " + ddspath)
             img = load_image(ddspath)
-         
+
     # Set the image as input to our node material
-    mat =  mesh.materials[0]
+    mat = mesh.materials[0]
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
