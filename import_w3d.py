@@ -882,25 +882,24 @@ def load(self, context, import_settings):
         bm.from_mesh(mesh)
 
         #create the uv map
-        uv_layer = mesh.uv_layers.new()
+        uv_layer = mesh.uv_layers.new(name = "texcoords",do_init = False)
 
         index = 0
         if len(m.materialPass.txStage.txCoords) > 0:
             for f in bm.faces:
-                f.loops[0][uv_layer].uv = m.materialPass.txStage.txCoords[triangles[index][0]]
-                f.loops[1][uv_layer].uv = m.materialPass.txStage.txCoords[triangles[index][1]]
-                f.loops[2][uv_layer].uv = m.materialPass.txStage.txCoords[triangles[index][2]]
+                tri = triangles[index]
+                for l in f.loops:
+                    idx = tri[l.index % 3]
+                    uv_layer.data[l.index].uv = m.materialPass.txStage.txCoords[idx]
                 index += 1
-
-        bm.to_mesh(mesh)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
 
         destBlend = 0
 
-        for texture in m.textures:
-            load_texture(self, mesh, texture.name, "diffuse", destBlend)
+        #for texture in m.textures:
+            #load_texture(self, mesh, texture.name, "diffuse", destBlend)
 
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]
@@ -967,7 +966,5 @@ def load(self, context, import_settings):
                     {'ERROR'}, "unsupported meshtype attribute: %i" % type)
 
         link_object_to_active_scene(mesh_ob)
-
-    bpy.context.scene.game_settings.material_mode = 'GLSL'
 
     return {'FINISHED'}
