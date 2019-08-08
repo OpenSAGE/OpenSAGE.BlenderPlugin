@@ -16,7 +16,7 @@ from bpy_extras.image_utils import load_image
 
 
 def InsensitiveOpen(path):
-    #find the file on unix
+    # find the file on unix
     dir = os.path.dirname(path)
     name = os.path.basename(path)
 
@@ -27,7 +27,7 @@ def InsensitiveOpen(path):
 
 
 def InsensitivePath(path):
-     #find the file on unix
+     # find the file on unix
     dir = os.path.dirname(path)
     name = os.path.basename(path)
 
@@ -69,13 +69,21 @@ def create_armature(self, hierarchy, amtName, subObjects):
 
     non_bone_pivots = []
 
+    mesh = bpy.data.meshes.new('Basic_Sphere')
+    basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
+
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, diameter=1)
+    bm.to_mesh(mesh)
+    bm.free()
+
     for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
     # create the bones from the pivots
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
-                continue  # do not create a bone
+            continue  # do not create a bone
 
         bone = amt.edit_bones.new(pivot.name)
 
@@ -99,6 +107,8 @@ def create_armature(self, hierarchy, amtName, subObjects):
         bone.rotation_mode = 'QUATERNION'
         bone.rotation_euler = pivot.eulerAngles
         bone.rotation_quaternion = pivot.rotation
+
+        bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -202,3 +212,103 @@ def load_texture_to_mat(self, texName, destBlend, mat):
     img = load_texture(self, texName, destBlend)
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
+
+
+#######################################################################################
+# createAnimation
+#######################################################################################
+
+def create_animation(self, animation, hierarchy, rig, compressed):
+    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
+    bpy.data.scenes["Scene"].frame_start = 0
+    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
+
+    # create the data
+    translation_data = []
+    for pivot in range(0, len(hierarchy.pivots)):
+        pivot = []
+        for frame in range(0, animation.header.numFrames - 1):
+            frame = []
+            frame.append(None)
+            frame.append(None)
+            frame.append(None)
+            pivot.append(frame)
+
+        translation_data.append(pivot)
+
+    for channel in animation.channels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        pivot = hierarchy.pivots[channel.pivot]
+
+        try:
+            obj = rig.pose.bones[pivot.name]
+        except:
+            obj = bpy.data.objects[pivot.name]
+
+        # X Y Z
+        if channel.type == 0 or channel.type == 1 or channel.type == 2:
+            if compressed:
+                for key in channel.timeCodedKeys:
+                    translation_data[channel.pivot][key.frame][channel.type] = key.value
+            else:
+                for frame in range(channel.firstFrame, channel.lastFrame):
+                    translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
+        
+        # ANIM_CHANNEL_Q
+        elif channel.type == 6:
+            obj.rotation_mode = 'QUATERNION'
+            if compressed:
+                for key in channel.timeCodedKeys:
+                    obj.rotation_quaternion = rest_rotation * key.value
+                    obj.keyframe_insert(data_path='rotation_quaternion', frame=key.frame)
+            else:
+                for frame in range(channel.firstFrame, channel.lastFrame):
+                    obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
+                    obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+
+        else:
+            self.report({'ERROR'}, "unsupported channel type: %s" % channel.type)
+            print("unsupported channel type: %s" % channel.type)
+
+    for pivot in range(1, len(hierarchy.pivots)):
+        rest_location = hierarchy.pivots[pivot].position
+        rest_rotation = hierarchy.pivots[pivot].rotation
+
+        try:
+            obj = rig.pose.bones[hierarchy.pivots[pivot].name]
+        except:
+            obj = bpy.data.objects[hierarchy.pivots[pivot].name]
+
+        for frame in range(0, animation.header.numFrames):
+            bpy.context.scene.frame_set(frame)
+            pos = Vector((0.0, 0.0, 0.0))
+
+            try:
+                if not translation_data[pivot][frame][0] == None:
+                    pos[0] = translation_data[pivot][frame][0]
+                    if not translation_data[pivot][frame][1] == None:
+                        pos[1] = translation_data[pivot][frame][1]
+                    if not translation_data[pivot][frame][2] == None:
+                        pos[2] = translation_data[pivot][frame][2]
+
+                    obj.location = rest_location + (rest_rotation @ pos)
+                    obj.keyframe_insert(data_path='location', frame=frame)
+
+                elif not translation_data[pivot][frame][1] == None:
+                    pos[1] = translation_data[pivot][frame][1]
+                    if not translation_data[pivot][frame][2] == None:
+                        pos[2] = translation_data[pivot][frame][2]
+
+                    obj.location = rest_location + (rest_rotation @ pos)
+                    obj.keyframe_insert(data_path='location', frame=frame)
+
+                elif not translation_data[pivot][frame][2] == None:
+                    pos[2] = translation_data[pivot][frame][2]
+                    obj.location = rest_location + (rest_rotation @ pos)
+                    obj.keyframe_insert(data_path='location', frame=frame)
+
+            except:
+                print ("no translation data for this pivot and frame")

@@ -5,7 +5,7 @@ import bpy
 import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import skip_unknown_chunk, load_texture, load_texture_to_mat, create_vert_material, create_bump_material, create_armature, create_uvlayer, link_object_to_active_scene
+from io_mesh_w3d.utils_w3d import create_animation, skip_unknown_chunk, load_texture, load_texture_to_mat, create_vert_material, create_bump_material, create_armature, create_uvlayer, link_object_to_active_scene
 
 #######################################################################################
 # Hierarchy
@@ -728,13 +728,11 @@ def read_mesh(self, file, chunkEnd):
         elif chunkType == W3D_CHUNK_SHADERS:
             mesh_shaders = read_mesh_shader_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_VERTEX_MATERIALS:
-            mesh_vertice_materials = read_mesh_material_array(
-                self, file, subChunkEnd)
+            mesh_vertice_materials = read_mesh_material_array(self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_TEXTURES:
             mesh_textures = read_texture_array(self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_MATERIAL_PASS:
-            mesh_material_pass = read_mesh_material_pass(
-                self, file, subChunkEnd)
+            mesh_material_pass = read_mesh_material_pass(self, file, subChunkEnd)
         elif chunkType == 80:
             mesh_bump_maps = read_bump_map_array(self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_TANGENTS:
@@ -768,9 +766,6 @@ def read_mesh(self, file, chunkEnd):
 #######################################################################################
 # load Skeleton file
 #######################################################################################
-
-#TODO: can be combined with load mesh?
-
 
 def load_skeleton_file(self, sklpath):
     print('\n### SKELETON: ###', sklpath)
@@ -822,8 +817,8 @@ def load(self, context, import_settings):
             meshes.append(read_mesh(self, file, chunkEnd))
         elif chunkType == W3D_CHUNK_HIERARCHY:
             hierarchy = read_hierarchy(self, file, chunkEnd)
-        #elif chunkType == W3D_CHUNK_ANIMATION:
-        #    animation = read_animation(self, file, chunkEnd)
+        elif chunkType == W3D_CHUNK_ANIMATION:
+            animation = read_animation(self, file, chunkEnd)
         #elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
         #    compressedAnimation = read_compressed_animation(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_HLOD:
@@ -838,14 +833,15 @@ def load(self, context, import_settings):
     #load skeleton (_skl.w3d) file if needed
     sklpath = ""
     if hlod.header.modelName != hlod.header.hierarchyName:
-        sklpath = os.path.dirname(self.filepath) + "/" + \
-            hlod.header.hierarchyName.lower() + ".w3d"
-        try:
-            hierarchy = load_skeleton_file(self, sklpath)
-        except:
-            self.report({'ERROR'}, "skeleton file not found: " +
-                        hlod.header.hierarchyName)
-            print("!!! skeleton file not found: " + hlod.header.hierarchyName)
+        sklpath = os.path.dirname(self.filepath) + "/" + hlod.header.hierarchyName.lower() + ".w3d"
+    elif (not animation.header.name == "") and (hierarchy.header.name == ""):
+        sklpath = os.path.dirname(self.filepath) + "/" + animation.header.hieraName.lower() + ".w3d"
+
+    try:
+        hierarchy = load_skeleton_file(self, sklpath)
+    except:
+        self.report({'ERROR'}, "skeleton file not found: " + sklpath)
+        print("!!! skeleton file not found: " + sklpath)
 
     #create skeleton if needed
     if not hlod.header.modelName == hlod.header.hierarchyName:
@@ -960,5 +956,20 @@ def load(self, context, import_settings):
                     {'ERROR'}, "unsupported meshtype attribute: %i" % type)
 
         link_object_to_active_scene(mesh_ob)
+
+    #animation stuff
+    if not animation.header.name == "":	
+        rig = bpy.data.objects[animation.header.hieraName]
+        create_animation(self, animation, hierarchy, rig, False)
+
+    #elif not CompressedAnimation.header.name == "":	
+    #    rig = bpy.data.objects[CompressedAnimation.header.hieraName]
+    #    createAnimation(self, CompressedAnimation, Hierarchy, rig, True)
+
+        #try:
+        #	 createAnimation(self, CompressedAnimation, Hierarchy, rig, True)
+        #except:
+        #	 #the animation could be completely without a rig and bones
+        #	 createAnimation(self, CompressedAnimation, Hierarchy, None, True)
 
     return {'FINISHED'}
