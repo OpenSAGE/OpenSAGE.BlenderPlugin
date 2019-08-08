@@ -67,8 +67,12 @@ def read_hierarchy(self, file, chunkEnd):
 
 
 def read_animation_header(file):
-    return AnimationHeader(version=get_version(read_long(file)), name=read_fixed_string(file),
-                           hieraName=read_fixed_string(file), numFrames=read_long(file), frameRate=read_long(file))
+    return AnimationHeader(
+        version=get_version(read_long(file)), 
+        name=read_fixed_string(file),       
+        hierarchyName=read_fixed_string(file), 
+        numFrames=read_long(file), 
+        frameRate=read_long(file))
 
 
 def read_animation_channel(self, file, chunkEnd):
@@ -121,11 +125,25 @@ def read_compressed_animation_header(file):
     return CompressedAnimationHeader(
         version=get_version(read_long(file)),
         name=read_fixed_string(file),
-        hieraName=read_fixed_string(file),
+        hierarchyName=read_fixed_string(file),
         numFrames=read_long(file),
         frameRate=read_short(file),
         flavor=read_short(file))
 
+def read_time_coded_datum(self, file, type):
+    result = TimeCodedDatum()
+    result.timeCode = read_long(file)
+
+    if (result.timeCode >> 31) == 1:
+        result.timeCode &= ~(1 << 31)
+        result.nonInterpolated = True
+
+    if type == 6:
+        result.value = read_quaternion(file)
+    else:
+        result.value = read_float(file)
+
+    return result
 
 def read_time_coded_animation_channel(self, file, chunkEnd):
     channel = TimeCodedAnimationChannel(
@@ -135,10 +153,7 @@ def read_time_coded_animation_channel(self, file, chunkEnd):
         type=read_unsigned_byte(file))
 
     while file.tell() < chunkEnd:
-        if channel.type == 6:
-            channel.data.append(read_quaternion(file))
-        else:
-            channel.data.append(read_float(file))
+        channel.timeCodes.append(read_time_coded_datum(self, file, channel.type))
 
     return channel
 
@@ -191,6 +206,7 @@ def read_compressed_animation(self, file, chunkEnd):
                 result.timeCodedChannels.append(
                     read_time_coded_animation_channel(self, file, subChunkEnd))
             elif result.header.flavor == 1:
+                print ("adaptive delta")
                 result.adaptiveDeltaChannels.append(
                     read_adaptive_delta_channel(file))
         # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
@@ -200,6 +216,7 @@ def read_compressed_animation(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
+    print ("finished animation")
     return result
 
 #######################################################################################
@@ -824,8 +841,8 @@ def load(self, context, import_settings):
             hierarchy = read_hierarchy(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_ANIMATION:
             animation = read_animation(self, file, chunkEnd)
-        # elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
-        #    compressedAnimation = read_compressed_animation(self, file, chunkEnd)
+        elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
+            compressedAnimation = read_compressed_animation(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_HLOD:
             hlod = read_hlod(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_BOX:
@@ -843,9 +860,13 @@ def load(self, context, import_settings):
         if not hlod == None and hlod.header.modelName != hlod.header.hierarchyName:
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 hlod.header.hierarchyName.lower() + ".w3d"
-        elif (not animation == None) and (not animation.header.name == "") and (hierarchy.header.name == ""):
+        elif (not animation == None) and (not animation.header.name == ""):
             sklpath = os.path.dirname(self.filepath) + "/" + \
-                animation.header.hieraName.lower() + ".w3d"
+                animation.header.hierarchyName.lower() + ".w3d"
+        elif (not compressedAnimation == None) and (not compressedAnimation.header.name == ""):
+            print (sklpath)
+            sklpath = os.path.dirname(self.filepath) + "/" + \
+                compressedAnimation.header.hierarchyName.lower() + ".w3d"
         
         if not sklpath == None:
             try:
@@ -962,19 +983,7 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob)
 
-    # animation stuff
-    if not animation == None:
-        rig = bpy.data.objects[animation.header.hieraName]
-        create_animation(self, animation, hierarchy, rig, False)
-
-    # elif not CompressedAnimation.header.name == "":
-    #    rig = bpy.data.objects[CompressedAnimation.header.hieraName]
-    #    createAnimation(self, CompressedAnimation, Hierarchy, rig, True)
-
-        # try:
-        #	 createAnimation(self, CompressedAnimation, Hierarchy, rig, True)
-        # except:
-        #	 #the animation could be completely without a rig and bones
-        #	 createAnimation(self, CompressedAnimation, Hierarchy, None, True)
+    create_animation(self, animation, hierarchy, False)
+    create_animation(self, compressedAnimation, hierarchy, True)
 
     return {'FINISHED'}

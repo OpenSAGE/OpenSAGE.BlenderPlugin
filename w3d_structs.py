@@ -78,7 +78,7 @@ W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 class AnimationHeader(Struct):
     version = Version()
     name = ""
-    hieraName = ""
+    hierarchyName = ""
     numFrames = 0
     frameRate = 0
 
@@ -115,13 +115,17 @@ class CompressedAnimationHeader(Struct):
     frameRate = 0
     flavor = 0
 
+class TimeCodedDatum(Struct):
+    timeCode = 0
+    nonInterpolated = False
+    value = None
 
 class TimeCodedAnimationChannel(Struct):
     numTimeCodes = 0
     pivot = -1
     vectorLen = 0
     type = 0
-    data = []
+    timeCodes = []
 
 
 class AdaptiveDeltaAnimationChannel(Struct):

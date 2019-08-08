@@ -131,7 +131,6 @@ def create_vert_material(mesh, vertMat):
 
 
 def create_shader_materials(self, m, mesh):
-    materials = []
     for material in m.shaderMaterials:
         print ("material")
         mat = bpy.data.materials.new(m.header.meshName + ".ShaderMaterial")
@@ -148,8 +147,6 @@ def create_shader_materials(self, m, mesh):
                     principled.normalmap_texture.image = load_texture(self, prop.value, 0)
 
         mesh.materials.append(mat)
-
-    return materials
 
 #######################################################################################
 # create uvlayer
@@ -216,21 +213,30 @@ def load_texture_to_mat(self, texName, destBlend, mat):
 # createAnimation
 #######################################################################################
 
-def create_animation(self, animation, hierarchy, rig, compressed):
+def create_animation(self, animation, hierarchy, compressed):
+    if animation == None:
+        return
+
+    rig = bpy.data.objects[animation.header.hierarchyName]
     bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
     bpy.data.scenes["Scene"].frame_start = 0
     bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
 
-    # create the data
     translation_data = []
     for pivot in range(0, len(hierarchy.pivots)):
         pivot = []
-        for frame in range(0, animation.header.numFrames - 1):
+        for frame in range(0, animation.header.numFrames):
             pivot.append(None)
 
         translation_data.append(pivot)
 
-    for channel in animation.channels:
+
+    if compressed:
+        channels = animation.timeCodedChannels
+    else:
+        channels = animation.channels
+
+    for channel in channels:
         if (channel.pivot == 0):
             continue  # skip roottransform
 
@@ -244,17 +250,28 @@ def create_animation(self, animation, hierarchy, rig, compressed):
 
         # X Y Z
         if channel.type == 0 or channel.type == 1 or channel.type == 2:
-            for frame in range(channel.firstFrame, channel.lastFrame):
-                if (translation_data[channel.pivot][frame] == None):
-                    translation_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
-                translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
-        
-        # ANIM_CHANNEL_Q
+            if compressed:
+                for key in channel.timeCodes:
+                    if (translation_data[channel.pivot][key.timeCode] == None):
+                        translation_data[channel.pivot][key.timeCode] = Vector((0.0, 0.0, 0.0))
+                    translation_data[channel.pivot][key.timeCode][channel.type] = key.value
+            else:
+                for frame in range(channel.firstFrame, channel.lastFrame):
+                    if (translation_data[channel.pivot][frame] == None):
+                        translation_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
+                    translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
+            
+        # Q (rotation)
         elif channel.type == 6:
             obj.rotation_mode = 'QUATERNION'
-            for frame in range(channel.firstFrame, channel.lastFrame):
-                obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
-                obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+            if compressed:
+                for key in channel.timeCodes:
+                    obj.rotation_quaternion = rest_rotation @ key.value
+                    obj.keyframe_insert(data_path='rotation_quaternion', frame = key.timeCode) 
+            else:
+                for frame in range(channel.firstFrame, channel.lastFrame):
+                    obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
+                    obj.keyframe_insert(data_path='rotation_quaternion', frame = frame)
         else:
             self.report({'ERROR'}, "unsupported channel type: %s" % channel.type)
             print("unsupported channel type: %s" % channel.type)
