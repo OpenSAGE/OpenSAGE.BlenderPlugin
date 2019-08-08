@@ -81,6 +81,8 @@ def write_rgba(file, rgba):
     file.write(struct.pack("B", rgba.b))
     file.write(struct.pack("B", rgba.a))
 
+def read_rgba_f(file):
+    return RGBA(r=read_float(file), g=read_float(file), b=read_float(file), a=read_float(file))
 
 def read_long(file):
     return struct.unpack("<L", file.read(4))[0]

@@ -344,7 +344,7 @@ def read_mesh_texture_stage(self, file, chunkEnd):
         chunkSize = get_chunk_size(read_long(file))
         subChunkEnd = file.tell() + chunkSize
 
-        if chunkType == W3D_CHUNK_TEXTURE_STAGE:
+        if chunkType == W3D_CHUNK_TEXTURE_IDS:
             textureIds = read_long_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
             textureCoords = read_mesh_texture_coord_array(file, subChunkEnd)
@@ -532,24 +532,30 @@ def read_shader_material_header(file, chunkEnd):
 
 
 def read_shader_material_property(self, file, chunkEnd):
-    prop = ShaderMaterialProperty(
-        type=read_long(file),
-        name=read_fixed_string(file))
+    type_ = read_long(file)
+    read_long(file) # num available chars
+    name_ = read_string(file)
 
-    if prop.type == 1:
-        prop.value = read_fixed_string(file)
-    elif prop.type == 2:
-        prop.value = read_float(file)
-    elif prop.type == 4:
-        prop.value = read_vector(file)
-    elif prop.type == 5:
-        prop.value = read_rgba(file)
-    elif prop.type == 6:
-        prop.value = read_long(file)
-    elif prop.type == 6:
-        prop.value = read_unsigned_byte(file)
+    value_ = None
 
-    return property
+    if type_ == 1:
+        read_long(file) # num available chars
+        value_ = read_string(file)
+    elif type_ == 2:
+        value_ = read_float(file)
+    elif type_ == 4:
+        value_ = read_vector(file)
+    elif type_ == 5:
+        value_ = read_rgba_f(file)
+    elif type_ == 6:
+        value_ = read_long(file)
+    elif type_ == 7:
+        value_ = read_unsigned_byte(file)
+
+    return ShaderMaterialProperty(
+        type=type_,
+        name=name_,
+        value=value_)
 
 
 def read_shader_material(self, file, chunkEnd):
@@ -757,7 +763,7 @@ def read_mesh(self, file, chunkEnd):
                 vertMatls=mesh_vertice_materials,
                 textures=mesh_textures,
                 materialPass=mesh_material_pass,
-                bumpMaps=mesh_shader_materials,
+                shaderMaterials=mesh_shader_materials,
                 aabbtree=mesh_aabbtree)
 
 #######################################################################################
@@ -908,8 +914,6 @@ def load(self, context, import_settings):
             #        172032 -> skin - two sided - cast shadow
             #        393216 -> normal mesh - camera oriented (points _towards_ camera)
             type = m.header.attrs
-            # if type == 8192 or type == 40960 or type == 139264 or type == 143360 or type == 172032:
-            # mesh.show_double_sided = True # property not available anymore
             if type == 0 or type == 8192 or type == 32768 or type == 40960 or type == 393216:
                 for pivot in hierarchy.pivots:
                     if pivot.name == m.header.meshName:
@@ -918,7 +922,6 @@ def load(self, context, import_settings):
                         mesh_ob.rotation_euler = pivot.eulerAngles
                         mesh_ob.rotation_quaternion = pivot.rotation
 
-                        # test if the pivot has a parent pivot and parent the corresponding bone to the mesh if it has
                         if pivot.parentID > 0:
                             parent_pivot = hierarchy.pivots[pivot.parentID]
                             try:

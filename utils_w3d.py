@@ -133,22 +133,21 @@ def create_vert_material(mesh, vertMat):
 def create_shader_materials(self, m, mesh):
     materials = []
     for material in m.shaderMaterials:
+        print ("material")
         mat = bpy.data.materials.new(m.header.meshName + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
-            print (prop.type)
-            print (prop.name)
-            print (prop.value)
+            if (prop.type == 1):
+                print (prop.name)
+                if (prop.name == "DiffuseTexture"):
+                    print(prop.value)
+                    principled.base_color_texture.image = load_texture(self, prop.value, 0)
+                elif (prop.name == "NormalMap"):
+                    print(prop.value)
+                    principled.normalmap_texture.image = load_texture(self, prop.value, 0)
 
         mesh.materials.append(mat)
-
-
-
-    #principled.base_color_texture.image = load_texture(
-    #    self, entries.diffuseTexName, 0)
-    #principled.normalmap_texture.image = load_texture(
-    #    self, entries.normalMap, 0)
 
     return materials
 
@@ -188,7 +187,6 @@ def load_texture(self, texName, destBlend):
         if basename == os.path.splitext(image.name)[0]:
             img = image
             found_img = True
-            print("Found an existing image")
 
     # Try to load the image file
     if found_img == False:
@@ -197,12 +195,13 @@ def load_texture(self, texName, destBlend):
         tgapath = insensitive_path(tgapath)
         ddspath = insensitive_path(ddspath)
 
-        print("Trying tga: " + tgapath)
         img = load_image(tgapath)
 
         if img == None:
-            print("Trying dds: " + ddspath)
             img = load_image(ddspath)
+        
+        if img == None:
+            print ("missing texture:" + ddspath)
 
     return img
 
