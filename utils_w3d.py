@@ -15,7 +15,8 @@ from bpy_extras.image_utils import load_image
 #######################################################################################
 
 
-def InsensitiveOpen(path):
+def insensitive_open(path):
+    print("insensitive open: " + path)
     # find the file on unix
     dir = os.path.dirname(path)
     name = os.path.basename(path)
@@ -26,7 +27,7 @@ def InsensitiveOpen(path):
             return open(path, "rb")
 
 
-def InsensitivePath(path):
+def insensitive_path(path):
      # find the file on unix
     dir = os.path.dirname(path)
     name = os.path.basename(path)
@@ -191,8 +192,8 @@ def load_texture(self, texName, destBlend):
     if found_img == False:
         tgapath = os.path.dirname(self.filepath) + "/" + basename + ".tga"
         ddspath = os.path.dirname(self.filepath) + "/" + basename + ".dds"
-        tgapath = InsensitivePath(tgapath)
-        ddspath = InsensitivePath(ddspath)
+        tgapath = insensitive_path(tgapath)
+        ddspath = insensitive_path(ddspath)
 
         print("Trying tga: " + tgapath)
         img = load_image(tgapath)

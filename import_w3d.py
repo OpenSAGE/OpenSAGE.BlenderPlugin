@@ -5,7 +5,7 @@ import bpy
 import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import create_box, create_animation, skip_unknown_chunk, load_texture, load_texture_to_mat, create_vert_material, create_shader_materials, create_armature, create_uvlayer, link_object_to_active_scene
+from io_mesh_w3d.utils_w3d import *
 
 #######################################################################################
 # Hierarchy
@@ -765,8 +765,9 @@ def read_mesh(self, file, chunkEnd):
 def load_skeleton_file(self, sklpath):
     print('\n### SKELETON: ###', sklpath)
     hierarchy = Hierarchy()
-    file = open(sklpath, "rb")
-    filesize = os.path.getsize(sklpath)
+    path = insensitive_path(sklpath)
+    file = open(path, "rb")
+    filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
         chunkType = read_long(file)
