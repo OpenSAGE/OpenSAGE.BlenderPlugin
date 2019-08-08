@@ -371,7 +371,7 @@ def read_mesh_texture_stage(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshTextureStage(txIds=textureIds, txCoords=textureCoords, perFaceTexCoords=perFaceTextureCoords)
+    return MeshTextureStage(txIds=textureIds, perFaceTexCoords=perFaceTextureCoords)
 
 
 def read_mesh_material_pass(self, file, chunkEnd):
@@ -383,7 +383,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
     SCG = []
     shaderMatIds = []
     textureStages = []
-    txCoords = None
+    txCoords = []
 
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
@@ -408,9 +408,6 @@ def read_mesh_material_pass(self, file, chunkEnd):
                 shaderMatIds.append(read_long(file))
         elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
             texStage = read_mesh_texture_stage(self, file, subChunkEnd)
-            if (not txCoords == None):
-                texStage.txCoords = txCoords
-                txCoords = None
             textureStages.append(texStage)
         elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
             txCoords = read_mesh_texture_coord_array(
@@ -418,7 +415,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, dig=DIG, scg=SCG, shaderMaterialIds=shaderMatIds, txStages=textureStages)
+    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, dig=DIG, scg=SCG, shaderMaterialIds=shaderMatIds,txCoords = txCoords, txStages=textureStages)
 
 
 def read_material(self, file, chunkEnd):
@@ -904,7 +901,7 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        create_uvlayer(mesh, triangles, m.materialPass)
+        create_uvlayer(mesh, triangles, m.materialPass.txCoords)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
