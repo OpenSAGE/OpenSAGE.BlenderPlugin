@@ -275,7 +275,7 @@ class MeshMaterialPass(Struct):
     dig = []
     scg = []
     shaderMaterialIds = []
-    txStage = MeshTextureStage()  # has to be an array
+    txStages = []
 
 
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
@@ -287,11 +287,8 @@ class VertexMaterial(Struct):
     diffuse = RGBA()
     specular = RGBA()
     emissive = RGBA()
-    # how tight the specular highlight will be, 1 - 1000 (default = 1) -float
     shininess = 0.0
-    # how opaque the material is, 0.0 = invisible, 1.0 = fully opaque (default = 1) -float
     opacity = 0.0
-    # how much light passes through the material. (default = 0) -float
     translucency = 0.0
 
 
@@ -305,15 +302,15 @@ W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F
 class MeshMaterial(Struct):
     vmName = ""
     vmInfo = VertexMaterial()
-    vmArgs0 = ""  # mapping / animation type of the texture
-    vmArgs1 = ""  # mapping / animation type of the texture
+    vmArgs0 = ""
+    vmArgs1 = ""
 
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
 
 
 class MaterialInfo(Struct):
-    passCount = 1  # always 1
+    passCount = 1
     vertMatlCount = 0
     shaderCount = 0
     textureCount = 0
@@ -336,9 +333,9 @@ class MeshVertexInfluence(Struct):
 
 class MeshTriangle(Struct):
     vertIds = []
-    attrs = 13  # SURFACE_TYPE_DEFAULT
+    attrs = 13 
     normal = Vector((0.0, 0.0, 0.0))
-    distance = 0.0  # distance from the face to the mesh center
+    distance = 0.0
 
 #######################################################################################
 # Shader
@@ -349,11 +346,10 @@ W3D_CHUNK_SHADERS = 0x00000029
 
 
 class MeshShader(Struct):
-    # filled with some standard values
     depthCompare = 3
     depthMask = 1
     colorMask = 0
-    destBlend = 0  # glBlendFunc  (GL_ZERO, GL_ONE, ...)
+    destBlend = 0
     fogFunc = 2
     priGradient = 1
     secGradient = 0
@@ -368,40 +364,41 @@ class MeshShader(Struct):
     pad = 2
 
 #######################################################################################
-# Normal Map
+# Shader Material
 #######################################################################################
 
 
-class MeshNormalMapHeader(Struct):
+W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
+
+
+class ShaderMaterialHeader(Struct):
     number = 0
     typeName = ""
     reserved = 0
 
 
-class MeshNormalMapEntryStruct(Struct):
-    unknown = 0  # dont know what this is for and what it is called
-    diffuseTexName = ""
-    unknown_nrm = 0  # dont know what this is for and what it is called
-    normalMap = ""
-    bumpScale = 0
-    ambientColor = [0.0, 0.0, 0.0, 0.0]
-    diffuseColor = [0.0, 0.0, 0.0, 0.0]
-    specularColor = [0.0, 0.0, 0.0, 0.0]
-    specularExponent = 0.0
-    alphaTestEnable = 0
+W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 
 
-class MeshNormalMap(Struct):
-    header = MeshNormalMapHeader()
-    entryStruct = MeshNormalMapEntryStruct()
+class ShaderMaterialProperty(Struct):
+    type = 0
+    name = ""
+    value = None
 
 
-class MeshBumpMapArray(Struct):
-    normalMap = MeshNormalMap()
+W3D_CHUNK_SHADER_MATERIAL = 0x51
+
+
+class ShaderMaterial(Struct):
+    header = ShaderMaterialHeader()
+    properties = []
 
 #######################################################################################
 # AABBTree (Axis-aligned-bounding-box)
 #######################################################################################
+
+
+W3D_CHUNK_AABBTREE_HEADER = 0x00000091
 
 
 class AABBTreeHeader(Struct):
@@ -414,6 +411,11 @@ class AABBTreeNode(Struct):
     max = Vector((0.0, 0.0, 0.0))
     frontOrPoly0 = 0
     backOrPolyCount = 0
+
+
+W3D_CHUNK_AABBTREE = 0x00000090
+W3D_CHUNK_AABBTREE_POLYINDICES = 0x00000092
+W3D_CHUNK_AABBTREE_NODES = 0x00000093
 
 
 class MeshAABBTree(Struct):
@@ -458,12 +460,14 @@ W3D_CHUNK_MESH_USER_TEXT = 0x0000000C
 W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
 W3D_CHUNK_TRIANGLES = 0x00000020
 W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
+W3D_CHUNK_SHADER_MATERIALS = 0x50
 W3D_CHUNK_TANGENTS = 0x60
 W3D_CHUNK_BITANGENTS = 0x61
 
 
 class Mesh(Struct):
     header = MeshHeader()
+    userText = ""
     verts = []
     verts_2 = []
     normals = []
@@ -472,12 +476,11 @@ class Mesh(Struct):
     triangles = []
     tangents = []
     bitangents = []
-    userText = ""
     shadeIds = []
     matInfo = MaterialInfo()
     shaders = []
     vertMatls = []
     textures = []
+    shaderMaterials = []
     materialPass = MeshMaterialPass()
-    bumpMaps = MeshBumpMapArray()
     aabbtree = MeshAABBTree()

@@ -69,14 +69,8 @@ def create_armature(self, hierarchy, amtName, subObjects):
 
     non_bone_pivots = []
 
-    mesh = bpy.data.meshes.new('Basic_Sphere')
-    basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
-
-    bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=12, v_segments=6, diameter=35)
-    bm.to_mesh(mesh)
-    bm.free()
-
+    basic_sphere = create_sphere()
+    
     for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
@@ -135,25 +129,25 @@ def create_vert_material(mesh, vertMat):
     return mat
 
 
-def create_bump_material(self, mesh):
-    print("Create bump material")
-    entries = mesh.bumpMaps.normalMap.entryStruct
+def create_shader_materials(self, mesh):
+    materials = []
+    for material in mesh.shaderMaterials:
+        mat = bpy.data.materials.new(mesh.header.meshName + ".ShaderMaterial")
+        mat.use_nodes = True
+        principled = PrincipledBSDFWrapper(mat, is_readonly=False)
+        for prop in material.properties:
+            print (prop.type)
+            print (prop.name)
+            print (prop.value)
 
-    print(mesh.bumpMaps.normalMap.entryStruct.normalMap)
-    print(mesh.bumpMaps.normalMap.entryStruct.diffuseTexName)
 
-    if entries.normalMap == "":
-        return None
 
-    mat = bpy.data.materials.new(mesh.header.meshName + ".BumpMaterial")
-    mat.use_nodes = True
-    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color_texture.image = load_texture(
-        self, entries.diffuseTexName, 0)
-    principled.normalmap_texture.image = load_texture(
-        self, entries.normalMap, 0)
+    #principled.base_color_texture.image = load_texture(
+    #    self, entries.diffuseTexName, 0)
+    #principled.normalmap_texture.image = load_texture(
+    #    self, entries.normalMap, 0)
 
-    return mat
+    return materials
 
 #######################################################################################
 # create uvlayer
@@ -164,16 +158,18 @@ def create_uvlayer(mesh, tris, matPass):
     bm = bmesh.new()
     bm.from_mesh(mesh)
 
-    uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
-
     index = 0
-    if len(matPass.txStage.txCoords) > 0:
+    i = 0
+    for stage in matPass.txStages:
+        uv_name = "texcoords" + str(i)
+        uv_layer = mesh.uv_layers.new(name=uv_name, do_init=False)
         for f in bm.faces:
             tri = tris[index]
             for l in f.loops:
                 idx = tri[l.index % 3]
-                uv_layer.data[l.index].uv = matPass.txStage.txCoords[idx]
+                uv_layer.data[l.index].uv = stage.txCoords[idx]
             index += 1
+        i += 1
 
 
 #######################################################################################
@@ -277,3 +273,39 @@ def create_animation(self, animation, hierarchy, rig, compressed):
                 obj.location = rest_location + (rest_rotation @ pos)
                 obj.keyframe_insert(data_path='location', frame=frame)
 
+
+#######################################################################################
+# create basic meshes
+#######################################################################################
+
+def create_sphere():
+    mesh = bpy.data.meshes.new('Basic_Sphere')
+    basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
+
+    bm = bmesh.new()
+    bmesh.ops.create_uvsphere(bm, u_segments=12, v_segments=6, diameter=35)
+    bm.to_mesh(mesh)
+    bm.free()
+
+    return basic_sphere
+
+
+def create_box(box):	
+    name = "BOUNDINGBOX" #to keep name always equal (sometimes it is "BOUNDING BOX")
+    x = box.extend[0]/2.0
+    y = box.extend[1]/2.0
+    z = box.extend[2]
+
+    verts = [(x, y, z), (-x, y, z), (-x, -y, z), (x, -y, z), (x, y, 0), (-x, y, 0), (-x, -y, 0), (x, -y, 0)]
+    faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+
+    cube = bpy.data.meshes.new(name)
+    b = bpy.data.objects.new(name, cube)
+    mat = bpy.data.materials.new("BOUNDINGBOX.Material")
+
+    mat.diffuse_color = (box.color.r, box.color.g, box.color.b, 1.0)
+    cube.materials.append(mat)
+    b.location = box.center
+    link_object_to_active_scene(b)
+    cube.from_pydata(verts, [], faces)
+    cube.update(calc_edges = True)
