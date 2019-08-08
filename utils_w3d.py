@@ -73,7 +73,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
 
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, diameter=1)
+    bmesh.ops.create_uvsphere(bm, u_segments=12, v_segments=6, diameter=35)
     bm.to_mesh(mesh)
     bm.free()
 
@@ -93,7 +93,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
 
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction that the rotation is applied correctly
-        bone.tail = Vector((0.0, 1.0, 0.0))
+        bone.tail = Vector((0.0, 0.01, 0.0))
 
     # Pose the bones
     bpy.ops.object.mode_set(mode='POSE')
@@ -257,7 +257,6 @@ def create_animation(self, animation, hierarchy, rig, compressed):
             for frame in range(channel.firstFrame, channel.lastFrame):
                 obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
                 obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
-
         else:
             self.report({'ERROR'}, "unsupported channel type: %s" % channel.type)
             print("unsupported channel type: %s" % channel.type)
