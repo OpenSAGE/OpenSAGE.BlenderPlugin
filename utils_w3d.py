@@ -39,8 +39,8 @@ def insensitive_path(path):
 
 
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
-    message = "WARNING: unknown chunktype in File: %s" % hex(chunkType)
-    #self.report({'ERROR'}, message)
+    message = "WARNING: unknown chunktype in file: %s" % hex(chunkType)
+    self.report({'ERROR'}, message)
     print(message)
     file.seek(chunkSize, 1)
 

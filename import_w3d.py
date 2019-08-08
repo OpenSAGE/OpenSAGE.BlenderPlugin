@@ -807,11 +807,11 @@ def load(self, context, import_settings):
     print('Filesize', filesize)
 
     meshes = []
-    hierarchy = Hierarchy()
-    animation = Animation()
-    compressedAnimation = CompressedAnimation()
-    hlod = HLod()
-    box = Box()
+    hierarchy = None
+    animation = None
+    compressedAnimation = None
+    hlod = None
+    box = None
 
     while file.tell() < filesize:
         chunkType = read_long(file)
@@ -835,26 +835,27 @@ def load(self, context, import_settings):
 
     file.close()
 
-    if not box.name == "":
+    if not box == None:
         create_box(box)
 
-    # load skeleton (_skl.w3d) file if needed
-    sklpath = ""
-    if hlod.header.modelName != hlod.header.hierarchyName:
-        sklpath = os.path.dirname(self.filepath) + "/" + \
-            hlod.header.hierarchyName.lower() + ".w3d"
-    elif (not animation.header.name == "") and (hierarchy.header.name == ""):
-        sklpath = os.path.dirname(self.filepath) + "/" + \
-            animation.header.hieraName.lower() + ".w3d"
-
-    try:
-        hierarchy = load_skeleton_file(self, sklpath)
-    except:
-        self.report({'ERROR'}, "skeleton file not found: " + sklpath)
-        print("!!! skeleton file not found: " + sklpath)
+    if (hierarchy == None):
+        sklpath = None
+        if not hlod == None and hlod.header.modelName != hlod.header.hierarchyName:
+            sklpath = os.path.dirname(self.filepath) + "/" + \
+                hlod.header.hierarchyName.lower() + ".w3d"
+        elif (not animation == None) and (not animation.header.name == "") and (hierarchy.header.name == ""):
+            sklpath = os.path.dirname(self.filepath) + "/" + \
+                animation.header.hieraName.lower() + ".w3d"
+        
+        if not sklpath == None:
+            try:
+                hierarchy = load_skeleton_file(self, sklpath)
+            except:
+                self.report({'ERROR'}, "skeleton file not found: " + sklpath)
+                print("!!! skeleton file not found: " + sklpath)
 
     # create skeleton if needed
-    if not hlod.header.modelName == hlod.header.hierarchyName:
+    if not hlod == None and not hlod.header.modelName == hlod.header.hierarchyName:
         amtName = hierarchy.header.name
         found = False
 
@@ -962,7 +963,7 @@ def load(self, context, import_settings):
         link_object_to_active_scene(mesh_ob)
 
     # animation stuff
-    if not animation.header.name == "":
+    if not animation == None:
         rig = bpy.data.objects[animation.header.hieraName]
         create_animation(self, animation, hierarchy, rig, False)
 
