@@ -130,16 +130,18 @@ def create_vert_material(mesh, vertMat):
     return mat
 
 
-def create_shader_materials(self, mesh):
+def create_shader_materials(self, m, mesh):
     materials = []
-    for material in mesh.shaderMaterials:
-        mat = bpy.data.materials.new(mesh.header.meshName + ".ShaderMaterial")
+    for material in m.shaderMaterials:
+        mat = bpy.data.materials.new(m.header.meshName + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
             print (prop.type)
             print (prop.name)
             print (prop.value)
+
+        mesh.materials.append(mat)
 
 
 

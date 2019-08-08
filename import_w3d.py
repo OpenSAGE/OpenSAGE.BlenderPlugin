@@ -16,7 +16,7 @@ def read_hierarchy_header(file):
     return HierarchyHeader(
         version=get_version(read_long(file)),
         name=read_fixed_string(file),
-        pivotCount=read_long(file),
+        numPivots=read_long(file),
         centerPos=read_vector(file))
 
 
@@ -366,7 +366,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
     SCG = []
     shaderMatIds = []
     textureStages = []
-    texStage = None
+    txCoords = None
 
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
@@ -391,9 +391,12 @@ def read_mesh_material_pass(self, file, chunkEnd):
                 shaderMatIds.append(read_long(file))
         elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
             texStage = read_mesh_texture_stage(self, file, subChunkEnd)
+            if (not txCoords == None):
+                texStage.txCoords = txCoords
+                txCoords = None
             textureStages.append(texStage)
         elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
-            texStage.txCoords = read_mesh_texture_coord_array(
+            txCoords = read_mesh_texture_coord_array(
                 file, subChunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -726,9 +729,9 @@ def read_mesh(self, file, chunkEnd):
         elif chunkType == W3D_CHUNK_MATERIAL_PASS:
             mesh_material_pass = read_mesh_material_pass(
                 self, file, subChunkEnd)
-        #elif chunkType == W3D_CHUNK_SHADER_MATERIALS:
-        #    mesh_shader_materials = read_shader_materials_array(
-        #        self, file, subChunkEnd)
+        elif chunkType == W3D_CHUNK_SHADER_MATERIALS:
+            mesh_shader_materials = read_shader_materials_array(
+                self, file, subChunkEnd)
         elif chunkType == W3D_CHUNK_TANGENTS:
             mesh_tangents = read_mesh_vertices_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_BITANGENTS:
@@ -819,8 +822,8 @@ def load(self, context, import_settings):
         #    compressedAnimation = read_compressed_animation(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_HLOD:
             hlod = read_hlod(self, file, chunkEnd)
-        #elif chunkType == W3D_CHUNK_BOX:
-        #   box = read_box(file)
+        elif chunkType == W3D_CHUNK_BOX:
+           box = read_box(file)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -887,9 +890,7 @@ def load(self, context, import_settings):
             load_texture_to_mat(self, texture.name,
                                 destBlend, mesh.materials[0])
 
-        #mats = create_shader_materials(self, m)
-        #for mat in mats:
-        #    mesh.materials.append(mat)
+        create_shader_materials(self, m, mesh)
 
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]
