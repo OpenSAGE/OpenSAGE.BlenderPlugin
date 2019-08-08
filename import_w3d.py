@@ -145,14 +145,17 @@ def read_time_coded_datum(self, file, type):
 
     return result
 
-def read_time_coded_animation_channel(self, file, chunkEnd):
+def read_time_coded_animation_channel(self, file):
     channel = TimeCodedAnimationChannel(
         numTimeCodes=read_long(file),
         pivot=read_short(file),
         vectorLen=read_unsigned_byte(file),
         type=read_unsigned_byte(file))
 
-    while file.tell() < chunkEnd:
+    print("Num time codes: " + str(channel.numTimeCodes))
+    print("Type: " + str(channel.type))
+
+    for x in range(channel.numTimeCodes):
         channel.timeCodes.append(read_time_coded_datum(self, file, channel.type))
 
     return channel
@@ -197,14 +200,12 @@ def read_compressed_animation(self, file, chunkEnd):
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
         chunkSize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
             result.header = read_compressed_animation_header(file)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
             if result.header.flavor == 0:
-                result.timeCodedChannels.append(
-                    read_time_coded_animation_channel(self, file, subChunkEnd))
+                result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
             elif result.header.flavor == 1:
                 print ("adaptive delta")
                 result.adaptiveDeltaChannels.append(
