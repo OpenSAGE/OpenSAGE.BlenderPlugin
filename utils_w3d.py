@@ -59,7 +59,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     amt.show_names = True
 
     rig = bpy.data.objects.new(amtName, amt)
-    rig.location = hierarchy.header.centerPos
+    rig.location = hierarchy.header.center
     rig.rotation_mode = 'QUATERNION'
     #rig.show_x_ray = True
     rig.track_axis = "POS_X"
@@ -228,11 +228,7 @@ def create_animation(self, animation, hierarchy, rig, compressed):
     for pivot in range(0, len(hierarchy.pivots)):
         pivot = []
         for frame in range(0, animation.header.numFrames - 1):
-            frame = []
-            frame.append(None)
-            frame.append(None)
-            frame.append(None)
-            pivot.append(frame)
+            pivot.append(None)
 
         translation_data.append(pivot)
 
@@ -250,24 +246,17 @@ def create_animation(self, animation, hierarchy, rig, compressed):
 
         # X Y Z
         if channel.type == 0 or channel.type == 1 or channel.type == 2:
-            if compressed:
-                for key in channel.timeCodedKeys:
-                    translation_data[channel.pivot][key.frame][channel.type] = key.value
-            else:
-                for frame in range(channel.firstFrame, channel.lastFrame):
-                    translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
+            for frame in range(channel.firstFrame, channel.lastFrame):
+                if (translation_data[channel.pivot][frame] == None):
+                    translation_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
+                translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
         
         # ANIM_CHANNEL_Q
         elif channel.type == 6:
             obj.rotation_mode = 'QUATERNION'
-            if compressed:
-                for key in channel.timeCodedKeys:
-                    obj.rotation_quaternion = rest_rotation * key.value
-                    obj.keyframe_insert(data_path='rotation_quaternion', frame=key.frame)
-            else:
-                for frame in range(channel.firstFrame, channel.lastFrame):
-                    obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
-                    obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+            for frame in range(channel.firstFrame, channel.lastFrame):
+                obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
+                obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
         else:
             self.report({'ERROR'}, "unsupported channel type: %s" % channel.type)
@@ -282,33 +271,10 @@ def create_animation(self, animation, hierarchy, rig, compressed):
         except:
             obj = bpy.data.objects[hierarchy.pivots[pivot].name]
 
-        for frame in range(0, animation.header.numFrames):
-            bpy.context.scene.frame_set(frame)
-            pos = Vector((0.0, 0.0, 0.0))
+        for frame in range(0, animation.header.numFrames - 1):
+            if not translation_data[pivot][frame] == None:
+                bpy.context.scene.frame_set(frame)
+                pos = translation_data[pivot][frame]
+                obj.location = rest_location + (rest_rotation @ pos)
+                obj.keyframe_insert(data_path='location', frame=frame)
 
-            try:
-                if not translation_data[pivot][frame][0] == None:
-                    pos[0] = translation_data[pivot][frame][0]
-                    if not translation_data[pivot][frame][1] == None:
-                        pos[1] = translation_data[pivot][frame][1]
-                    if not translation_data[pivot][frame][2] == None:
-                        pos[2] = translation_data[pivot][frame][2]
-
-                    obj.location = rest_location + (rest_rotation @ pos)
-                    obj.keyframe_insert(data_path='location', frame=frame)
-
-                elif not translation_data[pivot][frame][1] == None:
-                    pos[1] = translation_data[pivot][frame][1]
-                    if not translation_data[pivot][frame][2] == None:
-                        pos[2] = translation_data[pivot][frame][2]
-
-                    obj.location = rest_location + (rest_rotation @ pos)
-                    obj.keyframe_insert(data_path='location', frame=frame)
-
-                elif not translation_data[pivot][frame][2] == None:
-                    pos[2] = translation_data[pivot][frame][2]
-                    obj.location = rest_location + (rest_rotation @ pos)
-                    obj.keyframe_insert(data_path='location', frame=frame)
-
-            except:
-                print ("no translation data for this pivot and frame")
