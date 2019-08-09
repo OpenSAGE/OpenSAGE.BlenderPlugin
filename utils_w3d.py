@@ -204,7 +204,7 @@ def load_texture(self, texName, destBlend):
 
     # Test if the image file already exists
     for image in bpy.data.images:
-        if basename == os.path.splitext(image.name)[0]:
+        if basename.lower() == os.path.splitext(image.name)[0].lower():
             img = image
             found_img = True
 
