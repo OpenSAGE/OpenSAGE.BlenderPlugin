@@ -141,9 +141,13 @@ class AdaptiveDeltaAnimationChannel(Struct):
 class TimeCodedBitChannel(Struct):
     data = 0
 
-
 class MotionChannel(Struct):
-    data = 0
+    deltaType = 0
+    vectorLen = 0
+    type = 0
+    numTimeCodes = 0
+    pivot = 0
+    timeCodes = []
 
 
 W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280

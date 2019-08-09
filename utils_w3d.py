@@ -255,7 +255,11 @@ def create_animation(self, animation, hierarchy, compressed):
 
 
     if compressed:
-        channels = animation.timeCodedChannels
+        #TODO: can a file also contain both?
+        if (len(animation.timeCodedChannels) > 0):
+            channels = animation.timeCodedChannels
+        elif (len(animation.motionChannels) > 0):
+            channels = animation.motionChannels
     else:
         channels = animation.channels
 

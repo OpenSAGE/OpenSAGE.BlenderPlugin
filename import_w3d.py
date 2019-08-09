@@ -186,14 +186,51 @@ def read_time_coded_animation_channel(self, file):
 #def read_time_coded_bit_channel(file):
 #    print(1)
 
+def read_motion_channel_time_coded_datums(self, file, channel):
+    result = []
 
-#def read_motion_channel(file):
-#    print(1)
+    for x in range(channel.numTimeCodes):
+        datum = TimeCodedDatum()
+        datum.keyFrame = read_short(file)
+        result.append(datum)
+
+    if (not channel.numTimeCodes % 2 == 0):
+        read_short(file) # alignment
+
+    for x in range(channel.numTimeCodes):
+        if channel.type == 6:
+            result[x].value = read_quaternion(file)
+        else:
+            result[x].value = read_float(file)
+
+    return result
+
+
+def read_motion_channel(self, file):
+    read_unsigned_byte(file) #zero
+
+    channel = MotionChannel(
+        deltaType=read_unsigned_byte(file),
+        vectorLen=read_unsigned_byte(file),
+        type=read_unsigned_byte(file),
+        numTimeCodes=read_short(file),
+        pivot=read_short(file),
+        timeCodes = []) # no idea why this is needed
+
+    if channel.deltaType == 0:
+        channel.timeCodes = read_motion_channel_time_coded_datums(self, file, channel)
+    else:
+        print("adaptive delta not yet supported")
+
+    print (len(channel.timeCodes))
+    return channel
 
 
 def read_compressed_animation(self, file, chunkEnd):
     print("\n### NEW COMPRESSED ANIMATION: ###")
     result = CompressedAnimation()
+    result.timeCodedChannels = []
+    result.motionChannels = []
 
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
@@ -202,16 +239,17 @@ def read_compressed_animation(self, file, chunkEnd):
         if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
             result.header = read_compressed_animation_header(file)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-            #if result.header.flavor == 0:
-            result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
-            #elif result.header.flavor == 1:
-            #    print ("adaptive delta")
+            if result.header.flavor == 0:
+                result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
+            elif result.header.flavor == 1:
+                print ("adaptive delta")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             #    result.adaptiveDeltaChannels.append(
             #        read_adaptive_delta_channel(file))
         # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
         #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
-        # elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
-        #    result.motionChannels.append(read_motion_channel(file))
+        elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
+            result.motionChannels.append(read_motion_channel(self, file))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
