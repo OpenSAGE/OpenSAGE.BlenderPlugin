@@ -150,10 +150,8 @@ def read_time_coded_animation_channel(self, file):
         numTimeCodes=read_long(file),
         pivot=read_short(file),
         vectorLen=read_unsigned_byte(file),
-        type=read_unsigned_byte(file))
-
-    print("Num time codes: " + str(channel.numTimeCodes))
-    print("Type: " + str(channel.type))
+        type=read_unsigned_byte(file),
+        timeCodes = []) # no idea why this is needed
 
     for x in range(channel.numTimeCodes):
         channel.timeCodes.append(read_time_coded_datum(self, file, channel.type))
@@ -161,36 +159,36 @@ def read_time_coded_animation_channel(self, file):
     return channel
 
 
-def read_adaptive_delta_channel(file):
-    channel = AdaptiveDeltaAnimationChannel(
-        numTimeCodes=read_long(file),
-        pivot=read_short(file),
-        vectorLen=read_unsigned_byte(file),
-        type=read_unsigned_byte(file),
-        scale=read_float(file))
+#def read_adaptive_delta_channel(file):
+#    channel = AdaptiveDeltaAnimationChannel(
+#        numTimeCodes=read_long(file),
+#        pivot=read_short(file),
+#        vectorLen=read_unsigned_byte(file),
+#        type=read_unsigned_byte(file),
+#        scale=read_float(file))
 
-    if channel.type == 6:
-        channel.initialValue = read_quaternion(file)
-    else:
-        channel.initialValue = read_float(file)
+#    if channel.type == 6:
+#        channel.initialValue = read_quaternion(file)
+#    else:
+#        channel.initialValue = read_float(file)
 
-    count = (channel.numTimeCodes + 15) >> 4
-    index = 0
-    while index < count:
-        # TODO
-        index += 1
+#    count = (channel.numTimeCodes + 15) >> 4
+#    index = 0
+#    while index < count:
+#        # TODO
+#        index += 1
 
-    file.read(3)  # read 3 unknown bytes
+#    file.read(3)  # read 3 unknown bytes
 
-    return channel
-
-
-def read_time_coded_bit_channel(file):
-    print(1)
+#    return channel
 
 
-def read_motion_channel(file):
-    print(1)
+#def read_time_coded_bit_channel(file):
+#    print(1)
+
+
+#def read_motion_channel(file):
+#    print(1)
 
 
 def read_compressed_animation(self, file, chunkEnd):
@@ -204,12 +202,12 @@ def read_compressed_animation(self, file, chunkEnd):
         if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
             result.header = read_compressed_animation_header(file)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-            if result.header.flavor == 0:
-                result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
-            elif result.header.flavor == 1:
-                print ("adaptive delta")
-                result.adaptiveDeltaChannels.append(
-                    read_adaptive_delta_channel(file))
+            #if result.header.flavor == 0:
+            result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
+            #elif result.header.flavor == 1:
+            #    print ("adaptive delta")
+            #    result.adaptiveDeltaChannels.append(
+            #        read_adaptive_delta_channel(file))
         # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
         #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
         # elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:

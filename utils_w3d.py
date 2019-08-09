@@ -263,10 +263,6 @@ def create_animation(self, animation, hierarchy, compressed):
         if (channel.pivot == 0):
             continue  # skip roottransform
 
-        print("Num time codes: " + str(channel.numTimeCodes))
-        print("Type: " + str(channel.type))
-        print("Compressed: " + str(compressed))
-
         rest_rotation = hierarchy.pivots[channel.pivot].rotation
         pivot = hierarchy.pivots[channel.pivot]
 
