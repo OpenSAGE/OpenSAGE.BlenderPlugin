@@ -10,6 +10,8 @@ from mathutils import Vector, Quaternion
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from bpy_extras.image_utils import load_image
 
+from bpy.props import FloatVectorProperty, StringProperty, PointerProperty
+
 #######################################################################################
 # helper methods
 #######################################################################################
@@ -130,6 +132,9 @@ def create_vert_material(mesh, vertMat):
     return mat
 
 
+def rgba_to_vector(prop):
+    return (prop.value.r,prop.value.g,prop.value.b,prop.value.a)
+
 def create_shader_materials(self, m, mesh):
     for material in m.shaderMaterials:
         print ("material")
@@ -137,15 +142,18 @@ def create_shader_materials(self, m, mesh):
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
-            if (prop.type == 1):
-                print (prop.name)
-                if (prop.name == "DiffuseTexture"):
-                    print(prop.value)
-                    principled.base_color_texture.image = load_texture(self, prop.value, 0)
-                elif (prop.name == "NormalMap"):
-                    print(prop.value)
-                    principled.normalmap_texture.image = load_texture(self, prop.value, 0)
+            print (prop.name)
+            print(prop.value)
 
+            if (prop.name == "DiffuseTexture"):
+                principled.base_color_texture.image = load_texture(self, prop.value, 0)
+            elif (prop.name == "NormalMap"):
+                principled.normalmap_texture.image = load_texture(self, prop.value, 0)
+            # Color type
+            elif prop.type == 5:
+                mat[prop.name] = rgba_to_vector(prop)
+            else:
+                mat[prop.name] = prop.value
         mesh.materials.append(mat)
 
 #######################################################################################
