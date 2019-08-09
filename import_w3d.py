@@ -372,7 +372,7 @@ def read_mesh_texture_stage(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshTextureStage(txIds=textureIds, perFaceTexCoords=perFaceTextureCoords)
+    return MeshTextureStage(txIds=textureIds, perFaceTexCoords=perFaceTextureCoords, txCoords = textureCoords) 
 
 
 def read_mesh_material_pass(self, file, chunkEnd):
@@ -411,6 +411,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
             texStage = read_mesh_texture_stage(self, file, subChunkEnd)
             textureStages.append(texStage)
         elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
+            print("Read texcoords")
             txCoords = read_mesh_texture_coord_array(
                 file, subChunkEnd)
         else:
@@ -902,7 +903,7 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        create_uvlayer(mesh, triangles, m.materialPass.txCoords)
+        create_uvlayer(mesh, triangles, m.materialPass.txCoords, m.materialPass.txStages)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText

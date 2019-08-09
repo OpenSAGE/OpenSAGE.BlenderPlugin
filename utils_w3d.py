@@ -153,20 +153,38 @@ def create_shader_materials(self, m, mesh):
 #######################################################################################
 
 
-def create_uvlayer(mesh, tris, txCoords):
+def create_uvlayer(mesh, tris, txCoords,txStages):
     bm = bmesh.new()
     bm.from_mesh(mesh)
 
-    uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
-    index = 0
+
 
     if len(txCoords) > 0:
+        uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
+        index = 0
+
         for f in bm.faces:
             tri = tris[index]
             for l in f.loops:
                 idx = tri[l.index % 3]
                 uv_layer.data[l.index].uv = txCoords[idx]
             index += 1
+
+    for stage in txStages:
+        i = 0
+        if len(stage.txCoords) > 0:
+            uv_layer = mesh.uv_layers.new(name="texcoords" + str(i), do_init=False)
+            index = 0
+
+            for f in bm.faces:
+                tri = tris[index]
+                for l in f.loops:
+                    idx = tri[l.index % 3]
+                    uv_layer.data[l.index].uv = stage.txCoords[idx]
+                index += 1
+            i += 1
+    
+    
 
 #######################################################################################
 # load texture

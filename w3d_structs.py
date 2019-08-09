@@ -260,6 +260,7 @@ W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B
 class MeshTextureStage(Struct):
     txIds = []
     perFaceTxCoords = []
+    txCoords = []
 
 
 W3D_CHUNK_MATERIAL_PASS = 0x00000038
