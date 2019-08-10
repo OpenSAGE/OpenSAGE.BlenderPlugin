@@ -68,10 +68,10 @@ def read_hierarchy(self, file, chunkEnd):
 
 def read_animation_header(file):
     return AnimationHeader(
-        version=get_version(read_long(file)), 
-        name=read_fixed_string(file),       
-        hierarchyName=read_fixed_string(file), 
-        numFrames=read_long(file), 
+        version=get_version(read_long(file)),
+        name=read_fixed_string(file),
+        hierarchyName=read_fixed_string(file),
+        numFrames=read_long(file),
         frameRate=read_long(file))
 
 
@@ -130,6 +130,7 @@ def read_compressed_animation_header(file):
         frameRate=read_short(file),
         flavor=read_short(file))
 
+
 def read_time_coded_datum(self, file, type):
     result = TimeCodedDatum()
     result.timeCode = read_long(file)
@@ -145,16 +146,18 @@ def read_time_coded_datum(self, file, type):
 
     return result
 
+
 def read_time_coded_animation_channel(self, file):
     channel = TimeCodedAnimationChannel(
         numTimeCodes=read_long(file),
         pivot=read_short(file),
         vectorLen=read_unsigned_byte(file),
         type=read_unsigned_byte(file),
-        timeCodes = []) # no idea why this is needed
+        timeCodes=[])  # no idea why this is needed
 
     for x in range(channel.numTimeCodes):
-        channel.timeCodes.append(read_time_coded_datum(self, file, channel.type))
+        channel.timeCodes.append(
+            read_time_coded_datum(self, file, channel.type))
 
     return channel
 
@@ -186,7 +189,14 @@ def read_time_coded_animation_channel(self, file):
 #def read_time_coded_bit_channel(file):
 #    print(1)
 
-def read_motion_channel_time_coded_datums(self, file, channel):
+def read_channel_value(file, channel):
+    if channel.type == 6:
+        return read_quaternion(file)
+    else:
+        return read_float(file)
+
+
+def read_motion_channel_time_coded_data(self, file, channel):
     result = []
 
     for x in range(channel.numTimeCodes):
@@ -195,34 +205,58 @@ def read_motion_channel_time_coded_datums(self, file, channel):
         result.append(datum)
 
     if (not channel.numTimeCodes % 2 == 0):
-        read_short(file) # alignment
+        read_short(file)  # alignment
 
     for x in range(channel.numTimeCodes):
-        if channel.type == 6:
-            result[x].value = read_quaternion(file)
-        else:
-            result[x].value = read_float(file)
+        result[x].value = read_channel_value(file, channel)
 
     return result
 
 
-def read_motion_channel(self, file):
-    read_unsigned_byte(file) #zero
+def read_adaptive_delta_data(self, file, channel, bits):
+    count = (channel.numTimeCodes + 15) % 16
+
+    # read the initial value
+    initVal = read_channel_value(file, channel)
+
+    #TODO:
+    return None
+
+
+def read_motion_channel_adaptive_delta_data(self, file, channel, bits):
+    scale = read_float(file)
+
+    data = read_adaptive_delta_data(self, file, channel, bits)
+
+    return None
+
+
+def read_motion_channel(self, file, chunkEnd):
+    read_unsigned_byte(file)  # zero
 
     channel = MotionChannel(
         deltaType=read_unsigned_byte(file),
         vectorLen=read_unsigned_byte(file),
         type=read_unsigned_byte(file),
         numTimeCodes=read_short(file),
-        pivot=read_short(file),
-        timeCodes = []) # no idea why this is needed
+        pivot=read_short(file))  # no idea why this is needed. This should be really no array
+
+    print("Motion channel with " + str(channel.numTimeCodes) + " frames!")
 
     if channel.deltaType == 0:
-        channel.timeCodes = read_motion_channel_time_coded_datums(self, file, channel)
+        print("Timecoded")
+        channel.data = read_motion_channel_time_coded_data(self, file, channel)
+    elif channel.deltaType == 1:
+        print("Adaptive delta4")
+        channel.data = read_motion_channel_adaptive_delta_data(
+            self, file, channel, 4)
+    elif channel.deltaType == 2:
+        print("Adaptive delta8")
+        channel.data = read_motion_channel_adaptive_delta_data(
+            self, file, channel, 8)
     else:
-        print("adaptive delta not yet supported")
+        print("unknown motion deltatype!!")
 
-    print (len(channel.timeCodes))
     return channel
 
 
@@ -235,25 +269,28 @@ def read_compressed_animation(self, file, chunkEnd):
     while file.tell() < chunkEnd:
         chunkType = read_long(file)
         chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
             result.header = read_compressed_animation_header(file)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
             if result.header.flavor == 0:
-                result.timeCodedChannels.append(read_time_coded_animation_channel(self, file))
+                result.timeCodedChannels.append(
+                    read_time_coded_animation_channel(self, file))
             elif result.header.flavor == 1:
-                print ("adaptive delta")
+                print("adaptive delta")
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
             #    result.adaptiveDeltaChannels.append(
             #        read_adaptive_delta_channel(file))
         # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
         #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
-            result.motionChannels.append(read_motion_channel(self, file))
+            result.motionChannels.append(
+                read_motion_channel(self, file, subChunkEnd))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    print ("finished animation")
+    print("finished animation")
     return result
 
 #######################################################################################
@@ -408,7 +445,7 @@ def read_mesh_texture_stage(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshTextureStage(txIds=textureIds, perFaceTexCoords=perFaceTextureCoords, txCoords = textureCoords) 
+    return MeshTextureStage(txIds=textureIds, perFaceTexCoords=perFaceTextureCoords, txCoords=textureCoords)
 
 
 def read_mesh_material_pass(self, file, chunkEnd):
@@ -453,7 +490,7 @@ def read_mesh_material_pass(self, file, chunkEnd):
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, dig=DIG, scg=SCG, shaderMaterialIds=shaderMatIds,txCoords = txCoords, txStages=textureStages)
+    return MeshMaterialPass(vmIds=vertexMaterialIds, shaderIds=shaderIds, dcg=DCG, dig=DIG, scg=SCG, shaderMaterialIds=shaderMatIds, txCoords=txCoords, txStages=textureStages)
 
 
 def read_material(self, file, chunkEnd):
@@ -585,13 +622,13 @@ def read_shader_material_header(file, chunkEnd):
 
 def read_shader_material_property(self, file, chunkEnd):
     type_ = read_long(file)
-    read_long(file) # num available chars
+    read_long(file)  # num available chars
     name_ = read_string(file)
 
     value_ = None
 
     if type_ == 1:
-        read_long(file) # num available chars
+        read_long(file)  # num available chars
         value_ = read_string(file)
     elif type_ == 2:
         value_ = read_float(file)
@@ -877,7 +914,8 @@ def load(self, context, import_settings):
         elif chunkType == W3D_CHUNK_ANIMATION:
             animation = read_animation(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
-            compressedAnimation = read_compressed_animation(self, file, chunkEnd)
+            compressedAnimation = read_compressed_animation(
+                self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_HLOD:
             hlod = read_hlod(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_BOX:
@@ -899,10 +937,10 @@ def load(self, context, import_settings):
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 animation.header.hierarchyName.lower() + ".w3d"
         elif (not compressedAnimation == None) and (not compressedAnimation.header.name == ""):
-            print (sklpath)
+            print(sklpath)
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 compressedAnimation.header.hierarchyName.lower() + ".w3d"
-        
+
         if not sklpath == None:
             try:
                 hierarchy = load_skeleton_file(self, sklpath)
@@ -939,7 +977,8 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        create_uvlayer(mesh, triangles, m.materialPass.txCoords, m.materialPass.txStages)
+        create_uvlayer(mesh, triangles, m.materialPass.txCoords,
+                       m.materialPass.txStages)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
         mesh_ob['userText'] = m.userText
@@ -1018,7 +1057,7 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob)
 
-    create_animation(self, animation, hierarchy, False)
-    create_animation(self, compressedAnimation, hierarchy, True)
+    create_animation(self, animation, hierarchy)
+    create_compressed_animation(self, compressedAnimation, hierarchy)
 
     return {'FINISHED'}

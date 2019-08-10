@@ -73,7 +73,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     non_bone_pivots = []
 
     basic_sphere = create_sphere()
-    
+
     for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
@@ -133,22 +133,27 @@ def create_vert_material(mesh, vertMat):
 
 
 def rgba_to_vector(prop):
-    return (prop.value.r,prop.value.g,prop.value.b,prop.value.a)
+    return (prop.value.r, prop.value.g, prop.value.b, prop.value.a)
+
 
 def create_shader_materials(self, m, mesh):
     for material in m.shaderMaterials:
-        print ("material")
+        print("material")
         mat = bpy.data.materials.new(m.header.meshName + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
-            print (prop.name)
+            print(prop.name)
             print(prop.value)
 
             if (prop.name == "DiffuseTexture"):
-                principled.base_color_texture.image = load_texture(self, prop.value, 0)
+                principled.base_color_texture.image = load_texture(
+                    self, prop.value, 0)
             elif (prop.name == "NormalMap"):
-                principled.normalmap_texture.image = load_texture(self, prop.value, 0)
+                principled.normalmap_texture.image = load_texture(
+                    self, prop.value, 0)
+            elif (prop.name == "BumpScale"):
+                principled.normalmap_strength = prop.value
             # Color type
             elif prop.type == 5:
                 mat[prop.name] = rgba_to_vector(prop)
@@ -161,11 +166,9 @@ def create_shader_materials(self, m, mesh):
 #######################################################################################
 
 
-def create_uvlayer(mesh, tris, txCoords,txStages):
+def create_uvlayer(mesh, tris, txCoords, txStages):
     bm = bmesh.new()
     bm.from_mesh(mesh)
-
-
 
     if len(txCoords) > 0:
         uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
@@ -181,7 +184,8 @@ def create_uvlayer(mesh, tris, txCoords,txStages):
     for stage in txStages:
         i = 0
         if len(stage.txCoords) > 0:
-            uv_layer = mesh.uv_layers.new(name="texcoords" + str(i), do_init=False)
+            uv_layer = mesh.uv_layers.new(
+                name="texcoords" + str(i), do_init=False)
             index = 0
 
             for f in bm.faces:
@@ -191,8 +195,7 @@ def create_uvlayer(mesh, tris, txCoords,txStages):
                     uv_layer.data[l.index].uv = stage.txCoords[idx]
                 index += 1
             i += 1
-    
-    
+
 
 #######################################################################################
 # load texture
@@ -219,9 +222,9 @@ def load_texture(self, texName, destBlend):
 
         if img == None:
             img = load_image(ddspath)
-        
+
         if img == None:
-            print ("missing texture:" + ddspath)
+            print("missing texture:" + ddspath)
 
     return img
 
@@ -236,74 +239,45 @@ def load_texture_to_mat(self, texName, destBlend, mat):
 # createAnimation
 #######################################################################################
 
-def create_animation(self, animation, hierarchy, compressed):
-    if animation == None:
-        return
-
-    rig = bpy.data.objects[animation.header.hierarchyName]
-    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
-    bpy.data.scenes["Scene"].frame_start = 0
-    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
-
-    translation_data = []
-    for pivot in range(0, len(hierarchy.pivots)):
-        pivot = []
-        for frame in range(0, animation.header.numFrames):
-            pivot.append(None)
-
-        translation_data.append(pivot)
+def is_translation(channel):
+    return channel.type == 0 or channel.type == 1 or channel.type == 2
 
 
-    if compressed:
-        #TODO: can a file also contain both?
-        if (len(animation.timeCodedChannels) > 0):
-            channels = animation.timeCodedChannels
-        elif (len(animation.motionChannels) > 0):
-            channels = animation.motionChannels
-    else:
-        channels = animation.channels
+def is_rotation(channel):
+    return channel.type == 6
 
-    for channel in channels:
-        if (channel.pivot == 0):
-            continue  # skip roottransform
 
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        pivot = hierarchy.pivots[channel.pivot]
-
-        try:
-            obj = rig.pose.bones[pivot.name]
-        except:
-            obj = bpy.data.objects[pivot.name]
-
+def apply_timecoded(bone, channel, trans_data, rest_rotation):
+    for key in channel.timeCodes:
         # X Y Z
-        if channel.type == 0 or channel.type == 1 or channel.type == 2:
-            if compressed:
-                for key in channel.timeCodes:
-                    if (translation_data[channel.pivot][key.timeCode] == None):
-                        translation_data[channel.pivot][key.timeCode] = Vector((0.0, 0.0, 0.0))
-                    print(key.value)
-                    translation_data[channel.pivot][key.timeCode][channel.type] = key.value
-            else:
-                for frame in range(channel.firstFrame, channel.lastFrame):
-                    if (translation_data[channel.pivot][frame] == None):
-                        translation_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
-                    translation_data[channel.pivot][frame][channel.type] = channel.data[frame - channel.firstFrame]
-            
+        if is_translation(channel):
+            if (trans_data[channel.pivot][key.timeCode] == None):
+                trans_data[channel.pivot][key.timeCode] = Vector(
+                    (0.0, 0.0, 0.0))
+                trans_data[channel.pivot][key.timeCode][channel.type] = key.value
         # Q (rotation)
-        elif channel.type == 6:
-            obj.rotation_mode = 'QUATERNION'
-            if compressed:
-                for key in channel.timeCodes:
-                    obj.rotation_quaternion = rest_rotation @ key.value
-                    obj.keyframe_insert(data_path='rotation_quaternion', frame = key.timeCode) 
-            else:
-                for frame in range(channel.firstFrame, channel.lastFrame):
-                    obj.rotation_quaternion = rest_rotation @ channel.data[frame - channel.firstFrame]
-                    obj.keyframe_insert(data_path='rotation_quaternion', frame = frame)
-        else:
-            self.report({'ERROR'}, "unsupported channel type: %s" % channel.type)
-            print("unsupported channel type: %s" % channel.type)
+        elif is_rotation(channel):
+            bone.rotation_quaternion = rest_rotation @ key.value
+            bone.keyframe_insert(
+                data_path='rotation_quaternion', frame=key.timeCode)
 
+
+def apply_uncompressed(bone, channel, trans_data, rest_rotation):
+    for frame in range(channel.firstFrame, channel.lastFrame):
+        # X Y Z
+        if is_translation(channel):
+            if (trans_data[channel.pivot][frame] == None):
+                trans_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
+                trans_data[channel.pivot][frame][channel.type] = channel.data[frame -
+                                                                              channel.firstFrame]
+        # Q (rotation)
+        elif is_rotation(channel):
+            bone.rotation_mode = 'QUATERNION'
+            bone.rotation_quaternion = rest_rotation @ channel.data[frame -
+                                                                    channel.firstFrame]
+            bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+
+def apply_final_transform(hierarchy, rig, trans_data, numFrames):
     for pivot in range(1, len(hierarchy.pivots)):
         rest_location = hierarchy.pivots[pivot].position
         rest_rotation = hierarchy.pivots[pivot].rotation
@@ -313,12 +287,97 @@ def create_animation(self, animation, hierarchy, compressed):
         except:
             obj = bpy.data.objects[hierarchy.pivots[pivot].name]
 
-        for frame in range(0, animation.header.numFrames - 1):
-            if not translation_data[pivot][frame] == None:
+        for frame in range(0, numFrames - 1):
+            if not trans_data[pivot][frame] == None:
                 bpy.context.scene.frame_set(frame)
-                pos = translation_data[pivot][frame]
+                pos = trans_data[pivot][frame]
                 obj.location = rest_location + (rest_rotation @ pos)
                 obj.keyframe_insert(data_path='location', frame=frame)
+
+#TODO split this ugly beast in 2 sepereate functions
+def setup_animation(animation):
+    rig = bpy.data.objects[animation.header.hierarchyName]
+    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
+    bpy.data.scenes["Scene"].frame_start = 0
+    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
+
+    return rig
+
+def init_translation_data(animation, hierarchy):
+    translation_data = []
+    for pivot in range(0, len(hierarchy.pivots)):
+        pivot = []
+        for frame in range(0, animation.header.numFrames):
+            pivot.append(None)
+
+        translation_data.append(pivot)
+    
+    return translation_data
+
+def create_compressed_animation(self, animation, hierarchy):
+    if animation == None:
+        return
+
+    rig = setup_animation(animation)
+    translation_data = init_translation_data(animation, hierarchy)
+
+    for channel in animation.timeCodedChannels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        pivot = hierarchy.pivots[channel.pivot]
+
+        # what the actual fuck?
+        try:
+            obj = rig.pose.bones[pivot.name]
+        except:
+            obj = bpy.data.objects[pivot.name]
+
+        apply_timecoded(obj, channel,translation_data, rest_rotation)
+
+    for channel in animation.motionChannels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        pivot = hierarchy.pivots[channel.pivot]
+
+        # what the actual fuck?
+        try:
+            obj = rig.pose.bones[pivot.name]
+        except:
+            obj = bpy.data.objects[pivot.name]
+
+        #TODO: do stuff here
+    
+    apply_final_transform(hierarchy, rig, translation_data, animation.header.numFrames)
+
+
+def create_animation(self, animation, hierarchy):
+    if animation == None:
+        return
+
+    rig = setup_animation(animation)
+    translation_data = init_translation_data(animation, hierarchy)
+
+    for channel in animation.channels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        pivot = hierarchy.pivots[channel.pivot]
+
+        # what the actual fuck?
+        try:
+            obj = rig.pose.bones[pivot.name]
+        except:
+            obj = bpy.data.objects[pivot.name]
+
+        apply_uncompressed(obj, channel, translation_data, rest_rotation)
+
+    apply_final_transform(hierarchy, rig, translation_data,
+                          animation.header.numFrames)
 
 
 #######################################################################################
@@ -337,14 +396,17 @@ def create_sphere():
     return basic_sphere
 
 
-def create_box(box):	
-    name = "BOUNDINGBOX" #to keep name always equal (sometimes it is "BOUNDING BOX")
+def create_box(box):
+    # to keep name always equal (sometimes it is "BOUNDING BOX")
+    name = "BOUNDINGBOX"
     x = box.extend[0]/2.0
     y = box.extend[1]/2.0
     z = box.extend[2]
 
-    verts = [(x, y, z), (-x, y, z), (-x, -y, z), (x, -y, z), (x, y, 0), (-x, y, 0), (-x, -y, 0), (x, -y, 0)]
-    faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+    verts = [(x, y, z), (-x, y, z), (-x, -y, z), (x, -y, z),
+             (x, y, 0), (-x, y, 0), (-x, -y, 0), (x, -y, 0)]
+    faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1),
+             (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
 
     cube = bpy.data.meshes.new(name)
     b = bpy.data.objects.new(name, cube)
@@ -355,4 +417,4 @@ def create_box(box):
     b.location = box.center
     link_object_to_active_scene(b)
     cube.from_pydata(verts, [], faces)
-    cube.update(calc_edges = True)
+    cube.update(calc_edges=True)
