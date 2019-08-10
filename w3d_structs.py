@@ -132,13 +132,22 @@ class AdaptiveDeltaAnimationChannel(Struct):
     pivot = -1
     vectorLen = 0
     type = 0
+    scale = 0
+    data = []
+
+class AdaptiveDeltaMotionAnimationChannel(Struct):
     scale = 0.0
     initialValue = None
     data = []
 
+class AdaptiveDeltaBlock(Struct):
+    vecIndex = 0
+    blockIndex = 0
+    deltaBytes = []
+
 class AdaptiveDeltaData(Struct):
     initialValue = None
-    deltaBlock = []
+    deltaBlocks = []
 
 class TimeCodedBitChannel(Struct):
     data = 0

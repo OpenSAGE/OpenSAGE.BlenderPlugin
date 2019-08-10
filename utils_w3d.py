@@ -247,16 +247,36 @@ def is_rotation(channel):
     return channel.type == 6
 
 
+def setup_animation(animation):
+    rig = bpy.data.objects[animation.header.hierarchyName]
+    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
+    bpy.data.scenes["Scene"].frame_start = 0
+    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
+
+    return rig
+
+
+def init_translation_data(animation, hierarchy):
+    translation_data = []
+    for pivot in range(0, len(hierarchy.pivots)):
+        pivot = []
+        for _ in range(0, animation.header.numFrames):
+            pivot.append(None)
+
+        translation_data.append(pivot)
+    
+    return translation_data
+
+
 def apply_timecoded(bone, channel, trans_data, rest_rotation):
     for key in channel.timeCodes:
-        # X Y Z
         if is_translation(channel):
             if (trans_data[channel.pivot][key.timeCode] == None):
                 trans_data[channel.pivot][key.timeCode] = Vector(
                     (0.0, 0.0, 0.0))
-                trans_data[channel.pivot][key.timeCode][channel.type] = key.value
-        # Q (rotation)
+            trans_data[channel.pivot][key.timeCode][channel.type] = key.value
         elif is_rotation(channel):
+            bone.rotation_mode = 'QUATERNION'
             bone.rotation_quaternion = rest_rotation @ key.value
             bone.keyframe_insert(
                 data_path='rotation_quaternion', frame=key.timeCode)
@@ -268,7 +288,7 @@ def apply_uncompressed(bone, channel, trans_data, rest_rotation):
         if is_translation(channel):
             if (trans_data[channel.pivot][frame] == None):
                 trans_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
-                trans_data[channel.pivot][frame][channel.type] = channel.data[frame -
+            trans_data[channel.pivot][frame][channel.type] = channel.data[frame -
                                                                               channel.firstFrame]
         # Q (rotation)
         elif is_rotation(channel):
@@ -277,11 +297,30 @@ def apply_uncompressed(bone, channel, trans_data, rest_rotation):
                                                                     channel.firstFrame]
             bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
+
+def process_channels(hierarchy, channels, rig, translation_data, apply_func):
+    for channel in channels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        pivot = hierarchy.pivots[channel.pivot]
+
+        # sometimes objects are animated, not just bones
+        try:
+            obj = rig.pose.bones[pivot.name]
+        except:
+            obj = bpy.data.objects[pivot.name]
+
+        apply_func(obj, channel, translation_data, rest_rotation)
+
+
 def apply_final_transform(hierarchy, rig, trans_data, numFrames):
     for pivot in range(1, len(hierarchy.pivots)):
         rest_location = hierarchy.pivots[pivot].position
         rest_rotation = hierarchy.pivots[pivot].rotation
 
+        # sometimes objects are animated, not just bones
         try:
             obj = rig.pose.bones[hierarchy.pivots[pivot].name]
         except:
@@ -294,87 +333,20 @@ def apply_final_transform(hierarchy, rig, trans_data, numFrames):
                 obj.location = rest_location + (rest_rotation @ pos)
                 obj.keyframe_insert(data_path='location', frame=frame)
 
-#TODO split this ugly beast in 2 sepereate functions
-def setup_animation(animation):
-    rig = bpy.data.objects[animation.header.hierarchyName]
-    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
-    bpy.data.scenes["Scene"].frame_start = 0
-    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
-
-    return rig
-
-def init_translation_data(animation, hierarchy):
-    translation_data = []
-    for pivot in range(0, len(hierarchy.pivots)):
-        pivot = []
-        for frame in range(0, animation.header.numFrames):
-            pivot.append(None)
-
-        translation_data.append(pivot)
-    
-    return translation_data
-
-def create_compressed_animation(self, animation, hierarchy):
+                
+def create_animation(self, animation, hierarchy, compressed):
     if animation == None:
         return
 
     rig = setup_animation(animation)
     translation_data = init_translation_data(animation, hierarchy)
 
-    for channel in animation.timeCodedChannels:
-        if (channel.pivot == 0):
-            continue  # skip roottransform
-
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        pivot = hierarchy.pivots[channel.pivot]
-
-        # what the actual fuck?
-        try:
-            obj = rig.pose.bones[pivot.name]
-        except:
-            obj = bpy.data.objects[pivot.name]
-
-        apply_timecoded(obj, channel,translation_data, rest_rotation)
-
-    for channel in animation.motionChannels:
-        if (channel.pivot == 0):
-            continue  # skip roottransform
-
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        pivot = hierarchy.pivots[channel.pivot]
-
-        # what the actual fuck?
-        try:
-            obj = rig.pose.bones[pivot.name]
-        except:
-            obj = bpy.data.objects[pivot.name]
-
-        #TODO: do stuff here
-    
-    apply_final_transform(hierarchy, rig, translation_data, animation.header.numFrames)
-
-
-def create_animation(self, animation, hierarchy):
-    if animation == None:
-        return
-
-    rig = setup_animation(animation)
-    translation_data = init_translation_data(animation, hierarchy)
-
-    for channel in animation.channels:
-        if (channel.pivot == 0):
-            continue  # skip roottransform
-
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        pivot = hierarchy.pivots[channel.pivot]
-
-        # what the actual fuck?
-        try:
-            obj = rig.pose.bones[pivot.name]
-        except:
-            obj = bpy.data.objects[pivot.name]
-
-        apply_uncompressed(obj, channel, translation_data, rest_rotation)
+    if not compressed:
+        process_channels(hierarchy, animation.channels, rig, translation_data, apply_uncompressed)
+    else:
+        process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
+        #TODO:
+        print ("motion channels not supported yet")
 
     apply_final_transform(hierarchy, rig, translation_data,
                           animation.header.numFrames)
