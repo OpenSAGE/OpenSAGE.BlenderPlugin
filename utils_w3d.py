@@ -268,34 +268,36 @@ def init_translation_data(animation, hierarchy):
     return translation_data
 
 
+def set_trans_data(trans_data, frame, channel, value):
+    if (trans_data[frame] == None): 
+        trans_data[frame] = Vector((0.0, 0.0, 0.0))
+    trans_data[frame][channel.type] = value
+
+
+def set_rotation(bone, rest_rotation, value, frame):
+    bone.rotation_mode = 'QUATERNION'
+    bone.rotation_quaternion = rest_rotation @ value
+    bone.keyframe_insert(
+                data_path='rotation_quaternion', frame=frame)
+
+
 def apply_timecoded(bone, channel, trans_data, rest_rotation):
     for key in channel.timeCodes:
         if is_translation(channel):
-            if (trans_data[channel.pivot][key.timeCode] == None):
-                trans_data[channel.pivot][key.timeCode] = Vector(
-                    (0.0, 0.0, 0.0))
-            trans_data[channel.pivot][key.timeCode][channel.type] = key.value
+            set_trans_data(trans_data[channel.pivot], key.timeCode, channel, key.value)
         elif is_rotation(channel):
-            bone.rotation_mode = 'QUATERNION'
-            bone.rotation_quaternion = rest_rotation @ key.value
-            bone.keyframe_insert(
-                data_path='rotation_quaternion', frame=key.timeCode)
+            set_rotation(bone, rest_rotation, key.value, key.timeCode)
 
 
 def apply_uncompressed(bone, channel, trans_data, rest_rotation):
     for frame in range(channel.firstFrame, channel.lastFrame):
         # X Y Z
         if is_translation(channel):
-            if (trans_data[channel.pivot][frame] == None):
-                trans_data[channel.pivot][frame] = Vector((0.0, 0.0, 0.0))
-            trans_data[channel.pivot][frame][channel.type] = channel.data[frame -
-                                                                              channel.firstFrame]
+            set_trans_data(trans_data[channel.pivot], frame, channel,  channel.data[frame - channel.firstFrame])
         # Q (rotation)
         elif is_rotation(channel):
-            bone.rotation_mode = 'QUATERNION'
-            bone.rotation_quaternion = rest_rotation @ channel.data[frame -
-                                                                    channel.firstFrame]
-            bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+            data = channel.data[frame - channel.firstFrame]
+            set_rotation(bone, rest_rotation, data, frame)
 
 
 def process_channels(hierarchy, channels, rig, translation_data, apply_func):
@@ -306,6 +308,7 @@ def process_channels(hierarchy, channels, rig, translation_data, apply_func):
         rest_rotation = hierarchy.pivots[channel.pivot].rotation
         pivot = hierarchy.pivots[channel.pivot]
 
+        # TODO: function for this
         # sometimes objects are animated, not just bones
         try:
             obj = rig.pose.bones[pivot.name]
@@ -326,6 +329,8 @@ def apply_final_transform(hierarchy, rig, trans_data, numFrames):
         except:
             obj = bpy.data.objects[hierarchy.pivots[pivot].name]
 
+        # TODO: check if blender 2.8 supports setting only x/y/z value insted of whole vector
+        # this might fix the buggy bfme1 animations
         for frame in range(0, numFrames - 1):
             if not trans_data[pivot][frame] == None:
                 bpy.context.scene.frame_set(frame)
@@ -333,7 +338,7 @@ def apply_final_transform(hierarchy, rig, trans_data, numFrames):
                 obj.location = rest_location + (rest_rotation @ pos)
                 obj.keyframe_insert(data_path='location', frame=frame)
 
-                
+
 def create_animation(self, animation, hierarchy, compressed):
     if animation == None:
         return
