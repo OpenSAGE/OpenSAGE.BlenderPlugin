@@ -216,7 +216,8 @@ def read_adaptive_delta_block(file, vecIndex, bits):
 def read_adaptive_delta_data(file, channel, bits):
     result = AdaptiveDeltaData(
         initVal=read_channel_value(file, channel),
-        deltaBlocks=[])
+        deltaBlocks=[],
+        bitCount = bits)
 
     count = (channel.numTimeCodes + 15) % 16
 

@@ -148,6 +148,7 @@ class AdaptiveDeltaBlock(Struct):
 class AdaptiveDeltaData(Struct):
     initialValue = None
     deltaBlocks = []
+    bitCount = 0
 
 class TimeCodedBitChannel(Struct):
     data = 0
