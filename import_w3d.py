@@ -208,8 +208,7 @@ def read_adaptive_delta_block(file, vecIndex, bits):
         deltaBytes = [])
     
     for _ in range(bits * 2):
-        result.deltaBytes.append(read_unsigned_byte(file))
-
+        result.deltaBytes.append(file.read(1))
     return result
 
 
@@ -219,7 +218,7 @@ def read_adaptive_delta_data(file, channel, bits):
         deltaBlocks=[],
         bitCount = bits)
 
-    count = (channel.numTimeCodes + 15) % 16
+    count = (channel.numTimeCodes + 15) >> 4
 
     for _ in range(count):
         for j in range(channel.vectorLen):
@@ -251,7 +250,6 @@ def read_motion_channel(file, chunkEnd):
     print("Motion channel with " + str(channel.numTimeCodes) + " frames!")
 
     if channel.deltaType == 0:
-        print("Timecoded")
         channel.data = read_motion_channel_time_coded_data(file, channel)
     elif channel.deltaType == 1:
         channel.data = read_motion_channel_adaptive_delta_data(file, channel, 4)
