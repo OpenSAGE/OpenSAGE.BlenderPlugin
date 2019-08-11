@@ -381,7 +381,7 @@ def set_rotation(bone, rest_rotation, frame, value):
                 data_path='rotation_quaternion', frame=frame)
 
 
-def apply_timecoded(bone, channel, trans_data, rest_rotation):
+def apply_timecoded(bone, channel, trans_data, rest_location, rest_rotation):
     for key in channel.timeCodes:
         if is_translation(channel):
             set_trans_data(trans_data[channel.pivot], key.timeCode, channel, key.value)
