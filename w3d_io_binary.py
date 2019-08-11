@@ -119,6 +119,8 @@ def write_long_array(file, array):
     for a in array:
         write_long(file, a)
 
+def read_signed_byte(file):
+    return struct.unpack("<b", file.read(1))[0]
 
 def read_unsigned_byte(file):
     return struct.unpack("<B", file.read(1))[0]

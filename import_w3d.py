@@ -208,7 +208,7 @@ def read_adaptive_delta_block(file, vecIndex, bits):
         deltaBytes = [])
     
     for _ in range(bits * 2):
-        result.deltaBytes.append(file.read(1))
+        result.deltaBytes.append(read_signed_byte(file))
     return result
 
 
