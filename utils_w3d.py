@@ -239,12 +239,20 @@ def load_texture_to_mat(self, texName, destBlend, mat):
 # createAnimation
 #######################################################################################
 
+
 def is_translation(channel):
     return channel.type == 0 or channel.type == 1 or channel.type == 2
 
 
 def is_rotation(channel):
     return channel.type == 6
+
+def get_bone(rig, name):
+    # sometimes objects are animated, not just bones
+    try:
+        return rig.pose.bones[name]
+    except:
+        return bpy.data.objects[name]
 
 
 def setup_animation(animation):
@@ -274,7 +282,16 @@ def set_trans_data(trans_data, frame, channel, value):
     trans_data[frame][channel.type] = value
 
 
-def set_rotation(bone, rest_rotation, value, frame):
+# test for setting only one channel at a time (x, y, z)
+#def set_translation(bone, rest_location, rest_rotation, index, frame, value):
+#    bpy.context.scene.frame_set(frame)
+#    vec = Vector((0.0, 0.0, 0.0))
+#    vec[index] = value
+#    bone.location = rest_location + (rest_rotation @ vec)
+#    bone.keyframe_insert(data_path='location', index=index, frame=frame)
+
+
+def set_rotation(bone, rest_rotation, frame, value):
     bone.rotation_mode = 'QUATERNION'
     bone.rotation_quaternion = rest_rotation @ value
     bone.keyframe_insert(
@@ -286,18 +303,16 @@ def apply_timecoded(bone, channel, trans_data, rest_rotation):
         if is_translation(channel):
             set_trans_data(trans_data[channel.pivot], key.timeCode, channel, key.value)
         elif is_rotation(channel):
-            set_rotation(bone, rest_rotation, key.value, key.timeCode)
+            set_rotation(bone, rest_rotation, key.timeCode, key.value,)
 
 
-def apply_uncompressed(bone, channel, trans_data, rest_rotation):
+def apply_uncompressed(bone, channel, trans_data, rest_location, rest_rotation):
     for frame in range(channel.firstFrame, channel.lastFrame):
-        # X Y Z
         if is_translation(channel):
-            set_trans_data(trans_data[channel.pivot], frame, channel,  channel.data[frame - channel.firstFrame])
-        # Q (rotation)
+            set_trans_data(trans_data[channel.pivot], frame, channel, channel.data[frame - channel.firstFrame])
         elif is_rotation(channel):
             data = channel.data[frame - channel.firstFrame]
-            set_rotation(bone, rest_rotation, data, frame)
+            set_rotation(bone, rest_rotation, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, translation_data, apply_func):
@@ -305,17 +320,13 @@ def process_channels(hierarchy, channels, rig, translation_data, apply_func):
         if (channel.pivot == 0):
             continue  # skip roottransform
 
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
         pivot = hierarchy.pivots[channel.pivot]
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        rest_location = hierarchy.pivots[channel.pivot].position
 
-        # TODO: function for this
-        # sometimes objects are animated, not just bones
-        try:
-            obj = rig.pose.bones[pivot.name]
-        except:
-            obj = bpy.data.objects[pivot.name]
+        obj = get_bone(rig, pivot.name)
 
-        apply_func(obj, channel, translation_data, rest_rotation)
+        apply_func(obj, channel, translation_data, rest_location, rest_rotation)
 
 
 def apply_final_transform(hierarchy, rig, trans_data, numFrames):
@@ -323,14 +334,11 @@ def apply_final_transform(hierarchy, rig, trans_data, numFrames):
         rest_location = hierarchy.pivots[pivot].position
         rest_rotation = hierarchy.pivots[pivot].rotation
 
-        # sometimes objects are animated, not just bones
-        try:
-            obj = rig.pose.bones[hierarchy.pivots[pivot].name]
-        except:
-            obj = bpy.data.objects[hierarchy.pivots[pivot].name]
+        obj = get_bone(rig, hierarchy.pivots[pivot].name)
 
         # TODO: check if blender 2.8 supports setting only x/y/z value insted of whole vector
         # this might fix the buggy bfme1 animations
+        # -> is supported, but need to apply the rotation -> does not seem to work
         for frame in range(0, numFrames - 1):
             if not trans_data[pivot][frame] == None:
                 bpy.context.scene.frame_set(frame)
@@ -351,7 +359,7 @@ def create_animation(self, animation, hierarchy, compressed):
     else:
         process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
         #TODO:
-        print ("motion channels not supported yet")
+        print ("motion channels/adaptive delta not supported yet")
 
     apply_final_transform(hierarchy, rig, translation_data,
                           animation.header.numFrames)

@@ -153,7 +153,7 @@ def read_time_coded_animation_channel(file):
         pivot=read_short(file),
         vectorLen=read_unsigned_byte(file),
         type=read_unsigned_byte(file),
-        timeCodes=[])  # no idea why this is needed
+        timeCodes=[])
 
     for _ in range(channel.numTimeCodes):
         channel.timeCodes.append(
@@ -245,7 +245,7 @@ def read_motion_channel(file, chunkEnd):
         vectorLen=read_unsigned_byte(file),
         type=read_unsigned_byte(file),
         numTimeCodes=read_short(file),
-        pivot=read_short(file))  # no idea why this is needed. This should be really no array
+        pivot=read_short(file)) 
 
     print("Motion channel with " + str(channel.numTimeCodes) + " frames!")
 
@@ -354,6 +354,7 @@ def read_hlod(self, file, chunkEnd):
 
     return HLod(header=hlodHeader, lodArray=hlodArray)
 
+
 #######################################################################################
 # Box
 #######################################################################################
@@ -371,6 +372,7 @@ def read_box(file):
         color=read_rgba(file),
         center=read_vector(file),
         extend=read_vector(file))
+
 
 #######################################################################################
 # Texture
@@ -483,7 +485,6 @@ def read_mesh_material_pass(self, file, chunkEnd):
             texStage = read_mesh_texture_stage(self, file, subChunkEnd)
             textureStages.append(texStage)
         elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
-            print("Read texcoords")
             txCoords = read_mesh_texture_coord_array(
                 file, subChunkEnd)
         else:
