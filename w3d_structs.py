@@ -115,10 +115,12 @@ class CompressedAnimationHeader(Struct):
     frameRate = 0
     flavor = 0
 
+
 class TimeCodedDatum(Struct):
     timeCode = 0
     nonInterpolated = False
     value = None
+
 
 class TimeCodedAnimationChannel(Struct):
     numTimeCodes = 0
@@ -126,6 +128,7 @@ class TimeCodedAnimationChannel(Struct):
     vectorLen = 0
     type = 0
     timeCodes = []
+
 
 class AdaptiveDeltaAnimationChannel(Struct):
     numTimeCodes = 0
@@ -135,23 +138,28 @@ class AdaptiveDeltaAnimationChannel(Struct):
     scale = 0
     data = []
 
+
 class AdaptiveDeltaMotionAnimationChannel(Struct):
     scale = 0.0
     initialValue = None
     data = []
+
 
 class AdaptiveDeltaBlock(Struct):
     vecIndex = 0
     blockIndex = 0
     deltaBytes = []
 
+
 class AdaptiveDeltaData(Struct):
     initialValue = None
     deltaBlocks = []
     bitCount = 0
 
+
 class TimeCodedBitChannel(Struct):
     data = 0
+
 
 class MotionChannel(Struct):
     deltaType = 0
@@ -159,7 +167,7 @@ class MotionChannel(Struct):
     type = 0
     numTimeCodes = 0
     pivot = 0
-    data = None
+    data = []
 
 W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
 W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL = 0x00000282

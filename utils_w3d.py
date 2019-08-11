@@ -4,6 +4,7 @@
 import os
 import bpy
 import bmesh
+import math
 
 from mathutils import Vector, Quaternion
 
@@ -233,6 +234,88 @@ def load_texture_to_mat(self, texName, destBlend, mat):
     img = load_texture(self, texName, destBlend)
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
+
+
+#######################################################################################
+# adaptive delta
+#######################################################################################
+
+def calculate_table():
+    result = []
+    for _ in range(256):
+        result.append(0.0)
+
+    for i in range(16):
+        result[i] = pow(10, i - 8.0)
+    
+    for i in range(240):
+        num = i / 240.0
+        result[i + 16] = (1.0 - math.sin(90.0 * num * math.pi / 180.0))
+
+    return result
+
+
+def get_deltas(block, numBits):
+    deltas = []
+    for _ in range(16):
+        deltas.append(0x00)
+
+    for i in range(len(block.deltaBytes)):
+        index = i * 2
+        val = block.deltaBytes[i]
+        if numBits == 4:
+            deltas[index] = val
+            if not (deltas[index] & 8) == 0:
+                deltas[index] |= 0xF0
+            else:
+                deltas[index] &= 0x0F
+            deltas[index + 1] = val >> 4
+            break
+        elif numBits == 8:
+            if not (val & 0x80) == 0:
+                val &= 0x7F
+            else:
+                val |= 0x80
+            deltas[i] = val
+            break
+
+    return deltas
+
+
+def data_from_value(valueBefore, index, value):
+    result = valueBefore
+    result[index] = value
+    return result
+
+
+    #gets AdaptiveDeltaData
+def decode(table, data, numFrames, scale):
+    scaleFactor = 1.0
+
+    if data.bitCount == 8:
+        scaleFactor = 1 / 16.0
+
+    result = []
+    for _ in range(numFrames):
+        result.append(None)
+    result[0] = data.initialValue
+
+    for i in range(len(data.deltaBlocks)):
+        deltaBlock = data.deltaBlocks[i]
+        blockIndex = deltaBlock.blockIndex
+        blockScale = table[blockIndex]
+        deltaScale = blockScale * scale * scaleFactor
+
+        vectorIndex = deltaBlock.vectorIndex
+        deltas = get_deltas(deltaBlock, data.bitCount)
+
+        for j in range(len(deltas)):
+            idx = ((i / data.vectorLen) * 16) + j + 1
+            if idx >= numFrames:
+                break
+
+            value = result[idx - 1].value[vectorIndex] + deltaScale * deltas[j]
+            result[idx] = data_from_value(result[idx].value, vectorIndex, value)
 
 
 #######################################################################################

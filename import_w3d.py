@@ -232,7 +232,9 @@ def read_motion_channel_adaptive_delta_data(file, channel, bits):
     result = AdaptiveDeltaMotionAnimationChannel(
         scale=read_float(file))
 
-    result.data = read_adaptive_delta_data(file, channel, bits)
+    table = calculate_table()
+    data = read_adaptive_delta_data(file, channel, bits)
+    result.data = decode(table, data, channel.numTimeCodes, result.scale)
 
     return result
 
