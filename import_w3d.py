@@ -214,7 +214,7 @@ def read_adaptive_delta_block(file, vecIndex, bits):
 
 def read_adaptive_delta_data(file, channel, bits):
     result = AdaptiveDeltaData(
-        initVal=read_channel_value(file, channel),
+        initialValue=read_channel_value(file, channel),
         deltaBlocks=[],
         bitCount = bits)
 
@@ -232,9 +232,8 @@ def read_motion_channel_adaptive_delta_data(file, channel, bits):
     result = AdaptiveDeltaMotionAnimationChannel(
         scale=read_float(file))
 
-    table = calculate_table()
     data = read_adaptive_delta_data(file, channel, bits)
-    result.data = decode(table, data, channel.numTimeCodes, result.scale)
+    result.data = decode(data, channel, result.scale)
 
     return result
 

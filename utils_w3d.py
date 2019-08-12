@@ -254,6 +254,7 @@ def calculate_table():
 
     return result
 
+delta_table = calculate_table()
 
 def get_deltas(block, numBits):
     deltas = []
@@ -282,40 +283,45 @@ def get_deltas(block, numBits):
     return deltas
 
 
-def data_from_value(valueBefore, index, value):
-    result = valueBefore
-    result[index] = value
-    return result
-
-
     #gets AdaptiveDeltaData
-def decode(table, data, numFrames, scale):
+def decode(data, channel, scale):
     scaleFactor = 1.0
 
     if data.bitCount == 8:
         scaleFactor = 1 / 16.0
 
-    result = []
-    for _ in range(numFrames):
-        result.append(None)
+    result = [None] * channel.numTimeCodes
     result[0] = data.initialValue
+
+    for i in range(1, channel.numTimeCodes):
+        if channel.type == 6:
+            result[i] = Quaternion()
+        else:
+            result[i] = 0.0
+    
 
     for i in range(len(data.deltaBlocks)):
         deltaBlock = data.deltaBlocks[i]
         blockIndex = deltaBlock.blockIndex
-        blockScale = table[blockIndex]
+        blockScale = delta_table[blockIndex]
         deltaScale = blockScale * scale * scaleFactor
 
-        vectorIndex = deltaBlock.vectorIndex
+        vectorIndex = deltaBlock.vecIndex
         deltas = get_deltas(deltaBlock, data.bitCount)
 
         for j in range(len(deltas)):
-            idx = ((i / data.vectorLen) * 16) + j + 1
-            if idx >= numFrames:
+            idx = int(math.floor((i / channel.vectorLen) * 16) + j + 1)
+            if idx >= channel.numTimeCodes:
                 break
 
-            value = result[idx - 1].value[vectorIndex] + deltaScale * deltas[j]
-            result[idx] = data_from_value(result[idx].value, vectorIndex, value)
+            if channel.type == 6:
+                value = result[idx - 1][vectorIndex] + deltaScale * deltas[j]
+                result[idx][vectorIndex] = value
+            else:
+                value = result[idx - 1] + deltaScale * deltas[j]
+                result[idx] = result[idx] = value
+
+    return result
 
 
 #######################################################################################
@@ -386,7 +392,26 @@ def apply_timecoded(bone, channel, trans_data, rest_location, rest_rotation):
         if is_translation(channel):
             set_trans_data(trans_data[channel.pivot], key.timeCode, channel, key.value)
         elif is_rotation(channel):
-            set_rotation(bone, rest_rotation, key.timeCode, key.value,)
+            set_rotation(bone, rest_rotation, key.timeCode, key.value)
+
+
+def apply_motionChannel_timeCoded(bone, channel, trans_data, rest_location, rest_rotation):
+    for d in channel.data:
+        if is_translation(channel):
+            set_trans_data(trans_data[channel.pivot], d.keyFrame, channel, d.value)
+        elif is_rotation(channel):
+            set_rotation(bone, rest_rotation, d.keyFrame, d.value)
+
+
+def apply_motionChannel_adaptiveDelta(bone, channel, trans_data, rest_location, rest_rotation):
+    for i in range(channel.numTimeCodes):
+        print (channel.type)
+        if is_translation(channel):
+            print(channel.data.data[i])
+            set_trans_data(trans_data[channel.pivot], i, channel, channel.data.data[i])
+        elif is_rotation(channel):
+            print(channel.data.data[i])
+            set_rotation(bone, rest_rotation, i, channel.data.data[i])
 
 
 def apply_uncompressed(bone, channel, trans_data, rest_location, rest_rotation):
@@ -410,6 +435,23 @@ def process_channels(hierarchy, channels, rig, translation_data, apply_func):
         obj = get_bone(rig, pivot.name)
 
         apply_func(obj, channel, translation_data, rest_location, rest_rotation)
+
+
+def process_motion_channels(hierarchy, channels, rig, translation_data):
+    for channel in channels:
+        if (channel.pivot == 0):
+            continue  # skip roottransform
+
+        pivot = hierarchy.pivots[channel.pivot]
+        rest_rotation = hierarchy.pivots[channel.pivot].rotation
+        rest_location = hierarchy.pivots[channel.pivot].position
+
+        obj = get_bone(rig, pivot.name)
+
+        if channel.deltaType == 0:
+            apply_motionChannel_timeCoded(obj, channel, translation_data, rest_location, rest_rotation)
+        else:
+            apply_motionChannel_adaptiveDelta(obj, channel, translation_data, rest_location, rest_rotation)
 
 
 def apply_final_transform(hierarchy, rig, trans_data, numFrames):
@@ -441,7 +483,7 @@ def create_animation(self, animation, hierarchy, compressed):
         process_channels(hierarchy, animation.channels, rig, translation_data, apply_uncompressed)
     else:
         process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
-        #TODO:
+        process_motion_channels(hierarchy, animation.motionChannels, rig, translation_data)
         print ("motion channels/adaptive delta not supported yet")
 
     apply_final_transform(hierarchy, rig, translation_data,
