@@ -242,19 +242,23 @@ def load_texture_to_mat(self, texName, destBlend, mat):
 
 def calculate_table():
     result = []
-    for _ in range(256):
-        result.append(0.0)
 
     for i in range(16):
-        result[i] = pow(10, i - 8.0)
+        result.append(pow(10, i - 8.0))
     
     for i in range(240):
         num = i / 240.0
-        result[i + 16] = (1.0 - math.sin(90.0 * num * math.pi / 180.0))
+        result.append(1.0 - math.sin(90.0 * num * math.pi / 180.0))
 
     return result
 
 delta_table = calculate_table()
+
+def to_signed(byte):
+    if byte > 127:
+        return (256-byte) * (-1)
+    else:
+        return byte
 
 def get_deltas(block, numBits):
     deltas = []
@@ -266,19 +270,17 @@ def get_deltas(block, numBits):
         val = block.deltaBytes[i]
         if numBits == 4:
             deltas[index] = val
-            if not (deltas[index] & 8) == 0:
+            if (deltas[index] & 8) != 0:
                 deltas[index] |= 0xF0
             else:
                 deltas[index] &= 0x0F
             deltas[index + 1] = val >> 4
-            break
         elif numBits == 8:
-            if not (val & 0x80) == 0:
+            if (val & 0x80) != 0:
                 val &= 0x7F
             else:
                 val |= 0x80
-            deltas[i] = val
-            break
+            deltas[i] = to_signed(val)
 
     return deltas
 
