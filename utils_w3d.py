@@ -285,6 +285,8 @@ def get_deltas(block, numBits):
                 val |= 0x80
             deltas[i] = to_signed(val)
 
+    for d in deltas:
+        print (d)
     return deltas
 
 
@@ -339,6 +341,7 @@ def is_translation(channel):
 
 def is_rotation(channel):
     return channel.type == 6
+
 
 def get_bone(rig, name):
     # sometimes objects are animated, not just bones
@@ -410,10 +413,8 @@ def apply_motionChannel_timeCoded(bone, channel, trans_data, rest_location, rest
 def apply_motionChannel_adaptiveDelta(bone, channel, trans_data, rest_location, rest_rotation):
     for i in range(channel.numTimeCodes):
         if is_translation(channel):
-            print(channel.data.data[i])
             set_trans_data(trans_data[channel.pivot], i, channel, channel.data.data[i])
         elif is_rotation(channel):
-            print(channel.data.data[i])
             set_rotation(bone, rest_rotation, i, channel.data.data[i])
 
 
