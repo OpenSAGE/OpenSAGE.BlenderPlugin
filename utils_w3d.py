@@ -53,6 +53,7 @@ def link_object_to_active_scene(obj):
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
+
 #######################################################################################
 # create armature
 #######################################################################################
@@ -162,6 +163,7 @@ def create_shader_materials(self, m, mesh):
                 mat[prop.name] = prop.value
         mesh.materials.append(mat)
 
+
 #######################################################################################
 # create uvlayer
 #######################################################################################
@@ -260,6 +262,7 @@ def to_signed(byte):
     else:
         return byte
 
+
 def get_deltas(block, numBits):
     deltas = []
     for _ in range(16):
@@ -308,7 +311,8 @@ def decode(data, channel, scale):
         blockScale = delta_table[blockIndex]
         deltaScale = blockScale * scale * scaleFactor
 
-        vectorIndex = deltaBlock.vecIndex
+        vectorIndex = deltaBlock.vectorIndex
+        print (vectorIndex)
         deltas = get_deltas(deltaBlock, data.bitCount)
 
         for j in range(len(deltas)):
@@ -407,7 +411,6 @@ def apply_motionChannel_timeCoded(bone, channel, trans_data, rest_location, rest
 
 def apply_motionChannel_adaptiveDelta(bone, channel, trans_data, rest_location, rest_rotation):
     for i in range(channel.numTimeCodes):
-        print (channel.type)
         if is_translation(channel):
             print(channel.data.data[i])
             set_trans_data(trans_data[channel.pivot], i, channel, channel.data.data[i])
@@ -485,6 +488,7 @@ def create_animation(self, animation, hierarchy, compressed):
         process_channels(hierarchy, animation.channels, rig, translation_data, apply_uncompressed)
     else:
         process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
+        translation_data = init_translation_data(animation, hierarchy)
         process_motion_channels(hierarchy, animation.motionChannels, rig, translation_data)
         print ("motion channels/adaptive delta not supported yet")
 

@@ -146,7 +146,7 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
 
 
 class AdaptiveDeltaBlock(Struct):
-    vecIndex = 0
+    vectorIndex = 0
     blockIndex = 0
     deltaBytes = []
 
