@@ -307,12 +307,10 @@ def decode(data, channel, scale):
 
     for i in range(len(data.deltaBlocks)):
         deltaBlock = data.deltaBlocks[i]
-        blockIndex = deltaBlock.blockIndex
-        blockScale = delta_table[blockIndex]
+        blockScale = delta_table[deltaBlock.blockIndex]
         deltaScale = blockScale * scale * scaleFactor
 
         vectorIndex = deltaBlock.vectorIndex
-        print (vectorIndex)
         deltas = get_deltas(deltaBlock, data.bitCount)
 
         for j in range(len(deltas)):
@@ -325,7 +323,7 @@ def decode(data, channel, scale):
                 result[idx][vectorIndex] = value
             else:
                 value = result[idx - 1] + deltaScale * deltas[j]
-                result[idx] = result[idx] = value
+                result[idx] = value
 
     return result
 
@@ -488,12 +486,12 @@ def create_animation(self, animation, hierarchy, compressed):
         process_channels(hierarchy, animation.channels, rig, translation_data, apply_uncompressed)
     else:
         process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
-        translation_data = init_translation_data(animation, hierarchy)
         process_motion_channels(hierarchy, animation.motionChannels, rig, translation_data)
-        print ("motion channels/adaptive delta not supported yet")
 
     apply_final_transform(hierarchy, rig, translation_data,
                           animation.header.numFrames)
+
+    bpy.context.scene.frame_set(0)
 
 
 #######################################################################################
