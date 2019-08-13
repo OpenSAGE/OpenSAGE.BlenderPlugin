@@ -91,16 +91,19 @@ def create_armature(self, hierarchy, amtName, subObjects):
             continue  # do not create a bone
 
         bone = amt.edit_bones.new(pivot.name)
+        matrix = make_transform_matrix(pivot.position,pivot.rotation) 
 
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
+            matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction that the rotation is applied correctly
-        bone.tail = Vector((0.0, 0.01, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
         # bone rest pose must be applied in edit mode
-        bone.matrix = make_transform_matrix(pivot.position,pivot.rotation)
+        bone.matrix = matrix
+        #bone.custom_shape = basic_sphere
 
     # Pose the bones
     # bpy.ops.object.mode_set(mode='POSE')
@@ -115,7 +118,7 @@ def create_armature(self, hierarchy, amtName, subObjects):
     #     bone.rotation_euler = pivot.eulerAngles
     #     bone.rotation_quaternion = pivot.rotation
 
-    #     bone.custom_shape = basic_sphere
+    #     
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
