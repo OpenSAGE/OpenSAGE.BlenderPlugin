@@ -900,6 +900,7 @@ def load(self, context, import_settings):
     compressedAnimation = None
     hlod = None
     box = None
+    rig = None
 
     while file.tell() < filesize:
         chunkType = read_long(file)
@@ -972,6 +973,17 @@ def load(self, context, import_settings):
             triangles.append(triangle.vertIds)
 
         mesh = bpy.data.meshes.new(m.header.meshName)
+
+        # apply hierarchy if it exists
+        for i in range(len(m.vertInfs)):
+            vert = m.verts[i]
+            weight = m.vertInfs[i].boneInf
+            if weight == 0.0:
+                weight = 1.0
+
+            bone = rig.data.bones[hierarchy.pivots[m.vertInfs[i].boneIdx].name]
+            m.verts[i] = bone.matrix_local @ Vector(vert)
+
         mesh.from_pydata(m.verts, [], triangles)
         mesh.update()
         mesh.validate()

@@ -5,6 +5,7 @@ import os
 import bpy
 import bmesh
 import math
+import mathutils
 
 from mathutils import Vector, Quaternion
 
@@ -59,6 +60,11 @@ def link_object_to_active_scene(obj):
 #######################################################################################
 
 
+def make_transform_matrix(loc,rot):
+    mat_loc = mathutils.Matrix.Translation(loc)
+    mat_rot = mathutils.Quaternion(rot).to_matrix().to_4x4()
+    return mat_loc @ mat_rot
+
 def create_armature(self, hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = True
@@ -85,29 +91,34 @@ def create_armature(self, hierarchy, amtName, subObjects):
             continue  # do not create a bone
 
         bone = amt.edit_bones.new(pivot.name)
+        matrix = make_transform_matrix(pivot.position,pivot.rotation) 
 
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
+            matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction that the rotation is applied correctly
-        bone.tail = Vector((0.0, 0.01, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
+        # bone rest pose must be applied in edit mode
+        bone.matrix = matrix
+        #bone.custom_shape = basic_sphere
 
     # Pose the bones
-    bpy.ops.object.mode_set(mode='POSE')
+    # bpy.ops.object.mode_set(mode='POSE')
 
-    for pivot in hierarchy.pivots:
-        if non_bone_pivots.count(pivot) > 0:
-            continue  # do not create a bone
+    # for pivot in hierarchy.pivots:
+    #     if non_bone_pivots.count(pivot) > 0:
+    #         continue  # do not create a bone
 
-        bone = rig.pose.bones[pivot.name]
-        bone.location = pivot.position
-        bone.rotation_mode = 'QUATERNION'
-        bone.rotation_euler = pivot.eulerAngles
-        bone.rotation_quaternion = pivot.rotation
+    #     bone = rig.pose.bones[pivot.name]
+    #     bone.location = pivot.position
+    #     bone.rotation_mode = 'QUATERNION'
+    #     bone.rotation_euler = pivot.eulerAngles
+    #     bone.rotation_quaternion = pivot.rotation
 
-        bone.custom_shape = basic_sphere
+    #     
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -356,124 +367,77 @@ def setup_animation(animation):
     bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
     bpy.data.scenes["Scene"].frame_start = 0
     bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
-
     return rig
 
 
-def init_translation_data(animation, hierarchy):
-    translation_data = []
-    for pivot in range(0, len(hierarchy.pivots)):
-        pivot = []
-        for _ in range(0, animation.header.numFrames):
-            pivot.append(None)
-
-        translation_data.append(pivot)
-    
-    return translation_data
+def set_translation(bone, index, frame, value):
+    bpy.context.scene.frame_set(frame)
+    bone.location[index] = value
+    bone.keyframe_insert(data_path='location', index=index, frame=frame)
 
 
-def set_trans_data(trans_data, frame, channel, value):
-    if (trans_data[frame] == None): 
-        trans_data[frame] = Vector((0.0, 0.0, 0.0))
-    trans_data[frame][channel.type] = value
-
-
-# test for setting only one channel at a time (x, y, z)
-#def set_translation(bone, rest_location, rest_rotation, index, frame, value):
-#    bpy.context.scene.frame_set(frame)
-#    vec = Vector((0.0, 0.0, 0.0))
-#    vec[index] = value
-#    bone.location = rest_location + (rest_rotation @ vec)
-#    bone.keyframe_insert(data_path='location', index=index, frame=frame)
-
-
-def set_rotation(bone, rest_rotation, frame, value):
+def set_rotation(bone, frame, value):
     bone.rotation_mode = 'QUATERNION'
-    bone.rotation_quaternion = rest_rotation @ value
-    bone.keyframe_insert(
-                data_path='rotation_quaternion', frame=frame)
+    bone.rotation_quaternion = value
+    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
-def apply_timecoded(bone, channel, trans_data, rest_location, rest_rotation):
+def apply_timecoded(bone, channel):
     for key in channel.timeCodes:
         if is_translation(channel):
-            set_trans_data(trans_data[channel.pivot], key.timeCode, channel, key.value)
+            set_translation(bone, channel.type, key.timeCode, key.value)
         elif is_rotation(channel):
-            set_rotation(bone, rest_rotation, key.timeCode, key.value)
+            set_rotation(bone, key.timeCode, key.value)
 
 
-def apply_motionChannel_timeCoded(bone, channel, trans_data, rest_location, rest_rotation):
+def apply_motionChannel_timeCoded(bone, channel):
     for d in channel.data:
         if is_translation(channel):
-            set_trans_data(trans_data[channel.pivot], d.keyFrame, channel, d.value)
+            set_translation(bone, channel.type, d.keyFrame, d.value)
         elif is_rotation(channel):
-            set_rotation(bone, rest_rotation, d.keyFrame, d.value)
+            set_rotation(bone, d.keyFrame, d.value)
 
 
-def apply_motionChannel_adaptiveDelta(bone, channel, trans_data, rest_location, rest_rotation):
+def apply_motionChannel_adaptiveDelta(bone, channel):
     for i in range(channel.numTimeCodes):
         if is_translation(channel):
-            set_trans_data(trans_data[channel.pivot], i, channel, channel.data.data[i])
+            set_translation(bone, channel.type, i, channel.data.data[i])
         elif is_rotation(channel):
-            set_rotation(bone, rest_rotation, i, channel.data.data[i])
+            set_rotation(bone, i, channel.data.data[i])
 
 
-def apply_uncompressed(bone, channel, trans_data, rest_location, rest_rotation):
+def apply_uncompressed(bone, channel):
     for frame in range(channel.firstFrame, channel.lastFrame):
         if is_translation(channel):
-            set_trans_data(trans_data[channel.pivot], frame, channel, channel.data[frame - channel.firstFrame])
+            set_translation(bone, channel.type, frame, channel.data[frame - channel.firstFrame])
         elif is_rotation(channel):
             data = channel.data[frame - channel.firstFrame]
-            set_rotation(bone, rest_rotation, frame, data)
+            set_rotation(bone, frame, data)
 
 
-def process_channels(hierarchy, channels, rig, translation_data, apply_func):
+def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
         if (channel.pivot == 0):
             continue  # skip roottransform
 
         pivot = hierarchy.pivots[channel.pivot]
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        rest_location = hierarchy.pivots[channel.pivot].position
-
         obj = get_bone(rig, pivot.name)
 
-        apply_func(obj, channel, translation_data, rest_location, rest_rotation)
+        apply_func(obj, channel)
 
 
-def process_motion_channels(hierarchy, channels, rig, translation_data):
+def process_motion_channels(hierarchy, channels, rig):
     for channel in channels:
         if (channel.pivot == 0):
             continue  # skip roottransform
 
         pivot = hierarchy.pivots[channel.pivot]
-        rest_rotation = hierarchy.pivots[channel.pivot].rotation
-        rest_location = hierarchy.pivots[channel.pivot].position
-
         obj = get_bone(rig, pivot.name)
 
         if channel.deltaType == 0:
-            apply_motionChannel_timeCoded(obj, channel, translation_data, rest_location, rest_rotation)
+            apply_motionChannel_timeCoded(obj, channel)
         else:
-            apply_motionChannel_adaptiveDelta(obj, channel, translation_data, rest_location, rest_rotation)
-
-
-def apply_final_transform(hierarchy, rig, trans_data, numFrames):
-    for pivot in range(1, len(hierarchy.pivots)):
-        rest_location = hierarchy.pivots[pivot].position
-        rest_rotation = hierarchy.pivots[pivot].rotation
-
-        obj = get_bone(rig, hierarchy.pivots[pivot].name)
-
-        # TODO: check if blender 2.8 supports setting only x/y/z value insted of whole vector
-        # this might fix the buggy bfme1 animations
-        # -> is supported, but need to apply the rotation -> does not seem to work
-        for frame in range(0, numFrames - 1):
-            if not trans_data[pivot][frame] == None:
-                bpy.context.scene.frame_set(frame)
-                pos = trans_data[pivot][frame]
-                obj.location = rest_location + (rest_rotation @ pos)
-                obj.keyframe_insert(data_path='location', frame=frame)
+            apply_motionChannel_adaptiveDelta(obj, channel)
 
 
 def create_animation(self, animation, hierarchy, compressed):
@@ -481,16 +445,12 @@ def create_animation(self, animation, hierarchy, compressed):
         return
 
     rig = setup_animation(animation)
-    translation_data = init_translation_data(animation, hierarchy)
 
     if not compressed:
-        process_channels(hierarchy, animation.channels, rig, translation_data, apply_uncompressed)
+        process_channels(hierarchy, animation.channels, rig, apply_uncompressed)
     else:
-        process_channels(hierarchy, animation.timeCodedChannels, rig, translation_data, apply_timecoded)
-        process_motion_channels(hierarchy, animation.motionChannels, rig, translation_data)
-
-    apply_final_transform(hierarchy, rig, translation_data,
-                          animation.header.numFrames)
+        process_channels(hierarchy, animation.timeCodedChannels, rig, apply_timecoded)
+        process_motion_channels(hierarchy, animation.motionChannels, rig)
 
     bpy.context.scene.frame_set(0)
 
