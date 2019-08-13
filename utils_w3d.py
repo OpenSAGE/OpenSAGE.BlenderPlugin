@@ -5,6 +5,7 @@ import os
 import bpy
 import bmesh
 import math
+import mathutils
 
 from mathutils import Vector, Quaternion
 
@@ -59,6 +60,11 @@ def link_object_to_active_scene(obj):
 #######################################################################################
 
 
+def make_transform_matrix(loc,rot):
+    mat_loc = mathutils.Matrix.Translation(loc)
+    mat_rot = mathutils.Quaternion(rot).to_matrix().to_4x4()
+    return mat_loc @ mat_rot
+
 def create_armature(self, hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = True
@@ -93,21 +99,23 @@ def create_armature(self, hierarchy, amtName, subObjects):
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction that the rotation is applied correctly
         bone.tail = Vector((0.0, 0.01, 0.0))
+        # bone rest pose must be applied in edit mode
+        bone.matrix = make_transform_matrix(pivot.position,pivot.rotation)
 
     # Pose the bones
-    bpy.ops.object.mode_set(mode='POSE')
+    # bpy.ops.object.mode_set(mode='POSE')
 
-    for pivot in hierarchy.pivots:
-        if non_bone_pivots.count(pivot) > 0:
-            continue  # do not create a bone
+    # for pivot in hierarchy.pivots:
+    #     if non_bone_pivots.count(pivot) > 0:
+    #         continue  # do not create a bone
 
-        bone = rig.pose.bones[pivot.name]
-        bone.location = pivot.position
-        bone.rotation_mode = 'QUATERNION'
-        bone.rotation_euler = pivot.eulerAngles
-        bone.rotation_quaternion = pivot.rotation
+    #     bone = rig.pose.bones[pivot.name]
+    #     bone.location = pivot.position
+    #     bone.rotation_mode = 'QUATERNION'
+    #     bone.rotation_euler = pivot.eulerAngles
+    #     bone.rotation_quaternion = pivot.rotation
 
-        bone.custom_shape = basic_sphere
+    #     bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
