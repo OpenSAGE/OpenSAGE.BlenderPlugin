@@ -982,7 +982,7 @@ def load(self, context, import_settings):
                 weight = 1.0
 
             bone = rig.data.bones[hierarchy.pivots[m.vertInfs[i].boneIdx].name]
-            m.verts[i] = bone.matrix @ vert 
+            m.verts[i] = bone.matrix_local @ Vector(vert)
 
         mesh.from_pydata(m.verts, [], triangles)
         mesh.update()
