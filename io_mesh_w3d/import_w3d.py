@@ -591,6 +591,7 @@ def load(self, context, import_settings):
         mesh = bpy.data.meshes.new(m.header.meshName)
 
         # apply hierarchy if it exists
+        # Do we need to apply the 2nd weight here aswell?
         for i in range(len(m.vertInfs)):
             vert = m.verts[i]
             weight = m.vertInfs[i].boneInf
@@ -635,6 +636,11 @@ def load(self, context, import_settings):
 
                     mesh_ob.vertex_groups[m.vertInfs[i].boneIdx].add(
                         [i], weight, 'REPLACE')
+
+                    if m.vertInfs[i].xtraIdx != 0:
+                        print (m.vertInfs[i].xtraIdx)
+                        mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add(
+                            [i], m.vertInfs[i].xtraInf, 'ADD')
 
                     # two bones are not working yet
                     #mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add([i], m.vertInfs[i].xtraInf, 'REPLACE')
