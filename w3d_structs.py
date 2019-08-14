@@ -476,6 +476,14 @@ class HLodHeader(Struct):
     modelName = ""
     hierarchyName = ""
 
+    @staticmethod
+    def read(file):
+        return HLodHeader(
+            version=Version.read(file),
+            lodCount=read_long(file),
+            modelName=read_fixed_string(file),
+            hierarchyName=read_fixed_string(file))
+
 
 W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 
@@ -483,6 +491,12 @@ W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 class HLodArrayHeader(Struct):
     modelCount = 0
     maxScreenSize = 0.0
+
+    @staticmethod
+    def read(file):
+        return HLodArrayHeader(
+            modelCount=read_long(file),
+            maxScreenSize=read_float(file))
 
 
 W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
@@ -492,6 +506,11 @@ class HLodSubObject(Struct):
     boneIndex = 0
     name = ""
 
+    @staticmethod
+    def read(file):
+        return HLodSubObject(
+            boneIndex=read_long(file),
+            name=read_long_fixed_string(file))
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
 
@@ -500,6 +519,24 @@ class HLodArray(Struct):
     header = HLodArrayHeader()
     subObjects = []
 
+    @staticmethod
+    def read(self, file, chunkEnd):
+        result = HLodArray(
+            header=None,
+            subObjects=[])
+
+        while file.tell() < chunkEnd:
+            chunkType = read_long(file)
+            chunkSize = get_chunk_size(read_long(file))
+
+            if chunkType == W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
+                result.header = HLodArrayHeader.read(file)
+            elif chunkType == W3D_CHUNK_HLOD_SUB_OBJECT:
+                result.subObjects.append(HLodSubObject.read(file))
+            else:
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
+
+        return result
 
 W3D_CHUNK_HLOD = 0x00000700
 
@@ -507,6 +544,27 @@ W3D_CHUNK_HLOD = 0x00000700
 class HLod(Struct):
     header = HLodHeader()
     lodArray = HLodArray()
+
+    @staticmethod
+    def read(self, file, chunkEnd):
+        result = HLod(
+            header=None,
+            lodArray=None
+        )
+
+        while file.tell() < chunkEnd:
+            chunkType = read_long(file)
+            chunkSize = get_chunk_size(read_long(file))
+            subChunkEnd = file.tell() + chunkSize
+
+            if chunkType == W3D_CHUNK_HLOD_HEADER:
+                result.header = HLodHeader.read(file)
+            elif chunkType == W3D_CHUNK_HLOD_LOD_ARRAY:
+                result.lodArray = HLodArray.read(self, file, subChunkEnd)
+            else:
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
+
+        return result
 
 #######################################################################################
 # Box
@@ -524,6 +582,20 @@ class Box(Struct):
     color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
+
+    @staticmethod
+    def read(file):
+        # print("\n### NEW BOX: ###")
+        ver = Version.read(file),
+        flags = read_long(file)
+        return Box(
+            version=ver,
+            boxType=(flags & 0b11),
+            collisionTypes=(flags & 0xFF0),
+            name=read_long_fixed_string(file),
+            color=RGBA.read(file),
+            center=read_vector(file),
+            extend=read_vector(file))
 
 #######################################################################################
 # Texture

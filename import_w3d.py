@@ -9,88 +9,6 @@ from io_mesh_w3d.utils_w3d import *
 
 
 #######################################################################################
-# HLod
-#######################################################################################
-
-
-def read_hlod_header(file):
-    return HLodHeader(
-        version=Version.read(file),
-        lodCount=read_long(file),
-        modelName=read_fixed_string(file),
-        hierarchyName=read_fixed_string(file))
-
-
-def read_hlod_array_header(file):
-    return HLodArrayHeader(
-        modelCount=read_long(file),
-        maxScreenSize=read_float(file))
-
-
-def read_hlod_sub_object(file):
-    return HLodSubObject(
-        boneIndex=read_long(file),
-        name=read_long_fixed_string(file))
-
-
-def read_hlod_array(self, file, chunkEnd):
-    hlodArrayHeader = HLodArrayHeader()
-    hlodSubObjects = []
-
-    while file.tell() < chunkEnd:
-        chunkType = read_long(file)
-        chunkSize = get_chunk_size(read_long(file))
-
-        if chunkType == W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
-            hlodArrayHeader = read_hlod_array_header(file)
-        elif chunkType == W3D_CHUNK_HLOD_SUB_OBJECT:
-            hlodSubObjects.append(read_hlod_sub_object(file))
-        else:
-            skip_unknown_chunk(self, file, chunkType, chunkSize)
-
-    return HLodArray(header=hlodArrayHeader, subObjects=hlodSubObjects)
-
-
-def read_hlod(self, file, chunkEnd):
-    # print("\n### NEW HLOD: ###")
-    hlodHeader = HLodHeader()
-    hlodArray = HLodArray()
-
-    while file.tell() < chunkEnd:
-        chunkType = read_long(file)
-        chunkSize = get_chunk_size(read_long(file))
-        subChunkEnd = file.tell() + chunkSize
-
-        if chunkType == W3D_CHUNK_HLOD_HEADER:
-            hlodHeader = read_hlod_header(file)
-        elif chunkType == W3D_CHUNK_HLOD_LOD_ARRAY:
-            hlodArray = read_hlod_array(self, file, subChunkEnd)
-        else:
-            skip_unknown_chunk(self, file, chunkType, chunkSize)
-
-    return HLod(header=hlodHeader, lodArray=hlodArray)
-
-
-#######################################################################################
-# Box
-#######################################################################################
-
-
-def read_box(file):
-    # print("\n### NEW BOX: ###")
-    ver = Version.read(file),
-    flags = read_long(file)
-    return Box(
-        version=ver,
-        boxType=(flags & 0b11),
-        collisionTypes=(flags & 0xFF0),
-        name=read_long_fixed_string(file),
-        color=RGBA.read(file),
-        center=read_vector(file),
-        extend=read_vector(file))
-
-
-#######################################################################################
 # Texture
 #######################################################################################
 
@@ -632,9 +550,9 @@ def load(self, context, import_settings):
             compressedAnimation = CompressedAnimation.read(
                 self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_HLOD:
-            hlod = read_hlod(self, file, chunkEnd)
+            hlod = HLod.read(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_BOX:
-           box = read_box(file)
+           box = Box.read(file)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
