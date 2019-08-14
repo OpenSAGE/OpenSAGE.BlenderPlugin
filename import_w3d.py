@@ -15,7 +15,7 @@ from io_mesh_w3d.w3d_adaptive_delta import *
 
 def read_compressed_animation_header(file):
     return CompressedAnimationHeader(
-        version=Version(file),
+        version=Version.read(file),
         name=read_fixed_string(file),
         hierarchyName=read_fixed_string(file),
         numFrames=read_long(file),
@@ -199,7 +199,7 @@ def read_compressed_animation(self, file, chunkEnd):
 
 def read_hlod_header(file):
     return HLodHeader(
-        version=Version(file),
+        version=Version.read(file),
         lodCount=read_long(file),
         modelName=read_fixed_string(file),
         hierarchyName=read_fixed_string(file))
@@ -262,14 +262,14 @@ def read_hlod(self, file, chunkEnd):
 
 def read_box(file):
     # print("\n### NEW BOX: ###")
-    ver = Version(file),
+    ver = Version.read(file),
     flags = read_long(file)
     return Box(
         version=ver,
         boxType=(flags & 0b11),
         collisionTypes=(flags & 0xFF0),
         name=read_long_fixed_string(file),
-        color=RGBA(file),
+        color=RGBA.read(file),
         center=read_vector(file),
         extend=read_vector(file))
 
@@ -371,13 +371,13 @@ def read_mesh_material_pass(self, file, chunkEnd):
             shaderIds = read_long_array(file, subChunkEnd)
         elif chunkType == W3D_CHUNK_DCG:
             while file.tell() < subChunkEnd:
-                DCG.append(RGBA(file))
+                DCG.append(RGBA.read(file))
         elif chunkType == W3D_CHUNK_DIG:
             while file.tell() < subChunkEnd:
-                DIG.append(RGBA(file))
+                DIG.append(RGBA.read(file))
         elif chunkType == W3D_CHUNK_SCG:
             while file.tell() < subChunkEnd:
-                SCG.append(RGBA(file))
+                SCG.append(RGBA.read(file))
         elif chunkType == W3D_CHUNK_SHADER_MATERIAL_ID:
             while file.tell() < subChunkEnd:
                 shaderMatIds.append(read_long(file))
@@ -405,10 +405,10 @@ def read_material(self, file, chunkEnd):
         elif chunkType == W3D_CHUNK_VERTEX_MATERIAL_INFO:
             material.vmInfo = VertexMaterial(
                 attributes=read_long(file),
-                ambient=RGBA(file),
-                diffuse=RGBA(file),
-                specular=RGBA(file),
-                emissive=RGBA(file),
+                ambient=RGBA.read(file),
+                diffuse=RGBA.read(file),
+                specular=RGBA.read(file),
+                emissive=RGBA.read(file),
                 shininess=read_float(file),
                 opacity=read_float(file),
                 translucency=read_float(file))
@@ -535,7 +535,7 @@ def read_shader_material_property(self, file, chunkEnd):
     elif type_ == 4:
         value_ = read_vector(file)
     elif type_ == 5:
-        value_ = RGBA(file, as_float=True)
+        value_ = RGBA.read_f(file)
     elif type_ == 6:
         value_ = read_long(file)
     elif type_ == 7:
@@ -646,7 +646,7 @@ def read_aabbtree(self, file, chunkEnd):
 
 def read_mesh_header(file):
     return MeshHeader(
-        version=Version(file),
+        version=Version.read(file),
         attrs=read_long(file),
         meshName=read_fixed_string(file),
         containerName=read_fixed_string(file),
@@ -759,6 +759,7 @@ def read_mesh(self, file, chunkEnd):
 
 
 def load_skeleton_file(self, sklpath):
+    #TODO: handle file not found
     print('\n### SKELETON: ###', sklpath)
     hierarchy = Hierarchy()
     path = insensitive_path(sklpath)
@@ -771,7 +772,7 @@ def load_skeleton_file(self, sklpath):
         chunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy(file, chunkEnd, self)
+            hierarchy = Hierarchy.read(self, file, chunkEnd)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -808,9 +809,9 @@ def load(self, context, import_settings):
         if chunkType == W3D_CHUNK_MESH:
             meshes.append(read_mesh(self, file, chunkEnd))
         elif chunkType == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy(file, chunkEnd)
+            hierarchy = Hierarchy.read(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_ANIMATION:
-            animation = Animation(file, chunkEnd, self)
+            animation = Animation.read(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
             compressedAnimation = read_compressed_animation(
                 self, file, chunkEnd)
@@ -827,18 +828,17 @@ def load(self, context, import_settings):
 
     if (hierarchy == None):
         sklpath = None
-        if not hlod == None and hlod.header.modelName != hlod.header.hierarchyName:
+        if hlod != None and hlod.header.modelName != hlod.header.hierarchyName:
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 hlod.header.hierarchyName.lower() + ".w3d"
-        elif (not animation == None) and (not animation.header.name == ""):
+        elif animation != None and animation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 animation.header.hierarchyName.lower() + ".w3d"
-        elif (not compressedAnimation == None) and (not compressedAnimation.header.name == ""):
-            print(sklpath)
+        elif compressedAnimation != None and compressedAnimation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 compressedAnimation.header.hierarchyName.lower() + ".w3d"
 
-        if not sklpath == None:
+        if sklpath != None:
             try:
                 hierarchy = load_skeleton_file(self, sklpath)
             except:

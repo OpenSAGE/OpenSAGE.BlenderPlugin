@@ -28,32 +28,30 @@ class RGBA(Struct):
     b = 0
     a = 0
 
-    def __init__(self, file=None, as_float=False):
-        if file == None:
-            return
-        if as_float == True:
-            self.r = read_float(file)
-            self.g = read_float(file)
-            self.b = read_float(file)
-            self.a = read_float(file)
-        else:
-            self.r = ord(file.read(1))
-            self.g = ord(file.read(1))
-            self.b = ord(file.read(1))
-            self.a = ord(file.read(1))
-        
+    @staticmethod
+    def read(file, as_float=False):
+        return RGBA(r=ord(file.read(1)),
+            g = ord(file.read(1)),
+            b = ord(file.read(1)),
+            a = ord(file.read(1)))
+
+    @staticmethod
+    def read_f(file):
+        return RGBA(r=read_float(file),
+            g = read_float(file),
+            b = read_float(file),
+            a = read_float(file))
 
 
 class Version(Struct):
     major = 5
     minor = 0
 
-    def __init__(self, file=None):
-        if file == None:
-            return
+    @staticmethod
+    def read(file):
         data = read_long(file)
-        self.major = data >> 16
-        self.minor = data & 0xFFFF
+        return Version(major=data >> 16,
+            minor = data & 0xFFFF)
 
 
 #######################################################################################
@@ -70,13 +68,13 @@ class HierarchyHeader(Struct):
     numPivots = 0
     centerPos = Vector((0.0, 0.0, 0.0))
 
-    def __init__(self, file=None):
-        if file == None:
-            return
-        self.version = Version(file)
-        self.name = read_fixed_string(file)
-        self.numPivots = read_long(file)
-        self.centerPos = read_vector(file)
+    @staticmethod
+    def read(file):
+        return HierarchyHeader(
+            version=Version.read(file),
+            name=read_fixed_string(file),
+            numPivots=read_long(file),
+            centerPos=read_vector(file))
 
 
 W3D_CHUNK_PIVOTS = 0x00000102
@@ -89,15 +87,14 @@ class HierarchyPivot(Struct):
     eulerAngles = Vector((0.0, 0.0, 0.0))
     rotation = Quaternion((1.0, 0.0, 0.0, 0.0))
 
-    def __init__(self, file=None):
-        if file == None:
-            return
-        self.name = read_fixed_string(file)
-        self.parentID = read_long(file)
-        self.position = read_vector(file)
-        self.eulerAngles = read_vector(file)
-        self.rotation = read_quaternion(file)
-
+    @staticmethod
+    def read(file):
+        return HierarchyPivot(
+            name=read_fixed_string(file),
+            parentID=read_long(file),
+            position=read_vector(file),
+            eulerAngles=read_vector(file),
+            rotation=read_quaternion(file))
 
 
 W3D_CHUNK_HIERARCHY = 0x00000100
@@ -109,12 +106,12 @@ class Hierarchy(Struct):
     pivots = []
     pivot_fixups = []
 
-    def __init__(self, file=None, chunkEnd = 0, context = None):
-        if file == None:
-            return
-
-        self.pivots = []
-        self.pivot_fixups = []
+    @staticmethod
+    def read(self, file, chunkEnd):
+        result = Hierarchy(
+            pivots=[],
+            pivot_fixups=[]
+        )
 
         while file.tell() < chunkEnd:
             chunkType = read_long(file)
@@ -122,15 +119,17 @@ class Hierarchy(Struct):
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_HIERARCHY_HEADER:
-                self.header = HierarchyHeader(file)
+                result.header = HierarchyHeader.read(file)
             elif chunkType == W3D_CHUNK_PIVOTS:
                 while file.tell() < subChunkEnd:
-                    self.pivots.append(HierarchyPivot(file))
+                    result.pivots.append(HierarchyPivot.read(file))
             elif chunkType == W3D_CHUNK_PIVOT_FIXUPS:
                 while file.tell() < subChunkEnd:
-                    self.pivot_fixups.append(read_vector(file))
+                    result.pivot_fixups.append(read_vector(file))
             else:
-                skip_unknown_chunk(context, file, chunkType, chunkSize)
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
+        
+        return result
 
 
 #######################################################################################
@@ -148,14 +147,14 @@ class AnimationHeader(Struct):
     numFrames = 0
     frameRate = 0
 
-    def __init__(self, file=None):
-        if file == None:
-            return
-        self.version = Version(file)
-        self.name = read_fixed_string(file)
-        self.hierarchyName = read_fixed_string(file)
-        self.numFrames = read_long(file)
-        self.frameRate = read_long(file)
+    @staticmethod
+    def read(file):
+        return AnimationHeader(
+            version=Version.read(file),
+            name=read_fixed_string(file),
+            hierarchyName=read_fixed_string(file),
+            numFrames=read_long(file),
+            frameRate=read_long(file))
 
 
 W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
@@ -170,25 +169,25 @@ class AnimationChannel(Struct):
     padding = 0
     data = []
 
-    def __init__(self, file=None,  chunkEnd = 0):
-        if file == None:
-            return
-        self.firstFrame = read_short(file)
-        self.lastFrame = read_short(file)
-        self.vectorLen = read_short(file)
-        self.type = read_short(file)
-        self.pivot = read_short(file)
-        self.padding = read_short(file)
+    @staticmethod
+    def read(file, chunkEnd):
+        result = AnimationChannel(
+            firstFrame=read_short(file),
+            lastFrame=read_short(file),
+            vectorLen=read_short(file),
+            type=read_short(file),
+            pivot=read_short(file),
+            padding=read_short(file),
+            data=[])
 
-        self.data = []
-
-        if self.vectorLen == 1:
+        if result.vectorLen == 1:
             while file.tell() < chunkEnd:
-                self.data.append(read_float(file))
-        elif self.vectorLen == 4:
+                result.data.append(read_float(file))
+        elif result.vectorLen == 4:
             while file.tell() < chunkEnd:
-                self.data.append(read_quaternion(file))
+                result.data.append(read_quaternion(file))
 
+        return result
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -198,11 +197,9 @@ class Animation(Struct):
     header = AnimationHeader()
     channels = []
 
-    def __init__(self, file=None, chunkEnd = 0, context = None):
-        if file == None:
-            return
-
-        self.channels = []
+    @staticmethod
+    def read(self, file, chunkEnd):
+        result = Animation(channels=[])
 
         while file.tell() < chunkEnd:
             chunkType = read_long(file)
@@ -210,12 +207,13 @@ class Animation(Struct):
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_ANIMATION_HEADER:
-                self.header = AnimationHeader(file)
+                result.header = AnimationHeader.read(file)
             elif chunkType == W3D_CHUNK_ANIMATION_CHANNEL:
-                self.channels.append(AnimationChannel(file, subChunkEnd))
+                result.channels.append(AnimationChannel.read(file, subChunkEnd))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
+        return result
 
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 
