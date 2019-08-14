@@ -69,6 +69,7 @@ def make_transform_matrix(loc,rot):
     mat_rot = mathutils.Quaternion(rot).to_matrix().to_4x4()
     return mat_loc @ mat_rot
 
+
 def create_armature(self, hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = True
@@ -76,7 +77,6 @@ def create_armature(self, hierarchy, amtName, subObjects):
     rig = bpy.data.objects.new(amtName, amt)
     rig.location = hierarchy.header.center
     rig.rotation_mode = 'QUATERNION'
-    #rig.show_x_ray = True
     rig.track_axis = "POS_X"
 
     link_object_to_active_scene(rig)
@@ -89,10 +89,9 @@ def create_armature(self, hierarchy, amtName, subObjects):
     for obj in subObjects:
         non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
 
-    # create the bones from the pivots
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
-            continue  # do not create a bone
+            continue
 
         bone = amt.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.position,pivot.rotation) 
@@ -103,26 +102,15 @@ def create_armature(self, hierarchy, amtName, subObjects):
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
-        # has to point in y direction that the rotation is applied correctly
-        bone.tail = Vector((0.0, 1.0, 0.0))
-        # bone rest pose must be applied in edit mode
+        # has to point in y direction, so that the rotation is applied correctly
+        bone.tail = Vector((0.0, 0.01, 0.0))
         bone.matrix = matrix
-        #bone.custom_shape = basic_sphere
 
-    # Pose the bones
-    # bpy.ops.object.mode_set(mode='POSE')
 
-    # for pivot in hierarchy.pivots:
-    #     if non_bone_pivots.count(pivot) > 0:
-    #         continue  # do not create a bone
+    bpy.ops.object.mode_set(mode='POSE')
 
-    #     bone = rig.pose.bones[pivot.name]
-    #     bone.location = pivot.position
-    #     bone.rotation_mode = 'QUATERNION'
-    #     bone.rotation_euler = pivot.eulerAngles
-    #     bone.rotation_quaternion = pivot.rotation
-
-    #     
+    for bone in rig.pose.bones:
+        bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -300,12 +288,9 @@ def get_deltas(block, numBits):
                 val |= 0x80
             deltas[i] = to_signed(val)
 
-    for d in deltas:
-        print (d)
     return deltas
 
-
-    #gets AdaptiveDeltaData
+    
 def decode(data, channel, scale):
     scaleFactor = 1.0
 
@@ -314,13 +299,6 @@ def decode(data, channel, scale):
 
     result = [None] * channel.numTimeCodes
     result[0] = data.initialValue
-
-    for i in range(1, channel.numTimeCodes):
-        if channel.type == 6:
-            result[i] = Quaternion()
-        else:
-            result[i] = 0.0
-    
 
     for i in range(len(data.deltaBlocks)):
         deltaBlock = data.deltaBlocks[i]
@@ -336,11 +314,18 @@ def decode(data, channel, scale):
                 break
 
             if channel.type == 6:
-                value = result[idx - 1][vectorIndex] + deltaScale * deltas[j]
-                result[idx][vectorIndex] = value
+                index = (vectorIndex + 1) % 4 # access quat as xyzw instead of wxyz
+                value = result[idx - 1][index] + deltaScale * deltas[j]
+                if (result[idx] == None):
+                    result[idx] = Quaternion()
+                    result[idx].w = result[idx - 1].w
+                    result[idx].x = result[idx - 1].x
+                    result[idx].y = result[idx - 1].y
+                    result[idx].z = result[idx - 1].z
+                result[idx][index] = value
+                
             else:
-                value = result[idx - 1] + deltaScale * deltas[j]
-                result[idx] = value
+                result[idx] = result[idx - 1] + deltaScale * deltas[j]
 
     return result
 

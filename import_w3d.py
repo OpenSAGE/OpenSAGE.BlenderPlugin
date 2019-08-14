@@ -1029,10 +1029,6 @@ def load(self, context, import_settings):
                 mod.use_bone_envelopes = False
                 mod.use_vertex_groups = True
 
-                # to keep the transformations while mesh is in edit mode!!!
-                mod.show_in_editmode = True
-                mod.show_on_cage = True
-                
             else:
                 for pivot in hierarchy.pivots:
                     if pivot.name == m.header.meshName:
