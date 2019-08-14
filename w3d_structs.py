@@ -5,6 +5,7 @@
 from mathutils import Vector, Quaternion
 from io_mesh_w3d.w3d_io_binary import *
 from io_mesh_w3d.utils_w3d import *
+from io_mesh_w3d.w3d_adaptive_delta import * 
 
 class Struct:
     def __init__(self, *argv, **argd):
@@ -217,6 +218,9 @@ class Animation(Struct):
 
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 
+#######################################################################################
+# Compressed Animation
+#######################################################################################
 
 class CompressedAnimationHeader(Struct):
     version = Version()
@@ -226,11 +230,33 @@ class CompressedAnimationHeader(Struct):
     frameRate = 0
     flavor = 0
 
+    @staticmethod
+    def read(file):
+        return CompressedAnimationHeader(
+            version=Version.read(file),
+            name=read_fixed_string(file),
+            hierarchyName=read_fixed_string(file),
+            numFrames=read_long(file),
+            frameRate=read_short(file),
+            flavor=read_short(file))
+
 
 class TimeCodedDatum(Struct):
     timeCode = 0
     nonInterpolated = False
     value = None
+
+    @staticmethod
+    def read(file, type):
+        result = TimeCodedDatum(
+            timeCode=read_long(file),
+            value=read_channel_value(file, type))
+
+        if (result.timeCode >> 31) == 1:
+            result.timeCode &= ~(1 << 31)
+            result.nonInterpolated = True
+
+        return result
 
 
 class TimeCodedAnimationChannel(Struct):
@@ -239,6 +265,21 @@ class TimeCodedAnimationChannel(Struct):
     vectorLen = 0
     type = 0
     timeCodes = []
+
+    @staticmethod
+    def read(file):
+        result = TimeCodedAnimationChannel(
+            numTimeCodes=read_long(file),
+            pivot=read_short(file),
+            vectorLen=read_unsigned_byte(file),
+            type=read_unsigned_byte(file),
+            timeCodes=[])
+
+        for _ in range(result.numTimeCodes):
+            result.timeCodes.append(
+                TimeCodedDatum.read(file, result.type))
+
+        return result
 
 
 class AdaptiveDeltaAnimationChannel(Struct):
@@ -249,11 +290,36 @@ class AdaptiveDeltaAnimationChannel(Struct):
     scale = 0
     data = []
 
+    @staticmethod
+    def read(file):
+        result = AdaptiveDeltaAnimationChannel(
+            numTimeCodes=read_long(file),
+            pivot=read_short(file),
+            vectorLen=read_unsigned_byte(file),
+            type=read_unsigned_byte(file),
+            scale=read_short(file),
+            data=[])
+
+        result.data = AdaptiveDeltaData.read(file, result, 4)
+
+        file.read(3) # read unknown bytes at the end
+        return result
+
 
 class AdaptiveDeltaMotionAnimationChannel(Struct):
     scale = 0.0
     initialValue = None
     data = []
+
+    @staticmethod
+    def read(file, channel, bits):
+        result = AdaptiveDeltaMotionAnimationChannel(
+            scale=read_float(file),
+            data=[])
+
+        data = AdaptiveDeltaData.read(file, channel, bits)
+        result.data = decode(data, channel, result.scale)
+        return result
 
 
 class AdaptiveDeltaBlock(Struct):
@@ -261,14 +327,41 @@ class AdaptiveDeltaBlock(Struct):
     blockIndex = 0
     deltaBytes = []
 
+    @staticmethod
+    def read(file, vecIndex, bits):
+        result = AdaptiveDeltaBlock(
+            vectorIndex = vecIndex,
+            blockIndex = read_unsigned_byte(file),
+            deltaBytes = [])
+    
+        for _ in range(bits * 2):
+            result.deltaBytes.append(read_signed_byte(file))
+        return result
+
 
 class AdaptiveDeltaData(Struct):
     initialValue = None
     deltaBlocks = []
     bitCount = 0
 
+    @staticmethod
+    def read(file, channel, bits):
+        result = AdaptiveDeltaData(
+            initialValue=read_channel_value(file, channel.type),
+            deltaBlocks=[],
+            bitCount = bits)
+
+        count = (channel.numTimeCodes + 15) >> 4
+
+        for _ in range(count):
+            for j in range(channel.vectorLen):
+                result.deltaBlocks.append(AdaptiveDeltaBlock.read(file, j, bits))
+
+        return result
+
 
 class TimeCodedBitChannel(Struct):
+    #TODO
     data = 0
 
 
@@ -279,6 +372,47 @@ class MotionChannel(Struct):
     numTimeCodes = 0
     pivot = 0
     data = []
+
+    @staticmethod
+    def read_time_coded_data(file, channel):
+        result = []
+
+        for x in range(channel.numTimeCodes):
+            datum = TimeCodedDatum(
+                timeCode=read_short(file))
+            result.append(datum)
+
+        if (not channel.numTimeCodes % 2 == 0):
+            read_short(file)  # alignment
+
+        for x in range(channel.numTimeCodes):
+            result[x].value = read_channel_value(file, channel.type)
+
+        return result
+
+    @staticmethod
+    def read(file, chunkEnd):
+        read_unsigned_byte(file)  # zero
+
+        result = MotionChannel(
+            deltaType=read_unsigned_byte(file),
+            vectorLen=read_unsigned_byte(file),
+            type=read_unsigned_byte(file),
+            numTimeCodes=read_short(file),
+            pivot=read_short(file),
+            data=[]) 
+
+        if result.deltaType == 0:
+            result.data = MotionChannel.read_time_coded_data(file, result)
+        elif result.deltaType == 1:
+            result.data = AdaptiveDeltaMotionAnimationChannel.read(file, result, 4)
+        elif result.deltaType == 2:
+            result.data = AdaptiveDeltaMotionAnimationChannel.read(file, result, 8)
+        else:
+            print("unknown motion deltatype!!")
+
+        return result
+
 
 W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
 W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL = 0x00000282
@@ -292,6 +426,41 @@ class CompressedAnimation(Struct):
     adaptiveDeltaChannels = []
     timeCodedBitChannels = []
     motionChannels = []
+
+    @staticmethod
+    def read(self, file, chunkEnd):
+        print("\n### NEW COMPRESSED ANIMATION: ###")
+        result = CompressedAnimation(
+            timeCodedChannels=[],
+            adaptiveDeltaChannels=[],
+            timeCodedBitChannels=[],
+            motionChannels=[])
+
+        while file.tell() < chunkEnd:
+            chunkType = read_long(file)
+            chunkSize = get_chunk_size(read_long(file))
+            subChunkEnd = file.tell() + chunkSize
+
+            if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
+                result.header = CompressedAnimationHeader.read(file)
+            elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
+                if result.header.flavor == 0:
+                    result.timeCodedChannels.append(
+                        TimeCodedAnimationChannel.read(file))
+                elif result.header.flavor == 1:
+                    result.adaptiveDeltaChannels.append(AdaptiveDeltaAnimationChannel.read(file))
+                else:
+                    skip_unknown_chunk(self, file, chunkType, chunkSize)
+            # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
+            #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
+            elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
+                result.motionChannels.append(
+                    MotionChannel.read(file, subChunkEnd))
+            else:
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
+
+        print("finished animation")
+        return result
 
 #######################################################################################
 # HLod

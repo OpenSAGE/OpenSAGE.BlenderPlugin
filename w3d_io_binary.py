@@ -138,3 +138,10 @@ def read_mesh_vertices_array(file, chunkEnd):
     while file.tell() < chunkEnd:
         verts.append(read_vector(file))
     return verts
+
+
+def read_channel_value(file, type):
+    if type == 6:
+        return read_quaternion(file)
+    else:
+        return read_float(file)

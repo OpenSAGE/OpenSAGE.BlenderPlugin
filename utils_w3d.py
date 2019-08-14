@@ -59,7 +59,6 @@ GEOMETRY_TYPE_SKIN = 0x00020000
 def is_skin(mesh):
     return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
-
 #######################################################################################
 # create skeleton
 #######################################################################################
@@ -316,7 +315,7 @@ def apply_timecoded(bone, channel):
 
 def apply_motionChannel_timeCoded(bone, channel):
     for d in channel.data:
-        set_transform(bone, channel, d.keyFrame, d.value)
+        set_transform(bone, channel, d.timeCode, d.value)
 
 
 def apply_motionChannel_adaptiveDelta(bone, channel):
