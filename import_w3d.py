@@ -901,7 +901,6 @@ def load(self, context, import_settings):
     compressedAnimation = None
     hlod = None
     box = None
-    rig = None
 
     while file.tell() < filesize:
         chunkType = read_long(file)
@@ -926,8 +925,7 @@ def load(self, context, import_settings):
 
     file.close()
 
-    if not box == None:
-        create_box(box)
+    create_box(box)
 
     if (hierarchy == None):
         sklpath = None
@@ -949,20 +947,8 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    # create skeleton if needed
-    if not hlod == None and not hlod.header.modelName == hlod.header.hierarchyName:
-        amtName = hierarchy.header.name
-        found = False
-
-        for obj in bpy.data.objects:
-            if obj.name == amtName:
-                rig = obj
-                found = True
-
-        if not found:
-            hide_rig = len(meshes) > 0
-            rig = create_armature(self, hierarchy, amtName,
-                                  hlod.lodArray.subObjects, hide_rig)
+    hide_rig = len(meshes) > 0
+    rig = get_or_create_skeleton(hlod, hierarchy, hide_rig)
 
     for m in meshes:
         triangles = []
@@ -1002,6 +988,8 @@ def load(self, context, import_settings):
                                 destBlend, mesh.materials[0])
 
         create_shader_materials(self, m, mesh)
+
+    amtName = hierarchy.header.name
 
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]

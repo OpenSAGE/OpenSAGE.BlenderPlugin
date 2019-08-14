@@ -54,14 +54,35 @@ def link_object_to_active_scene(obj):
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
+
 GEOMETRY_TYPE_SKIN = 0x00020000
 def is_skin(mesh):
     return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
 
 #######################################################################################
-# create armature
+# create skeleton
 #######################################################################################
+
+def get_or_create_skeleton(hlod, hierarchy, hide):
+    rig = None
+
+    if hlod == None or hlod.header.modelName == hlod.header.hierarchyName:
+        return rig
+
+    amtName = hierarchy.header.name
+
+    for obj in bpy.data.objects:
+        if obj.name == amtName:
+            rig = obj
+
+    if rig == None:
+        rig = create_armature(hierarchy, amtName,
+                                hlod.lodArray.subObjects)
+
+    rig.hide_set(hide)
+
+    return rig
 
 
 def make_transform_matrix(loc,rot):
@@ -70,7 +91,7 @@ def make_transform_matrix(loc,rot):
     return mat_loc @ mat_rot
 
 
-def create_armature(self, hierarchy, amtName, subObjects, hide):
+def create_armature(hierarchy, amtName, subObjects):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = False
 
@@ -113,8 +134,6 @@ def create_armature(self, hierarchy, amtName, subObjects, hide):
         bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
-
-    rig.hide_set(hide)
 
     return rig
 
@@ -368,6 +387,9 @@ def create_sphere():
 
 
 def create_box(box):
+    if box == None:
+        return
+
     # to keep name always equal (sometimes it is "BOUNDING BOX")
     name = "BOUNDINGBOX"
     x = box.extend[0]/2.0
@@ -381,6 +403,7 @@ def create_box(box):
 
     cube = bpy.data.meshes.new(name)
     b = bpy.data.objects.new(name, cube)
+    b.display_type = 'WIRE'
     mat = bpy.data.materials.new("BOUNDINGBOX.Material")
 
     mat.diffuse_color = (box.color.r, box.color.g, box.color.b, 1.0)
@@ -389,3 +412,4 @@ def create_box(box):
     link_object_to_active_scene(b)
     cube.from_pydata(verts, [], faces)
     cube.update(calc_edges=True)
+
