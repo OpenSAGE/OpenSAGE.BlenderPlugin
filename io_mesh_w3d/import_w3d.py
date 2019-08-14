@@ -580,8 +580,7 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    hide_rig = len(meshes) > 0
-    rig = get_or_create_skeleton(hlod, hierarchy, hide_rig)
+    rig = get_or_create_skeleton(hlod, hierarchy)
 
     for m in meshes:
         triangles = []
