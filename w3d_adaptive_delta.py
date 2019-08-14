@@ -34,12 +34,12 @@ def get_deltas(block, numBits):
     for i, byte in enumerate(block.deltaBytes):
         index = i * 2
         if numBits == 4:
-            deltas[index] = byte
+            deltas[index] = to_signed(byte)
             # Bitflip
             if (deltas[index] & 8) != 0:
                 deltas[index] = to_signed(deltas[index] | 0xF0)
             else:
-                deltas[index] &= 0x0F
+                deltas[index] = to_signed(deltas[index] & 0x0F)
             deltas[index + 1] = to_signed(byte >> 4)
         elif numBits == 8:
             # Bitflip
