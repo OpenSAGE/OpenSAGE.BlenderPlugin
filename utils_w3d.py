@@ -70,9 +70,9 @@ def make_transform_matrix(loc,rot):
     return mat_loc @ mat_rot
 
 
-def create_armature(self, hierarchy, amtName, subObjects):
+def create_armature(self, hierarchy, amtName, subObjects, hide):
     amt = bpy.data.armatures.new(hierarchy.header.name)
-    amt.show_names = True
+    amt.show_names = False
 
     rig = bpy.data.objects.new(amtName, amt)
     rig.location = hierarchy.header.center
@@ -113,6 +113,8 @@ def create_armature(self, hierarchy, amtName, subObjects):
         bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
+
+    rig.hide_set(hide)
 
     return rig
 
@@ -281,37 +283,32 @@ def set_rotation(bone, frame, value):
     bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
+def set_transform(bone, channel, frame, value):
+    if is_translation(channel):
+        set_translation(bone, channel.type, frame, value)
+    elif is_rotation(channel):
+        set_rotation(bone, frame, value)
+
+
 def apply_timecoded(bone, channel):
     for key in channel.timeCodes:
-        if is_translation(channel):
-            set_translation(bone, channel.type, key.timeCode, key.value)
-        elif is_rotation(channel):
-            set_rotation(bone, key.timeCode, key.value)
+        set_transform(bone, channel, key.timeCode, key.value)
 
 
 def apply_motionChannel_timeCoded(bone, channel):
     for d in channel.data:
-        if is_translation(channel):
-            set_translation(bone, channel.type, d.keyFrame, d.value)
-        elif is_rotation(channel):
-            set_rotation(bone, d.keyFrame, d.value)
+        set_transform(bone, channel, d.keyFrame, d.value)
 
 
 def apply_motionChannel_adaptiveDelta(bone, channel):
     for i in range(channel.numTimeCodes):
-        if is_translation(channel):
-            set_translation(bone, channel.type, i, channel.data.data[i])
-        elif is_rotation(channel):
-            set_rotation(bone, i, channel.data.data[i])
+        set_transform(bone, channel, i, channel.data.data[i])
 
 
 def apply_uncompressed(bone, channel):
     for frame in range(channel.firstFrame, channel.lastFrame):
-        if is_translation(channel):
-            set_translation(bone, channel.type, frame, channel.data[frame - channel.firstFrame])
-        elif is_rotation(channel):
-            data = channel.data[frame - channel.firstFrame]
-            set_rotation(bone, frame, data)
+        data = channel.data[frame - channel.firstFrame]
+        set_transform(bone, channel, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, apply_func):

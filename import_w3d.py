@@ -960,12 +960,9 @@ def load(self, context, import_settings):
                 found = True
 
         if not found:
+            hide_rig = len(meshes) > 0
             rig = create_armature(self, hierarchy, amtName,
-                                  hlod.lodArray.subObjects)
-
-        # if len(meshes) > 0:
-            # if a mesh is loaded set the armature invisible
-        #   rig.hide = True
+                                  hlod.lodArray.subObjects, hide_rig)
 
     for m in meshes:
         triangles = []
