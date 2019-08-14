@@ -1009,36 +1009,7 @@ def load(self, context, import_settings):
         mesh_ob = bpy.data.objects[m.header.meshName]
 
         if hierarchy.header.numPivots > 0:
-            # mesh header attributes
-            #        0      -> normal mesh
-            #        8192   -> normal mesh - two sided
-            #        32768  -> normal mesh - cast shadow
-            #        40960  -> normal mesh - two sided - cast shadow
-            #        131072 -> skin
-            #        139264 -> skin - two sided
-            #        143360 -> skin - two sided - hidden
-            #        163840 -> skin - cast shadow
-            #        172032 -> skin - two sided - cast shadow
-            #        393216 -> normal mesh - camera oriented (points _towards_ camera)
-            type = m.header.attrs
-            if type == 0 or type == 8192 or type == 32768 or type == 40960 or type == 393216:
-                for pivot in hierarchy.pivots:
-                    if pivot.name == m.header.meshName:
-                        mesh_ob.rotation_mode = 'QUATERNION'
-                        mesh_ob.location = pivot.position
-                        mesh_ob.rotation_euler = pivot.eulerAngles
-                        mesh_ob.rotation_quaternion = pivot.rotation
-
-                        if pivot.parentID > 0:
-                            parent_pivot = hierarchy.pivots[pivot.parentID]
-                            try:
-                                mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-                            except:
-                                mesh_ob.parent = bpy.data.objects[amtName]
-                                mesh_ob.parent_bone = parent_pivot.name
-                                mesh_ob.parent_type = 'BONE'
-
-            elif type == 131072 or type == 139264 or type == 143360 or type == 163840 or type == 172032:
+            if is_skin(m):
                 for pivot in hierarchy.pivots:
                     mesh_ob.vertex_groups.new(name=pivot.name)
 
@@ -1061,10 +1032,23 @@ def load(self, context, import_settings):
                 # to keep the transformations while mesh is in edit mode!!!
                 mod.show_in_editmode = True
                 mod.show_on_cage = True
+                
             else:
-                print("unsupported meshtype attribute: %i" % type)
-                self.report(
-                    {'ERROR'}, "unsupported meshtype attribute: %i" % type)
+                for pivot in hierarchy.pivots:
+                    if pivot.name == m.header.meshName:
+                        mesh_ob.rotation_mode = 'QUATERNION'
+                        mesh_ob.location = pivot.position
+                        mesh_ob.rotation_euler = pivot.eulerAngles
+                        mesh_ob.rotation_quaternion = pivot.rotation
+
+                        if pivot.parentID > 0:
+                            parent_pivot = hierarchy.pivots[pivot.parentID]
+                            try:
+                                mesh_ob.parent = bpy.data.objects[parent_pivot.name]
+                            except:
+                                mesh_ob.parent = bpy.data.objects[amtName]
+                                mesh_ob.parent_bone = parent_pivot.name
+                                mesh_ob.parent_type = 'BONE'
 
         link_object_to_active_scene(mesh_ob)
 

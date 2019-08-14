@@ -54,6 +54,10 @@ def link_object_to_active_scene(obj):
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
+GEOMETRY_TYPE_SKIN = 0x00020000
+def is_skin(mesh):
+    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+
 
 #######################################################################################
 # create armature
