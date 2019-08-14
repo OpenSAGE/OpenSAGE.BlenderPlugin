@@ -6,6 +6,7 @@ import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
 from io_mesh_w3d.utils_w3d import *
+from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
 #######################################################################################
@@ -326,7 +327,7 @@ def read_aabbtree_header(file, chunkEnd):
     nodeCount = read_long(file)
     polyCount = read_long(file)
 
-    file.read(24) #padding
+    file.read(24)  # padding
 
     return AABBTreeHeader(nodeCount=nodeCount, polyCount=polyCount)
 
@@ -613,11 +614,8 @@ def load(self, context, import_settings):
         for vertMat in m.vertMatls:
             mesh.materials.append(create_vert_material(m, vertMat))
 
-        destBlend = 0
-
         for texture in m.textures:
-            load_texture_to_mat(self, texture.name,
-                                destBlend, mesh.materials[0])
+            load_texture_to_mat(self, texture.name, mesh.materials[0])
 
         create_shader_materials(self, m, mesh)
 

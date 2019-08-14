@@ -18,6 +18,7 @@ def calculate_table():
     fill_with_sinus_function(table)
     return table
 
+
 delta_table = calculate_table()
 
 
@@ -56,7 +57,7 @@ def decode(data, channel, scale):
     scaleFactor = 1.0
 
     if data.bitCount == 8:
-        scaleFactor = 1.0 / 16.0
+        scaleFactor = 1 / 16.0
 
     result = [None] * channel.numTimeCodes
     result[0] = data.initialValue

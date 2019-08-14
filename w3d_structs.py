@@ -713,7 +713,7 @@ class MeshVertexInfluence(Struct):
 
 class MeshTriangle(Struct):
     vertIds = []
-    attrs = 13 
+    attrs = 13
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 

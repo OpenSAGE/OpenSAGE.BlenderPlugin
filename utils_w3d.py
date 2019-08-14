@@ -84,7 +84,7 @@ def get_or_create_skeleton(hlod, hierarchy, hide):
     return rig
 
 
-def make_transform_matrix(loc,rot):
+def make_transform_matrix(loc, rot):
     mat_loc = mathutils.Matrix.Translation(loc)
     mat_rot = mathutils.Quaternion(rot).to_matrix().to_4x4()
     return mat_loc @ mat_rot
@@ -114,7 +114,7 @@ def create_armature(hierarchy, amtName, subObjects):
             continue
 
         bone = amt.edit_bones.new(pivot.name)
-        matrix = make_transform_matrix(pivot.position,pivot.rotation) 
+        matrix = make_transform_matrix(pivot.position, pivot.rotation)
 
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
@@ -140,20 +140,26 @@ def create_armature(hierarchy, amtName, subObjects):
 #######################################################################################
 # create material
 #######################################################################################
+def rgb_to_vector(rgb):
+    return (rgb.r, rgb.g, rgb.b)
+
 
 def create_vert_material(mesh, vertMat):
     mat = bpy.data.materials.new(mesh.header.meshName + "." + vertMat.vmName)
     mat.use_nodes = True
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color = (vertMat.vmInfo.diffuse.r,
-                             vertMat.vmInfo.diffuse.g,
-                             vertMat.vmInfo.diffuse.b)
+    principled.base_color = rgb_to_vector(vertMat.vmInfo.diffuse)
+    principled.alpha = vertMat.vmInfo.opacity
+    principled.specular = vertMat.vmInfo.shininess
+    #principled.specular_tint = rgb_to_vector(vertMat.vmInfo.specular)
+    #principled.inputs["Emission"].default_value =  rgb_to_vector(vertMat.vmInfo.emissive)
 
     # mat.specular_color = (vertMat.vmInfo.specular.r,
     #                       vertMat.vmInfo.specular.g, vertMat.vmInfo.specular.b)
     # mat.diffuse_color = (vertMat.vmInfo.diffuse.r,
     #                      vertMat.vmInfo.diffuse.g, vertMat.vmInfo.diffuse.b,
     #                      vertMat.vmInfo.translucency)
+    mat["Translucency"] = vertMat.vmInfo.translucency
     return mat
 
 
@@ -168,15 +174,12 @@ def create_shader_materials(self, m, mesh):
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
-            print(prop.name)
-            print(prop.value)
-
             if (prop.name == "DiffuseTexture"):
                 principled.base_color_texture.image = load_texture(
-                    self, prop.value, 0)
+                    self, prop.value)
             elif (prop.name == "NormalMap"):
                 principled.normalmap_texture.image = load_texture(
-                    self, prop.value, 0)
+                    self, prop.value)
             elif (prop.name == "BumpScale"):
                 principled.normalmap_strength = prop.value
             # Color type
@@ -227,7 +230,7 @@ def create_uvlayer(mesh, tris, txCoords, txStages):
 # load texture
 #######################################################################################
 
-def load_texture(self, texName, destBlend):
+def load_texture(self, texName):
     found_img = False
     basename = os.path.splitext(texName)[0]
 
@@ -255,8 +258,8 @@ def load_texture(self, texName, destBlend):
     return img
 
 
-def load_texture_to_mat(self, texName, destBlend, mat):
-    img = load_texture(self, texName, destBlend)
+def load_texture_to_mat(self, texName, mat):
+    img = load_texture(self, texName)
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
 
@@ -361,9 +364,11 @@ def create_animation(self, animation, hierarchy, compressed):
     rig = setup_animation(animation)
 
     if not compressed:
-        process_channels(hierarchy, animation.channels, rig, apply_uncompressed)
+        process_channels(hierarchy, animation.channels,
+                         rig, apply_uncompressed)
     else:
-        process_channels(hierarchy, animation.timeCodedChannels, rig, apply_timecoded)
+        process_channels(hierarchy, animation.timeCodedChannels,
+                         rig, apply_timecoded)
         process_motion_channels(hierarchy, animation.motionChannels, rig)
 
     bpy.context.scene.frame_set(0)
