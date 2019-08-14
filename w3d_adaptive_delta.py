@@ -37,10 +37,10 @@ def get_deltas(block, numBits):
             deltas[index] = byte
             # Bitflip
             if (deltas[index] & 8) != 0:
-                deltas[index] |= 0xF0
+                deltas[index] = to_signed(deltas[index] | 0xF0)
             else:
                 deltas[index] &= 0x0F
-            deltas[index + 1] = byte >> 4
+            deltas[index + 1] = to_signed(byte >> 4)
         elif numBits == 8:
             # Bitflip
             if byte & 0x80 != 0:

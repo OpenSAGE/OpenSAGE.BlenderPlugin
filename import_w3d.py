@@ -229,12 +229,17 @@ def read_adaptive_delta_data(file, channel, bits):
 
 
 def read_motion_channel_adaptive_delta_data(file, channel, bits):
-    print("Adaptive delta " + str(bits))
+    print("Adaptive delta " + str(bits) + " type: " + str(channel.type))
     result = AdaptiveDeltaMotionAnimationChannel(
         scale=read_float(file))
 
+    result.data = []
     data = read_adaptive_delta_data(file, channel, bits)
     result.data = decode(data, channel, result.scale)
+
+    if (bits == 4):
+        for d in result.data:
+            print (d)
 
     return result
 
@@ -281,8 +286,10 @@ def read_compressed_animation(self, file, chunkEnd):
             if result.header.flavor == 0:
                 result.timeCodedChannels.append(
                     read_time_coded_animation_channel(file))
-            elif result.header.flavor == 1:
-                result.adaptiveDeltaChannels.append(read_adaptive_delta_animation_channel(file))
+            #elif result.header.flavor == 1:
+            #    result.adaptiveDeltaChannels.append(read_adaptive_delta_animation_channel(file))
+            else:
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
         # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
         #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
         elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
