@@ -4,8 +4,6 @@
 import bpy
 import struct
 from mathutils import Vector, Quaternion
-from io_mesh_w3d.w3d_structs import RGBA, Version
-
 
 def get_chunk_size(data):
     return data & 0x7FFFFFFF
@@ -13,14 +11,6 @@ def get_chunk_size(data):
 
 def make_chunk_size(data):
     return data | 0x80000000
-
-
-def get_version(data):
-    return Version(major=data >> 16, minor=data & 0xFFFF)
-
-
-def make_version(version):
-    return (version.major << 16) | version.minor
 
 
 def read_string(file):
@@ -69,22 +59,6 @@ def write_long_fixed_string(file, string):
     while i < nullbytes:
         file.write(struct.pack("B", 0b0))
         i += 1
-
-
-def read_rgba(file):
-    return RGBA(r=ord(file.read(1)), g=ord(file.read(1)), b=ord(file.read(1)), a=ord(file.read(1)))
-
-
-def write_rgba(file, rgba):
-    file.write(struct.pack("B", rgba.r))
-    file.write(struct.pack("B", rgba.g))
-    file.write(struct.pack("B", rgba.b))
-    file.write(struct.pack("B", rgba.a))
-
-
-def read_rgba_f(file):
-    return RGBA(r=read_float(file), g=read_float(file), b=read_float(file), a=read_float(file))
-
 
 def read_long(file):
     return struct.unpack("<L", file.read(4))[0]

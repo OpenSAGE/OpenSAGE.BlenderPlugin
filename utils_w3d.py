@@ -96,7 +96,7 @@ def create_armature(hierarchy, amtName, subObjects):
     amt.show_names = False
 
     rig = bpy.data.objects.new(amtName, amt)
-    rig.location = hierarchy.header.center
+    rig.location = hierarchy.header.centerPos
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
