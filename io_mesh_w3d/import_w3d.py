@@ -121,16 +121,22 @@ def load(self, context, import_settings):
 
             bone = rig.data.bones[hierarchy.pivots[m.vertInfs[i].boneIdx].name]
             m.verts[i] = bone.matrix_local @ Vector(vert)
+            #m.normals[i] = bone.matrix_local @ Vector(m.normals[i])
 
         mesh.from_pydata(m.verts, [], triangles)
         mesh.update()
         mesh.validate()
 
+        #for i, vert in enumerate(mesh.vertices):
+        #    vert.normal = m.normals[i]
+
         create_uvlayers(mesh, triangles, m.materialPass.txCoords,
                        m.materialPass.txStages)
 
+        smooth_mesh(mesh)
+
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
-        mesh_ob['userText'] = m.userText
+        mesh_ob['UserText'] = m.userText
 
         for vertMat in m.vertMatls:
             mesh.materials.append(create_vert_material(m, vertMat))
@@ -159,7 +165,6 @@ def load(self, context, import_settings):
                         [i], weight, 'REPLACE')
 
                     if m.vertInfs[i].xtraIdx != 0:
-                        print(m.vertInfs[i].xtraIdx)
                         mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add(
                             [i], m.vertInfs[i].xtraInf, 'ADD')
 

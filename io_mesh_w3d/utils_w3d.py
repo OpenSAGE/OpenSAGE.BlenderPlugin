@@ -181,15 +181,10 @@ def create_vert_material(mesh, vertMat):
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color = rgb_to_vector(vertMat.vmInfo.diffuse)
     principled.alpha = vertMat.vmInfo.opacity
-    principled.specular = vertMat.vmInfo.shininess
-    #principled.specular_tint = rgb_to_vector(vertMat.vmInfo.specular)
-    #principled.inputs["Emission"].default_value =  rgb_to_vector(vertMat.vmInfo.emissive)
-
-    # mat.specular_color = (vertMat.vmInfo.specular.r,
-    #                       vertMat.vmInfo.specular.g, vertMat.vmInfo.specular.b)
-    # mat.diffuse_color = (vertMat.vmInfo.diffuse.r,
-    #                      vertMat.vmInfo.diffuse.g, vertMat.vmInfo.diffuse.b,
-    #                      vertMat.vmInfo.translucency)
+    mat["Shininess"] = vertMat.vmInfo.shininess
+    mat["Specular"] = rgb_to_vector(vertMat.vmInfo.specular)
+    mat["Emission"] =  rgb_to_vector(vertMat.vmInfo.emissive)
+    mat["Diffuse"] =  rgb_to_vector(vertMat.vmInfo.diffuse)
     mat["Translucency"] = vertMat.vmInfo.translucency
     return mat
 
@@ -400,6 +395,11 @@ def create_animation(self, animation, hierarchy, compressed):
 
     bpy.context.scene.frame_set(0)
 
+def smooth_mesh(mesh):
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    for f in mesh.polygons:
+        f.use_smooth = True
 
 #######################################################################################
 # create basic meshes
