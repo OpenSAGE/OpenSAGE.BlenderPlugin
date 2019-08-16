@@ -225,35 +225,31 @@ def create_shader_materials(self, m, mesh):
 #######################################################################################
 
 
-def create_uvlayer(mesh, tris, txCoords, txStages):
+def create_uvLayer(mesh, bm, tris, txCoords, ID=""):
+    if len(txCoords) == 0:
+        return 
+
+    uv_layer = mesh.uv_layers.new(name="texcoords" + ID, do_init=False)
+    index = 0
+
+    for f in bm.faces:
+        tri = tris[index]
+        for l in f.loops:
+            idx = tri[l.index % 3]
+            uv_layer.data[l.index].uv = txCoords[idx]
+        index += 1
+
+
+def create_uvlayers(mesh, tris, txCoords, txStages):
     bm = bmesh.new()
     bm.from_mesh(mesh)
 
-    if len(txCoords) > 0:
-        uv_layer = mesh.uv_layers.new(name="texcoords", do_init=False)
-        index = 0
+    create_uvLayer(mesh, bm, tris, txCoords)
 
-        for f in bm.faces:
-            tri = tris[index]
-            for l in f.loops:
-                idx = tri[l.index % 3]
-                uv_layer.data[l.index].uv = txCoords[idx]
-            index += 1
-
+    id = 0
     for stage in txStages:
-        i = 0
-        if len(stage.txCoords) > 0:
-            uv_layer = mesh.uv_layers.new(
-                name="texcoords" + str(i), do_init=False)
-            index = 0
-
-            for f in bm.faces:
-                tri = tris[index]
-                for l in f.loops:
-                    idx = tri[l.index % 3]
-                    uv_layer.data[l.index].uv = stage.txCoords[idx]
-                index += 1
-            i += 1
+        create_uvLayer(mesh, bm, tris, stage.txCoords, str(id))
+        id += 1
 
 
 #######################################################################################
@@ -292,6 +288,7 @@ def load_texture_to_mat(self, texName, mat):
     img = load_texture(self, texName)
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color_texture.image = img
+
 
 #######################################################################################
 # createAnimation

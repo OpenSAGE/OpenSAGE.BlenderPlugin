@@ -15,7 +15,7 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
 def load_skeleton_file(self, sklpath):
-    #TODO: handle file not found
+    # TODO: handle file not found
     print('\n### SKELETON: ###', sklpath)
     hierarchy = Hierarchy()
     path = insensitive_path(sklpath)
@@ -74,7 +74,7 @@ def load(self, context, import_settings):
         elif chunkType == W3D_CHUNK_HLOD:
             hlod = HLod.read(self, file, chunkEnd)
         elif chunkType == W3D_CHUNK_BOX:
-           box = Box.read(file)
+            box = Box.read(file)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -126,7 +126,7 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        create_uvlayer(mesh, triangles, m.materialPass.txCoords,
+        create_uvlayers(mesh, triangles, m.materialPass.txCoords,
                        m.materialPass.txStages)
 
         mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
@@ -159,7 +159,7 @@ def load(self, context, import_settings):
                         [i], weight, 'REPLACE')
 
                     if m.vertInfs[i].xtraIdx != 0:
-                        print (m.vertInfs[i].xtraIdx)
+                        print(m.vertInfs[i].xtraIdx)
                         mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add(
                             [i], m.vertInfs[i].xtraInf, 'ADD')
 

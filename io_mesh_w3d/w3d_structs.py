@@ -5,7 +5,8 @@
 from mathutils import Vector, Quaternion
 from io_mesh_w3d.w3d_io_binary import *
 from io_mesh_w3d.utils_w3d import *
-from io_mesh_w3d.w3d_adaptive_delta import * 
+from io_mesh_w3d.w3d_adaptive_delta import *
+
 
 class Struct:
     def __init__(self, *argv, **argd):
@@ -33,16 +34,16 @@ class RGBA(Struct):
     @staticmethod
     def read(file):
         return RGBA(r=ord(file.read(1)),
-            g = ord(file.read(1)),
-            b = ord(file.read(1)),
-            a = ord(file.read(1)))
+                    g=ord(file.read(1)),
+                    b=ord(file.read(1)),
+                    a=ord(file.read(1)))
 
     @staticmethod
     def read_f(file):
         return RGBA(r=read_float(file),
-            g = read_float(file),
-            b = read_float(file),
-            a = read_float(file))
+                    g=read_float(file),
+                    b=read_float(file),
+                    a=read_float(file))
 
 
 class Version(Struct):
@@ -53,7 +54,7 @@ class Version(Struct):
     def read(file):
         data = read_long(file)
         return Version(major=data >> 16,
-            minor = data & 0xFFFF)
+                       minor=data & 0xFFFF)
 
 
 #######################################################################################
@@ -123,12 +124,14 @@ class Hierarchy(Struct):
             if chunkType == W3D_CHUNK_HIERARCHY_HEADER:
                 result.header = HierarchyHeader.read(file)
             elif chunkType == W3D_CHUNK_PIVOTS:
-                result.pivots = read_array(file, subChunkEnd, HierarchyPivot.read)
+                result.pivots = read_array(
+                    file, subChunkEnd, HierarchyPivot.read)
             elif chunkType == W3D_CHUNK_PIVOT_FIXUPS:
-                result.pivot_fixups = read_array(file, subChunkEnd, read_vector)
+                result.pivot_fixups = read_array(
+                    file, subChunkEnd, read_vector)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-        
+
         return result
 
 
@@ -207,7 +210,8 @@ class Animation(Struct):
             if chunkType == W3D_CHUNK_ANIMATION_HEADER:
                 result.header = AnimationHeader.read(file)
             elif chunkType == W3D_CHUNK_ANIMATION_CHANNEL:
-                result.channels.append(AnimationChannel.read(file, subChunkEnd))
+                result.channels.append(
+                    AnimationChannel.read(file, subChunkEnd))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -220,6 +224,7 @@ class Animation(Struct):
 
 
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
+
 
 class CompressedAnimationHeader(Struct):
     version = Version()
@@ -274,7 +279,8 @@ class TimeCodedAnimationChannel(Struct):
             type=read_unsigned_byte(file),
             timeCodes=[])
 
-        result.timeCodes = read_fixed_array(file. result.numTimeCodes, TimeCodedDatum.read)
+        for _ in range(result.numTimeCodes):
+            result.timeCodes.append(TimeCodedDatum.read(file, result.type))
 
         return result
 
@@ -299,7 +305,7 @@ class AdaptiveDeltaAnimationChannel(Struct):
 
         result.data = AdaptiveDeltaData.read(file, result, 4)
 
-        file.read(3) # read unknown bytes at the end
+        file.read(3)  # read unknown bytes at the end
         return result
 
 
@@ -327,10 +333,10 @@ class AdaptiveDeltaBlock(Struct):
     @staticmethod
     def read(file, vecIndex, bits):
         result = AdaptiveDeltaBlock(
-            vectorIndex = vecIndex,
-            blockIndex = read_unsigned_byte(file),
-            deltaBytes = [])
-    
+            vectorIndex=vecIndex,
+            blockIndex=read_unsigned_byte(file),
+            deltaBytes=[])
+
         result.deltaBytes = read_fixed_array(file, bits * 2, read_signed_byte)
         return result
 
@@ -345,19 +351,20 @@ class AdaptiveDeltaData(Struct):
         result = AdaptiveDeltaData(
             initialValue=read_channel_value(file, channel.type),
             deltaBlocks=[],
-            bitCount = bits)
+            bitCount=bits)
 
         count = (channel.numTimeCodes + 15) >> 4
 
         for _ in range(count):
             for j in range(channel.vectorLen):
-                result.deltaBlocks.append(AdaptiveDeltaBlock.read(file, j, bits))
+                result.deltaBlocks.append(
+                    AdaptiveDeltaBlock.read(file, j, bits))
 
         return result
 
 
 class TimeCodedBitChannel(Struct):
-    #TODO
+    # TODO
     data = 0
 
 
@@ -369,8 +376,8 @@ class MotionChannel(Struct):
     pivot = 0
     data = []
 
-    #TODO: find a nice way for this
-    @staticmethod 
+    # TODO: find a nice way for this
+    @staticmethod
     def read_time_coded_data(file, channel):
         result = []
 
@@ -397,14 +404,16 @@ class MotionChannel(Struct):
             type=read_unsigned_byte(file),
             numTimeCodes=read_short(file),
             pivot=read_short(file),
-            data=[]) 
+            data=[])
 
         if result.deltaType == 0:
             result.data = MotionChannel.read_time_coded_data(file, result)
         elif result.deltaType == 1:
-            result.data = AdaptiveDeltaMotionAnimationChannel.read(file, result, 4)
+            result.data = AdaptiveDeltaMotionAnimationChannel.read(
+                file, result, 4)
         elif result.deltaType == 2:
-            result.data = AdaptiveDeltaMotionAnimationChannel.read(file, result, 8)
+            result.data = AdaptiveDeltaMotionAnimationChannel.read(
+                file, result, 8)
         else:
             print("unknown motion deltatype!!")
 
@@ -445,7 +454,8 @@ class CompressedAnimation(Struct):
                     result.timeCodedChannels.append(
                         TimeCodedAnimationChannel.read(file))
                 elif result.header.flavor == 1:
-                    result.adaptiveDeltaChannels.append(AdaptiveDeltaAnimationChannel.read(file))
+                    result.adaptiveDeltaChannels.append(
+                        AdaptiveDeltaAnimationChannel.read(file))
                 else:
                     skip_unknown_chunk(self, file, chunkType, chunkSize)
             # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
@@ -535,6 +545,7 @@ class HLodArray(Struct):
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         return result
+
 
 W3D_CHUNK_HLOD = 0x00000700
 
@@ -630,7 +641,8 @@ class Texture(Struct):
 
     @staticmethod
     def read(self, file, chunkEnd):
-        result = Texture()
+        result = Texture(textureInfo=None)
+
         while file.tell() < chunkEnd:
             chunkType = read_long(file)
             chunkSize = get_chunk_size(read_long(file))
@@ -678,7 +690,8 @@ class MeshTextureStage(Struct):
             elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
                 result.txCoords = read_array(file, subChunkEnd, read_vector2)
             elif chunkType == W3D_CHUNK_PER_FACE_TEXCOORD_IDS:
-                result.perFaceTxCoords = read_array(file, subChunkEnd, read_vector)
+                result.perFaceTxCoords = read_array(
+                    file, subChunkEnd, read_vector)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -708,13 +721,13 @@ class MeshMaterialPass(Struct):
     @staticmethod
     def read(self, file, chunkEnd):
         result = MeshMaterialPass(
-            vertexMaterialIds=[],
+            vmIds=[],
             shaderIds=[],
-            dcg=[],
+             dcg=[],
             dig=[],
             scg=[],
-            shaderMatIds=[],
-            textureStages=[],
+            vertexMaterialIds=[],
+            txStages=[],
             txCoords=[])
 
         while file.tell() < chunkEnd:
@@ -723,19 +736,21 @@ class MeshMaterialPass(Struct):
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_VERTEX_MATERIAL_IDS:
-                result.vertexMaterialIds = read_array(file, subChunkEnd, read_long)
+                result.vertexMaterialIds = read_array(
+                    file, subChunkEnd, read_long)
             elif chunkType == W3D_CHUNK_SHADER_IDS:
                 result.shaderIds = read_array(file, subChunkEnd, read_long)
             elif chunkType == W3D_CHUNK_DCG:
                 result.dcg = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_DIG:
-               result.dig = read_array(file, subChunkEnd, RGBA.read)
+                result.dig = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_SCG:
                 result.scg = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_SHADER_MATERIAL_ID:
                 result.shaderMatIds = read_array(file, subChunkEnd, read_long)
             elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
-                result.txStages.append(MeshTextureStage.read(self, file, subChunkEnd))
+                result.txStages.append(
+                    MeshTextureStage.read(self, file, subChunkEnd))
             elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
                 result.txCoords = read_array(file, subChunkEnd, read_vector2)
             else:
@@ -934,7 +949,7 @@ W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 class ShaderMaterialProperty(Struct):
     type = 0
     name = ""
-    numChars=0
+    numChars = 0
     value = None
 
     @staticmethod
@@ -1003,8 +1018,8 @@ class AABBTreeHeader(Struct):
         result = AABBTreeHeader(
             nodeCount=read_long(file),
             poyCount=read_long(file))
-        
-        file.read(24) # padding
+
+        file.read(24)  # padding
         return result
 
 
@@ -1170,11 +1185,13 @@ class Mesh(Struct):
             elif chunkType == W3D_CHUNK_MESH_USER_TEXT:
                 result.userText = read_string(file)
             elif chunkType == W3D_CHUNK_VERTEX_INFLUENCES:
-                result.vertInfs = read_array(file, subChunkEnd, MeshVertexInfluence.read)
+                result.vertInfs = read_array(
+                    file, subChunkEnd, MeshVertexInfluence.read)
             elif chunkType == W3D_CHUNK_MESH_HEADER:
                 result.header = MeshHeader.read(file)
             elif chunkType == W3D_CHUNK_TRIANGLES:
-                result.triangles = read_array(file, subChunkEnd, MeshTriangle.read)
+                result.triangles = read_array(
+                    file, subChunkEnd, MeshTriangle.read)
             elif chunkType == W3D_CHUNK_VERTEX_SHADE_INDICES:
                 result.shadeIds = read_array(file, subChunkEnd, read_long)
             elif chunkType == W3D_CHUNK_MATERIAL_INFO:
