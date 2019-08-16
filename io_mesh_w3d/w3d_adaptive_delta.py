@@ -54,10 +54,10 @@ def get_deltas(block, numBits):
 
     
 def decode(data, channel, scale):
-    scaleFactor = 1.0
+    scaleFactor = float(1.0)
 
     if data.bitCount == 8:
-        scaleFactor = 1 / 16.0
+        scaleFactor = 1 / float(16)
 
     result = [None] * channel.numTimeCodes
     result[0] = data.initialValue
@@ -70,7 +70,7 @@ def decode(data, channel, scale):
         deltas = get_deltas(deltaBlock, data.bitCount)
 
         for j, delta in enumerate(deltas):
-            idx = int(math.floor((i / channel.vectorLen) * 16) + j + 1)
+            idx = int(i / channel.vectorLen) * 16 + j + 1
             if idx >= channel.numTimeCodes:
                 break
 

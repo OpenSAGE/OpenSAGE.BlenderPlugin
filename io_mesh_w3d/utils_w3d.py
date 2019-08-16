@@ -171,6 +171,8 @@ def create_armature(hierarchy, amtName, subObjects):
 #######################################################################################
 # create material
 #######################################################################################
+
+
 def rgb_to_vector(rgb):
     return (rgb.r, rgb.g, rgb.b)
 
@@ -225,8 +227,8 @@ def create_uvLayer(mesh, bm, tris, txCoords, ID=""):
         return 
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + ID, do_init=False)
-    index = 0
 
+    index = 0
     for f in bm.faces:
         tri = tris[index]
         for l in f.loops:
