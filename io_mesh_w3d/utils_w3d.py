@@ -14,9 +14,41 @@ from bpy_extras.image_utils import load_image
 
 from bpy.props import FloatVectorProperty, StringProperty, PointerProperty
 
+from io_mesh_w3d.w3d_io_binary import *
+
 #######################################################################################
 # helper methods
 #######################################################################################
+
+
+def read_array(file, chunkEnd, readFunc):
+    result = []
+    while file.tell() < chunkEnd:
+        result.append(readFunc(file))
+    return result
+
+
+def read_fixed_array(file, count, readFunc):
+    result = []
+    for _ in range(count):
+        result.append(readFunc(file))
+    return result
+
+
+def read_chunk_array(self, file, chunkEnd, type, read_func):
+    result = []
+
+    while file.tell() < chunkEnd:
+        chunkType = read_long(file)
+        chunkSize = get_chunk_size(read_long(file))
+        subChunkEnd = file.tell() + chunkSize
+
+        if chunkType == type:
+            result.append(read_func(self, file, subChunkEnd))
+        else:
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
+
+    return result
 
 
 def insensitive_open(path):
@@ -60,8 +92,9 @@ def is_skin(mesh):
     return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
 #######################################################################################
-# create skeleton
+# skeleton
 #######################################################################################
+
 
 def get_or_create_skeleton(hlod, hierarchy):
     rig = None
@@ -167,7 +200,6 @@ def rgba_to_vector(prop):
 
 def create_shader_materials(self, m, mesh):
     for material in m.shaderMaterials:
-        print("material")
         mat = bpy.data.materials.new(m.header.meshName + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)

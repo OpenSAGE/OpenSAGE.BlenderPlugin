@@ -84,13 +84,6 @@ def write_float(file, num):
     file.write(struct.pack("<f", num))
 
 
-def read_long_array(file, chunkEnd):
-    longArray = []
-    while file.tell() < chunkEnd:
-        longArray.append(read_long(file))
-    return longArray
-
-
 def write_long_array(file, array):
     for a in array:
         write_long(file, a)
@@ -133,15 +126,14 @@ def write_quaternion(file, quat):
     write_float(file, quat[0])
 
 
-def read_mesh_vertices_array(file, chunkEnd):
-    verts = []
-    while file.tell() < chunkEnd:
-        verts.append(read_vector(file))
-    return verts
-
-
 def read_channel_value(file, type):
     if type == 6:
         return read_quaternion(file)
     else:
         return read_float(file)
+
+
+def read_vector2(file):
+    return (read_float(file), read_float(file))
+
+
