@@ -96,12 +96,11 @@ class HierarchyHeader(Struct):
             numPivots=read_long(file),
             centerPos=read_vector(file))
 
-    def chunkSize(self):
-        return 36
+    def sizeInBytes(self):
+        return 36 
 
     def write(self, file):
-        write_long(file, W3D_CHUNK_HIERARCHY_HEADER)
-        write_long(file, self.chunkSize())
+        write_head(file, W3D_CHUNK_HIERARCHY_HEADER, self.sizeInBytes())
         self.version.write(file)
         write_fixed_string(file, self.name)
         write_long(file, self.numPivots)
@@ -127,8 +126,8 @@ class HierarchyPivot(Struct):
             eulerAngles=read_vector(file),
             rotation=read_quaternion(file))
 
-    def chunkSize(self):
-        return 60
+    def sizeInBytes(self):
+        return 60 
 
     def write(self, file):
         write_fixed_string(file, self.name)
@@ -172,30 +171,29 @@ class Hierarchy(Struct):
 
         return result
 
+
     def pivotsSize(self):
         size = 0
         for pivot in self.pivots:
-            size += pivot.chunkSize()
+            size += pivot.sizeInBytes()
         return size
 
     def pivotFixupsSize(self):
         size = 0
         for _ in self.pivot_fixups:
-            size += 12
+            size += 12 # size in bytes
         return size
 
-    def chunkSize(self):
-        size = HEAD + self.header.chunkSize()
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
         size += HEAD + self.pivotsSize()
         if (len(self.pivot_fixups) > 0):
             size += HEAD + self.pivotFixupsSize()
         return size
 
     def write(self, file):
-        write_long(file, W3D_CHUNK_HIERARCHY)
-        write_chunk_size(file, self.chunkSize())
+        write_head(file, W3D_CHUNK_HIERARCHY, self.sizeInBytes())
         self.header.write(file)
-
         write_long(file, W3D_CHUNK_PIVOTS)
         write_long(file, self.pivotsSize())
         for pivot in self.pivots:
@@ -232,6 +230,17 @@ class AnimationHeader(Struct):
             numFrames=read_long(file),
             frameRate=read_long(file))
 
+    def sizeInBytes(self):
+        return 44
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_ANIMATION_HEADER, self.sizeInBytes())
+        self.version.write(file)
+        write_fixed_string(file, self.name)
+        write_fixed_string(file, self.hierarchyName)
+        write_long(file, self.numFrames)
+        write_long(file, self.frameRate)
+
 
 W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
 
@@ -260,8 +269,26 @@ class AnimationChannel(Struct):
             result.data = read_array(file, chunkEnd, read_float)
         elif result.vectorLen == 4:
             result.data = read_array(file, chunkEnd, read_quaternion)
-
         return result
+
+    def sizeInBytes(self):
+        return 12 + (len(self.data) * self.vectorLen) * 4
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_ANIMATION_CHANNEL, self.sizeInBytes())
+
+        write_short(file, self.firstFrame)
+        write_short(file, self.lastFrame)
+        write_short(file, self.vectorLen)
+        write_short(file, self.type)
+        write_short(file, self.pivot)
+        write_short(file, self.padding)
+
+        for d in self.data:
+            if (self.vectorLen == 1):
+                write_float(file, d)
+            else:
+                write_quaternion(file, d)
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -289,6 +316,19 @@ class Animation(Struct):
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         return result
+
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
+        for channel in self.channels:
+            size += HEAD + channel.sizeInBytes()
+        return size
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_ANIMATION, self.sizeInBytes(), hasSubChunks=True)
+        self.header.write(file)
+
+        for channel in self.channels:
+            channel.write(file)
 
 
 #######################################################################################
@@ -399,11 +439,6 @@ class AdaptiveDeltaAnimationChannel(Struct):
         return result
 
 
-def format(val):
-    str = "%.6f" % val
-    return str.replace(".", ",") + "; "
-
-
 class AdaptiveDeltaMotionAnimationChannel(Struct):
     scale = 0.0
     initialValue = None
@@ -503,7 +538,6 @@ class MotionChannel(Struct):
 
         for x in range(channel.numTimeCodes):
             result[x].value = read_channel_value(file, channel.type)
-
         return result
 
     @staticmethod
@@ -547,7 +581,6 @@ class CompressedAnimation(Struct):
 
     @staticmethod
     def read(self, file, chunkEnd):
-        print("\n### NEW COMPRESSED ANIMATION: ###")
         result = CompressedAnimation(
             timeCodedChannels=[],
             adaptiveDeltaChannels=[],
@@ -578,7 +611,6 @@ class CompressedAnimation(Struct):
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
-        print("finished animation")
         return result
 
 #######################################################################################
@@ -603,6 +635,16 @@ class HLodHeader(Struct):
             modelName=read_fixed_string(file),
             hierarchyName=read_fixed_string(file))
 
+    def sizeInBytes(self):
+        return 40 
+    
+    def write(self, file):
+        write_head(file, W3D_CHUNK_HLOD_HEADER, self.sizeInBytes())
+        self.version.write(file)
+        write_long(file, self.lodCount)
+        write_fixed_string(file, self.modelName)
+        write_fixed_string(file, self.hierarchyName)
+
 
 W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 
@@ -617,6 +659,14 @@ class HLodArrayHeader(Struct):
             modelCount=read_long(file),
             maxScreenSize=read_float(file))
 
+    def sizeInBytes(self):
+        return HEAD
+    
+    def write(self, file):
+        write_head(file, W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, self.sizeInBytes())
+        write_long(file, self.modelCount)
+        write_float(file, self.maxScreenSize)
+
 
 W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
 
@@ -630,6 +680,14 @@ class HLodSubObject(Struct):
         return HLodSubObject(
             boneIndex=read_long(file),
             name=read_long_fixed_string(file))
+
+    def sizeInBytes(self):
+        return 36
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_HLOD_SUB_OBJECT, self.sizeInBytes())
+        write_long(file, self.boneIndex)
+        write_long_fixed_string(file, self.name)
 
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
@@ -657,6 +715,18 @@ class HLodArray(Struct):
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         return result
+
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
+        for obj in self.subObjects:
+            size += HEAD + obj.sizeInBytes()
+        return size
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_HLOD_LOD_ARRAY, self.sizeInBytes(), hasSubChunks=True)
+        self.header.write(file)
+        for obj in self.subObjects:
+            obj.write(file)
 
 
 W3D_CHUNK_HLOD = 0x00000700
@@ -687,6 +757,17 @@ class HLod(Struct):
 
         return result
 
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
+        size += HEAD + self.lodArray.sizeInBytes()
+        return size
+    
+    def write(self, file):
+        write_head(file, W3D_CHUNK_HLOD, self.sizeInBytes(), hasSubChunks=True)
+        self.header.write(file)
+        self.lodArray.write(file)
+
+
 #######################################################################################
 # Box
 #######################################################################################
@@ -706,7 +787,6 @@ class Box(Struct):
 
     @staticmethod
     def read(file):
-        # print("\n### NEW BOX: ###")
         ver = Version.read(file),
         flags = read_long(file)
         return Box(
@@ -717,6 +797,18 @@ class Box(Struct):
             color=RGBA.read(file),
             center=read_vector(file),
             extend=read_vector(file))
+
+    def sizeInBytes(self):
+        return 68
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_BOX, self.sizeInBytes())
+        self.version.write(file)
+        write_long(file, (self.collisionTypes & 0xFF) | (self.boxType & 0b11))
+        write_long_fixed_string(file, self.name)
+        self.color.write(file)
+        write_vector(file, self.center)
+        write_vector(file, self.extend)
 
 
 #######################################################################################

@@ -9,8 +9,12 @@ from mathutils import Vector, Quaternion
 def get_chunk_size(data):
     return data & 0x7FFFFFFF
 
-def write_chunk_size(file, data):
-    write_long(file, data | 0x80000000)
+
+def write_head(file, chunkID, size, hasSubChunks=False):
+    write_long(file, chunkID)
+    if hasSubChunks == True:
+        size |= 0x80000000
+    write_long(file, size)
 
 
 def read_string(file):
