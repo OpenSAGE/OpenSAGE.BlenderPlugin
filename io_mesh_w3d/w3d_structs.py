@@ -320,21 +320,13 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
     data = []
 
     @staticmethod
-    def read(file, channel, bits, f):
+    def read(file, channel, bits):
         result = AdaptiveDeltaMotionAnimationChannel(
             scale=read_float(file),
             data=[])
 
         data = AdaptiveDeltaData.read(file, channel, bits)
         result.data = decode(data, channel, result.scale)
-        for d in result.data:
-            if (channel.type == 6):
-                f.write(format(d.w))
-                f.write(format(d.x))
-                f.write(format(d.y))
-                f.write(format(d.z))
-            else:
-                f.write(format(d))
         return result
 
 
@@ -408,7 +400,7 @@ class MotionChannel(Struct):
         return result
 
     @staticmethod
-    def read(file, chunkEnd, f):
+    def read(file, chunkEnd):
         read_unsigned_byte(file)  # zero
 
         result = MotionChannel(
@@ -423,10 +415,10 @@ class MotionChannel(Struct):
             result.data = MotionChannel.read_time_coded_data(file, result)
         elif result.deltaType == 1:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                file, result, 4, f)
+                file, result, 4)
         elif result.deltaType == 2:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                file, result, 8, f)
+                file, result, 8)
         else:
             print("unknown motion deltatype!!")
 
@@ -455,8 +447,6 @@ class CompressedAnimation(Struct):
             timeCodedBitChannels=[],
             motionChannels=[])
 
-        f = open("C:/Users/micha/Desktop/blender.csv", "w")
-
         while file.tell() < chunkEnd:
             chunkType = read_long(file)
             chunkSize = get_chunk_size(read_long(file))
@@ -477,12 +467,11 @@ class CompressedAnimation(Struct):
             #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
             elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
                 result.motionChannels.append(
-                    MotionChannel.read(file, subChunkEnd, f))
+                    MotionChannel.read(file, subChunkEnd))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         print("finished animation")
-        f.close()
         return result
 
 #######################################################################################
