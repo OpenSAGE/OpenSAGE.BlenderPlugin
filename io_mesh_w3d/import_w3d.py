@@ -142,7 +142,6 @@ def load(self, context, import_settings):
         mesh = bpy.data.meshes.new(m.header.meshName)
 
         # apply hierarchy if it exists
-        # Do we need to apply the 2nd weight here aswell?
         for i in range(len(m.vertInfs)):
             vert = m.verts[i]
             weight = m.vertInfs[i].boneInf
@@ -151,14 +150,10 @@ def load(self, context, import_settings):
 
             bone = rig.data.bones[hierarchy.pivots[m.vertInfs[i].boneIdx].name]
             m.verts[i] = bone.matrix_local @ Vector(vert)
-            #m.normals[i] = bone.matrix_local @ Vector(m.normals[i])
 
         mesh.from_pydata(m.verts, [], triangles)
         mesh.update()
         mesh.validate()
-
-        #for i, vert in enumerate(mesh.vertices):
-        #    vert.normal = m.normals[i]
 
         create_uvlayers(mesh, triangles, m.materialPass.txCoords,
                         m.materialPass.txStages)
@@ -197,9 +192,6 @@ def load(self, context, import_settings):
                     if m.vertInfs[i].xtraIdx != 0:
                         mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add(
                             [i], m.vertInfs[i].xtraInf, 'ADD')
-
-                    # two bones are not working yet
-                    #mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add([i], m.vertInfs[i].xtraInf, 'REPLACE')
 
                 mod = mesh_ob.modifiers.new(amtName, 'ARMATURE')
                 mod.object = rig

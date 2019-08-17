@@ -263,6 +263,23 @@ class TimeCodedDatum(Struct):
         return result
 
 
+class TimeCodedBitDatum(Struct):
+    timeCode = 0
+    value = None
+
+    @staticmethod
+    def read(file):
+        result = TimeCodedBitDatum(
+            timeCode=read_long(file),
+            value=False)
+
+        if (result.timeCode >> 31) == 1:
+            result.value = True
+            result.timeCode &= ~(1 << 31)
+
+        return result
+
+
 class TimeCodedAnimationChannel(Struct):
     numTimeCodes = 0
     pivot = -1
@@ -369,8 +386,25 @@ class AdaptiveDeltaData(Struct):
 
 
 class TimeCodedBitChannel(Struct):
-    # TODO
-    data = 0
+    numTimeCodes = 0
+    pivot = 0
+    type = 0
+    defaultValue = False
+    data = []
+
+    @staticmethod
+    def read(file):
+        result = TimeCodedBitChannel(
+            numTimeCodes=read_long(file),
+            pivot=read_short(file),
+            type=read_unsigned_byte(file),
+            defaultValue=read_unsigned_byte(file),
+            data=[])
+
+        for _ in range(result.numTimeCodes):
+            result.data.append(TimeCodedBitDatum.read(file))
+
+        return result
 
 
 class MotionChannel(Struct):
@@ -463,8 +497,8 @@ class CompressedAnimation(Struct):
                         AdaptiveDeltaAnimationChannel.read(file))
                 else:
                     skip_unknown_chunk(self, file, chunkType, chunkSize)
-            # elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
-            #    result.timeCodedBitChannels.append(read_time_coded_bit_channel(file))
+            elif chunkType == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
+                result.timeCodedBitChannels.append(TimeCodedBitChannel.read(file))
             elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
                 result.motionChannels.append(
                     MotionChannel.read(file, subChunkEnd))
