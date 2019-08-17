@@ -122,7 +122,7 @@ class HierarchyPivot(Struct):
         return HierarchyPivot(
             name=read_fixed_string(file),
             parentID=read_long(file),
-            position=read_vector(file),
+            translation=read_vector(file),
             eulerAngles=read_vector(file),
             rotation=read_quaternion(file))
 
@@ -803,7 +803,11 @@ class Box(Struct):
 
     def write(self, file):
         write_head(file, W3D_CHUNK_BOX, self.sizeInBytes())
-        self.version.write(file)
+
+        #TODO: fix version writing
+        #self.version.write(file)
+        write_long(file, 9)
+        
         write_long(file, (self.collisionTypes & 0xFF) | (self.boxType & 0b11))
         write_long_fixed_string(file, self.name)
         self.color.write(file)
@@ -1060,6 +1064,16 @@ class MeshVertexInfluence(Struct):
             boneInf=read_short(file)/100,
             xtraInf=read_short(file)/100)
 
+    def sizeInBytes(self):
+        return 8
+
+    def write(self, file):
+        write_short(file, self.boneIdx)
+        write_short(file, self.xtraIdx)
+        write_short(file, self.boneInf * 100)
+        write_short(file, self.xtraInf * 100)
+
+
 #######################################################################################
 # Triangle
 #######################################################################################
@@ -1078,6 +1092,18 @@ class MeshTriangle(Struct):
             attrs=read_long(file),
             normal=read_vector(file),
             distance=read_float(file))
+
+    def sizeInBytes(self):
+        return 32
+
+    def write(self, file):
+        write_long(file, self.vertIds[0])
+        write_long(file, self.vertIds[1])
+        write_long(file, self.vertIds[2])
+        write_long(file, self.attrs)
+        write_vector(file, self.normal)
+        write_float(file, self.distance)
+
 
 #######################################################################################
 # Shader
@@ -1320,6 +1346,29 @@ class MeshHeader(Struct):
             sphCenter=read_vector(file),
             sphRadius=read_float(file))
 
+    def sizeInBytes(self):
+        return 116
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_MESH_HEADER, self.sizeInBytes())
+        self.version.write(file)
+        write_long(file, self.attrs)
+        write_fixed_string(file, self.meshName)
+        write_fixed_string(file, self.containerName)
+        write_long(file, self.faceCount)
+        write_long(file, self.vertCount)
+        write_long(file, self.matlCount)
+        write_long(file, self.damageStageCount)
+        write_long(file, self.sortLevel)
+        write_long(file, self.prelitVersion)
+        write_long(file, self.futureCount)
+        write_long(file, self.vertChannelCount)
+        write_long(file, self.faceChannelCount)
+        write_vector(file, self.minCorner)
+        write_vector(file, self.maxCorner)
+        write_vector(file, self.sphCenter)
+        write_float(file, self.sphRadius)
+
 
 W3D_CHUNK_MESH = 0x00000000
 W3D_CHUNK_VERTICES = 0x00000002
@@ -1433,8 +1482,57 @@ class Mesh(Struct):
                 print ("-> ps2 shaders chunk is not supported")
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
+
+    def vertsSize(self):
+        return len(self.verts) * 12
+    
+    def normalsSize(self):
+        return len(self.normals) * 12
+
+    def trisSize(self):
+        size = 0
+        for t in self.triangles:
+            size += t.sizeInBytes()
+        return size
+
+    def vertInfsSize(self):
+        size = 0
+        for inf in self.vertInfs:
+            size += inf.sizeInBytes()
+        return size
+
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
+        size += HEAD + self.vertsSize()
+        size += HEAD + self.normalsSize()
+        size += HEAD + self.trisSize()
+        #if len(self.vertInfs) > 0:
+        #    size += HEAD + self.vertInfsSize()
+        return size
+
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_MESH, self.sizeInBytes(), hasSubChunks=True)
+        self.header.write(file)
+
+        write_head(file, W3D_CHUNK_VERTICES, self.vertsSize())
+        for vert in self.verts:
+            write_vector(file, vert)
+
+        write_head(file, W3D_CHUNK_VERTEX_NORMALS, self.normalsSize())
+        for normal in self.normals:
+            write_vector(file, normal)
+
+        write_head(file, W3D_CHUNK_TRIANGLES, self.trisSize())
+        for tri in self.triangles:
+            tri.write(file)
+
+        #write_head(file, W3D_CHUNK_VERTEX_INFLUENCES, self.vertInfsSize())
+        #for inf in self.vertInfs:
+        #    inf.write(file)
+            
+        
 
 #######################################################################################
 # Unsupported

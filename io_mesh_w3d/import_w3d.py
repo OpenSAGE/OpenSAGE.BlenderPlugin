@@ -48,8 +48,6 @@ def load(self, context, import_settings):
     file = open(self.filepath, "rb")
     filesize = os.path.getsize(self.filepath)
 
-    print('Filesize', filesize)
-
     meshes = []
     hierarchy = None
     animation = None
@@ -202,7 +200,7 @@ def load(self, context, import_settings):
                 for pivot in hierarchy.pivots:
                     if pivot.name == m.header.meshName:
                         mesh_ob.rotation_mode = 'QUATERNION'
-                        mesh_ob.location = pivot.position
+                        mesh_ob.location = pivot.translation
                         mesh_ob.rotation_euler = pivot.eulerAngles
                         mesh_ob.rotation_quaternion = pivot.rotation
 

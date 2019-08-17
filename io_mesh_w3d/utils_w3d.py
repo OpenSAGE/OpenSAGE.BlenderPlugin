@@ -147,7 +147,7 @@ def create_armature(hierarchy, amtName, subObjects, coll):
             continue
 
         bone = amt.edit_bones.new(pivot.name)
-        matrix = make_transform_matrix(pivot.position, pivot.rotation)
+        matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
