@@ -5,6 +5,7 @@ import bpy
 import struct
 from mathutils import Vector, Quaternion
 
+
 def get_chunk_size(data):
     return data & 0x7FFFFFFF
 
@@ -60,6 +61,7 @@ def write_long_fixed_string(file, string):
         file.write(struct.pack("B", 0b0))
         i += 1
 
+
 def read_long(file):
     return struct.unpack("<L", file.read(4))[0]
 
@@ -92,7 +94,7 @@ def write_long_array(file, array):
 def read_signed_byte(file):
     return struct.unpack("<b", file.read(1))[0]
 
-    
+
 def read_unsigned_byte(file):
     return struct.unpack("<B", file.read(1))[0]
 
@@ -135,5 +137,3 @@ def read_channel_value(file, type):
 
 def read_vector2(file):
     return (read_float(file), read_float(file))
-
-

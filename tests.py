@@ -182,7 +182,7 @@ def main(argv=None)->int:
             blender_args.extend(['--']+sys.argv[1:])
 
             if (not argv.quiet and
-                    (argv.force_blender_debug or argv.force_debug)):
+                    (argv.force_blender_debug)):
                 # print the command used to execute the script
                 # to be able to easily re-run it manually to get better error output
                 print(' '.join(blender_args))

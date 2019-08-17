@@ -727,7 +727,7 @@ class MeshMaterialPass(Struct):
         result = MeshMaterialPass(
             vmIds=[],
             shaderIds=[],
-             dcg=[],
+            dcg=[],
             dig=[],
             scg=[],
             vertexMaterialIds=[],

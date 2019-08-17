@@ -88,6 +88,8 @@ def link_object_to_active_scene(obj):
 
 
 GEOMETRY_TYPE_SKIN = 0x00020000
+
+
 def is_skin(mesh):
     return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
@@ -110,7 +112,7 @@ def get_or_create_skeleton(hlod, hierarchy):
 
     if rig == None:
         rig = create_armature(hierarchy, amtName,
-                                hlod.lodArray.subObjects)
+                              hlod.lodArray.subObjects)
 
     return rig
 
@@ -157,7 +159,6 @@ def create_armature(hierarchy, amtName, subObjects):
         bone.tail = Vector((0.0, 0.01, 0.0))
         bone.matrix = matrix
 
-
     bpy.ops.object.mode_set(mode='POSE')
 
     for bone in rig.pose.bones:
@@ -185,8 +186,8 @@ def create_vert_material(mesh, vertMat):
     principled.alpha = vertMat.vmInfo.opacity
     mat["Shininess"] = vertMat.vmInfo.shininess
     mat["Specular"] = rgb_to_vector(vertMat.vmInfo.specular)
-    mat["Emission"] =  rgb_to_vector(vertMat.vmInfo.emissive)
-    mat["Diffuse"] =  rgb_to_vector(vertMat.vmInfo.diffuse)
+    mat["Emission"] = rgb_to_vector(vertMat.vmInfo.emissive)
+    mat["Diffuse"] = rgb_to_vector(vertMat.vmInfo.diffuse)
     mat["Translucency"] = vertMat.vmInfo.translucency
     return mat
 
@@ -224,7 +225,7 @@ def create_shader_materials(self, m, mesh):
 
 def create_uvLayer(mesh, bm, tris, txCoords, ID=""):
     if len(txCoords) == 0:
-        return 
+        return
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + ID, do_init=False)
 
@@ -397,6 +398,7 @@ def create_animation(self, animation, hierarchy, compressed):
 
     bpy.context.scene.frame_set(0)
 
+
 def smooth_mesh(mesh):
     bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -406,6 +408,7 @@ def smooth_mesh(mesh):
 #######################################################################################
 # create basic meshes
 #######################################################################################
+
 
 def create_sphere():
     mesh = bpy.data.meshes.new('Basic_Sphere')
@@ -445,4 +448,3 @@ def create_box(box):
     link_object_to_active_scene(b)
     cube.from_pydata(verts, [], faces)
     cube.update(calc_edges=True)
-

@@ -37,31 +37,33 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     ui_tab: EnumProperty(
-            items=(('GENERAL', "General", "General settings"),
-                #('MESHES', "Meshes", "Mesh settings"),
-                #('OBJECTS', "Objects", "Object settings"),
-                #('MATERIALS', "Materials", "Material settings"),
-                ('ANIMATION', "Animation", "Animation settings")),
-            name="ui_tab",
-            description="Export setting categories",
+        items=(('GENERAL', "General", "General settings"),
+               #('MESHES', "Meshes", "Mesh settings"),
+               #('OBJECTS', "Objects", "Object settings"),
+               #('MATERIALS', "Materials", "Material settings"),
+               ('ANIMATION', "Animation", "Animation settings")),
+        name="ui_tab",
+        description="Export setting categories",
     )
 
     export_mode: EnumProperty(
-            name="Export Mode",
-             items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"),
-                ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"),
-                ('A', "Animation", "This will export the animation without any geometry data or skeletons"),
-                ('HAM', "HierarchicalAnimatedModel", "This will export the meshes with the hierarchy and animation into one file")
-                ),
-            default='M',)
+        name="Export Mode",
+        items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"),
+               ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"),
+               ('A', "Animation", "This will export the animation without any geometry data or skeletons"),
+               ('HAM', "HierarchicalAnimatedModel",
+                "This will export the meshes with the hierarchy and animation into one file")
+               ),
+        default='M',)
 
     export_compress: EnumProperty(
-            name="Compression",
-             items=(('U', "Uncompressed", "This will not compress the animations"),
-                ('TC', "TimeCoded", "This will export the animation with keyframes"),
-                ('AD', "AdaptiveDelta", "This will use adaptive delta compression to reduce size"),
-                ),
-            default='TC',)
+        name="Compression",
+        items=(('U', "Uncompressed", "This will not compress the animations"),
+               ('TC', "TimeCoded", "This will export the animation with keyframes"),
+               ('AD', "AdaptiveDelta",
+                "This will use adaptive delta compression to reduce size"),
+               ),
+        default='TC',)
 
     will_save_settings: BoolProperty(default=False)
 
@@ -80,7 +82,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 self.will_save_settings = True
 
             except (AttributeError, TypeError):
-                self.report({"ERROR"}, "Loading export settings failed. Removed corrupted settings")
+                self.report(
+                    {"ERROR"}, "Loading export settings failed. Removed corrupted settings")
                 del context.scene[self.scene_key]
 
         return ExportHelper.invoke(self, context, event)
@@ -139,7 +142,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
 
         import_w3d.load(self, context, import_settings)
 
-        print ('finished')
+        print('finished')
         return {'FINISHED'}
 
 

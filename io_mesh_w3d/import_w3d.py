@@ -131,7 +131,7 @@ def load(self, context, import_settings):
         #    vert.normal = m.normals[i]
 
         create_uvlayers(mesh, triangles, m.materialPass.txCoords,
-                       m.materialPass.txStages)
+                        m.materialPass.txStages)
 
         smooth_mesh(mesh)
 

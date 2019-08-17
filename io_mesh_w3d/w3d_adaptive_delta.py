@@ -1,6 +1,7 @@
 import math
 from mathutils import Quaternion
 
+
 def fill_with_exponents_of_10(table):
     for i in range(16):
         table.append(pow(10, i - 8.0))
@@ -52,7 +53,7 @@ def get_deltas(block, numBits):
 
     return deltas
 
-    
+
 def decode(data, channel, scale):
     scaleFactor = float(1.0)
 
@@ -75,7 +76,8 @@ def decode(data, channel, scale):
                 break
 
             if channel.type == 6:
-                index = (vectorIndex + 1) % 4 # access quat as xyzw instead of wxyz
+                # access quat as xyzw instead of wxyz
+                index = (vectorIndex + 1) % 4
                 value = result[idx - 1][index] + deltaScale * delta
                 if (result[idx] == None):
                     result[idx] = Quaternion()
@@ -84,7 +86,7 @@ def decode(data, channel, scale):
                     result[idx].y = result[idx - 1].y
                     result[idx].z = result[idx - 1].z
                 result[idx][index] = value
-                
+
             else:
                 result[idx] = result[idx - 1] + deltaScale * delta
 
