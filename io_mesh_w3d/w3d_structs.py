@@ -20,6 +20,8 @@ class Struct:
                 setattr(self, attrs[n], argv[n])
 
 
+HEAD = 8 #4(long = chunktype) + 4 (long = chunksize)
+
 #######################################################################################
 # Basic Structs
 #######################################################################################
@@ -45,6 +47,18 @@ class RGBA(Struct):
                     b=read_float(file),
                     a=read_float(file))
 
+    def write(self, file):
+        file.write(struct.pack("B", self.r))
+        file.write(struct.pack("B", self.g))
+        file.write(struct.pack("B", self.b))
+        file.write(struct.pack("B", self.a))
+
+    def write_f(self, file):
+        write_float(file, self.r)
+        write_float(file, self.g)
+        write_float(file, self.b)
+        write_float(file, self.a)
+
 
 class Version(Struct):
     major = 5
@@ -55,6 +69,9 @@ class Version(Struct):
         data = read_long(file)
         return Version(major=data >> 16,
                        minor=data & 0xFFFF)
+
+    def write(self, file):
+        write_long(file, (self.major << 16) | self.minor)
 
 
 #######################################################################################
@@ -79,6 +96,17 @@ class HierarchyHeader(Struct):
             numPivots=read_long(file),
             centerPos=read_vector(file))
 
+    def chunkSize(self):
+        return 36
+
+    def write(self, file):
+        write_long(file, W3D_CHUNK_HIERARCHY_HEADER)
+        write_long(file, self.chunkSize())
+        self.version.write(file)
+        write_fixed_string(file, self.name)
+        write_long(file, self.numPivots)
+        write_vector(file, self.centerPos)
+
 
 W3D_CHUNK_PIVOTS = 0x00000102
 
@@ -98,6 +126,16 @@ class HierarchyPivot(Struct):
             position=read_vector(file),
             eulerAngles=read_vector(file),
             rotation=read_quaternion(file))
+
+    def chunkSize(self):
+        return 60
+
+    def write(self, file):
+        write_fixed_string(file, self.name)
+        write_long(file, self.parentID)
+        write_vector(file, self.translation)
+        write_vector(file, self.eulerAngles)
+        write_quaternion(file, self.rotation)
 
 
 W3D_CHUNK_HIERARCHY = 0x00000100
@@ -133,6 +171,41 @@ class Hierarchy(Struct):
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         return result
+
+    def pivotsSize(self):
+        size = 0
+        for pivot in self.pivots:
+            size += pivot.chunkSize()
+        return size
+
+    def pivotFixupsSize(self):
+        size = 0
+        for _ in self.pivot_fixups:
+            size += 12
+        return size
+
+    def chunkSize(self):
+        size = HEAD + self.header.chunkSize()
+        size += HEAD + self.pivotsSize()
+        if (len(self.pivot_fixups) > 0):
+            size += HEAD + self.pivotFixupsSize()
+        return size
+
+    def write(self, file):
+        write_long(file, W3D_CHUNK_HIERARCHY)
+        write_chunk_size(file, self.chunkSize())
+        self.header.write(file)
+
+        write_long(file, W3D_CHUNK_PIVOTS)
+        write_long(file, self.pivotsSize())
+        for pivot in self.pivots:
+            pivot.write(file)
+        
+        if (len(self.pivot_fixups) > 0):
+            write_long(file, W3D_CHUNK_PIVOT_FIXUPS)
+            write_long(file, self.pivotFixupsSize())
+            for fixup in self.pivot_fixups:
+                write_vector(file, fixup)
 
 
 #######################################################################################

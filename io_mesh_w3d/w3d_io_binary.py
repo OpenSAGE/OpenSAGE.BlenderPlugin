@@ -9,9 +9,8 @@ from mathutils import Vector, Quaternion
 def get_chunk_size(data):
     return data & 0x7FFFFFFF
 
-
-def make_chunk_size(data):
-    return data | 0x80000000
+def write_chunk_size(file, data):
+    write_long(file, data | 0x80000000)
 
 
 def read_string(file):
@@ -99,7 +98,7 @@ def read_unsigned_byte(file):
     return struct.unpack("<B", file.read(1))[0]
 
 
-def WriteUnsignedByte(file, byte):
+def write_unsigned_byte(file, byte):
     file.write(struct.pack("<B", byte))
 
 
