@@ -1220,7 +1220,46 @@ class Mesh(Struct):
                 result.bitangents == read_array(file, subChunkEnd, read_vector)
             elif chunkType == W3D_CHUNK_AABBTREE:
                 result.aabbtree = MeshAABBTree.read(self, file, subChunkEnd)
+            elif chunkType == W3D_CHUNK_PRELIT_UNLIT:
+                print ("-> prelit unlit chunk is not supported")
+            elif chunkType == W3D_CHUNK_PRELIT_VERTEX:
+                print ("-> prelit vertex chunk is not supported")
+            elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
+                print ("-> prelit lightmap multi pass chunk is not supported")
+            elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
+                print ("-> prelit lightmap multi texture chunk is not supported")
+            elif chunkType == W3D_CHUNK_DEFORM:
+                print ("-> deform chunk is not supported")
+            elif chunkType == W3D_CHUNK_PS2_SHADERS:
+                print ("-> ps2 shaders chunk is not supported")
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
 
         return result
+
+#######################################################################################
+# Unsupported
+#######################################################################################
+
+# inside mesh
+W3D_CHUNK_PRELIT_UNLIT = 0x00000023
+W3D_CHUNK_PRELIT_VERTEX = 0x00000024
+W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025
+W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
+
+W3D_CHUNK_DEFORM = 0x00000058
+W3D_CHUNK_PS2_SHADERS = 0x00000080
+
+# inside w3d file 
+W3D_CHUNK_MORPH_ANIMATION = 0x000002C0
+W3D_CHUNK_HMODEL = 0x00000300
+W3D_CHUNK_LODMODEL = 0x00000400
+W3D_CHUNK_COLLECTION = 0x00000420
+W3D_CHUNK_POINTS = 0x00000440
+W3D_CHUNK_LIGHT = 0x00000460
+W3D_CHUNK_EMITTER = 0x00000500
+W3D_CHUNK_AGGREGATE = 0x00000600
+W3D_CHUNK_NULL_OBJECT = 0x00000750
+W3D_CHUNK_LIGHTSCAPE = 0x00000800
+W3D_CHUNK_DAZZLE = 0x00000900
+W3D_CHUNK_SOUNDROBJ = 0x00000A00
