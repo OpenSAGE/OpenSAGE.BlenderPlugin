@@ -140,3 +140,8 @@ def read_channel_value(file, type):
 
 def read_vector2(file):
     return (read_float(file), read_float(file))
+
+
+def write_vector2(file, vec):
+    write_float(file, vec[0])
+    write_float(file, vec[1])

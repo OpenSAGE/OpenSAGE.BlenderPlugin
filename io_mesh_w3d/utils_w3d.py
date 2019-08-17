@@ -21,11 +21,20 @@ from io_mesh_w3d.w3d_io_binary import *
 #######################################################################################
 
 
+def string_size(string):
+    return len(string) + 1
+
+
 def read_array(file, chunkEnd, readFunc):
     result = []
     while file.tell() < chunkEnd:
         result.append(readFunc(file))
     return result
+
+
+def write_array(file, data, writeFunc):
+    for d in data:
+        writeFunc(file, d)
 
 
 def read_fixed_array(file, count, readFunc):
@@ -422,7 +431,7 @@ def create_sphere():
     return basic_sphere
 
 
-def create_box(box,coll):
+def create_box(box, coll):
     if box == None:
         return
 
