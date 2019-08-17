@@ -81,8 +81,8 @@ def skip_unknown_chunk(self, file, chunkType, chunkSize):
     file.seek(chunkSize, 1)
 
 
-def link_object_to_active_scene(obj):
-    bpy.context.collection.objects.link(obj)
+def link_object_to_active_scene(obj, coll):
+    coll.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
 
@@ -98,7 +98,7 @@ def is_skin(mesh):
 #######################################################################################
 
 
-def get_or_create_skeleton(hlod, hierarchy):
+def get_or_create_skeleton(hlod, hierarchy, coll):
     rig = None
 
     if hlod == None or hlod.header.modelName == hlod.header.hierarchyName:
@@ -112,7 +112,7 @@ def get_or_create_skeleton(hlod, hierarchy):
 
     if rig == None:
         rig = create_armature(hierarchy, amtName,
-                              hlod.lodArray.subObjects)
+                              hlod.lodArray.subObjects, coll)
 
     return rig
 
@@ -123,7 +123,7 @@ def make_transform_matrix(loc, rot):
     return mat_loc @ mat_rot
 
 
-def create_armature(hierarchy, amtName, subObjects):
+def create_armature(hierarchy, amtName, subObjects, coll):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = False
 
@@ -132,7 +132,7 @@ def create_armature(hierarchy, amtName, subObjects):
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
-    link_object_to_active_scene(rig)
+    link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
@@ -422,7 +422,7 @@ def create_sphere():
     return basic_sphere
 
 
-def create_box(box):
+def create_box(box,coll):
     if box == None:
         return
 
@@ -445,6 +445,6 @@ def create_box(box):
     mat.diffuse_color = (box.color.r, box.color.g, box.color.b, 1.0)
     cube.materials.append(mat)
     b.location = box.center
-    link_object_to_active_scene(b)
+    link_object_to_active_scene(b, coll)
     cube.from_pydata(verts, [], faces)
     cube.update(calc_edges=True)

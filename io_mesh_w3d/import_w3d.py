@@ -80,7 +80,13 @@ def load(self, context, import_settings):
 
     file.close()
 
-    create_box(box)
+    # Create a collection
+    coll = None
+    if hlod != None:
+        coll = bpy.data.collections.new(hlod.header.modelName)
+        bpy.context.collection.children.link(coll)
+
+    create_box(box,coll)
 
     if (hierarchy == None):
         sklpath = None
@@ -101,7 +107,7 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    rig = get_or_create_skeleton(hlod, hierarchy)
+    rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     for m in meshes:
         triangles = []
@@ -193,7 +199,7 @@ def load(self, context, import_settings):
                                 mesh_ob.parent_bone = parent_pivot.name
                                 mesh_ob.parent_type = 'BONE'
 
-        link_object_to_active_scene(mesh_ob)
+        link_object_to_active_scene(mesh_ob, coll)
 
     create_animation(self, animation, hierarchy, compressed=False)
     create_animation(self, compressedAnimation, hierarchy, compressed=True)
