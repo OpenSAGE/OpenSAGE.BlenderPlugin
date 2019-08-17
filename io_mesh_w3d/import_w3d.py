@@ -75,28 +75,40 @@ def load(self, context, import_settings):
             box = Box.read(file)
         elif chunkType == W3D_CHUNK_MORPH_ANIMATION:
             print ("-> morph animation chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_HMODEL:
             print ("-> hmodel chnuk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_LODMODEL:
             print ("-> lodmodel chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_COLLECTION:
             print ("-> collection chunk not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_POINTS:
             print ("-> points chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_LIGHT:
             print ("-> light chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_EMITTER:
             print ("-> emitter chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_AGGREGATE:
             print ("-> aggregate chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_NULL_OBJECT:
             print ("-> null object chunkt is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_LIGHTSCAPE:
             print ("-> lightscape chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_DAZZLE:
             print ("-> dazzle chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         elif chunkType == W3D_CHUNK_SOUNDROBJ:
             print ("-> soundobj chunk is not supported")
+            skip_unknown_chunk(self, file, chunkType, chunkSize)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
 
@@ -108,10 +120,6 @@ def load(self, context, import_settings):
         skn = open("C:/Users/micha/Desktop/output_skn.w3d", "wb")
         for m in meshes:
             m.write(skn)
-        if hlod != None:
-            hlod.write(skn)
-        if box != None:
-            box.write(skn)
         skn.close()
 
 

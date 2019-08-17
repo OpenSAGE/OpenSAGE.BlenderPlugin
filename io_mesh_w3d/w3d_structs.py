@@ -168,7 +168,6 @@ class Hierarchy(Struct):
                     file, subChunkEnd, read_vector)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
     def pivotsSize(self):
@@ -294,7 +293,7 @@ W3D_CHUNK_ANIMATION = 0x00000200
 
 
 class Animation(Struct):
-    header = None
+    header = AnimationHeader()
     channels = []
 
     @staticmethod
@@ -313,7 +312,6 @@ class Animation(Struct):
                     AnimationChannel.read(file, subChunkEnd))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
     def sizeInBytes(self):
@@ -372,7 +370,6 @@ class TimeCodedDatum(Struct):
         if (result.timeCode >> 31) == 1:
             result.timeCode &= ~(1 << 31)
             result.nonInterpolated = True
-
         return result
 
 
@@ -389,7 +386,6 @@ class TimeCodedBitDatum(Struct):
         if (result.timeCode >> 31) == 1:
             result.value = True
             result.timeCode &= ~(1 << 31)
-
         return result
 
 
@@ -411,7 +407,6 @@ class TimeCodedAnimationChannel(Struct):
 
         for _ in range(result.numTimeCodes):
             result.timeCodes.append(TimeCodedDatum.read(file, result.type))
-
         return result
 
 
@@ -489,7 +484,6 @@ class AdaptiveDeltaData(Struct):
             for j in range(channel.vectorLen):
                 result.deltaBlocks.append(
                     AdaptiveDeltaBlock.read(file, j, bits))
-
         return result
 
 
@@ -511,7 +505,6 @@ class TimeCodedBitChannel(Struct):
 
         for _ in range(result.numTimeCodes):
             result.data.append(TimeCodedBitDatum.read(file))
-
         return result
 
 
@@ -562,7 +555,6 @@ class MotionChannel(Struct):
                 file, result, 8)
         else:
             print("unknown motion deltatype!!")
-
         return result
 
 
@@ -573,7 +565,7 @@ W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL = 0x00000284
 
 
 class CompressedAnimation(Struct):
-    header = None
+    header = CompressedAnimationHeader()
     timeCodedChannels = []
     adaptiveDeltaChannels = []
     timeCodedBitChannels = []
@@ -611,7 +603,6 @@ class CompressedAnimation(Struct):
                     MotionChannel.read(file, subChunkEnd))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
 #######################################################################################
@@ -696,7 +687,7 @@ W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
 
 
 class HLodArray(Struct):
-    header = None
+    header = HLodHeader()
     subObjects = []
 
     @staticmethod
@@ -715,7 +706,6 @@ class HLodArray(Struct):
                 result.subObjects.append(HLodSubObject.read(file))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
     def sizeInBytes(self):
@@ -736,7 +726,7 @@ W3D_CHUNK_HLOD = 0x00000700
 
 
 class HLod(Struct):
-    header = None
+    header = HLodHeader()
     lodArray = None
 
     @staticmethod
@@ -757,7 +747,6 @@ class HLod(Struct):
                 result.lodArray = HLodArray.read(self, file, subChunkEnd)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
     def sizeInBytes(self):
@@ -851,7 +840,6 @@ class TextureInfo(Struct):
         write_float(file, self.frameRate)
 
 
-W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_TEXTURE = 0x00000031
 W3D_CHUNK_TEXTURE_NAME = 0x00000032
 
@@ -874,18 +862,23 @@ class Texture(Struct):
                 result.textureInfo = TextureInfo.read(file)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
     def sizeInBytes(self):
-        return HEAD + string_size(self.name) + HEAD + self.textureInfo.sizeInBytes()
+        size = HEAD + string_size(self.name)
+        #if self.textureInfo != None:
+        #    size += HEAD + self.textureInfo.sizeInBytes()
+        return size
 
     def write(self, file):
         write_head(file, W3D_CHUNK_TEXTURE,
                    self.sizeInBytes(), hasSubChunks=True)
         write_head(file, W3D_CHUNK_TEXTURE_NAME, string_size(self.name))
         write_string(file, self.name)
-        self.textureInfo.write(file)
+
+        #if self.textureInfo != None:
+        #    write_head(file, W3D_CHUNK_TEXTURE_INFO, self.textureInfo.sizeInBytes())
+        #    self.textureInfo.write(file)
 
 
 #######################################################################################
@@ -1104,7 +1097,6 @@ class MeshMaterial(Struct):
                 result.vmArgs1 = read_string(file)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
 
@@ -1133,8 +1125,8 @@ class MeshVertexInfluence(Struct):
     def write(self, file):
         write_short(file, self.boneIdx)
         write_short(file, self.xtraIdx)
-        write_short(file, self.boneInf * 100)
-        write_short(file, self.xtraInf * 100)
+        write_short(file, int(self.boneInf * 100))
+        write_short(file, int(self.xtraInf * 100))
 
 
 #######################################################################################
@@ -1171,9 +1163,6 @@ class MeshTriangle(Struct):
 #######################################################################################
 # Shader
 #######################################################################################
-
-
-W3D_CHUNK_SHADERS = 0x00000029
 
 
 class MeshShader(Struct):
@@ -1214,7 +1203,7 @@ class MeshShader(Struct):
             postDetailAlphaFunc=read_unsigned_byte(file),
             pad=read_unsigned_byte(file))
 
-    def sieInBytes(self):
+    def sizeInBytes(self):
         return 16
 
     def write(self, file):
@@ -1232,6 +1221,7 @@ class MeshShader(Struct):
         write_unsigned_byte(file, self.shaderPreset)
         write_unsigned_byte(file, self.alphaTest)
         write_unsigned_byte(file, self.postDetailColorFunc)
+        write_unsigned_byte(file, self.postDetailAlphaFunc)
         write_unsigned_byte(file, self.pad)
 
 
@@ -1285,7 +1275,6 @@ class ShaderMaterialProperty(Struct):
             result.value = read_long(file)
         elif result.type == 7:
             result.value = read_unsigned_byte(file)
-
         return result
 
 
@@ -1293,7 +1282,7 @@ W3D_CHUNK_SHADER_MATERIAL = 0x51
 
 
 class ShaderMaterial(Struct):
-    header = None
+    header = ShaderMaterialHeader()
     properties = []
 
     @staticmethod
@@ -1311,7 +1300,6 @@ class ShaderMaterial(Struct):
                 result.properties.append(ShaderMaterialProperty.read(file))
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
         return result
 
 #######################################################################################
@@ -1501,7 +1489,6 @@ class MeshHeader(Struct):
         write_vector(file, self.sphCenter)
         write_float(file, self.sphRadius)
 
-
 W3D_CHUNK_MESH = 0x00000000
 W3D_CHUNK_VERTICES = 0x00000002
 W3D_CHUNK_VERTICES_2 = 0xC00
@@ -1511,6 +1498,8 @@ W3D_CHUNK_MESH_USER_TEXT = 0x0000000C
 W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
 W3D_CHUNK_TRIANGLES = 0x00000020
 W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
+W3D_CHUNK_SHADERS = 0x00000029
+W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_SHADER_MATERIALS = 0x50
 W3D_CHUNK_TANGENTS = 0x60
 W3D_CHUNK_BITANGENTS = 0x61
@@ -1520,13 +1509,13 @@ class Mesh(Struct):
     header = MeshHeader()
     userText = ""
     verts = []
-    verts_2 = []
+    #verts_2 = []
     normals = []
-    normals_2 = []
+    #normals_2 = []
     vertInfs = []
     triangles = []
-    tangents = []
-    bitangents = []
+    #tangents = []
+    #bitangents = []
     shadeIds = []
     matInfo = MaterialInfo()
     shaders = []
@@ -1540,13 +1529,13 @@ class Mesh(Struct):
     def read(self, file, chunkEnd):
         result = Mesh(
             verts=[],
-            verts_2=[],
+            #verts_2=[],
             normals=[],
-            normals_2=[],
+            #normals_2=[],
             vertInfs=[],
             triangles=[],
-            tangents=[],
-            bitangents=[],
+            #tangents=[],
+            #bitangents=[],
             shadeIds=[],
             shaders=[],
             vertMatls=[],
@@ -1561,11 +1550,13 @@ class Mesh(Struct):
             if chunkType == W3D_CHUNK_VERTICES:
                 result.verts = read_array(file, subChunkEnd, read_vector)
             elif chunkType == W3D_CHUNK_VERTICES_2:
-                result.verts_2 = read_array(file, subChunkEnd, read_vector)
+                print("-> vertices 2 chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_array(file, subChunkEnd, read_vector)
             elif chunkType == W3D_CHUNK_NORMALS_2:
-                result.normals_2 = read_array(file, subChunkEnd, read_vector)
+                print("-> normals 2 chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_MESH_USER_TEXT:
                 result.userText = read_string(file)
             elif chunkType == W3D_CHUNK_VERTEX_INFLUENCES:
@@ -1595,23 +1586,31 @@ class Mesh(Struct):
                 result.shaderMaterials = read_chunk_array(
                     self, file, subChunkEnd, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunkType == W3D_CHUNK_TANGENTS:
-                result.tangents = read_array(file, subChunkEnd, read_vector)
+                print("-> tangents chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_BITANGENTS:
-                result.bitangents == read_array(file, subChunkEnd, read_vector)
+                print("-> bitangents chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_AABBTREE:
                 result.aabbtree = MeshAABBTree.read(self, file, subChunkEnd)
             elif chunkType == W3D_CHUNK_PRELIT_UNLIT:
                 print("-> prelit unlit chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_PRELIT_VERTEX:
                 print("-> prelit vertex chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
                 print("-> prelit lightmap multi pass chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
                 print("-> prelit lightmap multi texture chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_DEFORM:
                 print("-> deform chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             elif chunkType == W3D_CHUNK_PS2_SHADERS:
                 print("-> ps2 shaders chunk is not supported")
+                skip_unknown_chunk(self, file, chunkType, chunkSize)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
         return result
@@ -1634,13 +1633,29 @@ class Mesh(Struct):
             size += inf.sizeInBytes()
         return size
 
+    def shadersSize(self):
+        size = 0
+        for shader in self.shaders:
+            size += shader.sizeInBytes()
+        return size
+
+    def texturesSize(self):
+        size = 0
+        for texture in self.textures:
+            size += HEAD + texture.sizeInBytes()
+        return size
+
     def sizeInBytes(self):
         size = HEAD + self.header.sizeInBytes()
         size += HEAD + self.vertsSize()
         size += HEAD + self.normalsSize()
         size += HEAD + self.trisSize()
-        # if len(self.vertInfs) > 0:
-        #    size += HEAD + self.vertInfsSize()
+        if len(self.vertInfs) > 0:
+            size += HEAD + self.vertInfsSize()
+        if len(self.shaders) > 0:
+            size += HEAD + self.shadersSize()
+        if len(self.textures) > 0:
+            size += HEAD + self.texturesSize()
         return size
 
     def write(self, file):
@@ -1659,9 +1674,21 @@ class Mesh(Struct):
         for tri in self.triangles:
             tri.write(file)
 
-        #write_head(file, W3D_CHUNK_VERTEX_INFLUENCES, self.vertInfsSize())
-        # for inf in self.vertInfs:
-        #    inf.write(file)
+        if len(self.vertInfs) > 0:
+            write_head(file, W3D_CHUNK_VERTEX_INFLUENCES, self.vertInfsSize())
+            for inf in self.vertInfs:
+                inf.write(file)
+
+        if len(self.shaders) > 0:
+            write_head(file, W3D_CHUNK_SHADERS, self.shadersSize())
+            for shader in self.shaders:
+                shader.write(file)
+
+        if len(self.textures) > 0:
+            write_head(file, W3D_CHUNK_TEXTURES, self.texturesSize(), hasSubChunks=True)
+            for texture in self.textures:
+                texture.write(file)
+
 
 
 #######################################################################################
