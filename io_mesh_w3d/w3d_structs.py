@@ -866,8 +866,8 @@ class Texture(Struct):
 
     def sizeInBytes(self):
         size = HEAD + string_size(self.name)
-        #if self.textureInfo != None:
-        #    size += HEAD + self.textureInfo.sizeInBytes()
+        if self.textureInfo != None:
+            size += HEAD + self.textureInfo.sizeInBytes()
         return size
 
     def write(self, file):
@@ -876,9 +876,9 @@ class Texture(Struct):
         write_head(file, W3D_CHUNK_TEXTURE_NAME, string_size(self.name))
         write_string(file, self.name)
 
-        #if self.textureInfo != None:
-        #    write_head(file, W3D_CHUNK_TEXTURE_INFO, self.textureInfo.sizeInBytes())
-        #    self.textureInfo.write(file)
+        if self.textureInfo != None:
+            write_head(file, W3D_CHUNK_TEXTURE_INFO, self.textureInfo.sizeInBytes())
+            self.textureInfo.write(file)
 
 
 #######################################################################################
@@ -1245,6 +1245,15 @@ class ShaderMaterialHeader(Struct):
             typeName=read_long_fixed_string(file),
             reserved=read_long(file))
 
+    def sizeInBytes(self):
+        return 37
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_SHADER_MATERIAL_HEADER, self.sizeInBytes())
+        write_unsigned_byte(file, self.number)
+        write_long_fixed_string(file, self.typeName)
+        write_long(file, self.reserved)
+
 
 W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 
@@ -1278,6 +1287,43 @@ class ShaderMaterialProperty(Struct):
         return result
 
 
+    def sizeInBytes(self):
+        size = 8 + string_size(self.name)
+        if self.type == 1:
+            size += 4 + string_size(self.value)
+        elif self.type == 2:
+            size += 4
+        elif self.type == 4:
+            size += 12
+        elif self.type == 5:
+            size += 16
+        elif self.type == 6:
+            size += 4
+        elif self.type == 7:
+            size += 1
+        return size
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_SHADER_MATERIAL_PROPERTY, self.sizeInBytes())
+        write_long(file, self.type)
+        write_long(file, self.numChars)
+        write_string(file, self.name)
+
+        if self.type == 1:
+            write_long(file, string_size(self.value))
+            write_string(file, self.value)
+        elif self.type == 2:
+            write_float(file, self.value)
+        elif self.type == 4:
+            write_vector(file, self.value)
+        elif self.type == 5:
+            self.value.write_f(file)
+        elif self.type == 6:
+            write_long(file, self.value)
+        elif self.type == 7:
+            write_unsigned_byte(file, self.value)
+
+
 W3D_CHUNK_SHADER_MATERIAL = 0x51
 
 
@@ -1301,6 +1347,19 @@ class ShaderMaterial(Struct):
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
         return result
+
+    def sizeInBytes(self):
+        size = HEAD + self.header.sizeInBytes()
+        for prop in self.properties:
+            size += HEAD + prop.sizeInBytes()
+        return size
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_SHADER_MATERIAL, self.sizeInBytes(), hasSubChunks=True)
+        self.header.write(file)
+        for prop in self.properties:
+            prop.write(file)
+
 
 #######################################################################################
 # AABBTree (Axis-aligned-bounding-box-tree)
@@ -1517,12 +1576,12 @@ class Mesh(Struct):
     #tangents = []
     #bitangents = []
     shadeIds = []
-    matInfo = MaterialInfo()
+    matInfo = None
     shaders = []
     vertMatls = []
     textures = []
     shaderMaterials = []
-    materialPass = MeshMaterialPass()
+    materialPass = None
     aabbtree = MeshAABBTree()
 
     @staticmethod
@@ -1587,30 +1646,30 @@ class Mesh(Struct):
                     self, file, subChunkEnd, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunkType == W3D_CHUNK_TANGENTS:
                 print("-> tangents chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_BITANGENTS:
                 print("-> bitangents chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_AABBTREE:
                 result.aabbtree = MeshAABBTree.read(self, file, subChunkEnd)
             elif chunkType == W3D_CHUNK_PRELIT_UNLIT:
                 print("-> prelit unlit chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_PRELIT_VERTEX:
                 print("-> prelit vertex chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
                 print("-> prelit lightmap multi pass chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
                 print("-> prelit lightmap multi texture chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_DEFORM:
                 print("-> deform chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_PS2_SHADERS:
                 print("-> ps2 shaders chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
         return result
@@ -1645,6 +1704,15 @@ class Mesh(Struct):
             size += HEAD + texture.sizeInBytes()
         return size
 
+    def shadeIdsSize(self):
+        return len(self.shadeIds) * 4
+
+    def shaderMaterialsSize(self):
+        size = 0
+        for shaderMat in self.shaderMaterials:
+            size += HEAD + shaderMat.sizeInBytes()
+        return size
+
     def sizeInBytes(self):
         size = HEAD + self.header.sizeInBytes()
         size += HEAD + self.vertsSize()
@@ -1656,6 +1724,10 @@ class Mesh(Struct):
             size += HEAD + self.shadersSize()
         if len(self.textures) > 0:
             size += HEAD + self.texturesSize()
+        if len(self.shadeIds) > 0:
+            size += HEAD + self.shadeIdsSize()
+        if len(self.shaderMaterials) > 0:
+            size += HEAD + self.shaderMaterialsSize()
         return size
 
     def write(self, file):
@@ -1663,12 +1735,10 @@ class Mesh(Struct):
         self.header.write(file)
 
         write_head(file, W3D_CHUNK_VERTICES, self.vertsSize())
-        for vert in self.verts:
-            write_vector(file, vert)
+        write_array(file, self.verts, write_vector)
 
         write_head(file, W3D_CHUNK_VERTEX_NORMALS, self.normalsSize())
-        for normal in self.normals:
-            write_vector(file, normal)
+        write_array(file, self.normals, write_vector)
 
         write_head(file, W3D_CHUNK_TRIANGLES, self.trisSize())
         for tri in self.triangles:
@@ -1689,7 +1759,14 @@ class Mesh(Struct):
             for texture in self.textures:
                 texture.write(file)
 
+        if len(self.shadeIds) > 0:
+            write_head(file, W3D_CHUNK_VERTEX_SHADE_INDICES, self.shadeIdsSize())
+            write_array(file, self.shadeIds, write_long)
 
+        if len(self.shaderMaterials) > 0:
+            write_head(file, W3D_CHUNK_SHADER_MATERIALS, self.shaderMaterialsSize(), hasSubChunks=True)
+            for shaderMat in self.shaderMaterials:
+                shaderMat.write(file)
 
 #######################################################################################
 # Unsupported
