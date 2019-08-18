@@ -6,15 +6,15 @@ import struct
 from mathutils import Vector, Quaternion
 
 
-def get_chunk_size(data):
-    return data & 0x7FFFFFFF
+def read_chunk_size(file):
+    return read_ulong(file) & 0x7FFFFFFF
 
 
 def write_head(file, chunkID, size, hasSubChunks=False):
-    write_long(file, chunkID)
+    write_ulong(file, chunkID)
     if hasSubChunks == True:
         size |= 0x80000000
-    write_long(file, size)
+    write_ulong(file, size)
 
 
 def read_string(file):
@@ -66,19 +66,35 @@ def write_long_fixed_string(file, string):
 
 
 def read_long(file):
-    return struct.unpack("<L", file.read(4))[0]
+    return struct.unpack("<l", file.read(4))[0]
 
 
 def write_long(file, num):
+    file.write(struct.pack("<l", num))
+
+
+def read_ulong(file):
+    return struct.unpack("<L", file.read(4))[0]
+
+
+def write_ulong(file, num):
     file.write(struct.pack("<L", num))
 
 
-def read_short(file):
+def read_ushort(file):
     return struct.unpack("<H", file.read(2))[0]
 
 
-def write_short(file, num):
+def write_ushort(file, num):
     file.write(struct.pack("<H", num))
+
+
+def read_short(file):
+    return struct.unpack("<h", file.read(2))[0]
+
+
+def write_short(file, num):
+    file.write(struct.pack("<h", num))
 
 
 def read_float(file):
@@ -94,15 +110,15 @@ def write_long_array(file, array):
         write_long(file, a)
 
 
-def read_signed_byte(file):
+def read_byte(file):
     return struct.unpack("<b", file.read(1))[0]
 
 
-def read_unsigned_byte(file):
+def read_ubyte(file):
     return struct.unpack("<B", file.read(1))[0]
 
 
-def write_unsigned_byte(file, byte):
+def write_ubyte(file, byte):
     file.write(struct.pack("<B", byte))
 
 

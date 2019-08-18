@@ -66,12 +66,12 @@ class Version(Struct):
 
     @staticmethod
     def read(file):
-        data = read_long(file)
+        data = read_ulong(file)
         return Version(major=data >> 16,
                        minor=data & 0xFFFF)
 
     def write(self, file):
-        write_long(file, (self.major << 16) | self.minor)
+        write_ulong(file, (self.major << 16) | self.minor)
 
 
 #######################################################################################
@@ -93,7 +93,7 @@ class HierarchyHeader(Struct):
         return HierarchyHeader(
             version=Version.read(file),
             name=read_fixed_string(file),
-            numPivots=read_long(file),
+            numPivots=read_ulong(file),
             centerPos=read_vector(file))
 
     def sizeInBytes(self):
@@ -103,7 +103,7 @@ class HierarchyHeader(Struct):
         write_head(file, W3D_CHUNK_HIERARCHY_HEADER, self.sizeInBytes())
         self.version.write(file)
         write_fixed_string(file, self.name)
-        write_long(file, self.numPivots)
+        write_ulong(file, self.numPivots)
         write_vector(file, self.centerPos)
 
 
@@ -154,8 +154,8 @@ class Hierarchy(Struct):
         )
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_HIERARCHY_HEADER:
@@ -168,6 +168,9 @@ class Hierarchy(Struct):
                     file, subChunkEnd, read_vector)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
+
+        for pivot in result.pivots:
+            print(pivot.parentID)
         return result
 
     def pivotsSize(self):
@@ -225,8 +228,8 @@ class AnimationHeader(Struct):
             version=Version.read(file),
             name=read_fixed_string(file),
             hierarchyName=read_fixed_string(file),
-            numFrames=read_long(file),
-            frameRate=read_long(file))
+            numFrames=read_ulong(file),
+            frameRate=read_ulong(file))
 
     def sizeInBytes(self):
         return 44
@@ -236,8 +239,8 @@ class AnimationHeader(Struct):
         self.version.write(file)
         write_fixed_string(file, self.name)
         write_fixed_string(file, self.hierarchyName)
-        write_long(file, self.numFrames)
-        write_long(file, self.frameRate)
+        write_ulong(file, self.numFrames)
+        write_ulong(file, self.frameRate)
 
 
 W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
@@ -249,18 +252,18 @@ class AnimationChannel(Struct):
     vectorLen = 0
     type = 0
     pivot = 0
-    padding = 0
+    unknown = 0
     data = []
 
     @staticmethod
     def read(file, chunkEnd):
         result = AnimationChannel(
-            firstFrame=read_short(file),
-            lastFrame=read_short(file),
-            vectorLen=read_short(file),
-            type=read_short(file),
-            pivot=read_short(file),
-            padding=read_short(file),
+            firstFrame=read_ushort(file),
+            lastFrame=read_ushort(file),
+            vectorLen=read_ushort(file),
+            type=read_ushort(file),
+            pivot=read_ushort(file),
+            unknown=read_ushort(file),
             data=[])
 
         if result.vectorLen == 1:
@@ -275,12 +278,12 @@ class AnimationChannel(Struct):
     def write(self, file):
         write_head(file, W3D_CHUNK_ANIMATION_CHANNEL, self.sizeInBytes())
 
-        write_short(file, self.firstFrame)
-        write_short(file, self.lastFrame)
-        write_short(file, self.vectorLen)
-        write_short(file, self.type)
-        write_short(file, self.pivot)
-        write_short(file, self.padding)
+        write_ushort(file, self.firstFrame)
+        write_ushort(file, self.lastFrame)
+        write_ushort(file, self.vectorLen)
+        write_ushort(file, self.type)
+        write_ushort(file, self.pivot)
+        write_ushort(file, self.unknown)
 
         for d in self.data:
             if (self.vectorLen == 1):
@@ -301,8 +304,8 @@ class Animation(Struct):
         result = Animation(channels=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_ANIMATION_HEADER:
@@ -351,9 +354,9 @@ class CompressedAnimationHeader(Struct):
             version=Version.read(file),
             name=read_fixed_string(file),
             hierarchyName=read_fixed_string(file),
-            numFrames=read_long(file),
-            frameRate=read_short(file),
-            flavor=read_short(file))
+            numFrames=read_ulong(file),
+            frameRate=read_ushort(file),
+            flavor=read_ushort(file))
 
 
 class TimeCodedDatum(Struct):
@@ -399,10 +402,10 @@ class TimeCodedAnimationChannel(Struct):
     @staticmethod
     def read(file):
         result = TimeCodedAnimationChannel(
-            numTimeCodes=read_long(file),
-            pivot=read_short(file),
-            vectorLen=read_unsigned_byte(file),
-            type=read_unsigned_byte(file),
+            numTimeCodes=read_ulong(file),
+            pivot=read_ushort(file),
+            vectorLen=read_ubyte(file),
+            type=read_ubyte(file),
             timeCodes=[])
 
         for _ in range(result.numTimeCodes):
@@ -421,10 +424,10 @@ class AdaptiveDeltaAnimationChannel(Struct):
     @staticmethod
     def read(file):
         result = AdaptiveDeltaAnimationChannel(
-            numTimeCodes=read_long(file),
-            pivot=read_short(file),
-            vectorLen=read_unsigned_byte(file),
-            type=read_unsigned_byte(file),
+            numTimeCodes=read_ulong(file),
+            pivot=read_ushort(file),
+            vectorLen=read_ubyte(file),
+            type=read_ubyte(file),
             scale=read_short(file),
             data=[])
 
@@ -459,10 +462,10 @@ class AdaptiveDeltaBlock(Struct):
     def read(file, vecIndex, bits):
         result = AdaptiveDeltaBlock(
             vectorIndex=vecIndex,
-            blockIndex=read_unsigned_byte(file),
+            blockIndex=read_ubyte(file),
             deltaBytes=[])
 
-        result.deltaBytes = read_fixed_array(file, bits * 2, read_signed_byte)
+        result.deltaBytes = read_fixed_array(file, bits * 2, read_byte)
         return result
 
 
@@ -499,8 +502,8 @@ class TimeCodedBitChannel(Struct):
         result = TimeCodedBitChannel(
             numTimeCodes=read_long(file),
             pivot=read_short(file),
-            type=read_unsigned_byte(file),
-            defaultValue=read_unsigned_byte(file),
+            type=read_ubyte(file),
+            defaultValue=read_ubyte(file),
             data=[])
 
         for _ in range(result.numTimeCodes):
@@ -535,12 +538,12 @@ class MotionChannel(Struct):
 
     @staticmethod
     def read(file, chunkEnd):
-        read_unsigned_byte(file)  # zero
+        read_ubyte(file)  # zero
 
         result = MotionChannel(
-            deltaType=read_unsigned_byte(file),
-            vectorLen=read_unsigned_byte(file),
-            type=read_unsigned_byte(file),
+            deltaType=read_ubyte(file),
+            vectorLen=read_ubyte(file),
+            type=read_ubyte(file),
             numTimeCodes=read_short(file),
             pivot=read_short(file),
             data=[])
@@ -580,8 +583,8 @@ class CompressedAnimation(Struct):
             motionChannels=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
@@ -623,7 +626,7 @@ class HLodHeader(Struct):
     def read(file):
         return HLodHeader(
             version=Version.read(file),
-            lodCount=read_long(file),
+            lodCount=read_ulong(file),
             modelName=read_fixed_string(file),
             hierarchyName=read_fixed_string(file))
 
@@ -633,7 +636,7 @@ class HLodHeader(Struct):
     def write(self, file):
         write_head(file, W3D_CHUNK_HLOD_HEADER, self.sizeInBytes())
         self.version.write(file)
-        write_long(file, self.lodCount)
+        write_ulong(file, self.lodCount)
         write_fixed_string(file, self.modelName)
         write_fixed_string(file, self.hierarchyName)
 
@@ -648,7 +651,7 @@ class HLodArrayHeader(Struct):
     @staticmethod
     def read(file):
         return HLodArrayHeader(
-            modelCount=read_long(file),
+            modelCount=read_ulong(file),
             maxScreenSize=read_float(file))
 
     def sizeInBytes(self):
@@ -657,7 +660,7 @@ class HLodArrayHeader(Struct):
     def write(self, file):
         write_head(file, W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER,
                    self.sizeInBytes())
-        write_long(file, self.modelCount)
+        write_ulong(file, self.modelCount)
         write_float(file, self.maxScreenSize)
 
 
@@ -671,7 +674,7 @@ class HLodSubObject(Struct):
     @staticmethod
     def read(file):
         return HLodSubObject(
-            boneIndex=read_long(file),
+            boneIndex=read_ulong(file),
             name=read_long_fixed_string(file))
 
     def sizeInBytes(self):
@@ -679,7 +682,7 @@ class HLodSubObject(Struct):
 
     def write(self, file):
         write_head(file, W3D_CHUNK_HLOD_SUB_OBJECT, self.sizeInBytes())
-        write_long(file, self.boneIndex)
+        write_ulong(file, self.boneIndex)
         write_long_fixed_string(file, self.name)
 
 
@@ -697,8 +700,8 @@ class HLodArray(Struct):
             subObjects=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
 
             if chunkType == W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
                 result.header = HLodArrayHeader.read(file)
@@ -737,8 +740,8 @@ class HLod(Struct):
         )
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_HLOD_HEADER:
@@ -780,7 +783,7 @@ class Box(Struct):
     @staticmethod
     def read(file):
         ver = Version.read(file),
-        flags = read_long(file)
+        flags = read_ulong(file)
         return Box(
             version=ver,
             boxType=(flags & 0b11),
@@ -800,7 +803,7 @@ class Box(Struct):
         # self.version.write(file)
         write_long(file, 9)
 
-        write_long(file, (self.collisionTypes & 0xFF) | (self.boxType & 0b11))
+        write_ulong(file, (self.collisionTypes & 0xFF) | (self.boxType & 0b11))
         write_long_fixed_string(file, self.name)
         self.color.write(file)
         write_vector(file, self.center)
@@ -824,9 +827,9 @@ class TextureInfo(Struct):
     @staticmethod
     def read(file):
         return TextureInfo(
-            attributes=read_short(file),
-            animationType=read_short(file),
-            frameCount=read_long(file),
+            attributes=read_ushort(file),
+            animationType=read_ushort(file),
+            frameCount=read_ulong(file),
             frameRate=read_float(file))
 
     def sizeInBytes(self):
@@ -834,9 +837,9 @@ class TextureInfo(Struct):
 
     def write(self, file):
         write_head(file, W3D_CHUNK_TEXTURE_INFO, self.sizeInBytes())
-        write_short(file, self.attributes)
-        write_short(file, self.animationType)
-        write_long(file, self.frameCount)
+        write_ushort(file, self.attributes)
+        write_ushort(file, self.animationType)
+        write_ulong(file, self.frameCount)
         write_float(file, self.frameRate)
 
 
@@ -853,8 +856,8 @@ class Texture(Struct):
         result = Texture(textureInfo=None)
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
 
             if chunkType == W3D_CHUNK_TEXTURE_NAME:
                 result.name = read_string(file)
@@ -905,8 +908,8 @@ class TextureStage(Struct):
             txCoords=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_TEXTURE_IDS:
@@ -989,15 +992,15 @@ class MaterialPass(Struct):
             txCoords=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_VERTEX_MATERIAL_IDS:
                 result.vertexMaterialIds = read_array(
-                    file, subChunkEnd, read_long)
+                    file, subChunkEnd, read_ulong)
             elif chunkType == W3D_CHUNK_SHADER_IDS:
-                result.shaderIds = read_array(file, subChunkEnd, read_long)
+                result.shaderIds = read_array(file, subChunkEnd, read_ulong)
             elif chunkType == W3D_CHUNK_DCG:
                 result.dcg = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_DIG:
@@ -1005,7 +1008,7 @@ class MaterialPass(Struct):
             elif chunkType == W3D_CHUNK_SCG:
                 result.scg = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_SHADER_MATERIAL_ID:
-                result.shaderMaterialIds = read_array(file, subChunkEnd, read_long)
+                result.shaderMaterialIds = read_array(file, subChunkEnd, read_ulong)
             elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
                 result.txStages.append(
                     TextureStage.read(self, file, subChunkEnd))
@@ -1067,10 +1070,10 @@ class MaterialPass(Struct):
 
         if len(self.vertexMaterialIds) > 0:
             write_head(file, W3D_CHUNK_VERTEX_MATERIAL_IDS, self.vertexMaterialIdsSize())
-            write_array(file, self.vertexMaterialIds, write_long)
+            write_array(file, self.vertexMaterialIds, write_ulong)
         if len(self.shaderIds) > 0:
             write_head(file, W3D_CHUNK_SHADER_IDS, self.shaderIdsSize())
-            write_array(file, self.shaderIds, write_long)
+            write_array(file, self.shaderIds, write_ulong)
         if len(self.dcg) > 0:
             write_head(file, W3D_CHUNK_DCG, self.dcgSize())
             for d in self.dcg:
@@ -1085,7 +1088,7 @@ class MaterialPass(Struct):
                 d.write(file)
         if len(self.shaderMaterialIds) > 0:
             write_head(file, W3D_CHUNK_SHADER_MATERIAL_ID, self.shaderMaterialIdsSize())
-            write_array(file, self.shaderMaterialIds, write_long)
+            write_array(file, self.shaderMaterialIds, write_ulong)
         if len(self.txStages) > 0:
             for txStage in self.txStages:
                 txStage.write(file)
@@ -1105,19 +1108,19 @@ class MaterialInfo(Struct):
     @staticmethod
     def read(file):
         return MaterialInfo(
-            passCount=read_long(file),
-            vertMatlCount=read_long(file),
-            shaderCount=read_long(file),
-            textureCount=read_long(file))
+            passCount=read_ulong(file),
+            vertMatlCount=read_ulong(file),
+            shaderCount=read_ulong(file),
+            textureCount=read_ulong(file))
 
     def sizeInBytes(self):
         return 16
 
     def write(self, file):
-        write_long(file, self.passCount)
-        write_long(file, self.vertMatlCount)
-        write_long(file, self.shaderCount)
-        write_long(file, self.textureCount)
+        write_ulong(file, self.passCount)
+        write_ulong(file, self.vertMatlCount)
+        write_ulong(file, self.shaderCount)
+        write_ulong(file, self.textureCount)
 
 
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
@@ -1176,8 +1179,8 @@ class VertexMaterial(Struct):
         result = VertexMaterial()
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
 
             if chunkType == W3D_CHUNK_VERTEX_MATERIAL_NAME:
                 result.vmName = read_string(file)
@@ -1223,19 +1226,19 @@ class MeshVertexInfluence(Struct):
     @staticmethod
     def read(file):
         return MeshVertexInfluence(
-            boneIdx=read_short(file),
-            xtraIdx=read_short(file),
-            boneInf=read_short(file)/100,
-            xtraInf=read_short(file)/100)
+            boneIdx=read_ushort(file),
+            xtraIdx=read_ushort(file),
+            boneInf=read_ushort(file)/100,
+            xtraInf=read_ushort(file)/100)
 
     def sizeInBytes(self):
         return 8
 
     def write(self, file):
-        write_short(file, self.boneIdx)
-        write_short(file, self.xtraIdx)
-        write_short(file, int(self.boneInf * 100))
-        write_short(file, int(self.xtraInf * 100))
+        write_ushort(file, self.boneIdx)
+        write_ushort(file, self.xtraIdx)
+        write_ushort(file, int(self.boneInf * 100))
+        write_ushort(file, int(self.xtraInf * 100))
 
 
 #######################################################################################
@@ -1245,15 +1248,15 @@ class MeshVertexInfluence(Struct):
 
 class MeshTriangle(Struct):
     vertIds = []
-    attrs = 13
+    surfaceType = 13
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 
     @staticmethod
     def read(file):
         return MeshTriangle(
-            vertIds=(read_long(file), read_long(file), read_long(file)),
-            attrs=read_long(file),
+            vertIds=(read_ulong(file), read_ulong(file), read_ulong(file)),
+            surfaceType=read_ulong(file),
             normal=read_vector(file),
             distance=read_float(file))
 
@@ -1261,10 +1264,10 @@ class MeshTriangle(Struct):
         return 32
 
     def write(self, file):
-        write_long(file, self.vertIds[0])
-        write_long(file, self.vertIds[1])
-        write_long(file, self.vertIds[2])
-        write_long(file, self.attrs)
+        write_ulong(file, self.vertIds[0])
+        write_ulong(file, self.vertIds[1])
+        write_ulong(file, self.vertIds[2])
+        write_ulong(file, self.surfaceType)
         write_vector(file, self.normal)
         write_float(file, self.distance)
 
@@ -1295,43 +1298,43 @@ class MeshShader(Struct):
     @staticmethod
     def read(file):
         return MeshShader(
-            depthCompare=read_unsigned_byte(file),
-            depthMask=read_unsigned_byte(file),
-            colorMask=read_unsigned_byte(file),
-            destBlend=read_unsigned_byte(file),
-            fogFunc=read_unsigned_byte(file),
-            priGradient=read_unsigned_byte(file),
-            secGradient=read_unsigned_byte(file),
-            srcBlend=read_unsigned_byte(file),
-            texturing=read_unsigned_byte(file),
-            detailColorFunc=read_unsigned_byte(file),
-            detailAlphaFunc=read_unsigned_byte(file),
-            shaderPreset=read_unsigned_byte(file),
-            alphaTest=read_unsigned_byte(file),
-            postDetailColorFunc=read_unsigned_byte(file),
-            postDetailAlphaFunc=read_unsigned_byte(file),
-            pad=read_unsigned_byte(file))
+            depthCompare=read_ubyte(file),
+            depthMask=read_ubyte(file),
+            colorMask=read_ubyte(file),
+            destBlend=read_ubyte(file),
+            fogFunc=read_ubyte(file),
+            priGradient=read_ubyte(file),
+            secGradient=read_ubyte(file),
+            srcBlend=read_ubyte(file),
+            texturing=read_ubyte(file),
+            detailColorFunc=read_ubyte(file),
+            detailAlphaFunc=read_ubyte(file),
+            shaderPreset=read_ubyte(file),
+            alphaTest=read_ubyte(file),
+            postDetailColorFunc=read_ubyte(file),
+            postDetailAlphaFunc=read_ubyte(file),
+            pad=read_ubyte(file))
 
     def sizeInBytes(self):
         return 16
 
     def write(self, file):
-        write_unsigned_byte(file, self.depthCompare)
-        write_unsigned_byte(file, self.depthMask)
-        write_unsigned_byte(file, self.colorMask)
-        write_unsigned_byte(file, self.destBlend)
-        write_unsigned_byte(file, self.fogFunc)
-        write_unsigned_byte(file, self.priGradient)
-        write_unsigned_byte(file, self.secGradient)
-        write_unsigned_byte(file, self.srcBlend)
-        write_unsigned_byte(file, self.texturing)
-        write_unsigned_byte(file, self.detailColorFunc)
-        write_unsigned_byte(file, self.detailAlphaFunc)
-        write_unsigned_byte(file, self.shaderPreset)
-        write_unsigned_byte(file, self.alphaTest)
-        write_unsigned_byte(file, self.postDetailColorFunc)
-        write_unsigned_byte(file, self.postDetailAlphaFunc)
-        write_unsigned_byte(file, self.pad)
+        write_ubyte(file, self.depthCompare)
+        write_ubyte(file, self.depthMask)
+        write_ubyte(file, self.colorMask)
+        write_ubyte(file, self.destBlend)
+        write_ubyte(file, self.fogFunc)
+        write_ubyte(file, self.priGradient)
+        write_ubyte(file, self.secGradient)
+        write_ubyte(file, self.srcBlend)
+        write_ubyte(file, self.texturing)
+        write_ubyte(file, self.detailColorFunc)
+        write_ubyte(file, self.detailAlphaFunc)
+        write_ubyte(file, self.shaderPreset)
+        write_ubyte(file, self.alphaTest)
+        write_ubyte(file, self.postDetailColorFunc)
+        write_ubyte(file, self.postDetailAlphaFunc)
+        write_ubyte(file, self.pad)
 
 
 #######################################################################################
@@ -1350,7 +1353,7 @@ class ShaderMaterialHeader(Struct):
     @staticmethod
     def read(file):
         return ShaderMaterialHeader(
-            number=read_unsigned_byte(file),
+            number=read_ubyte(file),
             typeName=read_long_fixed_string(file),
             reserved=read_long(file))
 
@@ -1359,7 +1362,7 @@ class ShaderMaterialHeader(Struct):
 
     def write(self, file):
         write_head(file, W3D_CHUNK_SHADER_MATERIAL_HEADER, self.sizeInBytes())
-        write_unsigned_byte(file, self.number)
+        write_ubyte(file, self.number)
         write_long_fixed_string(file, self.typeName)
         write_long(file, self.reserved)
 
@@ -1392,7 +1395,7 @@ class ShaderMaterialProperty(Struct):
         elif result.type == 6:
             result.value = read_long(file)
         elif result.type == 7:
-            result.value = read_unsigned_byte(file)
+            result.value = read_ubyte(file)
         return result
 
 
@@ -1430,7 +1433,7 @@ class ShaderMaterialProperty(Struct):
         elif self.type == 6:
             write_long(file, self.value)
         elif self.type == 7:
-            write_unsigned_byte(file, self.value)
+            write_ubyte(file, self.value)
 
 
 W3D_CHUNK_SHADER_MATERIAL = 0x51
@@ -1446,8 +1449,8 @@ class ShaderMaterial(Struct):
             properties=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
 
             if chunkType == W3D_CHUNK_SHADER_MATERIAL_HEADER:
                 result.header = ShaderMaterialHeader.read(file)
@@ -1485,8 +1488,8 @@ class AABBTreeHeader(Struct):
     @staticmethod
     def read(file):
         result = AABBTreeHeader(
-            nodeCount=read_long(file),
-            poyCount=read_long(file))
+            nodeCount=read_ulong(file),
+            poyCount=read_ulong(file))
 
         file.read(24)  # padding
         return result
@@ -1496,8 +1499,8 @@ class AABBTreeHeader(Struct):
 
     def write(self, file):
         write_head(file, W3D_CHUNK_AABBTREE_HEADER, self.sizeInBytes())
-        write_long(file, self.nodeCount)
-        write_long(file, self.polyCount)
+        write_ulong(file, self.nodeCount)
+        write_ulong(file, self.polyCount)
 
 
 class AABBTreeNode(Struct):
@@ -1539,8 +1542,8 @@ class MeshAABBTree(Struct):
         result = MeshAABBTree()
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_AABBTREE_HEADER:
@@ -1605,8 +1608,8 @@ class MeshHeader(Struct):
     sortLevel = 0
     prelitVersion = 0
     futureCount = 0
-    vertChannelCount = 3
-    faceChannelCount = 1
+    vertChannelFlags = 3
+    faceChannelFlags = 1
     minCorner = Vector((0.0, 0.0, 0.0))
     maxCorner = Vector((0.0, 0.0, 0.0))
     sphCenter = Vector((0.0, 0.0, 0.0))
@@ -1616,18 +1619,18 @@ class MeshHeader(Struct):
     def read(file):
         return MeshHeader(
             version=Version.read(file),
-            attrs=read_long(file),
+            attrs=read_ulong(file),
             meshName=read_fixed_string(file),
             containerName=read_fixed_string(file),
-            faceCount=read_long(file),
-            vertCount=read_long(file),
-            matlCount=read_long(file),
-            damageStageCount=read_long(file),
-            sortLevel=read_long(file),
-            prelitVersion=read_long(file),
-            futureCount=read_long(file),
-            vertChannelCount=read_long(file),
-            faceChannelCount=read_long(file),
+            faceCount=read_ulong(file),
+            vertCount=read_ulong(file),
+            matlCount=read_ulong(file),
+            damageStageCount=read_ulong(file),
+            sortLevel=read_ulong(file),
+            prelitVersion=read_ulong(file),
+            futureCount=read_ulong(file),
+            vertChannelFlags=read_ulong(file),
+            faceChannelFlags=read_ulong(file),
             # bounding volumes
             minCorner=read_vector(file),
             maxCorner=read_vector(file),
@@ -1640,18 +1643,18 @@ class MeshHeader(Struct):
     def write(self, file):
         write_head(file, W3D_CHUNK_MESH_HEADER, self.sizeInBytes())
         self.version.write(file)
-        write_long(file, self.attrs)
+        write_ulong(file, self.attrs)
         write_fixed_string(file, self.meshName)
         write_fixed_string(file, self.containerName)
-        write_long(file, self.faceCount)
-        write_long(file, self.vertCount)
-        write_long(file, self.matlCount)
-        write_long(file, self.damageStageCount)
-        write_long(file, self.sortLevel)
-        write_long(file, self.prelitVersion)
-        write_long(file, self.futureCount)
-        write_long(file, self.vertChannelCount)
-        write_long(file, self.faceChannelCount)
+        write_ulong(file, self.faceCount)
+        write_ulong(file, self.vertCount)
+        write_ulong(file, self.matlCount)
+        write_ulong(file, self.damageStageCount)
+        write_ulong(file, self.sortLevel)
+        write_ulong(file, self.prelitVersion)
+        write_ulong(file, self.futureCount)
+        write_ulong(file, self.vertChannelFlags)
+        write_ulong(file, self.faceChannelFlags)
         write_vector(file, self.minCorner)
         write_vector(file, self.maxCorner)
         write_vector(file, self.sphCenter)
@@ -1705,8 +1708,8 @@ class Mesh(Struct):
             shaderMaterials=[])
 
         while file.tell() < chunkEnd:
-            chunkType = read_long(file)
-            chunkSize = get_chunk_size(read_long(file))
+            chunkType = read_ulong(file)
+            chunkSize = read_chunk_size(file)
             subChunkEnd = file.tell() + chunkSize
 
             if chunkType == W3D_CHUNK_VERTICES:

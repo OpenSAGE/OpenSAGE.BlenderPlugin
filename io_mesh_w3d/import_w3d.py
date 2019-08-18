@@ -23,8 +23,8 @@ def load_skeleton_file(self, sklpath):
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
-        chunkType = read_long(file)
-        chunkSize = get_chunk_size(read_long(file))
+        chunkType = read_unsigned_long(file)
+        chunkSize = get_chunk_size(read_unsigned_long(file))
         chunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_HIERARCHY:
@@ -56,8 +56,8 @@ def load(self, context, import_settings):
     box = None
 
     while file.tell() < filesize:
-        chunkType = read_long(file)
-        chunkSize = get_chunk_size(read_long(file))
+        chunkType = read_ulong(file)
+        chunkSize = read_chunk_size(file)
         chunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_MESH:
@@ -240,7 +240,7 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob, coll)
 
-    create_animation(self, animation, hierarchy, compressed=False)
-    create_animation(self, compressedAnimation, hierarchy, compressed=True)
+    create_animation(self, rig, animation, hierarchy, compressed=False)
+    create_animation(self, rig, compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}

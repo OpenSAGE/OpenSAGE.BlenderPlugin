@@ -48,8 +48,8 @@ def read_chunk_array(self, file, chunkEnd, type, read_func):
     result = []
 
     while file.tell() < chunkEnd:
-        chunkType = read_long(file)
-        chunkSize = get_chunk_size(read_long(file))
+        chunkType = read_ulong(file)
+        chunkSize = read_chunk_size(file)
         subChunkEnd = file.tell() + chunkSize
 
         if chunkType == type:
@@ -109,7 +109,7 @@ def is_skin(mesh):
 def get_or_create_skeleton(hlod, hierarchy, coll):
     rig = None
 
-    if hlod == None or hlod.header.modelName == hlod.header.hierarchyName:
+    if hlod == None or hierarchy == None:
         return rig
 
     amtName = hierarchy.header.name
@@ -157,6 +157,7 @@ def create_armature(hierarchy, amtName, subObjects, coll):
         bone = amt.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
+        print(pivot.parentID)
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
@@ -318,11 +319,9 @@ def get_bone(rig, name):
 
 
 def setup_animation(animation):
-    rig = bpy.data.objects[animation.header.hierarchyName]
     bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
     bpy.data.scenes["Scene"].frame_start = 0
     bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
-    return rig
 
 
 def set_translation(bone, index, frame, value):
@@ -390,11 +389,11 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_motionChannel_adaptiveDelta(obj, channel)
 
 
-def create_animation(self, animation, hierarchy, compressed):
+def create_animation(self, rig, animation, hierarchy, compressed):
     if animation == None:
         return
 
-    rig = setup_animation(animation)
+    setup_animation(animation)
 
     if not compressed:
         process_channels(hierarchy, animation.channels,
@@ -408,10 +407,11 @@ def create_animation(self, animation, hierarchy, compressed):
 
 
 def smooth_mesh(mesh):
-    bpy.ops.object.mode_set(mode='OBJECT')
+    k = 0
+    #bpy.ops.object.mode_set(mode='OBJECT')
 
-    for f in mesh.polygons:
-        f.use_smooth = True
+    #for f in mesh.polygons:
+    #    f.use_smooth = True
 
 #######################################################################################
 # create basic meshes
