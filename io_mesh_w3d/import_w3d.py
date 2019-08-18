@@ -120,6 +120,10 @@ def load(self, context, import_settings):
         skn = open("C:/Users/micha/Desktop/output_skn.w3d", "wb")
         for m in meshes:
             m.write(skn)
+        if box != None:
+            box.write(skn)
+        if hlod != None:
+            hlod.write(skn)
         skn.close()
 
 

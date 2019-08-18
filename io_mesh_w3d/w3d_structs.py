@@ -1689,7 +1689,7 @@ class Mesh(Struct):
     textures = []
     shaderMaterials = []
     materialPass = None
-    aabbtree = MeshAABBTree()
+    aabbtree = None
 
     @staticmethod
     def read(self, file, chunkEnd):
@@ -1843,6 +1843,8 @@ class Mesh(Struct):
             size += HEAD + self.vertMaterialsSize()
         if self.materialPass != None:
             size += HEAD + self.materialPass.sizeInBytes()
+        if self.aabbtree != None:
+            size += HEAD + self.aabbtree.sizeInBytes()
         return size
 
     def write(self, file):
@@ -1894,6 +1896,10 @@ class Mesh(Struct):
 
         if self.materialPass != None:
             self.materialPass.write(file)
+
+        if self.aabbtree != None:
+            self.aabbtree.write(file)
+
 
 #######################################################################################
 # Unsupported
