@@ -892,14 +892,14 @@ W3D_CHUNK_STAGE_TEXCOORDS = 0x0000004A
 W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B
 
 
-class MeshTextureStage(Struct):
+class TextureStage(Struct):
     txIds = []
     perFaceTxCoords = []
     txCoords = []
 
     @staticmethod
     def read(self, file, chunkEnd):
-        result = MeshTextureStage(
+        result = TextureStage(
             txIds=[],
             perFaceTxCoords=[],
             txCoords=[])
@@ -930,8 +930,11 @@ class MeshTextureStage(Struct):
         return len(self.txCoords) * 8
 
     def sizeInBytes(self):
-        size = HEAD + self.txIdsSize()
-        size += HEAD + self.txCoordsSize()
+        size = 0
+        if len(self.txIds) > 0:
+            size += HEAD + self.txIdsSize()
+        if len(self.txCoords) > 0:
+            size += HEAD + self.txCoordsSize()
         if len(self.perFaceTxCoords) > 0:
             size += HEAD + self.perFaceTxCoordsSize()
         return size
@@ -940,15 +943,18 @@ class MeshTextureStage(Struct):
         write_head(file, W3D_CHUNK_TEXTURE_STAGE,
                    self.sizeInBytes(), hasSubChunks=True)
 
-        write_head(file, W3D_CHUNK_TEXTURE_IDS, self.txIdsSize())
-        write_array(file, self.txIds, write_long)
+        if len(self.txIds) > 0:
+            write_head(file, W3D_CHUNK_TEXTURE_IDS, self.txIdsSize())
+            write_array(file, self.txIds, write_long)
 
-        write_head(file, W3D_CHUNK_STAGE_TEXCOORDS, self.txCoordsSize())
-        write_array(file, self.txCoords, write_vector2)
+        if len(self.txCoords) > 0:
+            write_head(file, W3D_CHUNK_STAGE_TEXCOORDS, self.txCoordsSize())
+            write_array(file, self.txCoords, write_vector2)
 
-        write_head(file, W3D_CHUNK_PER_FACE_TEXCOORD_IDS,
+        if len(self.perFaceTxCoords) > 0:
+            write_head(file, W3D_CHUNK_PER_FACE_TEXCOORD_IDS,
                    self.perFaceTxCoordsSize())
-        write_array(file, self.perFaceTxCoords, write_vector)
+            write_array(file, self.perFaceTxCoords, write_vector)
 
 
 W3D_CHUNK_MATERIAL_PASS = 0x00000038
@@ -960,8 +966,8 @@ W3D_CHUNK_SCG = 0x0000003E
 W3D_CHUNK_SHADER_MATERIAL_ID = 0x3F
 
 
-class MeshMaterialPass(Struct):
-    vmIds = []
+class MaterialPass(Struct):
+    vertexMaterialIds = []
     shaderIds = []
     dcg = []
     dig = []
@@ -972,13 +978,13 @@ class MeshMaterialPass(Struct):
 
     @staticmethod
     def read(self, file, chunkEnd):
-        result = MeshMaterialPass(
-            vmIds=[],
+        result = MaterialPass(
+            vertexMaterialIds=[],
             shaderIds=[],
             dcg=[],
             dig=[],
             scg=[],
-            vertexMaterialIds=[],
+            shaderMaterialIds=[],
             txStages=[],
             txCoords=[])
 
@@ -999,57 +1005,96 @@ class MeshMaterialPass(Struct):
             elif chunkType == W3D_CHUNK_SCG:
                 result.scg = read_array(file, subChunkEnd, RGBA.read)
             elif chunkType == W3D_CHUNK_SHADER_MATERIAL_ID:
-                result.shaderMatIds = read_array(file, subChunkEnd, read_long)
+                result.shaderMaterialIds = read_array(file, subChunkEnd, read_long)
             elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
                 result.txStages.append(
-                    MeshTextureStage.read(self, file, subChunkEnd))
+                    TextureStage.read(self, file, subChunkEnd))
             elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
                 result.txCoords = read_array(file, subChunkEnd, read_vector2)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
         return result
 
-    def vmIdsSize(self):
-        return len(self.vmIds) * 4
+    def vertexMaterialIdsSize(self):
+        return len(self.vertexMaterialIds) * 4
 
     def shaderIdsSize(self):
         return len(self.shaderIds) * 4
 
-    def sizeInBytes(self):
-        size = HEAD + self.vmIdsSize()
-        size += HEAD + self.shaderIdsSize()
-        # TODO: the other stuff
+    def dcgSize(self):
+        return len(self.dcg) * 4
+
+    def digSize(self):
+        return len(self.dig) * 4
+
+    def scgSize(self):
+        return len(self.scg) * 4
+
+    def shaderMaterialIdsSize(self):
+        return len(self.shaderMaterialIds) * 4
+
+    def txStagesSize(self):
+        size = 0
+        for stage in self.txStages:
+            size += HEAD + stage.sizeInBytes()
         return size
 
+    def txCoordsSize(self):
+        return len(self.txCoords) * 8
 
-W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
+    def sizeInBytes(self):
+        size = 0
+        if len(self.vertexMaterialIds) > 0:
+            size = HEAD + self.vertexMaterialIdsSize()
+        if len(self.shaderIds) > 0:
+            size += HEAD + self.shaderIdsSize()
+        if len(self.dcg) > 0:
+            size += HEAD + self.dcgSize()
+        if len(self.dig) > 0:
+            size += HEAD + self.digSize()
+        if len(self.scg) > 0:
+            size += HEAD + self.scgSize()
+        if len(self.shaderMaterialIds) > 0:
+            size += HEAD + self.shaderMaterialIdsSize()
+        if len(self.txStages) > 0:
+            size += self.txStagesSize()
+        if len(self.txCoords) > 0:
+            size += HEAD + self.txCoordsSize()
+        return size
 
+    def write(self, file):
+        write_head(file, W3D_CHUNK_MATERIAL_PASS, self.sizeInBytes(), hasSubChunks=True)
 
-class VertexMaterial(Struct):
-    attributes = 0
-    ambient = RGBA()  # alpha is only padding in this and below
-    diffuse = RGBA()
-    specular = RGBA()
-    emissive = RGBA()
-    shininess = 0.0
-    opacity = 0.0
-    translucency = 0.0
-
-    @staticmethod
-    def read(file):
-        return VertexMaterial(
-            attributes=read_long(file),
-            ambient=RGBA.read(file),
-            diffuse=RGBA.read(file),
-            specular=RGBA.read(file),
-            emissive=RGBA.read(file),
-            shininess=read_float(file),
-            opacity=read_float(file),
-            translucency=read_float(file))
+        if len(self.vertexMaterialIds) > 0:
+            write_head(file, W3D_CHUNK_VERTEX_MATERIAL_IDS, self.vertexMaterialIdsSize())
+            write_array(file, self.vertexMaterialIds, write_long)
+        if len(self.shaderIds) > 0:
+            write_head(file, W3D_CHUNK_SHADER_IDS, self.shaderIdsSize())
+            write_array(file, self.shaderIds, write_long)
+        if len(self.dcg) > 0:
+            write_head(file, W3D_CHUNK_DCG, self.dcgSize())
+            for d in self.dcg:
+                d.write(file)
+        if len(self.dig) > 0:
+            write_head(file, W3D_CHUNK_DIG, self.digSize())
+            for d in self.dig:
+                d.write(file)
+        if len(self.scg) > 0:
+            write_head(file, W3D_CHUNK_SCG, self.scgSize())
+            for d in self.scg:
+                d.write(file)
+        if len(self.shaderMaterialIds) > 0:
+            write_head(file, W3D_CHUNK_SHADER_MATERIAL_ID, self.shaderMaterialIdsSize())
+            write_array(file, self.shaderMaterialIds, write_long)
+        if len(self.txStages) > 0:
+            for txStage in self.txStages:
+                txStage.write(file)
+        if len(self.txCoords) > 0:
+            write_head(file, W3D_CHUNK_STAGE_TEXCOORDS, self.txCoordsSize())
+            write_array(file, self.txCoords, write_vector2)
 
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
-
 
 class MaterialInfo(Struct):
     passCount = 1
@@ -1065,23 +1110,70 @@ class MaterialInfo(Struct):
             shaderCount=read_long(file),
             textureCount=read_long(file))
 
+    def sizeInBytes(self):
+        return 16
 
-W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
+    def write(self, file):
+        write_long(file, self.passCount)
+        write_long(file, self.vertMatlCount)
+        write_long(file, self.shaderCount)
+        write_long(file, self.textureCount)
+
+
+W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
+
+class VertexMaterialInfo(Struct):
+    attributes = 0
+    ambient = RGBA()  # alpha is only padding in this and below
+    diffuse = RGBA()
+    specular = RGBA()
+    emissive = RGBA()
+    shininess = 0.0
+    opacity = 0.0
+    translucency = 0.0
+
+    @staticmethod
+    def read(file):
+        return VertexMaterialInfo(
+            attributes=read_long(file),
+            ambient=RGBA.read(file),
+            diffuse=RGBA.read(file),
+            specular=RGBA.read(file),
+            emissive=RGBA.read(file),
+            shininess=read_float(file),
+            opacity=read_float(file),
+            translucency=read_float(file))
+
+    def sizeInBytes(self):
+        return 32
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_VERTEX_MATERIAL_INFO, self.sizeInBytes())
+        write_long(file, self.attributes)
+        self.ambient.write(file)
+        self.diffuse.write(file)
+        self.specular.write(file)
+        self.emissive.write(file)
+        write_float(file, self.shininess)
+        write_float(file, self.opacity)
+        write_float(file, self.translucency)
+
+
 W3D_CHUNK_VERTEX_MATERIAL = 0x0000002B
 W3D_CHUNK_VERTEX_MATERIAL_NAME = 0x0000002C
 W3D_CHUNK_VERTEX_MAPPER_ARGS0 = 0x0000002E
 W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F
 
 
-class MeshMaterial(Struct):
+class VertexMaterial(Struct):
     vmName = ""
-    vmInfo = VertexMaterial()
+    vmInfo = VertexMaterialInfo()
     vmArgs0 = ""
     vmArgs1 = ""
 
     @staticmethod
     def read(self, file, chunkEnd):
-        result = MeshMaterial()
+        result = VertexMaterial()
 
         while file.tell() < chunkEnd:
             chunkType = read_long(file)
@@ -1090,7 +1182,7 @@ class MeshMaterial(Struct):
             if chunkType == W3D_CHUNK_VERTEX_MATERIAL_NAME:
                 result.vmName = read_string(file)
             elif chunkType == W3D_CHUNK_VERTEX_MATERIAL_INFO:
-                result.vmInfo = VertexMaterial.read(file)
+                result.vmInfo = VertexMaterialInfo.read(file)
             elif chunkType == W3D_CHUNK_VERTEX_MAPPER_ARGS0:
                 result.vmArgs0 = read_string(file)
             elif chunkType == W3D_CHUNK_VERTEX_MAPPER_ARGS1:
@@ -1098,6 +1190,23 @@ class MeshMaterial(Struct):
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
         return result
+
+    def sizeInBytes(self):
+        size = HEAD + string_size(self.vmName)
+        size += HEAD + self.vmInfo.sizeInBytes()
+        size += HEAD + string_size(self.vmArgs0)
+        size += HEAD + string_size(self.vmArgs1)
+        return size
+
+    def write(self, file):
+        write_head(file, W3D_CHUNK_VERTEX_MATERIAL, self.sizeInBytes(), hasSubChunks=True)
+        write_head(file, W3D_CHUNK_VERTEX_MATERIAL_NAME, string_size(self.vmName))
+        write_string(file, self.vmName)
+        self.vmInfo.write(file)
+        write_head(file, W3D_CHUNK_VERTEX_MAPPER_ARGS0, string_size(self.vmArgs0))
+        write_string(file, self.vmArgs0)
+        write_head(file, W3D_CHUNK_VERTEX_MAPPER_ARGS1, string_size(self.vmArgs1))
+        write_string(file, self.vmArgs1)
 
 
 #######################################################################################
@@ -1548,6 +1657,7 @@ class MeshHeader(Struct):
         write_vector(file, self.sphCenter)
         write_float(file, self.sphRadius)
 
+
 W3D_CHUNK_MESH = 0x00000000
 W3D_CHUNK_VERTICES = 0x00000002
 W3D_CHUNK_VERTICES_2 = 0xC00
@@ -1558,6 +1668,7 @@ W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
 W3D_CHUNK_TRIANGLES = 0x00000020
 W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
 W3D_CHUNK_SHADERS = 0x00000029
+W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
 W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_SHADER_MATERIALS = 0x50
 W3D_CHUNK_TANGENTS = 0x60
@@ -1568,13 +1679,9 @@ class Mesh(Struct):
     header = MeshHeader()
     userText = ""
     verts = []
-    #verts_2 = []
     normals = []
-    #normals_2 = []
     vertInfs = []
     triangles = []
-    #tangents = []
-    #bitangents = []
     shadeIds = []
     matInfo = None
     shaders = []
@@ -1588,13 +1695,9 @@ class Mesh(Struct):
     def read(self, file, chunkEnd):
         result = Mesh(
             verts=[],
-            #verts_2=[],
             normals=[],
-            #normals_2=[],
             vertInfs=[],
             triangles=[],
-            #tangents=[],
-            #bitangents=[],
             shadeIds=[],
             shaders=[],
             vertMatls=[],
@@ -1610,12 +1713,12 @@ class Mesh(Struct):
                 result.verts = read_array(file, subChunkEnd, read_vector)
             elif chunkType == W3D_CHUNK_VERTICES_2:
                 print("-> vertices 2 chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_array(file, subChunkEnd, read_vector)
             elif chunkType == W3D_CHUNK_NORMALS_2:
                 print("-> normals 2 chunk is not supported")
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                file.seek(chunkSize, 1)
             elif chunkType == W3D_CHUNK_MESH_USER_TEXT:
                 result.userText = read_string(file)
             elif chunkType == W3D_CHUNK_VERTEX_INFLUENCES:
@@ -1634,12 +1737,12 @@ class Mesh(Struct):
                 result.shaders = read_array(file, subChunkEnd, MeshShader.read)
             elif chunkType == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vertMatls = read_chunk_array(
-                    self, file, subChunkEnd, W3D_CHUNK_VERTEX_MATERIAL, MeshMaterial.read)
+                    self, file, subChunkEnd, W3D_CHUNK_VERTEX_MATERIAL, VertexMaterial.read)
             elif chunkType == W3D_CHUNK_TEXTURES:
                 result.textures = read_chunk_array(
                     self, file, subChunkEnd, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunkType == W3D_CHUNK_MATERIAL_PASS:
-                result.materialPass = MeshMaterialPass.read(
+                result.materialPass = MaterialPass.read(
                     self, file, subChunkEnd)
             elif chunkType == W3D_CHUNK_SHADER_MATERIALS:
                 result.shaderMaterials = read_chunk_array(
@@ -1713,6 +1816,12 @@ class Mesh(Struct):
             size += HEAD + shaderMat.sizeInBytes()
         return size
 
+    def vertMaterialsSize(self):
+        size = 0
+        for vertMat in self.vertMatls:
+            size += HEAD + vertMat.sizeInBytes()
+        return size
+
     def sizeInBytes(self):
         size = HEAD + self.header.sizeInBytes()
         size += HEAD + self.vertsSize()
@@ -1728,6 +1837,12 @@ class Mesh(Struct):
             size += HEAD + self.shadeIdsSize()
         if len(self.shaderMaterials) > 0:
             size += HEAD + self.shaderMaterialsSize()
+        if self.matInfo != None:
+            size += HEAD + self.matInfo.sizeInBytes()
+        if len(self.vertMatls) > 0:
+            size += HEAD + self.vertMaterialsSize()
+        if self.materialPass != None:
+            size += HEAD + self.materialPass.sizeInBytes()
         return size
 
     def write(self, file):
@@ -1767,6 +1882,18 @@ class Mesh(Struct):
             write_head(file, W3D_CHUNK_SHADER_MATERIALS, self.shaderMaterialsSize(), hasSubChunks=True)
             for shaderMat in self.shaderMaterials:
                 shaderMat.write(file)
+
+        if self.matInfo != None:
+            write_head(file, W3D_CHUNK_MATERIAL_INFO, self.matInfo.sizeInBytes())
+            self.matInfo.write(file)
+
+        if len(self.vertMatls) > 0:
+            write_head(file, W3D_CHUNK_VERTEX_MATERIALS, self.vertMaterialsSize(), hasSubChunks=True)
+            for vertMat in self.vertMatls:
+                vertMat.write(file)
+
+        if self.materialPass != None:
+            self.materialPass.write(file)
 
 #######################################################################################
 # Unsupported
