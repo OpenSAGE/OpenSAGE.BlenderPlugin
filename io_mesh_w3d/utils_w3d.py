@@ -391,11 +391,7 @@ def create_animation(self, animation, hierarchy, compressed):
     if animation == None:
         return
 
-    rig = None
-    try:
-        rig = bpy.data.objects[animation.header.hierarchyName]
-    except:
-        rig = bpy.data.objects[animation.header.hierarchyName + ".skl"]
+    rig = bpy.data.objects[animation.header.hierarchyName]
     setup_animation(animation)
 
     if not compressed:

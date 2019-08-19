@@ -119,9 +119,6 @@ def load(self, context, import_settings):
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
 
-        if hlod.header.modelName == hlod.header.hierarchyName and hierarchy != None:
-            hierarchy.header.name += ".skl"
-
 
     create_box(box,coll)
 
