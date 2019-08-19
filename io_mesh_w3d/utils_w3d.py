@@ -209,11 +209,13 @@ def create_shader_materials(self, m, mesh):
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
             if (prop.name == "DiffuseTexture"):
-                principled.base_color_texture.image = load_texture(
-                    self, prop.value)
+                tex = load_texture(self, prop.value)
+                if tex != None:
+                    principled.base_color_texture.image = tex
             elif (prop.name == "NormalMap"):
-                principled.normalmap_texture.image = load_texture(
-                    self, prop.value)
+                tex = load_texture(self, prop.value)
+                if tex != None:
+                    principled.normalmap_texture.image = tex
             elif (prop.name == "BumpScale"):
                 principled.normalmap_strength = prop.value
             # Color type
