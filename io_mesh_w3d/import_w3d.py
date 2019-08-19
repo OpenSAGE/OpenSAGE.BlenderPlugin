@@ -16,15 +16,14 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 
 def load_skeleton_file(self, sklpath):
     # TODO: handle file not found
-    print('\n### SKELETON: ###', sklpath)
     hierarchy = Hierarchy()
     path = insensitive_path(sklpath)
     file = open(path, "rb")
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
-        chunkType = read_unsigned_long(file)
-        chunkSize = get_chunk_size(read_unsigned_long(file))
+        chunkType = read_ulong(file)
+        chunkSize = read_chunk_size(file)
         chunkEnd = file.tell() + chunkSize
 
         if chunkType == W3D_CHUNK_HIERARCHY:
@@ -114,24 +113,15 @@ def load(self, context, import_settings):
 
     file.close()
 
-    
-    # for testing only !!!
-    if len(meshes) > 0:
-        skn = open("C:/Users/micha/Desktop/output_skn.w3d", "wb")
-        for m in meshes:
-            m.write(skn)
-        if box != None:
-            box.write(skn)
-        if hlod != None:
-            hlod.write(skn)
-        skn.close()
-
-
     # Create a collection
     coll = None
     if hlod != None:
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
+
+        if hlod.header.modelName == hlod.header.hierarchyName and hierarchy != None:
+            hierarchy.header.name += ".skl"
+
 
     create_box(box,coll)
 
@@ -240,7 +230,7 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob, coll)
 
-    create_animation(self, rig, animation, hierarchy, compressed=False)
-    create_animation(self, rig, compressedAnimation, hierarchy, compressed=True)
+    create_animation(self, animation, hierarchy, compressed=False)
+    create_animation(self, compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}

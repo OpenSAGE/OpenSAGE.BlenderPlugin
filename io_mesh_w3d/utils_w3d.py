@@ -56,7 +56,6 @@ def read_chunk_array(self, file, chunkEnd, type, read_func):
             result.append(read_func(self, file, subChunkEnd))
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
-
     return result
 
 
@@ -121,7 +120,6 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if rig == None:
         rig = create_armature(hierarchy, amtName,
                               hlod.lodArray.subObjects, coll)
-
     return rig
 
 
@@ -157,7 +155,6 @@ def create_armature(hierarchy, amtName, subObjects, coll):
         bone = amt.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
-        print(pivot.parentID)
         if pivot.parentID > 0:
             parent_pivot = hierarchy.pivots[pivot.parentID]
             bone.parent = amt.edit_bones[parent_pivot.name]
@@ -287,7 +284,6 @@ def load_texture(self, texName):
 
         if img == None:
             print("missing texture:" + ddspath)
-
     return img
 
 
@@ -389,10 +385,15 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_motionChannel_adaptiveDelta(obj, channel)
 
 
-def create_animation(self, rig, animation, hierarchy, compressed):
+def create_animation(self, animation, hierarchy, compressed):
     if animation == None:
         return
 
+    rig = None
+    try:
+        rig = bpy.data.objects[animation.header.hierarchyName]
+    except:
+        rig = bpy.data.objects[animation.header.hierarchyName + ".skl"]
     setup_animation(animation)
 
     if not compressed:

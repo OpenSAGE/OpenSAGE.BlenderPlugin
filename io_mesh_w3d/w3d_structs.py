@@ -168,10 +168,8 @@ class Hierarchy(Struct):
                     file, subChunkEnd, read_vector)
             else:
                 skip_unknown_chunk(self, file, chunkType, chunkSize)
-
-        for pivot in result.pivots:
-            print(pivot.parentID)
         return result
+
 
     def pivotsSize(self):
         size = 0
@@ -201,8 +199,7 @@ class Hierarchy(Struct):
             pivot.write(file)
 
         if (len(self.pivot_fixups) > 0):
-            write_long(file, W3D_CHUNK_PIVOT_FIXUPS)
-            write_long(file, self.pivotFixupsSize())
+            write_head(file, W3D_CHUNK_PIVOT_FIXUPS, self.pivotFixupsSize())
             for fixup in self.pivot_fixups:
                 write_vector(file, fixup)
 
