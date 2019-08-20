@@ -186,7 +186,7 @@ def rgb_to_vector(rgb):
 def create_vert_material(mesh, vertMat):
     mat = bpy.data.materials.new(mesh.header.meshName + "." + vertMat.vmName)
     mat.use_nodes = True
-    mat.blend_method = 'BLEND'
+    #mat.blend_method = 'BLEND'
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color = rgb_to_vector(vertMat.vmInfo.diffuse)
     principled.alpha = vertMat.vmInfo.opacity
@@ -391,7 +391,11 @@ def create_animation(self, animation, hierarchy, compressed):
     if animation == None:
         return
 
-    rig = bpy.data.objects[animation.header.hierarchyName]
+    rig = None
+    try:
+        rig = bpy.data.objects[animation.header.hierarchyName]
+    except:
+        pass
     setup_animation(animation)
 
     if not compressed:

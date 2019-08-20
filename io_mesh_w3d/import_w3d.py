@@ -119,6 +119,9 @@ def load(self, context, import_settings):
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
 
+        #if hlod.header.modelName == hlod.header.hierarchyName and hierarchy != None:
+        #    hierarchy.header.name += ".skl"
+            
 
     create_box(box,coll)
 
@@ -141,7 +144,8 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    if hlod != None and hlod.header.modelName != hlod.header.hierarchyName and hierarchy != None:
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     for m in meshes:
         triangles = []
