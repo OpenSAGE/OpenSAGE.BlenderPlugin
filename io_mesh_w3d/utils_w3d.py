@@ -11,7 +11,6 @@ from mathutils import Vector, Quaternion
 
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from bpy_extras.image_utils import load_image
-
 from bpy.props import FloatVectorProperty, StringProperty, PointerProperty
 
 from io_mesh_w3d.w3d_io_binary import *
@@ -187,6 +186,7 @@ def rgb_to_vector(rgb):
 def create_vert_material(mesh, vertMat):
     mat = bpy.data.materials.new(mesh.header.meshName + "." + vertMat.vmName)
     mat.use_nodes = True
+    mat.blend_method = 'BLEND'
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color = rgb_to_vector(vertMat.vmInfo.diffuse)
     principled.alpha = vertMat.vmInfo.opacity
