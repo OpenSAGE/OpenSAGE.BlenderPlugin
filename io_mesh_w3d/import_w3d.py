@@ -5,7 +5,7 @@ import bpy
 import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.w3d_io_binary import *
-from io_mesh_w3d.utils_w3d import *
+from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
