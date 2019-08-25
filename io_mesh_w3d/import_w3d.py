@@ -119,10 +119,6 @@ def load(self, context, import_settings):
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
 
-        #if hlod.header.modelName == hlod.header.hierarchyName and hierarchy != None:
-        #    hierarchy.header.name += ".skl"
-            
-
     create_box(box,coll)
 
     if (hierarchy == None):
@@ -185,12 +181,11 @@ def load(self, context, import_settings):
 
         create_shader_materials(self, m, mesh)
 
-    amtName = hierarchy.header.name
-
     for m in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[m.header.meshName]
 
-        if hierarchy.header.numPivots > 0:
+        if hierarchy != None and hierarchy.header.numPivots > 0:
+            amtName = hierarchy.header.name
             if is_skin(m):
                 for pivot in hierarchy.pivots:
                     mesh_ob.vertex_groups.new(name=pivot.name)
