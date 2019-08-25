@@ -412,11 +412,10 @@ def create_animation(self, animation, hierarchy, compressed):
 
 
 def smooth_mesh(mesh):
-    k = 0
-    #bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.mode_set(mode='OBJECT')
 
-    #for f in mesh.polygons:
-    #    f.use_smooth = True
+    for f in mesh.polygons:
+        f.use_smooth = True
 
 #######################################################################################
 # create basic meshes
