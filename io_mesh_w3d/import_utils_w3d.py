@@ -112,7 +112,10 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hlod == None or hierarchy == None:
         return rig
 
-    amtName = hierarchy.header.name
+    if hlod.header.modelName == hlod.header.hierarchyName:
+        amtName = hierarchy.header.name + "SKL"
+    else:   
+        amtName = hierarchy.header.name
 
     for obj in bpy.data.objects:
         if obj.name == amtName:
@@ -139,7 +142,11 @@ def create_armature(hierarchy, amtName, subObjects, coll):
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
-    link_object_to_active_scene(rig, coll)
+    try:
+        link_object_to_active_scene(rig, coll)
+    except: 
+        rig.name = rig.name + "SKL"
+        link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
