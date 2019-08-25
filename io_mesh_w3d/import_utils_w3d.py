@@ -106,7 +106,6 @@ def is_skin(mesh):
 # skeleton
 #######################################################################################
 
-
 def get_or_create_skeleton(hlod, hierarchy, coll):
     rig = None
 

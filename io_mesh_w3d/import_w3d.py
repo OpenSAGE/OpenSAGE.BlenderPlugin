@@ -140,7 +140,7 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    if hlod != None and hlod.header.modelName != hlod.header.hierarchyName and hierarchy != None:
+    if hlod != None and hierarchy != None:
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     for m in meshes:
