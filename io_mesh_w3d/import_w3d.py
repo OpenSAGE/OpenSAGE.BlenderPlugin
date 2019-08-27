@@ -4,7 +4,7 @@
 import bpy
 import os
 from io_mesh_w3d.w3d_structs import *
-from io_mesh_w3d.w3d_io_binary import *
+from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
@@ -22,9 +22,7 @@ def load_skeleton_file(self, sklpath):
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
-        chunkType = read_ulong(file)
-        chunkSize = read_chunk_size(file)
-        chunkEnd = file.tell() + chunkSize
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(file)
 
         if chunkType == W3D_CHUNK_HIERARCHY:
             hierarchy = Hierarchy.read(self, file, chunkEnd)
@@ -55,9 +53,7 @@ def load(self, context, import_settings):
     box = None
 
     while file.tell() < filesize:
-        chunkType = read_ulong(file)
-        chunkSize = read_chunk_size(file)
-        chunkEnd = file.tell() + chunkSize
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(file)
 
         if chunkType == W3D_CHUNK_MESH:
             meshes.append(Mesh.read(self, file, chunkEnd))
@@ -73,40 +69,40 @@ def load(self, context, import_settings):
         elif chunkType == W3D_CHUNK_BOX:
             box = Box.read(file)
         elif chunkType == W3D_CHUNK_MORPH_ANIMATION:
-            print ("-> morph animation chunk is not supported")
+            print("-> morph animation chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_HMODEL:
-            print ("-> hmodel chnuk is not supported")
+            print("-> hmodel chnuk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_LODMODEL:
-            print ("-> lodmodel chunk is not supported")
+            print("-> lodmodel chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_COLLECTION:
-            print ("-> collection chunk not supported")
+            print("-> collection chunk not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_POINTS:
-            print ("-> points chunk is not supported")
+            print("-> points chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_LIGHT:
-            print ("-> light chunk is not supported")
+            print("-> light chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_EMITTER:
-            print ("-> emitter chunk is not supported")
+            print("-> emitter chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_AGGREGATE:
-            print ("-> aggregate chunk is not supported")
+            print("-> aggregate chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_NULL_OBJECT:
-            print ("-> null object chunkt is not supported")
+            print("-> null object chunkt is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_LIGHTSCAPE:
-            print ("-> lightscape chunk is not supported")
+            print("-> lightscape chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_DAZZLE:
-            print ("-> dazzle chunk is not supported")
+            print("-> dazzle chunk is not supported")
             file.seek(chunkSize, 1)
         elif chunkType == W3D_CHUNK_SOUNDROBJ:
-            print ("-> soundobj chunk is not supported")
+            print("-> soundobj chunk is not supported")
             file.seek(chunkSize, 1)
         else:
             skip_unknown_chunk(self, file, chunkType, chunkSize)
@@ -119,7 +115,7 @@ def load(self, context, import_settings):
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
 
-    create_box(box,coll)
+    create_box(box, coll)
 
     if (hierarchy == None):
         sklpath = None

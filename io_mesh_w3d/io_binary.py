@@ -5,16 +5,8 @@ import bpy
 import struct
 from mathutils import Vector, Quaternion
 
-
-def read_chunk_size(file):
-    return read_ulong(file) & 0x7FFFFFFF
-
-
-def write_head(file, chunkID, size, hasSubChunks=False):
-    write_ulong(file, chunkID)
-    if hasSubChunks == True:
-        size |= 0x80000000
-    write_ulong(file, size)
+STRING_LENGTH = 16
+LARGE_STRING_LENGTH = 32
 
 
 def read_string(file):
@@ -32,16 +24,16 @@ def write_string(file, string):
 
 
 def read_fixed_string(file):
-    return ((str(file.read(16)))[2:18]).split("\\")[0]
+    return ((str(file.read(STRING_LENGTH)))[2:18]).split("\\")[0]
 
 
 def write_fixed_string(file, string):
     # truncate the string to 16
-    nullbytes = 16-len(string)
+    nullbytes = STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print("Warning: Fixed string is too long")
+        print("Warning: Fixed string is too long!")
 
-    file.write(bytes(string, 'UTF-8'))
+    file.write(bytes(string, 'UTF-8')[0:STRING_LENGTH])
     i = 0
     while i < nullbytes:
         file.write(struct.pack("B", 0b0))
@@ -49,16 +41,16 @@ def write_fixed_string(file, string):
 
 
 def read_long_fixed_string(file):
-    return ((str(file.read(32)))[2:34]).split("\\")[0]
+    return ((str(file.read(LARGE_STRING_LENGTH)))[2:34]).split("\\")[0]
 
 
 def write_long_fixed_string(file, string):
     # truncate the string to 32
-    nullbytes = 32-len(string)
+    nullbytes = LARGE_STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print("Warning: Fixed string is too long")
+        print("Warning: Fixed string was too long!")
 
-    file.write(bytes(string, 'UTF-8'))
+    file.write(bytes(string, 'UTF-8')[0:LARGE_STRING_LENGTH])
     i = 0
     while i < nullbytes:
         file.write(struct.pack("B", 0b0))

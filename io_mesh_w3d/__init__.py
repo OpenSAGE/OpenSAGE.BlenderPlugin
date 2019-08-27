@@ -1,5 +1,5 @@
-#Written by Stephan Vedder and Michael Schnabel
-#Last Modification 08.2019
+# Written by Stephan Vedder and Michael Schnabel
+# Last Modification 08.2019
 import bpy
 from bpy.types import Operator, AddonPreferences
 from bpy_extras.io_utils import ImportHelper, ExportHelper
@@ -56,12 +56,12 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                ),
         default='M',)
 
-    export_compress: EnumProperty(
+    animation_compression: EnumProperty(
         name="Compression",
         items=(('U', "Uncompressed", "This will not compress the animations"),
                ('TC', "TimeCoded", "This will export the animation with keyframes"),
-               ('AD', "AdaptiveDelta",
-                "This will use adaptive delta compression to reduce size"),
+               #('AD', "AdaptiveDelta",
+               # "This will use adaptive delta compression to reduce size"),
                ),
         default='TC',)
 
@@ -69,8 +69,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     # Custom scene property for saving settings
     scene_key = "w3dExportSettings"
-
-    #
 
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)
@@ -105,8 +103,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         # All custom export settings are stored in this container.
         export_settings = {}
 
-        export_settings['w3d_mode'] = export_mode
-        export_settings['w3d_compression'] = animation_compression
+        export_settings['w3d_mode'] = self.export_mode
+        export_settings['w3d_compression'] = self.animation_compression
 
         return export_w3d.save(self.filepath, context, export_settings)
 

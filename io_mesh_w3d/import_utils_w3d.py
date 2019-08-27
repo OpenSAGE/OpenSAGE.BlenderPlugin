@@ -13,11 +13,29 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from bpy_extras.image_utils import load_image
 from bpy.props import FloatVectorProperty, StringProperty, PointerProperty
 
-from io_mesh_w3d.w3d_io_binary import *
+from io_mesh_w3d.io_binary import *
 
 #######################################################################################
 # helper methods
 #######################################################################################
+
+
+def read_chunk_head(file):
+    chunkType = read_ulong(file)
+    chunkSize = read_chunk_size(file)
+    chunkEnd = file.tell() + chunkSize
+    return (chunkType, chunkSize, chunkEnd)
+
+
+def read_chunk_size(file):
+    return read_ulong(file) & 0x7FFFFFFF
+
+
+def write_chunk_head(file, chunkID, size, hasSubChunks=False):
+    write_ulong(file, chunkID)
+    if hasSubChunks == True:
+        size |= 0x80000000
+    write_ulong(file, size)
 
 
 def string_size(string):
@@ -47,9 +65,7 @@ def read_chunk_array(self, file, chunkEnd, type, read_func):
     result = []
 
     while file.tell() < chunkEnd:
-        chunkType = read_ulong(file)
-        chunkSize = read_chunk_size(file)
-        subChunkEnd = file.tell() + chunkSize
+        (chunkType, chunkSize, subChunkEnd) = read_chunk_head(file)
 
         if chunkType == type:
             result.append(read_func(self, file, subChunkEnd))
@@ -80,6 +96,7 @@ def insensitive_path(path):
             path = os.path.join(dir, filename)
     return path
 
+
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
     message = "WARNING: unknown chunktype in file: %s" % hex(chunkType)
     self.report({'ERROR'}, message)
@@ -106,6 +123,7 @@ def is_skin(mesh):
 # skeleton
 #######################################################################################
 
+
 def get_or_create_skeleton(hlod, hierarchy, coll):
     rig = None
 
@@ -114,7 +132,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
 
     if hlod.header.modelName == hlod.header.hierarchyName:
         amtName = hierarchy.header.name + "SKL"
-    else:   
+    else:
         amtName = hierarchy.header.name
 
     for obj in bpy.data.objects:
@@ -144,7 +162,7 @@ def create_armature(hierarchy, amtName, subObjects, coll):
 
     try:
         link_object_to_active_scene(rig, coll)
-    except: 
+    except:
         rig.name = rig.name + "SKL"
         link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
