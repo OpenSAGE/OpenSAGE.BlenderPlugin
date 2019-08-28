@@ -13,9 +13,12 @@ from io_mesh_w3d.w3d_structs import *
 #######################################################################################
 
 
-def export_meshes(sknFile, hierarchy):
-    containerName = (os.path.splitext(
-        os.path.basename(sknFile.name))[0]).upper()
+def export_meshes(sknFile, hierarchy, containerName):
+    hlod = HLod()
+    hlod.header.modelName = containerName
+    hlod.header.hierarchyName = hierarchy.header.name
+    hlod.lodArray.subObjects = []
+
     mesh_objects = [
         object for object in bpy.context.scene.objects if object.type == 'MESH']
 
@@ -24,7 +27,8 @@ def export_meshes(sknFile, hierarchy):
             box = Box(
                 name=containerName + "." + mesh_object.name,
                 center=mesh_object.location)
-            box_mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
+            box_mesh = mesh_object.to_mesh(
+                preserve_all_data_layers=False, depsgraph=None)
             box.extend = Vector(
                 (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
             box.write(sknFile)
@@ -34,7 +38,8 @@ def export_meshes(sknFile, hierarchy):
             header.meshName = mesh_object.name
             header.containerName = containerName
 
-            mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
+            mesh = mesh_object.to_mesh(
+                preserve_all_data_layers=False, depsgraph=None)
             triangulate(mesh)
 
             header.vertCount = len(mesh.vertices)
@@ -57,24 +62,9 @@ def export_meshes(sknFile, hierarchy):
                     (mesh.vertices[face.vertices[0]].co.xyz + mesh.vertices[face.vertices[1]].co.xyz + mesh.vertices[face.vertices[2]].co.xyz)) / 3.0
                 triangle.distance = (mesh_object.location - tri_pos).length
                 mesh_struct.triangles.append(triangle)
-                
 
             if len(mesh_object.vertex_groups) > 0:
-                header.attrs = 0x00020000 # TODO: use the define from import_utils here
-            else:
-                pivot = HierarchyPivot(
-                    name=mesh_object.name,
-                    parentID=0,
-                    translation=mesh_object.location,
-                    eulerAngles=mesh_object.rotation_euler,
-                    rotation=mesh_object.rotation_quaternion)
-
-                if mesh_object.parent_bone != "":
-                    for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.parent_bone:
-                            pivot.parentID = index
-
-                hierarchy.pivots.append(pivot)
+                header.attrs = 0x00020000  # TODO: use the define from import_utils here
 
             center, radius = calculate_mesh_sphere(mesh)
             header.sphCenter = center
@@ -82,22 +72,60 @@ def export_meshes(sknFile, hierarchy):
 
             header.faceCount = len(mesh_struct.triangles)
             mesh_struct.write(sknFile)
-        
+
+            # HLod stuff
+            subObject = HLodSubObject()
+            subObject.name = containerName + "." + mesh_object.name
+            subObject.boneIndex = 0
+
+            if header.attrs == 0x00020000:  # TODO: use the define from import_utils here
+                for index, pivot in enumerate(hierarchy.pivots):
+                    if pivot.name == mesh_object.name:
+                        subObject.boneIndex = index
+            hlod.lodArray.subObjects.append(subObject)
+
+    hlod.lodArray.header.modelCount = len(hlod.lodArray.subObjects)
+    hlod.write(sknFile)
+
 
 #######################################################################################
 # hierarchy data
 #######################################################################################
 
 
-def export_hierarchy(file, hierarchy):
-    rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
+def create_hierarchy():
+    hierarchy = Hierarchy(pivots=[])
+    root = HierarchyPivot(
+        name="ROOTTRANSFORM",
+        parentID=-1)
 
-    print(len(rigs))
+    hierarchy.pivots.append(root)
+
+    mesh_objects = [
+        object for object in bpy.context.scene.objects if object.type == 'MESH']
+
+    for mesh_object in mesh_objects:
+        if len(mesh_object.vertex_groups) == 0:
+            pivot = HierarchyPivot(
+                name=mesh_object.name,
+                parentID=0,
+                translation=mesh_object.location,
+                eulerAngles=mesh_object.rotation_euler,
+                rotation=mesh_object.rotation_quaternion)
+
+            if mesh_object.parent_bone != "":
+                for index, pivot in enumerate(hierarchy.pivots):
+                    if pivot.name == mesh_object.parent_bone:
+                        pivot.parentID = index
+
+            hierarchy.pivots.append(pivot)
+
+    rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
 
     if len(rigs) > 1:
         print("Error: only one armature per scene allowed")
         return
-    
+
     rig = rigs[0]
     for bone in rig.pose.bones:
         pivot = HierarchyPivot(
@@ -106,17 +134,15 @@ def export_hierarchy(file, hierarchy):
             tanslation=bone.location,
             eulerAngles=bone.rotation_euler,
             rotation=bone.rotation_quaternion)
-        
-        print(bone.name + " " + pivot.name)
 
         if bone.parent != None:
             for index, pivot in enumerate(hierarchy.pivots):
                 if pivot.name == bone.parent.name:
                     pivot.parentID = index
-        
+
         hierarchy.pivots.append(pivot)
 
-    hierarchy.write(file)
+    return hierarchy
 
 
 #######################################################################################
@@ -128,7 +154,8 @@ def export_animations(animationName, hierarchy):
     ani_struct = Animation()
     ani_struct.header.name = animationName
     ani_struct.header.hierarchyName = hierarchy.header.name
-    ani_struct.header.numFrames = bpy.data.scenes["Scene"].frame_end - bpy.data.scenes["Scene"].frame_start
+    ani_struct.header.numFrames = bpy.data.scenes["Scene"].frame_end - \
+        bpy.data.scenes["Scene"].frame_start
     ani_struct.header.frameRate = bpy.data.scenes["Scene"].render.fps
 
 
@@ -143,6 +170,7 @@ def triangulate(mesh):
     bmesh.ops.triangulate(bm, faces=bm.faces)
     bm.to_mesh(mesh)
     bm.free()
+
 
 def vertices_to_vectors(vertices):
     vectors = []
@@ -188,5 +216,3 @@ def calculate_mesh_sphere(mesh):
     radius = z.length
 
     return validate_all_points_inside_sphere(center, radius, vertices)
-
-	

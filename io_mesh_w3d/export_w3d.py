@@ -3,7 +3,7 @@
 # Last Modification 08.2019
 
 import bpy
-from io_mesh_w3d.w3d_structs import * 
+from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.export_utils_w3d import *
 
 
@@ -17,24 +17,26 @@ def save(givenfilepath, context, export_settings):
     # check for the export settings
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    hierarchy = Hierarchy()
-    root = HierarchyPivot(
-        name="ROOTTRANSFORM",
-        parentID=-1)
-    
-    hierarchy.pivots.append(root)
+    hierarchy = create_hierarchy()
 
     if export_mode == 'M':
         sknFile = open(givenfilepath, "wb")
-        export_meshes(sknFile, hierarchy)
+        containerName = (os.path.splitext(
+            os.path.basename(sknFile.name))[0]).upper()
+        export_meshes(sknFile, hierarchy, containerName)
     elif export_mode == 'HAM':
         sknFile = open(givenfilepath, "wb")
-        export_meshes(sknFile, hierarchy)
-        export_hierarchy(sknFile, hierarchy)
+        containerName = (os.path.splitext(
+            os.path.basename(sknFile.name))[0]).upper()
+        Hierarchy.header.name = containerName
+        export_meshes(sknFile, hierarchy, containerName)
+        hierarchy.write(sknFile)
     elif export_mode == 'S':
         sklFile = open(givenfilepath, "wb")
-        export_hierarchy(sklFile, hierarchy)
-    #elif export_mode == 'A':
+        containerName = (os.path.splitext(
+            os.path.basename(sklFile.name))[0]).upper()
+        hierarchy.write(sklFile)
+    # elif export_mode == 'A':
         #aniFile = open(givenfilepath, "wb")
         # export_animations(aniFile)
 

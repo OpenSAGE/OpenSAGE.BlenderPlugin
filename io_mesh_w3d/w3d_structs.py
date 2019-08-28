@@ -719,7 +719,7 @@ W3D_CHUNK_HLOD = 0x00000700
 
 class HLod(Struct):
     header = HLodHeader()
-    lodArray = None
+    lodArray = HLodArray()
 
     @staticmethod
     def read(self, file, chunkEnd):
