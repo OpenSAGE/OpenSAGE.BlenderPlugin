@@ -113,11 +113,20 @@ def link_object_to_active_scene(obj, coll):
     obj.select_set(True)
 
 
+def smooth_mesh(mesh):
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    for f in mesh.polygons:
+        f.use_smooth = True
+
+
 GEOMETRY_TYPE_SKIN = 0x00020000
 
 
 def is_skin(mesh):
     return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+
+
 
 #######################################################################################
 # skeleton
@@ -350,7 +359,6 @@ def setup_animation(animation):
 
 
 def set_translation(bone, index, frame, value):
-    bpy.context.scene.frame_set(frame)
     bone.location[index] = value
     bone.keyframe_insert(data_path='location', index=index, frame=frame)
 
@@ -435,12 +443,6 @@ def create_animation(self, animation, hierarchy, compressed):
 
     bpy.context.scene.frame_set(0)
 
-
-def smooth_mesh(mesh):
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    for f in mesh.polygons:
-        f.use_smooth = True
 
 #######################################################################################
 # create basic meshes

@@ -94,7 +94,9 @@ def export_meshes(sknFile, hierarchy, containerName):
 
 
 def create_hierarchy():
-    hierarchy = Hierarchy(pivots=[])
+    hierarchy = Hierarchy(
+            header=HierarchyHeader(),
+            pivots=[])
     root = HierarchyPivot(
         name="ROOTTRANSFORM",
         parentID=-1)
