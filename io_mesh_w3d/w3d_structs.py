@@ -130,7 +130,6 @@ class HierarchyPivot(Struct):
         return 60
 
     def write(self, file):
-        print(self.name)
         write_fixed_string(file, self.name)
         write_long(file, self.parentID)
         write_vector(file, self.translation)

@@ -13,7 +13,7 @@ from io_mesh_w3d.w3d_structs import *
 #######################################################################################
 
 
-def export_meshes(sknFile, hierarchy, containerName):
+def export_meshes(sknFile, hierarchy, rig, containerName):
     hlod = HLod()
     hlod.header.modelName = containerName
     hlod.header.hierarchyName = hierarchy.header.name
@@ -45,8 +45,32 @@ def export_meshes(sknFile, hierarchy, containerName):
             header.vertCount = len(mesh.vertices)
 
             for v in mesh.vertices:
-                mesh_struct.verts.append(v.co.xyz)
+                vertInf = MeshVertexInfluence()
+
+                if len(v.groups) > 0:
+                    for index, pivot in enumerate(hierarchy.pivots):
+                        if pivot.name == mesh_object.vertex_groups[v.groups[0].group].name:
+                            vertInf.boneIdx = index
+                    vertInf.boneInf = v.groups[0].weight
+                    mesh_struct.vertInfs.append(vertInf)
+
+                    bone = rig.pose.bones[hierarchy.pivots[vertInf.boneIdx].name]
+                    vertex = bone.matrix.inverted() @ v.co.xyz
+                    mesh_struct.verts.append(vertex)
+                if len(v.groups) > 1:
+                    for index, pivot in enumerate(hierarchy.pivots):
+                        if pivot.name == mesh_object.vertex_groups[v.groups[1].group].name:
+                            vertInf.xtraIdx = index
+                    vertInf.xtraInf = v.groups[1].weight
+
+                elif len(v.groups) > 2: 
+                    print("Error: max 2 bone influences per vertex supported!")
+               
+                if len(v.groups) == 0:
+                    mesh_struct.verts.append(v.co.xyz)
+
                 mesh_struct.normals.append(v.normal)
+
 
             header.minCorner = Vector(
                 (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
@@ -93,7 +117,7 @@ def export_meshes(sknFile, hierarchy, containerName):
 #######################################################################################
 
 
-def create_hierarchy():
+def create_hierarchy(containerName):
     hierarchy = Hierarchy(
             header=HierarchyHeader(),
             pivots=[])
@@ -102,6 +126,34 @@ def create_hierarchy():
         parentID=-1)
 
     hierarchy.pivots.append(root)
+
+    rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
+
+    if len(rigs) > 1:
+        print("Error: only one armature per scene allowed")
+        return
+    elif len(rigs) == 1:
+        rig = rigs[0]
+        hierarchy.header.name = rig.name
+        for bone in rig.pose.bones:
+            pivot = HierarchyPivot(
+                name=bone.name,
+                parentID=0)
+
+            matrix = bone.matrix
+
+            if bone.parent != None:
+                for index, p in enumerate(hierarchy.pivots):
+                    if p.name == bone.parent.name:
+                        pivot.parentID = index
+                matrix = bone.parent.matrix.inverted() @ matrix
+
+            (pivot.translation, pivot.rotation, _) = matrix.decompose()
+
+            hierarchy.pivots.append(pivot)
+    else:
+        hierarchy.header.name = containerName
+
 
     mesh_objects = [
         object for object in bpy.context.scene.objects if object.type == 'MESH']
@@ -112,39 +164,16 @@ def create_hierarchy():
                 name=mesh_object.name,
                 parentID=0,
                 translation=mesh_object.location,
-                eulerAngles=mesh_object.rotation_euler,
                 rotation=mesh_object.rotation_quaternion)
 
             if mesh_object.parent_bone != "":
-                for index, pivot in enumerate(hierarchy.pivots):
-                    if pivot.name == mesh_object.parent_bone:
+                for index, p in enumerate(hierarchy.pivots):
+                    if p.name == mesh_object.parent_bone:
                         pivot.parentID = index
 
             hierarchy.pivots.append(pivot)
 
-    rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
-
-    if len(rigs) > 1:
-        print("Error: only one armature per scene allowed")
-        return
-
-    rig = rigs[0]
-    for bone in rig.pose.bones:
-        pivot = HierarchyPivot(
-            name=bone.name,
-            parentID=0,
-            tanslation=bone.location,
-            eulerAngles=bone.rotation_euler,
-            rotation=bone.rotation_quaternion)
-
-        if bone.parent != None:
-            for index, pivot in enumerate(hierarchy.pivots):
-                if pivot.name == bone.parent.name:
-                    pivot.parentID = index
-
-        hierarchy.pivots.append(pivot)
-
-    return hierarchy
+    return (hierarchy, rig)
 
 
 #######################################################################################

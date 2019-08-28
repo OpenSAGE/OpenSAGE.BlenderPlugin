@@ -161,8 +161,9 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        create_uvlayers(mesh, triangles, m.materialPass.txCoords,
-                        m.materialPass.txStages)
+        if m.materialPass != None:
+            create_uvlayers(mesh, triangles, m.materialPass.txCoords,
+                            m.materialPass.txStages)
 
         smooth_mesh(mesh)
 

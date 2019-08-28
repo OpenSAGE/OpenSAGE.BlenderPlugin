@@ -12,29 +12,24 @@ def save(givenfilepath, context, export_settings):
     print('Saving file', givenfilepath)
 
     export_mode = export_settings['w3d_mode']
-    print("export mode:" + str(export_mode))
+    print("export mode: " + str(export_mode))
 
-    # check for the export settings
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    hierarchy = create_hierarchy()
+    containerName = (os.path.splitext(
+            os.path.basename(givenfilepath))[0]).upper()
+
+    (hierarchy, rig) = create_hierarchy(containerName)
 
     if export_mode == 'M':
         sknFile = open(givenfilepath, "wb")
-        containerName = (os.path.splitext(
-            os.path.basename(sknFile.name))[0]).upper()
-        export_meshes(sknFile, hierarchy, containerName)
+        export_meshes(sknFile, hierarchy, rig, containerName)
     elif export_mode == 'HAM':
         sknFile = open(givenfilepath, "wb")
-        containerName = (os.path.splitext(
-            os.path.basename(sknFile.name))[0]).upper()
-        Hierarchy.header.name = containerName
-        export_meshes(sknFile, hierarchy, containerName)
+        export_meshes(sknFile, hierarchy, rig, containerName)
         hierarchy.write(sknFile)
     elif export_mode == 'S':
         sklFile = open(givenfilepath, "wb")
-        containerName = (os.path.splitext(
-            os.path.basename(sklFile.name))[0]).upper()
         hierarchy.write(sklFile)
     # elif export_mode == 'A':
         #aniFile = open(givenfilepath, "wb")
