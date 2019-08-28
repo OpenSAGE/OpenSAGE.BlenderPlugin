@@ -159,7 +159,7 @@ def create_hierarchy(containerName):
         object for object in bpy.context.scene.objects if object.type == 'MESH']
 
     for mesh_object in mesh_objects:
-        if len(mesh_object.vertex_groups) == 0:
+        if len(mesh_object.vertex_groups) == 0 and mesh_object.name != "BOUNDINGBOX": # TODO: use a constant here
             pivot = HierarchyPivot(
                 name=mesh_object.name,
                 parentID=0,
