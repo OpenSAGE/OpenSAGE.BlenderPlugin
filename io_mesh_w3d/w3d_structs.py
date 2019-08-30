@@ -1561,9 +1561,9 @@ class MeshAABBTree(Struct):
 
     def sizeInBytes(self):
         size = HEAD + self.header.sizeInBytes()
-        if len(self.polyIndices) > 0:
+        if self.polyIndices:
             size += HEAD + self.polyIndicesSize()
-        if len(self.nodes) > 0:
+        if self.nodes:
             size += HEAD + self.nodesSize()
         return size
 
@@ -1822,23 +1822,23 @@ class Mesh(Struct):
         size += HEAD + self.vertsSize()
         size += HEAD + self.normalsSize()
         size += HEAD + self.trisSize()
-        if len(self.vertInfs) > 0:
+        if self.vertInfs:
             size += HEAD + self.vertInfsSize()
-        if len(self.shaders) > 0:
+        if self.shaders:
             size += HEAD + self.shadersSize()
-        if len(self.textures) > 0:
+        if self.textures:
             size += HEAD + self.texturesSize()
-        if len(self.shadeIds) > 0:
+        if self.shadeIds:
             size += HEAD + self.shadeIdsSize()
-        if len(self.shaderMaterials) > 0:
+        if self.shaderMaterials:
             size += HEAD + self.shaderMaterialsSize()
-        if self.matInfo != None:
+        if self.matInfo is not None:
             size += HEAD + self.matInfo.sizeInBytes()
         if len(self.vertMatls) > 0:
             size += HEAD + self.vertMaterialsSize()
-        if self.materialPass != None:
+        if self.materialPass is not None:
             size += HEAD + self.materialPass.sizeInBytes()
-        if self.aabbtree != None:
+        if self.aabbtree is not None:
             size += HEAD + self.aabbtree.sizeInBytes()
         return size
 
@@ -1857,29 +1857,29 @@ class Mesh(Struct):
         for tri in self.triangles:
             tri.write(file)
 
-        if len(self.vertInfs) > 0:
+        if self.vertInfs:
             write_chunk_head(file, W3D_CHUNK_VERTEX_INFLUENCES,
                              self.vertInfsSize())
             for inf in self.vertInfs:
                 inf.write(file)
 
-        if len(self.shaders) > 0:
+        if self.shaders:
             write_chunk_head(file, W3D_CHUNK_SHADERS, self.shadersSize())
             for shader in self.shaders:
                 shader.write(file)
 
-        if len(self.textures) > 0:
+        if self.textures:
             write_chunk_head(file, W3D_CHUNK_TEXTURES,
                              self.texturesSize(), hasSubChunks=True)
             for texture in self.textures:
                 texture.write(file)
 
-        if len(self.shadeIds) > 0:
+        if self.shadeIds:
             write_chunk_head(
                 file, W3D_CHUNK_VERTEX_SHADE_INDICES, self.shadeIdsSize())
             write_array(file, self.shadeIds, write_long)
 
-        if len(self.shaderMaterials) > 0:
+        if self.shaderMaterials:
             write_chunk_head(file, W3D_CHUNK_SHADER_MATERIALS,
                              self.shaderMaterialsSize(), hasSubChunks=True)
             for shaderMat in self.shaderMaterials:
@@ -1890,16 +1890,16 @@ class Mesh(Struct):
                              self.matInfo.sizeInBytes())
             self.matInfo.write(file)
 
-        if len(self.vertMatls) > 0:
+        if self.vertMatls:
             write_chunk_head(file, W3D_CHUNK_VERTEX_MATERIALS,
                              self.vertMaterialsSize(), hasSubChunks=True)
             for vertMat in self.vertMatls:
                 vertMat.write(file)
 
-        if self.materialPass != None:
+        if self.materialPass is not None:
             self.materialPass.write(file)
 
-        if self.aabbtree != None:
+        if self.aabbtree is not None:
             self.aabbtree.write(file)
 
 
