@@ -20,7 +20,7 @@ install:
   - ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/io_mesh_w3d
   - wget https://files.pythonhosted.org/packages/85/d5/818d0e603685c4a613d56f065a721013e942088047ff1027a632948bdae6/coverage-4.5.4.tar.gz#md5=c33cab2aed8780aac32880cb6c7616b7
   - tar zxf coverage-4.5.4.tar.gz
-  - mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${BLENDER_VERSION}/python/lib/python${PYTHON_VERSION}"
+  - mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${BLENDER_VERSION}/python/lib/python3.7"
   - rm -rf coverage-4.5.4
 script: ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1 --python ./tests/runner.py
 
