@@ -73,20 +73,20 @@ def write_ulong(file, num):
     file.write(struct.pack("<L", num))
 
 
-def read_ushort(file):
-    return struct.unpack("<H", file.read(2))[0]
-
-
-def write_ushort(file, num):
-    file.write(struct.pack("<H", num))
-
-
 def read_short(file):
     return struct.unpack("<h", file.read(2))[0]
 
 
 def write_short(file, num):
     file.write(struct.pack("<h", num))
+
+
+def read_ushort(file):
+    return struct.unpack("<H", file.read(2))[0]
+
+
+def write_ushort(file, num):
+    file.write(struct.pack("<H", num))
 
 
 def read_float(file):

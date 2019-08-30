@@ -7,7 +7,6 @@ import subprocess
 import sys
 import time
 
-
 def _make_argparse():
     parser = argparse.ArgumentParser(description="Runs the test suite")
     test_selection = parser.add_argument_group("Test Selection And Control")
