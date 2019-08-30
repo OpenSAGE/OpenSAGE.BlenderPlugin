@@ -4,7 +4,6 @@
 import unittest
 import io
 import struct
-from tests.test_utils import *
 from io_mesh_w3d.io_binary import *
 
 
@@ -79,6 +78,3 @@ class TestIOBinary(unittest.TestCase):
         for inp in inputs:
             f = io.BytesIO(struct.pack("<f", inp))
             self.assertAlmostEqual(inp, read_float(f), 5)
-
-
-runTestCases([TestIOBinary])
