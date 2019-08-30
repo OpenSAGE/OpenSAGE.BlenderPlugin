@@ -17,7 +17,7 @@ def save(givenfilepath, context, export_settings):
     bpy.ops.object.mode_set(mode='OBJECT')
 
     containerName = (os.path.splitext(
-            os.path.basename(givenfilepath))[0]).upper()
+        os.path.basename(givenfilepath))[0]).upper()
 
     (hierarchy, rig) = create_hierarchy(containerName)
 

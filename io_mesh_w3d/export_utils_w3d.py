@@ -63,14 +63,13 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
                             vertInf.xtraIdx = index
                     vertInf.xtraInf = v.groups[1].weight
 
-                elif len(v.groups) > 2: 
+                elif len(v.groups) > 2:
                     print("Error: max 2 bone influences per vertex supported!")
-               
+
                 if len(v.groups) == 0:
                     mesh_struct.verts.append(v.co.xyz)
 
                 mesh_struct.normals.append(v.normal)
-
 
             header.minCorner = Vector(
                 (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
@@ -119,8 +118,8 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
 
 def create_hierarchy(containerName):
     hierarchy = Hierarchy(
-            header=HierarchyHeader(),
-            pivots=[])
+        header=HierarchyHeader(),
+        pivots=[])
     root = HierarchyPivot(
         name="ROOTTRANSFORM",
         parentID=-1)
@@ -154,12 +153,12 @@ def create_hierarchy(containerName):
     else:
         hierarchy.header.name = containerName
 
-
     mesh_objects = [
         object for object in bpy.context.scene.objects if object.type == 'MESH']
 
     for mesh_object in mesh_objects:
-        if len(mesh_object.vertex_groups) == 0 and mesh_object.name != "BOUNDINGBOX": # TODO: use a constant here
+        # TODO: use a constant here
+        if len(mesh_object.vertex_groups) == 0 and mesh_object.name != "BOUNDINGBOX":
             pivot = HierarchyPivot(
                 name=mesh_object.name,
                 parentID=0,
