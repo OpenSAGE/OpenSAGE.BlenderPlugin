@@ -17,4 +17,5 @@ install:
   - rm ${BLENDER_ARCHIVE}.tar.bz2
   - cd ..
   - ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/io_mesh_w3d
+  - ln -s ${PWD}/tests ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/tests
 script: python tests.py --blender ./tmp/blender/blender
