@@ -131,7 +131,8 @@ def create_hierarchy(containerName):
     if len(rigs) > 1:
         print("Error: only one armature per scene allowed")
         return
-    elif len(rigs) == 1:
+        
+    if len(rigs) == 1:
         rig = rigs[0]
         hierarchy.header.name = rig.name
         for bone in rig.pose.bones:

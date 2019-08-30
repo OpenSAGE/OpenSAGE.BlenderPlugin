@@ -85,6 +85,8 @@ def insensitive_open(path):
             path = os.path.join(dir, filename)
             return open(path, "rb")
 
+    return path
+
 
 def insensitive_path(path):
      # find the file on unix
@@ -99,7 +101,8 @@ def insensitive_path(path):
 
 def skip_unknown_chunk(self, file, chunkType, chunkSize):
     message = "WARNING: unknown chunktype in file: %s" % hex(chunkType)
-    self.report({'ERROR'}, message)
+    if self is not None:
+        self.report({'ERROR'}, message)
     print(message)
     file.seek(chunkSize, 1)
 

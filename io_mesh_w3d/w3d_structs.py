@@ -182,7 +182,7 @@ class Hierarchy(Struct):
     def sizeInBytes(self):
         size = HEAD + self.header.sizeInBytes()
         size += HEAD + self.pivotsSize()
-        if (len(self.pivot_fixups) > 0):
+        if self.pivot_fixups:
             size += HEAD + self.pivotFixupsSize()
         return size
 
@@ -193,7 +193,7 @@ class Hierarchy(Struct):
         for pivot in self.pivots:
             pivot.write(file)
 
-        if (len(self.pivot_fixups) > 0):
+        if self.pivot_fixups:
             write_chunk_head(file, W3D_CHUNK_PIVOT_FIXUPS,
                              self.pivotFixupsSize())
             for fixup in self.pivot_fixups:
@@ -520,7 +520,7 @@ class MotionChannel(Struct):
                 timeCode=read_short(file))
             result.append(datum)
 
-        if (not channel.numTimeCodes % 2 == 0):
+        if channel.numTimeCodes % 2 != 0:
             read_short(file)  # alignment
 
         for x in range(channel.numTimeCodes):
@@ -666,7 +666,8 @@ class HLodSubObject(Struct):
             boneIndex=read_ulong(file),
             name=read_long_fixed_string(file))
 
-    def sizeInBytes(self):
+    @staticmethod
+    def sizeInBytes():
         return 36
 
     def write(self, file):
@@ -819,7 +820,8 @@ class TextureInfo(Struct):
             frameCount=read_ulong(file),
             frameRate=read_float(file))
 
-    def sizeInBytes(self):
+    @staticmethod
+    def sizeInBytes():
         return 12
 
     def write(self, file):
@@ -855,7 +857,7 @@ class Texture(Struct):
 
     def sizeInBytes(self):
         size = HEAD + string_size(self.name)
-        if self.textureInfo != None:
+        if self.textureInfo is not None:
             size += HEAD + self.textureInfo.sizeInBytes()
         return size
 
@@ -865,7 +867,7 @@ class Texture(Struct):
         write_chunk_head(file, W3D_CHUNK_TEXTURE_NAME, string_size(self.name))
         write_string(file, self.name)
 
-        if self.textureInfo != None:
+        if self.textureInfo is not None:
             write_chunk_head(file, W3D_CHUNK_TEXTURE_INFO,
                              self.textureInfo.sizeInBytes())
             self.textureInfo.write(file)
@@ -888,7 +890,7 @@ class TextureStage(Struct):
     txCoords = []
 
     @staticmethod
-    def read(self, file, chunkEnd):
+    def read(file, chunkEnd):
         result = TextureStage(
             txIds=[],
             perFaceTxCoords=[],
@@ -905,7 +907,7 @@ class TextureStage(Struct):
                 result.perFaceTxCoords = read_array(
                     file, subChunkEnd, read_vector)
             else:
-                skip_unknown_chunk(self, file, chunkType, chunkSize)
+                skip_unknown_chunk(None, file, chunkType, chunkSize)
         return result
 
     def txIdsSize(self):
@@ -919,11 +921,11 @@ class TextureStage(Struct):
 
     def sizeInBytes(self):
         size = 0
-        if len(self.txIds) > 0:
+        if self.txIds:
             size += HEAD + self.txIdsSize()
-        if len(self.txCoords) > 0:
+        if self.txCoords:
             size += HEAD + self.txCoordsSize()
-        if len(self.perFaceTxCoords) > 0:
+        if self.perFaceTxCoords:
             size += HEAD + self.perFaceTxCoordsSize()
         return size
 
@@ -931,16 +933,16 @@ class TextureStage(Struct):
         write_chunk_head(file, W3D_CHUNK_TEXTURE_STAGE,
                          self.sizeInBytes(), hasSubChunks=True)
 
-        if len(self.txIds) > 0:
+        if self.txIds:
             write_chunk_head(file, W3D_CHUNK_TEXTURE_IDS, self.txIdsSize())
             write_array(file, self.txIds, write_long)
 
-        if len(self.txCoords) > 0:
+        if self.txCoords:
             write_chunk_head(file, W3D_CHUNK_STAGE_TEXCOORDS,
                              self.txCoordsSize())
             write_array(file, self.txCoords, write_vector2)
 
-        if len(self.perFaceTxCoords) > 0:
+        if self.perFaceTxCoords:
             write_chunk_head(file, W3D_CHUNK_PER_FACE_TEXCOORD_IDS,
                              self.perFaceTxCoordsSize())
             write_array(file, self.perFaceTxCoords, write_vector)
@@ -966,7 +968,7 @@ class MaterialPass(Struct):
     txCoords = []
 
     @staticmethod
-    def read(self, file, chunkEnd):
+    def read(file, chunkEnd):
         result = MaterialPass(
             vertexMaterialIds=[],
             shaderIds=[],
@@ -996,7 +998,7 @@ class MaterialPass(Struct):
                     file, subChunkEnd, read_ulong)
             elif chunkType == W3D_CHUNK_TEXTURE_STAGE:
                 result.txStages.append(
-                    TextureStage.read(self, file, subChunkEnd))
+                    TextureStage.read(file, subChunkEnd))
             elif chunkType == W3D_CHUNK_STAGE_TEXCOORDS:
                 result.txCoords = read_array(file, subChunkEnd, read_vector2)
             else:
@@ -1032,21 +1034,21 @@ class MaterialPass(Struct):
 
     def sizeInBytes(self):
         size = 0
-        if len(self.vertexMaterialIds) > 0:
+        if self.vertexMaterialIds:
             size = HEAD + self.vertexMaterialIdsSize()
-        if len(self.shaderIds) > 0:
+        if self.shaderIds:
             size += HEAD + self.shaderIdsSize()
-        if len(self.dcg) > 0:
+        if self.dcg:
             size += HEAD + self.dcgSize()
-        if len(self.dig) > 0:
+        if self.dig:
             size += HEAD + self.digSize()
-        if len(self.scg) > 0:
+        if self.scg:
             size += HEAD + self.scgSize()
-        if len(self.shaderMaterialIds) > 0:
+        if self.shaderMaterialIds:
             size += HEAD + self.shaderMaterialIdsSize()
-        if len(self.txStages) > 0:
+        if self.txStages:
             size += self.txStagesSize()
-        if len(self.txCoords) > 0:
+        if self.txCoords:
             size += HEAD + self.txCoordsSize()
         return size
 
@@ -1054,33 +1056,33 @@ class MaterialPass(Struct):
         write_chunk_head(file, W3D_CHUNK_MATERIAL_PASS,
                          self.sizeInBytes(), hasSubChunks=True)
 
-        if len(self.vertexMaterialIds) > 0:
+        if self.vertexMaterialIds:
             write_chunk_head(file, W3D_CHUNK_VERTEX_MATERIAL_IDS,
                              self.vertexMaterialIdsSize())
             write_array(file, self.vertexMaterialIds, write_ulong)
-        if len(self.shaderIds) > 0:
+        if self.shaderIds:
             write_chunk_head(file, W3D_CHUNK_SHADER_IDS, self.shaderIdsSize())
             write_array(file, self.shaderIds, write_ulong)
-        if len(self.dcg) > 0:
+        if self.dcg:
             write_chunk_head(file, W3D_CHUNK_DCG, self.dcgSize())
             for d in self.dcg:
                 d.write(file)
-        if len(self.dig) > 0:
+        if self.dig:
             write_chunk_head(file, W3D_CHUNK_DIG, self.digSize())
             for d in self.dig:
                 d.write(file)
-        if len(self.scg) > 0:
+        if self.scg:
             write_chunk_head(file, W3D_CHUNK_SCG, self.scgSize())
             for d in self.scg:
                 d.write(file)
-        if len(self.shaderMaterialIds) > 0:
+        if self.shaderMaterialIds:
             write_chunk_head(file, W3D_CHUNK_SHADER_MATERIAL_ID,
                              self.shaderMaterialIdsSize())
             write_array(file, self.shaderMaterialIds, write_ulong)
-        if len(self.txStages) > 0:
+        if self.txStages:
             for txStage in self.txStages:
                 txStage.write(file)
-        if len(self.txCoords) > 0:
+        if self.txCoords:
             write_chunk_head(file, W3D_CHUNK_STAGE_TEXCOORDS,
                              self.txCoordsSize())
             write_array(file, self.txCoords, write_vector2)
@@ -1572,11 +1574,11 @@ class MeshAABBTree(Struct):
                          self.sizeInBytes(), hasSubChunks=True)
         self.header.write(file)
 
-        if len(self.polyIndices) > 0:
+        if self.polyIndices:
             write_chunk_head(file, W3D_CHUNK_AABBTREE_POLYINDICES,
                              self.polyIndicesSize())
             write_array(file, self.polyIndices, write_long)
-        if len(self.nodes) > 0:
+        if self.nodes:
             write_chunk_head(file, W3D_CHUNK_AABBTREE_NODES, self.nodesSize())
             for node in self.nodes:
                 node.write(file)
@@ -1631,7 +1633,8 @@ class MeshHeader(Struct):
             sphCenter=read_vector(file),
             sphRadius=read_float(file))
 
-    def sizeInBytes(self):
+    @staticmethod
+    def sizeInBytes():
         return 116
 
     def write(self, file):
@@ -1688,7 +1691,6 @@ class Mesh(Struct):
     materialPass = None
     aabbtree = None
 
-    @staticmethod
     def read(self, file, chunkEnd):
         result = Mesh(
             verts=[],
@@ -1738,7 +1740,7 @@ class Mesh(Struct):
                     self, file, subChunkEnd, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunkType == W3D_CHUNK_MATERIAL_PASS:
                 result.materialPass = MaterialPass.read(
-                    self, file, subChunkEnd)
+                    file, subChunkEnd)
             elif chunkType == W3D_CHUNK_SHADER_MATERIALS:
                 result.shaderMaterials = read_chunk_array(
                     self, file, subChunkEnd, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
@@ -1834,7 +1836,7 @@ class Mesh(Struct):
             size += HEAD + self.shaderMaterialsSize()
         if self.matInfo is not None:
             size += HEAD + self.matInfo.sizeInBytes()
-        if len(self.vertMatls) > 0:
+        if self.vertMatls:
             size += HEAD + self.vertMaterialsSize()
         if self.materialPass is not None:
             size += HEAD + self.materialPass.sizeInBytes()
@@ -1885,7 +1887,7 @@ class Mesh(Struct):
             for shaderMat in self.shaderMaterials:
                 shaderMat.write(file)
 
-        if self.matInfo != None:
+        if self.matInfo is not None:
             write_chunk_head(file, W3D_CHUNK_MATERIAL_INFO,
                              self.matInfo.sizeInBytes())
             self.matInfo.write(file)

@@ -17,3 +17,5 @@ class TestObjectImport(unittest.TestCase):
         file = ImportWrapper(dirname + "/dol_amroth_citadel/gbdolamr.w3d")
         import_settings = {}
         load(file,bpy.context,import_settings)
+
+        # TODO: Check if scene is correct...
