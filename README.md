@@ -1,7 +1,9 @@
 ![OpenSAGE](/art/opensage-logo.png)
 ============================================================
 
+[![Build Status](https://travis-ci.org/OpenSAGE/OpenSAGE.BlenderPlugin.svg?branch=master)](https://travis-ci.org/OpenSAGE/OpenSAGE.BlenderPlugin)
 [![Discord Chat](https://img.shields.io/discord/398393968234332161.svg?logo=discord)](https://discord.gg/G2FhZUT)
+[![codecov](https://codecov.io/gh/OpenSAGE/OpenSAGE.BlenderPlugin/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenSAGE/OpenSAGE.BlenderPlugin)
 
 **OpenSAGE.BlenderPlugin**: a free, open source blender plugin of the [Westwood](https://de.wikipedia.org/wiki/Westwood_Studios) 3D
 format used in Command & Conquer™: Generals and other RTS titles from Westwood Studios and EA Pacific. 
