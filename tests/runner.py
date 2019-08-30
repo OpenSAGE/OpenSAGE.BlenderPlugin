@@ -4,6 +4,7 @@
 
 import unittest
 import coverage
+import sys
 
 #Start collecting coverage
 cov = coverage.Coverage()
