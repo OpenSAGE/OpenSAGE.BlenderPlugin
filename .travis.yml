@@ -12,16 +12,15 @@ install:
   - BLENDER_VERSION_SUFFIX=""
   - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}${BLENDER_VERSION_SUFFIX}-linux-glibc217-x86_64"
   - mkdir tmp && cd tmp
-  - wget  https://download.blender.org/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.tar.bz2
+  - wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.tar.bz2
   - tar jxf ${BLENDER_ARCHIVE}.tar.bz2
   - mv ${BLENDER_ARCHIVE} blender
   - rm ${BLENDER_ARCHIVE}.tar.bz2
   - cd ..
   - ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/io_mesh_w3d
-  - ln -s ${PWD}/tests ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/tests
   - wget https://files.pythonhosted.org/packages/85/d5/818d0e603685c4a613d56f065a721013e942088047ff1027a632948bdae6/coverage-4.5.4.tar.gz#md5=c33cab2aed8780aac32880cb6c7616b7
   - tar zxf coverage-4.5.4.tar.gz
-  - mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${BLENDER_VERSION}/python/lib/"
+  - mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${BLENDER_VERSION}/python/lib/python${PYTHON_VERSION}"
   - rm -rf coverage-4.5.4
 script: ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1 --python ./tests/runner.py
 
