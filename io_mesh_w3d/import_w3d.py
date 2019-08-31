@@ -22,12 +22,12 @@ def load_skeleton_file(self, sklpath):
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(file)
+        (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
-        if chunkType == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy.read(self, file, chunkEnd)
+        if chunk_type == W3D_CHUNK_HIERARCHY:
+            hierarchy = Hierarchy.read(self, file, chunk_end)
         else:
-            skip_unknown_chunk(self, file, chunkType, chunkSize)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
 
     file.close()
 
@@ -53,90 +53,90 @@ def load(self, context, import_settings):
     box = None
 
     while file.tell() < filesize:
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(file)
+        (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
-        if chunkType == W3D_CHUNK_MESH:
-            meshes.append(Mesh.read(self, file, chunkEnd))
-        elif chunkType == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy.read(self, file, chunkEnd)
-        elif chunkType == W3D_CHUNK_ANIMATION:
-            animation = Animation.read(self, file, chunkEnd)
-        elif chunkType == W3D_CHUNK_COMPRESSED_ANIMATION:
+        if chunk_type == W3D_CHUNK_MESH:
+            meshes.append(Mesh.read(self, file, chunk_end))
+        elif chunk_type == W3D_CHUNK_HIERARCHY:
+            hierarchy = Hierarchy.read(self, file, chunk_end)
+        elif chunk_type == W3D_CHUNK_ANIMATION:
+            animation = Animation.read(self, file, chunk_end)
+        elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
             compressedAnimation = CompressedAnimation.read(
-                self, file, chunkEnd)
-        elif chunkType == W3D_CHUNK_HLOD:
-            hlod = HLod.read(self, file, chunkEnd)
-        elif chunkType == W3D_CHUNK_BOX:
+                self, file, chunk_end)
+        elif chunk_type == W3D_CHUNK_HLOD:
+            hlod = HLod.read(self, file, chunk_end)
+        elif chunk_type == W3D_CHUNK_BOX:
             box = Box.read(file)
-        elif chunkType == W3D_CHUNK_MORPH_ANIMATION:
+        elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_HMODEL:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_HMODEL:
             print("-> hmodel chnuk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_LODMODEL:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_LODMODEL:
             print("-> lodmodel chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_COLLECTION:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_COLLECTION:
             print("-> collection chunk not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_POINTS:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_POINTS:
             print("-> points chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_LIGHT:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_LIGHT:
             print("-> light chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_EMITTER:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_EMITTER:
             print("-> emitter chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_AGGREGATE:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_AGGREGATE:
             print("-> aggregate chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_NULL_OBJECT:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_NULL_OBJECT:
             print("-> null object chunkt is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_LIGHTSCAPE:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_LIGHTSCAPE:
             print("-> lightscape chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_DAZZLE:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_DAZZLE:
             print("-> dazzle chunk is not supported")
-            file.seek(chunkSize, 1)
-        elif chunkType == W3D_CHUNK_SOUNDROBJ:
+            file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_SOUNDROBJ:
             print("-> soundobj chunk is not supported")
-            file.seek(chunkSize, 1)
+            file.seek(chunk_size, 1)
         else:
-            skip_unknown_chunk(self, file, chunkType, chunkSize)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
 
     file.close()
 
     # Create a collection
     coll = None
-    if hlod != None:
+    if hlod is not None:
         coll = bpy.data.collections.new(hlod.header.modelName)
         bpy.context.collection.children.link(coll)
 
     create_box(box, coll)
 
-    if (hierarchy == None):
+    if (hierarchy is None):
         sklpath = None
-        if hlod != None and hlod.header.modelName != hlod.header.hierarchyName:
+        if hlod is not None and hlod.header.modelName != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(self.filepath) + "/" + \
-                hlod.header.hierarchyName.lower() + ".w3d"
-        elif animation != None and animation.header.name != "":
+                hlod.header.hierarchy_name.lower() + ".w3d"
+        elif animation is not None and animation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
-                animation.header.hierarchyName.lower() + ".w3d"
-        elif compressedAnimation != None and compressedAnimation.header.name != "":
+                animation.header.hierarchy_name.lower() + ".w3d"
+        elif compressedAnimation is not None and compressedAnimation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
-                compressedAnimation.header.hierarchyName.lower() + ".w3d"
+                compressedAnimation.header.hierarchy_name.lower() + ".w3d"
 
-        if sklpath != None:
+        if sklpath is not None:
             try:
                 hierarchy = load_skeleton_file(self, sklpath)
             except:
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    if hlod != None and hierarchy != None:
+    if hlod is not None and hierarchy is not None:
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     for m in meshes:

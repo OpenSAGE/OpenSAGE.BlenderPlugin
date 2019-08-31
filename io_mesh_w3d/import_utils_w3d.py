@@ -21,10 +21,10 @@ from io_mesh_w3d.io_binary import *
 
 
 def read_chunk_head(file):
-    chunkType = read_ulong(file)
-    chunkSize = read_chunk_size(file)
-    chunkEnd = file.tell() + chunkSize
-    return (chunkType, chunkSize, chunkEnd)
+    chunk_type = read_ulong(file)
+    chunk_size = read_chunk_size(file)
+    chunk_end = file.tell() + chunk_size
+    return (chunk_type, chunk_size, chunk_end)
 
 
 def read_chunk_size(file):
@@ -42,9 +42,9 @@ def string_size(string):
     return len(string) + 1
 
 
-def read_array(file, chunkEnd, readFunc):
+def read_array(file, chunk_end, readFunc):
     result = []
-    while file.tell() < chunkEnd:
+    while file.tell() < chunk_end:
         result.append(readFunc(file))
     return result
 
@@ -61,32 +61,17 @@ def read_fixed_array(file, count, readFunc):
     return result
 
 
-def read_chunk_array(self, file, chunkEnd, type, read_func):
+def read_chunk_array(self, file, chunk_end, type, read_func):
     result = []
 
-    while file.tell() < chunkEnd:
-        (chunkType, chunkSize, subChunkEnd) = read_chunk_head(file)
+    while file.tell() < chunk_end:
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(file)
 
-        if chunkType == type:
-            result.append(read_func(self, file, subChunkEnd))
+        if chunk_type == type:
+            result.append(read_func(self, file, subchunk_end))
         else:
-            skip_unknown_chunk(self, file, chunkType, chunkSize)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
     return result
-
-
-def insensitive_open(path):
-    print("insensitive open: " + path)
-    # find the file on unix
-    dir = os.path.dirname(path)
-    name = os.path.basename(path)
-
-    for filename in os.listdir(dir):
-        if filename.lower() == name.lower():
-            path = os.path.join(dir, filename)
-            return open(path, "rb")
-
-    return path
-
 
 def insensitive_path(path):
      # find the file on unix
@@ -99,12 +84,12 @@ def insensitive_path(path):
     return path
 
 
-def skip_unknown_chunk(self, file, chunkType, chunkSize):
-    message = "WARNING: unknown chunktype in file: %s" % hex(chunkType)
+def skip_unknown_chunk(self, file, chunk_type, chunk_size):
+    message = "WARNING: unknown chunk_type in file: %s" % hex(chunk_type)
     if self is not None:
         self.report({'ERROR'}, message)
     print(message)
-    file.seek(chunkSize, 1)
+    file.seek(chunk_size, 1)
 
 
 def link_object_to_active_scene(obj, coll):
@@ -141,7 +126,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hlod == None or hierarchy == None:
         return rig
 
-    if hlod.header.modelName == hlod.header.hierarchyName:
+    if hlod.header.modelName == hlod.header.hierarchy_name:
         amtName = hierarchy.header.name + "SKL"
     else:
         amtName = hierarchy.header.name
@@ -246,15 +231,15 @@ def create_shader_materials(self, m, mesh):
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
-            if (prop.name == "DiffuseTexture"):
+            if prop.name == "DiffuseTexture":
                 tex = load_texture(self, prop.value)
                 if tex != None:
                     principled.base_color_texture.image = tex
-            elif (prop.name == "NormalMap"):
+            elif prop.name == "NormalMap":
                 tex = load_texture(self, prop.value)
                 if tex != None:
                     principled.normalmap_texture.image = tex
-            elif (prop.name == "BumpScale"):
+            elif prop.name == "BumpScale":
                 principled.normalmap_strength = prop.value
             # Color type
             elif prop.type == 5:
@@ -355,9 +340,9 @@ def get_bone(rig, name):
 
 
 def setup_animation(animation):
-    bpy.data.scenes["Scene"].render.fps = animation.header.frameRate
+    bpy.data.scenes["Scene"].render.fps = animation.header.frame_rate
     bpy.data.scenes["Scene"].frame_start = 0
-    bpy.data.scenes["Scene"].frame_end = animation.header.numFrames - 1
+    bpy.data.scenes["Scene"].frame_end = animation.header.num_frames - 1
 
 
 def set_translation(bone, index, frame, value):
@@ -430,7 +415,7 @@ def create_animation(self, animation, hierarchy, compressed):
 
     rig = None
     try:
-        rig = bpy.data.objects[animation.header.hierarchyName]
+        rig = bpy.data.objects[animation.header.hierarchy_name]
     except:
         pass
     setup_animation(animation)

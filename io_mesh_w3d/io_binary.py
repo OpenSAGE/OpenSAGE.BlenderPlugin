@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 08.2019
-import bpy
 import struct
 from mathutils import Vector, Quaternion
 
@@ -10,12 +9,12 @@ LARGE_STRING_LENGTH = 32
 
 
 def read_string(file):
-    bytes = []
-    b = file.read(1)
-    while ord(b) != 0:
-        bytes.append(b)
-        b = file.read(1)
-    return (b"".join(bytes)).decode("utf-8")
+    str_buf = []
+    byte = file.read(1)
+    while ord(byte) != 0:
+        str_buf.append(byte)
+        byte = file.read(1)
+    return (b"".join(str_buf)).decode("utf-8")
 
 
 def write_string(file, string):
@@ -98,8 +97,8 @@ def write_float(file, num):
 
 
 def write_long_array(file, array):
-    for a in array:
-        write_long(file, a)
+    for val in array:
+        write_long(file, val)
 
 
 def read_byte(file):
@@ -139,8 +138,8 @@ def write_quaternion(file, quat):
     write_float(file, quat[0])
 
 
-def read_channel_value(file, type):
-    if type == 6:
+def read_channel_value(file, channel_type):
+    if channel_type == 6:
         return read_quaternion(file)
     else:
         return read_float(file)

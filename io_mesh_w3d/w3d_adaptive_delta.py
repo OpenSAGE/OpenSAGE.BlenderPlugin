@@ -23,22 +23,21 @@ def calculate_table():
     return table
 
 
-delta_table = calculate_table()
+DELTA_TABLE = calculate_table()
 
 
 def to_signed(byte):
     if byte > 127:
         return (256-byte) * (-1)
-    else:
-        return byte
+    return byte
 
 
-def get_deltas(block, numBits):
+def get_deltas(block, num_bits):
     deltas = [None] * 16
 
     for i, byte in enumerate(block.deltaBytes):
         index = i * 2
-        if numBits == 4:
+        if num_bits == 4:
             deltas[index] = to_signed(byte)
             # Bitflip
             if (deltas[index] & 8) != 0:
@@ -46,7 +45,7 @@ def get_deltas(block, numBits):
             else:
                 deltas[index] = to_signed(deltas[index] & 0x0F)
             deltas[index + 1] = to_signed(byte >> 4)
-        elif numBits == 8:
+        elif num_bits == 8:
             # Bitflip
             if byte & 0x80 != 0:
                 byte &= 0x7F
@@ -67,7 +66,7 @@ def decode(data, channel, scale):
     result[0] = data.initialValue
 
     for i, deltaBlock in enumerate(data.deltaBlocks):
-        blockScale = delta_table[deltaBlock.blockIndex]
+        blockScale = DELTA_TABLE[deltaBlock.blockIndex]
         deltaScale = blockScale * scale * scaleFactor
 
         vectorIndex = deltaBlock.vectorIndex
@@ -82,7 +81,7 @@ def decode(data, channel, scale):
                 # access quat as xyzw instead of wxyz
                 index = (vectorIndex + 1) % 4
                 value = result[idx - 1][index] + deltaScale * delta
-                if (result[idx] == None):
+                if result[idx] is None:
                     result[idx] = Quaternion()
                     result[idx].w = result[idx - 1].w
                     result[idx].x = result[idx - 1].x

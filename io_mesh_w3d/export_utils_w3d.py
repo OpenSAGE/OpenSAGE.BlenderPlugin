@@ -16,7 +16,7 @@ from io_mesh_w3d.w3d_structs import *
 def export_meshes(sknFile, hierarchy, rig, containerName):
     hlod = HLod()
     hlod.header.modelName = containerName
-    hlod.header.hierarchyName = hierarchy.header.name
+    hlod.header.hierarchy_name = hierarchy.header.name
     hlod.lodArray.subObjects = []
 
     mesh_objects = [
@@ -184,10 +184,10 @@ def create_hierarchy(containerName):
 def export_animations(animationName, hierarchy):
     ani_struct = Animation()
     ani_struct.header.name = animationName
-    ani_struct.header.hierarchyName = hierarchy.header.name
-    ani_struct.header.numFrames = bpy.data.scenes["Scene"].frame_end - \
+    ani_struct.header.hierarchy_name = hierarchy.header.name
+    ani_struct.header.num_frames = bpy.data.scenes["Scene"].frame_end - \
         bpy.data.scenes["Scene"].frame_start
-    ani_struct.header.frameRate = bpy.data.scenes["Scene"].render.fps
+    ani_struct.header.frame_rate = bpy.data.scenes["Scene"].render.fps
 
 
 #######################################################################################

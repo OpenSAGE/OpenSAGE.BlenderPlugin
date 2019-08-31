@@ -32,4 +32,4 @@ there's usually someone there who can help out.
 
 ## Acknowledgements
 
-Thanks a lot to MattTheLegoman and Mathijs from the [Age of the Ring mod](https://www.moddb.com/mods/the-horse-lords-a-total-modification-for-bfme) for allowing us to use their models and textures for testing.
+Thanks a lot to MattTheLegoman and Mathijs from the [Age of the Ring mod](https://www.moddb.com/mods/the-horse-lords-a-total-modification-for-bfme) for allowing us to use their models and textures for testing our plugin.
