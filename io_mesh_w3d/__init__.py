@@ -108,7 +108,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
         return export_w3d.save(self.filepath, context, export_settings)
 
-    def draw(self, context):
+    def draw(self, _context):
         self.layout.prop(self, 'ui_tab', expand=True)
         if self.ui_tab == 'GENERAL':
             self.draw_general_settings()
@@ -144,30 +144,30 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         return {'FINISHED'}
 
 
-def menu_func_export(self, context):
+def menu_func_export(self, _context):
     self.layout.operator(ExportW3D.bl_idname, text='Westwood W3D (.w3d)')
 
 
-def menu_func_import(self, context):
+def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
 
 
-classes = (
+CLASSES = (
     ExportW3D,
     ImportW3D
 )
 
 
 def register():
-    for c in classes:
-        bpy.utils.register_class(c)
+    for class_ in CLASSES:
+        bpy.utils.register_class(class_)
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
-    for c in reversed(classes):
-        bpy.utils.unregister_class(c)
+    for class_ in reversed(CLASSES):
+        bpy.utils.unregister_class(class_)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 

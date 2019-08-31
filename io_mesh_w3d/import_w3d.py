@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 08.2019
 import bpy
-import os
 from io_mesh_w3d.w3d_structs import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.import_utils_w3d import *
@@ -15,7 +14,6 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
 def load_skeleton_file(self, sklpath):
-    # TODO: handle file not found
     hierarchy = Hierarchy()
     path = insensitive_path(sklpath)
     file = open(path, "rb")
@@ -117,7 +115,7 @@ def load(self, context, import_settings):
 
     create_box(box, coll)
 
-    if (hierarchy is None):
+    if hierarchy is None:
         sklpath = None
         if hlod is not None and hlod.header.modelName != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(self.filepath) + "/" + \
@@ -136,68 +134,67 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
-    if hlod is not None and hierarchy is not None:
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-    for m in meshes:
+    for mesh_struct in meshes:
         triangles = []
 
-        for triangle in m.triangles:
+        for triangle in mesh_struct.triangles:
             triangles.append(triangle.vertIds)
 
-        mesh = bpy.data.meshes.new(m.header.meshName)
+        mesh = bpy.data.meshes.new(mesh_struct.header.meshName)
 
         # apply hierarchy if it exists
-        for i in range(len(m.vertInfs)):
-            vert = m.verts[i]
-            weight = m.vertInfs[i].boneInf
+        for i in range(len(mesh_struct.vertInfs)):
+            vert = mesh_struct.verts[i]
+            weight = mesh_struct.vertInfs[i].boneInf
             if weight == 0.0:
                 weight = 1.0
 
-            bone = rig.data.bones[hierarchy.pivots[m.vertInfs[i].boneIdx].name]
-            m.verts[i] = bone.matrix_local @ Vector(vert)
+            bone = rig.data.bones[hierarchy.pivots[mesh_struct.vertInfs[i].boneIdx].name]
+            mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
 
-        mesh.from_pydata(m.verts, [], triangles)
+        mesh.from_pydata(mesh_struct.verts, [], triangles)
         mesh.update()
         mesh.validate()
 
-        if m.materialPass != None:
-            create_uvlayers(mesh, triangles, m.materialPass.txCoords,
-                            m.materialPass.txStages)
+        if mesh_struct.materialPass is not None:
+            create_uvlayers(mesh, triangles, mesh_struct.materialPass.txCoords,
+                            mesh_struct.materialPass.txStages)
 
         smooth_mesh(mesh)
 
-        mesh_ob = bpy.data.objects.new(m.header.meshName, mesh)
-        mesh_ob['UserText'] = m.userText
+        mesh_ob = bpy.data.objects.new(mesh_struct.header.meshName, mesh)
+        mesh_ob['UserText'] = mesh_struct.userText
 
-        for vertMat in m.vertMatls:
-            mesh.materials.append(create_vert_material(m, vertMat))
+        for vertMat in mesh_struct.vertMatls:
+            mesh.materials.append(create_vert_material(mesh_struct, vertMat))
 
-        for texture in m.textures:
+        for texture in mesh_struct.textures:
             load_texture_to_mat(self, texture.name, mesh.materials[0])
 
-        create_shader_materials(self, m, mesh)
+        create_shader_materials(self, mesh_struct, mesh)
 
-    for m in meshes:  # need an extra loop because the order of the meshes is random
-        mesh_ob = bpy.data.objects[m.header.meshName]
+    for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
+        mesh_ob = bpy.data.objects[mesh_struct.header.meshName]
 
-        if hierarchy != None and hierarchy.header.numPivots > 0:
+        if hierarchy is not None and hierarchy.header.numPivots > 0:
             amtName = hierarchy.header.name
-            if is_skin(m):
+            if is_skin(mesh_struct):
                 for pivot in hierarchy.pivots:
                     mesh_ob.vertex_groups.new(name=pivot.name)
 
-                for i in range(len(m.vertInfs)):
-                    weight = m.vertInfs[i].boneInf
+                for i in range(len(mesh_struct.vertInfs)):
+                    weight = mesh_struct.vertInfs[i].boneInf
                     if weight == 0.0:
                         weight = 1.0
 
-                    mesh_ob.vertex_groups[m.vertInfs[i].boneIdx].add(
+                    mesh_ob.vertex_groups[mesh_struct.vertInfs[i].boneIdx].add(
                         [i], weight, 'REPLACE')
 
-                    if m.vertInfs[i].xtraIdx != 0:
-                        mesh_ob.vertex_groups[m.vertInfs[i].xtraIdx].add(
-                            [i], m.vertInfs[i].xtraInf, 'ADD')
+                    if mesh_struct.vertInfs[i].xtraIdx != 0:
+                        mesh_ob.vertex_groups[mesh_struct.vertInfs[i].xtraIdx].add(
+                            [i], mesh_struct.vertInfs[i].xtraInf, 'ADD')
 
                 mod = mesh_ob.modifiers.new(amtName, 'ARMATURE')
                 mod.object = rig
@@ -206,7 +203,7 @@ def load(self, context, import_settings):
 
             else:
                 for pivot in hierarchy.pivots:
-                    if pivot.name == m.header.meshName:
+                    if pivot.name == mesh_struct.header.meshName:
                         mesh_ob.rotation_mode = 'QUATERNION'
                         mesh_ob.location = pivot.translation
                         mesh_ob.rotation_euler = pivot.eulerAngles
@@ -223,7 +220,7 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob, coll)
 
-    create_animation(self, animation, hierarchy, compressed=False)
-    create_animation(self, compressedAnimation, hierarchy, compressed=True)
+    create_animation(animation, hierarchy, compressed=False)
+    create_animation(compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}

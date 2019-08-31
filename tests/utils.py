@@ -1,5 +1,4 @@
 import unittest
-import addon_utils
 import io
 import inspect
 import os
@@ -8,6 +7,8 @@ import sys
 import tempfile
 import bmesh
 import bpy
+
+import addon_utils
 
 
 class W3dTestCase(unittest.TestCase):
