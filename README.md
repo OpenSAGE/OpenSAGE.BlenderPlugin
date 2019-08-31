@@ -29,3 +29,7 @@ tab, find "Import-Export: Westwood 3d (.w3d)", andclick its checkbox.
 
 We have a growing [OpenSAGE Discord](https://discord.gg/G2FhZUT) community. If you have questions about the project or can't get it working,
 there's usually someone there who can help out.
+
+## Acknowledgements
+
+Thanks a lot to MattTheLegoman and Mathijs from the [Age of the Ring mod](https://www.moddb.com/mods/the-horse-lords-a-total-modification-for-bfme) for allowing us to use their models and textures for testing.

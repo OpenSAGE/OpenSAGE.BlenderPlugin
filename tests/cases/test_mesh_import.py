@@ -4,18 +4,50 @@
 import unittest
 import io
 import struct
-import os
 from io_mesh_w3d.import_w3d import *
+from tests import utils
+
 
 class ImportWrapper:
-    def __init__(self,filepath):  
+    def __init__(self, filepath):
         self.filepath = filepath
 
-class TestObjectImport(unittest.TestCase):
-    def test_import_structure(self):
-        dirname = os.path.dirname(__file__)
-        file = ImportWrapper(dirname + "/dol_amroth_citadel/gbdolamr.w3d")
-        import_settings = {}
-        load(file,bpy.context,import_settings)
 
-        # TODO: Check if scene is correct...
+class TestObjectImport(utils.W3dTestCase):
+    def test_import_structure(self):
+        model = ImportWrapper(
+            self.relpath() + "/dol_amroth_citadel/gbdolamr.w3d")
+        import_settings = {}
+
+        # Load a structure
+        load(model, bpy.context, import_settings)
+
+        # Check if all meshes exist
+        self.assertObjectsExist(["BANNERS", "BLACK", "BUTTRESSES", "CREN01",
+                                 "CREN02", "CREN03", "CREN04", "DOME", "ENTRANCE",
+                                 "MAIN", "MOAT", "TOP", "WATER", "WHITETREEEMBOSS"])
+
+        # Check if the armature exists
+        self.assertObjectsExist(["GBDOLAMRSKL"])
+
+        # TODO: check vertices count etc.
+
+        # Load a building animation
+        bld_ani = ImportWrapper(
+            self.relpath() + "/dol_amroth_citadel/gbdolamr_bld.w3d")
+
+        load(bld_ani, bpy.context, import_settings)
+
+    def test_import_skinned_model(self):
+        model = ImportWrapper(
+            self.relpath() + "/elladan/auelladan.w3d")
+        import_settings = {}
+
+        # Load a hero unit
+        load(model, bpy.context, import_settings)
+
+         # Load an attack animation
+        atk_ani = ImportWrapper(
+            self.relpath() + "/elladan/auelladan_atnf.w3d")
+
+        load(atk_ani, bpy.context, import_settings)

@@ -26,3 +26,14 @@ script: ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1
 
 after_success:
   - codecov
+
+before_deploy:
+  - zip io_mesh_w3d
+
+deploy:
+  provider: releases
+  api_key: "${GH_TOKEN}"
+  file: "io_mesh_w3d.zip"
+  skip_cleanup: true
+  on:
+    tags: true
