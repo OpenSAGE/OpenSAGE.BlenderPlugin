@@ -34,7 +34,7 @@ class W3dTestCase(unittest.TestCase):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
-        bpy.ops.wm.read_homefile()
+        bpy.ops.wm.read_homefile(use_empty=True)
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
     def tearDown(self):

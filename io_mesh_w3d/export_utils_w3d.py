@@ -55,16 +55,16 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                     mesh_struct.vertInfs.append(vertInf)
 
                     bone = rig.pose.bones[hierarchy.pivots[vertInf.boneIdx].name]
-                    vertex = bone.matrix.inverted() @ vertex.co.xyz
-                    mesh_struct.verts.append(vertex)
-                if len(vertex.groups) > 1:
-                    for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                            vertInf.xtraIdx = index
-                    vertInf.xtraInf = vertex.groups[1].weight
+                    inv_skinned_vertex = bone.matrix.inverted() @ vertex.co.xyz
+                    mesh_struct.verts.append(inv_skinned_vertex)
+                    if len(vertex.groups) > 1:
+                        for index, pivot in enumerate(hierarchy.pivots):
+                            if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
+                                vertInf.xtraIdx = index
+                        vertInf.xtraInf = vertex.groups[1].weight
 
-                elif len(vertex.groups) > 2:
-                    print("Error: max 2 bone influences per vertex supported!")
+                    elif len(vertex.groups) > 2:
+                        print("Error: max 2 bone influences per vertex supported!")
 
                 if not vertex.groups:
                     mesh_struct.verts.append(vertex.co.xyz)
