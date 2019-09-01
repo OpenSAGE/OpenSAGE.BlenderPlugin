@@ -4,7 +4,7 @@
 
 import bpy
 import bmesh
-from mathutils import Vector, Quaternion
+from mathutils import Vector
 from io_mesh_w3d.w3d_structs import *
 
 
@@ -13,9 +13,9 @@ from io_mesh_w3d.w3d_structs import *
 #######################################################################################
 
 
-def export_meshes(sknFile, hierarchy, rig, containerName):
+def export_meshes(skn_file, hierarchy, rig, container_name):
     hlod = HLod()
-    hlod.header.modelName = containerName
+    hlod.header.modelName = container_name
     hlod.header.hierarchy_name = hierarchy.header.name
     hlod.lodArray.subObjects = []
 
@@ -25,18 +25,18 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
     for mesh_object in mesh_objects:
         if mesh_object.name == "BOUNDINGBOX":
             box = Box(
-                name=containerName + "." + mesh_object.name,
+                name=container_name + "." + mesh_object.name,
                 center=mesh_object.location)
             box_mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
             box.extend = Vector(
                 (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
-            box.write(sknFile)
+            box.write(skn_file)
         else:
             mesh_struct = Mesh()
             header = mesh_struct.header
             header.meshName = mesh_object.name
-            header.containerName = containerName
+            header.containerName = container_name
 
             mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
@@ -44,32 +44,32 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
 
             header.vertCount = len(mesh.vertices)
 
-            for v in mesh.vertices:
+            for vertex in mesh.vertices:
                 vertInf = MeshVertexInfluence()
 
-                if len(v.groups) > 0:
+                if vertex.groups:
                     for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[v.groups[0].group].name:
+                        if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
                             vertInf.boneIdx = index
-                    vertInf.boneInf = v.groups[0].weight
+                    vertInf.boneInf = vertex.groups[0].weight
                     mesh_struct.vertInfs.append(vertInf)
 
                     bone = rig.pose.bones[hierarchy.pivots[vertInf.boneIdx].name]
-                    vertex = bone.matrix.inverted() @ v.co.xyz
+                    vertex = bone.matrix.inverted() @ vertex.co.xyz
                     mesh_struct.verts.append(vertex)
-                if len(v.groups) > 1:
+                if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[v.groups[1].group].name:
+                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
                             vertInf.xtraIdx = index
-                    vertInf.xtraInf = v.groups[1].weight
+                    vertInf.xtraInf = vertex.groups[1].weight
 
-                elif len(v.groups) > 2:
+                elif len(vertex.groups) > 2:
                     print("Error: max 2 bone influences per vertex supported!")
 
-                if len(v.groups) == 0:
-                    mesh_struct.verts.append(v.co.xyz)
+                if not vertex.groups:
+                    mesh_struct.verts.append(vertex.co.xyz)
 
-                mesh_struct.normals.append(v.normal)
+                mesh_struct.normals.append(vertex.normal)
 
             header.minCorner = Vector(
                 (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
@@ -81,12 +81,14 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
                 triangle.vertIds = [face.vertices[0],
                                     face.vertices[1], face.vertices[2]]
                 triangle.normal = face.normal
-                tri_pos = Vector(
-                    (mesh.vertices[face.vertices[0]].co.xyz + mesh.vertices[face.vertices[1]].co.xyz + mesh.vertices[face.vertices[2]].co.xyz)) / 3.0
+                vec1 = mesh.vertices[face.vertices[0]].co.xyz
+                vec2 = mesh.vertices[face.vertices[1]].co.xyz
+                vec3 = mesh.vertices[face.vertices[2]].co.xyz
+                tri_pos = Vector((vec1 + vec2 + vec3)) / 3.0
                 triangle.distance = (mesh_object.location - tri_pos).length
                 mesh_struct.triangles.append(triangle)
 
-            if len(mesh_object.vertex_groups) > 0:
+            if mesh_object.vertex_groups:
                 header.attrs = 0x00020000  # TODO: use the define from import_utils here
 
             center, radius = calculate_mesh_sphere(mesh)
@@ -94,11 +96,11 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
             header.sphRadius = radius
 
             header.faceCount = len(mesh_struct.triangles)
-            mesh_struct.write(sknFile)
+            mesh_struct.write(skn_file)
 
             # HLod stuff
             subObject = HLodSubObject()
-            subObject.name = containerName + "." + mesh_object.name
+            subObject.name = container_name + "." + mesh_object.name
             subObject.boneIndex = 0
 
             if header.attrs == 0x00020000:  # TODO: use the define from import_utils here
@@ -108,7 +110,7 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
             hlod.lodArray.subObjects.append(subObject)
 
     hlod.lodArray.header.modelCount = len(hlod.lodArray.subObjects)
-    hlod.write(sknFile)
+    hlod.write(skn_file)
 
 
 #######################################################################################
@@ -116,7 +118,7 @@ def export_meshes(sknFile, hierarchy, rig, containerName):
 #######################################################################################
 
 
-def create_hierarchy(containerName):
+def create_hierarchy(container_name):
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
         pivots=[])
@@ -131,7 +133,7 @@ def create_hierarchy(containerName):
     if len(rigs) > 1:
         print("Error: only one armature per scene allowed")
         return
-        
+
     if len(rigs) == 1:
         rig = rigs[0]
         hierarchy.header.name = rig.name
@@ -142,9 +144,9 @@ def create_hierarchy(containerName):
 
             matrix = bone.matrix
 
-            if bone.parent != None:
-                for index, p in enumerate(hierarchy.pivots):
-                    if p.name == bone.parent.name:
+            if bone.parent is not None:
+                for index, piv in enumerate(hierarchy.pivots):
+                    if piv.name == bone.parent.name:
                         pivot.parentID = index
                 matrix = bone.parent.matrix.inverted() @ matrix
 
@@ -152,14 +154,14 @@ def create_hierarchy(containerName):
 
             hierarchy.pivots.append(pivot)
     else:
-        hierarchy.header.name = containerName
+        hierarchy.header.name = container_name
 
     mesh_objects = [
         object for object in bpy.context.scene.objects if object.type == 'MESH']
 
     for mesh_object in mesh_objects:
         # TODO: use a constant here
-        if len(mesh_object.vertex_groups) == 0 and mesh_object.name != "BOUNDINGBOX":
+        if not mesh_object.vertex_groups and mesh_object.name != "BOUNDINGBOX":
             pivot = HierarchyPivot(
                 name=mesh_object.name,
                 parentID=0,
@@ -167,8 +169,8 @@ def create_hierarchy(containerName):
                 rotation=mesh_object.rotation_quaternion)
 
             if mesh_object.parent_bone != "":
-                for index, p in enumerate(hierarchy.pivots):
-                    if p.name == mesh_object.parent_bone:
+                for index, piv in enumerate(hierarchy.pivots):
+                    if piv.name == mesh_object.parent_bone:
                         pivot.parentID = index
 
             hierarchy.pivots.append(pivot)
@@ -181,9 +183,9 @@ def create_hierarchy(containerName):
 #######################################################################################
 
 
-def export_animations(animationName, hierarchy):
+def export_animations(animation_name, hierarchy):
     ani_struct = Animation()
-    ani_struct.header.name = animationName
+    ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.header.name
     ani_struct.header.num_frames = bpy.data.scenes["Scene"].frame_end - \
         bpy.data.scenes["Scene"].frame_start
@@ -196,11 +198,11 @@ def export_animations(animationName, hierarchy):
 
 
 def triangulate(mesh):
-    bm = bmesh.new()
-    bm.from_mesh(mesh)
-    bmesh.ops.triangulate(bm, faces=bm.faces)
-    bm.to_mesh(mesh)
-    bm.free()
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+    bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
+    b_mesh.to_mesh(mesh)
+    b_mesh.free()
 
 
 def vertices_to_vectors(vertices):
@@ -217,11 +219,11 @@ def distance(vec1, vec2):
     return (x + y + z)**(1/2)
 
 
-def find_most_distant_point(v, vertices):
+def find_most_distant_point(vertex, vertices):
     result = vertices[0]
     dist = 0
     for x in vertices:
-        curr_dist = distance(x, v)
+        curr_dist = distance(x, vertex)
         if curr_dist > dist:
             dist = curr_dist
             result = x
@@ -229,12 +231,12 @@ def find_most_distant_point(v, vertices):
 
 
 def validate_all_points_inside_sphere(center, radius, vertices):
-    for v in vertices:
-        curr_dist = distance(v, center)
+    for vertex in vertices:
+        curr_dist = distance(vertex, center)
         if curr_dist > radius:
             delta = (curr_dist - radius)/2
             radius += delta
-            center += (v - center).normalized() * delta
+            center += (vertex - center).normalized() * delta
     return (center, radius)
 
 
