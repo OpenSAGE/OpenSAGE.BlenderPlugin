@@ -177,7 +177,7 @@ def load(self, context, import_settings):
     for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[mesh_struct.header.meshName]
 
-        if hierarchy is not None and hierarchy.header.numPivots > 0:
+        if hierarchy is not None and hierarchy.header.num_pivots > 0:
             amtName = hierarchy.header.name
             if is_skin(mesh_struct):
                 for pivot in hierarchy.pivots:
@@ -205,11 +205,11 @@ def load(self, context, import_settings):
                     if pivot.name == mesh_struct.header.meshName:
                         mesh_ob.rotation_mode = 'QUATERNION'
                         mesh_ob.location = pivot.translation
-                        mesh_ob.rotation_euler = pivot.eulerAngles
+                        mesh_ob.rotation_euler = pivot.euler_angles
                         mesh_ob.rotation_quaternion = pivot.rotation
 
-                        if pivot.parentID > 0:
-                            parent_pivot = hierarchy.pivots[pivot.parentID]
+                        if pivot.parent_id > 0:
+                            parent_pivot = hierarchy.pivots[pivot.parent_id]
                             try:
                                 mesh_ob.parent = bpy.data.objects[parent_pivot.name]
                             except:

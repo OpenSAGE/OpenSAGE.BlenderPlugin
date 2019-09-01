@@ -48,7 +48,7 @@ class TestObjectImport(utils.W3dTestCase):
         load(model, bpy.context, import_settings={})
 
         expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
-                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "GUFARAMIR_SKL"]
+                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
 
         self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
         collection = bpy.data.collections["AUELLADAN"]

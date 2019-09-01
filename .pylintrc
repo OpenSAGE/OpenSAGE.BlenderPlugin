@@ -7,4 +7,4 @@ max-line-length=120
 ignored-modules=addon_utils, bgl, bmesh, bpy, bpy_extras, mathutils
 
 [MESSAGES CONTROL]
-disable=C0111,R0903, W0614
+disable=C0111,R0903,W0614,E0602

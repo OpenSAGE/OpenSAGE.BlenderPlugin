@@ -85,16 +85,16 @@ W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 class HierarchyHeader(Struct):
     version = Version()
     name = ""
-    numPivots = 0
-    centerPos = Vector((0.0, 0.0, 0.0))
+    num_pivots = 0
+    center_pos = Vector((0.0, 0.0, 0.0))
 
     @staticmethod
     def read(io_stream):
         return HierarchyHeader(
             version=Version.read(io_stream),
             name=read_fixed_string(io_stream),
-            numPivots=read_ulong(io_stream),
-            centerPos=read_vector(io_stream))
+            num_pivots=read_ulong(io_stream),
+            center_pos=read_vector(io_stream))
 
     @staticmethod
     def size_in_bytes():
@@ -104,8 +104,8 @@ class HierarchyHeader(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER, self.size_in_bytes())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
-        write_ulong(io_stream, self.numPivots)
-        write_vector(io_stream, self.centerPos)
+        write_ulong(io_stream, self.num_pivots)
+        write_vector(io_stream, self.center_pos)
 
 
 W3D_CHUNK_PIVOTS = 0x00000102
@@ -113,18 +113,18 @@ W3D_CHUNK_PIVOTS = 0x00000102
 
 class HierarchyPivot(Struct):
     name = ""
-    parentID = -1
+    parent_id = -1
     translation = Vector((0.0, 0.0, 0.0))
-    eulerAngles = Vector((0.0, 0.0, 0.0))
+    euler_angles = Vector((0.0, 0.0, 0.0))
     rotation = Quaternion((1.0, 0.0, 0.0, 0.0))
 
     @staticmethod
     def read(io_stream):
         return HierarchyPivot(
             name=read_fixed_string(io_stream),
-            parentID=read_long(io_stream),
+            parent_id=read_long(io_stream),
             translation=read_vector(io_stream),
-            eulerAngles=read_vector(io_stream),
+            euler_angles=read_vector(io_stream),
             rotation=read_quaternion(io_stream))
 
     @staticmethod
@@ -133,9 +133,9 @@ class HierarchyPivot(Struct):
 
     def write(self, io_stream):
         write_fixed_string(io_stream, self.name)
-        write_long(io_stream, self.parentID)
+        write_long(io_stream, self.parent_id)
         write_vector(io_stream, self.translation)
-        write_vector(io_stream, self.eulerAngles)
+        write_vector(io_stream, self.euler_angles)
         write_quaternion(io_stream, self.rotation)
 
 
@@ -1723,12 +1723,12 @@ class Mesh(Struct):
             if chunk_type == W3D_CHUNK_VERTICES:
                 result.verts = read_array(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_VERTICES_2:
-                print("-> vertices 2 chunk is not supported")
+                #print("-> vertices 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_array(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
-                print("-> normals 2 chunk is not supported")
+                #print("-> normals 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.userText = read_string(io_stream)
@@ -1759,10 +1759,10 @@ class Mesh(Struct):
                 result.shaderMaterials = read_chunk_array(
                     self, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                print("-> tangents chunk is not supported")
+                #print("-> tangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                print("-> bitangents chunk is not supported")
+                #print("-> bitangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = MeshAABBTree.read(self, io_stream, subchunk_end)
@@ -1864,10 +1864,14 @@ class Mesh(Struct):
         self.header.write(io_stream)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())
-        write_array(io_stream, self.verts, write_vector)
+        for vec in self.verts:
+            write_vector(io_stream, vec)
+        #write_array(io_stream, self.verts, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS, self.normals_size())
-        write_array(io_stream, self.normals, write_vector)
+        for nor in self.normals:
+            write_vector(io_stream, nor)
+        #write_array(io_stream, self.normals, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size())
         for tri in self.triangles:

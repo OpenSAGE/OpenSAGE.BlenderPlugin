@@ -26,10 +26,12 @@ def save(givenfilepath, _context, export_settings):
         export_meshes(sknFile, hierarchy, rig, containerName)
 
         if export_mode == 'HAM':
+            hierarchy.header.num_pivots = len(hierarchy.pivots)
             hierarchy.write(sknFile)
         sknFile.close()
     elif export_mode == 'S':
         sklFile = open(givenfilepath, "wb")
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
         hierarchy.write(sklFile)
         sklFile.close()
     # elif export_mode == 'A':

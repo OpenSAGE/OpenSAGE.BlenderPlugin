@@ -12,81 +12,77 @@ from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.io_binary import *
 
-#######################################################################################
-# helper methods
-#######################################################################################
 
-
-def read_chunk_head(file):
-    chunk_type = read_ulong(file)
-    chunk_size = read_chunk_size(file)
-    chunk_end = file.tell() + chunk_size
+def read_chunk_head(io_stream):
+    chunk_type = read_ulong(io_stream)
+    chunk_size = read_chunk_size(io_stream)
+    chunk_end = io_stream.tell() + chunk_size
     return (chunk_type, chunk_size, chunk_end)
 
 
-def read_chunk_size(file):
-    return read_ulong(file) & 0x7FFFFFFF
+def read_chunk_size(io_stream):
+    return read_ulong(io_stream) & 0x7FFFFFFF
 
 
-def write_chunk_head(file, chunk_id, size, has_sub_chunks=False):
-    write_ulong(file, chunk_id)
+def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
+    write_ulong(io_stream, chunk_id)
     if has_sub_chunks:
         size |= 0x80000000
-    write_ulong(file, size)
+    write_ulong(io_stream, size)
 
 
 def string_size(string):
     return len(string) + 1
 
 
-def read_array(file, chunk_end, read_func):
+def read_array(io_stream, chunk_end, read_func):
     result = []
-    while file.tell() < chunk_end:
-        result.append(read_func(file))
+    while io_stream.tell() < chunk_end:
+        result.append(read_func(io_stream))
     return result
 
 
-def write_array(file, data, write_func):
+def write_array(io_stream, data, write_func):
     for dat in data:
-        write_func(file, dat)
+        write_func(io_stream, dat)
 
 
-def read_fixed_array(file, count, read_func):
+def read_fixed_array(io_stream, count, read_func):
     result = []
     for _ in range(count):
-        result.append(read_func(file))
+        result.append(read_func(io_stream))
     return result
 
 
-def read_chunk_array(self, file, chunk_end, type_, read_func):
+def read_chunk_array(self, io_stream, chunk_end, type_, read_func):
     result = []
 
-    while file.tell() < chunk_end:
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(file)
+    while io_stream.tell() < chunk_end:
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         if chunk_type == type_:
-            result.append(read_func(self, file, subchunk_end))
+            result.append(read_func(self, io_stream, subchunk_end))
         else:
-            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+            skip_unknown_chunk(self, io_stream, chunk_type, chunk_size)
     return result
 
 def insensitive_path(path):
-     # find the file on unix
+     # find the io_stream on unix
     directory = os.path.dirname(path)
     name = os.path.basename(path)
 
-    for filename in os.listdir(directory):
-        if filename.lower() == name.lower():
-            path = os.path.join(directory, filename)
+    for io_streamname in os.listdir(directory):
+        if io_streamname.lower() == name.lower():
+            path = os.path.join(directory, io_streamname)
     return path
 
 
-def skip_unknown_chunk(self, file, chunk_type, chunk_size):
-    message = "WARNING: unknown chunk_type in file: %s" % hex(chunk_type)
+def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
+    message = "WARNING: unknown chunk_type in io_stream: %s" % hex(chunk_type)
     if self is not None:
         self.report({'ERROR'}, message)
     print(message)
-    file.seek(chunk_size, 1)
+    io_stream.seek(chunk_size, 1)
 
 
 def link_object_to_active_scene(obj, coll):
@@ -149,7 +145,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     amt.show_names = False
 
     rig = bpy.data.objects.new(amt_name, amt)
-    rig.location = hierarchy.header.centerPos
+    rig.location = hierarchy.header.center_pos
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
@@ -174,8 +170,8 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
         bone = amt.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
-        if pivot.parentID > 0:
-            parent_pivot = hierarchy.pivots[pivot.parentID]
+        if pivot.parent_id > 0:
+            parent_pivot = hierarchy.pivots[pivot.parent_id]
             bone.parent = amt.edit_bones[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
 
