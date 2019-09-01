@@ -15,7 +15,7 @@ class TestObjectExport(utils.W3dTestCase):
         export_settings = {}
         export_settings['w3d_mode'] = "M"
 
-        save(self.outpath() + "/dol_amroth.w3d", bpy.context, export_settings)
+        save(self.outpath() + "dol_amroth.w3d", bpy.context, export_settings)
 
     def test_export_skinned_mesh(self):
         # Load a blend file
@@ -25,7 +25,7 @@ class TestObjectExport(utils.W3dTestCase):
         export_settings = {}
         export_settings['w3d_mode'] = "M"
 
-        save(self.outpath() + "/elladan_skn.w3d", bpy.context, export_settings)
+        save(self.outpath() + "elladan_skn.w3d", bpy.context, export_settings)
 
     def test_export_skinned_skeleton(self):
         # Load a blend file
@@ -33,6 +33,6 @@ class TestObjectExport(utils.W3dTestCase):
 
         # Load a structure
         export_settings = {}
-        export_settings['w3d_mode'] = "H"
+        export_settings['w3d_mode'] = "S"
 
-        save(self.outpath() + "/elladan_skl.w3d", bpy.context, export_settings)
+        save(self.outpath() + "elladan_skl.w3d", bpy.context, export_settings)

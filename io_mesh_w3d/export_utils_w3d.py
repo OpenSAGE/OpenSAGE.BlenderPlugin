@@ -55,8 +55,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                     mesh_struct.vertInfs.append(vertInf)
 
                     bone = rig.pose.bones[hierarchy.pivots[vertInf.boneIdx].name]
-                    inv_skinned_vertex = bone.matrix.inverted() @ vertex.co.xyz
-                    mesh_struct.verts.append(inv_skinned_vertex)
+                    mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
                     if len(vertex.groups) > 1:
                         for index, pivot in enumerate(hierarchy.pivots):
                             if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
@@ -80,7 +79,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 triangle = MeshTriangle()
                 triangle.vertIds = [face.vertices[0],
                                     face.vertices[1], face.vertices[2]]
-                triangle.normal = face.normal
+                triangle.normal = Vector(face.normal)
                 vec1 = mesh.vertices[face.vertices[0]].co.xyz
                 vec2 = mesh.vertices[face.vertices[1]].co.xyz
                 vec3 = mesh.vertices[face.vertices[2]].co.xyz

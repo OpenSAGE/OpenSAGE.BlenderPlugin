@@ -90,7 +90,7 @@ def skip_unknown_chunk(self, file, chunk_type, chunk_size):
 
 
 def link_object_to_active_scene(obj, coll):
-    if coll is not None:
+    if coll is None:
         coll = bpy.context.collection
 
     coll.objects.link(obj)

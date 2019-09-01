@@ -21,18 +21,20 @@ def save(givenfilepath, _context, export_settings):
 
     (hierarchy, rig) = create_hierarchy(containerName)
 
-    if export_mode == 'M':
+    if export_mode in ('M', 'HAM'):
         sknFile = open(givenfilepath, "wb")
         export_meshes(sknFile, hierarchy, rig, containerName)
-    elif export_mode == 'HAM':
-        sknFile = open(givenfilepath, "wb")
-        export_meshes(sknFile, hierarchy, rig, containerName)
-        hierarchy.write(sknFile)
+
+        if export_mode == 'HAM':
+            hierarchy.write(sknFile)
+        sknFile.close()
     elif export_mode == 'S':
         sklFile = open(givenfilepath, "wb")
         hierarchy.write(sklFile)
+        sklFile.close()
     # elif export_mode == 'A':
         #aniFile = open(givenfilepath, "wb")
         # export_animations(aniFile)
+        #aniFile.close()
 
     return {'FINISHED'}

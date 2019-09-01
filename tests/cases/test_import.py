@@ -47,6 +47,15 @@ class TestObjectImport(utils.W3dTestCase):
         # Load a hero unit
         load(model, bpy.context, import_settings={})
 
+        expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
+                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "GUFARAMIR_SKL"]
+
+        self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
+        collection = bpy.data.collections["AUELLADAN"]
+        self.assertEqual(10, len(collection.objects))
+
+        self.assertObjectsExist(expected_objects)
+
         # Load an attack animation
         atk_ani = ImportWrapper(
             self.relpath() + "/elladan/auelladan_atnf.w3d")
