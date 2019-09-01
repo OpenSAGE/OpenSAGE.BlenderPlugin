@@ -1,15 +1,14 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
-import bpy
+# Last Modification 09.2019
 from io_mesh_w3d.w3d_adaptive_delta import to_signed, get_deltas
 from tests import utils
 
 
 class TestAdaptiveDelta(utils.W3dTestCase):
     def test_to_signed(self):
-        self.assertEqual(to_signed(255),-1)
-        self.assertEqual(to_signed(100),100)
+        self.assertEqual(to_signed(255), -1)
+        self.assertEqual(to_signed(100), 100)
 
     def test_get_deltas(self):
         deltaBytes = [-3, 17, -32, -101, -120, -88, -20, -1]

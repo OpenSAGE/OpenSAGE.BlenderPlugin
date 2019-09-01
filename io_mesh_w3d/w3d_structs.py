@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+# Last Modification 09.2019
 
 from mathutils import Vector, Quaternion
 from io_mesh_w3d.io_binary import *
