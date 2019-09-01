@@ -12,7 +12,6 @@ import addon_utils
 
 
 class W3dTestCase(unittest.TestCase):
-    blend_file = None
     __save_test_data = '--save-test-data' in sys.argv
     __tmp_base = os.path.join(tempfile.gettempdir(), 'io_mesh_w3d-tests')
     __tmp = __tmp_base + '/out'
@@ -30,6 +29,9 @@ class W3dTestCase(unittest.TestCase):
         if not os.path.exists(cls.__tmp):
             os.makedirs(cls.__tmp)
         return os.path.join(cls.__tmp, path)
+
+    def loadBlend(self,blend_file):
+        bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
         bpy.ops.wm.read_homefile()
