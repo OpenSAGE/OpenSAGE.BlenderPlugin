@@ -1759,10 +1759,10 @@ class Mesh(Struct):
                 result.shaderMaterials = read_chunk_array(
                     self, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                print("-> tangents chunk is not supported")
+                #print("-> tangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                print("-> bitangents chunk is not supported")
+                #print("-> bitangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = MeshAABBTree.read(self, io_stream, subchunk_end)

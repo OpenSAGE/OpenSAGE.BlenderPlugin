@@ -32,10 +32,10 @@ def to_signed(byte):
     return byte
 
 
-def get_deltas(block, num_bits):
+def get_deltas(deltaBytes, num_bits):
     deltas = [None] * 16
 
-    for i, byte in enumerate(block.deltaBytes):
+    for i, byte in enumerate(deltaBytes):
         index = i * 2
         if num_bits == 4:
             deltas[index] = to_signed(byte)
@@ -70,7 +70,7 @@ def decode(data, channel, scale):
         deltaScale = blockScale * scale * scaleFactor
 
         vectorIndex = deltaBlock.vectorIndex
-        deltas = get_deltas(deltaBlock, data.bitCount)
+        deltas = get_deltas(deltaBlock.deltaBytes, data.bitCount)
 
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vectorLen) * 16 + j + 1
