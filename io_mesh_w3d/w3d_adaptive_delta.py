@@ -32,10 +32,10 @@ def to_signed(byte):
     return byte
 
 
-def get_deltas(deltaBytes, num_bits):
+def get_deltas(delta_bytes, num_bits):
     deltas = [None] * 16
 
-    for i, byte in enumerate(deltaBytes):
+    for i, byte in enumerate(delta_bytes):
         index = i * 2
         if num_bits == 4:
             deltas[index] = to_signed(byte)
@@ -59,27 +59,24 @@ def get_deltas(deltaBytes, num_bits):
 def decode(data, channel, scale):
     scaleFactor = float(1.0)
 
-    if data.bitCount == 8:
+    if data.bit_count == 8:
         scaleFactor = 1 / float(16)
 
-    result = [None] * channel.numTimeCodes
-    result[0] = data.initialValue
+    result = [None] * channel.num_time_codes
+    result[0] = data.initial_value
 
-    for i, deltaBlock in enumerate(data.deltaBlocks):
-        blockScale = DELTA_TABLE[deltaBlock.blockIndex]
-        deltaScale = blockScale * scale * scaleFactor
-
-        vectorIndex = deltaBlock.vectorIndex
-        deltas = get_deltas(deltaBlock.deltaBytes, data.bitCount)
+    for i, delta_block in enumerate(data.delta_blocks):
+        deltaScale = scale * scaleFactor * DELTA_TABLE[delta_block.block_index]
+        deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
 
         for j, delta in enumerate(deltas):
-            idx = int(i / channel.vectorLen) * 16 + j + 1
-            if idx >= channel.numTimeCodes:
+            idx = int(i / channel.vector_len) * 16 + j + 1
+            if idx >= channel.num_time_codes:
                 break
 
             if channel.type == 6:
                 # access quat as xyzw instead of wxyz
-                index = (vectorIndex + 1) % 4
+                index = (delta_block.vector_index + 1) % 4
                 value = result[idx - 1][index] + deltaScale * delta
                 if result[idx] is None:
                     result[idx] = Quaternion()

@@ -119,7 +119,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hlod is None or hierarchy is None:
         return rig
 
-    if hlod.header.modelName == hlod.header.hierarchy_name:
+    if hlod.header.model_name == hlod.header.hierarchy_name:
         amtName = hierarchy.header.name + "SKL"
     else:
         amtName = hierarchy.header.name
@@ -130,7 +130,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
 
     if rig is None:
         rig = create_armature(hierarchy, amtName,
-                              hlod.lodArray.subObjects, coll)
+                              hlod.lod_array.sub_objects, coll)
     return rig
 
 
@@ -161,7 +161,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     basic_sphere = create_sphere()
 
     for obj in sub_objects:
-        non_bone_pivots.append(hierarchy.pivots[obj.boneIndex])
+        non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
 
     for pivot in hierarchy.pivots:
         if non_bone_pivots.count(pivot) > 0:
@@ -200,17 +200,17 @@ def rgb_to_vector(rgb):
 
 
 def create_vert_material(mesh, vert_mat):
-    mat = bpy.data.materials.new(mesh.header.meshName + "." + vert_mat.vmName)
+    mat = bpy.data.materials.new(mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color = rgb_to_vector(vert_mat.vmInfo.diffuse)
-    principled.alpha = vert_mat.vmInfo.opacity
-    mat["Shininess"] = vert_mat.vmInfo.shininess
-    mat["Specular"] = rgb_to_vector(vert_mat.vmInfo.specular)
-    mat["Emission"] = rgb_to_vector(vert_mat.vmInfo.emissive)
-    mat["Diffuse"] = rgb_to_vector(vert_mat.vmInfo.diffuse)
-    mat["Translucency"] = vert_mat.vmInfo.translucency
+    principled.base_color = rgb_to_vector(vert_mat.vm_info.diffuse)
+    principled.alpha = vert_mat.vm_info.opacity
+    mat["Shininess"] = vert_mat.vm_info.shininess
+    mat["Specular"] = rgb_to_vector(vert_mat.vm_info.specular)
+    mat["Emission"] = rgb_to_vector(vert_mat.vm_info.emissive)
+    mat["Diffuse"] = rgb_to_vector(vert_mat.vm_info.diffuse)
+    mat["Translucency"] = vert_mat.vm_info.translucency
     return mat
 
 
@@ -219,8 +219,8 @@ def rgba_to_vector(prop):
 
 
 def create_shader_materials(self, mesh_struct, mesh):
-    for material in mesh_struct.shaderMaterials:
-        mat = bpy.data.materials.new(mesh_struct.header.meshName + ".ShaderMaterial")
+    for material in mesh_struct.shader_materials:
+        mat = bpy.data.materials.new(mesh_struct.header.mesh_name + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
@@ -270,7 +270,7 @@ def create_uvlayers(mesh, tris, tx_coords, tx_stages):
 
     i = 0
     for stage in tx_stages:
-        create_uv_layer(mesh, b_mesh, tris, stage.txCoords, str(i))
+        create_uv_layer(mesh, b_mesh, tris, stage.tx_coords, str(i))
         i += 1
 
 
@@ -359,23 +359,23 @@ def set_transform(bone, channel, frame, value):
 
 
 def apply_timecoded(bone, channel):
-    for key in channel.timeCodes:
-        set_transform(bone, channel, key.timeCode, key.value)
+    for key in channel.time_codes:
+        set_transform(bone, channel, key.time_code, key.value)
 
 
 def apply_motion_channel_time_coded(bone, channel):
     for dat in channel.data:
-        set_transform(bone, channel, dat.timeCode, dat.value)
+        set_transform(bone, channel, dat.time_code, dat.value)
 
 
 def apply_motion_channel_adaptive_delta(bone, channel):
-    for i in range(channel.numTimeCodes):
+    for i in range(channel.num_time_codes):
         set_transform(bone, channel, i, channel.data.data[i])
 
 
 def apply_uncompressed(bone, channel):
-    for frame in range(channel.firstFrame, channel.lastFrame):
-        data = channel.data[frame - channel.firstFrame]
+    for frame in range(channel.first_frame, channel.last_frame):
+        data = channel.data[frame - channel.first_frame]
         set_transform(bone, channel, frame, data)
 
 
@@ -398,7 +398,7 @@ def process_motion_channels(hierarchy, channels, rig):
         pivot = hierarchy.pivots[channel.pivot]
         obj = get_bone(rig, pivot.name)
 
-        if channel.deltaType == 0:
+        if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
         else:
             apply_motion_channel_adaptive_delta(obj, channel)
@@ -419,9 +419,9 @@ def create_animation(animation, hierarchy, compressed):
         process_channels(hierarchy, animation.channels,
                          rig, apply_uncompressed)
     else:
-        process_channels(hierarchy, animation.timeCodedChannels,
+        process_channels(hierarchy, animation.time_coded_channels,
                          rig, apply_timecoded)
-        process_motion_channels(hierarchy, animation.motionChannels, rig)
+        process_motion_channels(hierarchy, animation.motion_channels, rig)
 
     bpy.context.scene.frame_set(0)
 

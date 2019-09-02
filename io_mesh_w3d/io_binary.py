@@ -96,11 +96,6 @@ def write_float(io_stream, num):
     io_stream.write(struct.pack("<f", num))
 
 
-def write_long_array(io_stream, array):
-    for val in array:
-        write_long(io_stream, val)
-
-
 def read_byte(io_stream):
     return struct.unpack("<b", io_stream.read(1))[0]
 
@@ -138,12 +133,6 @@ def write_quaternion(io_stream, quat):
     write_float(io_stream, quat[0])
 
 
-def read_channel_value(io_stream, channel_type):
-    if channel_type == 6:
-        return read_quaternion(io_stream)
-    return read_float(io_stream)
-
-
 def read_vector2(io_stream):
     return (read_float(io_stream), read_float(io_stream))
 
@@ -151,3 +140,13 @@ def read_vector2(io_stream):
 def write_vector2(io_stream, vec):
     write_float(io_stream, vec[0])
     write_float(io_stream, vec[1])
+
+
+def write_long_array(io_stream, array):
+    for val in array:
+        write_long(io_stream, val)
+
+def read_channel_value(io_stream, channel_type):
+    if channel_type == 6:
+        return read_quaternion(io_stream)
+    return read_float(io_stream)

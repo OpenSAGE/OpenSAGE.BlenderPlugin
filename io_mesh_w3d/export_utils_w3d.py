@@ -15,9 +15,9 @@ from io_mesh_w3d.w3d_structs import *
 
 def export_meshes(skn_file, hierarchy, rig, container_name):
     hlod = HLod()
-    hlod.header.modelName = container_name
+    hlod.header.model_name = container_name
     hlod.header.hierarchy_name = hierarchy.header.name
-    hlod.lodArray.subObjects = []
+    hlod.lod_array.sub_objects = []
 
     mesh_objects = [
         object for object in bpy.context.scene.objects if object.type == 'MESH']
@@ -35,14 +35,14 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
         else:
             mesh_struct = Mesh()
             header = mesh_struct.header
-            header.meshName = mesh_object.name
-            header.containerName = container_name
+            header.mesh_name = mesh_object.name
+            header.container_name = container_name
 
             mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
             triangulate(mesh)
 
-            header.vertCount = len(mesh.vertices)
+            header.vert_count = len(mesh.vertices)
 
             for vertex in mesh.vertices:
                 vertInf = MeshVertexInfluence()
@@ -50,17 +50,17 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 if vertex.groups:
                     for index, pivot in enumerate(hierarchy.pivots):
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
-                            vertInf.boneIdx = index
-                    vertInf.boneInf = vertex.groups[0].weight
-                    mesh_struct.vertInfs.append(vertInf)
+                            vertInf.bone_idx = index
+                    vertInf.bone_inf = vertex.groups[0].weight
+                    mesh_struct.vert_infs.append(vertInf)
 
-                    bone = rig.pose.bones[hierarchy.pivots[vertInf.boneIdx].name]
+                    bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
                     mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
                     if len(vertex.groups) > 1:
                         for index, pivot in enumerate(hierarchy.pivots):
                             if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                                vertInf.xtraIdx = index
-                        vertInf.xtraInf = vertex.groups[1].weight
+                                vertInf.xtra_idx = index
+                        vertInf.xtra_inf = vertex.groups[1].weight
 
                     elif len(vertex.groups) > 2:
                         print("Error: max 2 bone influences per vertex supported!")
@@ -70,14 +70,14 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
 
                 mesh_struct.normals.append(vertex.normal)
 
-            header.minCorner = Vector(
+            header.min_corner = Vector(
                 (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
-            header.maxCorner = Vector(
+            header.max_corner = Vector(
                 (mesh_object.bound_box[6][0], mesh_object.bound_box[6][1], mesh_object.bound_box[6][2]))
 
             for face in mesh.polygons:
                 triangle = MeshTriangle()
-                triangle.vertIds = [face.vertices[0],
+                triangle.vert_ids = [face.vertices[0],
                                     face.vertices[1], face.vertices[2]]
                 triangle.normal = Vector(face.normal)
                 vec1 = mesh.vertices[face.vertices[0]].co.xyz
@@ -100,15 +100,15 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             # HLod stuff
             subObject = HLodSubObject()
             subObject.name = container_name + "." + mesh_object.name
-            subObject.boneIndex = 0
+            subObject.bone_index = 0
 
             if header.attrs == 0x00020000:  # TODO: use the define from import_utils here
                 for index, pivot in enumerate(hierarchy.pivots):
                     if pivot.name == mesh_object.name:
-                        subObject.boneIndex = index
-            hlod.lodArray.subObjects.append(subObject)
+                        subObject.bone_index = index
+            hlod.lod_array.sub_objects.append(subObject)
 
-    hlod.lodArray.header.modelCount = len(hlod.lodArray.subObjects)
+    hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     hlod.write(skn_file)
 
 
