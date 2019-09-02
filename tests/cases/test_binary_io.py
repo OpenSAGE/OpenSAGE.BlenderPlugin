@@ -286,9 +286,20 @@ class TestIOBinary(unittest.TestCase):
                 self.assertEqual(val, struct.unpack(
                     "<l", io_stream.read(4))[0])
 
-    #def test_read_channel_value(self):
-    #    inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]
+    def test_read_channel_value(self):
+        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]
 
-    #    for inp in inputs:
-    #        io_stream = io.BytesIO()
-            
+        for inp in inputs:
+            if inp[0] <= 3:
+                data = struct.pack("<f", inp[1])
+                io_stream = io.BytesIO(data)
+                self.assertAlmostEqual(
+                    inp[1], read_channel_value(io_stream, inp[0]), 5)
+            else:
+                data = struct.pack("<f", inp[1].x)
+                data += struct.pack("<f", inp[1].y)
+                data += struct.pack("<f", inp[1].z)
+                data += struct.pack("<f", inp[1].w)
+                io_stream = io.BytesIO(data)
+                self.assertEqual(
+                    inp[1], read_channel_value(io_stream, inp[0]))

@@ -30,7 +30,7 @@ def write_fixed_string(io_stream, string):
     # truncate the string to 16
     nullbytes = STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print ("Warning: Fixed string is too long!")
+        print("Warning: Fixed string is too long!")
 
     io_stream.write(bytes(string, 'UTF-8')[0:STRING_LENGTH])
     i = 0
@@ -47,7 +47,7 @@ def write_long_fixed_string(io_stream, string):
     # truncate the string to 32
     nullbytes = LARGE_STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print ("Warning: Fixed string was too long!")
+        print("Warning: Fixed string was too long!")
 
     io_stream.write(bytes(string, 'UTF-8')[0:LARGE_STRING_LENGTH])
     i = 0
@@ -150,3 +150,21 @@ def read_channel_value(io_stream, channel_type):
     if channel_type == 6:
         return read_quaternion(io_stream)
     return read_float(io_stream)
+
+
+def read_chunk_size(io_stream):
+    return read_ulong(io_stream) & 0x7FFFFFFF
+
+
+def read_chunk_head(io_stream):
+    chunk_type = read_ulong(io_stream)
+    chunk_size = read_chunk_size(io_stream)
+    chunk_end = io_stream.tell() + chunk_size
+    return (chunk_type, chunk_size, chunk_end)
+
+
+def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
+    write_ulong(io_stream, chunk_id)
+    if has_sub_chunks:
+        size |= 0x80000000
+    write_ulong(io_stream, size)

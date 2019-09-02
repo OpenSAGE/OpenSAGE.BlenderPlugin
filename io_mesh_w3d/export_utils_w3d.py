@@ -5,7 +5,11 @@
 import bpy
 import bmesh
 from mathutils import Vector
-from io_mesh_w3d.w3d_structs import *
+from io_mesh_w3d.structs.w3d_hlod import *
+from io_mesh_w3d.structs.w3d_mesh import *
+from io_mesh_w3d.structs.w3d_box import *
+from io_mesh_w3d.structs.w3d_hierarchy import *
+from io_mesh_w3d.structs.w3d_animation import *
 
 
 #######################################################################################

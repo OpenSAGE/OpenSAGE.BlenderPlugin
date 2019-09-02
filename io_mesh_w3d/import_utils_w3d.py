@@ -10,25 +10,7 @@ from mathutils import Vector, Matrix, Quaternion
 from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from bpy_extras.image_utils import load_image
 
-from io_mesh_w3d.io_binary import *
-
-
-def read_chunk_head(io_stream):
-    chunk_type = read_ulong(io_stream)
-    chunk_size = read_chunk_size(io_stream)
-    chunk_end = io_stream.tell() + chunk_size
-    return (chunk_type, chunk_size, chunk_end)
-
-
-def read_chunk_size(io_stream):
-    return read_ulong(io_stream) & 0x7FFFFFFF
-
-
-def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
-    write_ulong(io_stream, chunk_id)
-    if has_sub_chunks:
-        size |= 0x80000000
-    write_ulong(io_stream, size)
+from io_mesh_w3d.io_binary import read_chunk_head
 
 
 def string_size(string):
@@ -40,11 +22,6 @@ def read_array(io_stream, chunk_end, read_func):
     while io_stream.tell() < chunk_end:
         result.append(read_func(io_stream))
     return result
-
-
-def write_array(io_stream, data, write_func):
-    for dat in data:
-        write_func(io_stream, dat)
 
 
 def read_fixed_array(io_stream, count, read_func):
@@ -65,6 +42,7 @@ def read_chunk_array(self, io_stream, chunk_end, type_, read_func):
         else:
             skip_unknown_chunk(self, io_stream, chunk_type, chunk_size)
     return result
+
 
 def insensitive_path(path):
      # find the io_stream on unix
@@ -200,7 +178,8 @@ def rgb_to_vector(rgb):
 
 
 def create_vert_material(mesh, vert_mat):
-    mat = bpy.data.materials.new(mesh.header.mesh_name + "." + vert_mat.vm_name)
+    mat = bpy.data.materials.new(
+        mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
@@ -220,7 +199,8 @@ def rgba_to_vector(prop):
 
 def create_shader_materials(self, mesh_struct, mesh):
     for material in mesh_struct.shader_materials:
-        mat = bpy.data.materials.new(mesh_struct.header.mesh_name + ".ShaderMaterial")
+        mat = bpy.data.materials.new(
+            mesh_struct.header.mesh_name + ".ShaderMaterial")
         mat.use_nodes = True
         principled = PrincipledBSDFWrapper(mat, is_readonly=False)
         for prop in material.properties:
@@ -317,6 +297,7 @@ def load_texture_to_mat(self, tex_name, mat):
 
 def is_roottransform(pivot):
     return pivot == 0
+
 
 def is_translation(channel):
     return channel.type == 0 or channel.type == 1 or channel.type == 2

@@ -1,10 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+# Last Modification 09.2019
 import os
 import bpy
-from io_mesh_w3d.w3d_structs import *
-from io_mesh_w3d.export_utils_w3d import *
+
+from io_mesh_w3d.export_utils_w3d import create_hierarchy, export_meshes
 
 
 def save(givenfilepath, _context, export_settings):
