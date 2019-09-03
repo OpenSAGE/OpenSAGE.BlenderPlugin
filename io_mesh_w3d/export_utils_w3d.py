@@ -185,14 +185,55 @@ def create_hierarchy(container_name):
 # Animation data
 #######################################################################################
 
+def get_bone(rig, name):
+    # sometimes objects are animated, not just bones
+    try:
+        return rig.pose.bones[name]
+    except:
+        return bpy.data.objects[name]
 
-def export_animations(animation_name, hierarchy):
+
+def export_animations(ani_file, animation_name, rig, hierarchy):
     ani_struct = Animation()
     ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.header.name
     ani_struct.header.num_frames = bpy.data.scenes["Scene"].frame_end - \
         bpy.data.scenes["Scene"].frame_start
     ani_struct.header.frame_rate = bpy.data.scenes["Scene"].render.fps
+
+    print(len(bpy.data.actions))
+    action = bpy.data.actions[0]
+    print(bpy.data.actions[0].name)
+
+    for fcu in action.fcurves:
+        print(fcu.data_path + " channel " + str(fcu.array_index))
+        #for keyframe in fcu.keyframe_points:
+        #    print(keyframe.co) #coordinates x,y
+
+    for i, pivot in enumerate(hierarchy.pivots):
+        if pivot.name == "ROOTTRANSFORM":
+            continue
+        
+        rest_location = pivot.translation
+        rest_rotation = pivot.rotation
+
+        obj = get_bone(rig, pivot.name)
+
+        qChannel = AnimationChannel()
+        qChannel.first_frame = bpy.data.scenes["Scene"].frame_start
+        qChannel.last_frame = bpy.data.scenes["Scene"].frame_end - 1
+        qChannel.vector_len = 4
+        qChannel.pivot = i
+        qChannel.data = []
+
+        #action = bpy.data.actions["action_id"]
+        #for fcu in action.fcurves:
+        #print(fcu.data_path + " channel " + str(fcu.array_index))
+        #for keyframe in fcu.keyframe_points:
+        #print(keyframe.co) #coordinates x,y
+
+
+    ani_struct.write(ani_file)
 
 
 #######################################################################################

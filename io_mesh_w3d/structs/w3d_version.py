@@ -17,3 +17,8 @@ class Version(Struct):
 
     def write(self, io_stream):
         write_ulong(io_stream, (self.major << 16) | self.minor)
+
+    def __eq__(self, other):
+        if isinstance(other, Version):
+            return self.major == other.major and self.minor == other.minor
+        return False

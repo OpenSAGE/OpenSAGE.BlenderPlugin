@@ -303,3 +303,31 @@ class TestIOBinary(unittest.TestCase):
                 io_stream = io.BytesIO(data)
                 self.assertEqual(
                     inp[1], read_channel_value(io_stream, inp[0]))
+
+    def test_read_chunk_head(self):
+        inputs = [(0, 200), (255, 500), (255, 0xFFFFFFFF)]
+        expecteds = [(0, 200, 208), (255, 500, 508), (255, 0x7FFFFFFF, 0x80000007)]
+
+        for i, inp in enumerate(inputs):
+            c_type = struct.pack("<L", inp[0])
+            c_size = struct.pack("<L", inp[1])
+            io_stream = io.BytesIO(c_type + c_size)
+
+            (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+            self.assertEqual(expecteds[i][0], chunkType)
+            self.assertEqual(expecteds[i][1], chunkSize)
+            self.assertEqual(expecteds[i][2], chunkEnd)
+
+    def test_write_chunk_head(self):
+        inputs = [(0, 200, False), (255, 500, False), (255, 0xFF, True)]
+        expecteds = [(0, 200), (255, 500), (255, 0x800000FF)]
+
+        for i, inp in enumerate(inputs):
+            io_stream = io.BytesIO()
+            write_chunk_head(io_stream, inp[0], inp[1], inp[2])
+            io_stream.seek(0)
+            chunk_type = struct.unpack("<L", io_stream.read(4))[0]
+            chunk_size = struct.unpack("<L", io_stream.read(4))[0]
+
+            self.assertEqual(expecteds[i][0], chunk_type)
+            self.assertEqual(expecteds[i][1], chunk_size)

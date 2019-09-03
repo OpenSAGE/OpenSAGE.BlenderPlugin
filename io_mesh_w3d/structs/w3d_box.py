@@ -2,6 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 09.2019
 
+from mathutils import Vector
+
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
@@ -40,10 +42,7 @@ class Box(Struct):
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_BOX, self.size_in_bytes())
 
-        # TODO: fix version writing
-        # self.version.write(io_stream)
-        write_long(io_stream, 9)
-
+        self.version.write(io_stream)
         write_ulong(io_stream, (self.collision_types & 0xFF) | (self.box_type & 0b11))
         write_long_fixed_string(io_stream, self.name)
         self.color.write(io_stream)

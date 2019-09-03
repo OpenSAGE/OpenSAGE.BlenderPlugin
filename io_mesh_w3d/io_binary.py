@@ -146,19 +146,16 @@ def write_long_array(io_stream, array):
     for val in array:
         write_long(io_stream, val)
 
+
 def read_channel_value(io_stream, channel_type):
     if channel_type == 6:
         return read_quaternion(io_stream)
     return read_float(io_stream)
 
 
-def read_chunk_size(io_stream):
-    return read_ulong(io_stream) & 0x7FFFFFFF
-
-
 def read_chunk_head(io_stream):
     chunk_type = read_ulong(io_stream)
-    chunk_size = read_chunk_size(io_stream)
+    chunk_size = read_ulong(io_stream) & 0x7FFFFFFF
     chunk_end = io_stream.tell() + chunk_size
     return (chunk_type, chunk_size, chunk_end)
 

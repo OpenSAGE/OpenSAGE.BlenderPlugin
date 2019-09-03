@@ -5,6 +5,7 @@
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
+
 class RGBA(Struct):
     r = 0
     g = 0
@@ -36,3 +37,8 @@ class RGBA(Struct):
         write_float(io_stream, self.g)
         write_float(io_stream, self.b)
         write_float(io_stream, self.a)
+
+    def __eq__(self, other):
+        if isinstance(other, RGBA):
+            return self.r == other.r and self.g == other.g and self.b == other.b and self.a == other.a
+        return False

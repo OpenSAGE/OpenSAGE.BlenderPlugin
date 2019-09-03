@@ -323,12 +323,14 @@ def setup_animation(animation):
 
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
+    # TODO: how to use option flag: INSERTKEY_NEEDED
     bone.keyframe_insert(data_path='location', index=index, frame=frame)
 
 
 def set_rotation(bone, frame, value):
     bone.rotation_mode = 'QUATERNION'
     bone.rotation_quaternion = value
+    # TODO: how to use option flag: INSERTKEY_NEEDED
     bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
