@@ -185,13 +185,6 @@ def create_hierarchy(container_name):
 # Animation data
 #######################################################################################
 
-def get_bone(rig, name):
-    # sometimes objects are animated, not just bones
-    try:
-        return rig.pose.bones[name]
-    except:
-        return bpy.data.objects[name]
-
 
 def export_animations(ani_file, animation_name, rig, hierarchy):
     ani_struct = Animation()
@@ -201,37 +194,64 @@ def export_animations(ani_file, animation_name, rig, hierarchy):
         bpy.data.scenes["Scene"].frame_start
     ani_struct.header.frame_rate = bpy.data.scenes["Scene"].render.fps
 
-    print(len(bpy.data.actions))
-    action = bpy.data.actions[0]
-    print(bpy.data.actions[0].name)
-
-    for fcu in action.fcurves:
-        print(fcu.data_path + " channel " + str(fcu.array_index))
-        #for keyframe in fcu.keyframe_points:
-        #    print(keyframe.co) #coordinates x,y
 
     for i, pivot in enumerate(hierarchy.pivots):
         if pivot.name == "ROOTTRANSFORM":
             continue
-        
-        rest_location = pivot.translation
-        rest_rotation = pivot.rotation
 
         obj = get_bone(rig, pivot.name)
 
-        qChannel = AnimationChannel()
-        qChannel.first_frame = bpy.data.scenes["Scene"].frame_start
-        qChannel.last_frame = bpy.data.scenes["Scene"].frame_end - 1
-        qChannel.vector_len = 4
-        qChannel.pivot = i
-        qChannel.data = []
+        start_frame = bpy.data.scenes["Scene"].frame_start
+        end_frame = bpy.data.scenes["Scene"].frame_end - 1
 
-        #action = bpy.data.actions["action_id"]
-        #for fcu in action.fcurves:
-        #print(fcu.data_path + " channel " + str(fcu.array_index))
-        #for keyframe in fcu.keyframe_points:
-        #print(keyframe.co) #coordinates x,y
+        qChannel = AnimationChannel(
+            first_frame=start_frame,
+            last_frame=end_frame,
+            vector_len=4,
+            type=6,
+            pivot=i,
+            data=[])
 
+        if obj.parent is None:
+            xChannel = AnimationChannel(
+                first_frame=start_frame,
+                last_frame=end_frame,
+                vector_len=1,
+                type=0,
+                pivot=i,
+                data=[])
+
+            yChannel = AnimationChannel(
+                first_frame=start_frame,
+                last_frame=end_frame,
+                vector_len=1,
+                type=1,
+                pivot=i,
+                data=[])
+
+            zChannel = AnimationChannel(
+                first_frame=start_frame,
+                last_frame=end_frame,
+                vector_len=1,
+                type=2,
+                pivot=i,
+                data=[])
+
+            for frame in range(start_frame, end_frame):
+                bpy.context.scene.frame_set(frame)
+
+                qChannel.data.append(obj.rotation_quaternion)
+
+                if obj.parent is None:
+                    xChannel.data.append(pivot.translation.x - obj.location.x)
+                    yChannel.data.append(pivot.translation.y - obj.location.y)
+                    zChannel.data.append(pivot.translation.z - obj.location.z)
+            
+            if  obj.parent is None:
+                ani_struct.channels.append(xChannel)
+                ani_struct.channels.append(yChannel)
+                ani_struct.channels.append(zChannel)
+            ani_struct.channels.append(qChannel)
 
     ani_struct.write(ani_file)
 
