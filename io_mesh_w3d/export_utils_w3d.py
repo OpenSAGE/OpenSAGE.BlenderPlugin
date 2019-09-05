@@ -38,11 +38,20 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
             box.write(skn_file)
         else:
-            mesh_struct = Mesh()
+            mesh_struct = Mesh(
+                verts=[],
+                normals=[],
+                vert_infs=[],
+                triangles=[],
+                shade_ids=[],
+                shaders=[],
+                vert_materials=[],
+                textures=[],
+                shader_materials=[])
+
             header = mesh_struct.header
             header.mesh_name = mesh_object.name
             header.container_name = container_name
-            mesh_struct.normals = []
 
             mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
@@ -148,14 +157,14 @@ def create_hierarchy(container_name):
         for bone in rig.pose.bones:
             pivot = HierarchyPivot(
                 name=bone.name,
-                parentID=0)
+                parent_id=0)
 
             matrix = bone.matrix
 
             if bone.parent is not None:
                 for index, piv in enumerate(hierarchy.pivots):
                     if piv.name == bone.parent.name:
-                        pivot.parentID = index
+                        pivot.parent_id = index
                 matrix = bone.parent.matrix.inverted() @ matrix
 
             (pivot.translation, pivot.rotation, _) = matrix.decompose()
@@ -172,14 +181,14 @@ def create_hierarchy(container_name):
         if not mesh_object.vertex_groups and mesh_object.name != "BOUNDINGBOX":
             pivot = HierarchyPivot(
                 name=mesh_object.name,
-                parentID=0,
+                parent_id=0,
                 translation=mesh_object.location,
                 rotation=mesh_object.rotation_quaternion)
 
             if mesh_object.parent_bone != "":
                 for index, piv in enumerate(hierarchy.pivots):
                     if piv.name == mesh_object.parent_bone:
-                        pivot.parentID = index
+                        pivot.parent_id = index
 
             hierarchy.pivots.append(pivot)
 
@@ -250,6 +259,7 @@ def export_animation(ani_file, animation_name, hierarchy):
             ani_struct.channels.append(channel)
 
     ani_struct.write(ani_file)
+    return ani_struct
 
 
 #######################################################################################
