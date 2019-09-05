@@ -276,14 +276,10 @@ class Mesh(Struct):
         self.header.write(io_stream)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())
-        for vec in self.verts:
-            write_vector(io_stream, vec)
-        #write_array(io_stream, self.verts, write_vector)
+        write_array(io_stream, self.verts, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS, self.normals_size())
-        for nor in self.normals:
-            write_vector(io_stream, nor)
-        #write_array(io_stream, self.normals, write_vector)
+        write_array(io_stream, self.normals, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size())
         for tri in self.triangles:

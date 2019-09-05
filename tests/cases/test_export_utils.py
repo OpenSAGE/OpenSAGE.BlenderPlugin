@@ -35,4 +35,4 @@ class TestExportUtils(utils.W3dTestCase):
         (hlod, mesh_structs) = export_meshes(io_stream, hierarchy, rig, container_name)
 
         self.assertIsNotNone(hlod)
-        #self.assertEqual(8, len(mesh_structs))
+        self.assertEqual(8, len(mesh_structs))

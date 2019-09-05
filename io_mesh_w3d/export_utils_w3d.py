@@ -42,6 +42,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             header = mesh_struct.header
             header.mesh_name = mesh_object.name
             header.container_name = container_name
+            mesh_struct.normals = []
 
             mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
