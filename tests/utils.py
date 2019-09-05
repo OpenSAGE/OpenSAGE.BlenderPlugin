@@ -1,11 +1,9 @@
 import unittest
-import io
 import inspect
 import os
 import shutil
 import sys
 import tempfile
-import bmesh
 import bpy
 
 import addon_utils
@@ -30,7 +28,7 @@ class W3dTestCase(unittest.TestCase):
             os.makedirs(cls.__tmp)
         return os.path.join(cls.__tmp, path)
 
-    def loadBlend(self,blend_file):
+    def loadBlend(self, blend_file):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):

@@ -18,6 +18,7 @@ from io_mesh_w3d.structs.w3d_animation import *
 
 
 def export_meshes(skn_file, hierarchy, rig, container_name):
+    mesh_structs = []
     hlod = HLod()
     hlod.header.model_name = container_name
     hlod.header.hierarchy_name = hierarchy.header.name
@@ -59,7 +60,8 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                     mesh_struct.vert_infs.append(vertInf)
 
                     bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                    mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
+                    mesh_struct.verts.append(
+                        bone.matrix.inverted() @ vertex.co.xyz)
                     if len(vertex.groups) > 1:
                         for index, pivot in enumerate(hierarchy.pivots):
                             if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
@@ -82,7 +84,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             for face in mesh.polygons:
                 triangle = MeshTriangle()
                 triangle.vert_ids = [face.vertices[0],
-                                    face.vertices[1], face.vertices[2]]
+                                     face.vertices[1], face.vertices[2]]
                 triangle.normal = Vector(face.normal)
                 vec1 = mesh.vertices[face.vertices[0]].co.xyz
                 vec2 = mesh.vertices[face.vertices[1]].co.xyz
@@ -100,6 +102,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
 
             header.faceCount = len(mesh_struct.triangles)
             mesh_struct.write(skn_file)
+            mesh_structs.append(mesh_struct)
 
             # HLod stuff
             subObject = HLodSubObject()
@@ -114,6 +117,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
 
     hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     hlod.write(skn_file)
+    return (hlod, mesh_structs)
 
 
 #######################################################################################
@@ -186,72 +190,63 @@ def create_hierarchy(container_name):
 #######################################################################################
 
 
-def export_animations(ani_file, animation_name, rig, hierarchy):
-    ani_struct = Animation()
+def export_animation(ani_file, animation_name, hierarchy):
+    ani_struct = Animation(channels=[])
     ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.header.name
-    ani_struct.header.num_frames = bpy.data.scenes["Scene"].frame_end - \
-        bpy.data.scenes["Scene"].frame_start
+
+    start_frame = bpy.data.scenes["Scene"].frame_start
+    end_frame = bpy.data.scenes["Scene"].frame_end
+
+    ani_struct.header.num_frames = end_frame + 1 - start_frame
     ani_struct.header.frame_rate = bpy.data.scenes["Scene"].render.fps
 
+    if len(bpy.data.actions) > 1:
+        print("Error: too many actions in scene")
 
-    for i, pivot in enumerate(hierarchy.pivots):
-        if pivot.name == "ROOTTRANSFORM":
-            continue
+    channel = None
 
-        obj = get_bone(rig, pivot.name)
+    action = bpy.data.actions[0]
+    for fcu in action.fcurves:
+        pivot_name = fcu.data_path.split('"')[1]
+        pivot_index = 0
+        for i, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == pivot_name:
+                pivot_index = i
 
-        start_frame = bpy.data.scenes["Scene"].frame_start
-        end_frame = bpy.data.scenes["Scene"].frame_end - 1
+        channel_type = 0
+        vec_len = 1
+        index = fcu.array_index
+        if "rotation_quaternion" in fcu.data_path:
+            channel_type = 6
+            vec_len = 4
+        else:
+            channel_type = index
 
-        qChannel = AnimationChannel(
-            first_frame=start_frame,
-            last_frame=end_frame,
-            vector_len=4,
-            type=6,
-            pivot=i,
-            data=[])
-
-        if obj.parent is None:
-            xChannel = AnimationChannel(
-                first_frame=start_frame,
-                last_frame=end_frame,
-                vector_len=1,
-                type=0,
-                pivot=i,
+        if not (channel_type == 6 and index > 0):
+            channel = AnimationChannel(
+                vector_len=vec_len,
+                type=channel_type,
+                pivot=pivot_index,
                 data=[])
 
-            yChannel = AnimationChannel(
-                first_frame=start_frame,
-                last_frame=end_frame,
-                vector_len=1,
-                type=1,
-                pivot=i,
-                data=[])
+            num_keyframes = len(fcu.keyframe_points)
+            channel.data = [None] * num_keyframes
+            channel.first_frame = int(fcu.keyframe_points[0].co.x)
+            channel.last_frame = int(fcu.keyframe_points[num_keyframes - 1].co.x)
 
-            zChannel = AnimationChannel(
-                first_frame=start_frame,
-                last_frame=end_frame,
-                vector_len=1,
-                type=2,
-                pivot=i,
-                data=[])
+        for i, keyframe in enumerate(fcu.keyframe_points):
+            #frame = keyframe.co.x
+            value = keyframe.co.y
+            if channel_type < 6:
+                channel.data[i] = value
+            else:
+                if channel.data[i] is None:
+                    channel.data[i] = Quaternion()
+                channel.data[i][index] = value
 
-            for frame in range(start_frame, end_frame):
-                bpy.context.scene.frame_set(frame)
-
-                qChannel.data.append(obj.rotation_quaternion)
-
-                if obj.parent is None:
-                    xChannel.data.append(pivot.translation.x - obj.location.x)
-                    yChannel.data.append(pivot.translation.y - obj.location.y)
-                    zChannel.data.append(pivot.translation.z - obj.location.z)
-            
-            if  obj.parent is None:
-                ani_struct.channels.append(xChannel)
-                ani_struct.channels.append(yChannel)
-                ani_struct.channels.append(zChannel)
-            ani_struct.channels.append(qChannel)
+        if channel_type < 6 or index == 3:
+            ani_struct.channels.append(channel)
 
     ani_struct.write(ani_file)
 

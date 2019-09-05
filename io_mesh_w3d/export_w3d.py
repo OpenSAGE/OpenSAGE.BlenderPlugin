@@ -4,7 +4,7 @@
 import os
 import bpy
 
-from io_mesh_w3d.export_utils_w3d import create_hierarchy, export_meshes, export_animations
+from io_mesh_w3d.export_utils_w3d import create_hierarchy, export_meshes, export_animation
 
 
 def save(givenfilepath, _context, export_settings):
@@ -36,7 +36,7 @@ def save(givenfilepath, _context, export_settings):
         sklFile.close()
     elif export_mode == 'A':
         aniFile = open(givenfilepath, "wb")
-        export_animations(aniFile, containerName, rig, hierarchy)
+        export_animation(aniFile, containerName, hierarchy)
         aniFile.close()
 
     return {'FINISHED'}

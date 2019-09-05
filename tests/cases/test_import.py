@@ -79,6 +79,7 @@ class TestObjectImport(utils.W3dTestCase):
         self.assertObjectsExist(expected_objects)
 
         # Load an attack animation
+        # TODO: load an uncompressed animation here
         atk_ani = ImportWrapper(
             self.relpath() + "/elladan/auelladan_diea.w3d")
 

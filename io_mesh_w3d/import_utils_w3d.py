@@ -358,6 +358,9 @@ def apply_motion_channel_adaptive_delta(bone, channel):
 
 def apply_uncompressed(bone, channel):
     for frame in range(channel.first_frame, channel.last_frame):
+        print(channel.first_frame)
+        print(channel.last_frame)
+        print(str(frame - channel.first_frame) + " len: " + str(len(channel.data)))
         data = channel.data[frame - channel.first_frame]
         set_transform(bone, channel, frame, data)
 
