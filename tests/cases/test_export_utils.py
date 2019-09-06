@@ -142,5 +142,5 @@ class TestExportUtils(utils.W3dTestCase):
 
         self.assertEqual(146, animation.header.num_frames)
         self.assertAlmostEqual(30.0, animation.header.frame_rate, 4)
-        self.assertEqual(71, len(animation.channels))
+        self.assertEqual(71, len(animation.time_coded_channels))
 
