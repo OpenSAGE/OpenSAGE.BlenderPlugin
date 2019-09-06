@@ -152,6 +152,12 @@ def read_channel_value(io_stream, channel_type):
         return read_quaternion(io_stream)
     return read_float(io_stream)
 
+def write_channel_value(io_stream, channel_type, data):
+    if channel_type == 6:
+        write_quaternion(io_stream, data)
+    else:
+        write_float(io_stream, data)
+
 
 def read_chunk_head(io_stream):
     chunk_type = read_ulong(io_stream)
