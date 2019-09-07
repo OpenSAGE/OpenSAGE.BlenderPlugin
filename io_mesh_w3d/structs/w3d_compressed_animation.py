@@ -63,8 +63,8 @@ class TimeCodedDatum(Struct):
     @staticmethod
     def size_in_bytes(type_):
         if type_ == 6:
-            return 16
-        return 4
+            return 20
+        return 8
 
     def write(self, io_stream, type_):
         write_ulong(io_stream, self.time_code)
@@ -324,7 +324,8 @@ class CompressedAnimation(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION, self.size_in_bytes(), has_sub_chunks=True)
+        self.header.write(io_stream)
         if self.header.flavor == 0:
             for time_coded_channel in self.time_coded_channels:
                 time_coded_channel.write(io_stream)
