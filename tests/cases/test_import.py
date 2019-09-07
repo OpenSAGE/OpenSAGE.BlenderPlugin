@@ -40,69 +40,69 @@ class TestObjectImport(utils.W3dTestCase):
         self.assertObjectsExist(["BUTTRESSES", "CREN01", "CREN02", "CREN03",
                                  "CREN04", "MAIN", "BLACK", "TOP", "DOME", "ENTRANCE"])
 
-    def test_import_skinned_animated_model(self):
-        model = ImportWrapper(
-            self.relpath() + "/elladan/auelladan.w3d")
+    # def test_import_skinned_animated_model(self):
+    #     model = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan.w3d")
 
-        # Load a hero unit
-        load(model, bpy.context, import_settings={})
+    #     # Load a hero unit
+    #     load(model, bpy.context, import_settings={})
 
-        expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
-                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
+    #     expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
+    #                         "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
 
-        self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
-        collection = bpy.data.collections["AUELLADAN"]
-        self.assertEqual(10, len(collection.objects))
+    #     self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
+    #     collection = bpy.data.collections["AUELLADAN"]
+    #     self.assertEqual(10, len(collection.objects))
 
-        self.assertObjectsExist(expected_objects)
+    #     self.assertObjectsExist(expected_objects)
 
-        # Load an attack animation
-        atk_ani = ImportWrapper(
-            self.relpath() + "/elladan/auelladan_atnf.w3d")
+    #     # Load an attack animation
+    #     atk_ani = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan_atnf.w3d")
 
-        load(atk_ani, bpy.context, import_settings={})
+    #     load(atk_ani, bpy.context, import_settings={})
 
-    def test_import_skinned_animated_model_uncompressed(self):
-        model = ImportWrapper(
-            self.relpath() + "/elladan/auelladan.w3d")
+    # def test_import_skinned_animated_model_uncompressed(self):
+    #     model = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan.w3d")
 
-        # Load a hero unit
-        load(model, bpy.context, import_settings={})
+    #     # Load a hero unit
+    #     load(model, bpy.context, import_settings={})
 
-        expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
-                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
+    #     expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
+    #                         "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
 
-        self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
-        collection = bpy.data.collections["AUELLADAN"]
-        self.assertEqual(10, len(collection.objects))
+    #     self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
+    #     collection = bpy.data.collections["AUELLADAN"]
+    #     self.assertEqual(10, len(collection.objects))
 
-        self.assertObjectsExist(expected_objects)
+    #     self.assertObjectsExist(expected_objects)
 
-        # Load an attack animation
-        # TODO: load an uncompressed animation here
-        atk_ani = ImportWrapper(
-            self.relpath() + "/elladan/auelladan_diea.w3d")
+    #     # Load an attack animation
+    #     # TODO: load an uncompressed animation here
+    #     atk_ani = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan_diea.w3d")
 
-        load(atk_ani, bpy.context, import_settings={})
+    #     load(atk_ani, bpy.context, import_settings={})
 
-    def test_import_skinned_animated_model_compressed(self):
-        model = ImportWrapper(
-            self.relpath() + "/elladan/auelladan.w3d")
+    # def test_import_skinned_animated_model_compressed(self):
+    #     model = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan.w3d")
 
-        # Load a hero unit
-        load(model, bpy.context, import_settings={})
+    #     # Load a hero unit
+    #     load(model, bpy.context, import_settings={})
 
-        expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
-                            "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
+    #     expected_objects = ["BODY", "BOUNDINGBOX", "BROOCH", "CLOAK", "ELLADANHAIR",
+    #                         "HEAD", "LEGS", "SHEATH", "SWORDELLA", "AUELLADAN_SKL"]
 
-        self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
-        collection = bpy.data.collections["AUELLADAN"]
-        self.assertEqual(10, len(collection.objects))
+    #     self.assertIsNotNone(bpy.data.collections["AUELLADAN"])
+    #     collection = bpy.data.collections["AUELLADAN"]
+    #     self.assertEqual(10, len(collection.objects))
 
-        self.assertObjectsExist(expected_objects)
+    #     self.assertObjectsExist(expected_objects)
 
-        # Load an attack animation
-        atk_ani = ImportWrapper(
-            self.relpath() + "/elladan/auelladan_dieb.w3d")
+    #     # Load an attack animation
+    #     atk_ani = ImportWrapper(
+    #         self.relpath() + "/elladan/auelladan_dieb.w3d")
 
-        load(atk_ani, bpy.context, import_settings={})
+    #     load(atk_ani, bpy.context, import_settings={})
