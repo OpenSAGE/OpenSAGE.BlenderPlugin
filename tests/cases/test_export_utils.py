@@ -7,7 +7,7 @@ from io_mesh_w3d.export_utils_w3d import create_hierarchy, export_meshes, export
 from tests import utils
 
 
-class TestExportUtils(utils.W3dTestCase):
+# class TestExportUtils(utils.W3dTestCase):
     # def test_create_hierarchy(self):
     #     self.loadBlend(self.relpath() + "/elladan/elladan.blend")
 
