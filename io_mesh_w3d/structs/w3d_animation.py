@@ -82,11 +82,10 @@ class AnimationChannel(Struct):
         write_ushort(io_stream, self.pivot)
         write_ushort(io_stream, self.unknown)
 
-        for dat in self.data:
-            if self.vector_len == 1:
-                write_float(io_stream, dat)
-            else:
-                write_quaternion(io_stream, dat)
+        if self.vector_len == 1:
+            write_array(io_stream, self.data, write_float)
+        else:
+            write_array(io_stream, self.data, write_quaternion)
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
