@@ -305,20 +305,20 @@ class TestIOBinary(unittest.TestCase):
                     inp[1], read_channel_value(io_stream, inp[0]))
 
     def test_write_channel_value(self):
-        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]
+        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1.0, 2.0, 3.0, 4.0)))]
 
         for inp in inputs:
-            type_ = inputs[0]
+            type_ = inp[0]
             io_stream = io.BytesIO()
-            write_channel_value(io_stream, type_, inputs[1])
+            write_channel_value(io_stream, type_, inp[1])
             data = io_stream.getvalue()
-            if type_ < 3:
-                self.assertEqual(inp[1], struct.unpack("<f", data[0:4])[0])
-            else:
+            if type_ == 6:
                 self.assertEqual(inp[1].x, struct.unpack("<f", data[0:4])[0])
                 self.assertEqual(inp[1].y, struct.unpack("<f", data[4:8])[0])
                 self.assertEqual(inp[1].z, struct.unpack("<f", data[8:12])[0])
                 self.assertEqual(inp[1].w, struct.unpack("<f", data[12:16])[0])
+            else:
+                self.assertEqual(inp[1], struct.unpack("<f", data[0:4])[0])
 
     def test_read_chunk_head(self):
         inputs = [(0, 200), (255, 500), (255, 0xFFFFFFFF)]
