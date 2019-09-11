@@ -10,6 +10,7 @@ from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.structs.w3d_box import *
 from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
+from io_mesh_w3d.structs.w3d_compressed_animation import *
 
 
 #######################################################################################
@@ -201,8 +202,10 @@ def create_hierarchy(container_name):
 
 
 def export_animation(ani_file, animation_name, hierarchy):
-    ani_struct = Animation(channels=[])
+    # only time coded compression for now
+    ani_struct = CompressedAnimation(time_coded_channels=[])
     ani_struct.header.name = animation_name
+    ani_struct.header.flavor = 0 # time coded
     ani_struct.header.hierarchy_name = hierarchy.header.name
 
     start_frame = bpy.data.scenes["Scene"].frame_start
@@ -234,29 +237,34 @@ def export_animation(ani_file, animation_name, hierarchy):
             channel_type = index
 
         if not (channel_type == 6 and index > 0):
-            channel = AnimationChannel(
+            channel = TimeCodedAnimationChannel(
                 vector_len=vec_len,
                 type=channel_type,
                 pivot=pivot_index,
-                data=[])
+                time_codes=[])
 
             num_keyframes = len(fcu.keyframe_points)
-            channel.data = [None] * num_keyframes
+            channel.time_codes = [None] * num_keyframes
+            channel.num_time_codes = num_keyframes
             channel.first_frame = int(fcu.keyframe_points[0].co.x)
             channel.last_frame = int(fcu.keyframe_points[num_keyframes - 1].co.x)
 
         for i, keyframe in enumerate(fcu.keyframe_points):
-            #frame = keyframe.co.x
-            value = keyframe.co.y
+            frame = int(keyframe.co.x)
+            val = keyframe.co.y
             if channel_type < 6:
-                channel.data[i] = value
+                channel.time_codes[i] = TimeCodedDatum(
+                    time_code=frame,
+                    value = val)
             else:
-                if channel.data[i] is None:
-                    channel.data[i] = Quaternion()
-                channel.data[i][index] = value
+                if channel.time_codes[i] is None:
+                    channel.time_codes[i] = TimeCodedDatum(
+                        time_code=frame,
+                        value=Quaternion())
+                channel.time_codes[i].value[index] = val
 
         if channel_type < 6 or index == 3:
-            ani_struct.channels.append(channel)
+            ani_struct.time_coded_channels.append(channel)
 
     ani_struct.write(ani_file)
     return ani_struct
