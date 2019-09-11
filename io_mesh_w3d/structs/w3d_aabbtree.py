@@ -4,9 +4,8 @@
 
 from mathutils import Vector
 
-from io_mesh_w3d.structs.struct import Struct
-from io_mesh_w3d.structs.w3d_version import Version 
-from io_mesh_w3d.import_utils_w3d import read_array
+from io_mesh_w3d.structs.struct import Struct, HEAD
+from io_mesh_w3d.import_utils_w3d import read_array, skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
 
 
@@ -21,7 +20,7 @@ class AABBTreeHeader(Struct):
     def read(io_stream):
         result = AABBTreeHeader(
             node_count=read_ulong(io_stream),
-            poyCount=read_ulong(io_stream))
+            poly_count=read_ulong(io_stream))
 
         io_stream.read(24)  # padding
         return result
@@ -35,6 +34,9 @@ class AABBTreeHeader(Struct):
                          self.size_in_bytes())
         write_ulong(io_stream, self.node_count)
         write_ulong(io_stream, self.poly_count)
+        
+        for pad in range(24):
+            write_ubyte(io_stream, 0) # padding
 
 
 class AABBTreeNode(Struct):

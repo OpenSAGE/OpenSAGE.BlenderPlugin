@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 09.2019
 
-from io_mesh_w3d.structs.struct import Struct
+from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
@@ -66,9 +66,9 @@ class ShaderMaterialProperty(Struct):
         return result
 
     def size_in_bytes(self):
-        size = 8 + string_size(self.name)
+        size = 8 + len(self.name) + 1
         if self.type == 1:
-            size += 4 + string_size(self.value)
+            size += 4 + len(self.value) + 1
         elif self.type == 2:
             size += 4
         elif self.type == 4:
@@ -89,7 +89,7 @@ class ShaderMaterialProperty(Struct):
         write_string(io_stream, self.name)
 
         if self.type == 1:
-            write_long(io_stream, string_size(self.value))
+            write_long(io_stream, len(self.value) + 1)
             write_string(io_stream, self.value)
         elif self.type == 2:
             write_float(io_stream, self.value)

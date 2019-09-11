@@ -13,10 +13,6 @@ from bpy_extras.image_utils import load_image
 from io_mesh_w3d.io_binary import read_chunk_head
 
 
-def string_size(string):
-    return len(string) + 1
-
-
 def read_array(io_stream, chunk_end, read_func):
     result = []
     while io_stream.tell() < chunk_end:

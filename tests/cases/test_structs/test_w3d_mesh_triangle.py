@@ -11,7 +11,7 @@ from io_mesh_w3d.structs.w3d_mesh_triangle import MeshTriangle
 class TestMeshTriangle(unittest.TestCase):
     def test_write_read(self):
         expected = MeshTriangle(
-            vert_ids=[1, 2, 3],
+            vert_ids=(1, 2, 3),
             surface_type=66,
             normal=Vector((1.0, 22.0, -5.0)),
             distance=103.0)
@@ -24,8 +24,8 @@ class TestMeshTriangle(unittest.TestCase):
 
         actual = MeshTriangle.read(io_stream)
 
-        self.assertEqual((1, 2, 3), actual.vert_ids)
-        self.assertEqual(66, actual.surface_type)
-        self.assertEqual(Vector((1.0, 22.0, -5.0)), actual.normal)
-        self.assertEqual(103.0, actual.distance)
+        self.assertEqual(expected.vert_ids, actual.vert_ids)
+        self.assertEqual(expected.surface_type, actual.surface_type)
+        self.assertEqual(expected.normal, actual.normal)
+        self.assertEqual(expected.distance, actual.distance)
 

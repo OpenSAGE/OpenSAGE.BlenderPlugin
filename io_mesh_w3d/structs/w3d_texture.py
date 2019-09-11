@@ -2,8 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 09.2019
 
-from io_mesh_w3d.structs.struct import Struct
-from io_mesh_w3d.structs.w3d_version import Version
+from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.io_binary import *
 
 
@@ -61,7 +60,7 @@ class Texture(Struct):
         return result
 
     def size_in_bytes(self):
-        size = HEAD + string_size(self.name)
+        size = HEAD + len(self.name) + 1
         if self.texture_info is not None:
             size += HEAD + self.texture_info.size_in_bytes()
         return size
@@ -69,11 +68,8 @@ class Texture(Struct):
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE,
                          self.size_in_bytes(), has_sub_chunks=True)
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME,
-                         string_size(self.name))
+        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, len(self.name) + 1)
         write_string(io_stream, self.name)
 
         if self.texture_info is not None:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_INFO,
-                             self.texture_info.size_in_bytes())
             self.texture_info.write(io_stream)

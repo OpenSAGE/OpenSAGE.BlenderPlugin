@@ -42,6 +42,8 @@ class TestHLod(unittest.TestCase):
         expected.lod_array.sub_objects.append(sub_object1)
         expected.lod_array.sub_objects.append(sub_object2)
 
+        self.assertEqual(160, expected.size_in_bytes())
+
         io_stream = io.BytesIO()
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
@@ -51,19 +53,18 @@ class TestHLod(unittest.TestCase):
         self.assertEqual(expected.size_in_bytes(), chunkSize)
 
         actual = HLod.read(self, io_stream, chunkEnd)
-        self.assertEqual(Version(major=3, minor=2), actual.header.version)
-        self.assertEqual(3, actual.header.lod_count)
-        self.assertEqual("TestModelName", actual.header.model_name)
-        self.assertEqual("TestHieraName", actual.header.hierarchy_name)
+        self.assertEqual(expected.header.version, actual.header.version)
+        self.assertEqual(expected.header.lod_count, actual.header.lod_count)
+        self.assertEqual(expected.header.model_name, actual.header.model_name)
+        self.assertEqual(expected.header.hierarchy_name, actual.header.hierarchy_name)
 
-        self.assertEqual(2, actual.lod_array.header.model_count)
-        self.assertEqual(5442, actual.lod_array.header.max_screen_size)
+        self.assertEqual(expected.lod_array.header.model_count, actual.lod_array.header.model_count)
+        self.assertEqual(expected.lod_array.header.max_screen_size, actual.lod_array.header.max_screen_size)
 
-        self.assertEqual(2, len(actual.lod_array.sub_objects))
+        self.assertEqual(len(expected.lod_array.sub_objects), len(actual.lod_array.sub_objects))
 
-        self.assertEqual(3, actual.lod_array.sub_objects[0].bone_index)
-        self.assertEqual("SubObjectNumber1", actual.lod_array.sub_objects[0].name)
+        self.assertEqual(expected.lod_array.sub_objects[0].bone_index, actual.lod_array.sub_objects[0].bone_index)
+        self.assertEqual(expected.lod_array.sub_objects[0].name, actual.lod_array.sub_objects[0].name)
 
-        self.assertEqual(44, actual.lod_array.sub_objects[1].bone_index)
-        self.assertEqual("SubObjectNumber2", actual.lod_array.sub_objects[1].name)
-
+        self.assertEqual(expected.lod_array.sub_objects[1].bone_index, actual.lod_array.sub_objects[1].bone_index)
+        self.assertEqual(expected.lod_array.sub_objects[1].name, actual.lod_array.sub_objects[1].name)

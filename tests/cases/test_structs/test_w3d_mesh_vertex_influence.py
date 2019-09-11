@@ -22,8 +22,8 @@ class TestMeshVertexInfluence(unittest.TestCase):
 
         actual = MeshVertexInfluence.read(io_stream)
 
-        self.assertEqual(33, actual.bone_idx)
-        self.assertEqual(66, actual.xtra_idx)
-        self.assertEqual(25.0, actual.bone_inf)
-        self.assertEqual(75.0, actual.xtra_inf)
+        self.assertEqual(expected.bone_idx, actual.bone_idx)
+        self.assertEqual(expected.xtra_idx, actual.xtra_idx)
+        self.assertEqual(expected.bone_inf, actual.bone_inf)
+        self.assertEqual(expected.xtra_inf, actual.xtra_inf)
 

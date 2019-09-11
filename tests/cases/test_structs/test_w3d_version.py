@@ -24,6 +24,6 @@ class TestVersion(unittest.TestCase):
         ver = Version(major=4, minor=2)
         other = Version(major=2, minor=1)
 
-        self.assertNotEqual(ver,other)
+        self.assertNotEqual(ver, other)
         self.assertNotEqual(ver, 1)
         self.assertNotEqual(ver, "test")
