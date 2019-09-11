@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 09.2019
 
-from io_mesh_w3d.structs.struct import Struct
+from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.import_utils_w3d import read_array
@@ -23,7 +23,7 @@ class TextureStage(Struct):
     @staticmethod
     def read(io_stream, chunk_end):
         result = TextureStage(
-            txIds=[],
+            tx_ids=[],
             per_face_tx_coords=[],
             tx_coords=[])
 
@@ -321,22 +321,22 @@ class VertexMaterial(Struct):
         return result
 
     def size_in_bytes(self):
-        size = HEAD + string_size(self.vm_name)
+        size = HEAD + len(self.vm_name) + 1
         size += HEAD + self.vm_info.size_in_bytes()
-        size += HEAD + string_size(self.vm_args_0)
-        size += HEAD + string_size(self.vm_args_1)
+        size += HEAD + len(self.vm_args_0) + 1
+        size += HEAD + len(self.vm_args_1) + 1
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL,
                          self.size_in_bytes(), has_sub_chunks=True)
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_NAME,
-                         string_size(self.vm_name))
+                         len(self.vm_name) + 1)
         write_string(io_stream, self.vm_name)
         self.vm_info.write(io_stream)
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS0,
-                         string_size(self.vm_args_0))
+                         len(self.vm_args_0) + 1)
         write_string(io_stream, self.vm_args_0)
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS1,
-                         string_size(self.vm_args_1))
+                         len(self.vm_args_1) + 1)
         write_string(io_stream, self.vm_args_1)
