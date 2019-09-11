@@ -24,4 +24,13 @@ class TestRGBA(unittest.TestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         self.assertEqual(expected, RGBA.read_f(io_stream))
+
+    def test_eq_true(self):
+        rgba = RGBA(r=244, g=222, b=1, a=0)
+        self.assertEqual(rgba, rgba)
+
+    def test_eq_false(self):
+        rgba = RGBA(r=2, g=3, b=0, a=0)
+        self.assertNotEqual(rgba, "test")
+        self.assertNotEqual(rgba, 1)
         

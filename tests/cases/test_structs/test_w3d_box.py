@@ -23,10 +23,11 @@ class TestBox(unittest.TestCase):
         expected.center = Vector((1.0, 2.0, 3.0))
         expected.extend = Vector((4.0, 5.0, 6.0))
 
+        self.assertEqual(68, expected.size_in_bytes())
+
         io_stream = io.BytesIO()
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
-        io_stream.seek(0)
 
         (chunkType, chunkSize, _) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_BOX, chunkType)

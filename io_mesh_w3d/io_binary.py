@@ -166,6 +166,7 @@ def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
         size |= 0x80000000
     write_ulong(io_stream, size)
 
+
 def write_array(io_stream, data, write_func):
     for dat in data:
         write_func(io_stream, dat)

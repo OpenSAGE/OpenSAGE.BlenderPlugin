@@ -10,8 +10,3 @@ class Struct():
         if argd:
             # Update by dictionary
             self.__dict__.update(argd)
-        else:
-            # Update by position
-            attrs = filter(lambda x: x[0:2] != "__", dir(self))
-            for i, argv_ in enumerate(argv):
-                setattr(self, attrs[i], argv_)
