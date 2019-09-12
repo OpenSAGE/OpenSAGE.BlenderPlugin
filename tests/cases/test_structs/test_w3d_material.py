@@ -115,10 +115,10 @@ class TestMaterialPass(unittest.TestCase):
             tx_ids=[],
             per_face_tx_coords=[],
             tx_coords=[])
-        
+
         for i in range(123):
             tx_stage.tx_ids.append(i)
-        
+
         for _ in range(223):
             tx_stage.tx_coords.append((2, 4))
 
@@ -159,6 +159,36 @@ class TestMaterialPass(unittest.TestCase):
             for j, tx_id in enumerate(stage.per_face_tx_coords):
                 self.assertAlmostEqual(tx_id, act.per_face_tx_coords[j], 5)
 
+    def test_write_read_minimal(self):
+        expected = MaterialPass(
+            vertex_material_ids=[],
+            shader_ids=[],
+            dcg=[],
+            dig=[],
+            scg=[],
+            shader_material_ids=[],
+            tx_stages=[],
+            tx_coords=[])
+
+        self.assertEqual(0, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_MATERIAL_PASS, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = MaterialPass.read(io_stream, chunkEnd)
+        self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
+        self.assertEqual(expected.shader_ids, actual.shader_ids)
+        self.assertEqual(expected.dcg, actual.dcg)
+        self.assertEqual(expected.dig, actual.dig)
+        self.assertEqual(expected.scg, actual.scg)
+        self.assertEqual(expected.shader_material_ids, actual.shader_material_ids)
+        self.assertEqual(expected.tx_stages, actual.tx_stages)
+        self.assertEqual(expected.tx_coords, actual.tx_coords)
 
 
 class TestTextureStage(unittest.TestCase):
@@ -167,17 +197,38 @@ class TestTextureStage(unittest.TestCase):
             tx_ids=[],
             per_face_tx_coords=[],
             tx_coords=[])
-        
+
         for i in range(123):
             expected.tx_ids.append(i)
-        
+
         for i in range(223):
             expected.tx_coords.append((2, 4))
 
         for i in range(66):
             expected.per_face_tx_coords.append(Vector((33.0, -2.0, 1.0)))
-        
+
         self.assertEqual(3092, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_TEXTURE_STAGE, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = TextureStage.read(io_stream, chunkEnd)
+        self.assertEqual(expected.tx_ids, actual.tx_ids)
+        self.assertEqual(expected.per_face_tx_coords, actual.per_face_tx_coords)
+        self.assertEqual(expected.tx_coords, actual.tx_coords)
+
+    def test_write_read_minimal(self):
+        expected = TextureStage(
+            tx_ids=[],
+            per_face_tx_coords=[],
+            tx_coords=[])
+
+        self.assertEqual(0, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

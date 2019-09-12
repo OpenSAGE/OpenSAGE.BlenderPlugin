@@ -53,9 +53,9 @@ def insensitive_path(path):
 
 def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
     message = "WARNING: unknown chunk_type in io_stream: %s" % hex(chunk_type)
+    print(message)
     if self is not None:
         self.report({'ERROR'}, message)
-    print(message)
     io_stream.seek(chunk_size, 1)
 
 

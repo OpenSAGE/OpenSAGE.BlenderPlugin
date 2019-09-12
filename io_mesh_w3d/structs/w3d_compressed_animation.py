@@ -4,7 +4,7 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.import_utils_w3d import read_fixed_array
+from io_mesh_w3d.import_utils_w3d import read_fixed_array, skip_unknown_chunk
 from io_mesh_w3d.w3d_adaptive_delta import decode
 from io_mesh_w3d.io_binary import *
 
@@ -69,22 +69,6 @@ class TimeCodedDatum(Struct):
     def write(self, io_stream, type_):
         write_ulong(io_stream, self.time_code)
         write_channel_value(io_stream, type_, self.value)
-
-
-class TimeCodedBitDatum(Struct):
-    time_code = 0
-    value = None
-
-    @staticmethod
-    def read(io_stream):
-        result = TimeCodedBitDatum(
-            time_code=read_long(io_stream),
-            value=False)
-
-        if (result.time_code >> 31) == 1:
-            result.value = True
-            result.time_code &= ~(1 << 31)
-        return result
 
 
 class TimeCodedAnimationChannel(Struct):
@@ -200,25 +184,64 @@ class AdaptiveDeltaData(Struct):
         return result
 
 
+class TimeCodedBitDatum(Struct):
+    time_code = 0
+    value = None
+
+    @staticmethod
+    def read(io_stream):
+        result = TimeCodedBitDatum(
+            time_code=read_long(io_stream),
+            value=False)
+
+        #if (result.time_code >> 31) == 1:
+        #    result.value = True
+        #    result.time_code &= ~(1 << 31)
+        return result
+
+    def size_in_bytes(self):
+        return 4
+
+    def write(self, io_stream):
+        #if self.value:
+        #    self.time_code |= (1 << 31)
+        write_long(io_stream, self.time_code)
+        
+
 class TimeCodedBitChannel(Struct):
     num_time_codes = 0
     pivot = 0
     type = 0
     default_value = False
-    data = []
+    time_codes = []
 
     @staticmethod
     def read(io_stream):
         result = TimeCodedBitChannel(
-            num_time_codes=read_long(io_stream),
+            num_time_codes=read_ulong(io_stream),
             pivot=read_short(io_stream),
             type=read_ubyte(io_stream),
             default_value=read_ubyte(io_stream),
-            data=[])
+            time_codes=[])
 
         for _ in range(result.num_time_codes):
-            result.data.append(TimeCodedBitDatum.read(io_stream))
+            result.time_codes.append(TimeCodedBitDatum.read(io_stream))
         return result
+
+    def size_in_bytes(self):
+        size = 8
+        for time_code in self.time_codes:
+            size += time_code.size_in_bytes()
+        return size
+    
+    def write(self, io_stream):
+        write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_BIT_CHANNEL, self.size_in_bytes())
+        write_ulong(io_stream, self.num_time_codes)
+        write_ushort(io_stream, self.pivot)
+        write_ubyte(io_stream, self.type)
+        write_ubyte(io_stream, self.default_value)
+        for time_code in self.time_codes:
+            time_code.write(io_stream)
 
 
 class MotionChannel(Struct):
@@ -321,6 +344,8 @@ class CompressedAnimation(Struct):
         if self.header.flavor == 0:
             for time_coded_channel in self.time_coded_channels:
                 size += HEAD + time_coded_channel.size_in_bytes()
+        for time_coded_bit_channel in self.time_coded_bit_channels:
+            size += HEAD + time_coded_bit_channel.size_in_bytes()
         return size
 
     def write(self, io_stream):
@@ -329,3 +354,5 @@ class CompressedAnimation(Struct):
         if self.header.flavor == 0:
             for time_coded_channel in self.time_coded_channels:
                 time_coded_channel.write(io_stream)
+        for time_coded_bit_channel in self.time_coded_bit_channels:
+            time_coded_bit_channel.write(io_stream)
