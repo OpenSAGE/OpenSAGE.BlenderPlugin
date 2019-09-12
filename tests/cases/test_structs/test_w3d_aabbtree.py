@@ -54,6 +54,7 @@ class TestAABBTree(unittest.TestCase):
         self.assertEqual(expected.header.node_count, actual.header.node_count)
         self.assertEqual(expected.header.poly_count, actual.header.poly_count)
 
+        self.assertEqual(len(expected.poly_indices), len(actual.poly_indices))
         self.assertEqual(expected.poly_indices, actual.poly_indices)
 
         self.assertEqual(len(expected.nodes), len(actual.nodes))
@@ -63,3 +64,27 @@ class TestAABBTree(unittest.TestCase):
             self.assertEqual(node.max, actual.nodes[i].max)
             self.assertEqual(node.front_or_poly_0, actual.nodes[i].front_or_poly_0)
             self.assertEqual(node.back_or_poly_count, actual.nodes[i].back_or_poly_count)
+
+    def test_write_read_minimal(self):
+        expected = MeshAABBTree()
+        expected.header = AABBTreeHeader(
+            node_count=55,
+            poly_count=22)
+
+        self.assertEqual(8, expected.header.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_AABBTREE, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = MeshAABBTree.read(self, io_stream, chunkEnd)
+        self.assertEqual(expected.header.node_count, actual.header.node_count)
+        self.assertEqual(expected.header.poly_count, actual.header.poly_count)
+
+        self.assertEqual(len(expected.poly_indices), len(actual.poly_indices))
+        self.assertEqual(len(expected.nodes), len(actual.nodes))
+

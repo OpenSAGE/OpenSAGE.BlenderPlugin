@@ -92,3 +92,29 @@ class TestShaderMaterial(unittest.TestCase):
             self.assertEqual(prop.name, actual.properties[i].name)
             self.assertEqual(prop.num_chars, actual.properties[i].num_chars)
             self.assertAlmostEqual(prop.value, actual.properties[i].value, 5)
+
+    def test_write_read_minimal(self):
+        expected = ShaderMaterial()
+        expected.header = ShaderMaterialHeader(
+            number=55,
+            type_name="headerType",
+            reserver=99)
+
+        self.assertEqual(223, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_SHADER_MATERIAL, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = ShaderMaterial.read(self, io_stream, chunkEnd)
+        self.assertEqual(expected.header.number, actual.header.number)
+        self.assertEqual(expected.header.type_name, actual.header.type_name)
+        self.assertEqual(expected.header.reserved, actual.header.reserved)
+
+        self.assertEqual(len(expected.properties), len(actual.properties))
+
+

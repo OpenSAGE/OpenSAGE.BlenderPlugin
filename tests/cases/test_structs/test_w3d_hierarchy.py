@@ -14,7 +14,9 @@ from io_mesh_w3d.io_binary import read_chunk_head
 
 class TestHierarchy(unittest.TestCase):
     def test_write_read(self):
-        expected = Hierarchy()
+        expected = Hierarchy(
+            pivots=[],
+            pivot_fixups=[])
         expected.header = HierarchyHeader(
             version=Version(major=4, minor=1),
             name="HieraHeader",
@@ -76,3 +78,43 @@ class TestHierarchy(unittest.TestCase):
 
         for i, fix in enumerate(expected.pivot_fixups):
             self.assertEqual(fix, actual.pivot_fixups[i])
+
+    def test_write_read_minimal(self):
+        expected = Hierarchy(
+            pivots=[],
+            pivot_fixups=[])
+        expected.header = HierarchyHeader(
+            version=Version(major=4, minor=1),
+            name="HieraHeader",
+            num_pivots=33,
+            center_pos=Vector((2.0, 3.0, 1.0)))
+
+        self.assertEqual(36, expected.header.size_in_bytes())
+
+        pivot1 = HierarchyPivot(
+            name="Roottransform",
+            parent_id=-1,
+            translation=Vector((22.0, 33.0, 1.0)),
+            euler_angles=Vector((1.0, 12.0, -2.0)),
+            rotation=Quaternion((1.0, -0.1, -0.2, -0.3)))
+
+        self.assertEqual(60, pivot1.size_in_bytes())
+        expected.pivots.append(pivot1)
+
+        self.assertEqual(112, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = Hierarchy.read(self, io_stream, chunkEnd)
+        self.assertEqual(expected.header.version, actual.header.version)
+        self.assertEqual(expected.header.name, actual.header.name)
+        self.assertEqual(expected.header.num_pivots, actual.header.num_pivots)
+        self.assertEqual(expected.header.center_pos, actual.header.center_pos)
+
+        self.assertEqual(len(expected.pivots), len(actual.pivots))

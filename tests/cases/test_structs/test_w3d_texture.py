@@ -37,3 +37,20 @@ class TestTexture(unittest.TestCase):
         self.assertEqual(expected.texture_info.animation_type, actual.texture_info.animation_type)
         self.assertEqual(expected.texture_info.frame_count, actual.texture_info.frame_count)
         self.assertEqual(expected.texture_info.frame_rate, actual.texture_info.frame_rate)
+
+    def test_minimal_write_read(self):
+        expected = Texture(
+            name="TestName")
+
+        self.assertEqual(17, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_TEXTURE, chunkType)
+        self.assertEqual(expected.size_in_bytes(), chunkSize)
+
+        actual = Texture.read(self, io_stream, chunkEnd)
+        self.assertEqual(expected.name, actual.name)
