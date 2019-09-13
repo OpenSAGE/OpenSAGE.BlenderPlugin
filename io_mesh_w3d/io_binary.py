@@ -100,6 +100,10 @@ def read_byte(io_stream):
     return struct.unpack("<b", io_stream.read(1))[0]
 
 
+def write_byte(io_stream, byte):
+    io_stream.write(struct.pack("<b", byte))
+
+
 def read_ubyte(io_stream):
     return struct.unpack("<B", io_stream.read(1))[0]
 

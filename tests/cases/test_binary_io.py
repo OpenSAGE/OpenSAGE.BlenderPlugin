@@ -180,6 +180,15 @@ class TestIOBinary(unittest.TestCase):
             io_stream = io.BytesIO(struct.pack("<b", inp))
             self.assertEqual(inp, read_byte(io_stream))
 
+    def test_write_byte(self):
+        inputs = [0, 1, 20, 77, 123, -128, 000,
+                  111, 127, -33]
+
+        for inp in inputs:
+            io_stream = io.BytesIO()
+            write_byte(io_stream, inp)
+            self.assertEqual(inp, struct.unpack("<b", io_stream.getvalue())[0])
+
     def test_read_ubyte(self):
         inputs = [0, 1, 200, 255, 123, 55, 000,
                   111, 222, 33]

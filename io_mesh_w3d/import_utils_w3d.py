@@ -11,6 +11,7 @@ from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
 from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.io_binary import read_chunk_head
+from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
 def read_array(io_stream, chunk_end, read_func):
@@ -347,9 +348,10 @@ def apply_motion_channel_time_coded(bone, channel):
         set_transform(bone, channel, dat.time_code, dat.value)
 
 
-def apply_motion_channel_adaptive_delta(bone, channel):
+def apply_adaptive_delta(bone, channel):
+    data = decode(channel)
     for i in range(channel.num_time_codes):
-        set_transform(bone, channel, i, channel.data.data[i])
+        set_transform(bone, channel, i, data[i])
 
 
 def apply_uncompressed(bone, channel):
@@ -380,7 +382,7 @@ def process_motion_channels(hierarchy, channels, rig):
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
         else:
-            apply_motion_channel_adaptive_delta(obj, channel)
+            apply_adaptive_delta(obj, channel)
 
 
 def create_animation(animation, hierarchy, compressed):
@@ -400,6 +402,8 @@ def create_animation(animation, hierarchy, compressed):
     else:
         process_channels(hierarchy, animation.time_coded_channels,
                          rig, apply_timecoded)
+        process_channels(hierarchy, animation.adaptive_delta_channels, 
+                         rig, apply_adaptive_delta)
         process_motion_channels(hierarchy, animation.motion_channels, rig)
 
     bpy.context.scene.frame_set(0)

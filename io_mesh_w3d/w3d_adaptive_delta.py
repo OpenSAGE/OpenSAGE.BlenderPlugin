@@ -56,8 +56,11 @@ def get_deltas(delta_bytes, num_bits):
     return deltas
 
 
-def decode(data, channel, scale):
+def decode(channel):
     scaleFactor = float(1.0)
+
+    data = channel.data.data
+    scale = channel.data.scale
 
     if data.bit_count == 8:
         scaleFactor = 1 / float(16)
