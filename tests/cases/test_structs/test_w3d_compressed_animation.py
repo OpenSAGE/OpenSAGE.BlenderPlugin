@@ -177,76 +177,108 @@ class TestCompressedAnimation(unittest.TestCase):
 
         self.assertEqual(44, expected.header.size_in_bytes())
 
-        ad_channel = AdaptiveDeltaAnimationChannel(
+        ad_y_channel = AdaptiveDeltaAnimationChannel(
             pivot=311,
             vector_len=1,
             type=2,
             scale=4,
             num_time_codes=1)
 
-        ad_data = AdaptiveDeltaData(
+        ad_q_channel = AdaptiveDeltaAnimationChannel(
+            pivot=322,
+            vector_len=4,
+            type=6,
+            scale=4,
+            num_time_codes=1)
+
+        ad_y_data = AdaptiveDeltaData(
             initial_value=2.0,
             bit_count=4,
             delta_blocks=[])
 
-        ad_block = AdaptiveDeltaBlock(
-            vector_index=7,
+        ad_q_data = AdaptiveDeltaData(
+            initial_value=Quaternion((1.0, -2.0, 3.0, -2.1)),
+            bit_count=4,
+            delta_blocks=[])
+
+        ad_y_block = AdaptiveDeltaBlock(
+            vector_index=0,
             block_index=9,
-            delta_bytes=[])
+            delta_bytes=bytes([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08]))
 
-        ad_block.delta_bytes = bytes([0x00,0x01,0x02,0x03,0x04,0x05,0x06])
+        y_count = (ad_y_channel.num_time_codes + 15) >> 4
 
-        count = (ad_channel.num_time_codes + 15) >> 4
+        for _ in range(y_count):
+            for _ in range(ad_y_channel.vector_len):
+                ad_y_data.delta_blocks.append(ad_y_block)
 
-        for _ in range(count):
-            for _ in range(ad_channel.vector_len):
-                ad_data.delta_blocks.append(ad_block)
+        ad_y_channel.data = ad_y_data
 
-        ad_channel.data = ad_data
+        self.assertEqual(9, ad_y_block.size_in_bytes())
+        self.assertEqual(13, ad_y_data.size_in_bytes(ad_y_channel.type))
+        self.assertEqual(26, ad_y_channel.size_in_bytes())
 
-        for _ in range(66):
-            expected.adaptive_delta_channels.append(ad_channel)
+        q_count = (ad_q_channel.num_time_codes + 15) >> 4
 
-        self.assertEqual(2230, expected.size_in_bytes())
+        for _ in range(q_count):
+            for i in range(ad_q_channel.vector_len):
+                ad_q_block = AdaptiveDeltaBlock(
+                    vector_index=i,
+                    block_index=9,
+                    delta_bytes=bytes([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08]))
+                ad_q_data.delta_blocks.append(ad_q_block)
+
+        ad_q_channel.data = ad_q_data
+
+        self.assertEqual(52, ad_q_data.size_in_bytes(ad_q_channel.type))
+        self.assertEqual(65, ad_q_channel.size_in_bytes())
+
+        for _ in range(46):
+            expected.adaptive_delta_channels.append(ad_y_channel)
+            expected.adaptive_delta_channels.append(ad_q_channel)
+
+        self.assertEqual(4974, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
+        self.assertEqual(4982, io_stream.tell())
         io_stream = io.BytesIO(io_stream.getvalue())
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunkType)
         self.assertEqual(expected.size_in_bytes(), chunkSize)
 
-        #actual = CompressedAnimation.read(self, io_stream, chunkEnd)
-        #self.assertEqual(expected.header.version, actual.header.version)
-        #self.assertEqual(expected.header.name, actual.header.name)
-        #self.assertEqual(expected.header.hierarchy_name, actual.header.hierarchy_name)
-        #self.assertEqual(expected.header.num_frames, actual.header.num_frames)
-        #self.assertEqual(expected.header.frame_rate, actual.header.frame_rate)
-        #self.assertEqual(expected.header.flavor, actual.header.flavor)
+        actual = CompressedAnimation.read(self, io_stream, chunkEnd)
+        self.assertEqual(expected.header.version, actual.header.version)
+        self.assertEqual(expected.header.name, actual.header.name)
+        self.assertEqual(expected.header.hierarchy_name, actual.header.hierarchy_name)
+        self.assertEqual(expected.header.num_frames, actual.header.num_frames)
+        self.assertEqual(expected.header.frame_rate, actual.header.frame_rate)
+        self.assertEqual(expected.header.flavor, actual.header.flavor)
 
-        #self.assertEqual(len(expected.adaptive_delta_channels), len(actual.adaptive_delta_channels))
+        self.assertEqual(len(expected.adaptive_delta_channels), len(actual.adaptive_delta_channels))
 
-        #for i, chan in enumerate(expected.adaptive_delta_channels):
-        #    act = actual.adaptive_delta_channels[i]
-        #    self.assertEqual(chan.num_time_codes, act.num_time_codes)
-        #    self.assertEqual(chan.pivot, act.pivot)
-         #   self.assertEqual(chan.vector_len, act.vector_len)
-        #    self.assertEqual(chan.type, act.type)
-        #    self.assertEqual(chan.scale, act.scale)
+        for i, chan in enumerate(expected.adaptive_delta_channels):
+            act = actual.adaptive_delta_channels[i]
+            self.assertEqual(chan.num_time_codes, act.num_time_codes)
+            self.assertEqual(chan.pivot, act.pivot)
+            self.assertEqual(chan.vector_len, act.vector_len)
+            self.assertEqual(chan.type, act.type)
+            self.assertEqual(chan.scale, act.scale)
 
-        #    self.assertEqual(chan.data.initial_value, act.data.initial_value)
-        #    self.assertEqual(chan.data.bit_count, act.data.bit_count)
+            self.assertEqual(chan.data.initial_value, act.data.initial_value)
+            self.assertEqual(chan.data.bit_count, act.data.bit_count)
 
-        #    self.assertEqual(len(chan.data.delta_blocks), len(act.data.delta_blocks))
+            self.assertEqual(len(chan.data.delta_blocks), len(act.data.delta_blocks))
 
-        #    for j, block in enumerate(chan.data.delta_blocks):
-        #        current = act.data.delta_blocks[j]
-        #        self.assertEqual(block.vector_index, current.vector_index)
-        #        self.assertEqual(block.block_index, current.block_index)
+            for j, block in enumerate(chan.data.delta_blocks):
+                current = act.data.delta_blocks[j]
+                self.assertEqual(block.vector_index, current.vector_index)
+                self.assertEqual(block.block_index, current.block_index)
 
-        #        self.assertEqual(len(block.delta_bytes), len(current.delta_bytes))
-        #        self.assertEqual(block.delta_bytes, current.delta_bytes)
+                self.assertEqual(len(block.delta_bytes), len(current.delta_bytes))
+                for k, byt in enumerate(block.delta_bytes):
+                    self.assertEqual(int(byt), int(current.delta_bytes[k]))
 
 
     def test_write_read_minimal(self):
