@@ -72,7 +72,7 @@ class TestCompressedAnimation(unittest.TestCase):
         for _ in range(31):
             expected.time_coded_bit_channels.append(tcb_channel)
 
-        # TimeCodedBitChannels
+        # MotionChannels
 
         m_channel_tc = MotionChannel(
             delta_type=0,
@@ -89,30 +89,78 @@ class TestCompressedAnimation(unittest.TestCase):
         for _ in range(m_channel_tc.num_time_codes):
             m_channel_tc.data.append(datum)
 
-        m_channel_ad4 = MotionChannel(
+        expected.motion_channels.append(m_channel_tc)
+
+        m_channel_ad_y_4 = MotionChannel(
             delta_type=1,
             vector_len=1,
-            type=0,
+            type=2,
             num_time_codes=55,
             pivot=182,
             data=[])
 
-        ad_motion_channel = AdaptiveDeltaMotionAnimationChannel(
-            scale = 4.0,
-            initial_value=-4.0,
-            data=None)
+        m_ad_y_4 = AdaptiveDeltaMotionAnimationChannel(
+            scale=4.0,
+            initial_value=-1.0,
+            data=self.get_adaptive_delta_data(2, 4, m_channel_ad_y_4.num_time_codes))
 
-        
+        m_channel_ad_y_4.data = m_ad_y_4
 
-        m_channel_ad8 = MotionChannel(
+        expected.motion_channels.append(m_channel_ad_y_4)
+
+        m_channel_ad_q_4 = MotionChannel(
+            delta_type=1,
+            vector_len=4,
+            type=6,
+            num_time_codes=55,
+            pivot=182,
+            data=[])
+
+        m_ad_q_4 = AdaptiveDeltaMotionAnimationChannel(
+            scale=4.0,
+            initial_value=Quaternion((3.0, 2.0, 0.1, -1.9)),
+            data=self.get_adaptive_delta_data(6, 4, m_channel_ad_q_4.num_time_codes))
+
+        m_channel_ad_q_4.data = m_ad_q_4
+
+        expected.motion_channels.append(m_channel_ad_q_4)
+
+        m_channel_ad_y_8 = MotionChannel(
             delta_type=2,
             vector_len=1,
-            type=0,
+            type=2,
             num_time_codes=55,
             pivot=182,
             data=[])
 
-        self.assertEqual(41964, expected.size_in_bytes())
+        m_ad_y_8 = AdaptiveDeltaMotionAnimationChannel(
+            scale=4.0,
+            initial_value=-1.0,
+            data=self.get_adaptive_delta_data(2, 8, m_channel_ad_y_8.num_time_codes))
+
+        m_channel_ad_y_8.data = m_ad_y_8
+
+        expected.motion_channels.append(m_channel_ad_y_8)
+
+        m_channel_ad_q_8 = MotionChannel(
+            delta_type=2,
+            vector_len=4,
+            type=6,
+            num_time_codes=55,
+            pivot=182,
+            data=[])
+
+        m_ad_q_8 = AdaptiveDeltaMotionAnimationChannel(
+            scale=4.0,
+            initial_value=Quaternion((3.0, 2.0, 0.1, -1.9)),
+            data=self.get_adaptive_delta_data(6, 8, m_channel_ad_q_8.num_time_codes))
+
+        m_channel_ad_q_8.data = m_ad_q_8
+
+        expected.motion_channels.append(m_channel_ad_q_8)
+
+
+        self.assertEqual(42842, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -177,61 +225,7 @@ class TestCompressedAnimation(unittest.TestCase):
 
         self.assertEqual(44, expected.header.size_in_bytes())
 
-        ad_y_channel = AdaptiveDeltaAnimationChannel(
-            pivot=311,
-            vector_len=1,
-            type=2,
-            scale=4,
-            num_time_codes=1)
-
-        ad_q_channel = AdaptiveDeltaAnimationChannel(
-            pivot=322,
-            vector_len=4,
-            type=6,
-            scale=4,
-            num_time_codes=1)
-
-        ad_y_data = AdaptiveDeltaData(
-            initial_value=2.0,
-            bit_count=4,
-            delta_blocks=[])
-
-        ad_q_data = AdaptiveDeltaData(
-            initial_value=Quaternion((1.0, -2.0, 3.0, -2.1)),
-            bit_count=4,
-            delta_blocks=[])
-
-        ad_y_block = AdaptiveDeltaBlock(
-            vector_index=0,
-            block_index=9,
-            delta_bytes=bytes([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08]))
-
-        y_count = (ad_y_channel.num_time_codes + 15) >> 4
-
-        for _ in range(y_count):
-            for _ in range(ad_y_channel.vector_len):
-                ad_y_data.delta_blocks.append(ad_y_block)
-
-        ad_y_channel.data = ad_y_data
-
-        self.assertEqual(9, ad_y_block.size_in_bytes())
-        self.assertEqual(13, ad_y_data.size_in_bytes(ad_y_channel.type))
-        self.assertEqual(26, ad_y_channel.size_in_bytes())
-
-        q_count = (ad_q_channel.num_time_codes + 15) >> 4
-
-        for _ in range(q_count):
-            for i in range(ad_q_channel.vector_len):
-                ad_q_block = AdaptiveDeltaBlock(
-                    vector_index=i,
-                    block_index=9,
-                    delta_bytes=bytes([0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x08]))
-                ad_q_data.delta_blocks.append(ad_q_block)
-
-        ad_q_channel.data = ad_q_data
-
-        self.assertEqual(52, ad_q_data.size_in_bytes(ad_q_channel.type))
-        self.assertEqual(65, ad_q_channel.size_in_bytes())
+        (ad_y_channel, ad_q_channel) = self.get_adaptive_delta_channels(num_bits=4)
 
         for _ in range(46):
             expected.adaptive_delta_channels.append(ad_y_channel)
@@ -320,3 +314,74 @@ class TestCompressedAnimation(unittest.TestCase):
         self.assertEqual(len(expected.time_coded_bit_channels), len(actual.time_coded_bit_channels))
         self.assertEqual(len(expected.motion_channels), len(actual.motion_channels))
 
+    def get_adaptive_delta_channels(self, num_bits=4):
+        data = []
+        for _ in range(num_bits * 2):
+            data.append(0x00)
+        data = bytes(data)
+
+        ad_y_channel = AdaptiveDeltaAnimationChannel(
+            pivot=311,
+            vector_len=1,
+            type=2,
+            scale=4,
+            num_time_codes=1)
+
+        ad_q_channel = AdaptiveDeltaAnimationChannel(
+            pivot=322,
+            vector_len=4,
+            type=6,
+            scale=4,
+            num_time_codes=1)
+
+        ad_y_channel.data = self.get_adaptive_delta_data(1, num_bits, ad_y_channel.num_time_codes)
+
+        self.assertEqual(26, ad_y_channel.size_in_bytes())
+
+        ad_q_channel.data = self.get_adaptive_delta_data(6, num_bits, ad_q_channel.num_time_codes)
+
+        self.assertEqual(65, ad_q_channel.size_in_bytes())
+
+        return (ad_y_channel, ad_q_channel)
+
+
+    def get_adaptive_delta_data(self, type_, num_bits, num_time_codes):
+        data = []
+        for _ in range(num_bits * 2):
+            data.append(0x00)
+        data = bytes(data)
+
+        ad_data = AdaptiveDeltaData(
+            bit_count=num_bits,
+            delta_blocks=[])
+
+        count = (num_time_codes + 15) >> 4
+
+        vec_len = 1       
+        if type_ == 6:
+            vec_len = 4
+            ad_data.initial_value = Quaternion((3.0, -1.0, 2.0, 0.1))
+        else:
+            ad_data.initial_value = -3.0
+
+        ad_block = None
+        for _ in range(count):
+            for i in range(vec_len):
+                ad_block = AdaptiveDeltaBlock(
+                    vector_index=0,
+                    block_index=9,
+                    delta_bytes=data)
+                if type_ == 6:
+                    ad_block.vector_index = i
+                ad_data.delta_blocks.append(ad_block)
+
+        expected_block_size = 1 + num_bits * 2
+        expected_data_size = 4 + count * vec_len * expected_block_size
+
+        if type_ == 6:
+            expected_data_size += 12
+
+        self.assertEqual(expected_block_size, ad_block.size_in_bytes())
+        self.assertEqual(expected_data_size, ad_data.size_in_bytes(type_))
+
+        return ad_data

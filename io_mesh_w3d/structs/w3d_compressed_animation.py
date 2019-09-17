@@ -67,7 +67,10 @@ class TimeCodedDatum(Struct):
         return 8
 
     def write(self, io_stream, type_):
-        write_ulong(io_stream, self.time_code)
+        time_code = self.time_code
+        if self.non_interpolated:
+            time_code |= (1 << 31)
+        write_ulong(io_stream, time_code)
         write_channel_value(io_stream, type_, self.value)
 
 
@@ -219,12 +222,12 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
         result.data = AdaptiveDeltaData.read(io_stream, channel, bits)
         return result
 
-    def size_in_bytes(self):
-        return 4 + data.size_in_bytes()
+    def size_in_bytes(self, type_):
+        return 4 + self.data.size_in_bytes(type_)
 
-    def write(self, io_stream):
+    def write(self, io_stream, type_):
         write_float(io_stream, self.scale)
-        self.data.write(io_stream)
+        self.data.write(io_stream, type_)
 
 
 class TimeCodedBitDatum(Struct):
@@ -348,11 +351,11 @@ class MotionChannel(Struct):
     def size_in_bytes(self):
         size = 8
         if self.delta_type == 0:
-            size += len(data) * 4
+            size += len(self.data) * 4
             if self.num_time_codes % 2 != 0:
                 size += 2
         else:
-            size += data.size_in_bytes()
+            size += self.data.size_in_bytes(self.type)
         return size
 
     def write(self, io_stream):
@@ -368,7 +371,7 @@ class MotionChannel(Struct):
         if self.delta_type == 0:
             self.write_time_coded_data(io_stream)
         else:
-            self.data.write(io_stream)
+            self.data.write(io_stream, self.type)
 
 
 W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
