@@ -229,3 +229,21 @@ def load(self, context, import_settings):
     create_animation(compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}
+
+
+#######################################################################################
+# Unsupported
+#######################################################################################
+
+W3D_CHUNK_MORPH_ANIMATION = 0x000002C0
+W3D_CHUNK_HMODEL = 0x00000300
+W3D_CHUNK_LODMODEL = 0x00000400
+W3D_CHUNK_COLLECTION = 0x00000420
+W3D_CHUNK_POINTS = 0x00000440
+W3D_CHUNK_LIGHT = 0x00000460
+W3D_CHUNK_EMITTER = 0x00000500
+W3D_CHUNK_AGGREGATE = 0x00000600
+W3D_CHUNK_NULL_OBJECT = 0x00000750
+W3D_CHUNK_LIGHTSCAPE = 0x00000800
+W3D_CHUNK_DAZZLE = 0x00000900
+W3D_CHUNK_SOUNDROBJ = 0x00000A00

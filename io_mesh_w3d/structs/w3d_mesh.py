@@ -5,12 +5,12 @@
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_material import *
-from io_mesh_w3d.structs.w3d_mesh_triangle import * 
-from io_mesh_w3d.structs.w3d_aabbtree import * 
-from io_mesh_w3d.structs.w3d_mesh_shader import * 
-from io_mesh_w3d.structs.w3d_mesh_vertex_influence import * 
-from io_mesh_w3d.structs.w3d_shader_material import * 
-from io_mesh_w3d.structs.w3d_texture import * 
+from io_mesh_w3d.structs.w3d_mesh_triangle import *
+from io_mesh_w3d.structs.w3d_aabbtree import *
+from io_mesh_w3d.structs.w3d_mesh_shader import *
+from io_mesh_w3d.structs.w3d_mesh_vertex_influence import *
+from io_mesh_w3d.structs.w3d_shader_material import *
+from io_mesh_w3d.structs.w3d_texture import *
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 
@@ -64,7 +64,8 @@ class MeshHeader(Struct):
         return 116
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
+                         self.size_in_bytes())
         self.version.write(io_stream)
         write_ulong(io_stream, self.attrs)
         write_fixed_string(io_stream, self.mesh_name)
@@ -117,17 +118,21 @@ class Mesh(Struct):
     material_pass = None
     aabbtree = None
 
-    def read(self, io_stream, chunk_end):
+    @staticmethod
+    def read(context, io_stream, chunk_end):
         result = Mesh(
             verts=[],
             normals=[],
             vert_infs=[],
             triangles=[],
             shade_ids=[],
+            mat_info=None,
             shaders=[],
             vert_materials=[],
             textures=[],
-            shader_materials=[])
+            shader_materials=[],
+            material_pass=None,
+            aabbtree=None)
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -138,7 +143,8 @@ class Mesh(Struct):
                 #print("-> vertices 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
-                result.normals = read_array(io_stream, subchunk_end, read_vector)
+                result.normals = read_array(
+                    io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
                 #print("-> normals 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
@@ -153,23 +159,25 @@ class Mesh(Struct):
                 result.triangles = read_array(
                     io_stream, subchunk_end, MeshTriangle.read)
             elif chunk_type == W3D_CHUNK_VERTEX_SHADE_INDICES:
-                result.shade_ids = read_array(io_stream, subchunk_end, read_long)
+                result.shade_ids = read_array(
+                    io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_MATERIAL_INFO:
                 result.mat_info = MaterialInfo.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADERS:
-                result.shaders = read_array(io_stream, subchunk_end, MeshShader.read)
+                result.shaders = read_array(
+                    io_stream, subchunk_end, MeshShader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
-                    self, io_stream, subchunk_end, W3D_CHUNK_VERTEX_MATERIAL, VertexMaterial.read)
+                    context, io_stream, subchunk_end, W3D_CHUNK_VERTEX_MATERIAL, VertexMaterial.read)
             elif chunk_type == W3D_CHUNK_TEXTURES:
                 result.textures = read_chunk_array(
-                    self, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
+                    context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunk_type == W3D_CHUNK_MATERIAL_PASS:
                 result.material_pass = MaterialPass.read(
                     io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_SHADER_MATERIALS:
                 result.shader_materials = read_chunk_array(
-                    self, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
+                    context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
                 #print("-> tangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
@@ -177,7 +185,8 @@ class Mesh(Struct):
                 #print("-> bitangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
-                result.aabbtree = MeshAABBTree.read(self, io_stream, subchunk_end)
+                result.aabbtree = MeshAABBTree.read(
+                    context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
                 print("-> prelit unlit chunk is not supported")
                 io_stream.seek(chunk_size, 1)
@@ -197,7 +206,7 @@ class Mesh(Struct):
                 print("-> ps2 shaders chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             else:
-                skip_unknown_chunk(self, io_stream, chunk_type, chunk_size)
+                skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
     def verts_size(self):
@@ -278,7 +287,8 @@ class Mesh(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())
         write_array(io_stream, self.verts, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS, self.normals_size())
+        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS,
+                         self.normals_size())
         write_array(io_stream, self.normals, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size())
@@ -335,7 +345,6 @@ class Mesh(Struct):
 # Unsupported
 #######################################################################################
 
-# inside mesh
 W3D_CHUNK_PRELIT_UNLIT = 0x00000023
 W3D_CHUNK_PRELIT_VERTEX = 0x00000024
 W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025
@@ -343,17 +352,3 @@ W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 
 W3D_CHUNK_DEFORM = 0x00000058
 W3D_CHUNK_PS2_SHADERS = 0x00000080
-
-# inside w3d io_stream
-W3D_CHUNK_MORPH_ANIMATION = 0x000002C0
-W3D_CHUNK_HMODEL = 0x00000300
-W3D_CHUNK_LODMODEL = 0x00000400
-W3D_CHUNK_COLLECTION = 0x00000420
-W3D_CHUNK_POINTS = 0x00000440
-W3D_CHUNK_LIGHT = 0x00000460
-W3D_CHUNK_EMITTER = 0x00000500
-W3D_CHUNK_AGGREGATE = 0x00000600
-W3D_CHUNK_NULL_OBJECT = 0x00000750
-W3D_CHUNK_LIGHTSCAPE = 0x00000800
-W3D_CHUNK_DAZZLE = 0x00000900
-W3D_CHUNK_SOUNDROBJ = 0x00000A00
