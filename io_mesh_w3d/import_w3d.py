@@ -135,7 +135,7 @@ def load(self, context, import_settings):
         if sklpath is not None:
             try:
                 hierarchy = load_skeleton_file(self, sklpath)
-            except:
+            except FileNotFoundError:
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
@@ -149,15 +149,15 @@ def load(self, context, import_settings):
 
         mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
-        # apply hierarchy if it exists
-        for i in range(len(mesh_struct.vert_infs)):
-            vert = mesh_struct.verts[i]
-            weight = mesh_struct.vert_infs[i].bone_inf
-            if weight == 0.0:
-                weight = 1.0
+        if rig is not None:
+            for i in range(len(mesh_struct.vert_infs)):
+                vert = mesh_struct.verts[i]
+                weight = mesh_struct.vert_infs[i].bone_inf
+                if weight == 0.0:
+                    weight = 1.0
 
-            bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
-            mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
+                bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
+                mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
 
         mesh.from_pydata(mesh_struct.verts, [], triangles)
         mesh.update()
@@ -216,9 +216,10 @@ def load(self, context, import_settings):
 
                         if pivot.parent_id > 0:
                             parent_pivot = hierarchy.pivots[pivot.parent_id]
-                            try:
+
+                            if parent_pivot.name in bpy.data.objects:
                                 mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-                            except:
+                            else:
                                 mesh_ob.parent = bpy.data.objects[amtName]
                                 mesh_ob.parent_bone = parent_pivot.name
                                 mesh_ob.parent_type = 'BONE'

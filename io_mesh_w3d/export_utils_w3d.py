@@ -255,7 +255,7 @@ def export_animation(ani_file, animation_name, hierarchy):
             if channel_type < 6:
                 channel.time_codes[i] = TimeCodedDatum(
                     time_code=frame,
-                    value = val)
+                    value=val)
             else:
                 if channel.time_codes[i] is None:
                     channel.time_codes[i] = TimeCodedDatum(

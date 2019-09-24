@@ -60,10 +60,12 @@ def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
     io_stream.seek(chunk_size, 1)
 
 
-def link_object_to_active_scene(obj, coll):
+def link_object_to_active_scene(obj, coll, appendix=""):
     if coll is None:
         coll = bpy.context.collection
 
+    if obj.name in coll.objects:
+        obj.name += appendix
     coll.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
@@ -124,11 +126,8 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
-    try:
-        link_object_to_active_scene(rig, coll)
-    except:
-        rig.name = rig.name + "SKL"
-        link_object_to_active_scene(rig, coll)
+    link_object_to_active_scene(rig, coll, "SKL")
+
     bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
@@ -306,10 +305,9 @@ def is_rotation(channel):
 
 def get_bone(rig, name):
     # sometimes objects are animated, not just bones
-    try:
+    if rig is not None and name in rig.pose.bones:
         return rig.pose.bones[name]
-    except:
-        return bpy.data.objects[name]
+    return bpy.data.objects[name]
 
 
 def setup_animation(animation):
@@ -390,10 +388,9 @@ def create_animation(animation, hierarchy, compressed):
         return
 
     rig = None
-    try:
+    if animation.header.hierarchy_name in bpy.data.objects:
         rig = bpy.data.objects[animation.header.hierarchy_name]
-    except:
-        pass
+
     setup_animation(animation)
 
     if not compressed:
