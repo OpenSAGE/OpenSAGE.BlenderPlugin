@@ -144,7 +144,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 
         bone = amt.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
-        
+
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             bone.parent = amt.edit_bones[parent_pivot.name]
@@ -402,7 +402,7 @@ def create_animation(animation, hierarchy, compressed):
     else:
         process_channels(hierarchy, animation.time_coded_channels,
                          rig, apply_timecoded)
-        process_channels(hierarchy, animation.adaptive_delta_channels, 
+        process_channels(hierarchy, animation.adaptive_delta_channels,
                          rig, apply_adaptive_delta)
         process_motion_channels(hierarchy, animation.motion_channels, rig)
 
