@@ -28,7 +28,7 @@ after_success:
   - codecov
 
 before_deploy:
-  - zip io_mesh_w3d
+  - zip -r io_mesh_w3d.zip io_mesh_w3d
 
 deploy:
   provider: releases
