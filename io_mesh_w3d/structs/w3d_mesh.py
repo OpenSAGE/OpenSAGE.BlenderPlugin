@@ -16,6 +16,7 @@ from io_mesh_w3d.io_binary import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
+GEOMETRY_TYPE_SKIN = 0x00020000
 
 
 class MeshHeader(Struct):
@@ -130,8 +131,8 @@ class Mesh(Struct):
             shaders=[],
             vert_materials=[],
             textures=[],
+            material_passes=[],
             shader_materials=[],
-            material_pass=None,
             aabbtree=None)
 
         while io_stream.tell() < chunk_end:
@@ -173,8 +174,8 @@ class Mesh(Struct):
                 result.textures = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunk_type == W3D_CHUNK_MATERIAL_PASS:
-                result.material_pass = MaterialPass.read(
-                    io_stream, subchunk_end)
+                result.material_passes.append(MaterialPass.read(
+                    io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_SHADER_MATERIALS:
                 result.shader_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)

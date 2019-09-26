@@ -78,13 +78,6 @@ def smooth_mesh(mesh):
         polygon.use_smooth = True
 
 
-GEOMETRY_TYPE_SKIN = 0x00020000
-
-
-def is_skin(mesh):
-    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
-
-
 #######################################################################################
 # skeleton
 #######################################################################################

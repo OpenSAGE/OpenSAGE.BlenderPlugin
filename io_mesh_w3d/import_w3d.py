@@ -163,14 +163,14 @@ def load(self, context, import_settings):
         mesh.update()
         mesh.validate()
 
-        if mesh_struct.material_pass is not None:
-            create_uvlayers(mesh, triangles, mesh_struct.material_pass.tx_coords,
-                            mesh_struct.material_pass.tx_stages)
-
         smooth_mesh(mesh)
 
         mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
         mesh_ob['UserText'] = mesh_struct.user_text
+
+        for mat_pass in mesh_struct.material_passes:
+            create_uvlayers(mesh, triangles, mat_pass.tx_coords,
+                            mat_pass.tx_stages)
 
         for vertMat in mesh_struct.vert_materials:
             mesh.materials.append(create_vert_material(mesh_struct, vertMat))
@@ -230,6 +230,10 @@ def load(self, context, import_settings):
     create_animation(compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}
+
+
+def is_skin(mesh):
+    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
 
 #######################################################################################
