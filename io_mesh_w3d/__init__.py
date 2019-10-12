@@ -26,7 +26,6 @@ bl_info = {
     'category': 'Import-Export'}
 
 
-# Export class
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export from Westwood 3D file format (.w3d)'''
     bl_idname = 'export_mesh.westwood_w3d'
@@ -151,10 +150,31 @@ def menu_func_export(self, _context):
 def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
 
+#custom property stuff
+
+bpy.types.Object.rndValue = bpy.props.IntProperty(
+    name="rndValue",
+    description="This is a rnd Value",
+    default=0,
+    min=0,
+    max=5
+)
+
+class ObjectPanel(bpy.types.Panel):
+    bl_label = "W3D Properties"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "object"
+    
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        col.prop(context.active_object, "rndValue")
 
 CLASSES = (
     ExportW3D,
-    ImportW3D
+    ImportW3D,
+    ObjectPanel
 )
 
 
