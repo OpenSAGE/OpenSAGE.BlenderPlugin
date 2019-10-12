@@ -135,7 +135,7 @@ def load(self, context, import_settings):
         if sklpath is not None:
             try:
                 hierarchy = load_skeleton_file(self, sklpath)
-            except:
+            except FileNotFoundError:
                 self.report({'ERROR'}, "skeleton file not found: " + sklpath)
                 print("!!! skeleton file not found: " + sklpath)
 
@@ -149,28 +149,28 @@ def load(self, context, import_settings):
 
         mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
-        # apply hierarchy if it exists
-        for i in range(len(mesh_struct.vert_infs)):
-            vert = mesh_struct.verts[i]
-            weight = mesh_struct.vert_infs[i].bone_inf
-            if weight == 0.0:
-                weight = 1.0
+        if rig is not None:
+            for i in range(len(mesh_struct.vert_infs)):
+                vert = mesh_struct.verts[i]
+                weight = mesh_struct.vert_infs[i].bone_inf
+                if weight == 0.0:
+                    weight = 1.0
 
-            bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
-            mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
+                bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
+                mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
 
         mesh.from_pydata(mesh_struct.verts, [], triangles)
         mesh.update()
         mesh.validate()
 
-        if mesh_struct.material_pass is not None:
-            create_uvlayers(mesh, triangles, mesh_struct.material_pass.tx_coords,
-                            mesh_struct.material_pass.tx_stages)
-
         smooth_mesh(mesh)
 
         mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
         mesh_ob['UserText'] = mesh_struct.user_text
+
+        for mat_pass in mesh_struct.material_passes:
+            create_uvlayers(mesh, triangles, mat_pass.tx_coords,
+                            mat_pass.tx_stages)
 
         for vertMat in mesh_struct.vert_materials:
             mesh.materials.append(create_vert_material(mesh_struct, vertMat))
@@ -216,9 +216,10 @@ def load(self, context, import_settings):
 
                         if pivot.parent_id > 0:
                             parent_pivot = hierarchy.pivots[pivot.parent_id]
-                            try:
+
+                            if parent_pivot.name in bpy.data.objects:
                                 mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-                            except:
+                            else:
                                 mesh_ob.parent = bpy.data.objects[amtName]
                                 mesh_ob.parent_bone = parent_pivot.name
                                 mesh_ob.parent_type = 'BONE'
@@ -229,6 +230,10 @@ def load(self, context, import_settings):
     create_animation(compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}
+
+
+def is_skin(mesh):
+    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
 
 #######################################################################################

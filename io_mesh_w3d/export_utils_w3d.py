@@ -48,6 +48,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 shaders=[],
                 vert_materials=[],
                 textures=[],
+                material_passes=[],
                 shader_materials=[])
 
             header = mesh_struct.header
@@ -105,7 +106,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 mesh_struct.triangles.append(triangle)
 
             if mesh_object.vertex_groups:
-                header.attrs = 0x00020000  # TODO: use the define from import_utils here
+                header.attrs = GEOMETRY_TYPE_SKIN
 
             center, radius = calculate_mesh_sphere(mesh)
             header.sphCenter = center
@@ -120,11 +121,47 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             subObject.name = container_name + "." + mesh_object.name
             subObject.bone_index = 0
 
-            if header.attrs == 0x00020000:  # TODO: use the define from import_utils here
+            if header.attrs == GEOMETRY_TYPE_SKIN:
                 for index, pivot in enumerate(hierarchy.pivots):
                     if pivot.name == mesh_object.name:
                         subObject.bone_index = index
             hlod.lod_array.sub_objects.append(subObject)
+
+            #TODO: export material passes/uv layers
+
+            for material in mesh.materials:
+                #TODO: get data from PrincipledBSD and material
+                info = VertexMaterialInfo(
+                    shininess=RGBA((0, 0, 0, 0)),
+                    specular=RGBA((0, 0, 0, 0)),
+                    emissive=RGBA((0, 0, 0, 0)),
+                    diffuse=RGBA((0, 0, 0, 0)),
+                    translucency=RGBA(0, 0, 0, 0))
+                mat = VertexMaterial(
+                    vm_name=material.name,
+                    vm_info=info,
+                    vm_args_0="",
+                    vm_args_1="")
+                mesh_struct.vert_materials.append(mat)
+
+            #for texture in mesh.textures:
+            #    #TODO: get texture data
+            #    info = TextureInfo(
+            #        attributes=0,
+            #        animation_type=0,
+            #        frame_count=0,
+            #        frame_rate=0.0)
+            #    tex = Texture(
+            #        name=texture.name,
+            #        tex_info=info)
+            #    mesh_struct.textures.append(tex)
+
+
+            mesh_struct.mat_info = MaterialInfo(
+                pass_count=len(mesh_struct.material_passes),
+                vert_matl_count=len(mesh_struct.vert_materials),
+                shader_count=len(mesh_struct.shaders),
+                texture_count=len(mesh_struct.textures))
 
     hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     hlod.write(skn_file)
@@ -255,7 +292,7 @@ def export_animation(ani_file, animation_name, hierarchy):
             if channel_type < 6:
                 channel.time_codes[i] = TimeCodedDatum(
                     time_code=frame,
-                    value = val)
+                    value=val)
             else:
                 if channel.time_codes[i] is None:
                     channel.time_codes[i] = TimeCodedDatum(

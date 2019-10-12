@@ -7,8 +7,13 @@ import io
 from mathutils import Vector
 
 from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, W3D_CHUNK_MESH
-from io_mesh_w3d.structs.w3d_material import MaterialInfo, MaterialPass
+from io_mesh_w3d.structs.w3d_mesh_vertex_influence import MeshVertexInfluence
+from io_mesh_w3d.structs.w3d_mesh_triangle import MeshTriangle
+from io_mesh_w3d.structs.w3d_material import MaterialInfo, MaterialPass, VertexMaterial
 from io_mesh_w3d.structs.w3d_aabbtree import MeshAABBTree
+from io_mesh_w3d.structs.w3d_mesh_shader import MeshShader
+from io_mesh_w3d.structs.w3d_texture import Texture
+from io_mesh_w3d.structs.w3d_shader_material import ShaderMaterial
 from io_mesh_w3d.io_binary import read_chunk_head
 
 class TestMesh(unittest.TestCase):
@@ -22,21 +27,23 @@ class TestMesh(unittest.TestCase):
             triangles=[],
             shade_ids=[],
             mat_info=MaterialInfo(),
-            shaders=[],
-            vert_materials=[],
-            textures=[],
-            shader_materials=[],
+            shaders=[MeshShader(), MeshShader(), MeshShader()],
+            vert_materials=[VertexMaterial(), VertexMaterial(), VertexMaterial()],
+            textures=[Texture(), Texture(), Texture(), Texture()],
+            shader_materials=[ShaderMaterial(), ShaderMaterial()],
             material_pass=MaterialPass(),
             aabbtree=MeshAABBTree())
 
         self.assertEqual(116, expected.header.size_in_bytes())
 
-        expected.verts = get_vertices(3321)
-        expected.normals = get_vertices(3321)
+        for i in range(332):
+            expected.verts.append(Vector((0.0, 2.0, -1.2)))
+            expected.normals.append(Vector((0.0, 1.0, 0.0)))
+            expected.vert_infs.append(MeshVertexInfluence())
+            expected.triangles.append(MeshTriangle())
+            expected.shade_ids.append(i)
 
-
-
-        self.assertEqual(79980, expected.size_in_bytes())
+        self.assertEqual(23347, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -48,6 +55,34 @@ class TestMesh(unittest.TestCase):
         self.assertEqual(expected.size_in_bytes(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
+        self.assertEqual(expected.header.version, actual.header.version)
+        self.assertEqual(expected.header.attrs, actual.header.attrs)
+        self.assertEqual(expected.header.mesh_name, actual.header.mesh_name)
+        self.assertEqual(expected.header.container_name, actual.header.container_name)
+        self.assertEqual(expected.header.face_count, actual.header.face_count)
+        self.assertEqual(expected.header.vert_count, actual.header.vert_count)
+        self.assertEqual(expected.header.matl_count, actual.header.matl_count)
+        self.assertEqual(expected.header.damage_stage_count, actual.header.damage_stage_count)
+        self.assertEqual(expected.header.sort_level, actual.header.sort_level)
+        self.assertEqual(expected.header.prelit_version, actual.header.prelit_version)
+        self.assertEqual(expected.header.future_count, actual.header.future_count)
+        self.assertEqual(expected.header.vert_channel_flags, actual.header.vert_channel_flags)
+        self.assertEqual(expected.header.face_channel_falgs, actual.header.face_channel_falgs)
+        self.assertEqual(expected.header.min_corner, actual.header.min_corner)
+        self.assertEqual(expected.header.max_corner, actual.header.max_corner)
+        self.assertEqual(expected.header.sph_center, actual.header.sph_center)
+        self.assertEqual(expected.header.sph_radius, actual.header.sph_radius)
+
+        self.compare_list(expected.verts, actual.verts)
+        self.compare_list(expected.normals, actual.normals)
+        self.assertEqual(len(expected.vert_infs), len(actual.vert_infs))
+        self.assertEqual(len(expected.triangles), len(actual.triangles))
+        self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
+
+        self.assertEqual(len(expected.shaders), len(actual.shaders))
+        self.assertEqual(len(expected.vert_materials), len(actual.vert_materials))
+        self.assertEqual(len(expected.textures), len(actual.textures))
+        self.assertEqual(len(expected.shader_materials), len(actual.shader_materials))
 
 
     def test_write_read_minimal(self):
@@ -115,10 +150,3 @@ class TestMesh(unittest.TestCase):
     def compare_list(self, expected, actual):
         self.assertEqual(len(expected), len(actual))
         self.assertEqual(expected, actual)
-
-
-def get_vertices(count):
-    result = []
-    for _ in range(count):
-        result.append(Vector((0.0, 2.0, -1.2)))
-    return result
