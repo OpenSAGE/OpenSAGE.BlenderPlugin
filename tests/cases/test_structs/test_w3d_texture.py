@@ -6,21 +6,15 @@ import io
 
 from io_mesh_w3d.structs.w3d_texture import Texture, TextureInfo, W3D_CHUNK_TEXTURE
 from io_mesh_w3d.io_binary import read_chunk_head
+from tests.helpers.w3d_texture import get_texture, compare_textures
 
 
 class TestTexture(unittest.TestCase):
     def test_write_read(self):
-        expected = Texture(
-            name="TestName")
-
-        expected.texture_info = TextureInfo(
-            attributes=555,
-            animation_type=33,
-            frame_count=63,
-            frame_rate=16.0)
+        expected = get_texture()
 
         self.assertEqual(12, expected.texture_info.size_in_bytes())
-        self.assertEqual(37, expected.size_in_bytes())
+        self.assertEqual(40, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -31,18 +25,12 @@ class TestTexture(unittest.TestCase):
         self.assertEqual(expected.size_in_bytes(), chunkSize)
 
         actual = Texture.read(self, io_stream, chunkEnd)
-        self.assertEqual(expected.name, actual.name)
-
-        self.assertEqual(expected.texture_info.attributes, actual.texture_info.attributes)
-        self.assertEqual(expected.texture_info.animation_type, actual.texture_info.animation_type)
-        self.assertEqual(expected.texture_info.frame_count, actual.texture_info.frame_count)
-        self.assertEqual(expected.texture_info.frame_rate, actual.texture_info.frame_rate)
+        compare_textures(self, expected, actual)
 
     def test_minimal_write_read(self):
-        expected = Texture(
-            name="TestName")
+        expected = get_texture(tex_info=None)
 
-        self.assertEqual(17, expected.size_in_bytes())
+        self.assertEqual(20, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -53,4 +41,4 @@ class TestTexture(unittest.TestCase):
         self.assertEqual(expected.size_in_bytes(), chunkSize)
 
         actual = Texture.read(self, io_stream, chunkEnd)
-        self.assertEqual(expected.name, actual.name)
+        compare_textures(self, expected, actual)

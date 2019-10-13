@@ -5,7 +5,7 @@
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
-class MeshShader(Struct):
+class Shader(Struct):
     depth_compare = 3
     depth_mask = 1
     color_mask = 0
@@ -25,7 +25,7 @@ class MeshShader(Struct):
 
     @staticmethod
     def read(io_stream):
-        return MeshShader(
+        return Shader(
             depth_compare=read_ubyte(io_stream),
             depth_mask=read_ubyte(io_stream),
             color_mask=read_ubyte(io_stream),

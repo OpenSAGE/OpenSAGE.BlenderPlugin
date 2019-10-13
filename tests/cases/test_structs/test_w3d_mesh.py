@@ -7,11 +7,11 @@ import io
 from mathutils import Vector
 
 from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, W3D_CHUNK_MESH
-from io_mesh_w3d.structs.w3d_mesh_vertex_influence import MeshVertexInfluence
-from io_mesh_w3d.structs.w3d_mesh_triangle import MeshTriangle
+from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
+from io_mesh_w3d.structs.w3d_triangle import Triangle
 from io_mesh_w3d.structs.w3d_material import MaterialInfo, MaterialPass, VertexMaterial
-from io_mesh_w3d.structs.w3d_aabbtree import MeshAABBTree
-from io_mesh_w3d.structs.w3d_mesh_shader import MeshShader
+from io_mesh_w3d.structs.w3d_aabbtree import AABBTree
+from io_mesh_w3d.structs.w3d_shader import Shader
 from io_mesh_w3d.structs.w3d_texture import Texture
 from io_mesh_w3d.structs.w3d_shader_material import ShaderMaterial
 from io_mesh_w3d.io_binary import read_chunk_head
@@ -27,23 +27,23 @@ class TestMesh(unittest.TestCase):
             triangles=[],
             shade_ids=[],
             mat_info=MaterialInfo(),
-            shaders=[MeshShader(), MeshShader(), MeshShader()],
+            shaders=[Shader(), Shader(), Shader()],
             vert_materials=[VertexMaterial(), VertexMaterial(), VertexMaterial()],
             textures=[Texture(), Texture(), Texture(), Texture()],
             shader_materials=[ShaderMaterial(), ShaderMaterial()],
             material_pass=MaterialPass(),
-            aabbtree=MeshAABBTree())
+            aabbtree=AABBTree())
 
         self.assertEqual(116, expected.header.size_in_bytes())
 
         for i in range(332):
             expected.verts.append(Vector((0.0, 2.0, -1.2)))
             expected.normals.append(Vector((0.0, 1.0, 0.0)))
-            expected.vert_infs.append(MeshVertexInfluence())
-            expected.triangles.append(MeshTriangle())
+            expected.vert_infs.append(VertexInfluence())
+            expected.triangles.append(Triangle())
             expected.shade_ids.append(i)
 
-        self.assertEqual(23347, expected.size_in_bytes())
+        self.assertEqual(23275, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -69,14 +69,14 @@ W3D_CHUNK_AABBTREE_POLYINDICES = 0x00000092
 W3D_CHUNK_AABBTREE_NODES = 0x00000093
 
 
-class MeshAABBTree(Struct):
+class AABBTree(Struct):
     header = AABBTreeHeader()
     poly_indices = []
     nodes = []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = MeshAABBTree()
+        result = AABBTree()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)

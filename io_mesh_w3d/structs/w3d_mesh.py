@@ -5,10 +5,10 @@
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_material import *
-from io_mesh_w3d.structs.w3d_mesh_triangle import *
+from io_mesh_w3d.structs.w3d_triangle import *
 from io_mesh_w3d.structs.w3d_aabbtree import *
-from io_mesh_w3d.structs.w3d_mesh_shader import *
-from io_mesh_w3d.structs.w3d_mesh_vertex_influence import *
+from io_mesh_w3d.structs.w3d_shader import *
+from io_mesh_w3d.structs.w3d_vertex_influence import *
 from io_mesh_w3d.structs.w3d_shader_material import *
 from io_mesh_w3d.structs.w3d_texture import *
 from io_mesh_w3d.import_utils_w3d import *
@@ -153,12 +153,12 @@ class Mesh(Struct):
                 result.user_text = read_string(io_stream)
             elif chunk_type == W3D_CHUNK_VERTEX_INFLUENCES:
                 result.vert_infs = read_array(
-                    io_stream, subchunk_end, MeshVertexInfluence.read)
+                    io_stream, subchunk_end, VertexInfluence.read)
             elif chunk_type == W3D_CHUNK_MESH_HEADER:
                 result.header = MeshHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_TRIANGLES:
                 result.triangles = read_array(
-                    io_stream, subchunk_end, MeshTriangle.read)
+                    io_stream, subchunk_end, Triangle.read)
             elif chunk_type == W3D_CHUNK_VERTEX_SHADE_INDICES:
                 result.shade_ids = read_array(
                     io_stream, subchunk_end, read_long)
@@ -166,7 +166,7 @@ class Mesh(Struct):
                 result.mat_info = MaterialInfo.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADERS:
                 result.shaders = read_array(
-                    io_stream, subchunk_end, MeshShader.read)
+                    io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_VERTEX_MATERIAL, VertexMaterial.read)
@@ -186,7 +186,7 @@ class Mesh(Struct):
                 #print("-> bitangents chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
-                result.aabbtree = MeshAABBTree.read(
+                result.aabbtree = AABBTree.read(
                     context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
                 print("-> prelit unlit chunk is not supported")

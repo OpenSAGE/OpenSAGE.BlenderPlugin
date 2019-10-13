@@ -8,7 +8,7 @@ from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.io_binary import *
 
 
-class MeshTriangle(Struct):
+class Triangle(Struct):
     vert_ids = [0, 0, 0]
     surface_type = 13
     normal = Vector((0.0, 0.0, 0.0))
@@ -16,7 +16,7 @@ class MeshTriangle(Struct):
 
     @staticmethod
     def read(io_stream):
-        return MeshTriangle(
+        return Triangle(
             vert_ids=(read_ulong(io_stream), read_ulong(io_stream), read_ulong(io_stream)),
             surface_type=read_ulong(io_stream),
             normal=read_vector(io_stream),

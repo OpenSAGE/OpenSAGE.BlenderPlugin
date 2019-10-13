@@ -62,7 +62,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             header.vert_count = len(mesh.vertices)
 
             for vertex in mesh.vertices:
-                vertInf = MeshVertexInfluence()
+                vertInf = VertexInfluence()
 
                 if vertex.groups:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -94,7 +94,7 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 (mesh_object.bound_box[6][0], mesh_object.bound_box[6][1], mesh_object.bound_box[6][2]))
 
             for face in mesh.polygons:
-                triangle = MeshTriangle()
+                triangle = Triangle()
                 triangle.vert_ids = [face.vertices[0],
                                      face.vertices[1], face.vertices[2]]
                 triangle.normal = Vector(face.normal)

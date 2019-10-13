@@ -160,12 +160,12 @@ bpy.types.Object.rndValue = bpy.props.IntProperty(
     max=5
 )
 
-class ObjectPanel(bpy.types.Panel):
+class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
     bl_label = "W3D Properties"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    
+
     def draw(self, context):
         layout = self.layout
         col = layout.column()
@@ -174,7 +174,7 @@ class ObjectPanel(bpy.types.Panel):
 CLASSES = (
     ExportW3D,
     ImportW3D,
-    ObjectPanel
+    OBJECT_PANEL_PT_w3d
 )
 
 
