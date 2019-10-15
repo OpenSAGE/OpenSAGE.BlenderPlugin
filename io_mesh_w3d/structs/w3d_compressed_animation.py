@@ -210,7 +210,6 @@ class AdaptiveDeltaAnimationChannel(Struct):
 
 class AdaptiveDeltaMotionAnimationChannel(Struct):
     scale = 0.0
-    initial_value = None
     data = None
 
     @staticmethod
