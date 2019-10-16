@@ -13,8 +13,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 
-        self.assertEqual(44, expected.header.size_in_bytes())
-        #self.assertEqual(5612, expected.size_in_bytes())
+        self.assertEqual(6004, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -31,12 +30,10 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(_flavor=1)
 
-        self.assertEqual(44, expected.header.size_in_bytes())
-        #self.assertEqual(1177, expected.size_in_bytes())
+        self.assertEqual(3695, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
-        #self.assertEqual(1515, io_stream.tell())
         io_stream = io.BytesIO(io_stream.getvalue())
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
@@ -48,9 +45,13 @@ class TestCompressedAnimation(unittest.TestCase):
 
 
     def test_write_read_minimal(self):
-        expected = get_compressed_animation(minimal=True)
+        expected = get_compressed_animation(
+            time_coded=False,
+            bit_channels=False,
+            motion_tc=False,
+            motion_ad4=False,
+            motion_ad8=False)
 
-        self.assertEqual(44, expected.header.size_in_bytes())
         self.assertEqual(52, expected.size_in_bytes())
 
         io_stream = io.BytesIO()

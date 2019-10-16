@@ -50,10 +50,10 @@ class TimeCodedDatum(Struct):
     value = None
 
     @staticmethod
-    def read(io_stream, type_):
+    def read(io_stream, _type):
         result = TimeCodedDatum(
             time_code=read_ulong(io_stream),
-            value=read_channel_value(io_stream, type_))
+            value=read_channel_value(io_stream, _type))
 
         if (result.time_code >> 31) == 1:
             result.time_code &= ~(1 << 31)
@@ -61,17 +61,17 @@ class TimeCodedDatum(Struct):
         return result
 
     @staticmethod
-    def size_in_bytes(type_):
-        if type_ == 6:
+    def size_in_bytes(_type):
+        if _type == 6:
             return 20
         return 8
 
-    def write(self, io_stream, type_):
+    def write(self, io_stream, _type):
         time_code = self.time_code
         if self.non_interpolated:
             time_code |= (1 << 31)
         write_ulong(io_stream, time_code)
-        write_channel_value(io_stream, type_, self.value)
+        write_channel_value(io_stream, _type, self.value)
 
 
 class TimeCodedAnimationChannel(Struct):
@@ -155,16 +155,16 @@ class AdaptiveDeltaData(Struct):
                     AdaptiveDeltaBlock.read(io_stream, j, bits))
         return result
 
-    def size_in_bytes(self, type_):
+    def size_in_bytes(self, _type):
         size = 4
-        if type_ == 6:
+        if _type == 6:
             size = 16
         for delta_block in self.delta_blocks:
             size += delta_block.size_in_bytes()
         return size
 
-    def write(self, io_stream, type_):
-        write_channel_value(io_stream, type_, self.initial_value)
+    def write(self, io_stream, _type):
+        write_channel_value(io_stream, _type, self.initial_value)
         for delta_block in self.delta_blocks:
             delta_block.write(io_stream)
 
@@ -221,12 +221,12 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
         result.data = AdaptiveDeltaData.read(io_stream, channel, bits)
         return result
 
-    def size_in_bytes(self, type_):
-        return 4 + self.data.size_in_bytes(type_)
+    def size_in_bytes(self, _type):
+        return 4 + self.data.size_in_bytes(_type)
 
-    def write(self, io_stream, type_):
+    def write(self, io_stream, _type):
         write_float(io_stream, self.scale)
-        self.data.write(io_stream, type_)
+        self.data.write(io_stream, _type)
 
 
 class TimeCodedBitDatum(Struct):
@@ -298,14 +298,15 @@ class MotionChannel(Struct):
     type = 0
     num_time_codes = 0
     pivot = 0
-    data = []
+    data = None
 
     def read_time_coded_data(self, io_stream):
         result = []
 
         for _ in range(self.num_time_codes):
             datum = TimeCodedDatum(
-                time_code=read_short(io_stream))
+                time_code=read_short(io_stream),
+                non_interpolated=False) # interpolation is not supported here
             result.append(datum)
 
         if self.num_time_codes % 2 != 0:
@@ -341,16 +342,17 @@ class MotionChannel(Struct):
             result.data = result.read_time_coded_data(io_stream)
         elif result.delta_type == 1:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, 4)
+                io_stream, result, result.delta_type * 4)
         elif result.delta_type == 2:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, 8)
+                io_stream, result, result.delta_type * 4)
         return result
 
     def size_in_bytes(self):
         size = 8
         if self.delta_type == 0:
-            size += len(self.data) * 4
+            for datum in self.data:
+                size += datum.size_in_bytes(self.type) - 2 #time_code is a short here, not long!
             if self.num_time_codes % 2 != 0:
                 size += 2
         else:
@@ -395,8 +397,7 @@ class CompressedAnimation(Struct):
             motion_channels=[])
 
         while io_stream.tell() < chunk_end:
-            (chunk_type, chunk_size, cE) = read_chunk_head(io_stream)
-
+            (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
             if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
