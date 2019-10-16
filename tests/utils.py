@@ -8,6 +8,9 @@ import bpy
 
 import addon_utils
 
+class ImportWrapper:
+    def __init__(self, filepath):
+        self.filepath = filepath
 
 class W3dTestCase(unittest.TestCase):
     __save_test_data = '--save-test-data' in sys.argv

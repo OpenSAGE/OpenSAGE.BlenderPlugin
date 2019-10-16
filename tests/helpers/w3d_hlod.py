@@ -39,7 +39,8 @@ def compare_hlod_sub_objects(self, expected, actual):
 
 def get_hlod_array(num_subobjects=2):
     array = HLodArray(
-        header=get_hlod_array_header())
+        header=get_hlod_array_header(),
+        sub_objects=[])
 
     for _ in range(num_subobjects):
         array.sub_objects.append(get_hlod_sub_object())
