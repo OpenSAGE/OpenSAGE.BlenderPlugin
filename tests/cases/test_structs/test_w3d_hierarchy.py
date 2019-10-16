@@ -16,7 +16,7 @@ class TestHierarchy(unittest.TestCase):
         expected = get_hierarchy()
 
         self.assertEqual(36, expected.header.size_in_bytes())
-        self.assertEqual(8700, expected.size_in_bytes())
+        self.assertEqual(564, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -31,7 +31,7 @@ class TestHierarchy(unittest.TestCase):
 
 
     def test_write_read_minimal(self):
-        expected = get_hierarchy(pivot_count=0)
+        expected = get_hierarchy(minimal=True)
 
         self.assertEqual(36, expected.header.size_in_bytes())
         self.assertEqual(52, expected.size_in_bytes())

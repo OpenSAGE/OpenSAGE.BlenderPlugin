@@ -221,7 +221,6 @@ def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
         return
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + index, do_init=False)
-
     i = 0
     for face in b_mesh.faces:
         tri = tris[i]

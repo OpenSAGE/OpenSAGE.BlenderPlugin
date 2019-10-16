@@ -19,13 +19,17 @@ class TestRoundtrip(utils.W3dTestCase):
         #TODO
 
     def test_roundtrip_HAM(self):
-        hierarchy = get_hierarchy()
-        meshes = [get_mesh(), get_mesh(), get_mesh()]
-        hlod = get_hlod()
-        animation = get_animation()
+        hierarchy_name = "TestHierarchy"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword"), 
+            get_mesh(name="soldier"), 
+            get_mesh(name="shield")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+        animation = get_animation(hierarchy_name)
 
         #write to file
-        output = open(self.outpath() + "output.w3d", "wb")
+        output = open(self.outpath() + "base.w3d", "wb")
         hierarchy.write(output)
         for mesh in meshes:
             mesh.write(output)
@@ -34,12 +38,17 @@ class TestRoundtrip(utils.W3dTestCase):
         output.close()
 
         #TODO: import file
-        #model = utils.ImportWrapper(self.outpath() + "output.w3d")
-        #load(model, bpy.context, import_settings={})
+        model = utils.ImportWrapper(self.outpath() + "base.w3d")
+        load(model, bpy.context, import_settings={})
 
 
-        #TODO: compare structs to expected ones
+        #TODO: compare blender data to generated structs
         #TODO: export 
+        export_settings = {}
+        export_settings['w3d_mode'] = "HAM"
+
+        save(self.outpath() + "output.w3d", bpy.context, export_settings)
+
         #TODO: compare exported file with output.w3d
         
 

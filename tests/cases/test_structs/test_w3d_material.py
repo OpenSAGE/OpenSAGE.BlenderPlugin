@@ -56,7 +56,7 @@ class TestMaterialPass(unittest.TestCase):
     def test_write_read(self):
         expected = get_material_pass()
 
-        self.assertEqual(36920, expected.size_in_bytes())
+        self.assertEqual(10064, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -6,12 +6,12 @@ import unittest
 from io_mesh_w3d.structs.w3d_hlod import HLod, HLodHeader, HLodArray, HLodArrayHeader, HLodSubObject
 from io_mesh_w3d.structs.w3d_version import Version
 
-def get_hlod_header():
+def get_hlod_header(model_name, hierarchy_name):
     return HLodHeader(
         version=Version(major=3, minor=2),
         lod_count=3,
-        model_name="TestModelName",
-        hierarchy_name="TestHieraName")
+        model_name=model_name,
+        hierarchy_name=hierarchy_name)
 
 def compare_hlod_headers(self, expected, actual):
     self.assertEqual(expected.version, actual.version)
@@ -28,10 +28,10 @@ def compare_hlod_array_headers(self, expected, actual):
     self.assertEqual(expected.model_count, actual.model_count)
     self.assertEqual(expected.max_screen_size, actual.max_screen_size)
 
-def get_hlod_sub_object():
+def get_hlod_sub_object(bone, name):
     return HLodSubObject(
-        bone_index=3,
-        name="SubObjectNumber1")
+        bone_index=bone,
+        name=name)
 
 def compare_hlod_sub_objects(self, expected, actual):
     self.assertEqual(expected.bone_index, actual.bone_index)
@@ -42,8 +42,9 @@ def get_hlod_array(num_subobjects=2):
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    for _ in range(num_subobjects):
-        array.sub_objects.append(get_hlod_sub_object())
+    array.sub_objects.append(get_hlod_sub_object(bone=5, name="shield"))
+    array.sub_objects.append(get_hlod_sub_object(bone=5, name="sword"))
+
     return array
 
 def compare_hlod_arrays(self, expected, actual):
@@ -54,9 +55,9 @@ def compare_hlod_arrays(self, expected, actual):
         compare_hlod_sub_objects(self, expected.sub_objects[i], actual.sub_objects[i])
 
 
-def get_hlod():
+def get_hlod(model_name="TestModelName", hierarchy_name="TestHieraName"):
     return HLod(
-        header=get_hlod_header(),
+        header=get_hlod_header(model_name, hierarchy_name),
         lod_array=get_hlod_array())
 
 def compare_hlods(self, expected, actual):

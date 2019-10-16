@@ -13,7 +13,7 @@ class TestMesh(unittest.TestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(62262, expected.size_in_bytes())
+        self.assertEqual(35406, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -7,11 +7,11 @@ from mathutils import Quaternion
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_animation import Animation, AnimationHeader, AnimationChannel
 
-def get_animation_header():
+def get_animation_header(hierarchy_name):
     return AnimationHeader(
         version=Version(major=4, minor=1),
         name="AniHeader",
-        hierarchy_name="HieraName",
+        hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300)
 
@@ -22,12 +22,12 @@ def compare_animation_headers(self, expected, actual):
     self.assertEqual(expected.num_frames, actual.num_frames)
     self.assertEqual(expected.frame_rate, actual.frame_rate)
 
-def get_animation_channel(_type):
+def get_animation_channel(_type, pivot):
     channel = AnimationChannel(
         first_frame=1,
         last_frame=33,
         type=_type,
-        pivot=33,
+        pivot=pivot,
         unknown=123,
         data=[])
 
@@ -55,15 +55,20 @@ def compare_animation_channels(self, expected, actual):
     for i in range(len(expected.data)):
         self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
 
-def get_animation():
+def get_animation(hierarchy_name="TestAnimation"):
     animation = Animation(
-        header=get_animation_header(),
+        header=get_animation_header(hierarchy_name),
         channels=[])
 
-    animation.channels.append(get_animation_channel(0))
-    animation.channels.append(get_animation_channel(1))
-    animation.channels.append(get_animation_channel(2))
-    animation.channels.append(get_animation_channel(6))
+    animation.channels.append(get_animation_channel(_type=0, pivot=2))
+    animation.channels.append(get_animation_channel(_type=1, pivot=2))
+    animation.channels.append(get_animation_channel(_type=2, pivot=2))
+    animation.channels.append(get_animation_channel(_type=6, pivot=2))
+
+    animation.channels.append(get_animation_channel(_type=0, pivot=3))
+    animation.channels.append(get_animation_channel(_type=1, pivot=3))
+    animation.channels.append(get_animation_channel(_type=2, pivot=3))
+    animation.channels.append(get_animation_channel(_type=6, pivot=3))
     return animation
 
 def compare_animations(self, expected, actual):

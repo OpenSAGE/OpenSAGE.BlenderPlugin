@@ -15,11 +15,11 @@ from tests.helpers.w3d_aabbtree import get_aabbtree, compare_aabbtrees
 from tests.helpers.w3d_triangle import get_triangle, compare_triangles
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 
-def get_mesh_header():
+def get_mesh_header(name):
     return MeshHeader(
         version=Version(minor=3, major=1),
         attrs=0,
-        mesh_name="meshName",
+        mesh_name=name,
         container_name="contName",
         face_count=3,
         vert_count=32,
@@ -56,9 +56,9 @@ def compare_mesh_headers(self, expected, actual):
     self.assertEqual(expected.sph_radius, actual.sph_radius)
 
 
-def get_mesh(minimal=False):
+def get_mesh(name="meshName", minimal=False):
     mesh = Mesh(
-        header=get_mesh_header(),
+        header=get_mesh_header(name),
         user_text="",
         verts=[],
         normals=[],
@@ -81,7 +81,7 @@ def get_mesh(minimal=False):
     for i in range(332):
         mesh.verts.append(Vector((3.0, -1.2, 0.0)))
         mesh.normals.append(Vector((3.0, -1.2, 0.0)))
-        mesh.vert_infs.append(get_vertex_influence())
+        mesh.vert_infs.append(get_vertex_influence(bone=1, xtra=2))
         mesh.triangles.append(get_triangle())
         mesh.shade_ids.append(i)
 

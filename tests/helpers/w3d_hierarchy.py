@@ -8,11 +8,11 @@ from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_hierarchy import Hierarchy, HierarchyHeader, \
     HierarchyPivot
 
-def get_hierarchy_header(pivot_count=33):
+def get_hierarchy_header(name):
     return HierarchyHeader(
         version=Version(major=4, minor=1),
-        name="HieraHeader",
-        num_pivots=pivot_count,
+        name=name,
+        num_pivots=0,
         center_pos=Vector((2.0, 3.0, 1.0)))
 
 def compare_hierarchy_headers(self, expected, actual):
@@ -21,10 +21,10 @@ def compare_hierarchy_headers(self, expected, actual):
     self.assertEqual(expected.num_pivots, actual.num_pivots)
     self.assertEqual(expected.center_pos, actual.center_pos)
 
-def get_hierarchy_pivot():
+def get_hierarchy_pivot(name, parent):
     return HierarchyPivot(
-        name="Roottransform",
-        parent_id=-1,
+        name=name,
+        parent_id=parent,
         translation=Vector((22.0, 33.0, 1.0)),
         euler_angles=Vector((1.0, 12.0, -2.0)),
         rotation=Quaternion((1.0, -0.1, -0.2, -0.3)))
@@ -36,15 +36,39 @@ def compare_hierarchy_pivots(self, expected, actual):
     self.assertEqual(expected.euler_angles, actual.euler_angles)
     self.assertEqual(expected.rotation, actual.rotation)
 
-def get_hierarchy(pivot_count=120):
+def get_hierarchy(name="TestHierarchy", minimal=False):
     hierarchy = Hierarchy(
-        header=get_hierarchy_header(pivot_count),
+        header=get_hierarchy_header(name),
         pivots=[],
         pivot_fixups=[])
 
-    for _ in range(pivot_count):
-        hierarchy.pivots.append(get_hierarchy_pivot())
-        hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+    if minimal:
+        return hierarchy
+
+    hierarchy.pivots.append(get_hierarchy_pivot("Roottransform", -1))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.pivots.append(get_hierarchy_pivot("shoulderl", 2))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.pivots.append(get_hierarchy_pivot("arml", 3))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+
+    hierarchy.pivots.append(get_hierarchy_pivot("shield", 0))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
+    hierarchy.pivot_fixups.append(Vector((-1.0, -2.0, -3.0)))
+
+    hierarchy.header.pivot_count = len(hierarchy.pivots)
+
     return hierarchy
 
 def compare_hierarchies(self, expected, actual):
