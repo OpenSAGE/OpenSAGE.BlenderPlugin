@@ -5,7 +5,7 @@ import unittest
 from mathutils import Vector
 from io_mesh_w3d.structs.w3d_version import Version
 
-from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader
+from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, GEOMETRY_TYPE_SKIN
 from tests.helpers.w3d_material import get_material_info, compare_material_infos, \
     get_vertex_material, compare_vertex_materials, get_material_pass, compare_material_passes
 from tests.helpers.w3d_shader import get_shader, compare_shaders
@@ -15,8 +15,8 @@ from tests.helpers.w3d_aabbtree import get_aabbtree, compare_aabbtrees
 from tests.helpers.w3d_triangle import get_triangle, compare_triangles
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 
-def get_mesh_header(name):
-    return MeshHeader(
+def get_mesh_header(name, skin):
+    header = MeshHeader(
         version=Version(minor=3, major=1),
         attrs=0,
         mesh_name=name,
@@ -34,6 +34,10 @@ def get_mesh_header(name):
         max_corner=Vector((0.0, 0.0, 0.0)),
         sph_center=Vector((0.0, 0.0, 0.0)),
         sph_radius=0.0)
+
+    if skin:
+        header.attrs |= GEOMETRY_TYPE_SKIN
+    return header
 
 
 def compare_mesh_headers(self, expected, actual):
@@ -56,9 +60,9 @@ def compare_mesh_headers(self, expected, actual):
     self.assertEqual(expected.sph_radius, actual.sph_radius)
 
 
-def get_mesh(name="meshName", minimal=False):
+def get_mesh(name="meshName", skin=False, minimal=False):
     mesh = Mesh(
-        header=get_mesh_header(name),
+        header=get_mesh_header(name, skin),
         user_text="",
         verts=[],
         normals=[],
@@ -84,6 +88,8 @@ def get_mesh(name="meshName", minimal=False):
         mesh.vert_infs.append(get_vertex_influence(bone=1, xtra=2))
         mesh.triangles.append(get_triangle())
         mesh.shade_ids.append(i)
+
+    mesh.vert_infs[0].bone_inf = 0.0
 
     mesh.mat_info = get_material_info()
     mesh.material_pass = get_material_pass()

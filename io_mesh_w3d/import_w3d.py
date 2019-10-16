@@ -226,8 +226,8 @@ def load(self, context, import_settings):
 
         link_object_to_active_scene(mesh_ob, coll)
 
-    create_animation(animation, hierarchy, compressed=False)
-    create_animation(compressedAnimation, hierarchy, compressed=True)
+    create_animation(rig, animation, hierarchy, compressed=False)
+    create_animation(rig, compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}
 

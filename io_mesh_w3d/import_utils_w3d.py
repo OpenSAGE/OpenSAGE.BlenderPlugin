@@ -375,12 +375,11 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(animation, hierarchy, compressed):
+def create_animation(rig, animation, hierarchy, compressed):
     if animation is None:
         return
 
-    rig = None
-    if animation.header.hierarchy_name in bpy.data.objects:
+    if rig == None:
         rig = bpy.data.objects[animation.header.hierarchy_name]
 
     setup_animation(animation)
