@@ -11,11 +11,11 @@ from io_mesh_w3d.structs.w3d_compressed_animation import CompressedAnimation, Co
     AdaptiveDeltaAnimationChannel, TimeCodedAnimationChannel, TimeCodedBitDatum, TimeCodedDatum
 
 
-def get_compressed_animation_header(_flavor):
+def get_compressed_animation_header(hierarchy_name, _flavor):
     return CompressedAnimationHeader(
         version=Version(major=4, minor=1),
         name="CompAniHead",
-        hierarchy_name="HieraName",
+        hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300,
         flavor=_flavor)
@@ -93,7 +93,7 @@ def compare_time_coded_bit_datas(self, expected, actual):
 def get_time_coded_bit_channel():
     channel = TimeCodedBitChannel(
         num_time_codes=55,
-        pivot=52,
+        pivot=1,
         type=0,
         default_value=12,
         time_codes=[])
@@ -167,7 +167,7 @@ def compare_adaptive_delta_datas(self, expected, actual, _type):
 
 def get_adaptive_delta_animation_channel(_type, num_bits=4):
     channel = AdaptiveDeltaAnimationChannel(
-        pivot=311,
+        pivot=3,
         type=_type,
         scale=4,
         num_time_codes=5,
@@ -208,7 +208,7 @@ def get_motion_channel(_type, _delta_type, _num_time_codes=55):
         delta_type=_delta_type,
         type=_type,
         num_time_codes=_num_time_codes,
-        pivot=182,
+        pivot=3,
         data=[])
 
     if _type == 6:
@@ -241,6 +241,7 @@ def compare_motion_channels(self, expected, actual):
 
 
 def get_compressed_animation(
+        hierarchy_name="TestHierarchy",
         time_coded=True,
         bit_channels=True,
         motion_tc=True,
@@ -248,7 +249,7 @@ def get_compressed_animation(
         motion_ad8=True,
         _flavor=0):
     animation = CompressedAnimation(
-        header=get_compressed_animation_header(_flavor),
+        header=get_compressed_animation_header(hierarchy_name, _flavor),
         time_coded_channels=[],
         adaptive_delta_channels=[],
         time_coded_bit_channels=[],

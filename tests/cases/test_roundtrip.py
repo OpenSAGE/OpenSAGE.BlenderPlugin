@@ -26,6 +26,7 @@ class TestRoundtrip(utils.W3dTestCase):
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
+        comp_animation = get_compressed_animation(hierarchy_name)
 
         # write to file
         skn = open(self.outpath() + "base_skn.w3d", "wb")
@@ -38,9 +39,10 @@ class TestRoundtrip(utils.W3dTestCase):
         skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
         hierarchy.write(skl)
         skl.close()
-        
+
         ani = open(self.outpath() + "base_ani.w3d", "wb")
         animation.write(ani)
+        comp_animation.write(ani)
         ani.close()
 
         # import 
@@ -71,6 +73,7 @@ class TestRoundtrip(utils.W3dTestCase):
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
+        comp_animation = get_compressed_animation(hierarchy_name)
 
         # write to file
         output = open(self.outpath() + "base.w3d", "wb")
@@ -80,6 +83,7 @@ class TestRoundtrip(utils.W3dTestCase):
         hlod.write(output)
         box.write(output)
         animation.write(output)
+        comp_animation.write(output)
         output.close()
 
         # import

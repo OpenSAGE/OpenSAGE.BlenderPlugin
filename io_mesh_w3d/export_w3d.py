@@ -29,7 +29,7 @@ def save(givenfilepath, _context, export_settings):
             hierarchy.header.num_pivots = len(hierarchy.pivots)
             hierarchy.write(sknFile)
         sknFile.close()
-    elif export_mode == 'S':
+    elif export_mode == 'H':
         sklFile = open(givenfilepath, "wb")
         hierarchy.header.num_pivots = len(hierarchy.pivots)
         hierarchy.write(sklFile)

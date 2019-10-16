@@ -48,7 +48,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     export_mode: EnumProperty(
         name="Export Mode",
         items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"),
-               ('S', "Skeleton", "This will export the hierarchy tree without any geometry or animation data"),
+               ('H', "Hierarchy", "This will export the hierarchy tree without any geometry or animation data"),
                ('A', "Animation", "This will export the animation without any geometry data or skeletons"),
                ('HAM', "HierarchicalAnimatedModel",
                 "This will export the meshes with the hierarchy and animation into one file")
