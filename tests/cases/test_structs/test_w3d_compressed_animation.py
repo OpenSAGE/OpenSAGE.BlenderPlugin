@@ -13,7 +13,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 
-        self.assertEqual(6004, expected.size_in_bytes())
+        self.assertEqual(5940, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -30,7 +30,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(_flavor=1)
 
-        self.assertEqual(3695, expected.size_in_bytes())
+        self.assertEqual(3631, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -32,7 +32,7 @@ class MeshHeader(Struct):
     prelit_version = 0
     future_count = 0
     vert_channel_flags = 3
-    face_channel_falgs = 1
+    face_channel_flags = 1
     min_corner = Vector((0.0, 0.0, 0.0))
     max_corner = Vector((0.0, 0.0, 0.0))
     sph_center = Vector((0.0, 0.0, 0.0))
@@ -53,7 +53,7 @@ class MeshHeader(Struct):
             prelit_version=read_ulong(io_stream),
             future_count=read_ulong(io_stream),
             vert_channel_flags=read_ulong(io_stream),
-            face_channel_falgs=read_ulong(io_stream),
+            face_channel_flags=read_ulong(io_stream),
             # bounding volumes
             min_corner=read_vector(io_stream),
             max_corner=read_vector(io_stream),
@@ -79,7 +79,7 @@ class MeshHeader(Struct):
         write_ulong(io_stream, self.prelit_version)
         write_ulong(io_stream, self.future_count)
         write_ulong(io_stream, self.vert_channel_flags)
-        write_ulong(io_stream, self.face_channel_falgs)
+        write_ulong(io_stream, self.face_channel_flags)
         write_vector(io_stream, self.min_corner)
         write_vector(io_stream, self.max_corner)
         write_vector(io_stream, self.sph_center)
@@ -210,6 +210,9 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
+    def user_text_size(self):
+        return len(self.user_text) + 1
+
     def verts_size(self):
         return len(self.verts) * 12
 
@@ -257,6 +260,8 @@ class Mesh(Struct):
 
     def size_in_bytes(self):
         size = HEAD + self.header.size_in_bytes()
+        if len(self.user_text):
+            size += HEAD + self.user_text_size()
         size += HEAD + self.verts_size()
         size += HEAD + self.normals_size()
         size += HEAD + self.tris_size()
@@ -284,6 +289,10 @@ class Mesh(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_MESH,
                          self.size_in_bytes(), has_sub_chunks=True)
         self.header.write(io_stream)
+
+        if len(self.user_text):
+            write_chunk_head(io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size())
+            write_string(io_stream, self.user_text)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())
         write_array(io_stream, self.verts, write_vector)

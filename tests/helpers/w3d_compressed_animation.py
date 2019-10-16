@@ -30,10 +30,13 @@ def compare_compressed_animation_headers(self, expected, actual):
     self.assertEqual(expected.flavor, actual.flavor)
 
 
-def get_time_coded_datum(_type=0, interpolated=random() < 0.5):
+def get_time_coded_datum(_type=0, random_interpolation=False):
     datum = TimeCodedDatum(
         time_code=34,
-        non_interpolated=interpolated)
+        non_interpolated=False)
+
+    if random_interpolation:
+        datum.non_interpolated = (random() < 0.5)
 
     if _type == 6:
         datum.value = Quaternion((0.1, -2.0, -0.3, 2.0))
@@ -61,7 +64,7 @@ def get_time_coded_animation_channel(_type=0):
         channel.vector_len = 1
 
     for _ in range(channel.num_time_codes):
-        channel.time_codes.append(get_time_coded_datum(_type))
+        channel.time_codes.append(get_time_coded_datum(_type, random_interpolation=True))
     return channel
 
 
@@ -200,11 +203,11 @@ def compare_adaptive_delta_motion_animation_channels(self, expected, actual, _ty
     compare_adaptive_delta_datas(self, expected.data, actual.data, _type)
 
 
-def get_motion_channel(_type, _delta_type):
+def get_motion_channel(_type, _delta_type, _num_time_codes=55):
     channel = MotionChannel(
         delta_type=_delta_type,
         type=_type,
-        num_time_codes=55,
+        num_time_codes=_num_time_codes,
         pivot=182,
         data=[])
 
@@ -269,8 +272,8 @@ def get_compressed_animation(
         animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
 
     if motion_tc:
-        animation.motion_channels.append(get_motion_channel(_type=0, _delta_type=0))
-        animation.motion_channels.append(get_motion_channel(_type=1, _delta_type=0))
+        animation.motion_channels.append(get_motion_channel(_type=0, _delta_type=0, _num_time_codes=50))
+        animation.motion_channels.append(get_motion_channel(_type=1, _delta_type=0, _num_time_codes=50))
         animation.motion_channels.append(get_motion_channel(_type=2, _delta_type=0))
         animation.motion_channels.append(get_motion_channel(_type=6, _delta_type=0))
 
