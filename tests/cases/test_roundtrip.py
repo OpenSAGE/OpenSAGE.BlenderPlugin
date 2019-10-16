@@ -65,8 +65,8 @@ class TestRoundtrip(utils.W3dTestCase):
         hierarchy_name = "TestName"
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name="sword"), 
-            get_mesh(name="soldier", skin=True), 
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         box = get_box()

@@ -379,7 +379,7 @@ def create_animation(rig, animation, hierarchy, compressed):
     if animation is None:
         return
 
-    if rig == None:
+    if rig is None:
         rig = bpy.data.objects[animation.header.hierarchy_name]
 
     setup_animation(animation)

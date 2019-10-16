@@ -36,7 +36,7 @@ def get_mesh_header(name, skin):
         sph_radius=0.0)
 
     if skin:
-        header.attrs |= GEOMETRY_TYPE_SKIN
+        header.attrs = GEOMETRY_TYPE_SKIN
     return header
 
 

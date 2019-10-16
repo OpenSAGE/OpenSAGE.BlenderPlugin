@@ -184,7 +184,6 @@ def load(self, context, import_settings):
         mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
 
         if hierarchy is not None and hierarchy.header.num_pivots > 0:
-            amtName = hierarchy.header.name
             if is_skin(mesh_struct):
                 for pivot in hierarchy.pivots:
                     mesh_ob.vertex_groups.new(name=pivot.name)
@@ -201,7 +200,7 @@ def load(self, context, import_settings):
                         mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
                             [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
 
-                mod = mesh_ob.modifiers.new(amtName, 'ARMATURE')
+                mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
                 mod.object = rig
                 mod.use_bone_envelopes = False
                 mod.use_vertex_groups = True
@@ -220,7 +219,7 @@ def load(self, context, import_settings):
                             if parent_pivot.name in bpy.data.objects:
                                 mesh_ob.parent = bpy.data.objects[parent_pivot.name]
                             else:
-                                mesh_ob.parent = bpy.data.objects[amtName]
+                                mesh_ob.parent = rig
                                 mesh_ob.parent_bone = parent_pivot.name
                                 mesh_ob.parent_type = 'BONE'
 
