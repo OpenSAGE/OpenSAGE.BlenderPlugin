@@ -139,17 +139,16 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                         g=material.diffuse_color[1],
                         b=material.diffuse_color[2],
                         a=material.diffuse_color[3]),
-                    #emissive=RGBA((material["Emission"], 0)),
-                    #ambient=RGBA((material["Ambient"], 0)),
-                    #translucency=material["Translucency"]
-                    #opacity=material["Opacity"]
-                    )
+                    emissive=RGBA(material.emission),
+                    ambient=RGBA(material.ambient),
+                    translucency=material.translucency,
+                    opacity=material.opacity)
 
                 mat = VertexMaterial(
                     vm_name=material.name,
                     vm_info=info,
-                    vm_args_0="",
-                    vm_args_1="")
+                    vm_args_0=material.vm_args_0,
+                    vm_args_1=material.vm_args_1)
                 mesh_struct.vert_materials.append(mat)
 
                 #TODO: normal and bump scale textures

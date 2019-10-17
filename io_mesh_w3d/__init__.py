@@ -9,6 +9,7 @@ from bpy.props import (CollectionProperty,
                        BoolProperty,
                        EnumProperty,
                        FloatProperty,
+                       FloatVectorProperty,
                        IntProperty)
 
 
@@ -152,7 +153,7 @@ def menu_func_import(self, _context):
 
 #custom property stuff
 
-bpy.types.Object.userText = bpy.props.StringProperty(
+bpy.types.Object.UserText = bpy.props.StringProperty(
     name="UserText",
     description="This is a text defined by the user",
     default="")
@@ -168,11 +169,71 @@ class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
         col = layout.column()
         col.prop(context.active_object, "UserText")
 
+bpy.types.Material.emission = bpy.props.FloatVectorProperty(  
+    name="emission",
+    subtype='COLOR',
+    size=4,
+    default=(1.0, 1.0, 1.0, 0.0),
+    min=0.0, max=1.0,
+    description="emission color")
+
+bpy.types.Material.ambient = bpy.props.FloatVectorProperty(  
+    name="ambient",
+    subtype='COLOR',
+    size=4,
+    default=(1.0, 1.0, 1.0, 0.0),
+    min=0.0, max=1.0,
+    description="ambient color")
+
+bpy.types.Material.translucency = bpy.props.FloatProperty(  
+    name="translucency",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="translucency property")
+
+bpy.types.Material.opacity = bpy.props.FloatProperty(  
+    name="opacity",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="opacity property")
+
+bpy.types.Material.vm_args_0 = bpy.props.StringProperty(
+    name="vm_args_0",
+    description="Vertex Material Arguments 0",
+    default="")
+
+bpy.types.Material.vm_args_1 = bpy.props.StringProperty(
+    name="vm_args_1",
+    description="Vertex Material Arguments 1",
+    default="")
+
+class MATERIAL_PANEL_PT_w3d(bpy.types.Panel):
+    bl_label = "W3D Properties"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "material"
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        col.prop(context.object.active_material, "emission")
+        col = layout.column()
+        col.prop(context.object.active_material, "ambient")
+        col = layout.column()
+        col.prop(context.object.active_material, "translucency")
+        col = layout.column()
+        col.prop(context.object.active_material, "opacity")
+        col = layout.column()
+        col.prop(context.object.active_material, "vm_args_0")
+        col = layout.column()
+        col.prop(context.object.active_material, "vm_args_1")
+
 
 CLASSES = (
     ExportW3D,
     ImportW3D,
-    OBJECT_PANEL_PT_w3d
+    OBJECT_PANEL_PT_w3d,
+    MATERIAL_PANEL_PT_w3d
 )
 
 

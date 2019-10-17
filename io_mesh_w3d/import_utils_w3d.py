@@ -174,10 +174,15 @@ def create_vert_material(mesh, vert_mat):
     diffuse = vert_mat.vm_info.diffuse
     mat.diffuse_color = (diffuse.r, diffuse.g, diffuse.b, diffuse.a)
 
-    #mat["Emission"] = rgb_to_vector(vert_mat.vm_info.emissive)
-    #mat["Ambient"] = rgb_to_vector(vert_mat.vm_info.ambient)
-    #mat["Translucency"] = vert_mat.vm_info.translucency
-    #mat["Opacity"] = vert_mat.vm_info.opacity
+    emissive = vert_mat.vm_info.emissive
+    mat.emission = (emissive.r, emissive.g, emissive.b, emissive.a)
+    ambient = vert_mat.vm_info.ambient
+    mat.ambient = (ambient.r, ambient.g, ambient.b, ambient.a)
+    mat.translucency = vert_mat.vm_info.translucency
+    mat.opacity = vert_mat.vm_info.opacity
+
+    mat.vm_args_0 = vert_mat.vm_args_0
+    mat.vm_args_1 = vert_mat.vm_args_1
 
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
     principled.base_color = (diffuse.r, diffuse.g, diffuse.b)
