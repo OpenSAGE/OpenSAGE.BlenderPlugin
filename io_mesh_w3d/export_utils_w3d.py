@@ -17,7 +17,6 @@ from io_mesh_w3d.structs.w3d_compressed_animation import *
 # Mesh data
 #######################################################################################
 
-
 def export_meshes(skn_file, hierarchy, rig, container_name):
     mesh_structs = []
     hlod = HLod()
@@ -127,16 +126,25 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                         subObject.bone_index = index
             hlod.lod_array.sub_objects.append(subObject)
 
-            #TODO: export material passes/uv layers
-
             for material in mesh.materials:
-                #TODO: get data from PrincipledBSD and material
                 info = VertexMaterialInfo(
-                    shininess=RGBA((0, 0, 0, 0)),
-                    specular=RGBA((0, 0, 0, 0)),
-                    emissive=RGBA((0, 0, 0, 0)),
-                    diffuse=RGBA((0, 0, 0, 0)),
-                    translucency=RGBA(0, 0, 0, 0))
+                    shininess=material.specular_intensity,
+                    specular=RGBA(
+                        r=material.specular_color[0],
+                        g=material.specular_color[1],
+                        b=material.specular_color[2],
+                        a=0.0),
+                    diffuse=RGBA(
+                        r=material.diffuse_color[0],
+                        g=material.diffuse_color[1],
+                        b=material.diffuse_color[2],
+                        a=material.diffuse_color[3]),
+                    #emissive=RGBA((material["Emission"], 0)),
+                    #ambient=RGBA((material["Ambient"], 0)),
+                    #translucency=material["Translucency"]
+                    #opacity=material["Opacity"]
+                    )
+
                 mat = VertexMaterial(
                     vm_name=material.name,
                     vm_info=info,
@@ -144,18 +152,18 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                     vm_args_1="")
                 mesh_struct.vert_materials.append(mat)
 
-            #for texture in mesh.textures:
-            #    #TODO: get texture data
-            #    info = TextureInfo(
-            #        attributes=0,
-            #        animation_type=0,
-            #        frame_count=0,
-            #        frame_rate=0.0)
-            #    tex = Texture(
-            #        name=texture.name,
-            #        tex_info=info)
-            #    mesh_struct.textures.append(tex)
-
+                #TODO: normal and bump scale textures
+                for node in material.node_tree.nodes:
+                    if isinstance(node, bpy.types.ShaderNodeTexImage) and node.image is not None:
+                        info = TextureInfo(
+                            attributes=0,
+                            animation_type=0,
+                            frame_count=0,
+                            frame_rate=0.0)
+                        tex = Texture(
+                            name=node.image.name,
+                            tex_info=info)
+                        mesh_struct.textures.append(tex)
 
             mesh_struct.mat_info = MaterialInfo(
                 pass_count=len(mesh_struct.material_passes),

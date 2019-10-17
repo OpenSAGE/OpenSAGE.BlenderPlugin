@@ -74,7 +74,7 @@ def get_mesh(name="meshName", skin=False, minimal=False):
         vert_materials=[],
         textures=[],
         shader_materials=[],
-        material_pass=None,
+        material_passes=[],
         aabbtree=None)
 
     if minimal:
@@ -92,14 +92,14 @@ def get_mesh(name="meshName", skin=False, minimal=False):
     mesh.vert_infs[0].bone_inf = 0.0
 
     mesh.mat_info = get_material_info()
-    mesh.material_pass = get_material_pass()
     mesh.aabbtree = get_aabbtree()
 
-    for _ in range(3):
+    for _ in range(2):
         mesh.shaders.append(get_shader())
         mesh.vert_materials.append(get_vertex_material())
         mesh.textures.append(get_texture())
         mesh.shader_materials.append(get_shader_material())
+        mesh.material_passes.append(get_material_pass())
     return mesh
 
 
@@ -113,6 +113,16 @@ def compare_meshes(self, expected, actual):
     compare_lists(self, expected.verts, actual.verts)
     compare_lists(self, expected.normals, actual.normals)
     compare_lists(self, expected.shade_ids, actual.shade_ids)
+
+    if expected.aabbtree is not None:
+        compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
+
+    if expected.mat_info is not None:
+        compare_material_infos(self, expected.mat_info, actual.mat_info)
+
+    self.assertEqual(len(expected.material_passes), len(actual.material_passes))
+    for i in range(len(expected.material_passes)):
+        compare_material_passes(self, expected.material_passes[i], actual.material_passes[i])
 
     self.assertEqual(len(expected.vert_infs), len(actual.vert_infs))
     for i in range(len(expected.vert_infs)):

@@ -116,7 +116,7 @@ class Mesh(Struct):
     vert_materials = []
     textures = []
     shader_materials = []
-    material_pass = None
+    material_passes = []
     aabbtree = None
 
     @staticmethod
@@ -252,6 +252,12 @@ class Mesh(Struct):
             size += HEAD + shaderMat.size_in_bytes()
         return size
 
+    def material_passes_size(self):
+        size = 0
+        for mat_pass in self.material_passes:
+            size += HEAD + mat_pass.size_in_bytes()
+        return size
+
     def vert_materials_size(self):
         size = 0
         for vertMat in self.vert_materials:
@@ -279,8 +285,8 @@ class Mesh(Struct):
             size += HEAD + self.mat_info.size_in_bytes()
         if self.vert_materials:
             size += HEAD + self.vert_materials_size()
-        if self.material_pass is not None:
-            size += HEAD + self.material_pass.size_in_bytes()
+        if self.material_passes:
+            size += HEAD + self.material_passes_size()
         if self.aabbtree is not None:
             size += HEAD + self.aabbtree.size_in_bytes()
         return size
@@ -344,8 +350,9 @@ class Mesh(Struct):
             for vertMat in self.vert_materials:
                 vertMat.write(io_stream)
 
-        if self.material_pass is not None:
-            self.material_pass.write(io_stream)
+        if self.material_passes:
+            for mat_pass in self.material_passes:
+                mat_pass.write(io_stream)
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)

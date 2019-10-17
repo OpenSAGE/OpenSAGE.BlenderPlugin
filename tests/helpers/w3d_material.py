@@ -89,7 +89,7 @@ def compare_texture_stages(self, expected, actual):
         self.assertAlmostEqual(expected.per_face_tx_coords[i], actual.per_face_tx_coords[i], 5)
 
 
-def get_material_pass(count=33, num_stages=3):
+def get_material_pass(count=33, num_stages=2):
     matpass = MaterialPass(
         vertex_material_ids=[],
         shader_ids=[],

@@ -162,23 +162,26 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 #######################################################################################
 
 
-def rgb_to_vector(rgb):
-    return (rgb.r, rgb.g, rgb.b)
-
-
 def create_vert_material(mesh, vert_mat):
     mat = bpy.data.materials.new(
         mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
+
+    mat.specular_intensity = vert_mat.vm_info.shininess
+    specular = vert_mat.vm_info.specular
+    mat.specular_color = (specular.r, specular.g, specular.b)
+    diffuse = vert_mat.vm_info.diffuse
+    mat.diffuse_color = (diffuse.r, diffuse.g, diffuse.b, diffuse.a)
+
+    #mat["Emission"] = rgb_to_vector(vert_mat.vm_info.emissive)
+    #mat["Ambient"] = rgb_to_vector(vert_mat.vm_info.ambient)
+    #mat["Translucency"] = vert_mat.vm_info.translucency
+    #mat["Opacity"] = vert_mat.vm_info.opacity
+
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color = rgb_to_vector(vert_mat.vm_info.diffuse)
+    principled.base_color = (diffuse.r, diffuse.g, diffuse.b)
     principled.alpha = vert_mat.vm_info.opacity
-    mat["Shininess"] = vert_mat.vm_info.shininess
-    mat["Specular"] = rgb_to_vector(vert_mat.vm_info.specular)
-    mat["Emission"] = rgb_to_vector(vert_mat.vm_info.emissive)
-    mat["Diffuse"] = rgb_to_vector(vert_mat.vm_info.diffuse)
-    mat["Translucency"] = vert_mat.vm_info.translucency
     return mat
 
 
@@ -221,13 +224,11 @@ def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
         return
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + index, do_init=False)
-    i = 0
-    for face in b_mesh.faces:
+    for i, face in enumerate(b_mesh.faces):
         tri = tris[i]
         for loop in face.loops:
             idx = tri[loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx]
-        i += 1
 
 
 def create_uvlayers(mesh, tris, tx_coords, tx_stages):

@@ -152,13 +152,10 @@ def menu_func_import(self, _context):
 
 #custom property stuff
 
-bpy.types.Object.rndValue = bpy.props.IntProperty(
-    name="rndValue",
-    description="This is a rnd Value",
-    default=0,
-    min=0,
-    max=5
-)
+bpy.types.Object.userText = bpy.props.StringProperty(
+    name="UserText",
+    description="This is a text defined by the user",
+    default="")
 
 class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
     bl_label = "W3D Properties"
@@ -169,7 +166,8 @@ class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.active_object, "rndValue")
+        col.prop(context.active_object, "UserText")
+
 
 CLASSES = (
     ExportW3D,
