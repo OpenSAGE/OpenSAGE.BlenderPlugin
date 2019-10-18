@@ -13,14 +13,14 @@ from io_mesh_w3d.structs.w3d_material import VertexMaterial, VertexMaterialInfo,
 
 def get_vertex_material_info():
     return VertexMaterialInfo(
-        attributes=33,
-        ambient=RGBA(r=3, g=1, b=44, a=3),
-        diffuse=RGBA(r=12, g=4, b=33, a=46),
-        specular=RGBA(r=99, g=244, b=255, a=255),
-        emissive=RGBA(r=123, g=221, b=33, a=56),
-        shininess=67.0,
-        opacity=123.0,
-        translucency=1335.0)
+        attributes=13,
+        ambient=RGBA(r=3, g=200, b=44, a=0), # alpha is only padding in this and below
+        diffuse=RGBA(r=12, g=4, b=33, a=0),
+        specular=RGBA(r=99, g=244, b=255, a=0),
+        emissive=RGBA(r=123, g=221, b=33, a=0),
+        shininess=0.5,
+        opacity=0.32,
+        translucency=0.12)
 
 
 def compare_vertex_material_infos(self, expected, actual):
@@ -29,9 +29,9 @@ def compare_vertex_material_infos(self, expected, actual):
     self.assertEqual(expected.diffuse, actual.diffuse)
     self.assertEqual(expected.specular, actual.specular)
     self.assertEqual(expected.emissive, actual.emissive)
-    self.assertEqual(expected.shininess, actual.shininess)
-    self.assertEqual(expected.opacity, actual.opacity)
-    self.assertEqual(expected.translucency, actual.translucency)
+    self.assertAlmostEqual(expected.shininess, actual.shininess, 5)
+    self.assertAlmostEqual(expected.opacity, actual.opacity, 5)
+    self.assertAlmostEqual(expected.translucency, actual.translucency, 5)
 
 
 def get_vertex_material():

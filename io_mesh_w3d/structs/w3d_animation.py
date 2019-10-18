@@ -4,7 +4,6 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.import_utils_w3d import read_array
 from io_mesh_w3d.io_binary import *
 
 

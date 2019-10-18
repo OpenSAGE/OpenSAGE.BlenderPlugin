@@ -12,6 +12,9 @@ from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
+from io_mesh_w3d.structs.w3d_material import USE_DEPTH_CUE, ARGB_EMISSIVE_ONLY, \
+    COPY_SPECULAR_TO_DIFFUSE, DEPTH_CUE_TO_ALPHA
+
 
 #######################################################################################
 # Mesh data
@@ -127,31 +130,8 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             hlod.lod_array.sub_objects.append(subObject)
 
             for material in mesh.materials:
-                info = VertexMaterialInfo(
-                    shininess=material.specular_intensity,
-                    specular=RGBA(
-                        r=material.specular_color[0],
-                        g=material.specular_color[1],
-                        b=material.specular_color[2],
-                        a=0.0),
-                    diffuse=RGBA(
-                        r=material.diffuse_color[0],
-                        g=material.diffuse_color[1],
-                        b=material.diffuse_color[2],
-                        a=material.diffuse_color[3]),
-                    emissive=RGBA(material.emission),
-                    ambient=RGBA(material.ambient),
-                    translucency=material.translucency,
-                    opacity=material.opacity)
+                mesh_struct.vert_materials.append(create_vertex_material(material))
 
-                mat = VertexMaterial(
-                    vm_name=material.name,
-                    vm_info=info,
-                    vm_args_0=material.vm_args_0,
-                    vm_args_1=material.vm_args_1)
-                mesh_struct.vert_materials.append(mat)
-
-                #TODO: normal and bump scale textures
                 for node in material.node_tree.nodes:
                     if isinstance(node, bpy.types.ShaderNodeTexImage) and node.image is not None:
                         info = TextureInfo(
@@ -173,6 +153,44 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
     hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     hlod.write(skn_file)
     return (hlod, mesh_structs)
+
+
+#######################################################################################
+# material data
+#######################################################################################
+
+
+def vector_to_rgba(vec):
+    return RGBA(r=int(vec[0] * 255), g=int(vec[1] * 255), b=int(vec[2] * 255), a=0)
+
+
+def create_vertex_material(material):
+    info = VertexMaterialInfo(
+        attributes=0,
+        shininess=material.specular_intensity,
+        specular=vector_to_rgba(material.specular_color),
+        diffuse=vector_to_rgba(material.diffuse_color),
+        emissive=vector_to_rgba(material.emission),
+        ambient=vector_to_rgba(material.ambient),
+        translucency=material.translucency,
+        opacity=material.opacity)
+
+    if 'USE_DEPTH_CUE' in material.attributes:
+        info.attributes |= USE_DEPTH_CUE
+    if 'ARGB_EMISSIVE_ONLY' in material.attributes:
+        info.attributes |= ARGB_EMISSIVE_ONLY
+    if 'COPY_SPECULAR_TO_DIFFUSE' in material.attributes:
+        info.attributes |= COPY_SPECULAR_TO_DIFFUSE
+    if 'DEPTH_CUE_TO_ALPHA' in material.attributes:
+        info.attributes |= DEPTH_CUE_TO_ALPHA
+
+    vert_material = VertexMaterial(
+        vm_name=material.name.split('.')[1],
+        vm_info=info,
+        vm_args_0=material.vm_args_0,
+        vm_args_1=material.vm_args_1)
+
+    return vert_material
 
 
 #######################################################################################

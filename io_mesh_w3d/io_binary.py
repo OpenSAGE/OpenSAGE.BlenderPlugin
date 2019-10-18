@@ -8,6 +8,13 @@ STRING_LENGTH = 16
 LARGE_STRING_LENGTH = 32
 
 
+def read_array(io_stream, chunk_end, read_func):
+    result = []
+    while io_stream.tell() < chunk_end:
+        result.append(read_func(io_stream))
+    return result
+
+
 def read_string(io_stream):
     str_buf = []
     byte = io_stream.read(1)

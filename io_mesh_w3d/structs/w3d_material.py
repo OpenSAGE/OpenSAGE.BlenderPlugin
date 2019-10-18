@@ -5,7 +5,6 @@
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.import_utils_w3d import read_array
 from io_mesh_w3d.io_binary import *
 
 
@@ -85,7 +84,7 @@ W3D_CHUNK_SHADER_IDS = 0x0000003A
 W3D_CHUNK_DCG = 0x0000003B
 W3D_CHUNK_DIG = 0x0000003C
 W3D_CHUNK_SCG = 0x0000003E
-W3D_CHUNK_SHADER_MATERIAL_ID = 0x3F
+W3D_CHUNK_SHADER_MATERIAL_ID = 0x0000003F
 
 
 class MaterialPass(Struct):
@@ -249,6 +248,10 @@ class MaterialInfo(Struct):
 
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
 
+USE_DEPTH_CUE = 0x1
+ARGB_EMISSIVE_ONLY = 0x2
+COPY_SPECULAR_TO_DIFFUSE = 0x4
+DEPTH_CUE_TO_ALPHA = 0x8
 
 class VertexMaterialInfo(Struct):
     attributes = 0

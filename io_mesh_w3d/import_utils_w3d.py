@@ -14,11 +14,8 @@ from io_mesh_w3d.io_binary import read_chunk_head
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
 
-def read_array(io_stream, chunk_end, read_func):
-    result = []
-    while io_stream.tell() < chunk_end:
-        result.append(read_func(io_stream))
-    return result
+from io_mesh_w3d.structs.w3d_material import USE_DEPTH_CUE, ARGB_EMISSIVE_ONLY, \
+    COPY_SPECULAR_TO_DIFFUSE, DEPTH_CUE_TO_ALPHA
 
 
 def read_fixed_array(io_stream, count, read_func):
@@ -161,36 +158,47 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 # create material
 #######################################################################################
 
+def rgba_to_vector(rgba):
+    return (rgba.r / 255.0, rgba.g / 255.0, rgba.b /255.0, 0.0)
 
-def create_vert_material(mesh, vert_mat):
-    mat = bpy.data.materials.new(
-        mesh.header.mesh_name + "." + vert_mat.vm_name)
+def create_material(mesh, vert_mat):
+    mat = bpy.data.materials.new(mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
 
-    mat.specular_intensity = vert_mat.vm_info.shininess
-    specular = vert_mat.vm_info.specular
-    mat.specular_color = (specular.r, specular.g, specular.b)
-    diffuse = vert_mat.vm_info.diffuse
-    mat.diffuse_color = (diffuse.r, diffuse.g, diffuse.b, diffuse.a)
+    atts = {'DEFAULT'}
+    attributes = vert_mat.vm_info.attributes
+    if attributes & USE_DEPTH_CUE:
+        atts.add('USE_DEPTH_CUE')
+    if attributes & ARGB_EMISSIVE_ONLY:
+        atts.add('ARGB_EMISSIVE_ONLY')
+    if attributes & COPY_SPECULAR_TO_DIFFUSE:
+        atts.add('COPY_SPECULAR_TO_DIFFUSE')
+    if attributes & DEPTH_CUE_TO_ALPHA:
+        atts.add('DEPTH_CUE_TO_ALPHA')
 
-    emissive = vert_mat.vm_info.emissive
-    mat.emission = (emissive.r, emissive.g, emissive.b, emissive.a)
-    ambient = vert_mat.vm_info.ambient
-    mat.ambient = (ambient.r, ambient.g, ambient.b, ambient.a)
+    mat.attributes = atts
+    mat.specular_intensity = vert_mat.vm_info.shininess
+    mat.specular_color = rgba_to_vector(vert_mat.vm_info.specular)[0:3]
+    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse)
+
+    mat.emission = rgba_to_vector(vert_mat.vm_info.emissive)
+    mat.ambient = rgba_to_vector(vert_mat.vm_info.ambient)
     mat.translucency = vert_mat.vm_info.translucency
     mat.opacity = vert_mat.vm_info.opacity
 
     mat.vm_args_0 = vert_mat.vm_args_0
     mat.vm_args_1 = vert_mat.vm_args_1
 
+    #TODO: find a way to omit this
     principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color = (diffuse.r, diffuse.g, diffuse.b)
+    principled.base_color = rgba_to_vector(vert_mat.vm_info.diffuse)[0:3]
     principled.alpha = vert_mat.vm_info.opacity
+
     return mat
 
 
-def rgba_to_vector(prop):
+def prop_to_rgba_vector(prop):
     return (prop.value.r, prop.value.g, prop.value.b, prop.value.a)
 
 
@@ -213,7 +221,7 @@ def create_shader_materials(self, mesh_struct, mesh):
                 principled.normalmap_strength = prop.value
             # Color type
             elif prop.type == 5:
-                mat[prop.name] = rgba_to_vector(prop)
+                mat[prop.name] = prop_to_rgba_vector(prop)
             else:
                 mat[prop.name] = prop.value
         mesh.materials.append(mat)

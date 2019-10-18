@@ -173,7 +173,7 @@ def load(self, context, import_settings):
                             mat_pass.tx_stages)
 
         for vertMat in mesh_struct.vert_materials:
-            mesh.materials.append(create_vert_material(mesh_struct, vertMat))
+            mesh.materials.append(create_material(mesh_struct, vertMat))
 
         for texture in mesh_struct.textures:
             load_texture_to_mat(self, texture.name, mesh.materials[0])

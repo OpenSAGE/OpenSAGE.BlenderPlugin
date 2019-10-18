@@ -1,16 +1,14 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 08.2019
 import bpy
-from bpy.types import Operator, AddonPreferences
+from bpy.types import Panel, Object, Material, Operator, AddonPreferences
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
-from bpy.props import (CollectionProperty,
-                       StringProperty,
-                       BoolProperty,
-                       EnumProperty,
-                       FloatProperty,
-                       FloatVectorProperty,
-                       IntProperty)
+from bpy.props import StringProperty,\
+                        BoolProperty, \
+                        EnumProperty, \
+                        FloatProperty, \
+                        FloatVectorProperty
 
 
 bl_info = {
@@ -153,12 +151,12 @@ def menu_func_import(self, _context):
 
 #custom property stuff
 
-bpy.types.Object.UserText = bpy.props.StringProperty(
+Object.UserText = StringProperty(
     name="UserText",
     description="This is a text defined by the user",
     default="")
 
-class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
+class OBJECT_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -169,7 +167,19 @@ class OBJECT_PANEL_PT_w3d(bpy.types.Panel):
         col = layout.column()
         col.prop(context.active_object, "UserText")
 
-bpy.types.Material.emission = bpy.props.FloatVectorProperty(  
+Material.attributes = EnumProperty(
+    name="attributes",
+    description="TEST",
+    items=[
+        ('DEFAULT', 'Default', 'desc: todo', 0),
+        ('USE_DEPTH_CUE', 'UseDepthCue', 'desc: todo', 1),
+        ('ARGB_EMISSIVE_ONLY', 'ArgbEmissiveOnly', 'desc: todo', 2),
+        ('COPY_SPECULAR_TO_DIFFUSE', 'CopySpecularToDiffuse', 'desc: todo', 4),
+        ('DEPTH_CUE_TO_ALPHA', 'DepthCueToAlpha', 'desc: todo', 8)],
+    default={'DEFAULT'},
+    options={'ENUM_FLAG'})
+
+Material.emission = FloatVectorProperty(  
     name="emission",
     subtype='COLOR',
     size=4,
@@ -177,7 +187,7 @@ bpy.types.Material.emission = bpy.props.FloatVectorProperty(
     min=0.0, max=1.0,
     description="emission color")
 
-bpy.types.Material.ambient = bpy.props.FloatVectorProperty(  
+Material.ambient = FloatVectorProperty(  
     name="ambient",
     subtype='COLOR',
     size=4,
@@ -185,29 +195,29 @@ bpy.types.Material.ambient = bpy.props.FloatVectorProperty(
     min=0.0, max=1.0,
     description="ambient color")
 
-bpy.types.Material.translucency = bpy.props.FloatProperty(  
+Material.translucency = FloatProperty(  
     name="translucency",
     default=0.0,
     min=0.0, max=1.0,
     description="translucency property")
 
-bpy.types.Material.opacity = bpy.props.FloatProperty(  
+Material.opacity = FloatProperty(  
     name="opacity",
     default=0.0,
     min=0.0, max=1.0,
     description="opacity property")
 
-bpy.types.Material.vm_args_0 = bpy.props.StringProperty(
+Material.vm_args_0 = StringProperty(
     name="vm_args_0",
     description="Vertex Material Arguments 0",
     default="")
 
-bpy.types.Material.vm_args_1 = bpy.props.StringProperty(
+Material.vm_args_1 = StringProperty(
     name="vm_args_1",
     description="Vertex Material Arguments 1",
     default="")
 
-bpy.types.Material.surface_type = EnumProperty(
+Material.surface_type = EnumProperty(
     name='surface_type',
     description='describes the surface type for this material',
     items=[
@@ -245,7 +255,7 @@ bpy.types.Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
-class MATERIAL_PANEL_PT_w3d(bpy.types.Panel):
+class MATERIAL_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -253,6 +263,8 @@ class MATERIAL_PANEL_PT_w3d(bpy.types.Panel):
 
     def draw(self, context):
         layout = self.layout
+        col = layout.column()
+        col.prop(context.object.active_material, "attributes")
         col = layout.column()
         col.prop(context.object.active_material, "emission")
         col = layout.column()

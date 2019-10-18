@@ -42,3 +42,6 @@ class RGBA(Struct):
         if isinstance(other, RGBA):
             return self.r == other.r and self.g == other.g and self.b == other.b and self.a == other.a
         return False
+
+    def __str__(self):
+        return "RGBA(r:" + str(self.r) + ", g:" + str(self.g) + ", b:" + str(self.b) + ", a:" + str(self.a) + ")"
