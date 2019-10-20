@@ -130,7 +130,11 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             hlod.lod_array.sub_objects.append(subObject)
 
             for material in mesh.materials:
-                mesh_struct.vert_materials.append(create_vertex_material(material))
+                # if it has a normal map
+                if ".ShaderMaterial" in material.name:
+                    mesh_struct.shader_materials.append(create_shader_material(material))
+                else:
+                    mesh_struct.vert_materials.append(create_vertex_material(material))
 
                 for node in material.node_tree.nodes:
                     if isinstance(node, bpy.types.ShaderNodeTexImage) and node.image is not None:
@@ -191,6 +195,29 @@ def create_vertex_material(material):
         vm_args_1=material.vm_args_1)
 
     return vert_material
+
+
+def create_shader_material(material):
+    shader_material = ShaderMaterial(
+        header=ShaderMaterialHeader(
+            number=9,
+            type_name="",
+            reserved=0),
+        properties=[])
+
+    principled = PrincipledBSDFWrapper(material, is_readonly=True)
+    base_color = principled.base_color
+    diffuse_tex = principled.base_color_texture
+    if diffuse_tex and diffuse_tex.image:
+        print (diffuse_tex.image.name)
+
+    #TODO: how to get diffuse and normal texture?
+    diffuse = ShaderMaterialProperty(
+        type=1,
+        name="DiffuseTexture",
+        value="")
+
+    return shader_material
 
 
 #######################################################################################

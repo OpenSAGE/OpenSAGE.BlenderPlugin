@@ -158,10 +158,12 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 # create material
 #######################################################################################
 
+
 def rgba_to_vector(rgba):
     return (rgba.r / 255.0, rgba.g / 255.0, rgba.b /255.0, 0.0)
 
-def create_material(mesh, vert_mat):
+
+def create_material_from_vertex_material(self, mesh, vert_mat):
     mat = bpy.data.materials.new(mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
@@ -190,11 +192,8 @@ def create_material(mesh, vert_mat):
     mat.vm_args_0 = vert_mat.vm_args_0
     mat.vm_args_1 = vert_mat.vm_args_1
 
-    #TODO: find a way to omit this
-    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color = rgba_to_vector(vert_mat.vm_info.diffuse)[0:3]
-    principled.alpha = vert_mat.vm_info.opacity
-
+    create_principled_bsdf(self, material=mat, 
+        base_color=rgba_to_vector(vert_mat.vm_info.diffuse)[0:3], alpha=vert_mat.vm_info.opacity)
     return mat
 
 
@@ -202,29 +201,42 @@ def prop_to_rgba_vector(prop):
     return (prop.value.r, prop.value.g, prop.value.b, prop.value.a)
 
 
-def create_shader_materials(self, mesh_struct, mesh):
-    for material in mesh_struct.shader_materials:
-        mat = bpy.data.materials.new(
-            mesh_struct.header.mesh_name + ".ShaderMaterial")
-        mat.use_nodes = True
-        principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-        for prop in material.properties:
-            if prop.name == "DiffuseTexture":
-                tex = load_texture(self, prop.value)
-                if tex is not None:
-                    principled.base_color_texture.image = tex
-            elif prop.name == "NormalMap":
-                tex = load_texture(self, prop.value)
-                if tex is not None:
-                    principled.normalmap_texture.image = tex
-            elif prop.name == "BumpScale":
-                principled.normalmap_strength = prop.value
-            # Color type
-            elif prop.type == 5:
-                mat[prop.name] = prop_to_rgba_vector(prop)
-            else:
-                mat[prop.name] = prop.value
-        mesh.materials.append(mat)
+def create_material_from_shader_material(self, mesh, shader_mat):
+    material = bpy.data.materials.new(
+        mesh.header.mesh_name + ".ShaderMaterial")
+    material.use_nodes = True
+    diffuse = None
+    normal = None
+    bump_scale = 0
+    for prop in shader_mat.properties:
+        if prop.name == "DiffuseTexture":
+            diffuse = prop.value
+        elif prop.name == "NormalMap":
+            normal = prop.value
+        elif prop.name == "BumpScale":
+            bump_scale = prop.value
+        # Color type
+        elif prop.type == 5:
+            material[prop.name] = prop_to_rgba_vector(prop)
+        else:
+            material[prop.name] = prop.value
+
+    create_principled_bsdf(self, material=material, diffuse_tex=diffuse, 
+        normal_tex=normal, bump_scale=bump_scale)
+    return material
+
+
+def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex=None, normal_tex=None, bump_scale=0):
+    principled = PrincipledBSDFWrapper(material, is_readonly=False)
+    if base_color is not None:
+        principled.base_color = base_color
+    if alpha is not 0:
+        principled.alpha = alpha
+    if  diffuse_tex is not None:
+        principled.base_color_texture.image = load_texture(self, diffuse_tex)
+    if normal_tex is not None:
+        principled.normalmap_texture.image = load_texture(self, normal_tex)
+        principled.normalmap_strength = bump_scale
 
 
 #######################################################################################
@@ -261,6 +273,8 @@ def create_uvlayers(mesh, tris, tx_coords, tx_stages):
 #######################################################################################
 
 def load_texture(self, tex_name):
+    if tex_name is None:
+        return None
     found_img = False
     basename = os.path.splitext(tex_name)[0]
 
@@ -285,12 +299,6 @@ def load_texture(self, tex_name):
         if img is None:
             print("missing texture:" + ddspath)
     return img
-
-
-def load_texture_to_mat(self, tex_name, mat):
-    img = load_texture(self, tex_name)
-    principled = PrincipledBSDFWrapper(mat, is_readonly=False)
-    principled.base_color_texture.image = img
 
 
 #######################################################################################

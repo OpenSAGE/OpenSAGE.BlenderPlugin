@@ -173,12 +173,14 @@ def load(self, context, import_settings):
                             mat_pass.tx_stages)
 
         for vertMat in mesh_struct.vert_materials:
-            mesh.materials.append(create_material(mesh_struct, vertMat))
+            mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
 
+        # TODO: is there any reference between texture and material?
         for texture in mesh_struct.textures:
-            load_texture_to_mat(self, texture.name, mesh.materials[0])
+            create_principled_bsdf(self, material=mesh.materials[0], diffuse_tex=texture.name)
 
-        create_shader_materials(self, mesh_struct, mesh)
+        for shaderMat in mesh_struct.shader_materials:
+            mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
 
     for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
