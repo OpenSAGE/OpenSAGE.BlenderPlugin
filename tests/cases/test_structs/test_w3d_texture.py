@@ -14,7 +14,7 @@ class TestTexture(unittest.TestCase):
         expected = get_texture()
 
         self.assertEqual(12, expected.texture_info.size_in_bytes())
-        self.assertEqual(40, expected.size_in_bytes())
+        self.assertEqual(36, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -30,7 +30,7 @@ class TestTexture(unittest.TestCase):
     def test_minimal_write_read(self):
         expected = get_texture(tex_info=None)
 
-        self.assertEqual(20, expected.size_in_bytes())
+        self.assertEqual(16, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

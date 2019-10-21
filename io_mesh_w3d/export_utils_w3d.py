@@ -5,6 +5,8 @@
 import bpy
 import bmesh
 from mathutils import Vector
+
+from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_hlod import *
 from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.structs.w3d_box import *
@@ -130,21 +132,20 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             hlod.lod_array.sub_objects.append(subObject)
 
             for material in mesh.materials:
-                # if it has a normal map
-                if ".ShaderMaterial" in material.name:
-                    mesh_struct.shader_materials.append(create_shader_material(material))
+                principled = get_principled_bsdf(material)
+                if principled.normalmap_tex is not None:
+                    mesh_struct.shader_materials.append(create_shader_material(material, principled))
                 else:
                     mesh_struct.vert_materials.append(create_vertex_material(material))
 
-                for node in material.node_tree.nodes:
-                    if isinstance(node, bpy.types.ShaderNodeTexImage) and node.image is not None:
+                    if principled.diffuse_tex is not None:
                         info = TextureInfo(
-                            attributes=0,
-                            animation_type=0,
-                            frame_count=0,
+                            attributes=0, # flags
+                            animation_type=0, # enum
+                            frame_count=0, 
                             frame_rate=0.0)
                         tex = Texture(
-                            name=node.image.name,
+                            name=principled.diffuse_tex,
                             tex_info=info)
                         mesh_struct.textures.append(tex)
 
@@ -163,9 +164,34 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
 # material data
 #######################################################################################
 
+class PrincipledBSDF(Struct):
+    base_color = None
+    alpha = None
+    diffuse_tex = None
+    normalmap_tex = None
+    bump_scale = None
+
 
 def vector_to_rgba(vec):
     return RGBA(r=int(vec[0] * 255), g=int(vec[1] * 255), b=int(vec[2] * 255), a=0)
+
+
+def get_principled_bsdf(material):
+    result = PrincipledBSDF()
+
+    principled = PrincipledBSDFWrapper(material, is_readonly=True)
+    result.base_color = principled.base_color
+    result.alpha = principled.alpha
+    diffuse_tex = principled.base_color_texture
+    if diffuse_tex and diffuse_tex.image:
+        result.diffuse_tex = diffuse_tex.image.name
+
+    normalmap_tex = principled.normalmap_texture
+    if normalmap_tex and normalmap_tex.image:
+        result.normalmap_tex = normalmap_tex.image.name
+        result.bump_scale = principled.normalmap_strength
+
+    return result
 
 
 def create_vertex_material(material):
@@ -197,25 +223,34 @@ def create_vertex_material(material):
     return vert_material
 
 
-def create_shader_material(material):
+def append_property(properties, type, name, value):
+    properties.append(ShaderMaterialProperty(type=type, name=name, value=value))
+
+
+def create_shader_material(material, principled):
     shader_material = ShaderMaterial(
+        # TODO: do those values have any meaning?
         header=ShaderMaterialHeader(
-            number=9,
-            type_name="",
-            reserved=0),
+            number=55,
+            type_name="headerType"),
         properties=[])
 
-    principled = PrincipledBSDFWrapper(material, is_readonly=True)
-    base_color = principled.base_color
-    diffuse_tex = principled.base_color_texture
-    if diffuse_tex and diffuse_tex.image:
-        print (diffuse_tex.image.name)
+    principled = get_principled_bsdf(material)
 
-    #TODO: how to get diffuse and normal texture?
-    diffuse = ShaderMaterialProperty(
-        type=1,
-        name="DiffuseTexture",
-        value="")
+    if principled.diffuse_tex is not None:
+        append_property(shader_material.properties, 1, "DiffuseTexture", principled.diffuse_tex)
+
+    if principled.normalmap_tex is not None:
+        append_property(shader_material.properties, 1, "NormalMap", principled.normalmap_tex)
+
+    if principled.bump_scale is not None:
+        append_property(shader_material.properties, 2, "BumpScale", principled.bump_scale)
+
+    append_property(shader_material.properties, 2, "SpecularExponent", material.specular_intensity)
+    append_property(shader_material.properties, 5, "AmbientColor", vector_to_rgba(material.ambient))
+    append_property(shader_material.properties, 5, "DiffuseColor", vector_to_rgba(material.diffuse_color))
+    append_property(shader_material.properties, 5, "SpecularColor", vector_to_rgba(material.specular_color))
+    append_property(shader_material.properties, 7, "AlphaTestEnable", int(material.alpha_test))
 
     return shader_material
 

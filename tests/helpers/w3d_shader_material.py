@@ -12,36 +12,40 @@ def get_shader_material_header():
     return ShaderMaterialHeader(
         number=55,
         type_name="headerType",
-        reserved=99)
+        reserved=0)
 
-def get_shader_material_property(_type=1):
+def get_shader_material_property(_type=1, name="property"):
     result = ShaderMaterialProperty(
         type=_type,
-        name="property" + str(_type),
-        num_chars=31)
+        name=name,
+        num_chars=0)
 
     if _type == 1:
-        result.value = "string"
+        result.value = "texture.dds"
     elif _type == 2:
-        result.value = 3.14
+        result.value = 0.25
     elif _type == 4:
         result.value = Vector((1.0, 2.0, 3.0))
     elif _type == 5:
-        result.value = RGBA(r=3, g=1, b=22, a=133)
+        result.value = RGBA(r=3, g=1, b=22, a=0)
     elif _type == 6:
         result.value = 1234
     elif _type == 7:
-        result.value = 0xff
+        result.value = 1
     return result
 
 def get_shader_material_properties():
     return [
-        get_shader_material_property(1),
-        get_shader_material_property(2),
-        get_shader_material_property(4),
-        get_shader_material_property(5),
-        get_shader_material_property(6),
-        get_shader_material_property(7)
+        get_shader_material_property(1, "DiffuseTexture"),
+        get_shader_material_property(1, "NormalMap"),
+        get_shader_material_property(2, "BumpScale"),
+        get_shader_material_property(2, "SpecularExponent"),
+        #get_shader_material_property(4), //no example found yet
+        get_shader_material_property(5, "AmbientColor"),
+        get_shader_material_property(5, "DiffuseColor"),
+        get_shader_material_property(5, "SpecularColor"),
+        #get_shader_material_property(6), //no example found yet
+        get_shader_material_property(7, "AlphaTestEnable")
     ]
 
 def get_shader_material(props=get_shader_material_properties()):
@@ -58,7 +62,11 @@ def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.type, actual.type)
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.num_chars, actual.num_chars)
-    self.assertAlmostEqual(expected.value, actual.value, 5)
+
+    if expected.type == 2 or expected.type == 5:
+        self.assertAlmostEqual(expected.value, actual.value, 5)
+    else:
+        self.assertEqual(expected.value, actual.value)
 
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)

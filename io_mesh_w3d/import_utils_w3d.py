@@ -197,10 +197,6 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     return mat
 
 
-def prop_to_rgba_vector(prop):
-    return (prop.value.r, prop.value.g, prop.value.b, prop.value.a)
-
-
 def create_material_from_shader_material(self, mesh, shader_mat):
     material = bpy.data.materials.new(
         mesh.header.mesh_name + ".ShaderMaterial")
@@ -215,11 +211,19 @@ def create_material_from_shader_material(self, mesh, shader_mat):
             normal = prop.value
         elif prop.name == "BumpScale":
             bump_scale = prop.value
-        # Color type
-        elif prop.type == 5:
-            material[prop.name] = prop_to_rgba_vector(prop)
+        elif prop.name == "SpecularExponent":
+            material.specular_intensity = prop.value
+        elif prop.name == "AmbientColor":
+            material.ambient = rgba_to_vector(prop.value)
+        elif prop.name == "DiffuseColor":
+            material.diffuse_color = rgba_to_vector(prop.value)
+        elif prop.name == "SpecularColor":
+            material.specular_color = rgba_to_vector(prop.value)[0:3]
+        elif prop.name == "AlphaTestEnable":
+            material.alpha_test = bool(prop.value)
         else:
-            material[prop.name] = prop.value
+            print("!!! shader property not implemented: " + prop.name)
+            self.report({'ERROR'}, "shader property not implemented: " + prop.name)
 
     create_principled_bsdf(self, material=material, diffuse_tex=diffuse, 
         normal_tex=normal, bump_scale=bump_scale)
@@ -230,13 +234,17 @@ def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex
     principled = PrincipledBSDFWrapper(material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
-    if alpha is not 0:
+    if alpha > 0:
         principled.alpha = alpha
     if  diffuse_tex is not None:
-        principled.base_color_texture.image = load_texture(self, diffuse_tex)
+        tex = load_texture(self, diffuse_tex)
+        if tex is not None:
+            principled.base_color_texture.image = tex
     if normal_tex is not None:
-        principled.normalmap_texture.image = load_texture(self, normal_tex)
-        principled.normalmap_strength = bump_scale
+        tex = load_texture(self, normal_tex)
+        if tex is not None:
+            principled.normalmap_texture.image = tex
+            principled.normalmap_strength = bump_scale
 
 
 #######################################################################################

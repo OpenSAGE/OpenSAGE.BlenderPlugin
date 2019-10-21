@@ -14,11 +14,11 @@ from io_mesh_w3d.import_utils_w3d import *
 
 
 #######################################################################################
-# skeleton
+# hierarchy
 #######################################################################################
 
 
-def load_skeleton_file(self, sklpath):
+def load_hierarchy_file(self, sklpath):
     hierarchy = Hierarchy()
     path = insensitive_path(sklpath)
     file = open(path, "rb")
@@ -134,10 +134,10 @@ def load(self, context, import_settings):
 
         if sklpath is not None:
             try:
-                hierarchy = load_skeleton_file(self, sklpath)
+                hierarchy = load_hierarchy_file(self, sklpath)
             except FileNotFoundError:
-                self.report({'ERROR'}, "skeleton file not found: " + sklpath)
-                print("!!! skeleton file not found: " + sklpath)
+                print("!!! hierarchy file not found: " + sklpath)
+                self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
 

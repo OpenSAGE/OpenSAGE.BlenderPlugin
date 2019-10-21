@@ -3,6 +3,7 @@
 # Last Modification 10.2019
 import bpy
 from tests import utils
+from shutil import copyfile
 
 from tests.helpers.w3d_mesh import get_mesh
 from tests.helpers.w3d_hlod import get_hlod
@@ -27,6 +28,11 @@ class TestRoundtrip(utils.W3dTestCase):
         box = get_box()
         animation = get_animation(hierarchy_name)
         comp_animation = get_compressed_animation(hierarchy_name)
+
+        print(self.relpath() + "/testfiles/texture.dds")
+        print(self.outpath() + "texture.dds")
+
+        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
 
         # write to file
         skn = open(self.outpath() + "base_skn.w3d", "wb")

@@ -13,7 +13,7 @@ def get_texture_info():
 
 def get_texture(tex_info=get_texture_info()):
     return Texture(
-        name="TestTexture",
+        name="texture",
         texture_info=tex_info)
 
 def compare_textures(self, expected, actual):

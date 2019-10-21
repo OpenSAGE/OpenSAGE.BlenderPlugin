@@ -217,6 +217,11 @@ Material.vm_args_1 = StringProperty(
     description="Vertex Material Arguments 1",
     default="")
 
+Material.alpha_test = BoolProperty(
+    name="alpha_test",
+    description="AlphaTestEnable",
+    default=False)
+
 Material.surface_type = EnumProperty(
     name='surface_type',
     description='describes the surface type for this material',
@@ -277,6 +282,8 @@ class MATERIAL_PANEL_PT_w3d(Panel):
         col.prop(context.object.active_material, "vm_args_0")
         col = layout.column()
         col.prop(context.object.active_material, "vm_args_1")
+        col = layout.column()
+        col.prop(context.object.active_material, "alpha_test")
         col = layout.column()
         col.prop(context.object.active_material, "surface_type")
 
