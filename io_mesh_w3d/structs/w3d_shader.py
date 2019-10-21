@@ -6,22 +6,22 @@ from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
 class Shader(Struct):
-    depth_compare = 3
-    depth_mask = 1
+    depth_compare = 0
+    depth_mask = 0
     color_mask = 0
     dest_blend = 0
-    fog_func = 2
-    pri_gradient = 1
+    fog_func = 0
+    pri_gradient = 0
     sec_gradient = 0
-    src_blend = 1
-    texturing = 1
+    src_blend = 0
+    texturing = 0
     detail_color_func = 0
     detail_alpha_func = 0
-    shader_preset = 2
+    shader_preset = 0
     alpha_test = 0
     post_detail_color_func = 0
     post_detail_alpha_func = 0
-    pad = 2
+    pad = 0
 
     @staticmethod
     def read(io_stream):

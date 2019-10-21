@@ -22,7 +22,7 @@ def get_shader():
         alpha_test=83,
         post_detail_color_func=245,
         post_detail_alpha_func=32,
-        pad=85)
+        pad=0)
 
 def compare_shaders(self, expected, actual):
     self.assertEqual(expected.depth_compare, actual.depth_compare)

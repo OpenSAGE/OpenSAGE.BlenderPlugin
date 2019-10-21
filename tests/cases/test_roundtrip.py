@@ -29,9 +29,6 @@ class TestRoundtrip(utils.W3dTestCase):
         animation = get_animation(hierarchy_name)
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        print(self.relpath() + "/testfiles/texture.dds")
-        print(self.outpath() + "texture.dds")
-
         copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
 
         # write to file

@@ -10,6 +10,7 @@ from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_hlod import *
 from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.structs.w3d_box import *
+from io_mesh_w3d.structs.w3d_shader import *
 from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
@@ -132,6 +133,8 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
             hlod.lod_array.sub_objects.append(subObject)
 
             for material in mesh.materials:
+                mesh_struct.shaders.append(create_shader(material))
+
                 principled = get_principled_bsdf(material)
                 if principled.normalmap_tex is not None:
                     mesh_struct.shader_materials.append(create_shader_material(material, principled))
@@ -253,6 +256,30 @@ def create_shader_material(material, principled):
     append_property(shader_material.properties, 7, "AlphaTestEnable", int(material.alpha_test))
 
     return shader_material
+
+
+#######################################################################################
+# hierarchy data
+#######################################################################################
+
+
+def create_shader(material):
+    return Shader(
+        depth_compare=material.shader.depth_compare,
+        depth_mask=material.shader.depth_mask,
+        color_mask=material.shader.color_mask,
+        dest_blend=material.shader.dest_blend,
+        fog_func=material.shader.fog_func,
+        pri_gradient=material.shader.pri_gradient,
+        sec_gradient=material.shader.sec_gradient,
+        src_blend=material.shader.src_blend,
+        texturing=material.shader.texturing,
+        detail_color_func=material.shader.detail_color_func,
+        detail_alpha_func=material.shader.detail_alpha_func,
+        shader_preset=material.shader.shader_preset,
+        alpha_test=material.shader.alpha_test,
+        post_detail_color_func=material.shader.post_detail_color_func,
+        post_detail_alpha_func=material.shader.post_detail_alpha_func)
 
 
 #######################################################################################

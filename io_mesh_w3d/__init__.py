@@ -1,14 +1,16 @@
 # Written by Stephan Vedder and Michael Schnabel
 # Last Modification 08.2019
 import bpy
-from bpy.types import Panel, Object, Material, Operator, AddonPreferences
+from bpy.types import Panel, Object, Material, Operator, AddonPreferences, PropertyGroup
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
 from bpy.props import StringProperty,\
                         BoolProperty, \
                         EnumProperty, \
                         FloatProperty, \
-                        FloatVectorProperty
+                        FloatVectorProperty, \
+                        IntProperty, \
+                        PointerProperty
 
 
 bl_info = {
@@ -260,7 +262,7 @@ Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
-class MATERIAL_PANEL_PT_w3d(Panel):
+class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -287,12 +289,72 @@ class MATERIAL_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(context.object.active_material, "surface_type")
 
+class ShaderProperties(PropertyGroup):
+    depth_compare: bpy.props.IntProperty(min=0, max=255)
+    depth_mask: bpy.props.IntProperty(min=0, max=255)
+    color_mask: bpy.props.IntProperty(min=0, max=255)
+    dest_blend: bpy.props.IntProperty(min=0, max=255)
+    fog_func: bpy.props.IntProperty(min=0, max=255)
+    pri_gradient: bpy.props.IntProperty(min=0, max=255)
+    sec_gradient: bpy.props.IntProperty(min=0, max=255)
+    src_blend: bpy.props.IntProperty(min=0, max=255)
+    texturing: bpy.props.IntProperty(min=0, max=255)
+    detail_color_func: bpy.props.IntProperty(min=0, max=255)
+    detail_alpha_func: bpy.props.IntProperty(min=0, max=255)
+    shader_preset: bpy.props.IntProperty(min=0, max=255)
+    alpha_test: bpy.props.IntProperty(min=0, max=255)
+    post_detail_color_func: bpy.props.IntProperty(min=0, max=255)
+    post_detail_alpha_func: bpy.props.IntProperty(min=0, max=255)
+
+bpy.utils.register_class(ShaderProperties)
+Material.shader = PointerProperty(type=ShaderProperties)
+
+class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
+    bl_label = "W3D Shader Properties"
+    bl_space_type = "PROPERTIES"
+    bl_region_type = "WINDOW"
+    bl_context = "material"
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "depth_compare")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "depth_mask")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "color_mask")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "dest_blend")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "fog_func")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "pri_gradient")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "sec_gradient")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "src_blend")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "texturing")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "detail_color_func")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "detail_alpha_func")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "shader_preset")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "alpha_test")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "post_detail_color_func")
+        col = layout.column()
+        col.prop(context.object.active_material.shader, "post_detail_alpha_func")
+
 
 CLASSES = (
     ExportW3D,
     ImportW3D,
     OBJECT_PANEL_PT_w3d,
-    MATERIAL_PANEL_PT_w3d
+    MATERIAL_PROPERTIES_PANEL_PT_w3d,
+    MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d
 )
 
 

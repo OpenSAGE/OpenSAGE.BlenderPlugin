@@ -248,6 +248,29 @@ def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex
 
 
 #######################################################################################
+# set shader properties
+#######################################################################################
+
+
+def set_shader_properties(material, shader):
+    material.shader.depth_compare = shader.depth_compare
+    material.shader.depth_mask = shader.depth_mask
+    material.shader.color_mask = shader.color_mask
+    material.shader.dest_blend = shader.dest_blend
+    material.shader.fog_func = shader.fog_func
+    material.shader.pri_gradient = shader.pri_gradient
+    material.shader.sec_gradient = shader.sec_gradient
+    material.shader.src_blend = shader.src_blend
+    material.shader.texturing = shader.texturing
+    material.shader.detail_color_func = shader.detail_color_func
+    material.shader.detail_alpha_func = shader.detail_alpha_func
+    material.shader.shader_preset = shader.shader_preset
+    material.shader.alpha_test = shader.alpha_test
+    material.shader.post_detail_color_func = shader.post_detail_color_func
+    material.shader.post_detail_alpha_func = shader.post_detail_alpha_func
+
+
+#######################################################################################
 # create uvlayer
 #######################################################################################
 

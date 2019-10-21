@@ -182,6 +182,9 @@ def load(self, context, import_settings):
         for shaderMat in mesh_struct.shader_materials:
             mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
 
+        for i, shader in enumerate(mesh_struct.shaders):
+            set_shader_properties(mesh.materials[i], shader)
+
     for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
         mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
 
