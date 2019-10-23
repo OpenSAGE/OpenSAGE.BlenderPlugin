@@ -55,9 +55,10 @@ class TestUtils(utils.W3dTestCase):
 
     def test_box_roundtrip(self):
         expected = get_box()
+        hlod = get_hlod()
         create_box(expected, get_collection(None))
 
-        boxes = retrieve_boxes("containerName")
+        boxes = retrieve_boxes(hlod)
         compare_boxes(self, expected, boxes[0])
 
 

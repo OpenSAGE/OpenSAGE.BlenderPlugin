@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 10.2019
 import os
 import bpy
 
@@ -29,7 +29,7 @@ def save(givenfilepath, _context, export_settings):
     if export_mode in ('M', 'HAM'):
         sknFile = open(givenfilepath, "wb")
 
-        boxes = retrieve_boxes(containerName)
+        boxes = retrieve_boxes(hlod)
         for box in boxes:
             box.write(sknFile)
 

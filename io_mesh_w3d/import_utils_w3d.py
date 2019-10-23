@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+# Last Modification 10.2019
 import os
 import bpy
 import bmesh
@@ -134,47 +134,53 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
 
 def rig_mesh(mesh_struct, hierarchy, rig, coll):
     mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
-
-    if hierarchy is not None and hierarchy.header.num_pivots > 0:
-        if mesh_struct.is_skin():
-            for pivot in hierarchy.pivots:
-                mesh_ob.vertex_groups.new(name=pivot.name)
-
-            for i in range(len(mesh_struct.vert_infs)):
-                weight = mesh_struct.vert_infs[i].bone_inf
-                if weight == 0.0:
-                    weight = 1.0
-
-                mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
-                    [i], weight, 'REPLACE')
-
-                if mesh_struct.vert_infs[i].xtra_idx != 0:
-                    mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
-                        [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
-
-            mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
-            mod.object = rig
-            mod.use_bone_envelopes = False
-            mod.use_vertex_groups = True
-
-        else:
-            for pivot in hierarchy.pivots:
-                if pivot.name == mesh_struct.header.mesh_name:
-                    mesh_ob.rotation_mode = 'QUATERNION'
-                    mesh_ob.location = pivot.translation
-                    mesh_ob.rotation_euler = pivot.euler_angles
-                    mesh_ob.rotation_quaternion = pivot.rotation
-
-                    if pivot.parent_id > 0:
-                        parent_pivot = hierarchy.pivots[pivot.parent_id]
-
-                        if parent_pivot.name in bpy.data.objects:
-                            mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-                        else:
-                            mesh_ob.parent = rig
-                            mesh_ob.parent_bone = parent_pivot.name
-                            mesh_ob.parent_type = 'BONE'
     link_object_to_active_scene(mesh_ob, coll)
+
+    if hierarchy is None or not hierarchy.pivots:
+        return
+
+    if mesh_struct.is_skin():
+        for pivot in hierarchy.pivots:
+            mesh_ob.vertex_groups.new(name=pivot.name)
+
+        for i in range(len(mesh_struct.vert_infs)):
+            weight = mesh_struct.vert_infs[i].bone_inf
+            if weight == 0.0:
+                weight = 1.0
+
+            mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
+                [i], weight, 'REPLACE')
+
+            if mesh_struct.vert_infs[i].xtra_idx != 0:
+                mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
+                    [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
+
+        mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
+        mod.object = rig
+        mod.use_bone_envelopes = False
+        mod.use_vertex_groups = True
+        return
+
+    pivot = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name][0]
+    if pivot is None:
+        return
+
+    mesh_ob.rotation_mode = 'QUATERNION'
+    mesh_ob.location = pivot.translation
+    mesh_ob.rotation_euler = pivot.euler_angles
+    mesh_ob.rotation_quaternion = pivot.rotation
+
+    if pivot.parent_id == 0:
+        return
+
+    parent_pivot = hierarchy.pivots[pivot.parent_id]
+
+    if parent_pivot.name in bpy.data.objects:
+        mesh_ob.parent = bpy.data.objects[parent_pivot.name]
+    else:
+        mesh_ob.parent = rig
+        mesh_ob.parent_bone = parent_pivot.name
+        mesh_ob.parent_type = 'BONE'
 
 
 #######################################################################################

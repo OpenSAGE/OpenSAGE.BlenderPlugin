@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+# Last Modification 10.2019
 
 import bpy
 import bmesh
@@ -28,9 +28,10 @@ def get_mesh_objects():
 #######################################################################################
 
 
-def retrieve_boxes(container_name):
+def retrieve_boxes(hlod):
     boxes = []
     mesh_objects = get_mesh_objects()
+    container_name = hlod.header.model_name
 
     #TODO: append box to hlod?
     for mesh_object in mesh_objects:
@@ -46,6 +47,11 @@ def retrieve_boxes(container_name):
             for material in box_mesh.materials:
                 box.color = vector_to_rgba(material.diffuse_color)
             boxes.append(box)
+
+            subObject = HLodSubObject(
+                name=container_name + "." + mesh_object.name,
+                bone_index=0)
+            hlod.lod_array.sub_objects.append(subObject)
     return boxes
 
 
@@ -132,7 +138,6 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
 
         header.faceCount = len(mesh_struct.triangles)
 
-        # HLod stuff
         subObject = HLodSubObject()
         subObject.name = container_name + "." + mesh_object.name
         subObject.bone_index = 0
@@ -344,8 +349,7 @@ def retrieve_hierarchy(container_name):
     else:
         hierarchy.header.name = container_name
 
-    mesh_objects = [
-        object for object in bpy.context.scene.objects if object.type == 'MESH']
+    mesh_objects = get_mesh_objects()
 
     for mesh_object in mesh_objects:
         # TODO: use a constant here
