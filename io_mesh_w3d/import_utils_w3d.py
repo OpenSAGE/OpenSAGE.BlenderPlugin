@@ -4,6 +4,7 @@
 import os
 import bpy
 import bmesh
+import sys
 
 from mathutils import Vector, Matrix, Quaternion
 
@@ -58,9 +59,6 @@ def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
 
 
 def link_object_to_active_scene(obj, coll, appendix=""):
-    if coll is None:
-        coll = bpy.context.collection
-
     if obj.name in coll.objects:
         obj.name += appendix
     coll.objects.link(obj)
@@ -69,10 +67,21 @@ def link_object_to_active_scene(obj, coll, appendix=""):
 
 
 def smooth_mesh(mesh):
-    bpy.ops.object.mode_set(mode='OBJECT')
+    try:
+        bpy.ops.object.mode_set(mode='OBJECT')
 
-    for polygon in mesh.polygons:
-        polygon.use_smooth = True
+        for polygon in mesh.polygons:
+            polygon.use_smooth = True
+    except RuntimeError:
+        print("incorrect context for mesh smooting")
+
+
+def get_collection(hlod):
+    if hlod is not None:
+        coll = bpy.data.collections.new(hlod.header.model_name)
+        bpy.context.collection.children.link(coll)
+        return coll
+    return bpy.context.collection
 
 
 #######################################################################################

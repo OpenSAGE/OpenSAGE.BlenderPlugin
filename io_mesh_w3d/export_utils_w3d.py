@@ -19,20 +19,20 @@ from io_mesh_w3d.structs.w3d_material import USE_DEPTH_CUE, ARGB_EMISSIVE_ONLY, 
     COPY_SPECULAR_TO_DIFFUSE, DEPTH_CUE_TO_ALPHA
 
 
+def get_mesh_objects():
+    return [object for object in bpy.context.scene.objects if object.type == 'MESH']
+
+
 #######################################################################################
 # Mesh data
 #######################################################################################
 
-def export_meshes(skn_file, hierarchy, rig, container_name):
-    mesh_structs = []
-    hlod = HLod()
-    hlod.header.model_name = container_name
-    hlod.header.hierarchy_name = hierarchy.header.name
-    hlod.lod_array.sub_objects = []
 
-    mesh_objects = [
-        object for object in bpy.context.scene.objects if object.type == 'MESH']
+def retrieve_boundingboxes(container_name):
+    boxes = []
+    mesh_objects = get_mesh_objects()
 
+    #TODO: append box to hlod?
     for mesh_object in mesh_objects:
         if mesh_object.name == "BOUNDINGBOX":
             box = Box(
@@ -42,125 +42,132 @@ def export_meshes(skn_file, hierarchy, rig, container_name):
                 preserve_all_data_layers=False, depsgraph=None)
             box.extend = Vector(
                 (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
-            box.write(skn_file)
-        else:
-            mesh_struct = Mesh(
-                verts=[],
-                normals=[],
-                vert_infs=[],
-                triangles=[],
-                shade_ids=[],
-                shaders=[],
-                vert_materials=[],
-                textures=[],
-                material_passes=[],
-                shader_materials=[])
+            boxes.append(box)
+    return boxes
 
-            header = mesh_struct.header
-            header.mesh_name = mesh_object.name
-            header.container_name = container_name
 
-            mesh = mesh_object.to_mesh(
-                preserve_all_data_layers=False, depsgraph=None)
-            triangulate(mesh)
+def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
+    mesh_structs = []
+    mesh_objects = get_mesh_objects()
 
-            header.vert_count = len(mesh.vertices)
+    for mesh_object in mesh_objects:
+        if mesh_object.name == "BOUNDINGBOX":
+            continue
 
-            for vertex in mesh.vertices:
-                vertInf = VertexInfluence()
+        mesh_struct = Mesh(
+            verts=[],
+            normals=[],
+            vert_infs=[],
+            triangles=[],
+            shade_ids=[],
+            shaders=[],
+            vert_materials=[],
+            textures=[],
+            material_passes=[],
+            shader_materials=[])
 
-                if vertex.groups:
-                    for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
-                            vertInf.bone_idx = index
-                    vertInf.bone_inf = vertex.groups[0].weight
-                    mesh_struct.vert_infs.append(vertInf)
+        header = mesh_struct.header
+        header.mesh_name = mesh_object.name
+        header.container_name = container_name
 
-                    bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                    mesh_struct.verts.append(
-                        bone.matrix.inverted() @ vertex.co.xyz)
-                    if len(vertex.groups) > 1:
-                        for index, pivot in enumerate(hierarchy.pivots):
-                            if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                                vertInf.xtra_idx = index
-                        vertInf.xtra_inf = vertex.groups[1].weight
+        mesh = mesh_object.to_mesh(
+            preserve_all_data_layers=False, depsgraph=None)
+        triangulate(mesh)
 
-                    elif len(vertex.groups) > 2:
-                        print("Error: max 2 bone influences per vertex supported!")
+        header.vert_count = len(mesh.vertices)
 
-                if not vertex.groups:
-                    mesh_struct.verts.append(vertex.co.xyz)
+        for vertex in mesh.vertices:
+            vertInf = VertexInfluence()
 
-                mesh_struct.normals.append(vertex.normal)
-
-            header.min_corner = Vector(
-                (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
-            header.max_corner = Vector(
-                (mesh_object.bound_box[6][0], mesh_object.bound_box[6][1], mesh_object.bound_box[6][2]))
-
-            for face in mesh.polygons:
-                triangle = Triangle()
-                triangle.vert_ids = [face.vertices[0],
-                                     face.vertices[1], face.vertices[2]]
-                triangle.normal = Vector(face.normal)
-                vec1 = mesh.vertices[face.vertices[0]].co.xyz
-                vec2 = mesh.vertices[face.vertices[1]].co.xyz
-                vec3 = mesh.vertices[face.vertices[2]].co.xyz
-                tri_pos = Vector((vec1 + vec2 + vec3)) / 3.0
-                triangle.distance = (mesh_object.location - tri_pos).length
-                mesh_struct.triangles.append(triangle)
-
-            if mesh_object.vertex_groups:
-                header.attrs = GEOMETRY_TYPE_SKIN
-
-            center, radius = calculate_mesh_sphere(mesh)
-            header.sphCenter = center
-            header.sphRadius = radius
-
-            header.faceCount = len(mesh_struct.triangles)
-            mesh_struct.write(skn_file)
-            mesh_structs.append(mesh_struct)
-
-            # HLod stuff
-            subObject = HLodSubObject()
-            subObject.name = container_name + "." + mesh_object.name
-            subObject.bone_index = 0
-
-            if header.attrs == GEOMETRY_TYPE_SKIN:
+            if vertex.groups:
                 for index, pivot in enumerate(hierarchy.pivots):
-                    if pivot.name == mesh_object.name:
-                        subObject.bone_index = index
-            hlod.lod_array.sub_objects.append(subObject)
+                    if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
+                        vertInf.bone_idx = index
+                vertInf.bone_inf = vertex.groups[0].weight
+                mesh_struct.vert_infs.append(vertInf)
 
-            for material in mesh.materials:
-                mesh_struct.shaders.append(create_shader(material))
+                bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
+                mesh_struct.verts.append(
+                    bone.matrix.inverted() @ vertex.co.xyz)
+                if len(vertex.groups) > 1:
+                    for index, pivot in enumerate(hierarchy.pivots):
+                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
+                            vertInf.xtra_idx = index
+                    vertInf.xtra_inf = vertex.groups[1].weight
 
-                principled = get_principled_bsdf(material)
-                if principled.normalmap_tex is not None:
-                    mesh_struct.shader_materials.append(create_shader_material(material, principled))
-                else:
-                    mesh_struct.vert_materials.append(create_vertex_material(material))
+                elif len(vertex.groups) > 2:
+                    print("Error: max 2 bone influences per vertex supported!")
 
-                    if principled.diffuse_tex is not None:
-                        info = TextureInfo(
-                            attributes=0, # flags
-                            animation_type=0, # enum
-                            frame_count=0, 
-                            frame_rate=0.0)
-                        tex = Texture(
-                            name=principled.diffuse_tex,
-                            tex_info=info)
-                        mesh_struct.textures.append(tex)
+            if not vertex.groups:
+                mesh_struct.verts.append(vertex.co.xyz)
 
-            mesh_struct.mat_info = MaterialInfo(
-                pass_count=len(mesh_struct.material_passes),
-                vert_matl_count=len(mesh_struct.vert_materials),
-                shader_count=len(mesh_struct.shaders),
-                texture_count=len(mesh_struct.textures))
+            mesh_struct.normals.append(vertex.normal)
 
-    hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
-    hlod.write(skn_file)
-    return (hlod, mesh_structs)
+        header.min_corner = Vector(
+            (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
+        header.max_corner = Vector(
+            (mesh_object.bound_box[6][0], mesh_object.bound_box[6][1], mesh_object.bound_box[6][2]))
+
+        for face in mesh.polygons:
+            triangle = Triangle()
+            triangle.vert_ids = [face.vertices[0],
+                                    face.vertices[1], face.vertices[2]]
+            triangle.normal = Vector(face.normal)
+            vec1 = mesh.vertices[face.vertices[0]].co.xyz
+            vec2 = mesh.vertices[face.vertices[1]].co.xyz
+            vec3 = mesh.vertices[face.vertices[2]].co.xyz
+            tri_pos = Vector((vec1 + vec2 + vec3)) / 3.0
+            triangle.distance = (mesh_object.location - tri_pos).length
+            mesh_struct.triangles.append(triangle)
+
+        if mesh_object.vertex_groups:
+            header.attrs = GEOMETRY_TYPE_SKIN
+
+        center, radius = calculate_mesh_sphere(mesh)
+        header.sphCenter = center
+        header.sphRadius = radius
+
+        header.faceCount = len(mesh_struct.triangles)
+
+        # HLod stuff
+        subObject = HLodSubObject()
+        subObject.name = container_name + "." + mesh_object.name
+        subObject.bone_index = 0
+
+        if header.attrs == GEOMETRY_TYPE_SKIN:
+            for index, pivot in enumerate(hierarchy.pivots):
+                if pivot.name == mesh_object.name:
+                    subObject.bone_index = index
+        hlod.lod_array.sub_objects.append(subObject)
+
+        for material in mesh.materials:
+            mesh_struct.shaders.append(create_shader(material))
+
+            #principled = get_principled_bsdf(material)
+            #if principled.normalmap_tex is not None:
+            #    mesh_struct.shader_materials.append(create_shader_material(material, principled))
+            #else:
+            #    mesh_struct.vert_materials.append(create_vertex_material(material))
+
+            #    if principled.diffuse_tex is not None:
+            #        info = TextureInfo(
+            #            attributes=0,
+            #            animation_type=0,
+            #            frame_count=0, 
+            #            frame_rate=0.0)
+            #        tex = Texture(
+            #            name=principled.diffuse_tex,
+            #            tex_info=info)
+            #        mesh_struct.textures.append(tex)
+
+        mesh_struct.mat_info = MaterialInfo(
+            pass_count=len(mesh_struct.material_passes),
+            vert_matl_count=len(mesh_struct.vert_materials),
+            shader_count=len(mesh_struct.shaders),
+            texture_count=len(mesh_struct.textures))
+
+        mesh_structs.append(mesh_struct)
+    return mesh_structs
 
 
 #######################################################################################
@@ -287,7 +294,7 @@ def create_shader(material):
 #######################################################################################
 
 
-def create_hierarchy(container_name):
+def retrieve_hierarchy(container_name):
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
         pivots=[])
@@ -295,6 +302,7 @@ def create_hierarchy(container_name):
         name="ROOTTRANSFORM",
         parentID=-1)
 
+    rig = None
     hierarchy.pivots.append(root)
 
     rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
@@ -343,6 +351,8 @@ def create_hierarchy(container_name):
                         pivot.parent_id = index
 
             hierarchy.pivots.append(pivot)
+
+    hierarchy.header.num_pivots = len(hierarchy.pivots)
 
     return (hierarchy, rig)
 

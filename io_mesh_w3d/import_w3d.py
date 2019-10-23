@@ -41,6 +41,10 @@ def load_hierarchy_file(self, sklpath):
 #######################################################################################
 
 
+def is_skin(mesh):
+    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+
+
 def load(self, context, import_settings):
     """Start the w3d import"""
     print('Loading file', self.filepath)
@@ -112,11 +116,7 @@ def load(self, context, import_settings):
 
     file.close()
 
-    # Create a collection
-    coll = None
-    if hlod is not None:
-        coll = bpy.data.collections.new(hlod.header.model_name)
-        bpy.context.collection.children.link(coll)
+    coll = get_collection(hlod)
 
     create_box(box, coll)
 
@@ -234,10 +234,6 @@ def load(self, context, import_settings):
     create_animation(rig, compressedAnimation, hierarchy, compressed=True)
 
     return {'FINISHED'}
-
-
-def is_skin(mesh):
-    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
 
 
 #######################################################################################
