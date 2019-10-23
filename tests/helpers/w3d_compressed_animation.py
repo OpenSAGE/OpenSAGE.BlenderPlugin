@@ -5,15 +5,12 @@ import unittest
 from random import random
 from mathutils import Quaternion
 
-from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_compressed_animation import CompressedAnimation, CompressedAnimationHeader, \
-    MotionChannel, TimeCodedBitChannel, AdaptiveDeltaData, AdaptiveDeltaBlock, AdaptiveDeltaMotionAnimationChannel, \
-    AdaptiveDeltaAnimationChannel, TimeCodedAnimationChannel, TimeCodedBitDatum, TimeCodedDatum
-
+from io_mesh_w3d.structs.w3d_compressed_animation import *
+from tests.helpers.w3d_version import get_version, compare_versions
 
 def get_compressed_animation_header(hierarchy_name, _flavor):
     return CompressedAnimationHeader(
-        version=Version(major=4, minor=1),
+        version=get_version(),
         name="CompAniHead",
         hierarchy_name=hierarchy_name,
         num_frames=155,
@@ -22,7 +19,7 @@ def get_compressed_animation_header(hierarchy_name, _flavor):
 
 
 def compare_compressed_animation_headers(self, expected, actual):
-    self.assertEqual(expected.version, actual.version)
+    compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.hierarchy_name, actual.hierarchy_name)
     self.assertEqual(expected.num_frames, actual.num_frames)

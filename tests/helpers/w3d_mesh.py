@@ -3,7 +3,6 @@
 # Last Modification 10.2019
 import unittest
 from mathutils import Vector
-from io_mesh_w3d.structs.w3d_version import Version
 
 from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, GEOMETRY_TYPE_SKIN
 from tests.helpers.w3d_material import get_material_info, compare_material_infos, \
@@ -14,10 +13,11 @@ from tests.helpers.w3d_shader_material import get_shader_material, compare_shade
 from tests.helpers.w3d_aabbtree import get_aabbtree, compare_aabbtrees
 from tests.helpers.w3d_triangle import get_triangle, compare_triangles
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
+from tests.helpers.w3d_version import get_version, compare_versions
 
 def get_mesh_header(name, skin):
     header = MeshHeader(
-        version=Version(minor=3, major=1),
+        version=get_version(),
         attrs=0,
         mesh_name=name,
         container_name="contName",
@@ -41,7 +41,7 @@ def get_mesh_header(name, skin):
 
 
 def compare_mesh_headers(self, expected, actual):
-    self.assertEqual(expected.version, actual.version)
+    compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.attrs, actual.attrs)
     self.assertEqual(expected.mesh_name, actual.mesh_name)
     self.assertEqual(expected.container_name, actual.container_name)

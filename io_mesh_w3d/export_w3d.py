@@ -29,7 +29,7 @@ def save(givenfilepath, _context, export_settings):
     if export_mode in ('M', 'HAM'):
         sknFile = open(givenfilepath, "wb")
 
-        boxes = retrieve_boundingboxes(containerName)
+        boxes = retrieve_boxes(containerName)
         for box in boxes:
             box.write(sknFile)
 

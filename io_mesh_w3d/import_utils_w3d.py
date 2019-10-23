@@ -14,9 +14,7 @@ from bpy_extras.image_utils import load_image
 from io_mesh_w3d.io_binary import read_chunk_head
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
-
-from io_mesh_w3d.structs.w3d_material import USE_DEPTH_CUE, ARGB_EMISSIVE_ONLY, \
-    COPY_SPECULAR_TO_DIFFUSE, DEPTH_CUE_TO_ALPHA
+from io_mesh_w3d.structs.w3d_material import *
 
 
 def read_fixed_array(io_stream, count, read_func):
@@ -85,6 +83,101 @@ def get_collection(hlod):
 
 
 #######################################################################################
+# mesh
+#######################################################################################
+
+
+def create_mesh(self, mesh_struct, hierarchy, rig):
+    triangles = []
+
+    for triangle in mesh_struct.triangles:
+        triangles.append(triangle.vert_ids)
+
+    mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
+
+    if rig is not None:
+        for i in range(len(mesh_struct.vert_infs)):
+            vert = mesh_struct.verts[i]
+            weight = mesh_struct.vert_infs[i].bone_inf
+            if weight == 0.0:
+                weight = 1.0
+
+            bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
+            mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
+
+    mesh.from_pydata(mesh_struct.verts, [], triangles)
+    mesh.update()
+    mesh.validate()
+
+    smooth_mesh(mesh)
+
+    mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
+    mesh_ob['UserText'] = mesh_struct.user_text
+
+    for mat_pass in mesh_struct.material_passes:
+        create_uvlayers(mesh, triangles, mat_pass.tx_coords,
+                        mat_pass.tx_stages)
+
+    for vertMat in mesh_struct.vert_materials:
+        mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
+
+    # TODO: is there any reference between texture and material?
+    for texture in mesh_struct.textures:
+        create_principled_bsdf(self, material=mesh.materials[0], diffuse_tex=texture.name)
+
+    for shaderMat in mesh_struct.shader_materials:
+        mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
+
+    for i, shader in enumerate(mesh_struct.shaders):
+        set_shader_properties(mesh.materials[i], shader)
+
+
+def rig_mesh(mesh_struct, hierarchy, rig, coll):
+    mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
+
+    if hierarchy is not None and hierarchy.header.num_pivots > 0:
+        if mesh_struct.is_skin():
+            for pivot in hierarchy.pivots:
+                mesh_ob.vertex_groups.new(name=pivot.name)
+
+            for i in range(len(mesh_struct.vert_infs)):
+                weight = mesh_struct.vert_infs[i].bone_inf
+                if weight == 0.0:
+                    weight = 1.0
+
+                mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
+                    [i], weight, 'REPLACE')
+
+                if mesh_struct.vert_infs[i].xtra_idx != 0:
+                    mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
+                        [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
+
+            mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
+            mod.object = rig
+            mod.use_bone_envelopes = False
+            mod.use_vertex_groups = True
+
+        else:
+            for pivot in hierarchy.pivots:
+                if pivot.name == mesh_struct.header.mesh_name:
+                    mesh_ob.rotation_mode = 'QUATERNION'
+                    mesh_ob.location = pivot.translation
+                    mesh_ob.rotation_euler = pivot.euler_angles
+                    mesh_ob.rotation_quaternion = pivot.rotation
+
+                    if pivot.parent_id > 0:
+                        parent_pivot = hierarchy.pivots[pivot.parent_id]
+
+                        if parent_pivot.name in bpy.data.objects:
+                            mesh_ob.parent = bpy.data.objects[parent_pivot.name]
+                        else:
+                            mesh_ob.parent = rig
+                            mesh_ob.parent_bone = parent_pivot.name
+                            mesh_ob.parent_type = 'BONE'
+    link_object_to_active_scene(mesh_ob, coll)
+
+
+#######################################################################################
 # skeleton
 #######################################################################################
 
@@ -120,24 +213,24 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     amt = bpy.data.armatures.new(hierarchy.header.name)
     amt.show_names = False
 
+    root = hierarchy.pivots[0]
+
     rig = bpy.data.objects.new(amt_name, amt)
-    rig.location = hierarchy.header.center_pos
+    rig.location = root.translation
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
     link_object_to_active_scene(rig, coll, "SKL")
-
     bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
-
     basic_sphere = create_sphere()
 
     for obj in sub_objects:
         non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
 
     for pivot in hierarchy.pivots:
-        if non_bone_pivots.count(pivot) > 0:
+        if pivot.parent_id == -1 or non_bone_pivots.count(pivot) > 0:
             continue
 
         bone = amt.edit_bones.new(pivot.name)
@@ -496,7 +589,7 @@ def create_box(box, coll):
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new("BOUNDINGBOX.Material")
 
-    mat.diffuse_color = (box.color.r, box.color.g, box.color.b, 1.0)
+    mat.diffuse_color = rgba_to_vector(box.color)
     cube.materials.append(mat)
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)

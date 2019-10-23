@@ -41,10 +41,6 @@ def load_hierarchy_file(self, sklpath):
 #######################################################################################
 
 
-def is_skin(mesh):
-    return (mesh.header.attrs & GEOMETRY_TYPE_SKIN) > 0
-
-
 def load(self, context, import_settings):
     """Start the w3d import"""
     print('Loading file', self.filepath)
@@ -142,93 +138,10 @@ def load(self, context, import_settings):
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     for mesh_struct in meshes:
-        triangles = []
-
-        for triangle in mesh_struct.triangles:
-            triangles.append(triangle.vert_ids)
-
-        mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
-
-        if rig is not None:
-            for i in range(len(mesh_struct.vert_infs)):
-                vert = mesh_struct.verts[i]
-                weight = mesh_struct.vert_infs[i].bone_inf
-                if weight == 0.0:
-                    weight = 1.0
-
-                bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
-                mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
-
-        mesh.from_pydata(mesh_struct.verts, [], triangles)
-        mesh.update()
-        mesh.validate()
-
-        smooth_mesh(mesh)
-
-        mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
-        mesh_ob['UserText'] = mesh_struct.user_text
-
-        for mat_pass in mesh_struct.material_passes:
-            create_uvlayers(mesh, triangles, mat_pass.tx_coords,
-                            mat_pass.tx_stages)
-
-        for vertMat in mesh_struct.vert_materials:
-            mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
-
-        # TODO: is there any reference between texture and material?
-        for texture in mesh_struct.textures:
-            create_principled_bsdf(self, material=mesh.materials[0], diffuse_tex=texture.name)
-
-        for shaderMat in mesh_struct.shader_materials:
-            mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
-
-        for i, shader in enumerate(mesh_struct.shaders):
-            set_shader_properties(mesh.materials[i], shader)
+        create_mesh(self, mesh_struct, hierarchy, rig)
 
     for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
-        mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
-
-        if hierarchy is not None and hierarchy.header.num_pivots > 0:
-            if is_skin(mesh_struct):
-                for pivot in hierarchy.pivots:
-                    mesh_ob.vertex_groups.new(name=pivot.name)
-
-                for i in range(len(mesh_struct.vert_infs)):
-                    weight = mesh_struct.vert_infs[i].bone_inf
-                    if weight == 0.0:
-                        weight = 1.0
-
-                    mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
-                        [i], weight, 'REPLACE')
-
-                    if mesh_struct.vert_infs[i].xtra_idx != 0:
-                        mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
-                            [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
-
-                mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
-                mod.object = rig
-                mod.use_bone_envelopes = False
-                mod.use_vertex_groups = True
-
-            else:
-                for pivot in hierarchy.pivots:
-                    if pivot.name == mesh_struct.header.mesh_name:
-                        mesh_ob.rotation_mode = 'QUATERNION'
-                        mesh_ob.location = pivot.translation
-                        mesh_ob.rotation_euler = pivot.euler_angles
-                        mesh_ob.rotation_quaternion = pivot.rotation
-
-                        if pivot.parent_id > 0:
-                            parent_pivot = hierarchy.pivots[pivot.parent_id]
-
-                            if parent_pivot.name in bpy.data.objects:
-                                mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-                            else:
-                                mesh_ob.parent = rig
-                                mesh_ob.parent_bone = parent_pivot.name
-                                mesh_ob.parent_type = 'BONE'
-
-        link_object_to_active_scene(mesh_ob, coll)
+        rig_mesh(mesh_struct, hierarchy, rig, coll)
 
     create_animation(rig, animation, hierarchy, compressed=False)
     create_animation(rig, compressedAnimation, hierarchy, compressed=True)

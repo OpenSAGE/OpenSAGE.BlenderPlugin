@@ -119,6 +119,9 @@ class Mesh(Struct):
     material_passes = []
     aabbtree = None
 
+    def is_skin(self):
+        return (self.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = Mesh(

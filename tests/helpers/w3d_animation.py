@@ -4,19 +4,20 @@
 import unittest
 from mathutils import Quaternion
 
-from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_animation import Animation, AnimationHeader, AnimationChannel
+
+from tests.helpers.w3d_version import get_version, compare_versions
 
 def get_animation_header(hierarchy_name):
     return AnimationHeader(
-        version=Version(major=4, minor=1),
+        version=get_version(),
         name="AniHeader",
         hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300)
 
 def compare_animation_headers(self, expected, actual):
-    self.assertEqual(expected.version, actual.version)
+    compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.hierarchy_name, actual.hierarchy_name)
     self.assertEqual(expected.num_frames, actual.num_frames)

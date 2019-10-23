@@ -5,19 +5,20 @@ import unittest
 
 from mathutils import Vector
 
-from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.structs.w3d_material import VertexMaterial, VertexMaterialInfo, \
     MaterialInfo, MaterialPass, TextureStage
+
+from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 
 def get_vertex_material_info():
     return VertexMaterialInfo(
         attributes=13,
-        ambient=RGBA(r=3, g=200, b=44, a=0), # alpha is only padding in this and below
-        diffuse=RGBA(r=12, g=4, b=33, a=0),
-        specular=RGBA(r=99, g=244, b=255, a=0),
-        emissive=RGBA(r=123, g=221, b=33, a=0),
+        ambient=get_rgba(), # alpha is only padding in this and below
+        diffuse=get_rgba(),
+        specular=get_rgba(),
+        emissive=get_rgba(),
         shininess=0.5,
         opacity=0.32,
         translucency=0.12)
@@ -25,10 +26,10 @@ def get_vertex_material_info():
 
 def compare_vertex_material_infos(self, expected, actual):
     self.assertEqual(expected.attributes, actual.attributes)
-    self.assertEqual(expected.ambient, actual.ambient)
-    self.assertEqual(expected.diffuse, actual.diffuse)
-    self.assertEqual(expected.specular, actual.specular)
-    self.assertEqual(expected.emissive, actual.emissive)
+    compare_rgbas(self, expected.ambient, actual.ambient)
+    compare_rgbas(self, expected.diffuse, actual.diffuse)
+    compare_rgbas(self, expected.specular, actual.specular)
+    compare_rgbas(self, expected.emissive, actual.emissive)
     self.assertAlmostEqual(expected.shininess, actual.shininess, 5)
     self.assertAlmostEqual(expected.opacity, actual.opacity, 5)
     self.assertAlmostEqual(expected.translucency, actual.translucency, 5)
@@ -103,9 +104,9 @@ def get_material_pass(count=33, num_stages=2):
     for i in range(count):
         matpass.vertex_material_ids.append(i)
         matpass.shader_ids.append(i)
-        matpass.dcg.append(RGBA(r=3, g=44, b=133, a=222))
-        matpass.dig.append(RGBA(r=3, g=44, b=133, a=222))
-        matpass.scg.append(RGBA(r=3, g=44, b=133, a=222))
+        matpass.dcg.append(get_rgba())
+        matpass.dig.append(get_rgba())
+        matpass.scg.append(get_rgba())
         matpass.shader_material_ids.append(i)
         matpass.tx_coords.append((0.5, 0.7))
 
@@ -118,9 +119,19 @@ def get_material_pass(count=33, num_stages=2):
 def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
     self.assertEqual(expected.shader_ids, actual.shader_ids)
-    self.assertEqual(expected.dcg, actual.dcg)
-    self.assertEqual(expected.dig, actual.dig)
-    self.assertEqual(expected.scg, actual.scg)
+
+    self.assertEqual(len(expected.dcg), len(actual.dcg))
+    for i in range(len(expected.dcg)):
+        compare_rgbas(self, expected.dcg[i], actual.dcg[i])
+
+    self.assertEqual(len(expected.dig), len(actual.dig))
+    for i in range(len(expected.dig)):
+        compare_rgbas(self, expected.dig[i], actual.dig[i])
+
+    self.assertEqual(len(expected.scg), len(actual.scg))
+    for i in range(len(expected.scg)):
+        compare_rgbas(self, expected.scg[i], actual.scg[i])
+
     self.assertEqual(expected.shader_material_ids, actual.shader_material_ids)
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))

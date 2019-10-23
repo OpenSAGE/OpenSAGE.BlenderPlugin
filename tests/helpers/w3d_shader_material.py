@@ -3,9 +3,11 @@
 # Last Modification 10.2019
 
 from mathutils import Vector
-from io_mesh_w3d.structs.w3d_rgba import RGBA
+
 from io_mesh_w3d.structs.w3d_shader_material import ShaderMaterial, ShaderMaterialHeader, \
     ShaderMaterialProperty
+
+from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 
 def get_shader_material_header():
@@ -27,7 +29,7 @@ def get_shader_material_property(_type=1, name="property"):
     elif _type == 4:
         result.value = Vector((1.0, 2.0, 3.0))
     elif _type == 5:
-        result.value = RGBA(r=3, g=1, b=22, a=0)
+        result.value = get_rgba()
     elif _type == 6:
         result.value = 1234
     elif _type == 7:
@@ -63,8 +65,10 @@ def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.num_chars, actual.num_chars)
 
-    if expected.type == 2 or expected.type == 5:
+    if expected.type == 2:
         self.assertAlmostEqual(expected.value, actual.value, 5)
+    elif expected.type == 5:
+        compare_rgbas(self, expected.value, actual.value)
     else:
         self.assertEqual(expected.value, actual.value)
 

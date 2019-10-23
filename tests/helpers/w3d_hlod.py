@@ -4,25 +4,30 @@
 import unittest
 
 from io_mesh_w3d.structs.w3d_hlod import HLod, HLodHeader, HLodArray, HLodArrayHeader, HLodSubObject
-from io_mesh_w3d.structs.w3d_version import Version
+
+from tests.helpers.w3d_version import get_version, compare_versions
+
 
 def get_hlod_header(model_name, hierarchy_name):
     return HLodHeader(
-        version=Version(major=3, minor=2),
+        version=get_version(),
         lod_count=3,
         model_name=model_name,
         hierarchy_name=hierarchy_name)
 
+
 def compare_hlod_headers(self, expected, actual):
-    self.assertEqual(expected.version, actual.version)
+    compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.lod_count, actual.lod_count)
     self.assertEqual(expected.model_name, actual.model_name)
     self.assertEqual(expected.hierarchy_name, actual.hierarchy_name)
+
 
 def get_hlod_array_header():
     return HLodArrayHeader(
         model_count=2,
         max_screen_size=5442)
+
 
 def compare_hlod_array_headers(self, expected, actual):
     self.assertEqual(expected.model_count, actual.model_count)
@@ -33,19 +38,21 @@ def get_hlod_sub_object(bone, name):
         bone_index=bone,
         name=name)
 
+
 def compare_hlod_sub_objects(self, expected, actual):
     self.assertEqual(expected.bone_index, actual.bone_index)
     self.assertEqual(expected.name, actual.name)
+
 
 def get_hlod_array(num_subobjects=2):
     array = HLodArray(
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    array.sub_objects.append(get_hlod_sub_object(bone=5, name="shield"))
     array.sub_objects.append(get_hlod_sub_object(bone=5, name="sword"))
-
+    array.sub_objects.append(get_hlod_sub_object(bone=6, name="shield"))
     return array
+
 
 def compare_hlod_arrays(self, expected, actual):
     compare_hlod_array_headers(self, expected.header, actual.header)
@@ -59,6 +66,7 @@ def get_hlod(model_name="TestModelName", hierarchy_name="TestHieraName"):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
         lod_array=get_hlod_array())
+
 
 def compare_hlods(self, expected, actual):
     compare_hlod_headers(self, expected.header, actual.header)

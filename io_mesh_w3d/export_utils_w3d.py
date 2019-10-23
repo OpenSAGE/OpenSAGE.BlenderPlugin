@@ -28,7 +28,7 @@ def get_mesh_objects():
 #######################################################################################
 
 
-def retrieve_boundingboxes(container_name):
+def retrieve_boxes(container_name):
     boxes = []
     mesh_objects = get_mesh_objects()
 
@@ -42,6 +42,9 @@ def retrieve_boundingboxes(container_name):
                 preserve_all_data_layers=False, depsgraph=None)
             box.extend = Vector(
                 (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
+
+            for material in box_mesh.materials:
+                box.color = vector_to_rgba(material.diffuse_color)
             boxes.append(box)
     return boxes
 
@@ -141,13 +144,13 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
         hlod.lod_array.sub_objects.append(subObject)
 
         for material in mesh.materials:
-            mesh_struct.shaders.append(create_shader(material))
+            mesh_struct.shaders.append(retrieve_shader(material))
 
             #principled = get_principled_bsdf(material)
             #if principled.normalmap_tex is not None:
-            #    mesh_struct.shader_materials.append(create_shader_material(material, principled))
+            #    mesh_struct.shader_materials.append(retrieve_shader_material(material, principled))
             #else:
-            #    mesh_struct.vert_materials.append(create_vertex_material(material))
+            #    mesh_struct.vert_materials.append(retrieve_vertex_material(material))
 
             #    if principled.diffuse_tex is not None:
             #        info = TextureInfo(
@@ -174,6 +177,7 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
 # material data
 #######################################################################################
 
+
 class PrincipledBSDF(Struct):
     base_color = None
     alpha = None
@@ -186,7 +190,7 @@ def vector_to_rgba(vec):
     return RGBA(r=int(vec[0] * 255), g=int(vec[1] * 255), b=int(vec[2] * 255), a=0)
 
 
-def get_principled_bsdf(material):
+def retrieve_principled_bsdf(material):
     result = PrincipledBSDF()
 
     principled = PrincipledBSDFWrapper(material, is_readonly=True)
@@ -204,7 +208,7 @@ def get_principled_bsdf(material):
     return result
 
 
-def create_vertex_material(material):
+def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
         attributes=0,
         shininess=material.specular_intensity,
@@ -237,7 +241,7 @@ def append_property(properties, type, name, value):
     properties.append(ShaderMaterialProperty(type=type, name=name, value=value))
 
 
-def create_shader_material(material, principled):
+def retrieve_shader_material(material, principled):
     shader_material = ShaderMaterial(
         # TODO: do those values have any meaning?
         header=ShaderMaterialHeader(
@@ -245,7 +249,7 @@ def create_shader_material(material, principled):
             type_name="headerType"),
         properties=[])
 
-    principled = get_principled_bsdf(material)
+    principled = retrieve_principled_bsdf(material)
 
     if principled.diffuse_tex is not None:
         append_property(shader_material.properties, 1, "DiffuseTexture", principled.diffuse_tex)
@@ -270,7 +274,7 @@ def create_shader_material(material, principled):
 #######################################################################################
 
 
-def create_shader(material):
+def retrieve_shader(material):
     return Shader(
         depth_compare=material.shader.depth_compare,
         depth_mask=material.shader.depth_mask,
@@ -297,14 +301,10 @@ def create_shader(material):
 def retrieve_hierarchy(container_name):
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
-        pivots=[])
-    root = HierarchyPivot(
-        name="ROOTTRANSFORM",
-        parentID=-1)
+        pivots=[],
+        pivot_fixups=[])
 
     rig = None
-    hierarchy.pivots.append(root)
-
     rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
 
     if len(rigs) > 1:
@@ -313,7 +313,15 @@ def retrieve_hierarchy(container_name):
 
     if len(rigs) == 1:
         rig = rigs[0]
+        root = HierarchyPivot(
+            name="ROOTTRANSFORM",
+            parentID=-1,
+            translation=rig.location)
+        hierarchy.pivots.append(root)
+        hierarchy.pivot_fixups.append(Vector())
+
         hierarchy.header.name = rig.name
+        hierarchy.header.center_pos = rig.location
         for bone in rig.pose.bones:
             pivot = HierarchyPivot(
                 name=bone.name,
@@ -327,9 +335,12 @@ def retrieve_hierarchy(container_name):
                         pivot.parent_id = index
                 matrix = bone.parent.matrix.inverted() @ matrix
 
-            (pivot.translation, pivot.rotation, _) = matrix.decompose()
+            (translation, rotation, _) = matrix.decompose()
+            pivot.translation = translation
+            pivot.rotation = rotation
 
             hierarchy.pivots.append(pivot)
+            hierarchy.pivot_fixups.append(Vector())
     else:
         hierarchy.header.name = container_name
 
@@ -345,12 +356,13 @@ def retrieve_hierarchy(container_name):
                 translation=mesh_object.location,
                 rotation=mesh_object.rotation_quaternion)
 
-            if mesh_object.parent_bone != "":
+            if mesh_object.parent_bone is not None:
                 for index, piv in enumerate(hierarchy.pivots):
                     if piv.name == mesh_object.parent_bone:
                         pivot.parent_id = index
 
             hierarchy.pivots.append(pivot)
+            hierarchy.pivot_fixups.append(Vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
 
