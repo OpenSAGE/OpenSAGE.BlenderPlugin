@@ -5,13 +5,14 @@ import unittest
 from mathutils import Vector
 
 from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, GEOMETRY_TYPE_SKIN
-from tests.helpers.w3d_material import get_material_info, compare_material_infos, \
-    get_vertex_material, compare_vertex_materials, get_material_pass, compare_material_passes
+from io_mesh_w3d.structs.w3d_triangle import Triangle
+from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
+from tests.helpers.w3d_material import *
 from tests.helpers.w3d_shader import get_shader, compare_shaders
 from tests.helpers.w3d_texture import get_texture, compare_textures
 from tests.helpers.w3d_shader_material import get_shader_material, compare_shader_materials
 from tests.helpers.w3d_aabbtree import get_aabbtree, compare_aabbtrees
-from tests.helpers.w3d_triangle import get_triangle, compare_triangles
+from tests.helpers.w3d_triangle import compare_triangles
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 from tests.helpers.w3d_version import get_version, compare_versions
 
@@ -30,8 +31,8 @@ def get_mesh_header(name, skin):
         future_count=0,
         vert_channel_flags=3,
         face_channel_flags=1,
-        min_corner=Vector((0.0, 0.0, 0.0)),
-        max_corner=Vector((0.0, 0.0, 0.0)),
+        min_corner=Vector((-1.0, -1.0, -1.0)),
+        max_corner=Vector((1.0, 1.0, 1.0)),
         sph_center=Vector((0.0, 0.0, 0.0)),
         sph_radius=0.0)
 
@@ -82,16 +83,49 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
 
     mesh.user_text = "TestUserText"
 
-    for i in range(332):
-        mesh.verts.append(Vector((3.0, -1.2, 0.0)))
-        mesh.normals.append(Vector((1.0, -1.2, 0.0)))
-        if skin:
-            mesh.vert_infs.append(get_vertex_influence(bone=1, xtra=2))
-        mesh.triangles.append(get_triangle())
-        mesh.shade_ids.append(i)
+    mesh.verts.append(Vector((1.0, 1.0, 1.0)))
+    mesh.verts.append(Vector((1.0, 1.0, -1.0)))
+    mesh.verts.append(Vector((1.0, -1.0, 1.0)))
+    mesh.verts.append(Vector((1.0, -1.0, -1.0)))
+    mesh.verts.append(Vector((-1.0, 1.0, 1.0)))
+    mesh.verts.append(Vector((-1.0, 1.0, -1.0)))
+    mesh.verts.append(Vector((-1.0, -1.0, 1.0)))
+    mesh.verts.append(Vector((-1.0, -1.0, -1.0)))
+
+    mesh.normals.append(Vector((0.5, 0.5, 0.5)))
+    mesh.normals.append(Vector((0.5, 0.5, -0.5)))
+    mesh.normals.append(Vector((0.5, -0.5, 0.5)))
+    mesh.normals.append(Vector((0.5, -0.5, -0.5)))
+    mesh.normals.append(Vector((-0.5, 0.5, 0.5)))
+    mesh.normals.append(Vector((-0.5, 0.5, -0.5)))
+    mesh.normals.append(Vector((-0.5, -0.5, 0.5)))
+    mesh.normals.append(Vector((-0.5, -0.5, -0.5)))
+
+    mesh.triangles.append(Triangle(vert_ids=(4, 2, 0), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(2, 7, 3), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(6, 5, 7), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(1, 7, 5), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(0, 3, 1), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(4, 1, 5), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(4, 6, 2), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(2, 6, 7), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(6, 4, 5), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(1, 3, 7), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(0, 2, 3), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(4, 0, 1), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=1.1))
 
     if skin:
-        mesh.vert_infs[0].bone_inf = 0.0
+        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=75.0, xtra_inf=25.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=75.0, xtra_inf=25.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=50.0, xtra_inf=50.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=50.0, xtra_inf=50.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=25.0, xtra_inf=75.0))
+        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=25.0, xtra_inf=75.0))
+
+    for i, _ in enumerate(mesh.verts):
+        mesh.shade_ids.append(i)
 
     mesh.mat_info = get_material_info()
     mesh.aabbtree = get_aabbtree()
@@ -105,26 +139,34 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
             mesh.textures.append(get_texture())
         mesh.material_passes.append(get_material_pass())
 
-
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
     mesh.header.matl_count = len(mesh.vert_materials)
     return mesh
 
 
-def compare_lists(self, expected, actual):
-    self.assertEqual(len(expected), len(actual))
-    self.assertEqual(expected, actual)
-
-
-def compare_meshes(self, expected, actual):
+def compare_meshes(self, expected, actual, comp_normals=True):
     compare_mesh_headers(self, expected.header, actual.header)
-    compare_lists(self, expected.verts, actual.verts)
-    compare_lists(self, expected.normals, actual.normals)
-    compare_lists(self, expected.shade_ids, actual.shade_ids)
 
-    if expected.aabbtree is not None:
-        compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
+    self.assertEqual(len(expected.verts), len(actual.verts))
+    for i, expect in enumerate(expected.verts):
+        self.assertAlmostEqual(expect[0], actual.verts[i][0])
+        self.assertAlmostEqual(expect[1], actual.verts[i][1])
+        self.assertAlmostEqual(expect[2], actual.verts[i][2])
+
+    self.assertEqual(len(expected.normals), len(actual.normals))
+    if comp_normals:
+        for i, expect in enumerate(expected.normals):
+            self.assertAlmostEqual(expect[0], actual.normals[i][0])
+            self.assertAlmostEqual(expect[1], actual.normals[i][1])
+            self.assertAlmostEqual(expect[2], actual.normals[i][2])
+
+    self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
+    for i, expect in enumerate(expected.shade_ids):
+        self.assertAlmostEqual(expect, actual.shade_ids[i])
+
+    #if expected.aabbtree is not None:
+    #    compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
 
     if expected.mat_info is not None:
         compare_material_infos(self, expected.mat_info, actual.mat_info)

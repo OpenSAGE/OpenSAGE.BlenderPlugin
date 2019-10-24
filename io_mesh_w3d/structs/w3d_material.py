@@ -222,7 +222,7 @@ W3D_CHUNK_MATERIAL_INFO = 0x00000028
 
 
 class MaterialInfo(Struct):
-    pass_count = 1
+    pass_count = 0
     vert_matl_count = 0
     shader_count = 0
     texture_count = 0

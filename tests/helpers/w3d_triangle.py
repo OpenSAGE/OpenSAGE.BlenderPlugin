@@ -16,4 +16,4 @@ def compare_triangles(self, expected, actual):
     self.assertEqual(expected.vert_ids, actual.vert_ids)
     self.assertEqual(expected.surface_type, actual.surface_type)
     self.assertEqual(expected.normal, actual.normal)
-    self.assertEqual(expected.distance, actual.distance)
+    self.assertAlmostEqual(expected.distance, actual.distance)

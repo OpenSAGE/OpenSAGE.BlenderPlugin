@@ -52,10 +52,10 @@ def compare_vertex_materials(self, expected, actual):
 
 def get_material_info():
     return MaterialInfo(
-        pass_count=33,
-        vert_matl_count=123,
-        shader_count=43,
-        texture_count=142)
+        pass_count=2,
+        vert_matl_count=2,
+        shader_count=2,
+        texture_count=0)
 
 
 def compare_material_infos(self, expected, actual):
@@ -92,8 +92,8 @@ def compare_texture_stages(self, expected, actual):
 
 def get_material_pass(count=33, num_stages=2):
     matpass = MaterialPass(
-        vertex_material_ids=[],
-        shader_ids=[],
+        vertex_material_ids=[0],
+        shader_ids=[0],
         dcg=[],
         dig=[],
         scg=[],
@@ -102,8 +102,6 @@ def get_material_pass(count=33, num_stages=2):
         tx_coords=[])
 
     for i in range(count):
-        matpass.vertex_material_ids.append(i)
-        matpass.shader_ids.append(i)
         matpass.dcg.append(get_rgba())
         matpass.dig.append(get_rgba())
         matpass.scg.append(get_rgba())

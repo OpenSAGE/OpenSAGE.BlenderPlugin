@@ -96,14 +96,13 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
     if rig is not None:
-        for i in range(len(mesh_struct.vert_infs)):
-            vert = mesh_struct.verts[i]
-            weight = mesh_struct.vert_infs[i].bone_inf
+        for i, vert_inf in enumerate(mesh_struct.vert_infs):
+            weight = vert_inf.bone_inf
             if weight == 0.0:
                 weight = 1.0
 
-            bone = rig.data.bones[hierarchy.pivots[mesh_struct.vert_infs[i].bone_idx].name]
-            mesh_struct.verts[i] = bone.matrix_local @ Vector(vert)
+            bone = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name]
+            mesh_struct.verts[i] = bone.matrix_local @ mesh_struct.verts[i]
 
     mesh.from_pydata(mesh_struct.verts, [], triangles)
     mesh.update()
@@ -115,8 +114,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh_ob['UserText'] = mesh_struct.user_text
 
     for mat_pass in mesh_struct.material_passes:
-        create_uvlayers(mesh, triangles, mat_pass.tx_coords,
-                        mat_pass.tx_stages)
+        create_uvlayers(mesh, triangles, mat_pass)
 
     for vertMat in mesh_struct.vert_materials:
         mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
@@ -395,14 +393,14 @@ def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
             uv_layer.data[loop.index].uv = tx_coords[idx]
 
 
-def create_uvlayers(mesh, tris, tx_coords, tx_stages):
+def create_uvlayers(mesh, tris, mat_pass):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    create_uv_layer(mesh, b_mesh, tris, tx_coords)
+    create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
 
     i = 0
-    for stage in tx_stages:
+    for stage in mat_pass.tx_stages:
         create_uv_layer(mesh, b_mesh, tris, stage.tx_coords, str(i))
         i += 1
 

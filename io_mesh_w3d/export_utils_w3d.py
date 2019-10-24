@@ -87,7 +87,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         header.vert_count = len(mesh.vertices)
 
-        for vertex in mesh.vertices:
+        for i, vertex in enumerate(mesh.vertices):
             vertInf = VertexInfluence()
 
             if vertex.groups:
@@ -113,6 +113,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.verts.append(vertex.co.xyz)
 
             mesh_struct.normals.append(vertex.normal)
+            mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
@@ -121,8 +122,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         for face in mesh.polygons:
             triangle = Triangle()
-            triangle.vert_ids = [face.vertices[0],
-                                    face.vertices[1], face.vertices[2]]
+            triangle.vert_ids = (face.vertices[0],
+                                    face.vertices[1], face.vertices[2])
             triangle.normal = Vector(face.normal)
             vec1 = mesh.vertices[face.vertices[0]].co.xyz
             vec2 = mesh.vertices[face.vertices[1]].co.xyz
@@ -142,7 +143,32 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy)
 
-        for material in mesh.materials:
+        for i, material in enumerate(mesh.materials):
+            mat_pass = MaterialPass(
+                vertex_material_ids=[i],
+                shader_ids=[i],
+                dcg=[],
+                dig=[],
+                scg=[],
+                shader_material_ids=[],
+                tx_stages=[],
+                tx_coords=[])
+
+            b_mesh = bmesh.new()
+            b_mesh.from_mesh(mesh)
+
+            for uv_layer in mesh.uv_layers:
+                stage = TextureStage(
+                    tx_ids=[],
+                    per_face_tx_coords=[],
+                    tx_coords=[])
+
+                for i, face in enumerate(b_mesh.faces):
+                    for loop in face.loops:
+                        stage.tx_coords.append(uv_layer.data[loop.index].uv)
+                mat_pass.tx_stages.append(stage)
+            mesh_struct.material_passes.append(mat_pass)
+
             mesh_struct.shaders.append(retrieve_shader(material))
 
             principled = retrieve_principled_bsdf(material)
@@ -232,8 +258,14 @@ def retrieve_principled_bsdf(material):
     if normalmap_tex and normalmap_tex.image:
         result.normalmap_tex = normalmap_tex.image.name
         result.bump_scale = principled.normalmap_strength
-
     return result
+
+
+def get_material_name(material):
+    name = material.name
+    if "." in name:
+        return name.split('.')[1]
+    return name
 
 
 def retrieve_vertex_material(material):
@@ -257,7 +289,7 @@ def retrieve_vertex_material(material):
         info.attributes |= DEPTH_CUE_TO_ALPHA
 
     vert_material = VertexMaterial(
-        vm_name=material.name.split('.')[1],
+        vm_name=get_material_name(material),
         vm_info=info,
         vm_args_0=material.vm_args_0,
         vm_args_1=material.vm_args_1)
