@@ -11,7 +11,7 @@ from tests.helpers.w3d_version import get_version, compare_versions
 def get_animation_header(hierarchy_name):
     return AnimationHeader(
         version=get_version(),
-        name="AniHeader",
+        name="containerName",
         hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300)
@@ -56,7 +56,7 @@ def compare_animation_channels(self, expected, actual):
     for i in range(len(expected.data)):
         self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
 
-def get_animation(hierarchy_name="TestAnimation"):
+def get_animation(hierarchy_name="TestHierarchy"):
     animation = Animation(
         header=get_animation_header(hierarchy_name),
         channels=[])

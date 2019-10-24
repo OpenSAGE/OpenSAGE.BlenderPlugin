@@ -21,10 +21,7 @@ def save(givenfilepath, _context, export_settings):
 
     (hierarchy, rig) = retrieve_hierarchy(containerName)
 
-    hlod = HLod()
-    hlod.header.model_name = containerName
-    hlod.header.hierarchy_name = hierarchy.header.name
-    hlod.lod_array.sub_objects = []
+    hlod = create_hlod(containerName, hierarchy.header.name)
 
     if export_mode in ('M', 'HAM'):
         sknFile = open(givenfilepath, "wb")
@@ -33,7 +30,7 @@ def save(givenfilepath, _context, export_settings):
         for box in boxes:
             box.write(sknFile)
 
-        meshes = retrieve_meshes(sknFile, hierarchy, rig, hlod, containerName)
+        meshes = retrieve_meshes(hierarchy, rig, hlod, containerName)
         for mesh in meshes:
             mesh.write(sknFile)
 
@@ -53,7 +50,8 @@ def save(givenfilepath, _context, export_settings):
 
     elif export_mode == 'A':
         aniFile = open(givenfilepath, "wb")
-        export_animation(aniFile, containerName, hierarchy)
+        animation = retrieve_animation(containerName, hierarchy)
+        animation.write(aniFile)
         aniFile.close()
 
     return {'FINISHED'}

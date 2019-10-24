@@ -20,16 +20,16 @@ def get_mesh_header(name, skin):
         version=get_version(),
         attrs=0,
         mesh_name=name,
-        container_name="contName",
-        face_count=3,
-        vert_count=32,
-        matl_count=11,
-        damage_stage_count=3,
-        sort_level=3,
-        prelit_version=2,
-        future_count=44,
+        container_name="containerName",
+        face_count=0,
+        vert_count=0,
+        matl_count=0,
+        damage_stage_count=0,
+        sort_level=0,
+        prelit_version=0,
+        future_count=0,
         vert_channel_flags=3,
-        face_channel_flags=3,
+        face_channel_flags=1,
         min_corner=Vector((0.0, 0.0, 0.0)),
         max_corner=Vector((0.0, 0.0, 0.0)),
         sph_center=Vector((0.0, 0.0, 0.0)),
@@ -60,7 +60,7 @@ def compare_mesh_headers(self, expected, actual):
     self.assertEqual(expected.sph_radius, actual.sph_radius)
 
 
-def get_mesh(name="meshName", skin=False, minimal=False):
+def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh = Mesh(
         header=get_mesh_header(name, skin),
         user_text="",
@@ -84,22 +84,31 @@ def get_mesh(name="meshName", skin=False, minimal=False):
 
     for i in range(332):
         mesh.verts.append(Vector((3.0, -1.2, 0.0)))
-        mesh.normals.append(Vector((3.0, -1.2, 0.0)))
-        mesh.vert_infs.append(get_vertex_influence(bone=1, xtra=2))
+        mesh.normals.append(Vector((1.0, -1.2, 0.0)))
+        if skin:
+            mesh.vert_infs.append(get_vertex_influence(bone=1, xtra=2))
         mesh.triangles.append(get_triangle())
         mesh.shade_ids.append(i)
 
-    mesh.vert_infs[0].bone_inf = 0.0
+    if skin:
+        mesh.vert_infs[0].bone_inf = 0.0
 
     mesh.mat_info = get_material_info()
     mesh.aabbtree = get_aabbtree()
 
     for _ in range(2):
         mesh.shaders.append(get_shader())
-        mesh.vert_materials.append(get_vertex_material())
-        mesh.textures.append(get_texture())
-        mesh.shader_materials.append(get_shader_material())
+        if shader_mats:
+            mesh.shader_materials.append(get_shader_material())
+        else:
+            mesh.vert_materials.append(get_vertex_material())
+            mesh.textures.append(get_texture())
         mesh.material_passes.append(get_material_pass())
+
+
+    mesh.header.face_count = len(mesh.triangles)
+    mesh.header.vert_count = len(mesh.verts)
+    mesh.header.matl_count = len(mesh.vert_materials)
     return mesh
 
 

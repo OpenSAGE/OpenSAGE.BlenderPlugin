@@ -267,8 +267,8 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 #######################################################################################
 
 
-def rgba_to_vector(rgba):
-    return (rgba.r / 255.0, rgba.g / 255.0, rgba.b /255.0, 0.0)
+def rgba_to_vector(rgba, scale=255.0):
+    return (rgba.r / scale, rgba.g / scale, rgba.b / scale, 0.0)
 
 
 def create_material_from_vertex_material(self, mesh, vert_mat):
@@ -290,7 +290,7 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     mat.attributes = atts
     mat.specular_intensity = vert_mat.vm_info.shininess
     mat.specular_color = rgba_to_vector(vert_mat.vm_info.specular)[0:3]
-    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse)
+    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse, 1.0)
 
     mat.emission = rgba_to_vector(vert_mat.vm_info.emissive)
     mat.ambient = rgba_to_vector(vert_mat.vm_info.ambient)
@@ -444,6 +444,7 @@ def load_texture(self, tex_name):
 # createAnimation
 #######################################################################################
 
+
 def is_roottransform(pivot):
     return pivot == 0
 
@@ -536,7 +537,7 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(rig, animation, hierarchy, compressed):
+def create_animation(rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 

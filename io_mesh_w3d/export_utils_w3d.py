@@ -33,7 +33,6 @@ def retrieve_boxes(hlod):
     mesh_objects = get_mesh_objects()
     container_name = hlod.header.model_name
 
-    #TODO: append box to hlod?
     for mesh_object in mesh_objects:
         if mesh_object.name == "BOUNDINGBOX":
             box = Box(
@@ -48,14 +47,16 @@ def retrieve_boxes(hlod):
                 box.color = vector_to_rgba(material.diffuse_color)
             boxes.append(box)
 
+
             subObject = HLodSubObject(
                 name=container_name + "." + mesh_object.name,
                 bone_index=0)
             hlod.lod_array.sub_objects.append(subObject)
+            hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     return boxes
 
 
-def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
+def retrieve_meshes(hierarchy, rig, hlod, container_name):
     mesh_structs = []
     mesh_objects = get_mesh_objects()
 
@@ -64,6 +65,7 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
             continue
 
         mesh_struct = Mesh(
+            header=MeshHeader(),
             verts=[],
             normals=[],
             vert_infs=[],
@@ -107,7 +109,7 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
                 elif len(vertex.groups) > 2:
                     print("Error: max 2 bone influences per vertex supported!")
 
-            if not vertex.groups:
+            else:
                 mesh_struct.verts.append(vertex.co.xyz)
 
             mesh_struct.normals.append(vertex.normal)
@@ -129,44 +131,36 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
             triangle.distance = (mesh_object.location - tri_pos).length
             mesh_struct.triangles.append(triangle)
 
-        if mesh_object.vertex_groups:
+        header.face_count = len(mesh_struct.triangles)
+
+        if mesh_struct.vert_infs:
             header.attrs = GEOMETRY_TYPE_SKIN
 
         center, radius = calculate_mesh_sphere(mesh)
         header.sphCenter = center
         header.sphRadius = radius
 
-        header.faceCount = len(mesh_struct.triangles)
-
-        subObject = HLodSubObject()
-        subObject.name = container_name + "." + mesh_object.name
-        subObject.bone_index = 0
-
-        if header.attrs == GEOMETRY_TYPE_SKIN:
-            for index, pivot in enumerate(hierarchy.pivots):
-                if pivot.name == mesh_object.name:
-                    subObject.bone_index = index
-        hlod.lod_array.sub_objects.append(subObject)
+        append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy)
 
         for material in mesh.materials:
             mesh_struct.shaders.append(retrieve_shader(material))
 
-            #principled = get_principled_bsdf(material)
-            #if principled.normalmap_tex is not None:
-            #    mesh_struct.shader_materials.append(retrieve_shader_material(material, principled))
-            #else:
-            #    mesh_struct.vert_materials.append(retrieve_vertex_material(material))
+            principled = retrieve_principled_bsdf(material)
+            if principled.normalmap_tex is not None:
+                mesh_struct.shader_materials.append(retrieve_shader_material(material, principled))
+            else:
+                mesh_struct.vert_materials.append(retrieve_vertex_material(material))
 
-            #    if principled.diffuse_tex is not None:
-            #        info = TextureInfo(
-            #            attributes=0,
-            #            animation_type=0,
-            #            frame_count=0, 
-            #            frame_rate=0.0)
-            #        tex = Texture(
-            #            name=principled.diffuse_tex,
-            #            tex_info=info)
-            #        mesh_struct.textures.append(tex)
+                if principled.diffuse_tex is not None:
+                    info = TextureInfo(
+                        attributes=0,
+                        animation_type=0,
+                        frame_count=0, 
+                        frame_rate=0.0)
+                    tex = Texture(
+                        name=principled.diffuse_tex,
+                        tex_info=info)
+                    mesh_struct.textures.append(tex)
 
         mesh_struct.mat_info = MaterialInfo(
             pass_count=len(mesh_struct.material_passes),
@@ -174,8 +168,37 @@ def retrieve_meshes(skn_file, hierarchy, rig, hlod, container_name):
             shader_count=len(mesh_struct.shaders),
             texture_count=len(mesh_struct.textures))
 
+        mesh_struct.header.matl_count = len(mesh_struct.vert_materials)
         mesh_structs.append(mesh_struct)
     return mesh_structs
+
+
+#######################################################################################
+# hlod
+#######################################################################################
+
+
+def create_hlod(container_name, hierarchy_name):
+    return HLod(
+        header=HLodHeader(
+            model_name=container_name,
+            hierarchy_name=hierarchy_name),
+        lod_array=HLodArray(sub_objects=[]))
+
+
+def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
+    name = mesh_struct.header.mesh_name
+    subObject = HLodSubObject()
+    subObject.name = container_name + "." + name
+    subObject.bone_index = 0
+
+    if not mesh_struct.is_skin():
+        for index, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == name:
+                subObject.bone_index = index
+
+    hlod.lod_array.sub_objects.append(subObject)
+    hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
 
 
 #######################################################################################
@@ -191,8 +214,8 @@ class PrincipledBSDF(Struct):
     bump_scale = None
 
 
-def vector_to_rgba(vec):
-    return RGBA(r=int(vec[0] * 255), g=int(vec[1] * 255), b=int(vec[2] * 255), a=0)
+def vector_to_rgba(vec, scale=255):
+    return RGBA(r=int(vec[0] * scale), g=int(vec[1] * scale), b=int(vec[2] * scale), a=0)
 
 
 def retrieve_principled_bsdf(material):
@@ -218,7 +241,7 @@ def retrieve_vertex_material(material):
         attributes=0,
         shininess=material.specular_intensity,
         specular=vector_to_rgba(material.specular_color),
-        diffuse=vector_to_rgba(material.diffuse_color),
+        diffuse=vector_to_rgba(material.diffuse_color, 1),
         emissive=vector_to_rgba(material.emission),
         ambient=vector_to_rgba(material.ambient),
         translucency=material.translucency,
@@ -378,7 +401,7 @@ def retrieve_hierarchy(container_name):
 #######################################################################################
 
 
-def export_animation(ani_file, animation_name, hierarchy):
+def retrieve_animation(animation_name, hierarchy):
     # only time coded compression for now
     ani_struct = CompressedAnimation(time_coded_channels=[])
     ani_struct.header.name = animation_name
@@ -443,7 +466,6 @@ def export_animation(ani_file, animation_name, hierarchy):
         if channel_type < 6 or index == 3:
             ani_struct.time_coded_channels.append(channel)
 
-    ani_struct.write(ani_file)
     return ani_struct
 
 

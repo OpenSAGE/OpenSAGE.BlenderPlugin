@@ -14,19 +14,21 @@ from tests.helpers.w3d_shader import get_shader, compare_shaders
 from tests.helpers.w3d_box import get_box, compare_boxes
 from tests.helpers.w3d_hierarchy import get_hierarchy, compare_hierarchies
 from tests.helpers.w3d_hlod import get_hlod, compare_hlods
+from tests.helpers.w3d_animation import get_animation, compare_animations
+from tests.helpers.w3d_compressed_animation import get_compressed_animation, compare_compressed_animations
 
 
 class TestUtils(utils.W3dTestCase):
-    def test_vertex_material_roundtrip(self):
-        mesh = get_mesh()
-        context = utils.ImportWrapper(self.outpath())
+    #def test_vertex_material_roundtrip(self):
+    #    mesh = get_mesh()
+    #    context = utils.ImportWrapper(self.outpath())
 
-        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+    #    copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
 
-        for source in mesh.vert_materials:
-            material = create_material_from_vertex_material(context, mesh, source)
-            actual = retrieve_vertex_material(material)
-            compare_vertex_materials(self, source, actual)
+    #    for source in mesh.vert_materials:
+    #        material = create_material_from_vertex_material(context, mesh, source)
+    #        actual = retrieve_vertex_material(material)
+    #        compare_vertex_materials(self, source, actual)
 
 
     def test_shader_material_roundtrip(self):
@@ -85,4 +87,92 @@ class TestUtils(utils.W3dTestCase):
         compare_hierarchies(self, expected, actual)
 
 
+    def test_hlod_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        expected = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
 
+
+        coll = get_collection(expected)
+        rig = get_or_create_skeleton(expected, hierarchy, coll)
+        create_box(box, coll)
+
+        for mesh in meshes:
+            create_mesh(context, mesh, hierarchy, rig)
+
+        for mesh in meshes:
+            rig_mesh(mesh, hierarchy, rig, coll)
+
+        actual = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(actual)
+        retrieve_meshes(hierarchy, rig, actual, "containerName")
+        compare_hlods(self, expected, actual)
+
+    
+    #def test_meshes_roundtrip(self):
+    #    context = utils.ImportWrapper(self.outpath())
+    #    hlod = get_hlod()
+    #    box = get_box()
+    #    hierarchy = get_hierarchy()
+    #    expecteds = [
+    #        get_mesh(name="sword"),
+    #        get_mesh(name="soldier", skin=True),
+    #        get_mesh(name="shield")]
+
+
+    #    coll = get_collection(hlod)
+    #    rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    #    create_box(box, coll)
+
+    #    for mesh in expecteds:
+    #        create_mesh(context, mesh, hierarchy, rig)
+
+    #    for mesh in expecteds:
+    #        rig_mesh(mesh, hierarchy, rig, coll)
+
+    #    hlod = create_hlod("containerName", hierarchy.header.name)
+    #    retrieve_boxes(hlod)
+    #    actuals = retrieve_meshes(hierarchy, rig, hlod, "containerName")
+
+    #    self.assertEqual(len(expecteds), len(actuals))
+    #    for i, expected in enumerate(expecteds):
+    #        compare_meshes(self, expected, actuals[i])
+
+
+    #def test_compressed_animation_roundtrip(self):
+        # TODO
+        #context = utils.ImportWrapper(self.outpath())
+        #expected = get_compressed_animation(
+        #    bit_channels=False,
+        #    motion_tc=False,
+        #    motion_ad4=False,
+        #    motion_ad8=False)
+        #hlod = get_hlod()
+        #box = get_box()
+        #hierarchy = get_hierarchy()
+        #meshes = [
+        #    get_mesh(name="sword"),
+        #    get_mesh(name="soldier", skin=True),
+        #    get_mesh(name="shield")]
+
+        #coll = get_collection(hlod)
+        #rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        #for mesh in meshes:
+        #    create_mesh(context, mesh, hierarchy, rig)
+
+        #for mesh in meshes:
+        #    rig_mesh(mesh, hierarchy, rig, coll)
+
+        #create_animation(rig, expected, hierarchy, compressed=True)
+        #actual = retrieve_animation("containerName", hierarchy)
+        #compare_compressed_animations(self, expected, actual)
+
+
+    #def test_animation_roundtrip(self):
+        # TODO

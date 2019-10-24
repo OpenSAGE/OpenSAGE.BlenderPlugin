@@ -21,10 +21,10 @@ class RGBA(Struct):
 
     @staticmethod
     def read_f(io_stream):
-        return RGBA(r=read_float(io_stream),
-                    g=read_float(io_stream),
-                    b=read_float(io_stream),
-                    a=read_float(io_stream))
+        return RGBA(r=int(read_float(io_stream) * 255),
+                    g=int(read_float(io_stream) * 255),
+                    b=int(read_float(io_stream) * 255),
+                    a=int(read_float(io_stream) * 255))
 
     def write(self, io_stream):
         write_ubyte(io_stream, self.r)
@@ -33,10 +33,10 @@ class RGBA(Struct):
         write_ubyte(io_stream, self.a)
 
     def write_f(self, io_stream):
-        write_float(io_stream, self.r)
-        write_float(io_stream, self.g)
-        write_float(io_stream, self.b)
-        write_float(io_stream, self.a)
+        write_float(io_stream, self.r / 255)
+        write_float(io_stream, self.g / 255)
+        write_float(io_stream, self.b / 255)
+        write_float(io_stream, self.a / 255)
 
     def __eq__(self, other):
         if isinstance(other, RGBA):

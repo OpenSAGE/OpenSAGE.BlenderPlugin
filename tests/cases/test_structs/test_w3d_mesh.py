@@ -13,7 +13,25 @@ class TestMesh(unittest.TestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(39333, expected.size_in_bytes())
+        self.assertEqual(35905, expected.size_in_bytes())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
+        self.assertEqual(expected.size_in_bytes(), chunk_size)
+
+        actual = Mesh.read(self, io_stream, subchunk_end)
+        compare_meshes(self, expected, actual)
+
+
+    def test_write_read_variant2(self):
+        expected = get_mesh(skin=True, shader_mats=True)
+
+        self.assertEqual(39033, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

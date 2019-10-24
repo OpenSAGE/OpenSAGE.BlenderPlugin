@@ -11,7 +11,7 @@ from tests.helpers.w3d_version import get_version, compare_versions
 def get_hlod_header(model_name, hierarchy_name):
     return HLodHeader(
         version=get_version(),
-        lod_count=3,
+        lod_count=1,
         model_name=model_name,
         hierarchy_name=hierarchy_name)
 
@@ -25,13 +25,14 @@ def compare_hlod_headers(self, expected, actual):
 
 def get_hlod_array_header():
     return HLodArrayHeader(
-        model_count=2,
-        max_screen_size=5442)
+        model_count=0,
+        max_screen_size=0.0)
 
 
 def compare_hlod_array_headers(self, expected, actual):
     self.assertEqual(expected.model_count, actual.model_count)
     self.assertEqual(expected.max_screen_size, actual.max_screen_size)
+
 
 def get_hlod_sub_object(bone, name):
     return HLodSubObject(
@@ -44,13 +45,17 @@ def compare_hlod_sub_objects(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
 
 
-def get_hlod_array(num_subobjects=2):
+def get_hlod_array():
     array = HLodArray(
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    array.sub_objects.append(get_hlod_sub_object(bone=5, name="sword"))
-    array.sub_objects.append(get_hlod_sub_object(bone=6, name="shield"))
+    array.sub_objects.append(get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX"))
+    array.sub_objects.append(get_hlod_sub_object(bone=5, name="containerName.sword"))
+    array.sub_objects.append(get_hlod_sub_object(bone=0, name="containerName.soldier"))
+    array.sub_objects.append(get_hlod_sub_object(bone=6, name="containerName.shield"))
+
+    array.header.model_count = len(array.sub_objects)
     return array
 
 
@@ -62,7 +67,7 @@ def compare_hlod_arrays(self, expected, actual):
         compare_hlod_sub_objects(self, expected.sub_objects[i], actual.sub_objects[i])
 
 
-def get_hlod(model_name="TestModelName", hierarchy_name="TestHieraName"):
+def get_hlod(model_name="containerName", hierarchy_name="TestHierarchy"):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
         lod_array=get_hlod_array())

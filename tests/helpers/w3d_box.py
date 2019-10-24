@@ -16,7 +16,7 @@ def get_box():
         version=get_version(),
         box_type=0,
         collision_types=0,
-        name="TestModelName.BOUNDINGBOX",
+        name="containerName.BOUNDINGBOX",
         color=get_rgba(),
         center=Vector((1.0, 2.0, 3.0)),
         extend=Vector((4.0, 5.0, 6.0)))

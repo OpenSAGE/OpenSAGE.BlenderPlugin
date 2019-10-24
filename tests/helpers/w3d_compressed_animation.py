@@ -11,7 +11,7 @@ from tests.helpers.w3d_version import get_version, compare_versions
 def get_compressed_animation_header(hierarchy_name, _flavor):
     return CompressedAnimationHeader(
         version=get_version(),
-        name="CompAniHead",
+        name="containerName",
         hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300,
