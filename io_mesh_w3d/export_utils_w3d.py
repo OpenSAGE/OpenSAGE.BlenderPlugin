@@ -143,6 +143,26 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy)
 
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
+        tx_stages = []
+        for uv_layer in mesh.uv_layers:
+            print("layer")
+            stage = TextureStage(
+                tx_ids=[],
+                per_face_tx_coords=[],
+                tx_coords=[])
+
+            for face in b_mesh.faces:
+                for loop in face.loops:
+                    stage.tx_coords.append(uv_layer.data[loop.index].uv)
+            tx_stages.append(stage)
+
+        print("tess")
+        print(len(tx_stages))
+        print(len(mesh.materials))
+
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
                 vertex_material_ids=[i],
@@ -150,23 +170,10 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 dcg=[],
                 dig=[],
                 scg=[],
-                shader_material_ids=[],
+                shader_material_ids=[i],
                 tx_stages=[],
                 tx_coords=[])
 
-            b_mesh = bmesh.new()
-            b_mesh.from_mesh(mesh)
-
-            for uv_layer in mesh.uv_layers:
-                stage = TextureStage(
-                    tx_ids=[],
-                    per_face_tx_coords=[],
-                    tx_coords=[])
-
-                for i, face in enumerate(b_mesh.faces):
-                    for loop in face.loops:
-                        stage.tx_coords.append(uv_layer.data[loop.index].uv)
-                mat_pass.tx_stages.append(stage)
             mesh_struct.material_passes.append(mat_pass)
 
             mesh_struct.shaders.append(retrieve_shader(material))
@@ -273,7 +280,7 @@ def retrieve_vertex_material(material):
         attributes=0,
         shininess=material.specular_intensity,
         specular=vector_to_rgba(material.specular_color),
-        diffuse=vector_to_rgba(material.diffuse_color, 1),
+        diffuse=vector_to_rgba(material.diffuse_color),
         emissive=vector_to_rgba(material.emission),
         ambient=vector_to_rgba(material.ambient),
         translucency=material.translucency,

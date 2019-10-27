@@ -113,8 +113,14 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
     mesh_ob['UserText'] = mesh_struct.user_text
 
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+
     for mat_pass in mesh_struct.material_passes:
-        create_uvlayers(mesh, triangles, mat_pass)
+        create_uvlayers(mesh, b_mesh, triangles, mat_pass)
+
+    print("mes")
+    print(len(mesh.uv_layers))
 
     for vertMat in mesh_struct.vert_materials:
         mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
@@ -288,7 +294,7 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     mat.attributes = atts
     mat.specular_intensity = vert_mat.vm_info.shininess
     mat.specular_color = rgba_to_vector(vert_mat.vm_info.specular)[0:3]
-    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse, 1.0)
+    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse)
 
     mat.emission = rgba_to_vector(vert_mat.vm_info.emissive)
     mat.ambient = rgba_to_vector(vert_mat.vm_info.ambient)
@@ -382,10 +388,12 @@ def set_shader_properties(material, shader):
 
 
 def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
+    print(tx_coords)
     if not tx_coords:
         return
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + index, do_init=False)
+    print("new uv")
     for i, face in enumerate(b_mesh.faces):
         tri = tris[i]
         for loop in face.loops:
@@ -393,11 +401,8 @@ def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
             uv_layer.data[loop.index].uv = tx_coords[idx]
 
 
-def create_uvlayers(mesh, tris, mat_pass):
-    b_mesh = bmesh.new()
-    b_mesh.from_mesh(mesh)
-
-    create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
+def create_uvlayers(mesh, b_mesh, tris, mat_pass):
+    #create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
 
     i = 0
     for stage in mat_pass.tx_stages:

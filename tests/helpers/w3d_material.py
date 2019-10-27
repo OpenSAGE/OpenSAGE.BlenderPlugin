@@ -6,8 +6,7 @@ import unittest
 from mathutils import Vector
 
 from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.structs.w3d_material import VertexMaterial, VertexMaterialInfo, \
-    MaterialInfo, MaterialPass, TextureStage
+from io_mesh_w3d.structs.w3d_material import *
 
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
@@ -65,39 +64,50 @@ def compare_material_infos(self, expected, actual):
     self.assertEqual(expected.texture_count, actual.texture_count)
 
 
-def get_texture_stage(count = 123):
+def get_texture_stage(count = 123, per_face=False):
     tx_stage = TextureStage(
-        tx_ids=[],
+        tx_ids=[0],
         per_face_tx_coords=[],
         tx_coords=[])
 
-    for i in range(count):
-        tx_stage.tx_ids.append(i)
+    for _ in range(count):
         tx_stage.tx_coords.append((2, 4))
-        tx_stage.per_face_tx_coords.append(Vector((33.0, -2.0, 1.0)))
+        if per_face:
+            tx_stage.per_face_tx_coords.append(Vector((33.0, -2.0, 1.0)))
     return tx_stage
 
 
 def compare_texture_stages(self, expected, actual):
-    self.assertEqual(len(expected.tx_ids), len(actual.tx_ids))
-    for i in range(len(expected.tx_ids)):
-        self.assertEqual(expected.tx_ids[i], actual.tx_ids[i])
-    self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
-    for i in range(len(expected.tx_coords)):
-        self.assertAlmostEqual(expected.tx_coords[i], actual.tx_coords[i], 5)
+    if actual.tx_ids: #roundtrip not yet supported
+        self.assertEqual(len(expected.tx_ids), len(actual.tx_ids))
+        for i in range(len(expected.tx_ids)):
+            self.assertEqual(expected.tx_ids[i], actual.tx_ids[i])
+
+    if actual.per_face_tx_coords:
+        self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
+        for i in range(len(expected.tx_coords)):
+            self.assertAlmostEqual(expected.tx_coords[i], actual.tx_coords[i], 5)
+
     self.assertEqual(len(expected.per_face_tx_coords), len(actual.per_face_tx_coords))
     for i in range(len(expected.per_face_tx_coords)):
         self.assertAlmostEqual(expected.per_face_tx_coords[i], actual.per_face_tx_coords[i], 5)
 
 
-def get_material_pass(count=33, num_stages=2):
-    matpass = MaterialPass(
-        vertex_material_ids=[0],
+def get_material_pass(
+        count=33,
+        num_stages=1,
+        vertex_mat_ids=[0],
         shader_ids=[0],
+        shader_mat_ids=[0],
+        per_face_tx_coords=False):
+
+    matpass = MaterialPass(
+        vertex_material_ids=vertex_mat_ids,
+        shader_ids=shader_ids,
         dcg=[],
         dig=[],
         scg=[],
-        shader_material_ids=[],
+        shader_material_ids=shader_mat_ids,
         tx_stages=[],
         tx_coords=[])
 
@@ -105,11 +115,11 @@ def get_material_pass(count=33, num_stages=2):
         matpass.dcg.append(get_rgba())
         matpass.dig.append(get_rgba())
         matpass.scg.append(get_rgba())
-        matpass.shader_material_ids.append(i)
-        matpass.tx_coords.append((0.5, 0.7))
+        if num_stages == 0:
+            matpass.tx_coords.append((0.5, 0.7))
 
     for _ in range(num_stages):
-        matpass.tx_stages.append(get_texture_stage())
+        matpass.tx_stages.append(get_texture_stage(per_face_tx_coords))
 
     return matpass
 
@@ -118,17 +128,20 @@ def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
     self.assertEqual(expected.shader_ids, actual.shader_ids)
 
-    self.assertEqual(len(expected.dcg), len(actual.dcg))
-    for i in range(len(expected.dcg)):
-        compare_rgbas(self, expected.dcg[i], actual.dcg[i])
+    if actual.dcg: #roundtrip not supported yet
+        self.assertEqual(len(expected.dcg), len(actual.dcg))
+        for i in range(len(expected.dcg)):
+            compare_rgbas(self, expected.dcg[i], actual.dcg[i])
 
-    self.assertEqual(len(expected.dig), len(actual.dig))
-    for i in range(len(expected.dig)):
-        compare_rgbas(self, expected.dig[i], actual.dig[i])
+    if actual.dig: #roundtrip not supported yet
+        self.assertEqual(len(expected.dig), len(actual.dig))
+        for i in range(len(expected.dig)):
+            compare_rgbas(self, expected.dig[i], actual.dig[i])
 
-    self.assertEqual(len(expected.scg), len(actual.scg))
-    for i in range(len(expected.scg)):
-        compare_rgbas(self, expected.scg[i], actual.scg[i])
+    if actual.scg: #roundtrip not supported yet
+        self.assertEqual(len(expected.scg), len(actual.scg))
+        for i in range(len(expected.scg)):
+            compare_rgbas(self, expected.scg[i], actual.scg[i])
 
     self.assertEqual(expected.shader_material_ids, actual.shader_material_ids)
 

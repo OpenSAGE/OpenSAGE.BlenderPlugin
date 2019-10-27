@@ -19,16 +19,16 @@ from tests.helpers.w3d_compressed_animation import get_compressed_animation, com
 
 
 class TestUtils(utils.W3dTestCase):
-    #def test_vertex_material_roundtrip(self):
-    #    mesh = get_mesh()
-    #    context = utils.ImportWrapper(self.outpath())
+    def test_vertex_material_roundtrip(self):
+        mesh = get_mesh()
+        context = utils.ImportWrapper(self.outpath())
 
-    #    copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
 
-    #    for source in mesh.vert_materials:
-    #        material = create_material_from_vertex_material(context, mesh, source)
-    #        actual = retrieve_vertex_material(material)
-    #        compare_vertex_materials(self, source, actual)
+        for source in mesh.vert_materials:
+            material = create_material_from_vertex_material(context, mesh, source)
+            actual = retrieve_vertex_material(material)
+            compare_vertex_materials(self, source, actual)
 
 
     def test_shader_material_roundtrip(self):
@@ -122,11 +122,13 @@ class TestUtils(utils.W3dTestCase):
         expecteds = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="shield", shader_mats=True)]
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, coll)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
 
         for mesh in expecteds:
             create_mesh(context, mesh, hierarchy, rig)

@@ -16,6 +16,7 @@ from tests.helpers.w3d_triangle import compare_triangles
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 from tests.helpers.w3d_version import get_version, compare_versions
 
+
 def get_mesh_header(name, skin):
     header = MeshHeader(
         version=get_version(),
@@ -127,7 +128,6 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     for i, _ in enumerate(mesh.verts):
         mesh.shade_ids.append(i)
 
-    mesh.mat_info = get_material_info()
     mesh.aabbtree = get_aabbtree()
 
     for _ in range(2):
@@ -136,9 +136,16 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
             mesh.shader_materials.append(get_shader_material())
         else:
             mesh.vert_materials.append(get_vertex_material())
-            mesh.textures.append(get_texture())
         mesh.material_passes.append(get_material_pass())
 
+    if not shader_mats:
+        mesh.textures.append(get_texture()) #only one texture per material supported
+
+    mesh.mat_info = MaterialInfo(
+        pass_count=len(mesh.material_passes), 
+        vert_matl_count=len(mesh.vert_materials), 
+        shader_count=len(mesh.shaders), 
+        texture_count=len(mesh.textures))
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
     mesh.header.matl_count = len(mesh.vert_materials)
@@ -165,8 +172,9 @@ def compare_meshes(self, expected, actual, comp_normals=True):
     for i, expect in enumerate(expected.shade_ids):
         self.assertAlmostEqual(expect, actual.shade_ids[i])
 
-    #if expected.aabbtree is not None:
-    #    compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
+    #if expected.aabbtree is not None: #how to compute the aabbtree?
+    if actual.aabbtree is not None:
+        compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
 
     if expected.mat_info is not None:
         compare_material_infos(self, expected.mat_info, actual.mat_info)

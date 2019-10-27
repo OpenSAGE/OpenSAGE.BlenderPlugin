@@ -8,34 +8,6 @@ from tests import utils
 
 
 class TestObjectImport(utils.W3dTestCase):
-    def test_import_structure(self):
-        model = utils.ImportWrapper(
-            self.relpath() + "/dol_amroth_citadel/gbdolamr.w3d")
-
-        # Load a structure
-        load(model, bpy.context, import_settings={})
-
-        # Check if all meshes exist
-        self.assertObjectsExist(["BANNERS", "BLACK", "BUTTRESSES", "CREN01",
-                                 "CREN02", "CREN03", "CREN04", "DOME", "ENTRANCE",
-                                 "MAIN", "MOAT", "TOP", "WATER", "WHITETREEEMBOSS"])
-
-        # Check if the armature exists
-        self.assertObjectsExist(["GBDOLAMRSKL"])
-
-        # TODO: check vertices count etc.
-
-    def test_import_structure_with_bld_ani(self):
-        # Load a building animation
-        bld_ani = utils.ImportWrapper(
-            self.relpath() + "/dol_amroth_citadel/gbdolamr_bld.w3d")
-
-        load(bld_ani, bpy.context, import_settings={})
-
-        # Check if all meshes exist
-        self.assertObjectsExist(["BUTTRESSES", "CREN01", "CREN02", "CREN03",
-                                 "CREN04", "MAIN", "BLACK", "TOP", "DOME", "ENTRANCE"])
-
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + "output.w3d", "wb")
 
