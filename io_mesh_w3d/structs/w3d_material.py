@@ -184,7 +184,7 @@ class MaterialPass(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_PASS,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size_in_bytes(), has_sub_chunks=False)
 
         if self.vertex_material_ids:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_IDS,

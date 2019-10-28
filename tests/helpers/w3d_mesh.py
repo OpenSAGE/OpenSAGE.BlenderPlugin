@@ -152,14 +152,13 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
 
 
 def compare_meshes(self, expected, actual, comp_normals=True):
-    print(expected.header.mesh_name)
     compare_mesh_headers(self, expected.header, actual.header)
 
     self.assertEqual(len(expected.verts), len(actual.verts))
     for i, expect in enumerate(expected.verts):
-        self.assertAlmostEqual(expect[0], actual.verts[i][0])
-        self.assertAlmostEqual(expect[1], actual.verts[i][1])
-        self.assertAlmostEqual(expect[2], actual.verts[i][2])
+        self.assertAlmostEqual(expect[0], actual.verts[i][0], 3)
+        self.assertAlmostEqual(expect[1], actual.verts[i][1], 3)
+        self.assertAlmostEqual(expect[2], actual.verts[i][2], 3)
 
     self.assertEqual(len(expected.normals), len(actual.normals))
     if comp_normals:

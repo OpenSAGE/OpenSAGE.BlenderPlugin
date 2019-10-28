@@ -63,8 +63,8 @@ def get_hierarchy(name="TestHierarchy", minimal=False):
         return hierarchy
 
     root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-    root.translation = Vector((0.0, 0.0, 0.0))
-    root.rotation = Quaternion((1.0, 0.0, 0.0, 0.0))
+    root.translation = Vector()
+    root.rotation = Quaternion()
     hierarchy.pivots.append(root)
     hierarchy.pivot_fixups.append(Vector())
 

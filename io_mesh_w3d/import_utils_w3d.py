@@ -95,6 +95,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
 
     mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
+    verts = mesh_struct.verts.copy()
     if rig is not None:
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
@@ -102,9 +103,9 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
                 weight = 1.0
 
             bone = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name]
-            mesh_struct.verts[i] = bone.matrix_local @ mesh_struct.verts[i]
+            verts[i] = bone.matrix_local @ mesh_struct.verts[i]
 
-    mesh.from_pydata(mesh_struct.verts, [], triangles)
+    mesh.from_pydata(verts, [], triangles)
     mesh.update()
     mesh.validate()
 

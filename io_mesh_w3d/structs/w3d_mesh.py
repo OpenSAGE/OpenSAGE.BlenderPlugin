@@ -289,7 +289,7 @@ class Mesh(Struct):
         if self.vert_materials:
             size += HEAD + self.vert_materials_size()
         if self.material_passes:
-            size += HEAD + self.material_passes_size()
+            size += self.material_passes_size()
         if self.aabbtree is not None:
             size += HEAD + self.aabbtree.size_in_bytes()
         return size
