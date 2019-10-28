@@ -119,18 +119,14 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     for mat_pass in mesh_struct.material_passes:
         create_uvlayers(mesh, b_mesh, triangles, mat_pass)
 
-    print("mes")
-    print(len(mesh.uv_layers))
+    for shaderMat in mesh_struct.shader_materials:
+        mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
 
     for vertMat in mesh_struct.vert_materials:
         mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
 
-    # TODO: is there any reference between texture and material?
-    for texture in mesh_struct.textures:
-        create_principled_bsdf(self, material=mesh.materials[0], diffuse_tex=texture.name)
-
-    for shaderMat in mesh_struct.shader_materials:
-        mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
+    for i, texture in enumerate(mesh_struct.textures):
+        create_principled_bsdf(self, material=mesh.materials[i], diffuse_tex=texture.name)
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -149,7 +145,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
 
         for i in range(len(mesh_struct.vert_infs)):
             weight = mesh_struct.vert_infs[i].bone_inf
-            if weight == 0.0:
+            if weight < 0.01:
                 weight = 1.0
 
             mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
@@ -163,28 +159,28 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
         mod.object = rig
         mod.use_bone_envelopes = False
         mod.use_vertex_groups = True
-        return
 
-    pivot = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name][0]
-    if pivot is None:
-        return
-
-    mesh_ob.rotation_mode = 'QUATERNION'
-    mesh_ob.location = pivot.translation
-    mesh_ob.rotation_euler = pivot.euler_angles
-    mesh_ob.rotation_quaternion = pivot.rotation
-
-    if pivot.parent_id == 0:
-        return
-
-    parent_pivot = hierarchy.pivots[pivot.parent_id]
-
-    if parent_pivot.name in bpy.data.objects:
-        mesh_ob.parent = bpy.data.objects[parent_pivot.name]
     else:
-        mesh_ob.parent = rig
-        mesh_ob.parent_bone = parent_pivot.name
-        mesh_ob.parent_type = 'BONE'
+        pivot = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name][0]
+        if pivot is None:
+            return
+
+        mesh_ob.rotation_mode = 'QUATERNION'
+        mesh_ob.location = pivot.translation
+        mesh_ob.rotation_euler = pivot.euler_angles
+        mesh_ob.rotation_quaternion = pivot.rotation
+
+        if pivot.parent_id == 0:
+            return
+
+        parent_pivot = hierarchy.pivots[pivot.parent_id]
+
+        if parent_pivot.name in bpy.data.objects:
+            mesh_ob.parent = bpy.data.objects[parent_pivot.name]
+        else:
+            mesh_ob.parent = rig
+            mesh_ob.parent_bone = parent_pivot.name
+            mesh_ob.parent_type = 'BONE'
 
 
 #######################################################################################
@@ -388,12 +384,10 @@ def set_shader_properties(material, shader):
 
 
 def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
-    print(tx_coords)
     if not tx_coords:
         return
 
     uv_layer = mesh.uv_layers.new(name="texcoords" + index, do_init=False)
-    print("new uv")
     for i, face in enumerate(b_mesh.faces):
         tri = tris[i]
         for loop in face.loops:
@@ -402,12 +396,13 @@ def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
 
 
 def create_uvlayers(mesh, b_mesh, tris, mat_pass):
-    #create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
+    create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
 
-    i = 0
-    for stage in mat_pass.tx_stages:
+    if len(mat_pass.tx_stages) > 1:
+        print("Warning!: only one texture stage per material pass supported on export")
+
+    for i, stage in enumerate(mat_pass.tx_stages):
         create_uv_layer(mesh, b_mesh, tris, stage.tx_coords, str(i))
-        i += 1
 
 
 #######################################################################################

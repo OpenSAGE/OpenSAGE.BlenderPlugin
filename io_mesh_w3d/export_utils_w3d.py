@@ -97,9 +97,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 vertInf.bone_inf = vertex.groups[0].weight
                 mesh_struct.vert_infs.append(vertInf)
 
-                bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                mesh_struct.verts.append(
-                    bone.matrix.inverted() @ vertex.co.xyz)
+                mesh_struct.verts.append(vertex.co.xyz)
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
@@ -128,8 +126,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             vec1 = mesh.vertices[face.vertices[0]].co.xyz
             vec2 = mesh.vertices[face.vertices[1]].co.xyz
             vec3 = mesh.vertices[face.vertices[2]].co.xyz
-            tri_pos = Vector((vec1 + vec2 + vec3)) / 3.0
-            triangle.distance = (mesh_object.location - tri_pos).length
+            tri_pos = (vec1 + vec2 + vec3) / 3.0
+            triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
         header.face_count = len(mesh_struct.triangles)
@@ -148,52 +146,56 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         tx_stages = []
         for uv_layer in mesh.uv_layers:
-            print("layer")
             stage = TextureStage(
                 tx_ids=[],
                 per_face_tx_coords=[],
-                tx_coords=[])
+                tx_coords=[(0.0, 0.0)] * len(mesh_struct.verts))
 
+            # TODO: find a cleaner way for doing that
             for face in b_mesh.faces:
                 for loop in face.loops:
-                    stage.tx_coords.append(uv_layer.data[loop.index].uv)
+                    face_index = int(loop.index / 3)
+                    face_vert_index = loop.index % 3
+                    vert_index = mesh_struct.triangles[face_index].vert_ids[face_vert_index]
+                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
-        print("tess")
-        print(len(tx_stages))
-        print(len(mesh.materials))
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
-                vertex_material_ids=[i],
+                vertex_material_ids=[],
                 shader_ids=[i],
                 dcg=[],
                 dig=[],
                 scg=[],
-                shader_material_ids=[i],
+                shader_material_ids=[],
                 tx_stages=[],
                 tx_coords=[])
 
-            mesh_struct.material_passes.append(mat_pass)
-
             mesh_struct.shaders.append(retrieve_shader(material))
-
             principled = retrieve_principled_bsdf(material)
+
             if principled.normalmap_tex is not None:
+                mat_pass.shader_material_ids = [i]
+                mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(retrieve_shader_material(material, principled))
             else:
+                mat_pass.vertex_material_ids = [i]
+                mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(retrieve_vertex_material(material))
 
                 if principled.diffuse_tex is not None:
                     info = TextureInfo(
                         attributes=0,
                         animation_type=0,
-                        frame_count=0, 
+                        frame_count=0,
                         frame_rate=0.0)
                     tex = Texture(
                         name=principled.diffuse_tex,
-                        tex_info=info)
+                        texture_info=info)
                     mesh_struct.textures.append(tex)
+
+            mesh_struct.material_passes.append(mat_pass)
 
         mesh_struct.mat_info = MaterialInfo(
             pass_count=len(mesh_struct.material_passes),

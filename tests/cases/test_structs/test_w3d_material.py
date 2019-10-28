@@ -50,9 +50,9 @@ class TestMaterialInfo(unittest.TestCase):
 
 class TestMaterialPass(unittest.TestCase):
     def test_write_read(self):
-        expected = get_material_pass(per_face_tx_coords=True)
+        expected = get_material_pass()
 
-        self.assertEqual(492, expected.size_in_bytes())
+        self.assertEqual(340, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -66,12 +66,7 @@ class TestMaterialPass(unittest.TestCase):
         compare_material_passes(self, expected, actual)
 
     def test_write_read_minimal(self):
-        expected = get_material_pass(
-            count=0,
-            num_stages=0,
-            vertex_mat_ids=[],
-            shader_ids=[],
-            shader_mat_ids=[])
+        expected = get_material_pass(minimal=True)
 
         self.assertEqual(0, expected.size_in_bytes())
 
@@ -91,7 +86,7 @@ class TestTextureStage(unittest.TestCase):
     def test_write_read(self):
         expected = get_texture_stage()
 
-        self.assertEqual(1004, expected.size_in_bytes())
+        self.assertEqual(188, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -105,9 +100,9 @@ class TestTextureStage(unittest.TestCase):
         compare_texture_stages(self, expected, actual)
 
     def test_write_read_minimal(self):
-        expected = get_texture_stage(0)
+        expected = get_texture_stage(minimal=True)
 
-        self.assertEqual(12, expected.size_in_bytes())
+        self.assertEqual(0, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

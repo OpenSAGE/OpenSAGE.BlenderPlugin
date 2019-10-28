@@ -49,12 +49,19 @@ def compare_vertex_materials(self, expected, actual):
     compare_vertex_material_infos(self, expected.vm_info, actual.vm_info)
 
 
-def get_material_info():
-    return MaterialInfo(
-        pass_count=2,
-        vert_matl_count=2,
-        shader_count=2,
+def get_material_info(mesh=None):
+    info = MaterialInfo(
+        pass_count=0,
+        vert_matl_count=0,
+        shader_count=0,
         texture_count=0)
+
+    if not mesh is None:
+        info.pass_count = len(mesh.material_passes)
+        info.vert_matl_count = len(mesh.vert_materials)
+        info.shader_count = len(mesh.shaders)
+        info.texture_count = len(mesh.textures)
+    return info
 
 
 def compare_material_infos(self, expected, actual):
@@ -63,17 +70,42 @@ def compare_material_infos(self, expected, actual):
     self.assertEqual(expected.shader_count, actual.shader_count)
     self.assertEqual(expected.texture_count, actual.texture_count)
 
+def get_uvs():
+    uvs = []
+    uvs.append((0.0, 0.1))
+    uvs.append((0.0, 0.4))
+    uvs.append((1.0, 0.6))
+    uvs.append((0.3, 0.1))
+    uvs.append((0.2, 0.2))
+    uvs.append((0.6, 0.6))
+    uvs.append((0.1, 0.8))
+    uvs.append((0.7, 0.7))
+    return uvs
 
-def get_texture_stage(count = 123, per_face=False):
+def get_per_face_txcoords():
+    tx_coords = []
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    return tx_coords
+
+def get_texture_stage(index=0, minimal=False):
     tx_stage = TextureStage(
-        tx_ids=[0],
+        tx_ids=[],
         per_face_tx_coords=[],
         tx_coords=[])
 
-    for _ in range(count):
-        tx_stage.tx_coords.append((2, 4))
-        if per_face:
-            tx_stage.per_face_tx_coords.append(Vector((33.0, -2.0, 1.0)))
+    if minimal:
+        return tx_stage
+
+    tx_stage.tx_ids = [index]
+    tx_stage.tx_coords = get_uvs()
+    tx_stage.per_face_tx_coords = get_per_face_txcoords()
     return tx_stage
 
 
@@ -83,43 +115,50 @@ def compare_texture_stages(self, expected, actual):
         for i in range(len(expected.tx_ids)):
             self.assertEqual(expected.tx_ids[i], actual.tx_ids[i])
 
-    if actual.per_face_tx_coords:
-        self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
-        for i in range(len(expected.tx_coords)):
-            self.assertAlmostEqual(expected.tx_coords[i], actual.tx_coords[i], 5)
+    self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
+    for i in range(len(expected.tx_coords)):
+        self.assertAlmostEqual(expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
+        self.assertAlmostEqual(expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
 
-    self.assertEqual(len(expected.per_face_tx_coords), len(actual.per_face_tx_coords))
-    for i in range(len(expected.per_face_tx_coords)):
-        self.assertAlmostEqual(expected.per_face_tx_coords[i], actual.per_face_tx_coords[i], 5)
+    if actual.per_face_tx_coords: #roundtrip not yet supported
+        self.assertEqual(len(expected.per_face_tx_coords), len(actual.per_face_tx_coords))
+        for i in range(len(expected.per_face_tx_coords)):
+            self.assertAlmostEqual(expected.per_face_tx_coords[i][0], actual.per_face_tx_coords[i][0], 5)
+            self.assertAlmostEqual(expected.per_face_tx_coords[i][1], actual.per_face_tx_coords[i][1], 5)
+            self.assertAlmostEqual(expected.per_face_tx_coords[i][2], actual.per_face_tx_coords[i][2], 5)
 
 
-def get_material_pass(
-        count=33,
-        num_stages=1,
-        vertex_mat_ids=[0],
-        shader_ids=[0],
-        shader_mat_ids=[0],
-        per_face_tx_coords=False):
-
+def get_material_pass(index=0, minimal=False, shader_mat=False):
     matpass = MaterialPass(
-        vertex_material_ids=vertex_mat_ids,
-        shader_ids=shader_ids,
+        vertex_material_ids=[],
+        shader_ids=[],
         dcg=[],
         dig=[],
         scg=[],
-        shader_material_ids=shader_mat_ids,
+        shader_material_ids=[],
         tx_stages=[],
         tx_coords=[])
 
-    for i in range(count):
+    if minimal:
+        return matpass
+
+    matpass.shader_ids = [index]
+
+    if shader_mat:
+        matpass.shader_material_ids = [index]
+    else:
+        matpass.vertex_material_ids = [index]
+
+    for _ in range(8):
         matpass.dcg.append(get_rgba())
         matpass.dig.append(get_rgba())
         matpass.scg.append(get_rgba())
-        if num_stages == 0:
-            matpass.tx_coords.append((0.5, 0.7))
 
-    for _ in range(num_stages):
-        matpass.tx_stages.append(get_texture_stage(per_face_tx_coords))
+    if shader_mat:
+        matpass.tx_coords = get_uvs()
+    else:
+        matpass.tx_stages.append(get_texture_stage())
+        #matpass.tx_stages.append(get_texture_stage()) # only one tx_stage allowed for now
 
     return matpass
 

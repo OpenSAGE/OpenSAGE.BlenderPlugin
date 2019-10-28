@@ -6,14 +6,14 @@ from io_mesh_w3d.structs.w3d_texture import Texture, TextureInfo
 
 def get_texture_info():
     return TextureInfo(
-        attributes=555,
-        animation_type=33,
-        frame_count=63,
-        frame_rate=16.0)
+        attributes=0,
+        animation_type=0,
+        frame_count=0,
+        frame_rate=0.0)
 
 def get_texture(tex_info=get_texture_info()):
     return Texture(
-        name="texture",
+        name="texture.dds",
         texture_info=tex_info)
 
 def compare_textures(self, expected, actual):
