@@ -112,10 +112,6 @@ def load(self, context, import_settings):
 
     file.close()
 
-    coll = get_collection(hlod)
-
-    create_box(box, coll)
-
     if hierarchy is None:
         sklpath = None
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
@@ -135,7 +131,9 @@ def load(self, context, import_settings):
                 print("!!! hierarchy file not found: " + sklpath)
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
+    coll = get_collection(hlod)
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    create_box(box, coll)
 
     for mesh_struct in meshes:
         create_mesh(self, mesh_struct, hierarchy, rig)

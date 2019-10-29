@@ -157,7 +157,7 @@ def get_material_pass(index=0, minimal=False, shader_mat=False):
     if shader_mat:
         matpass.tx_coords = get_uvs()
     else:
-        matpass.tx_stages.append(get_texture_stage())
+        matpass.tx_stages.append(get_texture_stage(index=index))
         #matpass.tx_stages.append(get_texture_stage()) # only one tx_stage allowed for now
 
     return matpass

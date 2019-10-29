@@ -281,20 +281,6 @@ class TestIOBinary(unittest.TestCase):
 
             self.assertEqual(inp, (x, y))
 
-    def test_write_long_array(self):
-        inputs = [[0, 0, 0],
-                  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]
-
-        for inp in inputs:
-            io_stream = io.BytesIO()
-            write_long_array(io_stream, inp)
-
-            io_stream.seek(0)
-
-            for val in inp:
-                self.assertEqual(val, struct.unpack(
-                    "<l", io_stream.read(4))[0])
-
     def test_read_channel_value(self):
         inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]
 

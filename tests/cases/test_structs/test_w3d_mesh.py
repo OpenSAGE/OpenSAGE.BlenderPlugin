@@ -32,7 +32,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(3393, expected.size_in_bytes())
+        self.assertEqual(3353, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -8,13 +8,6 @@ STRING_LENGTH = 16
 LARGE_STRING_LENGTH = 32
 
 
-def read_array(io_stream, chunk_end, read_func):
-    result = []
-    while io_stream.tell() < chunk_end:
-        result.append(read_func(io_stream))
-    return result
-
-
 def read_string(io_stream):
     str_buf = []
     byte = io_stream.read(1)
@@ -153,11 +146,6 @@ def write_vector2(io_stream, vec):
     write_float(io_stream, vec[1])
 
 
-def write_long_array(io_stream, array):
-    for val in array:
-        write_long(io_stream, val)
-
-
 def read_channel_value(io_stream, channel_type):
     if channel_type == 6:
         return read_quaternion(io_stream)
@@ -188,3 +176,17 @@ def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
 def write_array(io_stream, data, write_func):
     for dat in data:
         write_func(io_stream, dat)
+
+
+def read_array(io_stream, chunk_end, read_func):
+    result = []
+    while io_stream.tell() < chunk_end:
+        result.append(read_func(io_stream))
+    return result
+
+
+def read_fixed_array(io_stream, count, read_func):
+    result = []
+    for _ in range(count):
+        result.append(read_func(io_stream))
+    return result

@@ -96,8 +96,9 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.vert_infs.append(vertInf)
 
                 bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                mesh_struct.verts.append(
-                    bone.matrix.inverted() @ vertex.co.xyz)
+                matrix = bone.matrix.inverted()
+                mesh_struct.verts.append(matrix @ vertex.co.xyz)
+                mesh_struct.normals.append(vertex.normal)
 
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -110,8 +111,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
+                mesh_struct.normals.append(vertex.normal)
 
-            mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
@@ -145,9 +146,9 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
         b_mesh.from_mesh(mesh)
 
         tx_stages = []
-        for uv_layer in mesh.uv_layers:
+        for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
-                tx_ids=[],
+                tx_ids=[i],
                 per_face_tx_coords=[],
                 tx_coords=[(0.0, 0.0)] * len(mesh_struct.verts))
 
@@ -171,7 +172,6 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 tx_stages=[],
                 tx_coords=[])
 
-            mesh_struct.shaders.append(retrieve_shader(material))
             principled = retrieve_principled_bsdf(material)
 
             if principled.normalmap_tex is not None:
@@ -180,6 +180,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(material, principled))
             else:
+                mesh_struct.shaders.append(retrieve_shader(material))
                 mat_pass.vertex_material_ids = [i]
                 mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(

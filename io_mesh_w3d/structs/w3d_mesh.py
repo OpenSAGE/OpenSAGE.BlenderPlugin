@@ -321,27 +321,10 @@ class Mesh(Struct):
             for inf in self.vert_infs:
                 inf.write(io_stream)
 
-        if self.shaders:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, self.shaders_size())
-            for shader in self.shaders:
-                shader.write(io_stream)
-
-        if self.textures:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURES,
-                             self.textures_size(), has_sub_chunks=True)
-            for texture in self.textures:
-                texture.write(io_stream)
-
         if self.shade_ids:
             write_chunk_head(
                 io_stream, W3D_CHUNK_VERTEX_SHADE_INDICES, self.shade_ids_size())
             write_array(io_stream, self.shade_ids, write_long)
-
-        if self.shader_materials:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
-                             self.shader_materials_size(), has_sub_chunks=True)
-            for shaderMat in self.shader_materials:
-                shaderMat.write(io_stream)
 
         if self.mat_info is not None:
             write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_INFO,
@@ -353,6 +336,23 @@ class Mesh(Struct):
                              self.vert_materials_size(), has_sub_chunks=True)
             for vertMat in self.vert_materials:
                 vertMat.write(io_stream)
+
+        if self.shaders:
+            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, self.shaders_size())
+            for shader in self.shaders:
+                shader.write(io_stream)
+
+        if self.textures:
+            write_chunk_head(io_stream, W3D_CHUNK_TEXTURES,
+                             self.textures_size(), has_sub_chunks=True)
+            for texture in self.textures:
+                texture.write(io_stream)
+
+        if self.shader_materials:
+            write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
+                             self.shader_materials_size(), has_sub_chunks=True)
+            for shaderMat in self.shader_materials:
+                shaderMat.write(io_stream)
 
         if self.material_passes:
             for mat_pass in self.material_passes:

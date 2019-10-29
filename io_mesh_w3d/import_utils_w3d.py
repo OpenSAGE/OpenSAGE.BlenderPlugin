@@ -17,13 +17,6 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 from io_mesh_w3d.structs.w3d_material import *
 
 
-def read_fixed_array(io_stream, count, read_func):
-    result = []
-    for _ in range(count):
-        result.append(read_func(io_stream))
-    return result
-
-
 def read_chunk_array(self, io_stream, chunk_end, type_, read_func):
     result = []
 

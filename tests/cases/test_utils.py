@@ -142,7 +142,7 @@ class TestUtils(utils.W3dTestCase):
 
         self.assertEqual(len(expecteds), len(actuals))
         for i, expected in enumerate(expecteds):
-            compare_meshes(self, expected, actuals[i], False)
+            compare_meshes(self, expected, actuals[i])
 
 
     #def test_compressed_animation_roundtrip(self):
