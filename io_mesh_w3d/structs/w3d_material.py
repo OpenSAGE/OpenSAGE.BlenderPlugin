@@ -32,7 +32,8 @@ class TextureStage(Struct):
             if chunk_type == W3D_CHUNK_TEXTURE_IDS:
                 result.tx_ids = read_array(io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_STAGE_TEXCOORDS:
-                result.tx_coords = read_array(io_stream, subchunk_end, read_vector2)
+                result.tx_coords = read_array(
+                    io_stream, subchunk_end, read_vector2)
             elif chunk_type == W3D_CHUNK_PER_FACE_TEXCOORD_IDS:
                 result.per_face_tx_coords = read_array(
                     io_stream, subchunk_end, read_vector)
@@ -64,7 +65,8 @@ class TextureStage(Struct):
                          self.size_in_bytes(), has_sub_chunks=True)
 
         if self.tx_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_IDS, self.tx_ids_size())
+            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_IDS,
+                             self.tx_ids_size())
             write_array(io_stream, self.tx_ids, write_long)
 
         if self.tx_coords:
@@ -116,7 +118,8 @@ class MaterialPass(Struct):
                 result.vertex_material_ids = read_array(
                     io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_SHADER_IDS:
-                result.shader_ids = read_array(io_stream, subchunk_end, read_ulong)
+                result.shader_ids = read_array(
+                    io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_DCG:
                 result.dcg = read_array(io_stream, subchunk_end, RGBA.read)
             elif chunk_type == W3D_CHUNK_DIG:
@@ -130,7 +133,8 @@ class MaterialPass(Struct):
                 result.tx_stages.append(
                     TextureStage.read(io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_STAGE_TEXCOORDS:
-                result.tx_coords = read_array(io_stream, subchunk_end, read_vector2)
+                result.tx_coords = read_array(
+                    io_stream, subchunk_end, read_vector2)
             else:
                 skip_unknown_chunk(None, io_stream, chunk_type, chunk_size)
         return result
@@ -191,7 +195,8 @@ class MaterialPass(Struct):
                              self.vertex_material_ids_size())
             write_array(io_stream, self.vertex_material_ids, write_ulong)
         if self.shader_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADER_IDS, self.shader_ids_size())
+            write_chunk_head(io_stream, W3D_CHUNK_SHADER_IDS,
+                             self.shader_ids_size())
             write_array(io_stream, self.shader_ids, write_ulong)
         if self.dcg:
             write_chunk_head(io_stream, W3D_CHUNK_DCG, self.dcg_size())
@@ -252,6 +257,7 @@ USE_DEPTH_CUE = 0x1
 ARGB_EMISSIVE_ONLY = 0x2
 COPY_SPECULAR_TO_DIFFUSE = 0x4
 DEPTH_CUE_TO_ALPHA = 0x8
+
 
 class VertexMaterialInfo(Struct):
     attributes = 0

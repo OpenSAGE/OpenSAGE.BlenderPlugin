@@ -5,6 +5,7 @@
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
+
 class Version(Struct):
     major = 5
     minor = 0

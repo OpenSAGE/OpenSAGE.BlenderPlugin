@@ -47,7 +47,6 @@ def retrieve_boxes(hlod):
                 box.color = vector_to_rgba(material.diffuse_color)
             boxes.append(box)
 
-
             subObject = HLodSubObject(
                 name=container_name + "." + mesh_object.name,
                 bone_index=0)
@@ -97,7 +96,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.vert_infs.append(vertInf)
 
                 bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
+                mesh_struct.verts.append(
+                    bone.matrix.inverted() @ vertex.co.xyz)
 
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -160,7 +160,6 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
-
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
                 vertex_material_ids=[],
@@ -178,11 +177,13 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             if principled.normalmap_tex is not None:
                 mat_pass.shader_material_ids = [i]
                 mat_pass.tx_coords = tx_stages[i].tx_coords
-                mesh_struct.shader_materials.append(retrieve_shader_material(material, principled))
+                mesh_struct.shader_materials.append(
+                    retrieve_shader_material(material, principled))
             else:
                 mat_pass.vertex_material_ids = [i]
                 mat_pass.tx_stages.append(tx_stages[i])
-                mesh_struct.vert_materials.append(retrieve_vertex_material(material))
+                mesh_struct.vert_materials.append(
+                    retrieve_vertex_material(material))
 
                 if principled.diffuse_tex is not None:
                     info = TextureInfo(
@@ -307,7 +308,8 @@ def retrieve_vertex_material(material):
 
 
 def append_property(properties, type, name, value):
-    properties.append(ShaderMaterialProperty(type=type, name=name, value=value))
+    properties.append(ShaderMaterialProperty(
+        type=type, name=name, value=value))
 
 
 def retrieve_shader_material(material, principled):
@@ -321,19 +323,27 @@ def retrieve_shader_material(material, principled):
     principled = retrieve_principled_bsdf(material)
 
     if principled.diffuse_tex is not None:
-        append_property(shader_material.properties, 1, "DiffuseTexture", principled.diffuse_tex)
+        append_property(shader_material.properties, 1,
+                        "DiffuseTexture", principled.diffuse_tex)
 
     if principled.normalmap_tex is not None:
-        append_property(shader_material.properties, 1, "NormalMap", principled.normalmap_tex)
+        append_property(shader_material.properties, 1,
+                        "NormalMap", principled.normalmap_tex)
 
     if principled.bump_scale is not None:
-        append_property(shader_material.properties, 2, "BumpScale", principled.bump_scale)
+        append_property(shader_material.properties, 2,
+                        "BumpScale", principled.bump_scale)
 
-    append_property(shader_material.properties, 2, "SpecularExponent", material.specular_intensity)
-    append_property(shader_material.properties, 5, "AmbientColor", vector_to_rgba(material.ambient))
-    append_property(shader_material.properties, 5, "DiffuseColor", vector_to_rgba(material.diffuse_color))
-    append_property(shader_material.properties, 5, "SpecularColor", vector_to_rgba(material.specular_color))
-    append_property(shader_material.properties, 7, "AlphaTestEnable", int(material.alpha_test))
+    append_property(shader_material.properties, 2,
+                    "SpecularExponent", material.specular_intensity)
+    append_property(shader_material.properties, 5,
+                    "AmbientColor", vector_to_rgba(material.ambient))
+    append_property(shader_material.properties, 5, "DiffuseColor",
+                    vector_to_rgba(material.diffuse_color))
+    append_property(shader_material.properties, 5, "SpecularColor",
+                    vector_to_rgba(material.specular_color))
+    append_property(shader_material.properties, 7,
+                    "AlphaTestEnable", int(material.alpha_test))
 
     return shader_material
 
@@ -446,7 +456,7 @@ def retrieve_animation(animation_name, hierarchy):
     # only time coded compression for now
     ani_struct = CompressedAnimation(time_coded_channels=[])
     ani_struct.header.name = animation_name
-    ani_struct.header.flavor = 0 # time coded
+    ani_struct.header.flavor = 0  # time coded
     ani_struct.header.hierarchy_name = hierarchy.header.name
 
     start_frame = bpy.data.scenes["Scene"].frame_start
@@ -488,7 +498,8 @@ def retrieve_animation(animation_name, hierarchy):
             channel.time_codes = [None] * num_keyframes
             channel.num_time_codes = num_keyframes
             channel.first_frame = int(fcu.keyframe_points[0].co.x)
-            channel.last_frame = int(fcu.keyframe_points[num_keyframes - 1].co.x)
+            channel.last_frame = int(
+                fcu.keyframe_points[num_keyframes - 1].co.x)
 
         for i, keyframe in enumerate(fcu.keyframe_points):
             frame = int(keyframe.co.x)

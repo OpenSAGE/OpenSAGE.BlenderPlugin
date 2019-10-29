@@ -30,7 +30,8 @@ class HierarchyHeader(Struct):
         return 36
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER,
+                         self.size_in_bytes())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_ulong(io_stream, self.num_pivots)

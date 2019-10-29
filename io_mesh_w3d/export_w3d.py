@@ -43,7 +43,8 @@ def save(givenfilepath, _context, export_settings):
 
     elif export_mode == 'H':
         filename = os.path.splitext(os.path.basename(givenfilepath))[0]
-        sklFilePath = givenfilepath.replace(filename, hierarchy.header.name.lower())
+        sklFilePath = givenfilepath.replace(
+            filename, hierarchy.header.name.lower())
         sklFile = open(sklFilePath, "wb")
         hierarchy.write(sklFile)
         sklFile.close()

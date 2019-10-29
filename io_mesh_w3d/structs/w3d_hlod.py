@@ -29,7 +29,8 @@ class HLodHeader(Struct):
         return 40
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_HEADER, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_HLOD_HEADER,
+                         self.size_in_bytes())
         self.version.write(io_stream)
         write_ulong(io_stream, self.lod_count)
         write_fixed_string(io_stream, self.model_name)
@@ -78,7 +79,8 @@ class HLodSubObject(Struct):
         return 36
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT,
+                         self.size_in_bytes())
         write_ulong(io_stream, self.bone_index)
         write_long_fixed_string(io_stream, self.name)
 
@@ -141,7 +143,8 @@ class HLod(Struct):
             if chunk_type == W3D_CHUNK_HLOD_HEADER:
                 result.header = HLodHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_HLOD_LOD_ARRAY:
-                result.lod_array = HLodArray.read(context, io_stream, subchunk_end)
+                result.lod_array = HLodArray.read(
+                    context, io_stream, subchunk_end)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result

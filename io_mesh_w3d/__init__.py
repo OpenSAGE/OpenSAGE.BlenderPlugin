@@ -5,12 +5,12 @@ from bpy.types import Panel, Object, Material, Operator, AddonPreferences, Prope
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
 from bpy.props import StringProperty,\
-                        BoolProperty, \
-                        EnumProperty, \
-                        FloatProperty, \
-                        FloatVectorProperty, \
-                        IntProperty, \
-                        PointerProperty
+    BoolProperty, \
+    EnumProperty, \
+    FloatProperty, \
+    FloatVectorProperty, \
+    IntProperty, \
+    PointerProperty
 
 
 bl_info = {
@@ -60,7 +60,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         name="Compression",
         items=(('U', "Uncompressed", "This will not compress the animations"),
                ('TC', "TimeCoded", "This will export the animation with keyframes"),
-               #('AD', "AdaptiveDelta",
+               # ('AD', "AdaptiveDelta",
                # "This will use adaptive delta compression to reduce size"),
                ),
         default='TC',)
@@ -151,12 +151,14 @@ def menu_func_export(self, _context):
 def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
 
-#custom property stuff
+# custom property stuff
+
 
 Object.UserText = StringProperty(
     name="UserText",
     description="This is a text defined by the user",
     default="")
+
 
 class OBJECT_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
@@ -168,6 +170,7 @@ class OBJECT_PANEL_PT_w3d(Panel):
         layout = self.layout
         col = layout.column()
         col.prop(context.active_object, "UserText")
+
 
 Material.attributes = EnumProperty(
     name="attributes",
@@ -181,7 +184,7 @@ Material.attributes = EnumProperty(
     default={'DEFAULT'},
     options={'ENUM_FLAG'})
 
-Material.emission = FloatVectorProperty(  
+Material.emission = FloatVectorProperty(
     name="emission",
     subtype='COLOR',
     size=4,
@@ -189,7 +192,7 @@ Material.emission = FloatVectorProperty(
     min=0.0, max=1.0,
     description="emission color")
 
-Material.ambient = FloatVectorProperty(  
+Material.ambient = FloatVectorProperty(
     name="ambient",
     subtype='COLOR',
     size=4,
@@ -197,13 +200,13 @@ Material.ambient = FloatVectorProperty(
     min=0.0, max=1.0,
     description="ambient color")
 
-Material.translucency = FloatProperty(  
+Material.translucency = FloatProperty(
     name="translucency",
     default=0.0,
     min=0.0, max=1.0,
     description="translucency property")
 
-Material.opacity = FloatProperty(  
+Material.opacity = FloatProperty(
     name="opacity",
     default=0.0,
     min=0.0, max=1.0,
@@ -262,6 +265,7 @@ Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
+
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
     bl_space_type = "PROPERTIES"
@@ -289,6 +293,7 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(context.object.active_material, "surface_type")
 
+
 class ShaderProperties(PropertyGroup):
     depth_compare: bpy.props.IntProperty(min=0, max=255)
     depth_mask: bpy.props.IntProperty(min=0, max=255)
@@ -306,8 +311,10 @@ class ShaderProperties(PropertyGroup):
     post_detail_color_func: bpy.props.IntProperty(min=0, max=255)
     post_detail_alpha_func: bpy.props.IntProperty(min=0, max=255)
 
+
 bpy.utils.register_class(ShaderProperties)
 Material.shader = PointerProperty(type=ShaderProperties)
+
 
 class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Shader Properties"
@@ -344,9 +351,11 @@ class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(context.object.active_material.shader, "alpha_test")
         col = layout.column()
-        col.prop(context.object.active_material.shader, "post_detail_color_func")
+        col.prop(context.object.active_material.shader,
+                 "post_detail_color_func")
         col = layout.column()
-        col.prop(context.object.active_material.shader, "post_detail_alpha_func")
+        col.prop(context.object.active_material.shader,
+                 "post_detail_alpha_func")
 
 
 CLASSES = (

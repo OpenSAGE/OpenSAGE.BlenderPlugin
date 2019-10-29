@@ -31,7 +31,8 @@ class AnimationHeader(Struct):
         return 44
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_HEADER, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_HEADER,
+                         self.size_in_bytes())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_fixed_string(io_stream, self.hierarchy_name)
@@ -72,7 +73,8 @@ class AnimationChannel(Struct):
         return 12 + (len(self.data) * self.vector_len) * 4
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_CHANNEL, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_CHANNEL,
+                         self.size_in_bytes())
 
         write_ushort(io_stream, self.first_frame)
         write_ushort(io_stream, self.last_frame)

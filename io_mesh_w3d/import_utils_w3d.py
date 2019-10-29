@@ -121,13 +121,16 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
         create_uvlayers(mesh, b_mesh, triangles, mat_pass)
 
     for shaderMat in mesh_struct.shader_materials:
-        mesh.materials.append(create_material_from_shader_material(self, mesh_struct, shaderMat))
+        mesh.materials.append(create_material_from_shader_material(
+            self, mesh_struct, shaderMat))
 
     for vertMat in mesh_struct.vert_materials:
-        mesh.materials.append(create_material_from_vertex_material(self, mesh_struct, vertMat))
+        mesh.materials.append(
+            create_material_from_vertex_material(self, mesh_struct, vertMat))
 
     for i, texture in enumerate(mesh_struct.textures):
-        create_principled_bsdf(self, material=mesh.materials[i], diffuse_tex=texture.name)
+        create_principled_bsdf(
+            self, material=mesh.materials[i], diffuse_tex=texture.name)
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -162,7 +165,8 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
         mod.use_vertex_groups = True
 
     else:
-        pivot = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name][0]
+        pivot = [pivot for pivot in hierarchy.pivots if pivot.name ==
+                 mesh_struct.header.mesh_name][0]
         if pivot is None:
             return
 
@@ -273,7 +277,8 @@ def rgba_to_vector(rgba, scale=255.0):
 
 
 def create_material_from_vertex_material(self, mesh, vert_mat):
-    mat = bpy.data.materials.new(mesh.header.mesh_name + "." + vert_mat.vm_name)
+    mat = bpy.data.materials.new(
+        mesh.header.mesh_name + "." + vert_mat.vm_name)
     mat.use_nodes = True
     #mat.blend_method = 'BLEND'
 
@@ -301,8 +306,8 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     mat.vm_args_0 = vert_mat.vm_args_0
     mat.vm_args_1 = vert_mat.vm_args_1
 
-    create_principled_bsdf(self, material=mat, 
-        base_color=rgba_to_vector(vert_mat.vm_info.diffuse)[0:3], alpha=vert_mat.vm_info.opacity)
+    create_principled_bsdf(self, material=mat,
+                           base_color=rgba_to_vector(vert_mat.vm_info.diffuse)[0:3], alpha=vert_mat.vm_info.opacity)
     return mat
 
 
@@ -332,10 +337,11 @@ def create_material_from_shader_material(self, mesh, shader_mat):
             material.alpha_test = bool(prop.value)
         else:
             print("!!! shader property not implemented: " + prop.name)
-            self.report({'ERROR'}, "shader property not implemented: " + prop.name)
+            self.report(
+                {'ERROR'}, "shader property not implemented: " + prop.name)
 
-    create_principled_bsdf(self, material=material, diffuse_tex=diffuse, 
-        normal_tex=normal, bump_scale=bump_scale)
+    create_principled_bsdf(self, material=material, diffuse_tex=diffuse,
+                           normal_tex=normal, bump_scale=bump_scale)
     return material
 
 
@@ -345,7 +351,7 @@ def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex
         principled.base_color = base_color
     if alpha > 0:
         principled.alpha = alpha
-    if  diffuse_tex is not None:
+    if diffuse_tex is not None:
         tex = load_texture(self, diffuse_tex)
         if tex is not None:
             principled.base_color_texture.image = tex

@@ -5,6 +5,7 @@
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
+
 class Shader(Struct):
     depth_compare = 0
     depth_mask = 0

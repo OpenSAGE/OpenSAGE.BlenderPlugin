@@ -43,7 +43,8 @@ class Box(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_BOX, self.size_in_bytes())
 
         self.version.write(io_stream)
-        write_ulong(io_stream, (self.collision_types & 0xFF) | (self.box_type & 0b11))
+        write_ulong(io_stream, (self.collision_types & 0xFF)
+                    | (self.box_type & 0b11))
         write_long_fixed_string(io_stream, self.name)
         self.color.write(io_stream)
         write_vector(io_stream, self.center)

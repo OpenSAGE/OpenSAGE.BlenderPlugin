@@ -17,7 +17,8 @@ class Triangle(Struct):
     @staticmethod
     def read(io_stream):
         return Triangle(
-            vert_ids=(read_ulong(io_stream), read_ulong(io_stream), read_ulong(io_stream)),
+            vert_ids=(read_ulong(io_stream), read_ulong(
+                io_stream), read_ulong(io_stream)),
             surface_type=read_ulong(io_stream),
             normal=read_vector(io_stream),
             distance=read_float(io_stream))

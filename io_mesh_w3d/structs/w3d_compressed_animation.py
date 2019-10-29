@@ -306,7 +306,7 @@ class MotionChannel(Struct):
         for _ in range(self.num_time_codes):
             datum = TimeCodedDatum(
                 time_code=read_short(io_stream),
-                non_interpolated=False) # interpolation is not supported here
+                non_interpolated=False)  # interpolation is not supported here
             result.append(datum)
 
         if self.num_time_codes % 2 != 0:
@@ -352,7 +352,8 @@ class MotionChannel(Struct):
         size = 8
         if self.delta_type == 0:
             for datum in self.data:
-                size += datum.size_in_bytes(self.type) - 2 #time_code is a short here, not long!
+                # time_code is a short here, not long!
+                size += datum.size_in_bytes(self.type) - 2
             if self.num_time_codes % 2 != 0:
                 size += 2
         else:

@@ -300,7 +300,8 @@ class Mesh(Struct):
         self.header.write(io_stream)
 
         if len(self.user_text):
-            write_chunk_head(io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size())
+            write_chunk_head(
+                io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size())
             write_string(io_stream, self.user_text)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())

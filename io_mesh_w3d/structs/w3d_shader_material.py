@@ -121,7 +121,8 @@ class ShaderMaterial(Struct):
             if chunk_type == W3D_CHUNK_SHADER_MATERIAL_HEADER:
                 result.header = ShaderMaterialHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADER_MATERIAL_PROPERTY:
-                result.properties.append(ShaderMaterialProperty.read(io_stream))
+                result.properties.append(
+                    ShaderMaterialProperty.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
