@@ -328,6 +328,12 @@ def create_material_from_shader_material(self, mesh, shader_mat):
             material.specular_color = rgba_to_vector(prop.value)[0:3]
         elif prop.name == "AlphaTestEnable":
             material.alpha_test = bool(prop.value)
+        elif prop.name == "BlendMode":
+            material.blend_mode = prop.value
+        elif prop.name == "BumpUVScale":
+            material.bump_uv_scale = prop.value
+        elif prop.name == "Sampler_ClampU_ClampV_NoMip_0":
+            material.sampler_clamp_uv_no_mip = prop.value
         else:
             print("!!! shader property not implemented: " + prop.name)
             self.report(

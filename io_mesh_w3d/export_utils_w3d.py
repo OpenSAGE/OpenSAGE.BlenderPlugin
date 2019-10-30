@@ -96,9 +96,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.vert_infs.append(vertInf)
 
                 bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                matrix = bone.matrix.inverted()
-                mesh_struct.verts.append(matrix @ vertex.co.xyz)
-                mesh_struct.normals.append(vertex.normal)
+                mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
 
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -111,8 +109,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
-                mesh_struct.normals.append(vertex.normal)
 
+            mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
@@ -337,12 +335,17 @@ def retrieve_shader_material(material, principled):
 
     append_property(shader_material.properties, 2,
                     "SpecularExponent", material.specular_intensity)
+    append_property(shader_material.properties, 3,
+                    "BumpUVScale", material.bump_uv_scale)
+    append_property(shader_material.properties, 4,
+                    "Sampler_ClampU_ClampV_NoMip_0", material.sampler_clamp_uv_no_mip)
     append_property(shader_material.properties, 5,
                     "AmbientColor", vector_to_rgba(material.ambient))
     append_property(shader_material.properties, 5, "DiffuseColor",
                     vector_to_rgba(material.diffuse_color))
     append_property(shader_material.properties, 5, "SpecularColor",
                     vector_to_rgba(material.specular_color))
+    append_property(shader_material.properties, 6, "BlendMode", material.blend_mode)
     append_property(shader_material.properties, 7,
                     "AlphaTestEnable", int(material.alpha_test))
 

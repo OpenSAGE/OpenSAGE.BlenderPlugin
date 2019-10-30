@@ -138,7 +138,7 @@ def write_quaternion(io_stream, quat):
 
 
 def read_vector2(io_stream):
-    return (read_float(io_stream), read_float(io_stream))
+    return Vector((read_float(io_stream), read_float(io_stream)))
 
 
 def write_vector2(io_stream, vec):

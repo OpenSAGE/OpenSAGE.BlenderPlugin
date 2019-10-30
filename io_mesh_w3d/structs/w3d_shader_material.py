@@ -55,6 +55,8 @@ class ShaderMaterialProperty(Struct):
             result.value = read_string(io_stream)
         elif result.type == 2:
             result.value = read_float(io_stream)
+        elif result.type == 3:
+            result.value = read_vector2(io_stream)
         elif result.type == 4:
             result.value = read_vector(io_stream)
         elif result.type == 5:
@@ -71,6 +73,8 @@ class ShaderMaterialProperty(Struct):
             size += 4 + len(self.value) + 1
         elif self.type == 2:
             size += 4
+        elif self.type == 3:
+            size += 8
         elif self.type == 4:
             size += 12
         elif self.type == 5:
@@ -93,6 +97,8 @@ class ShaderMaterialProperty(Struct):
             write_string(io_stream, self.value)
         elif self.type == 2:
             write_float(io_stream, self.value)
+        elif self.type == 3:
+            write_vector2(io_stream, self.value)
         elif self.type == 4:
             write_vector(io_stream, self.value)
         elif self.type == 5:

@@ -113,7 +113,7 @@ class TestUtils(utils.W3dTestCase):
         retrieve_meshes(hierarchy, rig, actual, "containerName")
         compare_hlods(self, expected, actual)
 
-    
+
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()

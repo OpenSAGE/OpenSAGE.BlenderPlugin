@@ -61,6 +61,18 @@ def compare_mesh_headers(self, expected, actual):
     #self.assertEqual(expected.sph_center, actual.sph_center)
     #self.assertEqual(expected.sph_radius, actual.sph_radius)
 
+def get_vertex_influences():
+    vert_infs = []
+    vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
+    vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
+    vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
+    vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
+    vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
+    vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
+    vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
+    vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
+    return vert_infs
+
 
 def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh = Mesh(
@@ -102,28 +114,21 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
     mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
 
-    mesh.triangles.append(Triangle(vert_ids=(4, 2, 0), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(2, 7, 3), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(6, 5, 7), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(1, 7, 5), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(0, 3, 1), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(4, 1, 5), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(4, 6, 2), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(2, 6, 7), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(6, 4, 5), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(1, 3, 7), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(0, 2, 3), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=1.1))
-    mesh.triangles.append(Triangle(vert_ids=(4, 0, 1), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=1.1))
+    mesh.triangles.append(Triangle(vert_ids=(4, 2, 0), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(2, 7, 3), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(6, 5, 7), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(1, 7, 5), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(0, 3, 1), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(4, 1, 5), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(4, 6, 2), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(2, 6, 7), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(6, 4, 5), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(1, 3, 7), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(0, 2, 3), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(Triangle(vert_ids=(4, 0, 1), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=0.63))
 
     if skin:
-        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
+        mesh.vert_infs = get_vertex_influences()
 
     for i in range(len(mesh.verts)):
         mesh.shade_ids.append(i)
@@ -152,8 +157,9 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
 
 
 def compare_meshes(self, expected, actual):
-    print(expected.header.mesh_name)
     compare_mesh_headers(self, expected.header, actual.header)
+
+    is_skin = expected.is_skin()
 
     self.assertEqual(len(expected.verts), len(actual.verts))
     for i, expect in enumerate(expected.verts):
@@ -162,11 +168,11 @@ def compare_meshes(self, expected, actual):
         self.assertAlmostEqual(expect[2], actual.verts[i][2], 3)
 
     self.assertEqual(len(expected.normals), len(actual.normals))
-    for i, expect in enumerate(expected.normals):
-        print(actual.normals[i])
-        #self.assertAlmostEqual(expect[0], actual.normals[i][0], 1)
-        #self.assertAlmostEqual(expect[1], actual.normals[i][1], 1)
-        #self.assertAlmostEqual(expect[2], actual.normals[i][2], 1)
+    if not is_skin: #generated by blender if mesh is skinned/rigged
+        for i, expect in enumerate(expected.normals):
+            self.assertAlmostEqual(expect[0], actual.normals[i][0], 1)
+            self.assertAlmostEqual(expect[1], actual.normals[i][1], 1)
+            self.assertAlmostEqual(expect[2], actual.normals[i][2], 1)
 
     self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
     for i, expect in enumerate(expected.shade_ids):
@@ -189,7 +195,7 @@ def compare_meshes(self, expected, actual):
 
     self.assertEqual(len(expected.triangles), len(actual.triangles))
     for i in range(len(expected.triangles)):
-        compare_triangles(self, expected.triangles[i], actual.triangles[i])
+        compare_triangles(self, expected.triangles[i], actual.triangles[i], is_skin)
 
     self.assertEqual(len(expected.shaders), len(actual.shaders))
     for i in range(len(expected.shaders)):
