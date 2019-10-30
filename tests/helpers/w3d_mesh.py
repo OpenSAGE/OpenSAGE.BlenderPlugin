@@ -65,14 +65,14 @@ def compare_mesh_headers(self, expected, actual):
 
 def get_vertex_influences():
     vert_infs = []
-    mesh.vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
-    mesh.vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
-    mesh.vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
-    mesh.vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
-    mesh.vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
-    mesh.vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
-    mesh.vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
-    mesh.vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
+    vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
+    vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
+    vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
+    vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
+    vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
+    vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
+    vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
+    vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
     return vert_infs
 
 
