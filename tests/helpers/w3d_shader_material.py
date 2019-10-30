@@ -26,14 +26,16 @@ def get_shader_material_property(_type=1, name="property"):
         result.value = "texture.dds"
     elif _type == 2:
         result.value = 0.25
+    elif _type == 3:
+        result.value = Vector((1.0, 0.5))
     elif _type == 4:
-        result.value = Vector((1.0, 2.0, 3.0))
+        result.value = Vector((1.0, 0.2, 0.33))
     elif _type == 5:
         result.value = get_rgba()
     elif _type == 6:
-        result.value = 1234
+        result.value = 3
     elif _type == 7:
-        result.value = 1
+        result.value = True
     return result
 
 def get_shader_material_properties():
@@ -42,11 +44,12 @@ def get_shader_material_properties():
         get_shader_material_property(1, "NormalMap"),
         get_shader_material_property(2, "BumpScale"),
         get_shader_material_property(2, "SpecularExponent"),
-        #get_shader_material_property(4), //no example found yet
+        get_shader_material_property(3, "BumpUVScale"),
+        get_shader_material_property(4, "Sampler_ClampU_ClampV_NoMip_0"),
         get_shader_material_property(5, "AmbientColor"),
         get_shader_material_property(5, "DiffuseColor"),
         get_shader_material_property(5, "SpecularColor"),
-        #get_shader_material_property(6), //no example found yet
+        get_shader_material_property(6, "BlendMode"),
         get_shader_material_property(7, "AlphaTestEnable")
     ]
 

@@ -259,7 +259,7 @@ class TestIOBinary(unittest.TestCase):
             self.assertEqual(inp, Quaternion((w, x, y, z)))
 
     def test_read_vector2(self):
-        inputs = [(0, 0), (1, 2)]
+        inputs = [Vector((0, 0)), Vector((1, 2))]
 
         for inp in inputs:
             data = struct.pack("<f", inp[0])
@@ -269,7 +269,7 @@ class TestIOBinary(unittest.TestCase):
             self.assertEqual(inp, read_vector2(io_stream))
 
     def test_write_vector2(self):
-        inputs = [(0, 0), (1, 2)]
+        inputs = [Vector((0, 0)), Vector((1, 2))]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -279,7 +279,7 @@ class TestIOBinary(unittest.TestCase):
             x = struct.unpack("<f", data[0:4])[0]
             y = struct.unpack("<f", data[4:8])[0]
 
-            self.assertEqual(inp, (x, y))
+            self.assertEqual(inp, Vector((x, y)))
 
     def test_read_channel_value(self):
         inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]

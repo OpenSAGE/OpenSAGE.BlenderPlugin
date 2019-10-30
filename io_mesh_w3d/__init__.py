@@ -265,6 +265,30 @@ Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
+#not yet visible in gui
+
+Material.blend_mode = IntProperty(
+    name="blend_mode",
+    description="BlendMode",
+    default=0,
+    min=0,
+    max=5)
+
+Material.bump_uv_scale = FloatVectorProperty(
+    name="bump_uv_scale",
+    subtype='TRANSLATION',
+    size=2,
+    default=(0.0, 0.0),
+    min=0.0, max=1.0,
+    description="Bump uv scale")
+
+Material.sampler_clamp_uv_no_mip = FloatVectorProperty(
+    name="sampler_clamp_uv_no_mip",
+    subtype='TRANSLATION',
+    size=3,
+    default=(0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description="Sampler clampU clampV no mipmap")
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"

@@ -12,11 +12,10 @@ def get_triangle():
         normal=Vector((1.0, 22.0, -5.0)),
         distance=103.0)
 
-def compare_triangles(self, expected, actual):
+def compare_triangles(self, expected, actual, is_skin=False):
     self.assertEqual(expected.vert_ids, actual.vert_ids)
     self.assertEqual(expected.surface_type, actual.surface_type)
-    #print("#")
-    #print(str(expected.normal) + " -> " + str(actual.normal))
-    #print(str(expected.distance) + " -> " + str(actual.distance))
-    #self.assertEqual(expected.normal, actual.normal)
-    #self.assertAlmostEqual(expected.distance, actual.distance, 1)
+
+    if not is_skin: #generated/changed by blender
+        self.assertEqual(expected.normal, actual.normal)
+        self.assertAlmostEqual(expected.distance, actual.distance, 1)

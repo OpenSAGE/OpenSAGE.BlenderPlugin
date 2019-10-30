@@ -8,7 +8,7 @@ from tests import utils
 from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.io_binary import read_chunk_head, write_chunk_head, write_ubyte
 
-from tests.helpers.w3d_mesh import get_mesh, compare_meshes
+from tests.helpers.w3d_mesh import *
 
 class TestMesh(utils.W3dTestCase):
     def test_write_read(self):
@@ -32,7 +32,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(3353, expected.size_in_bytes())
+        self.assertEqual(3601, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -63,6 +63,48 @@ class TestMesh(utils.W3dTestCase):
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
+
+
+    def test_chunk_order(self):
+        expected_chunks = [
+            W3D_CHUNK_MESH_HEADER,
+            W3D_CHUNK_MESH_USER_TEXT,
+            W3D_CHUNK_VERTICES,
+            # vertices copies
+            W3D_CHUNK_VERTEX_NORMALS,
+            # normals copies
+            W3D_CHUNK_TRIANGLES,
+            W3D_CHUNK_VERTEX_INFLUENCES,
+            W3D_CHUNK_VERTEX_SHADE_INDICES,
+            W3D_CHUNK_MATERIAL_INFO,
+            W3D_CHUNK_VERTEX_MATERIALS,
+            W3D_CHUNK_SHADERS,
+            W3D_CHUNK_TEXTURES,
+            W3D_CHUNK_SHADER_MATERIALS,
+            W3D_CHUNK_MATERIAL_PASS
+        ]
+
+        expected = get_mesh()
+        expected.vert_infs = get_vertex_influences()
+        expected.shader_materials = [get_shader_material()]
+        expected.shaders = [get_shader()]
+        expected.vert_materials = [get_vertex_material()]
+        expected.textures = [get_texture()]
+        expected.material_passes = [get_material_pass()]
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
+        self.assertEqual(expected.size_in_bytes(), chunk_size)
+
+        for chunk in expected_chunks:
+            (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+            self.assertEqual(hex(chunk), hex(chunk_type))
+            io_stream.seek(chunk_size, 1)
 
 
     def test_unsupported_chunk_skip(self):

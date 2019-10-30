@@ -15,7 +15,7 @@ class TestShaderMaterial(unittest.TestCase):
         expected = get_shader_material()
 
         self.assertEqual(37, expected.header.size_in_bytes())
-        self.assertEqual(370, expected.size_in_bytes())
+        self.assertEqual(494, expected.size_in_bytes())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
