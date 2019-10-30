@@ -7,12 +7,12 @@ import coverage
 import sys
 
 if '--nocoverage' not in sys.argv:
-    #Start collecting coverage
+    # Start collecting coverage
     cov = coverage.Coverage()
     cov.start()
 
-#Until a better solution for knowing if the logger's error count should be used to quit the testing,
-#we are currently saying only 1 is allow per suite at a time (which is likely how it should be anyways)
+# Until a better solution for knowing if the logger's error count should be used to quit the testing,
+# we are currently saying only 1 is allow per suite at a time (which is likely how it should be anyways)
 suite = unittest.defaultTestLoader.discover('.')
 if not unittest.TextTestRunner().run(suite).wasSuccessful():
     exit(1)

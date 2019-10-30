@@ -28,7 +28,6 @@ class TestShaderMaterial(unittest.TestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_shader_material(props=[])
 
@@ -45,4 +44,3 @@ class TestShaderMaterial(unittest.TestCase):
 
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
-

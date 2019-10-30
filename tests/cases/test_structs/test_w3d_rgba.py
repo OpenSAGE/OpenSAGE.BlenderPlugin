@@ -6,6 +6,7 @@ import io
 
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 
+
 class TestRGBA(unittest.TestCase):
     def test_write_read(self):
         expected = RGBA(r=244, g=123, b=33, a=99)
@@ -33,4 +34,3 @@ class TestRGBA(unittest.TestCase):
         rgba = RGBA(r=2, g=3, b=0, a=0)
         self.assertNotEqual(rgba, "test")
         self.assertNotEqual(rgba, 1)
-        

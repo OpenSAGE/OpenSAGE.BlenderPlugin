@@ -5,6 +5,7 @@ import unittest
 from mathutils import Vector
 from io_mesh_w3d.structs.w3d_triangle import Triangle
 
+
 def get_triangle():
     return Triangle(
         vert_ids=(1, 2, 3),
@@ -12,10 +13,11 @@ def get_triangle():
         normal=Vector((1.0, 22.0, -5.0)),
         distance=103.0)
 
+
 def compare_triangles(self, expected, actual, is_skin=False):
     self.assertEqual(expected.vert_ids, actual.vert_ids)
     self.assertEqual(expected.surface_type, actual.surface_type)
 
-    if not is_skin: #generated/changed by blender
+    if not is_skin:  # generated/changed by blender
         self.assertEqual(expected.normal, actual.normal)
         self.assertAlmostEqual(expected.distance, actual.distance, 1)

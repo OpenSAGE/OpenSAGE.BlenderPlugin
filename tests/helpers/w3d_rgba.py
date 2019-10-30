@@ -4,8 +4,10 @@
 import unittest
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 
+
 def get_rgba(a=0):
     return RGBA(r=3, g=200, b=44, a=a)
+
 
 def compare_rgbas(self, expected, actual):
     self.assertEqual(expected.r, actual.r)

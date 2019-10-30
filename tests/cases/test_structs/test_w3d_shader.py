@@ -7,6 +7,7 @@ import io
 from io_mesh_w3d.structs.w3d_shader import Shader
 from tests.helpers.w3d_shader import get_shader, compare_shaders
 
+
 class TestShader(unittest.TestCase):
     def test_write_read(self):
         expected = get_shader()

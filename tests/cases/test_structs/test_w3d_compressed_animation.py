@@ -9,6 +9,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 
 from tests.helpers.w3d_compressed_animation import get_compressed_animation, compare_compressed_animations
 
+
 class TestCompressedAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
@@ -26,7 +27,6 @@ class TestCompressedAnimation(unittest.TestCase):
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
 
-
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(_flavor=1)
 
@@ -42,7 +42,6 @@ class TestCompressedAnimation(unittest.TestCase):
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
-
 
     def test_write_read_minimal(self):
         expected = get_compressed_animation(

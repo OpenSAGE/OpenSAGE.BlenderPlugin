@@ -23,6 +23,7 @@ def get_uvs():
     uvs.append((0.7, 0.7))
     return uvs
 
+
 def get_per_face_txcoords():
     tx_coords = []
     tx_coords.append(Vector((1.0, 0.0, -1.0)))
@@ -34,6 +35,7 @@ def get_per_face_txcoords():
     tx_coords.append(Vector((1.0, 0.0, -1.0)))
     tx_coords.append(Vector((1.0, 0.0, -1.0)))
     return tx_coords
+
 
 def get_texture_stage(index=0, minimal=False):
     tx_stage = TextureStage(
@@ -51,22 +53,28 @@ def get_texture_stage(index=0, minimal=False):
 
 
 def compare_texture_stages(self, expected, actual):
-    if actual.tx_ids: #roundtrip not yet supported
+    if actual.tx_ids:  # roundtrip not yet supported
         self.assertEqual(len(expected.tx_ids), len(actual.tx_ids))
         for i in range(len(expected.tx_ids)):
             self.assertEqual(expected.tx_ids[i], actual.tx_ids[i])
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
     for i in range(len(expected.tx_coords)):
-        self.assertAlmostEqual(expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
-        self.assertAlmostEqual(expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
+        self.assertAlmostEqual(
+            expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
+        self.assertAlmostEqual(
+            expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
 
-    if actual.per_face_tx_coords: #roundtrip not yet supported
-        self.assertEqual(len(expected.per_face_tx_coords), len(actual.per_face_tx_coords))
+    if actual.per_face_tx_coords:  # roundtrip not yet supported
+        self.assertEqual(len(expected.per_face_tx_coords),
+                         len(actual.per_face_tx_coords))
         for i in range(len(expected.per_face_tx_coords)):
-            self.assertAlmostEqual(expected.per_face_tx_coords[i][0], actual.per_face_tx_coords[i][0], 5)
-            self.assertAlmostEqual(expected.per_face_tx_coords[i][1], actual.per_face_tx_coords[i][1], 5)
-            self.assertAlmostEqual(expected.per_face_tx_coords[i][2], actual.per_face_tx_coords[i][2], 5)
+            self.assertAlmostEqual(
+                expected.per_face_tx_coords[i][0], actual.per_face_tx_coords[i][0], 5)
+            self.assertAlmostEqual(
+                expected.per_face_tx_coords[i][1], actual.per_face_tx_coords[i][1], 5)
+            self.assertAlmostEqual(
+                expected.per_face_tx_coords[i][2], actual.per_face_tx_coords[i][2], 5)
 
 
 def get_material_pass(index=0, minimal=False, shader_mat=False):
@@ -99,7 +107,7 @@ def get_material_pass(index=0, minimal=False, shader_mat=False):
         matpass.tx_coords = get_uvs()
     else:
         matpass.tx_stages.append(get_texture_stage(index=index))
-        #matpass.tx_stages.append(get_texture_stage()) # only one tx_stage allowed for now
+        # matpass.tx_stages.append(get_texture_stage()) # only one tx_stage allowed for now
 
     return matpass
 
@@ -108,17 +116,17 @@ def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
     self.assertEqual(expected.shader_ids, actual.shader_ids)
 
-    if actual.dcg: #roundtrip not supported yet
+    if actual.dcg:  # roundtrip not supported yet
         self.assertEqual(len(expected.dcg), len(actual.dcg))
         for i in range(len(expected.dcg)):
             compare_rgbas(self, expected.dcg[i], actual.dcg[i])
 
-    if actual.dig: #roundtrip not supported yet
+    if actual.dig:  # roundtrip not supported yet
         self.assertEqual(len(expected.dig), len(actual.dig))
         for i in range(len(expected.dig)):
             compare_rgbas(self, expected.dig[i], actual.dig[i])
 
-    if actual.scg: #roundtrip not supported yet
+    if actual.scg:  # roundtrip not supported yet
         self.assertEqual(len(expected.scg), len(actual.scg))
         for i in range(len(expected.scg)):
             compare_rgbas(self, expected.scg[i], actual.scg[i])
@@ -127,9 +135,12 @@ def compare_material_passes(self, expected, actual):
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
     for i in range(len(expected.tx_coords)):
-        self.assertAlmostEqual(expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
-        self.assertAlmostEqual(expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
+        self.assertAlmostEqual(
+            expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
+        self.assertAlmostEqual(
+            expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
 
     self.assertEqual(len(expected.tx_stages), len(actual.tx_stages))
     for i in range(len(expected.tx_stages)):
-        compare_texture_stages(self, expected.tx_stages[i], actual.tx_stages[i])
+        compare_texture_stages(
+            self, expected.tx_stages[i], actual.tx_stages[i])

@@ -5,6 +5,7 @@ import unittest
 
 from io_mesh_w3d.structs.w3d_shader import Shader
 
+
 def get_shader():
     return Shader(
         depth_compare=4,
@@ -24,6 +25,7 @@ def get_shader():
         post_detail_alpha_func=32,
         pad=0)
 
+
 def compare_shaders(self, expected, actual):
     self.assertEqual(expected.depth_compare, actual.depth_compare)
     self.assertEqual(expected.depth_mask, actual.depth_mask)
@@ -39,6 +41,8 @@ def compare_shaders(self, expected, actual):
 
     self.assertEqual(expected.shader_preset, actual.shader_preset)
     self.assertEqual(expected.alpha_test, actual.alpha_test)
-    self.assertEqual(expected.post_detail_color_func, actual.post_detail_color_func)
-    self.assertEqual(expected.post_detail_alpha_func, actual.post_detail_alpha_func)
+    self.assertEqual(expected.post_detail_color_func,
+                     actual.post_detail_color_func)
+    self.assertEqual(expected.post_detail_alpha_func,
+                     actual.post_detail_alpha_func)
     self.assertEqual(expected.pad, actual.pad)

@@ -9,6 +9,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 
 from tests.helpers.w3d_box import get_box, compare_boxes
 
+
 class TestBox(unittest.TestCase):
     def test_write_read(self):
         expected = get_box()

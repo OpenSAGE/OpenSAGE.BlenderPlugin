@@ -16,6 +16,7 @@ def get_shader_material_header():
         type_name="headerType",
         reserved=0)
 
+
 def get_shader_material_property(_type=1, name="property"):
     result = ShaderMaterialProperty(
         type=_type,
@@ -38,6 +39,7 @@ def get_shader_material_property(_type=1, name="property"):
         result.value = True
     return result
 
+
 def get_shader_material_properties():
     return [
         get_shader_material_property(1, "DiffuseTexture"),
@@ -53,15 +55,18 @@ def get_shader_material_properties():
         get_shader_material_property(7, "AlphaTestEnable")
     ]
 
+
 def get_shader_material(props=get_shader_material_properties()):
     return ShaderMaterial(
         header=get_shader_material_header(),
         properties=props)
 
+
 def compare_shader_material_headers(self, expected, actual):
     self.assertEqual(expected.number, actual.number)
     self.assertEqual(expected.type_name, actual.type_name)
     self.assertEqual(expected.reserved, actual.reserved)
+
 
 def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.type, actual.type)
@@ -75,9 +80,10 @@ def compare_shader_material_properties(self, expected, actual):
     else:
         self.assertEqual(expected.value, actual.value)
 
+
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)
     self.assertEqual(len(expected.properties), len(actual.properties))
     for i in range(len(expected.properties)):
-        compare_shader_material_properties(self, expected.properties[i], actual.properties[i])
-
+        compare_shader_material_properties(
+            self, expected.properties[i], actual.properties[i])

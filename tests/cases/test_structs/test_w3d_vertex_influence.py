@@ -7,6 +7,7 @@ import io
 from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
 from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 
+
 class TestVertexInfluence(unittest.TestCase):
     def test_write_read(self):
         expected = get_vertex_influence()

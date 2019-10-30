@@ -6,6 +6,7 @@ import io
 
 from io_mesh_w3d.structs.w3d_version import Version
 
+
 class TestVersion(unittest.TestCase):
     def test_write_read(self):
         expected = Version(major=8, minor=2)

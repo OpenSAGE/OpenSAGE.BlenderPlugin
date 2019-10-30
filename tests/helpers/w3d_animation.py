@@ -8,6 +8,7 @@ from io_mesh_w3d.structs.w3d_animation import Animation, AnimationHeader, Animat
 
 from tests.helpers.w3d_version import get_version, compare_versions
 
+
 def get_animation_header(hierarchy_name):
     return AnimationHeader(
         version=get_version(),
@@ -16,12 +17,14 @@ def get_animation_header(hierarchy_name):
         num_frames=155,
         frame_rate=300)
 
+
 def compare_animation_headers(self, expected, actual):
     compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.hierarchy_name, actual.hierarchy_name)
     self.assertEqual(expected.num_frames, actual.num_frames)
     self.assertEqual(expected.frame_rate, actual.frame_rate)
+
 
 def get_animation_channel(_type, pivot):
     channel = AnimationChannel(
@@ -44,6 +47,7 @@ def get_animation_channel(_type, pivot):
             channel.data.append(1.0 * i)
     return channel
 
+
 def compare_animation_channels(self, expected, actual):
     self.assertEqual(expected.first_frame, actual.first_frame)
     self.assertEqual(expected.last_frame, actual.last_frame)
@@ -55,6 +59,7 @@ def compare_animation_channels(self, expected, actual):
     self.assertEqual(len(expected.data), len(actual.data))
     for i in range(len(expected.data)):
         self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
+
 
 def get_animation(hierarchy_name="TestHierarchy"):
     animation = Animation(
@@ -72,9 +77,11 @@ def get_animation(hierarchy_name="TestHierarchy"):
     animation.channels.append(get_animation_channel(_type=6, pivot=3))
     return animation
 
+
 def compare_animations(self, expected, actual):
     compare_animation_headers(self, expected.header, actual.header)
 
     self.assertEqual(len(expected.channels), len(actual.channels))
     for i in range(len(expected.channels)):
-        compare_animation_channels(self, expected.channels[i], actual.channels[i])
+        compare_animation_channels(
+            self, expected.channels[i], actual.channels[i])

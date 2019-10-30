@@ -265,7 +265,7 @@ Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
-#not yet visible in gui
+# not yet visible in gui
 
 Material.blend_mode = IntProperty(
     name="blend_mode",
@@ -289,6 +289,7 @@ Material.sampler_clamp_uv_no_mip = FloatVectorProperty(
     default=(0.0, 0.0, 0.0),
     min=0.0, max=1.0,
     description="Sampler clampU clampV no mipmap")
+
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"

@@ -104,10 +104,10 @@ class VertexMaterial(Struct):
 
         if self.vm_args_0 is not "":
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS0,
-                         len(self.vm_args_0) + 1)
+                             len(self.vm_args_0) + 1)
             write_string(io_stream, self.vm_args_0)
 
         if self.vm_args_1 is not "":
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS1,
-                            len(self.vm_args_1) + 1)
+                             len(self.vm_args_1) + 1)
             write_string(io_stream, self.vm_args_1)

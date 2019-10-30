@@ -50,10 +50,14 @@ def get_hlod_array():
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    array.sub_objects.append(get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX"))
-    array.sub_objects.append(get_hlod_sub_object(bone=5, name="containerName.sword"))
-    array.sub_objects.append(get_hlod_sub_object(bone=0, name="containerName.soldier"))
-    array.sub_objects.append(get_hlod_sub_object(bone=6, name="containerName.shield"))
+    array.sub_objects.append(get_hlod_sub_object(
+        bone=0, name="containerName.BOUNDINGBOX"))
+    array.sub_objects.append(get_hlod_sub_object(
+        bone=5, name="containerName.sword"))
+    array.sub_objects.append(get_hlod_sub_object(
+        bone=0, name="containerName.soldier"))
+    array.sub_objects.append(get_hlod_sub_object(
+        bone=6, name="containerName.shield"))
 
     array.header.model_count = len(array.sub_objects)
     return array
@@ -64,7 +68,8 @@ def compare_hlod_arrays(self, expected, actual):
 
     self.assertEqual(len(expected.sub_objects), len(actual.sub_objects))
     for i in range(len(expected.sub_objects)):
-        compare_hlod_sub_objects(self, expected.sub_objects[i], actual.sub_objects[i])
+        compare_hlod_sub_objects(
+            self, expected.sub_objects[i], actual.sub_objects[i])
 
 
 def get_hlod(model_name="containerName", hierarchy_name="TestHierarchy"):

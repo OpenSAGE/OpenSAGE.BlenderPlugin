@@ -14,7 +14,7 @@ W3D_CHUNK_AABBTREE_HEADER = 0x00000091
 
 class AABBTreeHeader(Struct):
     node_count = 0
-    poly_count = 0 #num tris of mesh
+    poly_count = 0  # num tris of mesh
 
     @staticmethod
     def read(io_stream):

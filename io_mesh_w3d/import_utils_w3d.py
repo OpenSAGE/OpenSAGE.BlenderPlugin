@@ -75,9 +75,9 @@ def get_collection(hlod):
     return bpy.context.collection
 
 
-#######################################################################################
+##########################################################################
 # mesh
-#######################################################################################
+##########################################################################
 
 
 def create_mesh(self, mesh_struct, hierarchy, rig):
@@ -181,9 +181,9 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
             mesh_ob.parent_type = 'BONE'
 
 
-#######################################################################################
+##########################################################################
 # skeleton
-#######################################################################################
+##########################################################################
 
 
 def get_or_create_skeleton(hlod, hierarchy, coll):
@@ -246,7 +246,8 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
-        # has to point in y direction, so that the rotation is applied correctly
+        # has to point in y direction, so that the rotation is applied
+        # correctly
         bone.tail = Vector((0.0, 0.01, 0.0))
         bone.matrix = matrix
 
@@ -260,9 +261,9 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     return rig
 
 
-#######################################################################################
+##########################################################################
 # create material
-#######################################################################################
+##########################################################################
 
 
 def rgba_to_vector(rgba, scale=255.0):
@@ -344,7 +345,8 @@ def create_material_from_shader_material(self, mesh, shader_mat):
     return material
 
 
-def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex=None, normal_tex=None, bump_scale=0):
+def create_principled_bsdf(self, material, base_color=None,
+                           alpha=0, diffuse_tex=None, normal_tex=None, bump_scale=0):
     principled = PrincipledBSDFWrapper(material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
@@ -361,9 +363,9 @@ def create_principled_bsdf(self, material, base_color=None, alpha=0, diffuse_tex
             principled.normalmap_strength = bump_scale
 
 
-#######################################################################################
+##########################################################################
 # set shader properties
-#######################################################################################
+##########################################################################
 
 
 def set_shader_properties(material, shader):
@@ -384,9 +386,9 @@ def set_shader_properties(material, shader):
     material.shader.post_detail_alpha_func = shader.post_detail_alpha_func
 
 
-#######################################################################################
+##########################################################################
 # create uvlayer
-#######################################################################################
+##########################################################################
 
 
 def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
@@ -411,9 +413,9 @@ def create_uvlayers(mesh, b_mesh, tris, mat_pass):
         create_uv_layer(mesh, b_mesh, tris, stage.tx_coords, str(i))
 
 
-#######################################################################################
+##########################################################################
 # load texture
-#######################################################################################
+##########################################################################
 
 def load_texture(self, tex_name):
     if tex_name is None:
@@ -444,9 +446,9 @@ def load_texture(self, tex_name):
     return img
 
 
-#######################################################################################
+##########################################################################
 # createAnimation
-#######################################################################################
+##########################################################################
 
 
 def is_roottransform(pivot):
@@ -563,9 +565,9 @@ def create_animation(rig, animation, hierarchy, compressed=False):
     bpy.context.scene.frame_set(0)
 
 
-#######################################################################################
+##########################################################################
 # create basic meshes
-#######################################################################################
+##########################################################################
 
 
 def create_sphere():
@@ -586,8 +588,8 @@ def create_box(box, coll):
 
     # to keep name always equal (sometimes it is "BOUNDING BOX")
     name = "BOUNDINGBOX"
-    x = box.extend[0]/2.0
-    y = box.extend[1]/2.0
+    x = box.extend[0] / 2.0
+    y = box.extend[1] / 2.0
     z = box.extend[2]
 
     verts = [(x, y, z), (-x, y, z), (-x, -y, z), (x, -y, z),

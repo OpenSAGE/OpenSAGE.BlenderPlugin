@@ -7,6 +7,7 @@ import io
 from io_mesh_w3d.structs.w3d_triangle import Triangle
 from tests.helpers.w3d_triangle import get_triangle, compare_triangles
 
+
 class TestTriangle(unittest.TestCase):
     def test_write_read(self):
         expected = get_triangle()

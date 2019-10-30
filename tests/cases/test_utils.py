@@ -25,37 +25,39 @@ class TestUtils(utils.W3dTestCase):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
 
-        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         for source in mesh.vert_materials:
-            material = create_material_from_vertex_material(context, mesh, source)
+            material = create_material_from_vertex_material(
+                context, mesh, source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
-
 
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
 
-        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         for source in mesh.shader_materials:
-            material = create_material_from_shader_material(context, mesh, source)
+            material = create_material_from_shader_material(
+                context, mesh, source)
             principled = retrieve_principled_bsdf(material)
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
-
 
     def test_shader_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
 
-        material = create_material_from_vertex_material(context, mesh, mesh.vert_materials[0])
+        material = create_material_from_vertex_material(
+            context, mesh, mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
-
 
     def test_box_roundtrip(self):
         expected = get_box()
@@ -65,14 +67,13 @@ class TestUtils(utils.W3dTestCase):
         boxes = retrieve_boxes(hlod)
         compare_boxes(self, expected, boxes[0])
 
-
     def test_hierarchy_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         expected = get_hierarchy()
         hlod = get_hlod()
         meshes = [
-            get_mesh(name="sword"), 
-            get_mesh(name="soldier", skin=True), 
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
 
         coll = get_collection(hlod)
@@ -88,7 +89,6 @@ class TestUtils(utils.W3dTestCase):
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
 
-
     def test_hlod_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         expected = get_hlod()
@@ -98,7 +98,6 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
-
 
         coll = get_collection(expected)
         rig = get_or_create_skeleton(expected, hierarchy, coll)
@@ -115,7 +114,6 @@ class TestUtils(utils.W3dTestCase):
         retrieve_meshes(hierarchy, rig, actual, "containerName")
         compare_hlods(self, expected, actual)
 
-
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
@@ -130,7 +128,8 @@ class TestUtils(utils.W3dTestCase):
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, coll)
 
-        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         for mesh in expecteds:
             create_mesh(context, mesh, hierarchy, rig)
@@ -146,11 +145,10 @@ class TestUtils(utils.W3dTestCase):
         for i, expected in enumerate(expecteds):
             compare_meshes(self, expected, actuals[i])
 
-
-    #def test_compressed_animation_roundtrip(self):
+    # def test_compressed_animation_roundtrip(self):
         # TODO
         #context = utils.ImportWrapper(self.outpath())
-        #expected = get_compressed_animation(
+        # expected = get_compressed_animation(
         #    bit_channels=False,
         #    motion_tc=False,
         #    motion_ad4=False,
@@ -158,7 +156,7 @@ class TestUtils(utils.W3dTestCase):
         #hlod = get_hlod()
         #box = get_box()
         #hierarchy = get_hierarchy()
-        #meshes = [
+        # meshes = [
         #    get_mesh(name="sword"),
         #    get_mesh(name="soldier", skin=True),
         #    get_mesh(name="shield")]
@@ -166,16 +164,15 @@ class TestUtils(utils.W3dTestCase):
         #coll = get_collection(hlod)
         #rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        #for mesh in meshes:
+        # for mesh in meshes:
         #    create_mesh(context, mesh, hierarchy, rig)
 
-        #for mesh in meshes:
+        # for mesh in meshes:
         #    rig_mesh(mesh, hierarchy, rig, coll)
 
         #create_animation(rig, expected, hierarchy, compressed=True)
         #actual = retrieve_animation("containerName", hierarchy)
         #compare_compressed_animations(self, expected, actual)
 
-
-    #def test_animation_roundtrip(self):
+    # def test_animation_roundtrip(self):
         # TODO

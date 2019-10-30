@@ -99,6 +99,5 @@ def compare_hierarchies(self, expected, actual):
         compare_hierarchy_pivots(self, expected.pivots[i], actual.pivots[i])
 
     self.assertEqual(len(expected.pivot_fixups), len(actual.pivot_fixups))
-    for i  in range(len(expected.pivot_fixups)):
+    for i in range(len(expected.pivot_fixups)):
         self.assertEqual(expected.pivot_fixups[i], actual.pivot_fixups[i])
-

@@ -10,6 +10,7 @@ from io_mesh_w3d.io_binary import read_chunk_head, write_chunk_head, write_ubyte
 
 from tests.helpers.w3d_mesh import *
 
+
 class TestMesh(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_mesh()
@@ -28,7 +29,6 @@ class TestMesh(utils.W3dTestCase):
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
-
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
@@ -46,7 +46,6 @@ class TestMesh(utils.W3dTestCase):
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_mesh(minimal=True)
 
@@ -63,7 +62,6 @@ class TestMesh(utils.W3dTestCase):
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
-
 
     def test_chunk_order(self):
         expected_chunks = [
@@ -106,7 +104,6 @@ class TestMesh(utils.W3dTestCase):
             self.assertEqual(hex(chunk), hex(chunk_type))
             io_stream.seek(chunk_size, 1)
 
-
     def test_unsupported_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
@@ -120,17 +117,22 @@ class TestMesh(utils.W3dTestCase):
         write_ubyte(output, 0x00)
         write_chunk_head(output, W3D_CHUNK_BITANGENTS, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_UNLIT, 1, has_sub_chunks=False)
+        write_chunk_head(output, W3D_CHUNK_PRELIT_UNLIT,
+                         1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_VERTEX, 1, has_sub_chunks=False)
+        write_chunk_head(output, W3D_CHUNK_PRELIT_VERTEX,
+                         1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, 1, has_sub_chunks=False)
+        write_chunk_head(
+            output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, 1, has_sub_chunks=False)
+        write_chunk_head(
+            output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
         write_chunk_head(output, W3D_CHUNK_DEFORM, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PS2_SHADERS, 1, has_sub_chunks=False)
+        write_chunk_head(output, W3D_CHUNK_PS2_SHADERS,
+                         1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
         write_chunk_head(output, 0, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)

@@ -9,6 +9,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 
 from tests.helpers.w3d_animation import get_animation, compare_animations
 
+
 class TestAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_animation()

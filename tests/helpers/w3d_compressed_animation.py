@@ -8,6 +8,7 @@ from mathutils import Quaternion
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 from tests.helpers.w3d_version import get_version, compare_versions
 
+
 def get_compressed_animation_header(hierarchy_name, _flavor):
     return CompressedAnimationHeader(
         version=get_version(),
@@ -61,7 +62,8 @@ def get_time_coded_animation_channel(_type=0):
         channel.vector_len = 1
 
     for _ in range(channel.num_time_codes):
-        channel.time_codes.append(get_time_coded_datum(_type, random_interpolation=True))
+        channel.time_codes.append(get_time_coded_datum(
+            _type, random_interpolation=True))
     return channel
 
 
@@ -73,7 +75,8 @@ def compare_time_coded_animation_channels(self, expected, actual):
 
     self.assertEqual(len(expected.time_codes), len(actual.time_codes))
     for i in range(len(expected.time_codes)):
-        compare_time_coded_datums(self, expected.time_codes[i], actual.time_codes[i])
+        compare_time_coded_datums(
+            self, expected.time_codes[i], actual.time_codes[i])
 
 
 def get_time_coded_bit_datum():
@@ -108,7 +111,8 @@ def compare_time_coded_bit_channels(self, expected, actual):
 
     self.assertEqual(len(expected.time_codes), len(actual.time_codes))
     for i in range(len(expected.time_codes)):
-        compare_time_coded_bit_datas(self, expected.time_codes[i], actual.time_codes[i])
+        compare_time_coded_bit_datas(
+            self, expected.time_codes[i], actual.time_codes[i])
 
 
 def get_adaptive_delta_block(data, _type, index):
@@ -150,16 +154,19 @@ def get_adaptive_delta_data(_type, num_bits, num_time_codes=33):
 
     for _ in range(count):
         for i in range(vec_len):
-            ad_data.delta_blocks.append(get_adaptive_delta_block(data, _type, i))
+            ad_data.delta_blocks.append(
+                get_adaptive_delta_block(data, _type, i))
     return ad_data
 
 
 def compare_adaptive_delta_datas(self, expected, actual, _type):
-    self.assertEqual(expected.size_in_bytes(_type), actual.size_in_bytes(_type))
+    self.assertEqual(expected.size_in_bytes(
+        _type), actual.size_in_bytes(_type))
     self.assertEqual(expected.bit_count, actual.bit_count)
     self.assertEqual(len(expected.delta_blocks), len(actual.delta_blocks))
     for i in range(len(expected.delta_blocks)):
-        compare_adaptive_delta_blocks(self, expected.delta_blocks[i], actual.delta_blocks[i])
+        compare_adaptive_delta_blocks(
+            self, expected.delta_blocks[i], actual.delta_blocks[i])
 
 
 def get_adaptive_delta_animation_channel(_type, num_bits=4):
@@ -175,7 +182,8 @@ def get_adaptive_delta_animation_channel(_type, num_bits=4):
     else:
         channel.vector_len = 1
 
-    channel.data = get_adaptive_delta_data(_type, num_bits, channel.num_time_codes)
+    channel.data = get_adaptive_delta_data(
+        _type, num_bits, channel.num_time_codes)
     return channel
 
 
@@ -185,7 +193,8 @@ def compare_adaptive_delta_animation_channels(self, expected, actual):
     self.assertEqual(expected.type, actual.type)
     self.assertEqual(expected.scale, actual.scale)
     self.assertEqual(expected.num_time_codes, actual.num_time_codes)
-    compare_adaptive_delta_datas(self, expected.data, actual.data, expected.type)
+    compare_adaptive_delta_datas(
+        self, expected.data, actual.data, expected.type)
 
 
 def get_adaptive_delta_motion_animation_channel(_type, num_bits, num_time_codes):
@@ -217,9 +226,11 @@ def get_motion_channel(_type, _delta_type, _num_time_codes=55):
         for _ in range(channel.num_time_codes):
             channel.data.append(get_time_coded_datum(_type, False))
     elif _delta_type == 1:
-        channel.data = get_adaptive_delta_motion_animation_channel(_type, 4, channel.num_time_codes)
+        channel.data = get_adaptive_delta_motion_animation_channel(
+            _type, 4, channel.num_time_codes)
     elif _delta_type == 2:
-        channel.data = get_adaptive_delta_motion_animation_channel(_type, 8, channel.num_time_codes)
+        channel.data = get_adaptive_delta_motion_animation_channel(
+            _type, 8, channel.num_time_codes)
     return channel
 
 
@@ -234,7 +245,8 @@ def compare_motion_channels(self, expected, actual):
         for i in range(len(expected.data)):
             compare_time_coded_datums(self, expected.data[i], actual.data[i])
     else:
-        compare_adaptive_delta_motion_animation_channels(self, expected.data, actual.data, expected.type)
+        compare_adaptive_delta_motion_animation_channels(
+            self, expected.data, actual.data, expected.type)
 
 
 def get_compressed_animation(
@@ -254,53 +266,81 @@ def get_compressed_animation(
 
     if time_coded:
         if _flavor == 0:
-            animation.time_coded_channels.append(get_time_coded_animation_channel(_type=0))
-            animation.time_coded_channels.append(get_time_coded_animation_channel(_type=1))
-            animation.time_coded_channels.append(get_time_coded_animation_channel(_type=2))
-            animation.time_coded_channels.append(get_time_coded_animation_channel(_type=6))
+            animation.time_coded_channels.append(
+                get_time_coded_animation_channel(_type=0))
+            animation.time_coded_channels.append(
+                get_time_coded_animation_channel(_type=1))
+            animation.time_coded_channels.append(
+                get_time_coded_animation_channel(_type=2))
+            animation.time_coded_channels.append(
+                get_time_coded_animation_channel(_type=6))
 
         else:
-            animation.adaptive_delta_channels.append(get_adaptive_delta_animation_channel(_type=0, num_bits=4))
-            animation.adaptive_delta_channels.append(get_adaptive_delta_animation_channel(_type=1, num_bits=4))
-            animation.adaptive_delta_channels.append(get_adaptive_delta_animation_channel(_type=2, num_bits=4))
-            animation.adaptive_delta_channels.append(get_adaptive_delta_animation_channel(_type=6, num_bits=4))
+            animation.adaptive_delta_channels.append(
+                get_adaptive_delta_animation_channel(_type=0, num_bits=4))
+            animation.adaptive_delta_channels.append(
+                get_adaptive_delta_animation_channel(_type=1, num_bits=4))
+            animation.adaptive_delta_channels.append(
+                get_adaptive_delta_animation_channel(_type=2, num_bits=4))
+            animation.adaptive_delta_channels.append(
+                get_adaptive_delta_animation_channel(_type=6, num_bits=4))
 
     if bit_channels:
         animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
         animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
 
     if motion_tc:
-        animation.motion_channels.append(get_motion_channel(_type=0, _delta_type=0, _num_time_codes=50))
-        animation.motion_channels.append(get_motion_channel(_type=1, _delta_type=0, _num_time_codes=50))
-        animation.motion_channels.append(get_motion_channel(_type=2, _delta_type=0))
-        animation.motion_channels.append(get_motion_channel(_type=6, _delta_type=0))
+        animation.motion_channels.append(get_motion_channel(
+            _type=0, _delta_type=0, _num_time_codes=50))
+        animation.motion_channels.append(get_motion_channel(
+            _type=1, _delta_type=0, _num_time_codes=50))
+        animation.motion_channels.append(
+            get_motion_channel(_type=2, _delta_type=0))
+        animation.motion_channels.append(
+            get_motion_channel(_type=6, _delta_type=0))
 
     if motion_ad4:
-        animation.motion_channels.append(get_motion_channel(_type=0, _delta_type=1))
-        animation.motion_channels.append(get_motion_channel(_type=1, _delta_type=1))
-        animation.motion_channels.append(get_motion_channel(_type=2, _delta_type=1))
-        animation.motion_channels.append(get_motion_channel(_type=6, _delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(_type=0, _delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(_type=1, _delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(_type=2, _delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(_type=6, _delta_type=1))
 
     if motion_ad8:
-        animation.motion_channels.append(get_motion_channel(_type=0, _delta_type=2))
-        animation.motion_channels.append(get_motion_channel(_type=1, _delta_type=2))
-        animation.motion_channels.append(get_motion_channel(_type=2, _delta_type=2))
-        animation.motion_channels.append(get_motion_channel(_type=6, _delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(_type=0, _delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(_type=1, _delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(_type=2, _delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(_type=6, _delta_type=2))
 
     return animation
 
 
 def compare_compressed_animations(self, expected, actual):
     compare_compressed_animation_headers(self, expected.header, actual.header)
-    self.assertEqual(len(expected.time_coded_channels), len(actual.time_coded_channels))
+    self.assertEqual(len(expected.time_coded_channels),
+                     len(actual.time_coded_channels))
     for i in range(len(expected.time_coded_channels)):
-        compare_time_coded_animation_channels(self, expected.time_coded_channels[i], actual.time_coded_channels[i])
-    self.assertEqual(len(expected.adaptive_delta_channels), len(actual.adaptive_delta_channels))
+        compare_time_coded_animation_channels(
+            self, expected.time_coded_channels[i], actual.time_coded_channels[i])
+    self.assertEqual(len(expected.adaptive_delta_channels),
+                     len(actual.adaptive_delta_channels))
     for i in range(len(expected.adaptive_delta_channels)):
-        compare_adaptive_delta_animation_channels(self, expected.adaptive_delta_channels[i], actual.adaptive_delta_channels[i])
-    self.assertEqual(len(expected.time_coded_bit_channels), len(actual.time_coded_bit_channels))
+        compare_adaptive_delta_animation_channels(
+            self, expected.adaptive_delta_channels[i], actual.adaptive_delta_channels[i])
+    self.assertEqual(len(expected.time_coded_bit_channels),
+                     len(actual.time_coded_bit_channels))
     for i in range(len(expected.time_coded_bit_channels)):
-        compare_time_coded_bit_channels(self, expected.time_coded_bit_channels[i], actual.time_coded_bit_channels[i])
-    self.assertEqual(len(expected.motion_channels), len(actual.motion_channels))
+        compare_time_coded_bit_channels(
+            self, expected.time_coded_bit_channels[i], actual.time_coded_bit_channels[i])
+    self.assertEqual(len(expected.motion_channels),
+                     len(actual.motion_channels))
     for i in range(len(expected.motion_channels)):
-        compare_motion_channels(self, expected.motion_channels[i], actual.motion_channels[i])
+        compare_motion_channels(
+            self, expected.motion_channels[i], actual.motion_channels[i])

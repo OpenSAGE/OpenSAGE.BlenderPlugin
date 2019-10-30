@@ -27,7 +27,6 @@ class TestAABBTree(unittest.TestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_aabbtree(num_nodes=0, num_polys=0)
 
@@ -43,4 +42,3 @@ class TestAABBTree(unittest.TestCase):
 
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
-

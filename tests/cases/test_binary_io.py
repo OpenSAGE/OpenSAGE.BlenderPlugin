@@ -300,7 +300,8 @@ class TestIOBinary(unittest.TestCase):
                     inp[1], read_channel_value(io_stream, inp[0]))
 
     def test_write_channel_value(self):
-        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1.0, 2.0, 3.0, 4.0)))]
+        inputs = [(0, 1.0), (1, 2.0), (3, 4.0),
+                  (6, Quaternion((1.0, 2.0, 3.0, 4.0)))]
 
         for inp in inputs:
             type_ = inp[0]
@@ -317,7 +318,8 @@ class TestIOBinary(unittest.TestCase):
 
     def test_read_chunk_head(self):
         inputs = [(0, 200), (255, 500), (255, 0xFFFFFFFF)]
-        expecteds = [(0, 200, 208), (255, 500, 508), (255, 0x7FFFFFFF, 0x80000007)]
+        expecteds = [(0, 200, 208), (255, 500, 508),
+                     (255, 0x7FFFFFFF, 0x80000007)]
 
         for i, inp in enumerate(inputs):
             c_type = struct.pack("<L", inp[0])

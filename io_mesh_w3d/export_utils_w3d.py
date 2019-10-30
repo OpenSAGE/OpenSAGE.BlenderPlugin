@@ -20,9 +20,9 @@ def get_mesh_objects():
     return [object for object in bpy.context.scene.objects if object.type == 'MESH']
 
 
-#######################################################################################
+##########################################################################
 # Mesh data
-#######################################################################################
+##########################################################################
 
 
 def retrieve_boxes(hlod):
@@ -93,7 +93,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                 mesh_struct.vert_infs.append(vertInf)
 
                 bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
-                mesh_struct.verts.append(bone.matrix.inverted() @ vertex.co.xyz)
+                mesh_struct.verts.append(
+                    bone.matrix.inverted() @ vertex.co.xyz)
 
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -205,9 +206,9 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
     return mesh_structs
 
 
-#######################################################################################
+##########################################################################
 # hlod
-#######################################################################################
+##########################################################################
 
 
 def create_hlod(container_name, hierarchy_name):
@@ -233,9 +234,9 @@ def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
     hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
 
 
-#######################################################################################
+##########################################################################
 # material data
-#######################################################################################
+##########################################################################
 
 
 class PrincipledBSDF(Struct):
@@ -247,7 +248,8 @@ class PrincipledBSDF(Struct):
 
 
 def vector_to_rgba(vec, scale=255):
-    return RGBA(r=int(vec[0] * scale), g=int(vec[1] * scale), b=int(vec[2] * scale), a=0)
+    return RGBA(r=int(vec[0] * scale), g=int(vec[1]
+                                             * scale), b=int(vec[2] * scale), a=0)
 
 
 def retrieve_principled_bsdf(material):
@@ -342,16 +344,20 @@ def retrieve_shader_material(material, principled):
                     vector_to_rgba(material.diffuse_color))
     append_property(shader_material.properties, 5, "SpecularColor",
                     vector_to_rgba(material.specular_color))
-    append_property(shader_material.properties, 6, "BlendMode", material.blend_mode)
+    append_property(
+        shader_material.properties,
+        6,
+        "BlendMode",
+        material.blend_mode)
     append_property(shader_material.properties, 7,
                     "AlphaTestEnable", int(material.alpha_test))
 
     return shader_material
 
 
-#######################################################################################
+##########################################################################
 # hierarchy data
-#######################################################################################
+##########################################################################
 
 
 def retrieve_shader(material):
@@ -373,9 +379,9 @@ def retrieve_shader(material):
         post_detail_alpha_func=material.shader.post_detail_alpha_func)
 
 
-#######################################################################################
+##########################################################################
 # hierarchy data
-#######################################################################################
+##########################################################################
 
 
 def retrieve_hierarchy(container_name):
@@ -448,9 +454,9 @@ def retrieve_hierarchy(container_name):
     return (hierarchy, rig)
 
 
-#######################################################################################
+##########################################################################
 # Animation data
-#######################################################################################
+##########################################################################
 
 
 def retrieve_animation(animation_name, hierarchy):
@@ -522,9 +528,9 @@ def retrieve_animation(animation_name, hierarchy):
     return ani_struct
 
 
-#######################################################################################
+##########################################################################
 # Helper methods
-#######################################################################################
+##########################################################################
 
 
 def triangulate(mesh):
@@ -546,7 +552,7 @@ def distance(vec1, vec2):
     x = (vec1.x - vec2.x)**2
     y = (vec1.y - vec2.y)**2
     z = (vec1.z - vec2.z)**2
-    return (x + y + z)**(1/2)
+    return (x + y + z)**(1 / 2)
 
 
 def find_most_distant_point(vertex, vertices):
@@ -564,7 +570,7 @@ def validate_all_points_inside_sphere(center, radius, vertices):
     for vertex in vertices:
         curr_dist = distance(vertex, center)
         if curr_dist > radius:
-            delta = (curr_dist - radius)/2
+            delta = (curr_dist - radius) / 2
             radius += delta
             center += (vertex - center).normalized() * delta
     return (center, radius)
@@ -574,7 +580,7 @@ def calculate_mesh_sphere(mesh):
     vertices = vertices_to_vectors(mesh.vertices)
     x = find_most_distant_point(vertices[0], vertices)
     y = find_most_distant_point(x, vertices)
-    z = (x - y)/2
+    z = (x - y) / 2
     center = y + z
     radius = z.length
 

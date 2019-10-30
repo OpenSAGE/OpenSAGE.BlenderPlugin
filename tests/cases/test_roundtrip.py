@@ -21,15 +21,16 @@ class TestRoundtrip(utils.W3dTestCase):
         hierarchy_name = "TestHiera_SKL"
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name="sword"), 
-            get_mesh(name="soldier", skin=True), 
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        copyfile(self.relpath() + "/testfiles/texture.dds", self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         # write to file
         skn = open(self.outpath() + "base_skn.w3d", "wb")
@@ -48,13 +49,13 @@ class TestRoundtrip(utils.W3dTestCase):
         comp_animation.write(ani)
         ani.close()
 
-        # import 
+        # import
         model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
         load(model, bpy.context, import_settings={})
         anim = utils.ImportWrapper(self.outpath() + "base_ani.w3d")
         load(anim, bpy.context, import_settings={})
 
-        # export 
+        # export
         export_settings = {}
         export_settings['w3d_mode'] = "M"
         save(self.outpath() + "output_skn.w3d", bpy.context, export_settings)
@@ -64,7 +65,6 @@ class TestRoundtrip(utils.W3dTestCase):
 
         export_settings['w3d_mode'] = "A"
         save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
-
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"
@@ -93,16 +93,12 @@ class TestRoundtrip(utils.W3dTestCase):
         model = utils.ImportWrapper(self.outpath() + "base.w3d")
         load(model, bpy.context, import_settings={})
 
+        # TODO: compare blender data to generated structs
 
-        #TODO: compare blender data to generated structs
-
-        # export 
+        # export
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
 
         save(self.outpath() + "output.w3d", bpy.context, export_settings)
 
-        #TODO: compare exported file with output.w3d
-        
-
-
+        # TODO: compare exported file with output.w3d

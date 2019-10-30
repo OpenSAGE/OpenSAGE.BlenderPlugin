@@ -9,6 +9,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 
 from tests.helpers.w3d_hlod import get_hlod, compare_hlods
 
+
 class TestHLod(unittest.TestCase):
     def test_write_read(self):
         expected = get_hlod()

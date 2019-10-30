@@ -8,10 +8,12 @@ import bpy
 
 import addon_utils
 
+
 class ImportWrapper:
     def __init__(self, filepath):
         self.filepath = filepath
         self.report = print
+
 
 class W3dTestCase(unittest.TestCase):
     __save_test_data = '--save-test-data' in sys.argv
@@ -53,4 +55,5 @@ class W3dTestCase(unittest.TestCase):
 
     def assertObjectsExist(self, obj_list):
         for obj_name in obj_list:
-            self.assertIsNotNone(bpy.data.objects.get(obj_name),"No object named: " + obj_name)
+            self.assertIsNotNone(bpy.data.objects.get(
+                obj_name), "No object named: " + obj_name)

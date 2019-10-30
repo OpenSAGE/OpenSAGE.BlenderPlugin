@@ -29,7 +29,6 @@ class TestHierarchy(unittest.TestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_hierarchy(minimal=True)
 

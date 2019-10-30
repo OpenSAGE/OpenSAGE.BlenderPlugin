@@ -8,6 +8,7 @@ from io_mesh_w3d.io_binary import *
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
 
+
 class MaterialInfo(Struct):
     pass_count = 0
     vert_matl_count = 0
