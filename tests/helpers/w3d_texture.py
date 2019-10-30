@@ -13,10 +13,22 @@ def get_texture_info():
         frame_rate=0.0)
 
 
-def get_texture(tex_info=get_texture_info()):
+def get_texture():
     return Texture(
         name="texture.dds",
-        texture_info=tex_info)
+        texture_info=get_texture_info())
+
+
+def get_texture_minimal():
+    return Texture(
+        name="a",
+        texture_info=get_texture_info())
+
+
+def get_texture_empty():
+    return Texture(
+        name="",
+        texture_info=None)
 
 
 def compare_textures(self, expected, actual):

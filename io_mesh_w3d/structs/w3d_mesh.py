@@ -63,8 +63,11 @@ class MeshHeader(Struct):
             sph_radius=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 116
+    def size_in_bytes(include_head=False):
+        size = 116
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
@@ -246,10 +249,12 @@ class Mesh(Struct):
             size += shader.size_in_bytes()
         return size
 
-    def textures_size(self):
+    def textures_size(self, include_head=False):
         size = 0
+        if include_head:
+            size += HEAD
         for texture in self.textures:
-            size += HEAD + texture.size_in_bytes()
+            size += texture.size_in_bytes(True)
         return size
 
     def shade_ids_size(self):
@@ -274,7 +279,7 @@ class Mesh(Struct):
         return size
 
     def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
+        size = self.header.size_in_bytes(True)
         if len(self.user_text):
             size += HEAD + self.user_text_size()
         size += HEAD + self.verts_size()
@@ -285,7 +290,7 @@ class Mesh(Struct):
         if self.shaders:
             size += HEAD + self.shaders_size()
         if self.textures:
-            size += HEAD + self.textures_size()
+            size += self.textures_size(True)
         if self.shade_ids:
             size += HEAD + self.shade_ids_size()
         if self.shader_materials:

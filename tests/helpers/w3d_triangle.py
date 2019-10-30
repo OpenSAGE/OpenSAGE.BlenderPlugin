@@ -6,12 +6,15 @@ from mathutils import Vector
 from io_mesh_w3d.structs.w3d_triangle import Triangle
 
 
-def get_triangle():
+def get_triangle(vert_ids=(1, 2, 3),
+                 surface_type=66,
+                 normal=Vector((1.0, 22.0, -5.0)),
+                 distance=103.0):
     return Triangle(
-        vert_ids=(1, 2, 3),
-        surface_type=66,
-        normal=Vector((1.0, 22.0, -5.0)),
-        distance=103.0)
+        vert_ids=vert_ids,
+        surface_type=surface_type,
+        normal=normal,
+        distance=distance)
 
 
 def compare_triangles(self, expected, actual, is_skin=False):
