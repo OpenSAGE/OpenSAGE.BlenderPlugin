@@ -5,12 +5,12 @@ import unittest
 
 from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
 
-def get_vertex_influence(bone=3, xtra=4):
+def get_vertex_influence(bone=3, xtra=4, bone_inf=0.25, xtra_inf=0.75):
     return VertexInfluence(
         bone_idx=bone,
         xtra_idx=xtra,
-        bone_inf=25.0,
-        xtra_inf=75.0)
+        bone_inf=bone_inf,
+        xtra_inf=xtra_inf)
 
 def compare_vertex_influences(self, expected, actual):
     self.assertEqual(expected.bone_idx, actual.bone_idx)

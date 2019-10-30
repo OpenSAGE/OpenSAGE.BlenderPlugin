@@ -15,9 +15,6 @@ from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
-from io_mesh_w3d.structs.w3d_material import USE_DEPTH_CUE, ARGB_EMISSIVE_ONLY, \
-    COPY_SPECULAR_TO_DIFFUSE, DEPTH_CUE_TO_ALPHA
-
 
 def get_mesh_objects():
     return [object for object in bpy.context.scene.objects if object.type == 'MESH']

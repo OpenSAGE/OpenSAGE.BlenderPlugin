@@ -8,7 +8,9 @@ from shutil import copyfile
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.export_utils_w3d import *
 from tests.helpers.w3d_mesh import get_mesh, compare_meshes
-from tests.helpers.w3d_material import compare_vertex_materials
+from tests.helpers.w3d_material_pass import compare_material_passes
+from tests.helpers.w3d_material_info import compare_material_infos
+from tests.helpers.w3d_vertex_material import compare_vertex_materials
 from tests.helpers.w3d_shader_material import compare_shader_materials
 from tests.helpers.w3d_shader import get_shader, compare_shaders
 from tests.helpers.w3d_box import get_box, compare_boxes

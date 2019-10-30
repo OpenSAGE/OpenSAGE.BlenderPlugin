@@ -1,10 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 10.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_material import *
+from io_mesh_w3d.structs.w3d_material_pass import *
+from io_mesh_w3d.structs.w3d_material_info import *
+from io_mesh_w3d.structs.w3d_vertex_material import *
 from io_mesh_w3d.structs.w3d_triangle import *
 from io_mesh_w3d.structs.w3d_aabbtree import *
 from io_mesh_w3d.structs.w3d_shader import *

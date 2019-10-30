@@ -14,7 +14,7 @@ from bpy_extras.image_utils import load_image
 from io_mesh_w3d.io_binary import read_chunk_head
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
-from io_mesh_w3d.structs.w3d_material import *
+from io_mesh_w3d.structs.w3d_vertex_material import *
 
 
 def read_chunk_array(self, io_stream, chunk_end, type_, read_func):

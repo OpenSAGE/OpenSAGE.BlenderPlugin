@@ -6,69 +6,10 @@ import unittest
 from mathutils import Vector
 
 from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.structs.w3d_material import *
+from io_mesh_w3d.structs.w3d_material_pass import *
 
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
-
-def get_vertex_material_info():
-    return VertexMaterialInfo(
-        attributes=13,
-        ambient=get_rgba(), # alpha is only padding in this and below
-        diffuse=get_rgba(),
-        specular=get_rgba(),
-        emissive=get_rgba(),
-        shininess=0.5,
-        opacity=0.32,
-        translucency=0.12)
-
-
-def compare_vertex_material_infos(self, expected, actual):
-    self.assertEqual(expected.attributes, actual.attributes)
-    compare_rgbas(self, expected.ambient, actual.ambient)
-    compare_rgbas(self, expected.diffuse, actual.diffuse)
-    compare_rgbas(self, expected.specular, actual.specular)
-    compare_rgbas(self, expected.emissive, actual.emissive)
-    self.assertAlmostEqual(expected.shininess, actual.shininess, 5)
-    self.assertAlmostEqual(expected.opacity, actual.opacity, 5)
-    self.assertAlmostEqual(expected.translucency, actual.translucency, 5)
-
-
-def get_vertex_material():
-    return VertexMaterial(
-        vm_name="VM_NAME",
-        vm_info=get_vertex_material_info(),
-        vm_args_0="VM_ARGS0",
-        vm_args_1="VM_ARGS1")
-
-
-def compare_vertex_materials(self, expected, actual):
-    self.assertEqual(expected.vm_name, actual.vm_name)
-    self.assertEqual(expected.vm_args_0, actual.vm_args_0)
-    self.assertEqual(expected.vm_args_1, actual.vm_args_1)
-    compare_vertex_material_infos(self, expected.vm_info, actual.vm_info)
-
-
-def get_material_info(mesh=None):
-    info = MaterialInfo(
-        pass_count=0,
-        vert_matl_count=0,
-        shader_count=0,
-        texture_count=0)
-
-    if not mesh is None:
-        info.pass_count = len(mesh.material_passes)
-        info.vert_matl_count = len(mesh.vert_materials)
-        info.shader_count = len(mesh.shaders)
-        info.texture_count = len(mesh.textures)
-    return info
-
-
-def compare_material_infos(self, expected, actual):
-    self.assertEqual(expected.pass_count, actual.pass_count)
-    self.assertEqual(expected.vert_matl_count, actual.vert_matl_count)
-    self.assertEqual(expected.shader_count, actual.shader_count)
-    self.assertEqual(expected.texture_count, actual.texture_count)
 
 def get_uvs():
     uvs = []

@@ -7,7 +7,9 @@ from mathutils import Vector
 from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, GEOMETRY_TYPE_SKIN
 from io_mesh_w3d.structs.w3d_triangle import Triangle
 from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
-from tests.helpers.w3d_material import *
+from tests.helpers.w3d_material_pass import get_material_pass, compare_material_passes
+from tests.helpers.w3d_material_info import get_material_info, compare_material_infos
+from tests.helpers.w3d_vertex_material import get_vertex_material, compare_vertex_materials
 from tests.helpers.w3d_shader import get_shader, compare_shaders
 from tests.helpers.w3d_texture import get_texture, compare_textures
 from tests.helpers.w3d_shader_material import get_shader_material, compare_shader_materials
@@ -116,14 +118,14 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh.triangles.append(Triangle(vert_ids=(4, 0, 1), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=1.1))
 
     if skin:
-        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=1, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=2, xtra_idx=1, bone_inf=0.75, xtra_inf=0.25))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=3, xtra_idx=2, bone_inf=0.50, xtra_inf=0.50))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
-        mesh.vert_infs.append(VertexInfluence(bone_idx=4, xtra_idx=3, bone_inf=0.25, xtra_inf=0.75))
+        mesh.vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
+        mesh.vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
+        mesh.vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
+        mesh.vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
+        mesh.vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
+        mesh.vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
+        mesh.vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
+        mesh.vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
 
     for i in range(len(mesh.verts)):
         mesh.shade_ids.append(i)
@@ -140,11 +142,12 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
 
         mesh.material_passes.append(get_material_pass(index=i, shader_mat=shader_mats))
 
-    mesh.mat_info = MaterialInfo(
-        pass_count=len(mesh.material_passes), 
-        vert_matl_count=len(mesh.vert_materials), 
-        shader_count=len(mesh.shaders), 
-        texture_count=len(mesh.textures))
+    mesh.mat_info = get_material_info()
+    mesh.mat_info.pass_count = len(mesh.material_passes)
+    mesh.mat_info.vert_matl_count = len(mesh.vert_materials)
+    mesh.mat_info.shader_count = len(mesh.shaders)
+    mesh.mat_info.texture_count = len(mesh.textures)
+
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
     mesh.header.matl_count = len(mesh.vert_materials)
