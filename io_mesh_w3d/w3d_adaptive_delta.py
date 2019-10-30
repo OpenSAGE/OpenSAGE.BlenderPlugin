@@ -28,7 +28,7 @@ DELTA_TABLE = calculate_table()
 
 def to_signed(byte):
     if byte > 127:
-        return (256-byte) * (-1)
+        return (256 - byte) * (-1)
     return byte
 
 

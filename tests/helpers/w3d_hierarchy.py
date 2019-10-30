@@ -34,7 +34,7 @@ def get_hierarchy_pivot(name, parent):
 
 
 def almost_equal(self, x, y, threshold=0.0001):
-    self.assertTrue(abs(x-y) < threshold)
+    self.assertTrue(abs(x - y) < threshold)
 
 
 def compare_hierarchy_pivots(self, expected, actual):

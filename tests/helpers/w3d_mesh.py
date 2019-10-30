@@ -117,30 +117,66 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
     mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
 
-    mesh.triangles.append(Triangle(vert_ids=(
-        4, 2, 0), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        2, 7, 3), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        6, 5, 7), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        1, 7, 5), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        0, 3, 1), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        4, 1, 5), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        4, 6, 2), surface_type=13, normal=Vector((0.0, 0.0, 1.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        2, 6, 7), surface_type=13, normal=Vector((0.0, -1.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        6, 4, 5), surface_type=13, normal=Vector((-1.0, 0.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        1, 3, 7), surface_type=13, normal=Vector((0.0, 0.0, -1.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        0, 2, 3), surface_type=13, normal=Vector((1.0, 0.0, 0.0)), distance=0.63))
-    mesh.triangles.append(Triangle(vert_ids=(
-        4, 0, 1), surface_type=13, normal=Vector((0.0, 1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                4, 2, 0), surface_type=13, normal=Vector(
+                (0.0, 0.0, 1.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                2, 7, 3), surface_type=13, normal=Vector(
+                (0.0, -1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                6, 5, 7), surface_type=13, normal=Vector(
+                (-1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                1, 7, 5), surface_type=13, normal=Vector(
+                (0.0, 0.0, -1.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                0, 3, 1), surface_type=13, normal=Vector(
+                (1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                4, 1, 5), surface_type=13, normal=Vector(
+                (0.0, 1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                4, 6, 2), surface_type=13, normal=Vector(
+                (0.0, 0.0, 1.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                2, 6, 7), surface_type=13, normal=Vector(
+                (0.0, -1.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                6, 4, 5), surface_type=13, normal=Vector(
+                (-1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                1, 3, 7), surface_type=13, normal=Vector(
+                (0.0, 0.0, -1.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                0, 2, 3), surface_type=13, normal=Vector(
+                (1.0, 0.0, 0.0)), distance=0.63))
+    mesh.triangles.append(
+        Triangle(
+            vert_ids=(
+                4, 0, 1), surface_type=13, normal=Vector(
+                (0.0, 1.0, 0.0)), distance=0.63))
 
     if skin:
         mesh.vert_infs = get_vertex_influences()

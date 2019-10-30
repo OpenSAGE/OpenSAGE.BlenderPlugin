@@ -174,7 +174,11 @@ class Mesh(Struct):
                     io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
-                    context, io_stream, subchunk_end, W3D_CHUNK_VERTEX_MATERIAL, VertexMaterial.read)
+                    context,
+                    io_stream,
+                    subchunk_end,
+                    W3D_CHUNK_VERTEX_MATERIAL,
+                    VertexMaterial.read)
             elif chunk_type == W3D_CHUNK_TEXTURES:
                 result.textures = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
@@ -325,7 +329,9 @@ class Mesh(Struct):
 
         if self.shade_ids:
             write_chunk_head(
-                io_stream, W3D_CHUNK_VERTEX_SHADE_INDICES, self.shade_ids_size())
+                io_stream,
+                W3D_CHUNK_VERTEX_SHADE_INDICES,
+                self.shade_ids_size())
             write_array(io_stream, self.shade_ids, write_long)
 
         if self.mat_info is not None:
@@ -364,9 +370,9 @@ class Mesh(Struct):
             self.aabbtree.write(io_stream)
 
 
-#######################################################################################
+##########################################################################
 # Unsupported
-#######################################################################################
+##########################################################################
 
 W3D_CHUNK_PRELIT_UNLIT = 0x00000023
 W3D_CHUNK_PRELIT_VERTEX = 0x00000024

@@ -47,7 +47,9 @@ class W3dTestCase(unittest.TestCase):
                 bpy.ops.wm.save_mainfile(
                     filepath=os.path.join(self.__tmp, 'result.blend'))
                 new_path = os.path.join(
-                    self.__tmp_base, self.__class__.__name__, self._testMethodName)
+                    self.__tmp_base,
+                    self.__class__.__name__,
+                    self._testMethodName)
                 os.renames(self.__tmp, new_path)
             else:
                 shutil.rmtree(self.__tmp)

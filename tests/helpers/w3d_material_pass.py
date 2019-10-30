@@ -70,11 +70,17 @@ def compare_texture_stages(self, expected, actual):
                          len(actual.per_face_tx_coords))
         for i in range(len(expected.per_face_tx_coords)):
             self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][0], actual.per_face_tx_coords[i][0], 5)
+                expected.per_face_tx_coords[i][0],
+                actual.per_face_tx_coords[i][0],
+                5)
             self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][1], actual.per_face_tx_coords[i][1], 5)
+                expected.per_face_tx_coords[i][1],
+                actual.per_face_tx_coords[i][1],
+                5)
             self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][2], actual.per_face_tx_coords[i][2], 5)
+                expected.per_face_tx_coords[i][2],
+                actual.per_face_tx_coords[i][2],
+                5)
 
 
 def get_material_pass(index=0, minimal=False, shader_mat=False):
@@ -107,7 +113,8 @@ def get_material_pass(index=0, minimal=False, shader_mat=False):
         matpass.tx_coords = get_uvs()
     else:
         matpass.tx_stages.append(get_texture_stage(index=index))
-        # matpass.tx_stages.append(get_texture_stage()) # only one tx_stage allowed for now
+        # matpass.tx_stages.append(get_texture_stage()) # only one tx_stage
+        # allowed for now
 
     return matpass
 

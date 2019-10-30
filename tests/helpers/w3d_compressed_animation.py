@@ -197,14 +197,16 @@ def compare_adaptive_delta_animation_channels(self, expected, actual):
         self, expected.data, actual.data, expected.type)
 
 
-def get_adaptive_delta_motion_animation_channel(_type, num_bits, num_time_codes):
+def get_adaptive_delta_motion_animation_channel(
+        _type, num_bits, num_time_codes):
     channel = AdaptiveDeltaMotionAnimationChannel(
         scale=4.0,
         data=get_adaptive_delta_data(_type, num_bits, num_time_codes))
     return channel
 
 
-def compare_adaptive_delta_motion_animation_channels(self, expected, actual, _type):
+def compare_adaptive_delta_motion_animation_channels(
+        self, expected, actual, _type):
     self.assertAlmostEqual(expected.scale, actual.scale, 5)
     compare_adaptive_delta_datas(self, expected.data, actual.data, _type)
 
@@ -337,8 +339,9 @@ def compare_compressed_animations(self, expected, actual):
     self.assertEqual(len(expected.time_coded_bit_channels),
                      len(actual.time_coded_bit_channels))
     for i in range(len(expected.time_coded_bit_channels)):
-        compare_time_coded_bit_channels(
-            self, expected.time_coded_bit_channels[i], actual.time_coded_bit_channels[i])
+        compare_time_coded_bit_channels(self,
+                                        expected.time_coded_bit_channels[i],
+                                        actual.time_coded_bit_channels[i])
     self.assertEqual(len(expected.motion_channels),
                      len(actual.motion_channels))
     for i in range(len(expected.motion_channels)):

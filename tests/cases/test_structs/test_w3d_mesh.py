@@ -124,10 +124,16 @@ class TestMesh(utils.W3dTestCase):
                          1, has_sub_chunks=False)
         write_ubyte(output, 0x00)
         write_chunk_head(
-            output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, 1, has_sub_chunks=False)
+            output,
+            W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS,
+            1,
+            has_sub_chunks=False)
         write_ubyte(output, 0x00)
         write_chunk_head(
-            output, W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, 1, has_sub_chunks=False)
+            output,
+            W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
+            1,
+            has_sub_chunks=False)
         write_ubyte(output, 0x00)
         write_chunk_head(output, W3D_CHUNK_DEFORM, 1, has_sub_chunks=False)
         write_ubyte(output, 0x00)

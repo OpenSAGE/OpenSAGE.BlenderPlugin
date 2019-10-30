@@ -35,7 +35,9 @@ class CompressedAnimationHeader(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream, W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, self.size_in_bytes())
+            io_stream,
+            W3D_CHUNK_COMPRESSED_ANIMATION_HEADER,
+            self.size_in_bytes())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_fixed_string(io_stream, self.hierarchy_name)
@@ -103,7 +105,9 @@ class TimeCodedAnimationChannel(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream, W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, self.size_in_bytes())
+            io_stream,
+            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+            self.size_in_bytes())
         write_ulong(io_stream, self.num_time_codes)
         write_ushort(io_stream, self.pivot)
         write_ubyte(io_stream, self.vector_len)
@@ -197,7 +201,9 @@ class AdaptiveDeltaAnimationChannel(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream, W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, self.size_in_bytes())
+            io_stream,
+            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+            self.size_in_bytes())
         write_ulong(io_stream, self.num_time_codes)
         write_ushort(io_stream, self.pivot)
         write_ubyte(io_stream, self.vector_len)
@@ -361,8 +367,11 @@ class MotionChannel(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL,
-                         self.size_in_bytes(), has_sub_chunks=True)
+        write_chunk_head(
+            io_stream,
+            W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL,
+            self.size_in_bytes(),
+            has_sub_chunks=True)
         write_ubyte(io_stream, 0)  # zero
         write_ubyte(io_stream, self.delta_type)
         write_ubyte(io_stream, self.vector_len)

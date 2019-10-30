@@ -113,7 +113,8 @@ def write_ubyte(io_stream, byte):
 
 
 def read_vector(io_stream):
-    return Vector((read_float(io_stream), read_float(io_stream), read_float(io_stream)))
+    return Vector((read_float(io_stream), read_float(
+        io_stream), read_float(io_stream)))
 
 
 def write_vector(io_stream, vec):

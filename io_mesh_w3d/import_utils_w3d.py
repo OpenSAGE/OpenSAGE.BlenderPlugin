@@ -300,8 +300,10 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     mat.vm_args_0 = vert_mat.vm_args_0
     mat.vm_args_1 = vert_mat.vm_args_1
 
-    create_principled_bsdf(self, material=mat,
-                           base_color=rgba_to_vector(vert_mat.vm_info.diffuse)[0:3], alpha=vert_mat.vm_info.opacity)
+    create_principled_bsdf(
+        self, material=mat, base_color=rgba_to_vector(
+            vert_mat.vm_info.diffuse)[
+            0:3], alpha=vert_mat.vm_info.opacity)
     return mat
 
 
@@ -345,8 +347,14 @@ def create_material_from_shader_material(self, mesh, shader_mat):
     return material
 
 
-def create_principled_bsdf(self, material, base_color=None,
-                           alpha=0, diffuse_tex=None, normal_tex=None, bump_scale=0):
+def create_principled_bsdf(
+        self,
+        material,
+        base_color=None,
+        alpha=0,
+        diffuse_tex=None,
+        normal_tex=None,
+        bump_scale=0):
     principled = PrincipledBSDFWrapper(material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color

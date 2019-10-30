@@ -87,7 +87,9 @@ class ShaderMaterialProperty(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream, W3D_CHUNK_SHADER_MATERIAL_PROPERTY, self.size_in_bytes())
+            io_stream,
+            W3D_CHUNK_SHADER_MATERIAL_PROPERTY,
+            self.size_in_bytes())
         write_long(io_stream, self.type)
         write_long(io_stream, self.num_chars)
         write_string(io_stream, self.name)

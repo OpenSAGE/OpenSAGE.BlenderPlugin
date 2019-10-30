@@ -18,8 +18,8 @@ class VertexInfluence(Struct):
         return VertexInfluence(
             bone_idx=read_ushort(io_stream),
             xtra_idx=read_ushort(io_stream),
-            bone_inf=read_ushort(io_stream)/100,
-            xtra_inf=read_ushort(io_stream)/100)
+            bone_inf=read_ushort(io_stream) / 100,
+            xtra_inf=read_ushort(io_stream) / 100)
 
     @staticmethod
     def size_in_bytes():

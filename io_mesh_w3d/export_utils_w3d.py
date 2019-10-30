@@ -38,7 +38,9 @@ def retrieve_boxes(hlod):
             box_mesh = mesh_object.to_mesh(
                 preserve_all_data_layers=False, depsgraph=None)
             box.extend = Vector(
-                (box_mesh.vertices[0].co.x * 2, box_mesh.vertices[0].co.y * 2, box_mesh.vertices[0].co.z))
+                (box_mesh.vertices[0].co.x * 2,
+                 box_mesh.vertices[0].co.y * 2,
+                 box_mesh.vertices[0].co.z))
 
             for material in box_mesh.materials:
                 box.color = vector_to_rgba(material.diffuse_color)
@@ -112,9 +114,13 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
-            (mesh_object.bound_box[0][0], mesh_object.bound_box[0][1], mesh_object.bound_box[0][2]))
+            (mesh_object.bound_box[0][0],
+             mesh_object.bound_box[0][1],
+             mesh_object.bound_box[0][2]))
         header.max_corner = Vector(
-            (mesh_object.bound_box[6][0], mesh_object.bound_box[6][1], mesh_object.bound_box[6][2]))
+            (mesh_object.bound_box[6][0],
+             mesh_object.bound_box[6][1],
+             mesh_object.bound_box[6][2]))
 
         for face in mesh.polygons:
             triangle = Triangle()
@@ -248,8 +254,17 @@ class PrincipledBSDF(Struct):
 
 
 def vector_to_rgba(vec, scale=255):
-    return RGBA(r=int(vec[0] * scale), g=int(vec[1]
-                                             * scale), b=int(vec[2] * scale), a=0)
+    return RGBA(
+        r=int(
+            vec[0] *
+            scale),
+        g=int(
+            vec[1] *
+            scale),
+        b=int(
+            vec[2] *
+            scale),
+        a=0)
 
 
 def retrieve_principled_bsdf(material):
@@ -336,8 +351,11 @@ def retrieve_shader_material(material, principled):
                     "SpecularExponent", material.specular_intensity)
     append_property(shader_material.properties, 3,
                     "BumpUVScale", material.bump_uv_scale)
-    append_property(shader_material.properties, 4,
-                    "Sampler_ClampU_ClampV_NoMip_0", material.sampler_clamp_uv_no_mip)
+    append_property(
+        shader_material.properties,
+        4,
+        "Sampler_ClampU_ClampV_NoMip_0",
+        material.sampler_clamp_uv_no_mip)
     append_property(shader_material.properties, 5,
                     "AmbientColor", vector_to_rgba(material.ambient))
     append_property(shader_material.properties, 5, "DiffuseColor",

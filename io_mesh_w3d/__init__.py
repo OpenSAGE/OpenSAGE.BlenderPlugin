@@ -48,13 +48,21 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     export_mode: EnumProperty(
         name="Export Mode",
-        items=(('M', "Model", "This will export all the meshes of the scene, without skeletons or animation"),
-               ('H', "Hierarchy", "This will export the hierarchy tree without any geometry or animation data"),
-               ('A', "Animation", "This will export the animation without any geometry data or skeletons"),
-               ('HAM', "HierarchicalAnimatedModel",
-                "This will export the meshes with the hierarchy and animation into one file")
-               ),
-        default='M',)
+        items=(
+            ('M',
+             "Model",
+             "This will export all the meshes of the scene, without skeletons or animation"),
+            ('H',
+             "Hierarchy",
+             "This will export the hierarchy tree without any geometry or animation data"),
+            ('A',
+             "Animation",
+             "This will export the animation without any geometry data or skeletons"),
+            ('HAM',
+             "HierarchicalAnimatedModel",
+             "This will export the meshes with the hierarchy and animation into one file")),
+        default='M',
+    )
 
     animation_compression: EnumProperty(
         name="Compression",
@@ -81,7 +89,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
             except (AttributeError, TypeError):
                 self.report(
-                    {"ERROR"}, "Loading export settings failed. Removed corrupted settings")
+                    {"ERROR"},
+                    "Loading export settings failed. Removed corrupted settings")
                 del context.scene[self.scene_key]
 
         return ExportHelper.invoke(self, context, event)
@@ -89,8 +98,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def save_settings(self, context):
         # find all export_ props
         all_props = self.properties
-        export_props = {x: getattr(self, x) for x in dir(all_props)
-                        if x.startswith("export_") and all_props.get(x) is not None}
+        export_props = {x: getattr(self, x) for x in dir(
+            all_props) if x.startswith("export_") and all_props.get(x) is not None}
 
         context.scene[self.scene_key] = export_props
 
