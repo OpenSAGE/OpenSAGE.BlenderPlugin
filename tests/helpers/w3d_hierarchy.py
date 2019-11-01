@@ -9,7 +9,7 @@ from io_mesh_w3d.structs.w3d_hierarchy import Hierarchy, HierarchyHeader, Hierar
 from tests.helpers.w3d_version import get_version, compare_versions
 
 
-def get_hierarchy_header(name):
+def get_hierarchy_header(name="TestHierarchy"):
     return HierarchyHeader(
         version=get_version(),
         name=name,
@@ -24,7 +24,7 @@ def compare_hierarchy_headers(self, expected, actual):
     self.assertEqual(expected.center_pos, actual.center_pos)
 
 
-def get_hierarchy_pivot(name, parent):
+def get_hierarchy_pivot(name="pivot", parent=1):
     return HierarchyPivot(
         name=name,
         parent_id=parent,
@@ -53,14 +53,11 @@ def compare_hierarchy_pivots(self, expected, actual):
     almost_equal(self, expected.rotation[3], actual.rotation[3], 0.2)
 
 
-def get_hierarchy(name="TestHierarchy", minimal=False):
+def get_hierarchy(name="TestHierarchy"):
     hierarchy = Hierarchy(
         header=get_hierarchy_header(name),
         pivots=[],
         pivot_fixups=[])
-
-    if minimal:
-        return hierarchy
 
     root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
     root.translation = Vector()
@@ -90,6 +87,17 @@ def get_hierarchy(name="TestHierarchy", minimal=False):
 
     return hierarchy
 
+def get_hierarchy_minimal():
+    return Hierarchy(
+        header=get_hierarchy_header(),
+        pivots=[get_hierarchy_pivot()],
+        pivot_fixups=[Vector()])
+
+def get_hierarchy_empty():
+    return Hierarchy(
+        header=get_hierarchy_header(),
+        pivots=[],
+        pivot_fixups=[])
 
 def compare_hierarchies(self, expected, actual):
     compare_hierarchy_headers(self, expected.header, actual.header)

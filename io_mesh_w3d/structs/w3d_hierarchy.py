@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 10.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
@@ -26,8 +26,11 @@ class HierarchyHeader(Struct):
             center_pos=read_vector(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 36
+    def size_in_bytes(include_head=True):
+        size = 36
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER,
@@ -99,34 +102,38 @@ class Hierarchy(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def pivots_size(self):
+    def pivots_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for pivot in self.pivots:
             size += pivot.size_in_bytes()
         return size
 
-    def pivot_fixups_size(self):
+    def pivot_fixups_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for _ in self.pivot_fixups:
-            size += 12  # size in bytes
+            size += 12
         return size
 
     def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
-        size += HEAD + self.pivots_size()
+        size = self.header.size_in_bytes()
+        size += self.pivots_size()
         if self.pivot_fixups:
-            size += HEAD + self.pivot_fixups_size()
+            size += self.pivot_fixups_size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size_in_bytes())
         self.header.write(io_stream)
-        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, self.pivots_size())
+        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, self.pivots_size(False))
         for pivot in self.pivots:
             pivot.write(io_stream)
 
         if self.pivot_fixups:
             write_chunk_head(io_stream, W3D_CHUNK_PIVOT_FIXUPS,
-                             self.pivot_fixups_size())
+                             self.pivot_fixups_size(False))
             for fixup in self.pivot_fixups:
                 write_vector(io_stream, fixup)
