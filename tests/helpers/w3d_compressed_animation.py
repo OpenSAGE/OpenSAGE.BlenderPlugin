@@ -160,8 +160,8 @@ def get_adaptive_delta_data(_type, num_bits, num_time_codes=33):
 
 
 def compare_adaptive_delta_datas(self, expected, actual, _type):
-    self.assertEqual(expected.size_in_bytes(
-        _type), actual.size_in_bytes(_type))
+    self.assertEqual(expected.size(
+        _type), actual.size(_type))
     self.assertEqual(expected.bit_count, actual.bit_count)
     self.assertEqual(len(expected.delta_blocks), len(actual.delta_blocks))
     for i in range(len(expected.delta_blocks)):

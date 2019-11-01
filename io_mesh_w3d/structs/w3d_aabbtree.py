@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 11.2019
 
 from mathutils import Vector
 
@@ -26,12 +26,15 @@ class AABBTreeHeader(Struct):
         return result
 
     @staticmethod
-    def size_in_bytes():
-        return 8
+    def size(include_head=True):
+        size = 8
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_HEADER,
-                         self.size_in_bytes())
+                         self.size(False))
         write_ulong(io_stream, self.node_count)
         write_ulong(io_stream, self.poly_count)
 
@@ -54,7 +57,7 @@ class AABBTreeNode(Struct):
             back_or_poly_count=read_long(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 32
 
     def write(self, io_stream):
@@ -93,34 +96,42 @@ class AABBTree(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def poly_indices_size(self):
-        return len(self.poly_indices) * 4
-
-    def nodes_size(self):
-        size = 0
-        for node in self.nodes:
-            size += node.size_in_bytes()
+    def poly_indices_size(self, include_head=True):
+        size = len(self.poly_indices) * 4
+        if include_head:
+            size += HEAD
         return size
 
-    def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
+    def nodes_size(self, include_head=True):
+        size = 0
+        if include_head:
+            size += HEAD
+        for node in self.nodes:
+            size += node.size()
+        return size
+
+    def size(self, include_head=True):
+        size = 0
+        if include_head:
+            size += HEAD
+        size += self.header.size()
         if self.poly_indices:
-            size += HEAD + self.poly_indices_size()
+            size += self.poly_indices_size()
         if self.nodes:
-            size += HEAD + self.nodes_size()
+            size += self.nodes_size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_AABBTREE,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if self.poly_indices:
             write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_POLYINDICES,
-                             self.poly_indices_size())
+                             self.poly_indices_size(False))
             write_array(io_stream, self.poly_indices, write_long)
         if self.nodes:
             write_chunk_head(
-                io_stream, W3D_CHUNK_AABBTREE_NODES, self.nodes_size())
+                io_stream, W3D_CHUNK_AABBTREE_NODES, self.nodes_size(False))
             for node in self.nodes:
                 node.write(io_stream)

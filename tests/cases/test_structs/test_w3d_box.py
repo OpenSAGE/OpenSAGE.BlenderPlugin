@@ -14,7 +14,7 @@ class TestBox(unittest.TestCase):
     def test_write_read(self):
         expected = get_box()
 
-        self.assertEqual(68, expected.size_in_bytes())
+        self.assertEqual(68, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -22,7 +22,7 @@ class TestBox(unittest.TestCase):
 
         (chunkType, chunkSize, _) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_BOX, chunkType)
-        self.assertEqual(expected.size_in_bytes(), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = Box.read(io_stream)
         compare_boxes(self, expected, actual)

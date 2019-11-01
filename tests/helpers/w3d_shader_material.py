@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+# Last Modification 11.2019
 
 from mathutils import Vector
 
@@ -15,6 +15,12 @@ def get_shader_material_header():
         number=55,
         type_name="headerType",
         reserved=0)
+
+
+def compare_shader_material_headers(self, expected, actual):
+    self.assertEqual(expected.number, actual.number)
+    self.assertEqual(expected.type_name, actual.type_name)
+    self.assertEqual(expected.reserved, actual.reserved)
 
 
 def get_shader_material_property(_type=1, name="property"):
@@ -40,6 +46,19 @@ def get_shader_material_property(_type=1, name="property"):
     return result
 
 
+def compare_shader_material_properties(self, expected, actual):
+    self.assertEqual(expected.type, actual.type)
+    self.assertEqual(expected.name, actual.name)
+    self.assertEqual(expected.num_chars, actual.num_chars)
+
+    if expected.type == 2:
+        self.assertAlmostEqual(expected.value, actual.value, 5)
+    elif expected.type == 5:
+        compare_rgbas(self, expected.value, actual.value)
+    else:
+        self.assertEqual(expected.value, actual.value)
+
+
 def get_shader_material_properties():
     return [
         get_shader_material_property(1, "DiffuseTexture"),
@@ -56,30 +75,30 @@ def get_shader_material_properties():
     ]
 
 
-def get_shader_material(props=get_shader_material_properties()):
+def get_shader_material():
     return ShaderMaterial(
         header=get_shader_material_header(),
-        properties=props)
+        properties=get_shader_material_properties())
 
+def get_shader_material_minimal():
+    shader_mat = ShaderMaterial(
+        header=get_shader_material_header(),
+        properties=[])
 
-def compare_shader_material_headers(self, expected, actual):
-    self.assertEqual(expected.number, actual.number)
-    self.assertEqual(expected.type_name, actual.type_name)
-    self.assertEqual(expected.reserved, actual.reserved)
+    shader_mat.properties = [
+        get_shader_material_property(1, "a"),
+        get_shader_material_property(2, "a"),
+        get_shader_material_property(3, "a"),
+        get_shader_material_property(4, "a"),
+        get_shader_material_property(5, "a"),
+        get_shader_material_property(6, "a"),
+        get_shader_material_property(7, "a")]
+    return shader_mat
 
-
-def compare_shader_material_properties(self, expected, actual):
-    self.assertEqual(expected.type, actual.type)
-    self.assertEqual(expected.name, actual.name)
-    self.assertEqual(expected.num_chars, actual.num_chars)
-
-    if expected.type == 2:
-        self.assertAlmostEqual(expected.value, actual.value, 5)
-    elif expected.type == 5:
-        compare_rgbas(self, expected.value, actual.value)
-    else:
-        self.assertEqual(expected.value, actual.value)
-
+def get_shader_material_empty():
+    return ShaderMaterial(
+        header=get_shader_material_header(),
+        properties=[])
 
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)

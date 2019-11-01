@@ -27,12 +27,12 @@ class AnimationHeader(Struct):
             frame_rate=read_ulong(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 44
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_HEADER,
-                         self.size_in_bytes())
+                         self.size())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_fixed_string(io_stream, self.hierarchy_name)
@@ -69,12 +69,12 @@ class AnimationChannel(Struct):
             result.data = read_array(io_stream, chunk_end, read_quaternion)
         return result
 
-    def size_in_bytes(self):
+    def size(self):
         return 12 + (len(self.data) * self.vector_len) * 4
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_CHANNEL,
-                         self.size_in_bytes())
+                         self.size())
 
         write_ushort(io_stream, self.first_frame)
         write_ushort(io_stream, self.last_frame)
@@ -112,15 +112,15 @@ class Animation(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
+    def size(self):
+        size = HEAD + self.header.size()
         for channel in self.channels:
-            size += HEAD + channel.size_in_bytes()
+            size += HEAD + channel.size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_ANIMATION,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
         for channel in self.channels:

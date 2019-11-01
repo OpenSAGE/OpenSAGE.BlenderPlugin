@@ -38,7 +38,7 @@ class VertexMaterialInfo(Struct):
             translucency=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes(include_head=True):
+    def size(include_head=True):
         size = 32
         if include_head:
             size += HEAD
@@ -46,7 +46,7 @@ class VertexMaterialInfo(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_INFO,
-                         self.size_in_bytes(False))
+                         self.size(False))
         write_long(io_stream, self.attributes)
         self.ambient.write(io_stream)
         self.diffuse.write(io_stream)
@@ -95,13 +95,13 @@ class VertexMaterial(Struct):
             size += HEAD
         return size
 
-    def size_in_bytes(self, include_head=True):
+    def size(self, include_head=True):
         size = 0
         if include_head:
             size += HEAD
         size += self.name_size(self.vm_name)
         if self.vm_info is not None:
-            size += self.vm_info.size_in_bytes()
+            size += self.vm_info.size()
         if self.vm_args_0 is not "":
             size += self.name_size(self.vm_args_0)
         if self.vm_args_1 is not "":
@@ -110,7 +110,7 @@ class VertexMaterial(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL,
-                         self.size_in_bytes(False), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_NAME,
                          self.name_size(self.vm_name, False))
         write_string(io_stream, self.vm_name)

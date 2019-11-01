@@ -12,7 +12,7 @@ class TestVertexInfluence(unittest.TestCase):
     def test_write_read(self):
         expected = get_vertex_influence()
 
-        self.assertEqual(8, expected.size_in_bytes())
+        self.assertEqual(8, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

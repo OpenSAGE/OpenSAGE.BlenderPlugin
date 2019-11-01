@@ -1,9 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+# Last Modification 11.2019
 import unittest
 from mathutils import Vector
-from io_mesh_w3d.structs.w3d_aabbtree import AABBTree, AABBTreeHeader, AABBTreeNode, W3D_CHUNK_AABBTREE
+from io_mesh_w3d.structs.w3d_aabbtree import *
 
 
 def get_aabbtree_header(num_nodes=33, num_polys=41):
@@ -52,6 +52,17 @@ def get_aabbtree(num_nodes=33, num_polys=41):
         poly_indices=get_aabbtree_poly_indices(num_polys),
         nodes=get_aabbtree_nodes(num_nodes))
 
+def get_aabbtree_minimal():
+    return AABBTree(
+        header=get_aabbtree_header(),
+        poly_indices=[0],
+        nodes=[get_aabbtree_node()])
+
+def get_aabbtree_empty():
+    return AABBTree(
+        header=get_aabbtree_header(),
+        poly_indices=[],
+        nodes=[])
 
 def compare_aabbtrees(self, expected, actual):
     compare_aabbtree_headers(self, expected.header, actual.header)

@@ -36,11 +36,11 @@ class Box(Struct):
             extend=read_vector(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 68
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_BOX, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_BOX, self.size())
 
         self.version.write(io_stream)
         write_ulong(io_stream, (self.collision_types & 0xFF)

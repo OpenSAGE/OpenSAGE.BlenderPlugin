@@ -14,8 +14,8 @@ class TestAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_animation()
 
-        self.assertEqual(44, expected.header.size_in_bytes())
-        self.assertEqual(2004, expected.size_in_bytes())
+        self.assertEqual(44, expected.header.size())
+        self.assertEqual(2004, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -23,7 +23,7 @@ class TestAnimation(unittest.TestCase):
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_ANIMATION, chunkType)
-        self.assertEqual(expected.size_in_bytes(), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = Animation.read(self, io_stream, chunkEnd)
         compare_animations(self, expected, actual)

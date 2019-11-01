@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 11.2019
 
-from io_mesh_w3d.structs.struct import Struct
+from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.io_binary import *
 
 
@@ -24,10 +24,15 @@ class MaterialInfo(Struct):
             texture_count=read_ulong(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 16
+    def size(include_head=True):
+        size = 16
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
+        write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_INFO,
+                             self.size(False))
         write_ulong(io_stream, self.pass_count)
         write_ulong(io_stream, self.vert_matl_count)
         write_ulong(io_stream, self.shader_count)

@@ -12,7 +12,7 @@ class TestTriangle(unittest.TestCase):
     def test_write_read(self):
         expected = get_triangle()
 
-        self.assertEqual(32, expected.size_in_bytes())
+        self.assertEqual(32, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

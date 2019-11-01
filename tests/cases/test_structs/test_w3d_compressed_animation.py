@@ -14,7 +14,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 
-        self.assertEqual(5940, expected.size_in_bytes())
+        self.assertEqual(5940, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -22,7 +22,7 @@ class TestCompressedAnimation(unittest.TestCase):
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunkType)
-        self.assertEqual(expected.size_in_bytes(), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
@@ -30,7 +30,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(_flavor=1)
 
-        self.assertEqual(3631, expected.size_in_bytes())
+        self.assertEqual(3631, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -38,7 +38,7 @@ class TestCompressedAnimation(unittest.TestCase):
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunkType)
-        self.assertEqual(expected.size_in_bytes(), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
@@ -51,7 +51,7 @@ class TestCompressedAnimation(unittest.TestCase):
             motion_ad4=False,
             motion_ad8=False)
 
-        self.assertEqual(52, expected.size_in_bytes())
+        self.assertEqual(52, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -59,7 +59,7 @@ class TestCompressedAnimation(unittest.TestCase):
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunkType)
-        self.assertEqual(expected.size_in_bytes(), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)

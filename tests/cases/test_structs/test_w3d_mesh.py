@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 11.2019
 import unittest
 import io
 from tests import utils
@@ -15,7 +15,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(3113, expected.size_in_bytes())
+        self.assertEqual(3113, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -24,7 +24,7 @@ class TestMesh(utils.W3dTestCase):
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size_in_bytes(), chunk_size)
+        self.assertEqual(expected.size(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
@@ -32,7 +32,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(3601, expected.size_in_bytes())
+        self.assertEqual(3601, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -41,15 +41,15 @@ class TestMesh(utils.W3dTestCase):
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size_in_bytes(), chunk_size)
+        self.assertEqual(expected.size(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
     def test_write_read_minimal(self):
-        expected = get_mesh(minimal=True)
+        expected = get_mesh_empty()
 
-        self.assertEqual(148, expected.size_in_bytes())
+        self.assertEqual(204, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -58,7 +58,7 @@ class TestMesh(utils.W3dTestCase):
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size_in_bytes(), chunk_size)
+        self.assertEqual(expected.size(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
@@ -68,9 +68,9 @@ class TestMesh(utils.W3dTestCase):
             W3D_CHUNK_MESH_HEADER,
             W3D_CHUNK_MESH_USER_TEXT,
             W3D_CHUNK_VERTICES,
-            # vertices copies
+            # vertices copies not used
             W3D_CHUNK_VERTEX_NORMALS,
-            # normals copies
+            # normals copies not used
             W3D_CHUNK_TRIANGLES,
             W3D_CHUNK_VERTEX_INFLUENCES,
             W3D_CHUNK_VERTEX_SHADE_INDICES,
@@ -97,7 +97,7 @@ class TestMesh(utils.W3dTestCase):
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size_in_bytes(), chunk_size)
+        self.assertEqual(expected.size(), chunk_size)
 
         for chunk in expected_chunks:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -150,3 +150,40 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
         Mesh.read(context, io_stream, subchunk_end)
+
+    def test_chunk_sizes(self):
+        mesh = get_mesh_minimal()
+
+        self.assertEqual(116, mesh.header.size(False))
+        self.assertEqual(124, mesh.header.size())
+
+        self.assertEqual(5, mesh.user_text_size(False))
+        self.assertEqual(13, mesh.user_text_size())
+
+        self.assertEqual(12, mesh.verts_size(False))
+        self.assertEqual(20, mesh.verts_size())
+
+        self.assertEqual(12, mesh.normals_size(False))
+        self.assertEqual(20, mesh.normals_size())
+
+        self.assertEqual(32, mesh.tris_size(False))
+        self.assertEqual(40, mesh.tris_size())
+
+        self.assertEqual(16, mesh.shaders_size(False))
+        self.assertEqual(24, mesh.shaders_size())
+
+        self.assertEqual(30, mesh.textures_size(False))
+        self.assertEqual(38, mesh.textures_size())
+
+        self.assertEqual(4, mesh.shade_ids_size(False))
+        self.assertEqual(12, mesh.shade_ids_size())
+
+        self.assertEqual(240, mesh.shader_materials_size(False))
+        self.assertEqual(248, mesh.shader_materials_size())
+
+        self.assertEqual(292, mesh.material_passes_size())
+
+        self.assertEqual(78, mesh.vert_materials_size(False))
+        self.assertEqual(86, mesh.vert_materials_size())
+
+        self.assertEqual(1033, mesh.size())

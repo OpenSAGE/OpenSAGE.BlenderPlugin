@@ -12,7 +12,7 @@ class TestShader(unittest.TestCase):
     def test_write_read(self):
         expected = get_shader()
 
-        self.assertEqual(16, expected.size_in_bytes())
+        self.assertEqual(16, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

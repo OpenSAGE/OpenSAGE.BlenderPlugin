@@ -1,25 +1,25 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+# Last Modification 11.2019
 import unittest
 from mathutils import Vector
 
-from io_mesh_w3d.structs.w3d_mesh import Mesh, MeshHeader, GEOMETRY_TYPE_SKIN
+from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.structs.w3d_triangle import Triangle
 from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
-from tests.helpers.w3d_material_pass import get_material_pass, compare_material_passes
-from tests.helpers.w3d_material_info import get_material_info, compare_material_infos
-from tests.helpers.w3d_vertex_material import get_vertex_material, compare_vertex_materials
-from tests.helpers.w3d_shader import get_shader, compare_shaders
-from tests.helpers.w3d_texture import get_texture, compare_textures
-from tests.helpers.w3d_shader_material import get_shader_material, compare_shader_materials
-from tests.helpers.w3d_aabbtree import get_aabbtree, compare_aabbtrees
-from tests.helpers.w3d_triangle import get_triangle, compare_triangles
-from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
-from tests.helpers.w3d_version import get_version, compare_versions
+from tests.helpers.w3d_material_pass import *
+from tests.helpers.w3d_material_info import *
+from tests.helpers.w3d_vertex_material import *
+from tests.helpers.w3d_shader import *
+from tests.helpers.w3d_texture import *
+from tests.helpers.w3d_shader_material import *
+from tests.helpers.w3d_aabbtree import *
+from tests.helpers.w3d_triangle import *
+from tests.helpers.w3d_vertex_influence import *
+from tests.helpers.w3d_version import *
 
 
-def get_mesh_header(name, skin):
+def get_mesh_header(name="mesh_name", skin=False):
     header = MeshHeader(
         version=get_version(),
         attrs=0,
@@ -77,7 +77,7 @@ def get_vertex_influences():
     return vert_infs
 
 
-def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
+def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh = Mesh(
         header=get_mesh_header(name, skin),
         user_text="",
@@ -93,9 +93,6 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
         shader_materials=[],
         material_passes=[],
         aabbtree=None)
-
-    if minimal:
-        return mesh
 
     mesh.user_text = "TestUserText"
 
@@ -159,6 +156,42 @@ def get_mesh(name="meshName", skin=False, minimal=False, shader_mats=False):
     mesh.header.vert_count = len(mesh.verts)
     mesh.header.matl_count = len(mesh.vert_materials)
     return mesh
+
+
+def get_mesh_minimal():
+    return Mesh(
+        header=get_mesh_header(),
+        user_text="text",
+        verts=[Vector()],
+        normals=[Vector()],
+        vert_infs=[get_vertex_influence()],
+        triangles=[get_triangle()],
+        shade_ids=[1],
+        mat_info=get_material_info(),
+        shaders=[get_shader()],
+        vert_materials=[get_vertex_material_minimal()],
+        textures=[get_texture_minimal()],
+        shader_materials=[get_shader_material_minimal()],
+        material_passes=[get_material_pass_minimal()],
+        aabbtree=get_aabbtree_minimal())
+
+
+def get_mesh_empty():
+    return Mesh(
+        header=get_mesh_header(),
+        user_text="",
+        verts=[Vector()],
+        normals=[Vector()],
+        vert_infs=[],
+        triangles=[get_triangle()],
+        shade_ids=[],
+        mat_info=None,
+        shaders=[],
+        vert_materials=[],
+        textures=[],
+        shader_materials=[],
+        material_passes=[],
+        aabbtree=None)
 
 
 def compare_meshes(self, expected, actual):

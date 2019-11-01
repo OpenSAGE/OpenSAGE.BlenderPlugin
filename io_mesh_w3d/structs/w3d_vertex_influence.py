@@ -22,7 +22,7 @@ class VertexInfluence(Struct):
             xtra_inf=read_ushort(io_stream) / 100)
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 8
 
     def write(self, io_stream):

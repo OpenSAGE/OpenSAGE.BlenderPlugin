@@ -45,7 +45,7 @@ class Shader(Struct):
             pad=read_ubyte(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 16
 
     def write(self, io_stream):

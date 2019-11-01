@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+# Last Modification 11.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
@@ -63,7 +63,7 @@ class MeshHeader(Struct):
             sph_radius=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes(include_head=False):
+    def size(include_head=True):
         size = 116
         if include_head:
             size += HEAD
@@ -71,7 +71,7 @@ class MeshHeader(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
-                         self.size_in_bytes())
+                         self.size(False))
         self.version.write(io_stream)
         write_ulong(io_stream, self.attrs)
         write_fixed_string(io_stream, self.mesh_name)
@@ -222,113 +222,135 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def user_text_size(self):
-        return len(self.user_text) + 1
+    def user_text_size(self, include_head=True):
+        size = len(self.user_text) + 1
+        if include_head:
+            size += HEAD
+        return size
 
-    def verts_size(self):
-        return len(self.verts) * 12
+    def verts_size(self, include_head=True):
+        size = len(self.verts) * 12
+        if include_head:
+            size += HEAD
+        return size
 
-    def normals_size(self):
-        return len(self.normals) * 12
+    def normals_size(self, include_head=True):
+        size = len(self.normals) * 12
+        if include_head:
+            size += HEAD
+        return size
 
-    def tris_size(self):
+    def tris_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for triangle in self.triangles:
-            size += triangle.size_in_bytes()
+            size += triangle.size()
         return size
 
-    def vert_infs_size(self):
+    def vert_infs_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for inf in self.vert_infs:
-            size += inf.size_in_bytes()
+            size += inf.size()
         return size
 
-    def shaders_size(self):
+    def shaders_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for shader in self.shaders:
-            size += shader.size_in_bytes()
+            size += shader.size()
         return size
 
-    def textures_size(self, include_head=False):
+    def textures_size(self, include_head=True):
         size = 0
         if include_head:
             size += HEAD
         for texture in self.textures:
-            size += texture.size_in_bytes(True)
+            size += texture.size()
         return size
 
-    def shade_ids_size(self):
-        return len(self.shade_ids) * 4
+    def shade_ids_size(self, include_head=True):
+        size = len(self.shade_ids) * 4
+        if include_head:
+            size += HEAD
+        return size
 
-    def shader_materials_size(self):
+    def shader_materials_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for shaderMat in self.shader_materials:
-            size += HEAD + shaderMat.size_in_bytes()
+            size += shaderMat.size()
         return size
 
     def material_passes_size(self):
         size = 0
         for mat_pass in self.material_passes:
-            size += HEAD + mat_pass.size_in_bytes()
+            size += mat_pass.size()
         return size
 
-    def vert_materials_size(self):
+    def vert_materials_size(self, include_head=True):
         size = 0
+        if include_head:
+            size += HEAD
         for vertMat in self.vert_materials:
-            size += vertMat.size_in_bytes()
+            size += vertMat.size()
         return size
 
-    def size_in_bytes(self):
-        size = self.header.size_in_bytes(True)
+    def size(self):
+        size = self.header.size()
         if len(self.user_text):
-            size += HEAD + self.user_text_size()
-        size += HEAD + self.verts_size()
-        size += HEAD + self.normals_size()
-        size += HEAD + self.tris_size()
+            size += self.user_text_size()
+        size += self.verts_size()
+        size += self.normals_size()
+        size += self.tris_size()
         if self.vert_infs:
-            size += HEAD + self.vert_infs_size()
+            size += self.vert_infs_size()
         if self.shaders:
-            size += HEAD + self.shaders_size()
+            size += self.shaders_size()
         if self.textures:
-            size += self.textures_size(True)
+            size += self.textures_size()
         if self.shade_ids:
-            size += HEAD + self.shade_ids_size()
+            size += self.shade_ids_size()
         if self.shader_materials:
-            size += HEAD + self.shader_materials_size()
+            size += self.shader_materials_size()
         if self.mat_info is not None:
-            size += HEAD + self.mat_info.size_in_bytes()
+            size += self.mat_info.size()
         if self.vert_materials:
-            size += HEAD + self.vert_materials_size()
+            size += self.vert_materials_size()
         if self.material_passes:
             size += self.material_passes_size()
         if self.aabbtree is not None:
-            size += HEAD + self.aabbtree.size_in_bytes()
+            size += self.aabbtree.size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MESH,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if len(self.user_text):
             write_chunk_head(
-                io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size())
+                io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size(False))
             write_string(io_stream, self.user_text)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size())
+        write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size(False))
         write_array(io_stream, self.verts, write_vector)
 
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS,
-                         self.normals_size())
+                         self.normals_size(False))
         write_array(io_stream, self.normals, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size())
+        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size(False))
         for tri in self.triangles:
             tri.write(io_stream)
 
         if self.vert_infs:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_INFLUENCES,
-                             self.vert_infs_size())
+                             self.vert_infs_size(False))
             for inf in self.vert_infs:
                 inf.write(io_stream)
 
@@ -336,34 +358,32 @@ class Mesh(Struct):
             write_chunk_head(
                 io_stream,
                 W3D_CHUNK_VERTEX_SHADE_INDICES,
-                self.shade_ids_size())
+                self.shade_ids_size(False))
             write_array(io_stream, self.shade_ids, write_long)
 
         if self.mat_info is not None:
-            write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_INFO,
-                             self.mat_info.size_in_bytes())
             self.mat_info.write(io_stream)
 
         if self.vert_materials:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIALS,
-                             self.vert_materials_size(), has_sub_chunks=True)
+                             self.vert_materials_size(False), has_sub_chunks=True)
             for vertMat in self.vert_materials:
                 vertMat.write(io_stream)
 
         if self.shaders:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, self.shaders_size())
+            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, self.shaders_size(False))
             for shader in self.shaders:
                 shader.write(io_stream)
 
         if self.textures:
             write_chunk_head(io_stream, W3D_CHUNK_TEXTURES,
-                             self.textures_size(), has_sub_chunks=True)
+                             self.textures_size(False), has_sub_chunks=True)
             for texture in self.textures:
                 texture.write(io_stream)
 
         if self.shader_materials:
             write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
-                             self.shader_materials_size(), has_sub_chunks=True)
+                             self.shader_materials_size(False), has_sub_chunks=True)
             for shaderMat in self.shader_materials:
                 shaderMat.write(io_stream)
 

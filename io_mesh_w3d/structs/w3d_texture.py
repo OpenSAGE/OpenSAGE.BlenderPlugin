@@ -24,7 +24,7 @@ class TextureInfo(Struct):
             frame_rate=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes(include_head=False):
+    def size(include_head=False):
         size = 12
         if include_head:
             size += HEAD
@@ -32,7 +32,7 @@ class TextureInfo(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_INFO,
-                         self.size_in_bytes())
+                         self.size(False))
         write_ushort(io_stream, self.attributes)
         write_ushort(io_stream, self.animation_type)
         write_ulong(io_stream, self.frame_count)
@@ -62,19 +62,26 @@ class Texture(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size_in_bytes(self, include_head=False):
+    @staticmethod
+    def name_size(name, include_head=True):
+        size = len(name) + 1
+        if include_head:
+            size += HEAD
+        return size
+
+    def size(self, include_head=False):
         size = 0
         if include_head:
             size += HEAD
-        size += HEAD + len(self.name) + 1
+        size += self.name_size(self.name)
         if self.texture_info is not None:
-            size += self.texture_info.size_in_bytes(True)
+            size += self.texture_info.size(True)
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE,
-                         self.size_in_bytes(), has_sub_chunks=True)
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, len(self.name) + 1)
+                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, self.name_size(self.name, False))
         write_string(io_stream, self.name)
 
         if self.texture_info is not None:

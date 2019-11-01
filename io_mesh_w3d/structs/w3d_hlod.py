@@ -1,10 +1,11 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 11.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
@@ -25,12 +26,15 @@ class HLodHeader(Struct):
             hierarchy_name=read_fixed_string(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 40
+    def size(include_head=True):
+        size = 40
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_HEADER,
-                         self.size_in_bytes())
+                         self.size(False))
         self.version.write(io_stream)
         write_ulong(io_stream, self.lod_count)
         write_fixed_string(io_stream, self.model_name)
@@ -51,12 +55,15 @@ class HLodArrayHeader(Struct):
             max_screen_size=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return HEAD
+    def size(include_head=True):
+        size = 8
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER,
-                         self.size_in_bytes())
+                         self.size(False))
         write_ulong(io_stream, self.model_count)
         write_float(io_stream, self.max_screen_size)
 
@@ -75,12 +82,15 @@ class HLodSubObject(Struct):
             name=read_long_fixed_string(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 36
+    def size(include_head=True):
+        size = 36
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT,
-                         self.size_in_bytes())
+                         self.size(False))
         write_ulong(io_stream, self.bone_index)
         write_long_fixed_string(io_stream, self.name)
 
@@ -109,15 +119,18 @@ class HLodArray(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
+    def size(self, include_head=True):
+        size = 0
+        if include_head:
+            size += HEAD
+        size += self.header.size()
         for obj in self.sub_objects:
-            size += HEAD + obj.size_in_bytes()
+            size += obj.size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
         for obj in self.sub_objects:
             obj.write(io_stream)
@@ -149,13 +162,16 @@ class HLod(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size_in_bytes(self):
-        size = HEAD + self.header.size_in_bytes()
-        size += HEAD + self.lod_array.size_in_bytes()
+    def size(self, include_head=True):
+        size = 0
+        if include_head:
+            size += HEAD
+        size += self.header.size()
+        size += self.lod_array.size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
         self.lod_array.write(io_stream)

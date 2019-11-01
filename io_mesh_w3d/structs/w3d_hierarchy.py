@@ -26,7 +26,7 @@ class HierarchyHeader(Struct):
             center_pos=read_vector(io_stream))
 
     @staticmethod
-    def size_in_bytes(include_head=True):
+    def size(include_head=True):
         size = 36
         if include_head:
             size += HEAD
@@ -34,7 +34,7 @@ class HierarchyHeader(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER,
-                         self.size_in_bytes())
+                         self.size())
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_ulong(io_stream, self.num_pivots)
@@ -61,7 +61,7 @@ class HierarchyPivot(Struct):
             rotation=read_quaternion(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 60
 
     def write(self, io_stream):
@@ -107,7 +107,7 @@ class Hierarchy(Struct):
         if include_head:
             size += HEAD
         for pivot in self.pivots:
-            size += pivot.size_in_bytes()
+            size += pivot.size()
         return size
 
     def pivot_fixups_size(self, include_head=True):
@@ -118,15 +118,15 @@ class Hierarchy(Struct):
             size += 12
         return size
 
-    def size_in_bytes(self):
-        size = self.header.size_in_bytes()
+    def size(self):
+        size = self.header.size()
         size += self.pivots_size()
         if self.pivot_fixups:
             size += self.pivot_fixups_size()
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size_in_bytes())
+        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size())
         self.header.write(io_stream)
         write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, self.pivots_size(False))
         for pivot in self.pivots:

@@ -24,7 +24,7 @@ class Triangle(Struct):
             distance=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes():
+    def size():
         return 32
 
     def write(self, io_stream):

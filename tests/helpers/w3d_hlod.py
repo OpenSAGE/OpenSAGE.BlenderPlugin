@@ -62,6 +62,17 @@ def get_hlod_array():
     array.header.model_count = len(array.sub_objects)
     return array
 
+def get_hlod_array_minimal():
+    array = HLodArray(
+        header=get_hlod_array_header(),
+        sub_objects=[])
+
+    array.sub_objects.append(get_hlod_sub_object(
+        bone=0, name="containerName.BOUNDINGBOX"))
+
+    array.header.model_count = len(array.sub_objects)
+    return array
+
 
 def compare_hlod_arrays(self, expected, actual):
     compare_hlod_array_headers(self, expected.header, actual.header)
@@ -76,6 +87,11 @@ def get_hlod(model_name="containerName", hierarchy_name="TestHierarchy"):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
         lod_array=get_hlod_array())
+
+def get_hlod_minimal():
+    return HLod(
+        header=get_hlod_header("model_name", "hierarchy_name"),
+        lod_array=get_hlod_array_minimal())
 
 
 def compare_hlods(self, expected, actual):
