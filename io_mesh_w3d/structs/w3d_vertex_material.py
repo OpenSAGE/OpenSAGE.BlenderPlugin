@@ -38,12 +38,15 @@ class VertexMaterialInfo(Struct):
             translucency=read_float(io_stream))
 
     @staticmethod
-    def size_in_bytes():
-        return 32
+    def size_in_bytes(include_head=True):
+        size = 32
+        if include_head:
+            size += HEAD
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_INFO,
-                         self.size_in_bytes())
+                         self.size_in_bytes(False))
         write_long(io_stream, self.attributes)
         self.ambient.write(io_stream)
         self.diffuse.write(io_stream)
@@ -62,7 +65,7 @@ W3D_CHUNK_VERTEX_MAPPER_ARGS1 = 0x0000002F
 
 class VertexMaterial(Struct):
     vm_name = ""
-    vm_info = VertexMaterialInfo()
+    vm_info = None
     vm_args_0 = ""
     vm_args_1 = ""
 
@@ -85,29 +88,42 @@ class VertexMaterial(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size_in_bytes(self):
-        size = HEAD + len(self.vm_name) + 1
-        size += HEAD + self.vm_info.size_in_bytes()
+    @staticmethod
+    def name_size(name, include_head=True):
+        size = len(name) + 1
+        if include_head:
+            size += HEAD
+        return size
+
+    def size_in_bytes(self, include_head=True):
+        size = 0
+        if include_head:
+            size += HEAD
+        size += self.name_size(self.vm_name)
+        if self.vm_info is not None:
+            size += self.vm_info.size_in_bytes()
         if self.vm_args_0 is not "":
-            size += HEAD + len(self.vm_args_0) + 1
+            size += self.name_size(self.vm_args_0)
         if self.vm_args_1 is not "":
-            size += HEAD + len(self.vm_args_1) + 1
+            size += self.name_size(self.vm_args_1)
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL,
-                         self.size_in_bytes(), has_sub_chunks=True)
+                         self.size_in_bytes(False), has_sub_chunks=True)
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_NAME,
-                         len(self.vm_name) + 1)
+                         self.name_size(self.vm_name, False))
         write_string(io_stream, self.vm_name)
-        self.vm_info.write(io_stream)
+
+        if self.vm_info is not None:
+            self.vm_info.write(io_stream)
 
         if self.vm_args_0 is not "":
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS0,
-                             len(self.vm_args_0) + 1)
+                             self.name_size(self.vm_args_0, False))
             write_string(io_stream, self.vm_args_0)
 
         if self.vm_args_1 is not "":
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MAPPER_ARGS1,
-                             len(self.vm_args_1) + 1)
+                             self.name_size(self.vm_args_1, False))
             write_string(io_stream, self.vm_args_1)

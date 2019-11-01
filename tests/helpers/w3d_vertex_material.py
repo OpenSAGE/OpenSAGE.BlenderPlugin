@@ -39,9 +39,25 @@ def get_vertex_material():
         vm_args_0="VM_ARGS0",
         vm_args_1="VM_ARGS1")
 
+def get_vertex_material_minimal():
+    return VertexMaterial(
+        vm_name="a",
+        vm_info=get_vertex_material_info(),
+        vm_args_0="a",
+        vm_args_1="a")
+
+def get_vertex_material_empty():
+    return VertexMaterial(
+        vm_name="a",
+        vm_info=None,
+        vm_args_0="",
+        vm_args_1="")
 
 def compare_vertex_materials(self, expected, actual):
     self.assertEqual(expected.vm_name, actual.vm_name)
     self.assertEqual(expected.vm_args_0, actual.vm_args_0)
     self.assertEqual(expected.vm_args_1, actual.vm_args_1)
-    compare_vertex_material_infos(self, expected.vm_info, actual.vm_info)
+    if expected.vm_info is not None:
+        compare_vertex_material_infos(self, expected.vm_info, actual.vm_info)
+    else:
+        self.assertIsNone(actual.vm_info)

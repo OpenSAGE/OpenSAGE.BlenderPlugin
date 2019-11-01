@@ -275,7 +275,7 @@ class Mesh(Struct):
     def vert_materials_size(self):
         size = 0
         for vertMat in self.vert_materials:
-            size += HEAD + vertMat.size_in_bytes()
+            size += vertMat.size_in_bytes()
         return size
 
     def size_in_bytes(self):
