@@ -172,8 +172,8 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(16, mesh.shaders_size(False))
         self.assertEqual(24, mesh.shaders_size())
 
-        self.assertEqual(30, mesh.textures_size(False))
-        self.assertEqual(38, mesh.textures_size())
+        self.assertEqual(38, mesh.textures_size(False))
+        self.assertEqual(46, mesh.textures_size())
 
         self.assertEqual(4, mesh.shade_ids_size(False))
         self.assertEqual(12, mesh.shade_ids_size())
@@ -186,4 +186,4 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(78, mesh.vert_materials_size(False))
         self.assertEqual(86, mesh.vert_materials_size())
 
-        self.assertEqual(1033, mesh.size())
+        self.assertEqual(1041, mesh.size())

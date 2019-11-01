@@ -15,7 +15,7 @@ class TestHLod(unittest.TestCase):
         expected = get_hlod()
 
         self.assertEqual(48, expected.header.size())
-        self.assertEqual(256, expected.size())
+        self.assertEqual(248, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -23,7 +23,7 @@ class TestHLod(unittest.TestCase):
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_HLOD, chunkType)
-        self.assertEqual(expected.size(False), chunkSize)
+        self.assertEqual(expected.size(), chunkSize)
 
         actual = HLod.read(self, io_stream, chunkEnd)
         compare_hlods(self, expected, actual)
@@ -43,7 +43,4 @@ class TestHLod(unittest.TestCase):
         self.assertEqual(60, hlod.lod_array.size(False))
         self.assertEqual(68, hlod.lod_array.size())
 
-        self.assertEqual(116, hlod.size(False))
-        self.assertEqual(124, hlod.size())
-
-    
+        self.assertEqual(116, hlod.size())

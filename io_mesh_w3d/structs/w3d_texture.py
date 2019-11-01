@@ -24,7 +24,7 @@ class TextureInfo(Struct):
             frame_rate=read_float(io_stream))
 
     @staticmethod
-    def size(include_head=False):
+    def size(include_head=True):
         size = 12
         if include_head:
             size += HEAD
@@ -69,13 +69,13 @@ class Texture(Struct):
             size += HEAD
         return size
 
-    def size(self, include_head=False):
+    def size(self, include_head=True):
         size = 0
         if include_head:
             size += HEAD
         size += self.name_size(self.name)
         if self.texture_info is not None:
-            size += self.texture_info.size(True)
+            size += self.texture_info.size()
         return size
 
     def write(self, io_stream):

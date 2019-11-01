@@ -130,7 +130,7 @@ class HLodArray(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY,
-                         self.size(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
         for obj in self.sub_objects:
             obj.write(io_stream)
@@ -147,8 +147,7 @@ class HLod(Struct):
     def read(context, io_stream, chunk_end):
         result = HLod(
             header=None,
-            lod_array=None
-        )
+            lod_array=None)
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -162,16 +161,14 @@ class HLod(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size(self, include_head=True):
+    def size(self):
         size = 0
-        if include_head:
-            size += HEAD
         size += self.header.size()
         size += self.lod_array.size()
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD,
-                         self.size(False), has_sub_chunks=True)
+                         self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
         self.lod_array.write(io_stream)
