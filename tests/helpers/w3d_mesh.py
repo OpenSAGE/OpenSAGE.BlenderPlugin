@@ -169,6 +169,25 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh.header.matl_count = len(mesh.vert_materials)
     return mesh
 
+def get_mesh_two_textures(name="meshName"):
+    mesh = get_mesh(name=name)
+
+    mesh.shaders = [get_shader()]
+    mesh.vert_materials = [get_vertex_material()]
+    mesh.textures = [get_texture("texture.dds"), get_texture("texture2.dds")]
+    mesh.material_passes = [get_material_pass(num_stages=2)]
+
+    mesh.mat_info = get_material_info()
+    mesh.mat_info.pass_count = len(mesh.material_passes)
+    mesh.mat_info.vert_matl_count = len(mesh.vert_materials)
+    mesh.mat_info.shader_count = len(mesh.shaders)
+    mesh.mat_info.texture_count = len(mesh.textures)
+
+    mesh.header.face_count = len(mesh.triangles)
+    mesh.header.vert_count = len(mesh.verts)
+    mesh.header.matl_count = len(mesh.vert_materials)
+    return mesh
+
 
 def get_mesh_minimal():
     return Mesh(

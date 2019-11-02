@@ -7,17 +7,17 @@ from shutil import copyfile
 
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.export_utils_w3d import *
-from tests.helpers.w3d_mesh import get_mesh, compare_meshes
-from tests.helpers.w3d_material_pass import compare_material_passes
-from tests.helpers.w3d_material_info import compare_material_infos
-from tests.helpers.w3d_vertex_material import compare_vertex_materials
-from tests.helpers.w3d_shader_material import compare_shader_materials
-from tests.helpers.w3d_shader import get_shader, compare_shaders
-from tests.helpers.w3d_box import get_box, compare_boxes
-from tests.helpers.w3d_hierarchy import get_hierarchy, compare_hierarchies
-from tests.helpers.w3d_hlod import get_hlod, compare_hlods
-from tests.helpers.w3d_animation import get_animation, compare_animations
-from tests.helpers.w3d_compressed_animation import get_compressed_animation, compare_compressed_animations
+from tests.helpers.w3d_mesh import *
+from tests.helpers.w3d_material_pass import *
+from tests.helpers.w3d_material_info import *
+from tests.helpers.w3d_vertex_material import *
+from tests.helpers.w3d_shader_material import *
+from tests.helpers.w3d_shader import *
+from tests.helpers.w3d_box import *
+from tests.helpers.w3d_hierarchy import *
+from tests.helpers.w3d_hlod import *
+from tests.helpers.w3d_animation import *
+from tests.helpers.w3d_compressed_animation import *
 
 
 class TestUtils(utils.W3dTestCase):
@@ -113,6 +113,40 @@ class TestUtils(utils.W3dTestCase):
         retrieve_boxes(actual)
         retrieve_meshes(hierarchy, rig, actual, "containerName")
         compare_hlods(self, expected, actual)
+
+    def test_meshes_two_textures_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        expecteds = [
+            get_mesh_two_textures(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield", shader_mats=True)]
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, coll)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture2.dds")
+
+        for mesh in expecteds:
+            create_mesh(context, mesh, hierarchy, rig)
+
+        for mesh in expecteds:
+            rig_mesh(mesh, hierarchy, rig, coll)
+
+        hlod = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(hlod)
+        actuals = retrieve_meshes(hierarchy, rig, hlod, "containerName")
+
+        self.assertEqual(len(expecteds), len(actuals))
+        for i, expected in enumerate(expecteds):
+            compare_meshes(self, expected, actuals[i])
 
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())

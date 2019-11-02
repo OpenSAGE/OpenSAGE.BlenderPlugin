@@ -13,9 +13,9 @@ def get_texture_info():
         frame_rate=0.0)
 
 
-def get_texture():
+def get_texture(name="texture.dds"):
     return Texture(
-        name="texture.dds",
+        name=name,
         texture_info=get_texture_info())
 
 
