@@ -299,7 +299,7 @@ class TimeCodedBitChannel(Struct):
 
 
 class MotionChannel(Struct):
-    deta_type = 0
+    delta_type = 0
     vector_len = 0
     type = 0
     num_time_codes = 0
@@ -337,26 +337,26 @@ class MotionChannel(Struct):
         read_ubyte(io_stream)  # zero
 
         result = MotionChannel(
-            deta_type=read_ubyte(io_stream),
+            delta_type=read_ubyte(io_stream),
             vector_len=read_ubyte(io_stream),
             type=read_ubyte(io_stream),
             num_time_codes=read_short(io_stream),
             pivot=read_short(io_stream),
             data=[])
 
-        if result.deta_type == 0:
+        if result.delta_type == 0:
             result.data = result.read_time_coded_data(io_stream)
-        elif result.deta_type == 1:
+        elif result.delta_type == 1:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, result.deta_type * 4)
-        elif result.deta_type == 2:
+                io_stream, result, result.delta_type * 4)
+        elif result.delta_type == 2:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, result.deta_type * 4)
+                io_stream, result, result.delta_type * 4)
         return result
 
     def size(self, include_head=True):
         size = const_size(8, include_head)
-        if self.deta_type == 0:
+        if self.delta_type == 0:
             for datum in self.data:
                 # time_code is a short here, not long!
                 size += datum.size(self.type) - 2
@@ -373,13 +373,13 @@ class MotionChannel(Struct):
             self.size(False),
             has_sub_chunks=True)
         write_ubyte(io_stream, 0)  # zero
-        write_ubyte(io_stream, self.deta_type)
+        write_ubyte(io_stream, self.delta_type)
         write_ubyte(io_stream, self.vector_len)
         write_ubyte(io_stream, self.type)
         write_short(io_stream, self.num_time_codes)
         write_short(io_stream, self.pivot)
 
-        if self.deta_type == 0:
+        if self.delta_type == 0:
             self.write_time_coded_data(io_stream)
         else:
             self.data.write(io_stream, self.type)
@@ -432,10 +432,10 @@ class CompressedAnimation(Struct):
 
     def size(self):
         size = self.header.size()
-        size += list_size(self.time_coded_channels)
-        size += list_size(self.adaptive_delta_channels)
-        size += list_size(self.time_coded_bit_channels)
-        size += list_size(self.motion_channels)
+        size += list_size(self.time_coded_channels, False)
+        size += list_size(self.adaptive_delta_channels, False)
+        size += list_size(self.time_coded_bit_channels, False)
+        size += list_size(self.motion_channels, False)
         return size
 
     def write(self, io_stream):

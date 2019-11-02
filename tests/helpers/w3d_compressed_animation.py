@@ -255,9 +255,9 @@ def compare_adaptive_delta_motion_animation_channels(
     compare_adaptive_delta_datas(self, expected.data, actual.data, type)
 
 
-def get_motion_channel(type, deta_type, num_time_codes=55):
+def get_motion_channel(type, delta_type, num_time_codes=55):
     channel = MotionChannel(
-        deta_type=deta_type,
+        delta_type=delta_type,
         type=type,
         num_time_codes=num_time_codes,
         pivot=3,
@@ -268,13 +268,13 @@ def get_motion_channel(type, deta_type, num_time_codes=55):
     else:
         channel.vector_len = 1
 
-    if deta_type == 0:
+    if delta_type == 0:
         for _ in range(channel.num_time_codes):
             channel.data.append(get_time_coded_datum(type, False))
-    elif deta_type == 1:
+    elif delta_type == 1:
         channel.data = get_adaptive_delta_motion_animation_channel(
             type, 4, channel.num_time_codes)
-    elif deta_type == 2:
+    elif delta_type == 2:
         channel.data = get_adaptive_delta_motion_animation_channel(
             type, 8, channel.num_time_codes)
     return channel
@@ -282,7 +282,7 @@ def get_motion_channel(type, deta_type, num_time_codes=55):
 
 def get_motion_channel_minimal():
     return MotionChannel(
-        deta_type=0,
+        delta_type=0,
         type=2,
         num_time_codes=1,
         pivot=3,
@@ -291,7 +291,7 @@ def get_motion_channel_minimal():
 
 def get_motion_channel_empty():
     return MotionChannel(
-        deta_type=0,
+        delta_type=0,
         type=2,
         num_time_codes=1,
         pivot=3,
@@ -299,12 +299,12 @@ def get_motion_channel_empty():
 
 
 def compare_motion_channels(self, expected, actual):
-    self.assertEqual(expected.deta_type, actual.deta_type)
+    self.assertEqual(expected.delta_type, actual.delta_type)
     self.assertEqual(expected.type, actual.type)
     self.assertEqual(expected.num_time_codes, actual.num_time_codes)
     self.assertEqual(expected.pivot, actual.pivot)
 
-    if expected.deta_type == 0:
+    if expected.delta_type == 0:
         self.assertEqual(len(expected.data), len(actual.data))
         for i in range(len(expected.data)):
             compare_time_coded_datums(self, expected.data[i], actual.data[i])
@@ -347,31 +347,31 @@ def get_compressed_animation(
     animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
 
     animation.motion_channels.append(get_motion_channel(
-        type=0, deta_type=0, num_time_codes=50))
+        type=0, delta_type=0, num_time_codes=50))
     animation.motion_channels.append(get_motion_channel(
-        type=1, deta_type=0, num_time_codes=50))
+        type=1, delta_type=0, num_time_codes=50))
     animation.motion_channels.append(
-        get_motion_channel(type=2, deta_type=0))
+        get_motion_channel(type=2, delta_type=0))
     animation.motion_channels.append(
-        get_motion_channel(type=6, deta_type=0))
+        get_motion_channel(type=6, delta_type=0))
 
     animation.motion_channels.append(
-        get_motion_channel(type=0, deta_type=1))
+        get_motion_channel(type=0, delta_type=1))
     animation.motion_channels.append(
-        get_motion_channel(type=1, deta_type=1))
+        get_motion_channel(type=1, delta_type=1))
     animation.motion_channels.append(
-        get_motion_channel(type=2, deta_type=1))
+        get_motion_channel(type=2, delta_type=1))
     animation.motion_channels.append(
-        get_motion_channel(type=6, deta_type=1))
+        get_motion_channel(type=6, delta_type=1))
 
     animation.motion_channels.append(
-        get_motion_channel(type=0, deta_type=2))
+        get_motion_channel(type=0, delta_type=2))
     animation.motion_channels.append(
-        get_motion_channel(type=1, deta_type=2))
+        get_motion_channel(type=1, delta_type=2))
     animation.motion_channels.append(
-        get_motion_channel(type=2, deta_type=2))
+        get_motion_channel(type=2, delta_type=2))
     animation.motion_channels.append(
-        get_motion_channel(type=6, deta_type=2))
+        get_motion_channel(type=6, delta_type=2))
 
     return animation
 

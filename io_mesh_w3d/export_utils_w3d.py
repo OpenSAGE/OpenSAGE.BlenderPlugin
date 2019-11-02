@@ -511,9 +511,10 @@ def retrieve_uncompressed_animation(animation_name, hierarchy):
             channel_type = index
 
         if not (channel_type == 6 and index > 0):
+            range = fcu.range()
             channel = AnimationChannel(
-                first_frame = fcu.range[0]
-                last_frame = fcu.range[1]
+                first_frame=range[0],
+                last_frame=range[1],
                 vector_len=vec_len,
                 type=channel_type,
                 pivot=pivot_index)
@@ -569,8 +570,9 @@ def retrieve_timecoded_animation(animation_name, hierarchy):
             num_keyframes = len(fcu.keyframe_points)
             channel.time_codes = [None] * num_keyframes
             channel.num_time_codes = num_keyframes
-            channel.first_frame = fcu.range[0]
-            channel.last_frame = fcu.range[1]
+            range = fcu.range()
+            channel.first_frame = range[0]
+            channel.last_frame = range[1]
 
         for i, keyframe in enumerate(fcu.keyframe_points):
             frame = int(keyframe.co.x)

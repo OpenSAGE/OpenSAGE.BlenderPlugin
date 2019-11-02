@@ -69,4 +69,4 @@ class TestCompressedAnimation(unittest.TestCase):
         self.assertEqual(20, list_size(ani.time_coded_bit_channels, False))
         self.assertEqual(24, list_size(ani.motion_channels, False))
 
-        self.assertEqual(186, ani.size())
+        self.assertEqual(154, ani.size())
