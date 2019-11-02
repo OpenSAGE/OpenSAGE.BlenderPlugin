@@ -43,17 +43,20 @@ def get_texture_stage(index=0):
         per_face_tx_coords=get_per_face_txcoords(),
         tx_coords=get_uvs())
 
+
 def get_texture_stage_minimal():
     return TextureStage(
         tx_ids=[0],
         per_face_tx_coords=[Vector()],
         tx_coords=[Vector()])
 
+
 def get_texture_stage_empty():
     return TextureStage(
         tx_ids=[],
         per_face_tx_coords=[],
         tx_coords=[])
+
 
 def compare_texture_stages(self, expected, actual):
     if actual.tx_ids:  # roundtrip not yet supported
@@ -115,6 +118,7 @@ def get_material_pass(index=0, shader_mat=False):
         # allowed for now
     return matpass
 
+
 def get_material_pass_minimal():
     return MaterialPass(
         vertex_material_ids=[0],
@@ -126,6 +130,7 @@ def get_material_pass_minimal():
         tx_stages=[get_texture_stage()],
         tx_coords=[Vector()])
 
+
 def get_material_pass_empty():
     return MaterialPass(
         vertex_material_ids=[],
@@ -136,6 +141,7 @@ def get_material_pass_empty():
         shader_material_ids=[],
         tx_stages=[],
         tx_coords=[])
+
 
 def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)

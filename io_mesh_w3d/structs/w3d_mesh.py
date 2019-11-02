@@ -63,11 +63,9 @@ class MeshHeader(Struct):
             sph_center=read_vector(io_stream),
             sph_radius=read_float(io_stream))
 
-
     @staticmethod
     def size(include_head=True):
         return const_size(116, include_head)
-
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
@@ -222,7 +220,6 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self):
         size = self.header.size()
         size += text_size(self.user_text)
@@ -252,13 +249,16 @@ class Mesh(Struct):
                 io_stream, W3D_CHUNK_MESH_USER_TEXT, text_size(self.user_text, False))
             write_string(io_stream, self.user_text)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTICES, vec_list_size(self.verts, False))
+        write_chunk_head(io_stream, W3D_CHUNK_VERTICES,
+                         vec_list_size(self.verts, False))
         write_list(io_stream, self.verts, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS, vec_list_size(self.normals, False))
+        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS,
+                         vec_list_size(self.normals, False))
         write_list(io_stream, self.normals, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, list_size(self.triangles, False))
+        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES,
+                         list_size(self.triangles, False))
         write_object_list(io_stream, self.triangles, Triangle.write)
 
         if self.vert_infs:
@@ -279,10 +279,12 @@ class Mesh(Struct):
         if self.vert_materials:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIALS,
                              list_size(self.vert_materials, False), has_sub_chunks=True)
-            write_object_list(io_stream, self.vert_materials, VertexMaterial.write)
+            write_object_list(io_stream, self.vert_materials,
+                              VertexMaterial.write)
 
         if self.shaders:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, list_size(self.shaders, False))
+            write_chunk_head(io_stream, W3D_CHUNK_SHADERS,
+                             list_size(self.shaders, False))
             write_object_list(io_stream, self.shaders, Shader.write)
 
         if self.textures:
@@ -293,10 +295,12 @@ class Mesh(Struct):
         if self.shader_materials:
             write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
                              list_size(self.shader_materials, False), has_sub_chunks=True)
-            write_object_list(io_stream, self.shader_materials, ShaderMaterial.write)
+            write_object_list(io_stream, self.shader_materials,
+                              ShaderMaterial.write)
 
         if self.material_passes:
-            write_object_list(io_stream, self.material_passes, MaterialPass.write)
+            write_object_list(io_stream, self.material_passes,
+                              MaterialPass.write)
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)

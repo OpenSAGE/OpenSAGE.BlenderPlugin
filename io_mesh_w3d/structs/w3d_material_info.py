@@ -30,7 +30,7 @@ class MaterialInfo(Struct):
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_INFO,
-                             self.size(False))
+                         self.size(False))
         write_ulong(io_stream, self.pass_count)
         write_ulong(io_stream, self.vert_matl_count)
         write_ulong(io_stream, self.shader_count)

@@ -4,6 +4,7 @@
 
 from io_mesh_w3d.structs.struct import HEAD
 
+
 def const_size(size, include_head=True):
     if include_head:
         size += HEAD

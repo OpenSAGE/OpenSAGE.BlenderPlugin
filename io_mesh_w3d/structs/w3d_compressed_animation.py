@@ -169,7 +169,8 @@ class AdaptiveDeltaData(Struct):
 
     def write(self, io_stream, type):
         write_channel_value(io_stream, type, self.initial_value)
-        write_object_list(io_stream, self.delta_blocks, AdaptiveDeltaBlock.write)
+        write_object_list(io_stream, self.delta_blocks,
+                          AdaptiveDeltaBlock.write)
 
 
 class AdaptiveDeltaAnimationChannel(Struct):
@@ -441,7 +442,10 @@ class CompressedAnimation(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_object_list(io_stream, self.time_coded_channels, TimeCodedAnimationChannel.write)
-        write_object_list(io_stream, self.adaptive_delta_channels, AdaptiveDeltaAnimationChannel.write)
-        write_object_list(io_stream, self.time_coded_bit_channels, TimeCodedBitChannel.write)
+        write_object_list(io_stream, self.time_coded_channels,
+                          TimeCodedAnimationChannel.write)
+        write_object_list(io_stream, self.adaptive_delta_channels,
+                          AdaptiveDeltaAnimationChannel.write)
+        write_object_list(
+            io_stream, self.time_coded_bit_channels, TimeCodedBitChannel.write)
         write_object_list(io_stream, self.motion_channels, MotionChannel.write)

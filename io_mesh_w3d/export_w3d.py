@@ -51,7 +51,7 @@ def save(givenfilepath, _context, export_settings):
 
     elif export_mode == 'A':
         aniFile = open(givenfilepath, "wb")
-        animation = retrieve_animation(containerName, hierarchy)
+        animation = retrieve_timecoded_animation(containerName, hierarchy)
         animation.write(aniFile)
         aniFile.close()
 

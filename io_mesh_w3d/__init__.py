@@ -130,7 +130,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     def draw_animation_settings(self):
         col = self.layout.box().column()
-        col.prop(self, 'export_compress')
+        col.prop(self, 'animation_compression')
 
 
 class ImportW3D(bpy.types.Operator, ImportHelper):

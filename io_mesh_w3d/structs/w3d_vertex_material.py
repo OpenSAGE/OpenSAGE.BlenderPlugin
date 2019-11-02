@@ -86,7 +86,6 @@ class VertexMaterial(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += text_size(self.vm_name)
@@ -95,7 +94,6 @@ class VertexMaterial(Struct):
         size += text_size(self.vm_args_0)
         size += text_size(self.vm_args_1)
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL,

@@ -70,7 +70,8 @@ class Texture(Struct):
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE,
                          self.size(False), has_sub_chunks=True)
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, text_size(self.name, False))
+        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME,
+                         text_size(self.name, False))
         write_string(io_stream, self.name)
 
         if self.texture_info is not None:

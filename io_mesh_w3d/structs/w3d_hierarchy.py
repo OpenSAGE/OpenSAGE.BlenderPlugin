@@ -100,7 +100,6 @@ class Hierarchy(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self):
         size = self.header.size()
         size += list_size(self.pivots)
@@ -110,7 +109,8 @@ class Hierarchy(Struct):
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size())
         self.header.write(io_stream)
-        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, list_size(self.pivots, False))
+        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS,
+                         list_size(self.pivots, False))
         write_object_list(io_stream, self.pivots, HierarchyPivot.write)
 
         if self.pivot_fixups:

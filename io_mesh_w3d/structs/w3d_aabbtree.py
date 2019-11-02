@@ -94,7 +94,6 @@ class AABBTree(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += self.header.size()
