@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+
 import unittest
 
 from io_mesh_w3d.structs.w3d_shader import Shader

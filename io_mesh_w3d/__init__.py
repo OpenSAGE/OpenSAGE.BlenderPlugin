@@ -1,5 +1,5 @@
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+
 import bpy
 from bpy.types import Panel, Object, Material, Operator, AddonPreferences, PropertyGroup
 from bpy_extras.io_utils import ImportHelper, ExportHelper

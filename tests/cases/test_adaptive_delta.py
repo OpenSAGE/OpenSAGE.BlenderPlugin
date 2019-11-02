@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+
 from io_mesh_w3d.w3d_adaptive_delta import to_signed, get_deltas
 from tests import utils
 

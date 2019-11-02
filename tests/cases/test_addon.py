@@ -1,3 +1,6 @@
+# <pep8 compliant>
+# Written by Stephan Vedder and Michael Schnabel
+
 import unittest
 import io_mesh_w3d
 

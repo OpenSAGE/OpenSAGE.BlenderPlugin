@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+
 import bpy
 from io_mesh_w3d.import_w3d import *
 from io_mesh_w3d.io_binary import write_chunk_head

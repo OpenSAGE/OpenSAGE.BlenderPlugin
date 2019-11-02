@@ -1,6 +1,5 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 11.2019
 
 from mathutils import Vector
 

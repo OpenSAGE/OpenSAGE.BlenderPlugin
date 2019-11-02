@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+
 import io
 from tests import utils
 from shutil import copyfile

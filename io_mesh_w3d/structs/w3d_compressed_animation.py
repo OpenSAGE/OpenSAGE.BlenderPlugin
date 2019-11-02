@@ -1,6 +1,5 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
@@ -361,7 +360,7 @@ class MotionChannel(Struct):
                 # time_code is a short here, not long!
                 size += datum.size(self.type) - 2
             if self.num_time_codes % 2 != 0:
-                size += 2
+                size += 2 # alignment
         else:
             size += self.data.size(self.type)
         return size

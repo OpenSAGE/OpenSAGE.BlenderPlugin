@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 08.2019
+
 import bpy
 from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.structs.w3d_hierarchy import *

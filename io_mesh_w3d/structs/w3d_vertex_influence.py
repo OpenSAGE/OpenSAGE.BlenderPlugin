@@ -1,6 +1,5 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
 
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_version import Version
