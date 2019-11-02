@@ -52,17 +52,20 @@ def get_aabbtree(num_nodes=33, num_polys=41):
         poly_indices=get_aabbtree_poly_indices(num_polys),
         nodes=get_aabbtree_nodes(num_nodes))
 
+
 def get_aabbtree_minimal():
     return AABBTree(
         header=get_aabbtree_header(),
         poly_indices=[0],
         nodes=[get_aabbtree_node()])
 
+
 def get_aabbtree_empty():
     return AABBTree(
         header=get_aabbtree_header(),
         poly_indices=[],
         nodes=[])
+
 
 def compare_aabbtrees(self, expected, actual):
     compare_aabbtree_headers(self, expected.header, actual.header)

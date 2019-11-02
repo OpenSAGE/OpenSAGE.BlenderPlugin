@@ -114,18 +114,30 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
     mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
 
-    mesh.triangles.append(get_triangle((4, 2, 0), 13, Vector((0.0, 0.0, 1.0)), 0.63))
-    mesh.triangles.append(get_triangle((2, 7, 3), 13, Vector((0.0, -1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((6, 5, 7), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((1, 7, 5), 13, Vector((0.0, 0.0, -1.0)), 0.63))
-    mesh.triangles.append(get_triangle((0, 3, 1), 13, Vector((1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((4, 1, 5), 13, Vector((0.0, 1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((4, 6, 2), 13, Vector((0.0, 0.0, 1.0)), 0.63))
-    mesh.triangles.append(get_triangle((2, 6, 7), 13, Vector((0.0, -1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((6, 4, 5), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((1, 3, 7), 13, Vector((0.0, 0.0, -1.0)), 0.63))
-    mesh.triangles.append(get_triangle((0, 2, 3), 13, Vector((1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle((4, 0, 1), 13, Vector((0.0, 1.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (4, 2, 0), 13, Vector((0.0, 0.0, 1.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (2, 7, 3), 13, Vector((0.0, -1.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (6, 5, 7), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (1, 7, 5), 13, Vector((0.0, 0.0, -1.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (0, 3, 1), 13, Vector((1.0, 0.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (4, 1, 5), 13, Vector((0.0, 1.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (4, 6, 2), 13, Vector((0.0, 0.0, 1.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (2, 6, 7), 13, Vector((0.0, -1.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (6, 4, 5), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (1, 3, 7), 13, Vector((0.0, 0.0, -1.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (0, 2, 3), 13, Vector((1.0, 0.0, 0.0)), 0.63))
+    mesh.triangles.append(get_triangle(
+        (4, 0, 1), 13, Vector((0.0, 1.0, 0.0)), 0.63))
 
     if skin:
         mesh.vert_infs = get_vertex_influences()

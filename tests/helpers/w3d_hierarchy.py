@@ -87,17 +87,20 @@ def get_hierarchy(name="TestHierarchy"):
 
     return hierarchy
 
+
 def get_hierarchy_minimal():
     return Hierarchy(
         header=get_hierarchy_header(),
         pivots=[get_hierarchy_pivot()],
         pivot_fixups=[Vector()])
 
+
 def get_hierarchy_empty():
     return Hierarchy(
         header=get_hierarchy_header(),
         pivots=[],
         pivot_fixups=[])
+
 
 def compare_hierarchies(self, expected, actual):
     compare_hierarchy_headers(self, expected.header, actual.header)

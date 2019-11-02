@@ -477,18 +477,65 @@ def retrieve_hierarchy(container_name):
 ##########################################################################
 
 
-def retrieve_animation(animation_name, hierarchy):
+def retrieve_uncompressed_animation(animation_name, hierarchy):
+    ani_struct = Animation()
+    ani_struct.header.name = animation_name
+    ani_struct.header.hierarchy_name = hierarchy.header.name
+
+    start_frame = bpy.context.scene.frame_start
+    end_frame = bpy.context.scene.frame_end
+
+    ani_struct.header.num_frames = end_frame + 1 - start_frame
+    ani_struct.header.frame_rate = bpy.context.scene.render.fps
+
+    if len(bpy.data.actions) > 1:
+        print("Error: too many actions in scene")
+
+    channel = None
+    
+    action = bpy.data.actions[0]
+    for fcu in action.fcurves:
+        pivot_name = fcu.data_path.split('"')[1]
+        pivot_index = 0
+        for i, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == pivot_name:
+                pivot_index = i
+
+        channel_type = 0
+        vec_len = 1
+        index = fcu.array_index
+        if "rotation_quaternion" in fcu.data_path:
+            channel_type = 6
+            vec_len = 4
+        else:
+            channel_type = index
+
+        if not (channel_type == 6 and index > 0):
+            channel = AnimationChannel(
+                first_frame = fcu.range[0]
+                last_frame = fcu.range[1]
+                vector_len=vec_len,
+                type=channel_type,
+                pivot=pivot_index)
+
+            channel.data = [None] * len(sampled_points)
+
+        for i, sample in enumerate(fcu.sampled_points):
+            frame = int(keyframe.co.x)
+            val = keyframe.co.y
+
+def retrieve_timecoded_animation(animation_name, hierarchy):
     # only time coded compression for now
     ani_struct = CompressedAnimation(time_coded_channels=[])
     ani_struct.header.name = animation_name
     ani_struct.header.flavor = 0  # time coded
     ani_struct.header.hierarchy_name = hierarchy.header.name
 
-    start_frame = bpy.data.scenes["Scene"].frame_start
-    end_frame = bpy.data.scenes["Scene"].frame_end
+    start_frame = bpy.context.scene.frame_start
+    end_frame = bpy.context.scene.frame_end
 
     ani_struct.header.num_frames = end_frame + 1 - start_frame
-    ani_struct.header.frame_rate = bpy.data.scenes["Scene"].render.fps
+    ani_struct.header.frame_rate = bpy.context.scene.render.fps
 
     if len(bpy.data.actions) > 1:
         print("Error: too many actions in scene")
@@ -522,9 +569,8 @@ def retrieve_animation(animation_name, hierarchy):
             num_keyframes = len(fcu.keyframe_points)
             channel.time_codes = [None] * num_keyframes
             channel.num_time_codes = num_keyframes
-            channel.first_frame = int(fcu.keyframe_points[0].co.x)
-            channel.last_frame = int(
-                fcu.keyframe_points[num_keyframes - 1].co.x)
+            channel.first_frame = fcu.range[0]
+            channel.last_frame = fcu.range[1]
 
         for i, keyframe in enumerate(fcu.keyframe_points):
             frame = int(keyframe.co.x)

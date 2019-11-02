@@ -39,6 +39,7 @@ def get_vertex_material():
         vm_args_0="VM_ARGS0",
         vm_args_1="VM_ARGS1")
 
+
 def get_vertex_material_minimal():
     return VertexMaterial(
         vm_name="a",
@@ -46,12 +47,14 @@ def get_vertex_material_minimal():
         vm_args_0="a",
         vm_args_1="a")
 
+
 def get_vertex_material_empty():
     return VertexMaterial(
         vm_name="a",
         vm_info=None,
         vm_args_0="",
         vm_args_1="")
+
 
 def compare_vertex_materials(self, expected, actual):
     self.assertEqual(expected.vm_name, actual.vm_name)

@@ -479,9 +479,9 @@ def get_bone(rig, name):
 
 
 def setup_animation(animation):
-    bpy.data.scenes["Scene"].render.fps = animation.header.frame_rate
-    bpy.data.scenes["Scene"].frame_start = 0
-    bpy.data.scenes["Scene"].frame_end = animation.header.num_frames - 1
+    bpy.context.scene.render.fps = animation.header.frame_rate
+    bpy.context.scene.frame_start = 0
+    bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
 def set_translation(bone, index, frame, value):

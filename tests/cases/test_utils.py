@@ -171,7 +171,7 @@ class TestUtils(utils.W3dTestCase):
         #    rig_mesh(mesh, hierarchy, rig, coll)
 
         #create_animation(rig, expected, hierarchy, compressed=True)
-        #actual = retrieve_animation("containerName", hierarchy)
+        #actual = retrieve_timecoded_animation("containerName", hierarchy)
         #compare_compressed_animations(self, expected, actual)
 
     # def test_animation_roundtrip(self):

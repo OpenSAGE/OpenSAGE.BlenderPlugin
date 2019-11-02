@@ -64,7 +64,6 @@ class TestMaterialPass(unittest.TestCase):
         self.assertEqual(292, mpass.size())
 
 
-
 class TestTextureStage(unittest.TestCase):
     def test_write_read(self):
         expected = get_texture_stage()

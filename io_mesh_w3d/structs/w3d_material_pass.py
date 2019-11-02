@@ -54,7 +54,8 @@ class TextureStage(Struct):
                          self.size(False), has_sub_chunks=True)
 
         if self.tx_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_IDS, long_list_size(self.tx_ids, False))
+            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_IDS,
+                             long_list_size(self.tx_ids, False))
             write_list(io_stream, self.tx_ids, write_long)
 
         if self.tx_coords:
@@ -127,7 +128,6 @@ class MaterialPass(Struct):
                 skip_unknown_chunk(None, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += long_list_size(self.vertex_material_ids)
@@ -155,15 +155,18 @@ class MaterialPass(Struct):
             write_list(io_stream, self.shader_ids, write_ulong)
 
         if self.dcg:
-            write_chunk_head(io_stream, W3D_CHUNK_DCG, list_size(self.dcg, False))
+            write_chunk_head(io_stream, W3D_CHUNK_DCG,
+                             list_size(self.dcg, False))
             write_object_list(io_stream, self.dcg, RGBA.write)
 
         if self.dig:
-            write_chunk_head(io_stream, W3D_CHUNK_DIG, list_size(self.dig, False))
+            write_chunk_head(io_stream, W3D_CHUNK_DIG,
+                             list_size(self.dig, False))
             write_object_list(io_stream, self.dig, RGBA.write)
 
         if self.scg:
-            write_chunk_head(io_stream, W3D_CHUNK_SCG, list_size(self.scg, False))
+            write_chunk_head(io_stream, W3D_CHUNK_SCG,
+                             list_size(self.scg, False))
             write_object_list(io_stream, self.scg, RGBA.write)
 
         if self.shader_material_ids:

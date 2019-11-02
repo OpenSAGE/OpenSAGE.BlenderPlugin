@@ -148,4 +148,5 @@ class ShaderMaterial(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIAL,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_object_list(io_stream, self.properties, ShaderMaterialProperty.write)
+        write_object_list(io_stream, self.properties,
+                          ShaderMaterialProperty.write)

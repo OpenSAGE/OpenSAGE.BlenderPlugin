@@ -343,10 +343,8 @@ def get_compressed_animation(
         animation.adaptive_delta_channels.append(
             get_adaptive_delta_animation_channel(type=6, num_bits=4))
 
-
     animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
     animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
-
 
     animation.motion_channels.append(get_motion_channel(
         type=0, deltatype=0, num_time_codes=50))
@@ -357,7 +355,6 @@ def get_compressed_animation(
     animation.motion_channels.append(
         get_motion_channel(type=6, deltatype=0))
 
-
     animation.motion_channels.append(
         get_motion_channel(type=0, deltatype=1))
     animation.motion_channels.append(
@@ -366,7 +363,6 @@ def get_compressed_animation(
         get_motion_channel(type=2, deltatype=1))
     animation.motion_channels.append(
         get_motion_channel(type=6, deltatype=1))
-
 
     animation.motion_channels.append(
         get_motion_channel(type=0, deltatype=2))
@@ -384,7 +380,8 @@ def get_compressed_animation_minimal():
     return CompressedAnimation(
         header=get_compressed_animation_header(),
         time_coded_channels=[get_time_coded_animation_channel_minimal()],
-        adaptive_delta_channels=[get_adaptive_delta_animation_channel_minimal()],
+        adaptive_delta_channels=[
+            get_adaptive_delta_animation_channel_minimal()],
         time_coded_bit_channels=[get_time_coded_bit_channel_minimal()],
         motion_channels=[get_motion_channel_minimal()])
 

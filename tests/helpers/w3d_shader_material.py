@@ -80,6 +80,7 @@ def get_shader_material():
         header=get_shader_material_header(),
         properties=get_shader_material_properties())
 
+
 def get_shader_material_minimal():
     shader_mat = ShaderMaterial(
         header=get_shader_material_header(),
@@ -95,10 +96,12 @@ def get_shader_material_minimal():
         get_shader_material_property(7, "a")]
     return shader_mat
 
+
 def get_shader_material_empty():
     return ShaderMaterial(
         header=get_shader_material_header(),
         properties=[])
+
 
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)
