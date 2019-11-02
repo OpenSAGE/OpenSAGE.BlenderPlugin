@@ -28,11 +28,11 @@ class TestHierarchy(unittest.TestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_hierarchy_empty()
 
         self.assertEqual(44, expected.header.size())
-        self.assertEqual(52, expected.size())
+        self.assertEqual(44, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -51,10 +51,8 @@ class TestHierarchy(unittest.TestCase):
         self.assertEqual(36, hierarchy.header.size(False))
         self.assertEqual(44, hierarchy.header.size())
 
-        self.assertEqual(60, hierarchy.pivots_size(False))
-        self.assertEqual(68, hierarchy.pivots_size())
+        self.assertEqual(60, list_size(hierarchy.pivots, False))
 
-        self.assertEqual(12, hierarchy.pivot_fixups_size(False))
-        self.assertEqual(20, hierarchy.pivot_fixups_size())
+        self.assertEqual(12, vec_list_size(hierarchy.pivot_fixups, False))
 
         self.assertEqual(132, hierarchy.size())

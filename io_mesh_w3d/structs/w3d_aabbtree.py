@@ -7,6 +7,7 @@ from mathutils import Vector
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_AABBTREE_HEADER = 0x00000091
@@ -27,10 +28,7 @@ class AABBTreeHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 8
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(8, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_HEADER,
@@ -87,38 +85,21 @@ class AABBTree(Struct):
             if chunk_type == W3D_CHUNK_AABBTREE_HEADER:
                 result.header = AABBTreeHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_AABBTREE_POLYINDICES:
-                result.poly_indices = read_array(
+                result.poly_indices = read_list(
                     io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_AABBTREE_NODES:
-                result.nodes = read_array(
+                result.nodes = read_list(
                     io_stream, subchunk_end, AABBTreeNode.read)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def poly_indices_size(self, include_head=True):
-        size = len(self.poly_indices) * 4
-        if include_head:
-            size += HEAD
-        return size
-
-    def nodes_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for node in self.nodes:
-            size += node.size()
-        return size
 
     def size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
+        size = const_size(0, include_head)
         size += self.header.size()
-        if self.poly_indices:
-            size += self.poly_indices_size()
-        if self.nodes:
-            size += self.nodes_size()
+        size += long_list_size(self.poly_indices)
+        size += list_size(self.nodes)
         return size
 
     def write(self, io_stream):
@@ -128,10 +109,9 @@ class AABBTree(Struct):
 
         if self.poly_indices:
             write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_POLYINDICES,
-                             self.poly_indices_size(False))
-            write_array(io_stream, self.poly_indices, write_long)
+                             long_list_size(self.poly_indices, False))
+            write_list(io_stream, self.poly_indices, write_long)
         if self.nodes:
             write_chunk_head(
-                io_stream, W3D_CHUNK_AABBTREE_NODES, self.nodes_size(False))
-            for node in self.nodes:
-                node.write(io_stream)
+                io_stream, W3D_CHUNK_AABBTREE_NODES, list_size(self.nodes, False))
+            write_object_list(io_stream, self.nodes, AABBTreeNode.write)

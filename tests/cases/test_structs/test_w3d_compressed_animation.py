@@ -4,10 +4,10 @@
 import unittest
 import io
 
-from io_mesh_w3d.structs.w3d_compressed_animation import CompressedAnimation, W3D_CHUNK_COMPRESSED_ANIMATION
+from io_mesh_w3d.structs.w3d_compressed_animation import *
 from io_mesh_w3d.io_binary import read_chunk_head
 
-from tests.helpers.w3d_compressed_animation import get_compressed_animation, compare_compressed_animations
+from tests.helpers.w3d_compressed_animation import *
 
 
 class TestCompressedAnimation(unittest.TestCase):
@@ -28,7 +28,7 @@ class TestCompressedAnimation(unittest.TestCase):
         compare_compressed_animations(self, expected, actual)
 
     def test_write_read_adaptive_delta(self):
-        expected = get_compressed_animation(_flavor=1)
+        expected = get_compressed_animation(flavor=1)
 
         self.assertEqual(3631, expected.size())
 
@@ -43,13 +43,8 @@ class TestCompressedAnimation(unittest.TestCase):
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
 
-    def test_write_read_minimal(self):
-        expected = get_compressed_animation(
-            time_coded=False,
-            bit_channels=False,
-            motion_tc=False,
-            motion_ad4=False,
-            motion_ad8=False)
+    def test_write_read_empty(self):
+        expected = get_compressed_animation_empty()
 
         self.assertEqual(52, expected.size())
 
@@ -63,3 +58,15 @@ class TestCompressedAnimation(unittest.TestCase):
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
+
+    def test_chunk_sizes(self):
+        ani = get_compressed_animation_minimal()
+
+        self.assertEqual(44, ani.header.size(False))
+
+        self.assertEqual(24, list_size(ani.time_coded_channels, False))
+        self.assertEqual(34, list_size(ani.adaptive_delta_channels, False))
+        self.assertEqual(20, list_size(ani.time_coded_bit_channels, False))
+        self.assertEqual(24, list_size(ani.motion_channels, False))
+
+        self.assertEqual(186, ani.size())

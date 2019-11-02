@@ -6,6 +6,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
@@ -24,10 +25,7 @@ class ShaderMaterialHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 37
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(37, include_head)
 
     def write(self, io_stream):
         write_chunk_head(
@@ -71,10 +69,8 @@ class ShaderMaterialProperty(Struct):
         return result
 
     def size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        size += 8 + len(self.name) + 1
+        size = const_size(8, include_head)
+        size += len(self.name) + 1
         if self.type == 1:
             size += 4 + len(self.value) + 1
         elif self.type == 2:
@@ -142,9 +138,7 @@ class ShaderMaterial(Struct):
         return result
 
     def size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
+        size = const_size(0, include_head)
         size += self.header.size()
         for prop in self.properties:
             size += prop.size()
@@ -154,5 +148,4 @@ class ShaderMaterial(Struct):
         write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIAL,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        for prop in self.properties:
-            prop.write(io_stream)
+        write_object_list(io_stream, self.properties, ShaderMaterialProperty.write)

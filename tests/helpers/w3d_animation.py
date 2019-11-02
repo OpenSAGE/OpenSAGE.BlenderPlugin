@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 10.2019
+# Last Modification 11.2019
 import unittest
 from mathutils import Quaternion
 
@@ -9,7 +9,7 @@ from io_mesh_w3d.structs.w3d_animation import Animation, AnimationHeader, Animat
 from tests.helpers.w3d_version import get_version, compare_versions
 
 
-def get_animation_header(hierarchy_name):
+def get_animation_header(hierarchy_name="hierarchy"):
     return AnimationHeader(
         version=get_version(),
         name="containerName",
@@ -26,22 +26,22 @@ def compare_animation_headers(self, expected, actual):
     self.assertEqual(expected.frame_rate, actual.frame_rate)
 
 
-def get_animation_channel(_type, pivot):
+def get_animation_channel(type=1, pivot=0):
     channel = AnimationChannel(
         first_frame=1,
         last_frame=33,
-        type=_type,
+        type=type,
         pivot=pivot,
         unknown=123,
         data=[])
 
-    if _type == 6:
+    if type == 6:
         channel.vector_len = 4
     else:
         channel.vector_len = 1
 
     for i in range(channel.first_frame, channel.last_frame):
-        if _type == 6:
+        if type == 6:
             channel.data.append(Quaternion((1.0, 0.0, 0.9, 0.0)))
         else:
             channel.data.append(1.0 * i)
@@ -66,16 +66,28 @@ def get_animation(hierarchy_name="TestHierarchy"):
         header=get_animation_header(hierarchy_name),
         channels=[])
 
-    animation.channels.append(get_animation_channel(_type=0, pivot=2))
-    animation.channels.append(get_animation_channel(_type=1, pivot=2))
-    animation.channels.append(get_animation_channel(_type=2, pivot=2))
-    animation.channels.append(get_animation_channel(_type=6, pivot=2))
+    animation.channels.append(get_animation_channel(type=0, pivot=2))
+    animation.channels.append(get_animation_channel(type=1, pivot=2))
+    animation.channels.append(get_animation_channel(type=2, pivot=2))
+    animation.channels.append(get_animation_channel(type=6, pivot=2))
 
-    animation.channels.append(get_animation_channel(_type=0, pivot=3))
-    animation.channels.append(get_animation_channel(_type=1, pivot=3))
-    animation.channels.append(get_animation_channel(_type=2, pivot=3))
-    animation.channels.append(get_animation_channel(_type=6, pivot=3))
+    animation.channels.append(get_animation_channel(type=0, pivot=3))
+    animation.channels.append(get_animation_channel(type=1, pivot=3))
+    animation.channels.append(get_animation_channel(type=2, pivot=3))
+    animation.channels.append(get_animation_channel(type=6, pivot=3))
     return animation
+
+
+def get_animation_minimal():
+    return Animation(
+        header=get_animation_header(),
+        channels=[get_animation_channel()])
+
+
+def get_animation_empty():
+    return Animation(
+        header=get_animation_header(),
+        channels=[])
 
 
 def compare_animations(self, expected, actual):

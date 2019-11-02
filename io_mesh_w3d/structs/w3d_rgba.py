@@ -26,6 +26,9 @@ class RGBA(Struct):
                     b=int(read_float(io_stream) * 255),
                     a=int(read_float(io_stream) * 255))
 
+    def size(self):
+        return 4
+
     def write(self, io_stream):
         write_ubyte(io_stream, self.r)
         write_ubyte(io_stream, self.g)

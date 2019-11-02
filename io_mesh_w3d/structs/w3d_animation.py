@@ -1,10 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-# Last Modification 09.2019
+# Last Modification 11.2019
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
+from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_ANIMATION_HEADER = 0x00000201
@@ -27,12 +29,12 @@ class AnimationHeader(Struct):
             frame_rate=read_ulong(io_stream))
 
     @staticmethod
-    def size():
-        return 44
+    def size(include_head=True):
+        return const_size(44, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_HEADER,
-                         self.size())
+                         self.size(False))
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_fixed_string(io_stream, self.hierarchy_name)
@@ -64,17 +66,19 @@ class AnimationChannel(Struct):
             data=[])
 
         if result.vector_len == 1:
-            result.data = read_array(io_stream, chunk_end, read_float)
+            result.data = read_list(io_stream, chunk_end, read_float)
         elif result.vector_len == 4:
-            result.data = read_array(io_stream, chunk_end, read_quaternion)
+            result.data = read_list(io_stream, chunk_end, read_quaternion)
         return result
 
-    def size(self):
-        return 12 + (len(self.data) * self.vector_len) * 4
+    def size(self, include_head=True):
+        size = const_size(12, include_head)
+        size += (len(self.data) * self.vector_len) * 4
+        return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_CHANNEL,
-                         self.size())
+                         self.size(False))
 
         write_ushort(io_stream, self.first_frame)
         write_ushort(io_stream, self.last_frame)
@@ -84,9 +88,9 @@ class AnimationChannel(Struct):
         write_ushort(io_stream, self.unknown)
 
         if self.vector_len == 1:
-            write_array(io_stream, self.data, write_float)
+            write_list(io_stream, self.data, write_float)
         else:
-            write_array(io_stream, self.data, write_quaternion)
+            write_list(io_stream, self.data, write_quaternion)
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -113,9 +117,8 @@ class Animation(Struct):
         return result
 
     def size(self):
-        size = HEAD + self.header.size()
-        for channel in self.channels:
-            size += HEAD + channel.size()
+        size = self.header.size()
+        size += list_size(self.channels, False)
         return size
 
     def write(self, io_stream):
@@ -123,5 +126,4 @@ class Animation(Struct):
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        for channel in self.channels:
-            channel.write(io_stream)
+        write_object_list(io_stream, self.channels, AnimationChannel.write)

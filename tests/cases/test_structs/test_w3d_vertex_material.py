@@ -30,7 +30,7 @@ class TestVertexMaterial(unittest.TestCase):
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_vertex_material_empty()
 
         self.assertEqual(18, expected.size())
@@ -49,17 +49,14 @@ class TestVertexMaterial(unittest.TestCase):
     def test_chunk_sizes(self):
         vm = get_vertex_material_minimal()
 
-        self.assertEqual(2, vm.name_size(vm.vm_name, False))
-        self.assertEqual(10, vm.name_size(vm.vm_name))
+        self.assertEqual(2, text_size(vm.vm_name, False))
 
         self.assertEqual(32, vm.vm_info.size(False))
         self.assertEqual(40, vm.vm_info.size())
 
-        self.assertEqual(2, vm.name_size(vm.vm_args_0, False))
-        self.assertEqual(10, vm.name_size(vm.vm_args_0))
+        self.assertEqual(2, text_size(vm.vm_args_0, False))
 
-        self.assertEqual(2, vm.name_size(vm.vm_args_1, False))
-        self.assertEqual(10, vm.name_size(vm.vm_args_1))
+        self.assertEqual(2, text_size(vm.vm_args_1, False))
 
         self.assertEqual(70, vm.size(False))
         self.assertEqual(78, vm.size())

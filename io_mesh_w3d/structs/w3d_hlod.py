@@ -6,6 +6,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
@@ -27,10 +28,7 @@ class HLodHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 40
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(40, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_HEADER,
@@ -56,10 +54,7 @@ class HLodArrayHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 8
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(8, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER,
@@ -83,10 +78,7 @@ class HLodSubObject(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 36
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(36, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT,
@@ -120,20 +112,16 @@ class HLodArray(Struct):
         return result
 
     def size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
+        size = const_size(0, include_head)
         size += self.header.size()
-        for obj in self.sub_objects:
-            size += obj.size()
+        size += list_size(self.sub_objects, False)
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        for obj in self.sub_objects:
-            obj.write(io_stream)
+        write_object_list(io_stream, self.sub_objects, HLodSubObject.write)
 
 
 W3D_CHUNK_HLOD = 0x00000700

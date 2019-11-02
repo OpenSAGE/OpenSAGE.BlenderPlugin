@@ -6,6 +6,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
@@ -30,14 +31,14 @@ class CompressedAnimationHeader(Struct):
             flavor=read_ushort(io_stream))
 
     @staticmethod
-    def size():
-        return 44
+    def size(include_head=True):
+        return const_size(44, include_head)
 
     def write(self, io_stream):
         write_chunk_head(
             io_stream,
             W3D_CHUNK_COMPRESSED_ANIMATION_HEADER,
-            self.size())
+            self.size(False))
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_fixed_string(io_stream, self.hierarchy_name)
@@ -52,10 +53,10 @@ class TimeCodedDatum(Struct):
     value = None
 
     @staticmethod
-    def read(io_stream, _type):
+    def read(io_stream, type):
         result = TimeCodedDatum(
             time_code=read_ulong(io_stream),
-            value=read_channel_value(io_stream, _type))
+            value=read_channel_value(io_stream, type))
 
         if (result.time_code >> 31) == 1:
             result.time_code &= ~(1 << 31)
@@ -63,17 +64,17 @@ class TimeCodedDatum(Struct):
         return result
 
     @staticmethod
-    def size(_type):
-        if _type == 6:
+    def size(type):
+        if type == 6:
             return 20
         return 8
 
-    def write(self, io_stream, _type):
+    def write(self, io_stream, type):
         time_code = self.time_code
         if self.non_interpolated:
             time_code |= (1 << 31)
         write_ulong(io_stream, time_code)
-        write_channel_value(io_stream, _type, self.value)
+        write_channel_value(io_stream, type, self.value)
 
 
 class TimeCodedAnimationChannel(Struct):
@@ -97,8 +98,8 @@ class TimeCodedAnimationChannel(Struct):
                 TimeCodedDatum.read(io_stream, result.type))
         return result
 
-    def size(self):
-        size = 8
+    def size(self, include_head=True):
+        size = const_size(8, include_head)
         for time_code in self.time_codes:
             size += time_code.size(self.type)
         return size
@@ -136,7 +137,7 @@ class AdaptiveDeltaBlock(Struct):
 
     def write(self, io_stream):
         write_ubyte(io_stream, self.block_index)
-        write_array(io_stream, self.delta_bytes, write_byte)
+        write_list(io_stream, self.delta_bytes, write_byte)
 
 
 class AdaptiveDeltaData(Struct):
@@ -159,18 +160,16 @@ class AdaptiveDeltaData(Struct):
                     AdaptiveDeltaBlock.read(io_stream, j, bits))
         return result
 
-    def size(self, _type):
+    def size(self, type):
         size = 4
-        if _type == 6:
+        if type == 6:
             size = 16
-        for delta_block in self.delta_blocks:
-            size += delta_block.size()
+        size += list_size(self.delta_blocks, False)
         return size
 
-    def write(self, io_stream, _type):
-        write_channel_value(io_stream, _type, self.initial_value)
-        for delta_block in self.delta_blocks:
-            delta_block.write(io_stream)
+    def write(self, io_stream, type):
+        write_channel_value(io_stream, type, self.initial_value)
+        write_object_list(io_stream, self.delta_blocks, AdaptiveDeltaBlock.write)
 
 
 class AdaptiveDeltaAnimationChannel(Struct):
@@ -196,14 +195,16 @@ class AdaptiveDeltaAnimationChannel(Struct):
         io_stream.read(3)  # read unknown bytes at the end
         return result
 
-    def size(self):
-        return 13 + self.data.size(self.type)
+    def size(self, include_head=True):
+        size = const_size(13, include_head)
+        size += self.data.size(self.type)
+        return size
 
     def write(self, io_stream):
         write_chunk_head(
             io_stream,
             W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
-            self.size())
+            self.size(False))
         write_ulong(io_stream, self.num_time_codes)
         write_ushort(io_stream, self.pivot)
         write_ubyte(io_stream, self.vector_len)
@@ -211,7 +212,7 @@ class AdaptiveDeltaAnimationChannel(Struct):
         write_short(io_stream, self.scale)
         self.data.write(io_stream, self.type)
 
-        write_array(io_stream, bytes([0, 0, 0]), write_ubyte)  # padding
+        write_list(io_stream, bytes([0, 0, 0]), write_ubyte)  # padding
 
 
 class AdaptiveDeltaMotionAnimationChannel(Struct):
@@ -227,12 +228,12 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
         result.data = AdaptiveDeltaData.read(io_stream, channel, bits)
         return result
 
-    def size(self, _type):
-        return 4 + self.data.size(_type)
+    def size(self, type):
+        return 4 + self.data.size(type)
 
-    def write(self, io_stream, _type):
+    def write(self, io_stream, type):
         write_float(io_stream, self.scale)
-        self.data.write(io_stream, _type)
+        self.data.write(io_stream, type)
 
 
 class TimeCodedBitDatum(Struct):
@@ -281,25 +282,23 @@ class TimeCodedBitChannel(Struct):
             result.time_codes.append(TimeCodedBitDatum.read(io_stream))
         return result
 
-    def size(self):
-        size = 8
-        for time_code in self.time_codes:
-            size += time_code.size()
+    def size(self, include_head=True):
+        size = const_size(8, include_head)
+        size += list_size(self.time_codes, False)
         return size
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream, W3D_CHUNK_COMPRESSED_BIT_CHANNEL, self.size())
+            io_stream, W3D_CHUNK_COMPRESSED_BIT_CHANNEL, self.size(False))
         write_ulong(io_stream, self.num_time_codes)
         write_ushort(io_stream, self.pivot)
         write_ubyte(io_stream, self.type)
         write_ubyte(io_stream, self.default_value)
-        for time_code in self.time_codes:
-            time_code.write(io_stream)
+        write_object_list(io_stream, self.time_codes, TimeCodedBitDatum.write)
 
 
 class MotionChannel(Struct):
-    delta_type = 0
+    deltatype = 0
     vector_len = 0
     type = 0
     num_time_codes = 0
@@ -337,26 +336,26 @@ class MotionChannel(Struct):
         read_ubyte(io_stream)  # zero
 
         result = MotionChannel(
-            delta_type=read_ubyte(io_stream),
+            deltatype=read_ubyte(io_stream),
             vector_len=read_ubyte(io_stream),
             type=read_ubyte(io_stream),
             num_time_codes=read_short(io_stream),
             pivot=read_short(io_stream),
             data=[])
 
-        if result.delta_type == 0:
+        if result.deltatype == 0:
             result.data = result.read_time_coded_data(io_stream)
-        elif result.delta_type == 1:
+        elif result.deltatype == 1:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, result.delta_type * 4)
-        elif result.delta_type == 2:
+                io_stream, result, result.deltatype * 4)
+        elif result.deltatype == 2:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, result.delta_type * 4)
+                io_stream, result, result.deltatype * 4)
         return result
 
-    def size(self):
-        size = 8
-        if self.delta_type == 0:
+    def size(self, include_head=True):
+        size = const_size(8, include_head)
+        if self.deltatype == 0:
             for datum in self.data:
                 # time_code is a short here, not long!
                 size += datum.size(self.type) - 2
@@ -370,16 +369,16 @@ class MotionChannel(Struct):
         write_chunk_head(
             io_stream,
             W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL,
-            self.size(),
+            self.size(False),
             has_sub_chunks=True)
         write_ubyte(io_stream, 0)  # zero
-        write_ubyte(io_stream, self.delta_type)
+        write_ubyte(io_stream, self.deltatype)
         write_ubyte(io_stream, self.vector_len)
         write_ubyte(io_stream, self.type)
         write_short(io_stream, self.num_time_codes)
         write_short(io_stream, self.pivot)
 
-        if self.delta_type == 0:
+        if self.deltatype == 0:
             self.write_time_coded_data(io_stream)
         else:
             self.data.write(io_stream, self.type)
@@ -407,10 +406,10 @@ class CompressedAnimation(Struct):
             motion_channels=[])
 
         while io_stream.tell() < chunk_end:
-            (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
-            if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
+            (chunktype, chunk_size, _) = read_chunk_head(io_stream)
+            if chunktype == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
-            elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
+            elif chunktype == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
                 if result.header.flavor == 0:
                     result.time_coded_channels.append(
                         TimeCodedAnimationChannel.read(io_stream))
@@ -419,42 +418,30 @@ class CompressedAnimation(Struct):
                         AdaptiveDeltaAnimationChannel.read(io_stream))
                 else:
                     skip_unknown_chunk(context, io_stream,
-                                       chunk_type, chunk_size)
-            elif chunk_type == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
+                                       chunktype, chunk_size)
+            elif chunktype == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
                 result.time_coded_bit_channels.append(
                     TimeCodedBitChannel.read(io_stream))
-            elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
+            elif chunktype == W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL:
                 result.motion_channels.append(
                     MotionChannel.read(io_stream))
             else:
-                skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
+                skip_unknown_chunk(context, io_stream, chunktype, chunk_size)
         return result
 
     def size(self):
-        size = HEAD + self.header.size()
-        if self.header.flavor == 0:
-            for time_coded_channel in self.time_coded_channels:
-                size += HEAD + time_coded_channel.size()
-        elif self.header.flavor == 1:
-            for adaptive_delta_channel in self.adaptive_delta_channels:
-                size += HEAD + adaptive_delta_channel.size()
-        for time_coded_bit_channel in self.time_coded_bit_channels:
-            size += HEAD + time_coded_bit_channel.size()
-        for motion_channel in self.motion_channels:
-            size += HEAD + motion_channel.size()
+        size = self.header.size()
+        size += list_size(self.time_coded_channels)
+        size += list_size(self.adaptive_delta_channels)
+        size += list_size(self.time_coded_bit_channels)
+        size += list_size(self.motion_channels)
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
-        if self.header.flavor == 0:
-            for time_coded_channel in self.time_coded_channels:
-                time_coded_channel.write(io_stream)
-        elif self.header.flavor == 1:
-            for adaptive_delta_channel in self.adaptive_delta_channels:
-                adaptive_delta_channel.write(io_stream)
-        for time_coded_bit_channel in self.time_coded_bit_channels:
-            time_coded_bit_channel.write(io_stream)
-        for motion_channel in self.motion_channels:
-            motion_channel.write(io_stream)
+        write_object_list(io_stream, self.time_coded_channels, TimeCodedAnimationChannel.write)
+        write_object_list(io_stream, self.adaptive_delta_channels, AdaptiveDeltaAnimationChannel.write)
+        write_object_list(io_stream, self.time_coded_bit_channels, TimeCodedBitChannel.write)
+        write_object_list(io_stream, self.motion_channels, MotionChannel.write)

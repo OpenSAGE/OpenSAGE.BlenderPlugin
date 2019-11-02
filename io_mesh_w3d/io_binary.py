@@ -118,9 +118,9 @@ def read_vector(io_stream):
 
 
 def write_vector(io_stream, vec):
-    write_float(io_stream, vec[0])
-    write_float(io_stream, vec[1])
-    write_float(io_stream, vec[2])
+    write_float(io_stream, vec.x)
+    write_float(io_stream, vec.y)
+    write_float(io_stream, vec.z)
 
 
 def read_quaternion(io_stream):
@@ -174,12 +174,12 @@ def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
     write_ulong(io_stream, size)
 
 
-def write_array(io_stream, data, write_func):
+def write_list(io_stream, data, write_func):
     for dat in data:
         write_func(io_stream, dat)
 
 
-def read_array(io_stream, chunk_end, read_func):
+def read_list(io_stream, chunk_end, read_func):
     result = []
     while io_stream.tell() < chunk_end:
         result.append(read_func(io_stream))

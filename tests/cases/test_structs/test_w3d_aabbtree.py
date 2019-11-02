@@ -27,7 +27,7 @@ class TestAABBTree(unittest.TestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
         self.assertEqual(16, expected.header.size())
@@ -49,11 +49,9 @@ class TestAABBTree(unittest.TestCase):
         self.assertEqual(8, expected.header.size(False))
         self.assertEqual(16, expected.header.size())
 
-        self.assertEqual(4, expected.poly_indices_size(False))
-        self.assertEqual(12, expected.poly_indices_size())
+        self.assertEqual(4, long_list_size(expected.poly_indices, False))
 
-        self.assertEqual(32, expected.nodes_size(False))
-        self.assertEqual(40, expected.nodes_size())
+        self.assertEqual(32, list_size(expected.nodes, False))
 
         self.assertEqual(68, expected.size(False))
         self.assertEqual(76, expected.size())

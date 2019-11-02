@@ -27,7 +27,7 @@ class TestShaderMaterial(unittest.TestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_shader_material_empty()
 
         self.assertEqual(45, expected.header.size())

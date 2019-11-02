@@ -15,6 +15,7 @@ from io_mesh_w3d.structs.w3d_shader_material import *
 from io_mesh_w3d.structs.w3d_texture import *
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
@@ -62,12 +63,11 @@ class MeshHeader(Struct):
             sph_center=read_vector(io_stream),
             sph_radius=read_float(io_stream))
 
+
     @staticmethod
     def size(include_head=True):
-        size = 116
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(116, include_head)
+
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
@@ -147,12 +147,12 @@ class Mesh(Struct):
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
             if chunk_type == W3D_CHUNK_VERTICES:
-                result.verts = read_array(io_stream, subchunk_end, read_vector)
+                result.verts = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_VERTICES_2:
                 #print("-> vertices 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
-                result.normals = read_array(
+                result.normals = read_list(
                     io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
                 #print("-> normals 2 chunk is not supported")
@@ -160,20 +160,20 @@ class Mesh(Struct):
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.user_text = read_string(io_stream)
             elif chunk_type == W3D_CHUNK_VERTEX_INFLUENCES:
-                result.vert_infs = read_array(
+                result.vert_infs = read_list(
                     io_stream, subchunk_end, VertexInfluence.read)
             elif chunk_type == W3D_CHUNK_MESH_HEADER:
                 result.header = MeshHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_TRIANGLES:
-                result.triangles = read_array(
+                result.triangles = read_list(
                     io_stream, subchunk_end, Triangle.read)
             elif chunk_type == W3D_CHUNK_VERTEX_SHADE_INDICES:
-                result.shade_ids = read_array(
+                result.shade_ids = read_list(
                     io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_MATERIAL_INFO:
                 result.mat_info = MaterialInfo.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADERS:
-                result.shaders = read_array(
+                result.shaders = read_list(
                     io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
@@ -222,107 +222,22 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def user_text_size(self, include_head=True):
-        size = len(self.user_text) + 1
-        if include_head:
-            size += HEAD
-        return size
-
-    def verts_size(self, include_head=True):
-        size = len(self.verts) * 12
-        if include_head:
-            size += HEAD
-        return size
-
-    def normals_size(self, include_head=True):
-        size = len(self.normals) * 12
-        if include_head:
-            size += HEAD
-        return size
-
-    def tris_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for triangle in self.triangles:
-            size += triangle.size()
-        return size
-
-    def vert_infs_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for inf in self.vert_infs:
-            size += inf.size()
-        return size
-
-    def shaders_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for shader in self.shaders:
-            size += shader.size()
-        return size
-
-    def textures_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for texture in self.textures:
-            size += texture.size()
-        return size
-
-    def shade_ids_size(self, include_head=True):
-        size = len(self.shade_ids) * 4
-        if include_head:
-            size += HEAD
-        return size
-
-    def shader_materials_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for shaderMat in self.shader_materials:
-            size += shaderMat.size()
-        return size
-
-    def material_passes_size(self):
-        size = 0
-        for mat_pass in self.material_passes:
-            size += mat_pass.size()
-        return size
-
-    def vert_materials_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for vertMat in self.vert_materials:
-            size += vertMat.size()
-        return size
 
     def size(self):
         size = self.header.size()
-        if len(self.user_text):
-            size += self.user_text_size()
-        size += self.verts_size()
-        size += self.normals_size()
-        size += self.tris_size()
-        if self.vert_infs:
-            size += self.vert_infs_size()
-        if self.shaders:
-            size += self.shaders_size()
-        if self.textures:
-            size += self.textures_size()
-        if self.shade_ids:
-            size += self.shade_ids_size()
-        if self.shader_materials:
-            size += self.shader_materials_size()
+        size += text_size(self.user_text)
+        size += vec_list_size(self.verts)
+        size += vec_list_size(self.normals)
+        size += list_size(self.triangles)
+        size += list_size(self.vert_infs)
+        size += list_size(self.shaders)
+        size += list_size(self.textures)
+        size += long_list_size(self.shade_ids)
+        size += list_size(self.shader_materials)
         if self.mat_info is not None:
             size += self.mat_info.size()
-        if self.vert_materials:
-            size += self.vert_materials_size()
-        if self.material_passes:
-            size += self.material_passes_size()
+        size += list_size(self.vert_materials)
+        size += list_size(self.material_passes, False)
         if self.aabbtree is not None:
             size += self.aabbtree.size()
         return size
@@ -334,62 +249,54 @@ class Mesh(Struct):
 
         if len(self.user_text):
             write_chunk_head(
-                io_stream, W3D_CHUNK_MESH_USER_TEXT, self.user_text_size(False))
+                io_stream, W3D_CHUNK_MESH_USER_TEXT, text_size(self.user_text, False))
             write_string(io_stream, self.user_text)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTICES, self.verts_size(False))
-        write_array(io_stream, self.verts, write_vector)
+        write_chunk_head(io_stream, W3D_CHUNK_VERTICES, vec_list_size(self.verts, False))
+        write_list(io_stream, self.verts, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS,
-                         self.normals_size(False))
-        write_array(io_stream, self.normals, write_vector)
+        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS, vec_list_size(self.normals, False))
+        write_list(io_stream, self.normals, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, self.tris_size(False))
-        for tri in self.triangles:
-            tri.write(io_stream)
+        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES, list_size(self.triangles, False))
+        write_object_list(io_stream, self.triangles, Triangle.write)
 
         if self.vert_infs:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_INFLUENCES,
-                             self.vert_infs_size(False))
-            for inf in self.vert_infs:
-                inf.write(io_stream)
+                             list_size(self.vert_infs, False))
+            write_object_list(io_stream, self.vert_infs, VertexInfluence.write)
 
         if self.shade_ids:
             write_chunk_head(
                 io_stream,
                 W3D_CHUNK_VERTEX_SHADE_INDICES,
-                self.shade_ids_size(False))
-            write_array(io_stream, self.shade_ids, write_long)
+                long_list_size(self.shade_ids, False))
+            write_list(io_stream, self.shade_ids, write_long)
 
         if self.mat_info is not None:
             self.mat_info.write(io_stream)
 
         if self.vert_materials:
             write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIALS,
-                             self.vert_materials_size(False), has_sub_chunks=True)
-            for vertMat in self.vert_materials:
-                vertMat.write(io_stream)
+                             list_size(self.vert_materials, False), has_sub_chunks=True)
+            write_object_list(io_stream, self.vert_materials, VertexMaterial.write)
 
         if self.shaders:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, self.shaders_size(False))
-            for shader in self.shaders:
-                shader.write(io_stream)
+            write_chunk_head(io_stream, W3D_CHUNK_SHADERS, list_size(self.shaders, False))
+            write_object_list(io_stream, self.shaders, Shader.write)
 
         if self.textures:
             write_chunk_head(io_stream, W3D_CHUNK_TEXTURES,
-                             self.textures_size(False), has_sub_chunks=True)
-            for texture in self.textures:
-                texture.write(io_stream)
+                             list_size(self.textures, False), has_sub_chunks=True)
+            write_object_list(io_stream, self.textures, Texture.write)
 
         if self.shader_materials:
             write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
-                             self.shader_materials_size(False), has_sub_chunks=True)
-            for shaderMat in self.shader_materials:
-                shaderMat.write(io_stream)
+                             list_size(self.shader_materials, False), has_sub_chunks=True)
+            write_object_list(io_stream, self.shader_materials, ShaderMaterial.write)
 
         if self.material_passes:
-            for mat_pass in self.material_passes:
-                mat_pass.write(io_stream)
+            write_object_list(io_stream, self.material_passes, MaterialPass.write)
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)

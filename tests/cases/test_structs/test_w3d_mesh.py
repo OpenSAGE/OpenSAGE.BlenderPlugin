@@ -5,6 +5,7 @@ import unittest
 import io
 from tests import utils
 
+from io_mesh_w3d.utils import *
 from io_mesh_w3d.structs.w3d_mesh import *
 from io_mesh_w3d.io_binary import read_chunk_head, write_chunk_head, write_ubyte
 
@@ -46,7 +47,7 @@ class TestMesh(utils.W3dTestCase):
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_mesh_empty()
 
         self.assertEqual(204, expected.size())
@@ -157,33 +158,24 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(116, mesh.header.size(False))
         self.assertEqual(124, mesh.header.size())
 
-        self.assertEqual(5, mesh.user_text_size(False))
-        self.assertEqual(13, mesh.user_text_size())
+        self.assertEqual(5, text_size(mesh.user_text, False))
 
-        self.assertEqual(12, mesh.verts_size(False))
-        self.assertEqual(20, mesh.verts_size())
+        self.assertEqual(12, vec_list_size(mesh.verts, False))
 
-        self.assertEqual(12, mesh.normals_size(False))
-        self.assertEqual(20, mesh.normals_size())
+        self.assertEqual(12, vec_list_size(mesh.normals, False))
 
-        self.assertEqual(32, mesh.tris_size(False))
-        self.assertEqual(40, mesh.tris_size())
+        self.assertEqual(32, list_size(mesh.triangles, False))
 
-        self.assertEqual(16, mesh.shaders_size(False))
-        self.assertEqual(24, mesh.shaders_size())
+        self.assertEqual(16, list_size(mesh.shaders, False))
 
-        self.assertEqual(38, mesh.textures_size(False))
-        self.assertEqual(46, mesh.textures_size())
+        self.assertEqual(38, list_size(mesh.textures, False))
 
-        self.assertEqual(4, mesh.shade_ids_size(False))
-        self.assertEqual(12, mesh.shade_ids_size())
+        self.assertEqual(4, long_list_size(mesh.shade_ids, False))
 
-        self.assertEqual(240, mesh.shader_materials_size(False))
-        self.assertEqual(248, mesh.shader_materials_size())
+        self.assertEqual(240, list_size(mesh.shader_materials, False))
 
-        self.assertEqual(292, mesh.material_passes_size())
+        self.assertEqual(292, list_size(mesh.material_passes, False))
 
-        self.assertEqual(78, mesh.vert_materials_size(False))
-        self.assertEqual(86, mesh.vert_materials_size())
+        self.assertEqual(78, list_size(mesh.vert_materials, False))
 
         self.assertEqual(1041, mesh.size())

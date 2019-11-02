@@ -4,6 +4,7 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
@@ -25,10 +26,7 @@ class MaterialInfo(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 16
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(16, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_INFO,

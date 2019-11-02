@@ -27,7 +27,7 @@ def get_texture_minimal():
 
 def get_texture_empty():
     return Texture(
-        name="",
+        name="a",
         texture_info=None)
 
 

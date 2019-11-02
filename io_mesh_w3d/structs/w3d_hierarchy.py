@@ -6,6 +6,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
@@ -27,14 +28,11 @@ class HierarchyHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 36
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(36, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER,
-                         self.size())
+                         self.size(False))
         self.version.write(io_stream)
         write_fixed_string(io_stream, self.name)
         write_ulong(io_stream, self.num_pivots)
@@ -93,47 +91,29 @@ class Hierarchy(Struct):
             if chunk_type == W3D_CHUNK_HIERARCHY_HEADER:
                 result.header = HierarchyHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_PIVOTS:
-                result.pivots = read_array(
+                result.pivots = read_list(
                     io_stream, subchunk_end, HierarchyPivot.read)
             elif chunk_type == W3D_CHUNK_PIVOT_FIXUPS:
-                result.pivot_fixups = read_array(
+                result.pivot_fixups = read_list(
                     io_stream, subchunk_end, read_vector)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def pivots_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for pivot in self.pivots:
-            size += pivot.size()
-        return size
-
-    def pivot_fixups_size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        for _ in self.pivot_fixups:
-            size += 12
-        return size
 
     def size(self):
         size = self.header.size()
-        size += self.pivots_size()
-        if self.pivot_fixups:
-            size += self.pivot_fixups_size()
+        size += list_size(self.pivots)
+        size += vec_list_size(self.pivot_fixups)
         return size
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size())
         self.header.write(io_stream)
-        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, self.pivots_size(False))
-        for pivot in self.pivots:
-            pivot.write(io_stream)
+        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS, list_size(self.pivots, False))
+        write_object_list(io_stream, self.pivots, HierarchyPivot.write)
 
         if self.pivot_fixups:
             write_chunk_head(io_stream, W3D_CHUNK_PIVOT_FIXUPS,
-                             self.pivot_fixups_size(False))
-            for fixup in self.pivot_fixups:
-                write_vector(io_stream, fixup)
+                             vec_list_size(self.pivot_fixups, False))
+            write_list(io_stream, self.pivot_fixups, write_vector)

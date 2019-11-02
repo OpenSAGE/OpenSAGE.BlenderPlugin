@@ -29,7 +29,7 @@ class TestMaterialPass(unittest.TestCase):
         actual = MaterialPass.read(io_stream, chunkEnd)
         compare_material_passes(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_material_pass_empty()
 
         self.assertEqual(8, expected.size())
@@ -46,30 +46,22 @@ class TestMaterialPass(unittest.TestCase):
         compare_material_passes(self, expected, actual)
 
     def test_chunk_sizes(self):
-        expected = get_material_pass_minimal()
+        mpass = get_material_pass_minimal()
 
-        self.assertEqual(4, expected.vertex_material_ids_size(False))
-        self.assertEqual(12, expected.vertex_material_ids_size())
+        self.assertEqual(4, long_list_size(mpass.vertex_material_ids, False))
 
-        self.assertEqual(4, expected.shader_ids_size(False))
-        self.assertEqual(12, expected.shader_ids_size())
+        self.assertEqual(4, long_list_size(mpass.shader_ids, False))
 
-        self.assertEqual(4, expected.dcg_size(False))
-        self.assertEqual(12, expected.dcg_size())
+        self.assertEqual(4, list_size(mpass.dcg, False))
+        self.assertEqual(4, list_size(mpass.dig, False))
+        self.assertEqual(4, list_size(mpass.scg, False))
 
-        self.assertEqual(4, expected.dig_size(False))
-        self.assertEqual(12, expected.dig_size())
+        self.assertEqual(4, long_list_size(mpass.shader_material_ids, False))
 
-        self.assertEqual(4, expected.scg_size(False))
-        self.assertEqual(12, expected.scg_size())
+        self.assertEqual(196, list_size(mpass.tx_stages, False))
 
-        self.assertEqual(4, expected.shader_material_ids_size(False))
-        self.assertEqual(12, expected.shader_material_ids_size())
-
-        self.assertEqual(196, expected.tx_stages_size())
-
-        self.assertEqual(284, expected.size(False))
-        self.assertEqual(292, expected.size())
+        self.assertEqual(284, mpass.size(False))
+        self.assertEqual(292, mpass.size())
 
 
 
@@ -90,7 +82,7 @@ class TestTextureStage(unittest.TestCase):
         actual = TextureStage.read(io_stream, chunkEnd)
         compare_texture_stages(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_empty(self):
         expected = get_texture_stage_empty()
 
         self.assertEqual(8, expected.size())
@@ -107,16 +99,13 @@ class TestTextureStage(unittest.TestCase):
         compare_texture_stages(self, expected, actual)
 
     def test_chunk_sizes(self):
-        expected = get_texture_stage_minimal()
+        stage = get_texture_stage_minimal()
 
-        self.assertEqual(4, expected.tx_ids_size(False))
-        self.assertEqual(12, expected.tx_ids_size())
+        self.assertEqual(4, long_list_size(stage.tx_ids, False))
 
-        self.assertEqual(12, expected.per_face_tx_coords_size(False))
-        self.assertEqual(20, expected.per_face_tx_coords_size())
+        self.assertEqual(12, vec_list_size(stage.per_face_tx_coords, False))
 
-        self.assertEqual(8, expected.tx_coords_size(False))
-        self.assertEqual(16, expected.tx_coords_size())
+        self.assertEqual(8, vec2_list_size(stage.tx_coords, False))
 
-        self.assertEqual(48, expected.size(False))
-        self.assertEqual(56, expected.size())
+        self.assertEqual(48, stage.size(False))
+        self.assertEqual(56, stage.size())

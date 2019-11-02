@@ -4,6 +4,7 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_TEXTURE_INFO = 0x00000033
@@ -25,10 +26,7 @@ class TextureInfo(Struct):
 
     @staticmethod
     def size(include_head=True):
-        size = 12
-        if include_head:
-            size += HEAD
-        return size
+        return const_size(12, include_head)
 
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_INFO,
@@ -62,18 +60,9 @@ class Texture(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    @staticmethod
-    def name_size(name, include_head=True):
-        size = len(name) + 1
-        if include_head:
-            size += HEAD
-        return size
-
     def size(self, include_head=True):
-        size = 0
-        if include_head:
-            size += HEAD
-        size += self.name_size(self.name)
+        size = const_size(0, include_head)
+        size += text_size(self.name)
         if self.texture_info is not None:
             size += self.texture_info.size()
         return size
@@ -81,7 +70,7 @@ class Texture(Struct):
     def write(self, io_stream):
         write_chunk_head(io_stream, W3D_CHUNK_TEXTURE,
                          self.size(False), has_sub_chunks=True)
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, self.name_size(self.name, False))
+        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME, text_size(self.name, False))
         write_string(io_stream, self.name)
 
         if self.texture_info is not None:
