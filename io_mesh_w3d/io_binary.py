@@ -174,9 +174,12 @@ def write_chunk_head(chunk_id, io_stream, size, has_sub_chunks=False):
     write_ulong(size, io_stream)
 
 
-def write_list(data, io_stream, write_func):
+def write_list(data, io_stream, write_func, par1=None):
     for dat in data:
-        write_func(dat, io_stream)
+        if par1 is not None:
+            write_func(dat, io_stream, par1)
+        else:
+            write_func(dat, io_stream)
 
 
 def read_list(io_stream, chunk_end, read_func):
@@ -186,8 +189,11 @@ def read_list(io_stream, chunk_end, read_func):
     return result
 
 
-def read_fixed_list(io_stream, count, read_func):
+def read_fixed_list(io_stream, count, read_func, par1=None):
     result = []
     for _ in range(count):
-        result.append(read_func(io_stream))
+        if par1 is not None:
+            result.append(read_func(io_stream, par1))
+        else:
+            result.append(read_func(io_stream))
     return result

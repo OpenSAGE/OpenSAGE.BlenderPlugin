@@ -91,9 +91,7 @@ class TimeCodedAnimationChannel(Struct):
             type=read_ubyte(io_stream),
             time_codes=[])
 
-        for _ in range(result.num_time_codes):
-            result.time_codes.append(
-                TimeCodedDatum.read(io_stream, result.type))
+        result.time_codes = read_fixed_list(io_stream, result.num_time_codes, TimeCodedDatum.read, result.type)
         return result
 
     def size(self, include_head=True):
@@ -110,8 +108,7 @@ class TimeCodedAnimationChannel(Struct):
         write_ushort(self.pivot, io_stream)
         write_ubyte(self.vector_len, io_stream)
         write_ubyte(self.type, io_stream)
-        for time_code in self.time_codes:
-            time_code.write(io_stream, self.type)
+        write_list(self.time_codes, io_stream, TimeCodedDatum.write, self.type)
 
 
 class AdaptiveDeltaBlock(Struct):
@@ -275,8 +272,7 @@ class TimeCodedBitChannel(Struct):
             default_value=read_ubyte(io_stream),
             time_codes=[])
 
-        for _ in range(result.num_time_codes):
-            result.time_codes.append(TimeCodedBitDatum.read(io_stream))
+        result.time_codes = read_fixed_list(io_stream, result.num_time_codes, TimeCodedBitDatum.read)
         return result
 
     def size(self, include_head=True):
