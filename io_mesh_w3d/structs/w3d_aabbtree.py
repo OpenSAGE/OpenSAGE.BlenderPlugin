@@ -30,13 +30,13 @@ class AABBTreeHeader(Struct):
         return const_size(8, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_HEADER,
+        write_chunk_head(W3D_CHUNK_AABBTREE_HEADER, io_stream,
                          self.size(False))
-        write_ulong(io_stream, self.node_count)
-        write_ulong(io_stream, self.poly_count)
+        write_ulong(self.node_count, io_stream)
+        write_ulong(self.poly_count, io_stream)
 
         for pad in range(24):
-            write_ubyte(io_stream, 0)  # padding
+            write_ubyte(0, io_stream)  # padding
 
 
 class AABBTreeNode(Struct):
@@ -58,10 +58,10 @@ class AABBTreeNode(Struct):
         return 32
 
     def write(self, io_stream):
-        write_vector(io_stream, self.min)
-        write_vector(io_stream, self.max)
-        write_long(io_stream, self.front_or_poly_0)
-        write_long(io_stream, self.back_or_poly_count)
+        write_vector(self.min, io_stream)
+        write_vector(self.max, io_stream)
+        write_long(self.front_or_poly_0, io_stream)
+        write_long(self.back_or_poly_count, io_stream)
 
 
 W3D_CHUNK_AABBTREE = 0x00000090
@@ -101,15 +101,15 @@ class AABBTree(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_AABBTREE,
+        write_chunk_head(W3D_CHUNK_AABBTREE, io_stream,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if self.poly_indices:
-            write_chunk_head(io_stream, W3D_CHUNK_AABBTREE_POLYINDICES,
+            write_chunk_head(W3D_CHUNK_AABBTREE_POLYINDICES, io_stream,
                              long_list_size(self.poly_indices, False))
-            write_list(io_stream, self.poly_indices, write_long)
+            write_list(self.poly_indices, io_stream, write_long)
         if self.nodes:
             write_chunk_head(
-                io_stream, W3D_CHUNK_AABBTREE_NODES, list_size(self.nodes, False))
-            write_object_list(io_stream, self.nodes, AABBTreeNode.write)
+                W3D_CHUNK_AABBTREE_NODES, io_stream, list_size(self.nodes, False))
+            write_list(self.nodes, io_stream, AABBTreeNode.write)

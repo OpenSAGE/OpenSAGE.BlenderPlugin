@@ -27,9 +27,9 @@ class Triangle(Struct):
         return 32
 
     def write(self, io_stream):
-        write_ulong(io_stream, self.vert_ids[0])
-        write_ulong(io_stream, self.vert_ids[1])
-        write_ulong(io_stream, self.vert_ids[2])
-        write_ulong(io_stream, self.surface_type)
-        write_vector(io_stream, self.normal)
-        write_float(io_stream, self.distance)
+        write_ulong(self.vert_ids[0], io_stream)
+        write_ulong(self.vert_ids[1], io_stream)
+        write_ulong(self.vert_ids[2], io_stream)
+        write_ulong(self.surface_type, io_stream)
+        write_vector(self.normal, io_stream)
+        write_float(self.distance, io_stream)

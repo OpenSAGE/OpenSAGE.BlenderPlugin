@@ -50,7 +50,3 @@ def data_list_size(list, include_head=True, data_size=1):
         size += HEAD
     return size
 
-
-def write_object_list(io_stream, objects, write_func):
-    for obj in objects:
-        write_func(obj, io_stream)

@@ -39,12 +39,12 @@ class Box(Struct):
         return 68
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_BOX, self.size())
+        write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size())
 
         self.version.write(io_stream)
-        write_ulong(io_stream, (self.collision_types & 0xFF)
-                    | (self.box_type & 0b11))
-        write_long_fixed_string(io_stream, self.name)
+        write_ulong((self.collision_types & 0xFF)
+                    | (self.box_type & 0b11), io_stream)
+        write_long_fixed_string(self.name, io_stream)
         self.color.write(io_stream)
-        write_vector(io_stream, self.center)
-        write_vector(io_stream, self.extend)
+        write_vector(self.center, io_stream)
+        write_vector(self.extend, io_stream)

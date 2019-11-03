@@ -114,40 +114,6 @@ class TestUtils(utils.W3dTestCase):
         retrieve_meshes(hierarchy, rig, actual, "containerName")
         compare_hlods(self, expected, actual)
 
-    def test_meshes_two_textures_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
-        box = get_box()
-        hierarchy = get_hierarchy()
-        expecteds = [
-            get_mesh_two_textures(name="sword"),
-            get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield", shader_mats=True)]
-
-        coll = get_collection(hlod)
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, coll)
-
-        copyfile(self.relpath() + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
-        copyfile(self.relpath() + "/testfiles/texture.dds",
-                 self.outpath() + "texture2.dds")
-
-        for mesh in expecteds:
-            create_mesh(context, mesh, hierarchy, rig)
-
-        for mesh in expecteds:
-            rig_mesh(mesh, hierarchy, rig, coll)
-
-        hlod = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(hlod)
-        actuals = retrieve_meshes(hierarchy, rig, hlod, "containerName")
-
-        self.assertEqual(len(expecteds), len(actuals))
-        for i, expected in enumerate(expecteds):
-            compare_meshes(self, expected, actuals[i])
-
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()

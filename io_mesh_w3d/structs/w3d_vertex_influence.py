@@ -25,7 +25,7 @@ class VertexInfluence(Struct):
         return 8
 
     def write(self, io_stream):
-        write_ushort(io_stream, self.bone_idx)
-        write_ushort(io_stream, self.xtra_idx)
-        write_ushort(io_stream, int(self.bone_inf * 100))
-        write_ushort(io_stream, int(self.xtra_inf * 100))
+        write_ushort(self.bone_idx, io_stream)
+        write_ushort(self.xtra_idx, io_stream)
+        write_ushort(int(self.bone_inf * 100), io_stream)
+        write_ushort(int(self.xtra_inf * 100), io_stream)

@@ -30,12 +30,12 @@ class HierarchyHeader(Struct):
         return const_size(36, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY_HEADER,
+        write_chunk_head(W3D_CHUNK_HIERARCHY_HEADER, io_stream,
                          self.size(False))
         self.version.write(io_stream)
-        write_fixed_string(io_stream, self.name)
-        write_ulong(io_stream, self.num_pivots)
-        write_vector(io_stream, self.center_pos)
+        write_fixed_string(self.name, io_stream)
+        write_ulong(self.num_pivots, io_stream)
+        write_vector(self.center_pos, io_stream)
 
 
 W3D_CHUNK_PIVOTS = 0x00000102
@@ -62,11 +62,11 @@ class HierarchyPivot(Struct):
         return 60
 
     def write(self, io_stream):
-        write_fixed_string(io_stream, self.name)
-        write_long(io_stream, self.parent_id)
-        write_vector(io_stream, self.translation)
-        write_vector(io_stream, self.euler_angles)
-        write_quaternion(io_stream, self.rotation)
+        write_fixed_string(self.name, io_stream)
+        write_long(self.parent_id, io_stream)
+        write_vector(self.translation, io_stream)
+        write_vector(self.euler_angles, io_stream)
+        write_quaternion(self.rotation, io_stream)
 
 
 W3D_CHUNK_HIERARCHY = 0x00000100
@@ -106,13 +106,13 @@ class Hierarchy(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HIERARCHY, self.size())
+        write_chunk_head(W3D_CHUNK_HIERARCHY, io_stream, self.size())
         self.header.write(io_stream)
-        write_chunk_head(io_stream, W3D_CHUNK_PIVOTS,
+        write_chunk_head(W3D_CHUNK_PIVOTS, io_stream,
                          list_size(self.pivots, False))
-        write_object_list(io_stream, self.pivots, HierarchyPivot.write)
+        write_list(self.pivots, io_stream, HierarchyPivot.write)
 
         if self.pivot_fixups:
-            write_chunk_head(io_stream, W3D_CHUNK_PIVOT_FIXUPS,
+            write_chunk_head(W3D_CHUNK_PIVOT_FIXUPS, io_stream,
                              vec_list_size(self.pivot_fixups, False))
-            write_list(io_stream, self.pivot_fixups, write_vector)
+            write_list(self.pivot_fixups, io_stream, write_vector)

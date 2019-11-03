@@ -108,41 +108,41 @@ class TestMesh(utils.W3dTestCase):
     def test_unsupported_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(output, W3D_CHUNK_MESH, 99, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_MESH, output, 99, has_sub_chunks=True)
 
-        write_chunk_head(output, W3D_CHUNK_VERTICES_2, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_NORMALS_2, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_TANGENTS, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_BITANGENTS, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_UNLIT,
+        write_chunk_head(W3D_CHUNK_VERTICES_2, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_NORMALS_2, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_TANGENTS, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_BITANGENTS, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_PRELIT_UNLIT, output, 
                          1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PRELIT_VERTEX,
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_PRELIT_VERTEX, output, 
                          1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
+        write_ubyte(0x00, output)
         write_chunk_head(
-            output,
             W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS,
-            1,
-            has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(
             output,
-            W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
             1,
             has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_DEFORM, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, W3D_CHUNK_PS2_SHADERS,
+        write_ubyte(0x00, output)
+        write_chunk_head(
+            W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
+            output,
+            1,
+            has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_DEFORM, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output, 
                          1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
-        write_chunk_head(output, 0, 1, has_sub_chunks=False)
-        write_ubyte(output, 0x00)
+        write_ubyte(0x00, output)
+        write_chunk_head(0, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
 

@@ -35,15 +35,14 @@ class CompressedAnimationHeader(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream,
-            W3D_CHUNK_COMPRESSED_ANIMATION_HEADER,
+            W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, io_stream,
             self.size(False))
         self.version.write(io_stream)
-        write_fixed_string(io_stream, self.name)
-        write_fixed_string(io_stream, self.hierarchy_name)
-        write_ulong(io_stream, self.num_frames)
-        write_ushort(io_stream, self.frame_rate)
-        write_ushort(io_stream, self.flavor)
+        write_fixed_string(self.name, io_stream)
+        write_fixed_string(self.hierarchy_name, io_stream)
+        write_ulong(self.num_frames, io_stream)
+        write_ushort(self.frame_rate, io_stream)
+        write_ushort(self.flavor, io_stream)
 
 
 class TimeCodedDatum(Struct):
@@ -72,8 +71,8 @@ class TimeCodedDatum(Struct):
         time_code = self.time_code
         if self.non_interpolated:
             time_code |= (1 << 31)
-        write_ulong(io_stream, time_code)
-        write_channel_value(io_stream, type, self.value)
+        write_ulong(time_code, io_stream)
+        write_channel_value(self.value, io_stream, type)
 
 
 class TimeCodedAnimationChannel(Struct):
@@ -105,13 +104,12 @@ class TimeCodedAnimationChannel(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream,
-            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, io_stream,
             self.size(False))
-        write_ulong(io_stream, self.num_time_codes)
-        write_ushort(io_stream, self.pivot)
-        write_ubyte(io_stream, self.vector_len)
-        write_ubyte(io_stream, self.type)
+        write_ulong(self.num_time_codes, io_stream)
+        write_ushort(self.pivot, io_stream)
+        write_ubyte(self.vector_len, io_stream)
+        write_ubyte(self.type, io_stream)
         for time_code in self.time_codes:
             time_code.write(io_stream, self.type)
 
@@ -128,15 +126,15 @@ class AdaptiveDeltaBlock(Struct):
             block_index=read_ubyte(io_stream),
             delta_bytes=[])
 
-        result.delta_bytes = read_fixed_array(io_stream, bits * 2, read_byte)
+        result.delta_bytes = read_fixed_list(io_stream, bits * 2, read_byte)
         return result
 
     def size(self):
         return 1 + len(self.delta_bytes)
 
     def write(self, io_stream):
-        write_ubyte(io_stream, self.block_index)
-        write_list(io_stream, self.delta_bytes, write_byte)
+        write_ubyte(self.block_index, io_stream)
+        write_list(self.delta_bytes, io_stream, write_byte)
 
 
 class AdaptiveDeltaData(Struct):
@@ -167,8 +165,8 @@ class AdaptiveDeltaData(Struct):
         return size
 
     def write(self, io_stream, type):
-        write_channel_value(io_stream, type, self.initial_value)
-        write_object_list(io_stream, self.delta_blocks,
+        write_channel_value(self.initial_value, io_stream, type)
+        write_list(self.delta_blocks, io_stream,
                           AdaptiveDeltaBlock.write)
 
 
@@ -202,17 +200,16 @@ class AdaptiveDeltaAnimationChannel(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream,
-            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+            W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, io_stream,
             self.size(False))
-        write_ulong(io_stream, self.num_time_codes)
-        write_ushort(io_stream, self.pivot)
-        write_ubyte(io_stream, self.vector_len)
-        write_ubyte(io_stream, self.type)
-        write_short(io_stream, self.scale)
+        write_ulong(self.num_time_codes, io_stream)
+        write_ushort(self.pivot, io_stream)
+        write_ubyte(self.vector_len, io_stream)
+        write_ubyte(self.type, io_stream)
+        write_short(self.scale, io_stream)
         self.data.write(io_stream, self.type)
 
-        write_list(io_stream, bytes([0, 0, 0]), write_ubyte)  # padding
+        write_list(bytes([0, 0, 0]), io_stream, write_ubyte)  # padding
 
 
 class AdaptiveDeltaMotionAnimationChannel(Struct):
@@ -232,7 +229,7 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
         return 4 + self.data.size(type)
 
     def write(self, io_stream, type):
-        write_float(io_stream, self.scale)
+        write_float(self.scale, io_stream)
         self.data.write(io_stream, type)
 
 
@@ -259,7 +256,7 @@ class TimeCodedBitDatum(Struct):
         time_code = self.time_code
         if self.value:
             time_code |= (1 << 31)
-        write_ulong(io_stream, time_code)
+        write_ulong(time_code, io_stream)
 
 
 class TimeCodedBitChannel(Struct):
@@ -288,13 +285,12 @@ class TimeCodedBitChannel(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(
-            io_stream, W3D_CHUNK_COMPRESSED_BIT_CHANNEL, self.size(False))
-        write_ulong(io_stream, self.num_time_codes)
-        write_ushort(io_stream, self.pivot)
-        write_ubyte(io_stream, self.type)
-        write_ubyte(io_stream, self.default_value)
-        write_object_list(io_stream, self.time_codes, TimeCodedBitDatum.write)
+        write_chunk_head(W3D_CHUNK_COMPRESSED_BIT_CHANNEL, io_stream, self.size(False))
+        write_ulong(self.num_time_codes, io_stream)
+        write_ushort(self.pivot, io_stream)
+        write_ubyte(self.type, io_stream)
+        write_ubyte(self.default_value, io_stream)
+        write_list(self.time_codes, io_stream, TimeCodedBitDatum.write)
 
 
 class MotionChannel(Struct):
@@ -323,13 +319,13 @@ class MotionChannel(Struct):
 
     def write_time_coded_data(self, io_stream):
         for datum in self.data:
-            write_short(io_stream, datum.time_code)
+            write_short(datum.time_code, io_stream)
 
         if self.num_time_codes % 2 != 0:
-            write_short(io_stream, 0)  # alignment
+            write_short(0, io_stream)  # alignment
 
         for datum in self.data:
-            write_channel_value(io_stream, self.type, datum.value)
+            write_channel_value(datum.value, io_stream, self.type)
 
     @staticmethod
     def read(io_stream):
@@ -367,16 +363,15 @@ class MotionChannel(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream,
-            W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL,
+            W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL, io_stream,
             self.size(False),
             has_sub_chunks=True)
-        write_ubyte(io_stream, 0)  # zero
-        write_ubyte(io_stream, self.delta_type)
-        write_ubyte(io_stream, self.vector_len)
-        write_ubyte(io_stream, self.type)
-        write_short(io_stream, self.num_time_codes)
-        write_short(io_stream, self.pivot)
+        write_ubyte(0, io_stream)  # zero
+        write_ubyte(self.delta_type, io_stream)
+        write_ubyte(self.vector_len, io_stream)
+        write_ubyte(self.type, io_stream)
+        write_short(self.num_time_codes, io_stream)
+        write_short(self.pivot, io_stream)
 
         if self.delta_type == 0:
             self.write_time_coded_data(io_stream)
@@ -438,13 +433,13 @@ class CompressedAnimation(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_COMPRESSED_ANIMATION,
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION, io_stream,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_object_list(io_stream, self.time_coded_channels,
+        write_list(self.time_coded_channels, io_stream,
                           TimeCodedAnimationChannel.write)
-        write_object_list(io_stream, self.adaptive_delta_channels,
+        write_list(self.adaptive_delta_channels, io_stream,
                           AdaptiveDeltaAnimationChannel.write)
-        write_object_list(
-            io_stream, self.time_coded_bit_channels, TimeCodedBitChannel.write)
-        write_object_list(io_stream, self.motion_channels, MotionChannel.write)
+        write_list(
+            self.time_coded_bit_channels, io_stream, TimeCodedBitChannel.write)
+        write_list(self.motion_channels, io_stream, MotionChannel.write)

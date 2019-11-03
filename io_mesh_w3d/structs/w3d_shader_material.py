@@ -27,11 +27,10 @@ class ShaderMaterialHeader(Struct):
         return const_size(37, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(
-            io_stream, W3D_CHUNK_SHADER_MATERIAL_HEADER, self.size(False))
-        write_ubyte(io_stream, self.number)
-        write_long_fixed_string(io_stream, self.type_name)
-        write_long(io_stream, self.reserved)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER, io_stream, self.size(False))
+        write_ubyte(self.number, io_stream)
+        write_long_fixed_string(self.type_name, io_stream)
+        write_long(self.reserved, io_stream)
 
 
 W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
@@ -88,28 +87,27 @@ class ShaderMaterialProperty(Struct):
 
     def write(self, io_stream):
         write_chunk_head(
-            io_stream,
-            W3D_CHUNK_SHADER_MATERIAL_PROPERTY,
+            W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream,
             self.size(False))
-        write_long(io_stream, self.type)
-        write_long(io_stream, self.num_chars)
-        write_string(io_stream, self.name)
+        write_long(self.type, io_stream)
+        write_long(self.num_chars, io_stream)
+        write_string(self.name, io_stream)
 
         if self.type == 1:
-            write_long(io_stream, len(self.value) + 1)
-            write_string(io_stream, self.value)
+            write_long(len(self.value) + 1, io_stream)
+            write_string(self.value, io_stream)
         elif self.type == 2:
-            write_float(io_stream, self.value)
+            write_float(self.value, io_stream)
         elif self.type == 3:
-            write_vector2(io_stream, self.value)
+            write_vector2(self.value, io_stream)
         elif self.type == 4:
-            write_vector(io_stream, self.value)
+            write_vector(self.value, io_stream)
         elif self.type == 5:
             self.value.write_f(io_stream)
         elif self.type == 6:
-            write_long(io_stream, self.value)
+            write_long(self.value, io_stream)
         elif self.type == 7:
-            write_ubyte(io_stream, self.value)
+            write_ubyte(self.value, io_stream)
 
 
 W3D_CHUNK_SHADER_MATERIAL = 0x51
@@ -144,8 +142,8 @@ class ShaderMaterial(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIAL,
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, io_stream,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_object_list(io_stream, self.properties,
+        write_list(self.properties, io_stream,
                           ShaderMaterialProperty.write)

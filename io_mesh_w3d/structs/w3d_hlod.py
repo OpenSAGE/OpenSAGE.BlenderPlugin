@@ -30,12 +30,12 @@ class HLodHeader(Struct):
         return const_size(40, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_HEADER,
+        write_chunk_head(W3D_CHUNK_HLOD_HEADER, io_stream,
                          self.size(False))
         self.version.write(io_stream)
-        write_ulong(io_stream, self.lod_count)
-        write_fixed_string(io_stream, self.model_name)
-        write_fixed_string(io_stream, self.hierarchy_name)
+        write_ulong(self.lod_count, io_stream)
+        write_fixed_string(self.model_name, io_stream)
+        write_fixed_string(self.hierarchy_name, io_stream)
 
 
 W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
@@ -56,10 +56,10 @@ class HLodArrayHeader(Struct):
         return const_size(8, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER,
+        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, io_stream,
                          self.size(False))
-        write_ulong(io_stream, self.model_count)
-        write_float(io_stream, self.max_screen_size)
+        write_ulong(self.model_count, io_stream)
+        write_float(self.max_screen_size, io_stream)
 
 
 W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
@@ -80,10 +80,10 @@ class HLodSubObject(Struct):
         return const_size(36, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_SUB_OBJECT,
+        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT, io_stream,
                          self.size(False))
-        write_ulong(io_stream, self.bone_index)
-        write_long_fixed_string(io_stream, self.name)
+        write_ulong(self.bone_index, io_stream)
+        write_long_fixed_string(self.name, io_stream)
 
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
@@ -117,10 +117,10 @@ class HLodArray(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY,
+        write_chunk_head(W3D_CHUNK_HLOD_LOD_ARRAY, io_stream,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_object_list(io_stream, self.sub_objects, HLodSubObject.write)
+        write_list(self.sub_objects, io_stream, HLodSubObject.write)
 
 
 W3D_CHUNK_HLOD = 0x00000700
@@ -155,7 +155,7 @@ class HLod(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_HLOD,
+        write_chunk_head(W3D_CHUNK_HLOD, io_stream,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
         self.lod_array.write(io_stream)

@@ -114,7 +114,7 @@ def get_material_pass(index=0, shader_mat=False, num_stages=1):
         matpass.tx_coords = get_uvs()
     else:
         for i in range(num_stages):
-            matpass.tx_stages.append(get_texture_stage(index=i))
+            matpass.tx_stages.append(get_texture_stage(index=index + i))
     return matpass
 
 

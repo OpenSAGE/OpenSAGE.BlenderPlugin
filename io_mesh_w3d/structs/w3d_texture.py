@@ -28,12 +28,12 @@ class TextureInfo(Struct):
         return const_size(12, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_INFO,
+        write_chunk_head(W3D_CHUNK_TEXTURE_INFO, io_stream,
                          self.size(False))
-        write_ushort(io_stream, self.attributes)
-        write_ushort(io_stream, self.animation_type)
-        write_ulong(io_stream, self.frame_count)
-        write_float(io_stream, self.frame_rate)
+        write_ushort(self.attributes, io_stream)
+        write_ushort(self.animation_type, io_stream)
+        write_ulong(self.frame_count, io_stream)
+        write_float(self.frame_rate, io_stream)
 
 
 W3D_CHUNK_TEXTURE = 0x00000031
@@ -67,11 +67,11 @@ class Texture(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE,
+        write_chunk_head(W3D_CHUNK_TEXTURE, io_stream,
                          self.size(False), has_sub_chunks=True)
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_NAME,
+        write_chunk_head(W3D_CHUNK_TEXTURE_NAME, io_stream,
                          text_size(self.name, False))
-        write_string(io_stream, self.name)
+        write_string(self.name, io_stream)
 
         if self.texture_info is not None:
             self.texture_info.write(io_stream)

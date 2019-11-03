@@ -17,7 +17,7 @@ def read_string(io_stream):
     return (b"".join(str_buf)).decode("utf-8")
 
 
-def write_string(io_stream, string):
+def write_string(string, io_stream):
     io_stream.write(bytes(string, 'UTF-8'))
     io_stream.write(struct.pack('B', 0b0))
 
@@ -26,7 +26,7 @@ def read_fixed_string(io_stream):
     return ((str(io_stream.read(STRING_LENGTH)))[2:18]).split("\\")[0]
 
 
-def write_fixed_string(io_stream, string):
+def write_fixed_string(string, io_stream):
     # truncate the string to 16
     nullbytes = STRING_LENGTH - len(string)
     if nullbytes < 0:
@@ -43,7 +43,7 @@ def read_long_fixed_string(io_stream):
     return ((str(io_stream.read(LARGE_STRING_LENGTH)))[2:34]).split("\\")[0]
 
 
-def write_long_fixed_string(io_stream, string):
+def write_long_fixed_string(string, io_stream):
     # truncate the string to 32
     nullbytes = LARGE_STRING_LENGTH - len(string)
     if nullbytes < 0:
@@ -60,7 +60,7 @@ def read_long(io_stream):
     return struct.unpack("<l", io_stream.read(4))[0]
 
 
-def write_long(io_stream, num):
+def write_long(num, io_stream):
     io_stream.write(struct.pack("<l", num))
 
 
@@ -68,7 +68,7 @@ def read_ulong(io_stream):
     return struct.unpack("<L", io_stream.read(4))[0]
 
 
-def write_ulong(io_stream, num):
+def write_ulong(num, io_stream):
     io_stream.write(struct.pack("<L", num))
 
 
@@ -76,7 +76,7 @@ def read_short(io_stream):
     return struct.unpack("<h", io_stream.read(2))[0]
 
 
-def write_short(io_stream, num):
+def write_short(num, io_stream):
     io_stream.write(struct.pack("<h", num))
 
 
@@ -84,7 +84,7 @@ def read_ushort(io_stream):
     return struct.unpack("<H", io_stream.read(2))[0]
 
 
-def write_ushort(io_stream, num):
+def write_ushort(num, io_stream):
     io_stream.write(struct.pack("<H", num))
 
 
@@ -92,7 +92,7 @@ def read_float(io_stream):
     return struct.unpack("<f", io_stream.read(4))[0]
 
 
-def write_float(io_stream, num):
+def write_float(num, io_stream):
     io_stream.write(struct.pack("<f", num))
 
 
@@ -100,7 +100,7 @@ def read_byte(io_stream):
     return struct.unpack("<b", io_stream.read(1))[0]
 
 
-def write_byte(io_stream, byte):
+def write_byte(byte, io_stream):
     io_stream.write(struct.pack("<b", byte))
 
 
@@ -108,7 +108,7 @@ def read_ubyte(io_stream):
     return struct.unpack("<B", io_stream.read(1))[0]
 
 
-def write_ubyte(io_stream, byte):
+def write_ubyte(byte, io_stream):
     io_stream.write(struct.pack("<B", byte))
 
 
@@ -117,10 +117,10 @@ def read_vector(io_stream):
         io_stream), read_float(io_stream)))
 
 
-def write_vector(io_stream, vec):
-    write_float(io_stream, vec.x)
-    write_float(io_stream, vec.y)
-    write_float(io_stream, vec.z)
+def write_vector(vec, io_stream):
+    write_float(vec.x, io_stream)
+    write_float(vec.y, io_stream)
+    write_float(vec.z, io_stream)
 
 
 def read_quaternion(io_stream):
@@ -130,21 +130,21 @@ def read_quaternion(io_stream):
     return Quaternion((quat[3], quat[0], quat[1], quat[2]))
 
 
-def write_quaternion(io_stream, quat):
+def write_quaternion(quat, io_stream):
     # changes the order from wxyz to xyzw
-    write_float(io_stream, quat[1])
-    write_float(io_stream, quat[2])
-    write_float(io_stream, quat[3])
-    write_float(io_stream, quat[0])
+    write_float(quat[1], io_stream)
+    write_float(quat[2], io_stream)
+    write_float(quat[3], io_stream)
+    write_float(quat[0], io_stream)
 
 
 def read_vector2(io_stream):
     return Vector((read_float(io_stream), read_float(io_stream)))
 
 
-def write_vector2(io_stream, vec):
-    write_float(io_stream, vec[0])
-    write_float(io_stream, vec[1])
+def write_vector2(vec, io_stream):
+    write_float(vec[0], io_stream)
+    write_float(vec[1], io_stream)
 
 
 def read_channel_value(io_stream, channel_type):
@@ -153,11 +153,11 @@ def read_channel_value(io_stream, channel_type):
     return read_float(io_stream)
 
 
-def write_channel_value(io_stream, channel_type, data):
+def write_channel_value(data, io_stream, channel_type):
     if channel_type == 6:
-        write_quaternion(io_stream, data)
+        write_quaternion(data, io_stream)
     else:
-        write_float(io_stream, data)
+        write_float(data, io_stream)
 
 
 def read_chunk_head(io_stream):
@@ -167,16 +167,16 @@ def read_chunk_head(io_stream):
     return (chunk_type, chunk_size, chunk_end)
 
 
-def write_chunk_head(io_stream, chunk_id, size, has_sub_chunks=False):
-    write_ulong(io_stream, chunk_id)
+def write_chunk_head(chunk_id, io_stream, size, has_sub_chunks=False):
+    write_ulong(chunk_id, io_stream)
     if has_sub_chunks:
         size |= 0x80000000
-    write_ulong(io_stream, size)
+    write_ulong(size, io_stream)
 
 
-def write_list(io_stream, data, write_func):
+def write_list(data, io_stream, write_func):
     for dat in data:
-        write_func(io_stream, dat)
+        write_func(dat, io_stream)
 
 
 def read_list(io_stream, chunk_end, read_func):
@@ -186,7 +186,7 @@ def read_list(io_stream, chunk_end, read_func):
     return result
 
 
-def read_fixed_array(io_stream, count, read_func):
+def read_fixed_list(io_stream, count, read_func):
     result = []
     for _ in range(count):
         result.append(read_func(io_stream))

@@ -67,25 +67,25 @@ class MeshHeader(Struct):
         return const_size(116, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_MESH_HEADER,
+        write_chunk_head(W3D_CHUNK_MESH_HEADER, io_stream,
                          self.size(False))
         self.version.write(io_stream)
-        write_ulong(io_stream, self.attrs)
-        write_fixed_string(io_stream, self.mesh_name)
-        write_fixed_string(io_stream, self.container_name)
-        write_ulong(io_stream, self.face_count)
-        write_ulong(io_stream, self.vert_count)
-        write_ulong(io_stream, self.matl_count)
-        write_ulong(io_stream, self.damage_stage_count)
-        write_ulong(io_stream, self.sort_level)
-        write_ulong(io_stream, self.prelit_version)
-        write_ulong(io_stream, self.future_count)
-        write_ulong(io_stream, self.vert_channel_flags)
-        write_ulong(io_stream, self.face_channel_flags)
-        write_vector(io_stream, self.min_corner)
-        write_vector(io_stream, self.max_corner)
-        write_vector(io_stream, self.sph_center)
-        write_float(io_stream, self.sph_radius)
+        write_ulong(self.attrs, io_stream)
+        write_fixed_string(self.mesh_name, io_stream)
+        write_fixed_string(self.container_name, io_stream)
+        write_ulong(self.face_count, io_stream)
+        write_ulong(self.vert_count, io_stream)
+        write_ulong(self.matl_count, io_stream)
+        write_ulong(self.damage_stage_count, io_stream)
+        write_ulong(self.sort_level, io_stream)
+        write_ulong(self.prelit_version, io_stream)
+        write_ulong(self.future_count, io_stream)
+        write_ulong(self.vert_channel_flags, io_stream)
+        write_ulong(self.face_channel_flags, io_stream)
+        write_vector(self.min_corner, io_stream)
+        write_vector(self.max_corner, io_stream)
+        write_vector(self.sph_center, io_stream)
+        write_float(self.sph_radius, io_stream)
 
 
 W3D_CHUNK_MESH = 0x00000000
@@ -239,66 +239,65 @@ class Mesh(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_MESH,
+        write_chunk_head(W3D_CHUNK_MESH, io_stream,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if len(self.user_text):
             write_chunk_head(
-                io_stream, W3D_CHUNK_MESH_USER_TEXT, text_size(self.user_text, False))
-            write_string(io_stream, self.user_text)
+                W3D_CHUNK_MESH_USER_TEXT, io_stream, text_size(self.user_text, False))
+            write_string(self.user_text, io_stream)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTICES,
+        write_chunk_head(W3D_CHUNK_VERTICES, io_stream,
                          vec_list_size(self.verts, False))
-        write_list(io_stream, self.verts, write_vector)
+        write_list(self.verts, io_stream, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_VERTEX_NORMALS,
+        write_chunk_head(W3D_CHUNK_VERTEX_NORMALS, io_stream,
                          vec_list_size(self.normals, False))
-        write_list(io_stream, self.normals, write_vector)
+        write_list(self.normals, io_stream, write_vector)
 
-        write_chunk_head(io_stream, W3D_CHUNK_TRIANGLES,
+        write_chunk_head(W3D_CHUNK_TRIANGLES, io_stream,
                          list_size(self.triangles, False))
-        write_object_list(io_stream, self.triangles, Triangle.write)
+        write_list(self.triangles, io_stream, Triangle.write)
 
         if self.vert_infs:
-            write_chunk_head(io_stream, W3D_CHUNK_VERTEX_INFLUENCES,
+            write_chunk_head(W3D_CHUNK_VERTEX_INFLUENCES, io_stream,
                              list_size(self.vert_infs, False))
-            write_object_list(io_stream, self.vert_infs, VertexInfluence.write)
+            write_list(self.vert_infs, io_stream, VertexInfluence.write)
 
         if self.shade_ids:
             write_chunk_head(
-                io_stream,
-                W3D_CHUNK_VERTEX_SHADE_INDICES,
+                W3D_CHUNK_VERTEX_SHADE_INDICES, io_stream,
                 long_list_size(self.shade_ids, False))
-            write_list(io_stream, self.shade_ids, write_long)
+            write_list(self.shade_ids, io_stream, write_long)
 
         if self.mat_info is not None:
             self.mat_info.write(io_stream)
 
         if self.vert_materials:
-            write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIALS,
+            write_chunk_head(W3D_CHUNK_VERTEX_MATERIALS, io_stream,
                              list_size(self.vert_materials, False), has_sub_chunks=True)
-            write_object_list(io_stream, self.vert_materials,
+            write_list(self.vert_materials, io_stream,
                               VertexMaterial.write)
 
         if self.shaders:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADERS,
+            write_chunk_head(W3D_CHUNK_SHADERS, io_stream,
                              list_size(self.shaders, False))
-            write_object_list(io_stream, self.shaders, Shader.write)
+            write_list(self.shaders, io_stream, Shader.write)
 
         if self.textures:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURES,
+            write_chunk_head(W3D_CHUNK_TEXTURES, io_stream,
                              list_size(self.textures, False), has_sub_chunks=True)
-            write_object_list(io_stream, self.textures, Texture.write)
+            write_list(self.textures, io_stream, Texture.write)
 
         if self.shader_materials:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIALS,
+            write_chunk_head(W3D_CHUNK_SHADER_MATERIALS, io_stream,
                              list_size(self.shader_materials, False), has_sub_chunks=True)
-            write_object_list(io_stream, self.shader_materials,
+            write_list(self.shader_materials, io_stream,
                               ShaderMaterial.write)
 
         if self.material_passes:
-            write_object_list(io_stream, self.material_passes,
+            write_list(self.material_passes, io_stream,
                               MaterialPass.write)
 
         if self.aabbtree is not None:

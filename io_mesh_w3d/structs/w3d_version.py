@@ -16,7 +16,7 @@ class Version(Struct):
                        minor=data & 0xFFFF)
 
     def write(self, io_stream):
-        write_ulong(io_stream, (self.major << 16) | self.minor)
+        write_ulong((self.major << 16) | self.minor, io_stream)
 
     def __eq__(self, other):
         if isinstance(other, Version):

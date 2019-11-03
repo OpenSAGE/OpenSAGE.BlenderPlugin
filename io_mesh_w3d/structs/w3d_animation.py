@@ -32,13 +32,13 @@ class AnimationHeader(Struct):
         return const_size(44, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_HEADER,
+        write_chunk_head(W3D_CHUNK_ANIMATION_HEADER, io_stream,
                          self.size(False))
         self.version.write(io_stream)
-        write_fixed_string(io_stream, self.name)
-        write_fixed_string(io_stream, self.hierarchy_name)
-        write_ulong(io_stream, self.num_frames)
-        write_ulong(io_stream, self.frame_rate)
+        write_fixed_string(self.name, io_stream)
+        write_fixed_string(self.hierarchy_name, io_stream)
+        write_ulong(self.num_frames, io_stream)
+        write_ulong(self.frame_rate, io_stream)
 
 
 W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
@@ -76,20 +76,20 @@ class AnimationChannel(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION_CHANNEL,
+        write_chunk_head(W3D_CHUNK_ANIMATION_CHANNEL, io_stream,
                          self.size(False))
 
-        write_ushort(io_stream, self.first_frame)
-        write_ushort(io_stream, self.last_frame)
-        write_ushort(io_stream, self.vector_len)
-        write_ushort(io_stream, self.type)
-        write_ushort(io_stream, self.pivot)
-        write_ushort(io_stream, self.unknown)
+        write_ushort(self.first_frame, io_stream)
+        write_ushort(self.last_frame, io_stream)
+        write_ushort(self.vector_len, io_stream)
+        write_ushort(self.type, io_stream)
+        write_ushort(self.pivot, io_stream)
+        write_ushort(self.unknown, io_stream)
 
         if self.vector_len == 1:
-            write_list(io_stream, self.data, write_float)
+            write_list(self.data, io_stream, write_float)
         else:
-            write_list(io_stream, self.data, write_quaternion)
+            write_list(self.data, io_stream, write_quaternion)
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -121,8 +121,8 @@ class Animation(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_ANIMATION,
+        write_chunk_head(W3D_CHUNK_ANIMATION, io_stream,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        write_object_list(io_stream, self.channels, AnimationChannel.write)
+        write_list(self.channels, io_stream, AnimationChannel.write)

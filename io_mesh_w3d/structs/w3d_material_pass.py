@@ -49,23 +49,23 @@ class TextureStage(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_STAGE,
+        write_chunk_head(W3D_CHUNK_TEXTURE_STAGE, io_stream,
                          self.size(False), has_sub_chunks=True)
 
         if self.tx_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_TEXTURE_IDS,
+            write_chunk_head(W3D_CHUNK_TEXTURE_IDS, io_stream,
                              long_list_size(self.tx_ids, False))
-            write_list(io_stream, self.tx_ids, write_long)
+            write_list(self.tx_ids, io_stream, write_long)
 
         if self.tx_coords:
-            write_chunk_head(io_stream, W3D_CHUNK_STAGE_TEXCOORDS,
+            write_chunk_head(W3D_CHUNK_STAGE_TEXCOORDS, io_stream,
                              vec2_list_size(self.tx_coords, False))
-            write_list(io_stream, self.tx_coords, write_vector2)
+            write_list(self.tx_coords, io_stream, write_vector2)
 
         if self.per_face_tx_coords:
-            write_chunk_head(io_stream, W3D_CHUNK_PER_FACE_TEXCOORD_IDS,
+            write_chunk_head(W3D_CHUNK_PER_FACE_TEXCOORD_IDS, io_stream,
                              vec_list_size(self.per_face_tx_coords, False))
-            write_list(io_stream, self.per_face_tx_coords, write_vector)
+            write_list(self.per_face_tx_coords, io_stream, write_vector)
 
 
 W3D_CHUNK_MATERIAL_PASS = 0x00000038
@@ -140,42 +140,42 @@ class MaterialPass(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(io_stream, W3D_CHUNK_MATERIAL_PASS,
+        write_chunk_head(W3D_CHUNK_MATERIAL_PASS, io_stream,
                          self.size(False), has_sub_chunks=True)
 
         if self.vertex_material_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_VERTEX_MATERIAL_IDS,
+            write_chunk_head(W3D_CHUNK_VERTEX_MATERIAL_IDS, io_stream,
                              long_list_size(self.vertex_material_ids, False))
-            write_list(io_stream, self.vertex_material_ids, write_ulong)
+            write_list(self.vertex_material_ids, io_stream, write_ulong)
 
         if self.shader_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADER_IDS,
+            write_chunk_head(W3D_CHUNK_SHADER_IDS, io_stream,
                              long_list_size(self.shader_ids, False))
-            write_list(io_stream, self.shader_ids, write_ulong)
+            write_list(self.shader_ids, io_stream, write_ulong)
 
         if self.dcg:
-            write_chunk_head(io_stream, W3D_CHUNK_DCG,
+            write_chunk_head(W3D_CHUNK_DCG, io_stream,
                              list_size(self.dcg, False))
-            write_object_list(io_stream, self.dcg, RGBA.write)
+            write_list(self.dcg, io_stream, RGBA.write)
 
         if self.dig:
-            write_chunk_head(io_stream, W3D_CHUNK_DIG,
+            write_chunk_head(W3D_CHUNK_DIG, io_stream,
                              list_size(self.dig, False))
-            write_object_list(io_stream, self.dig, RGBA.write)
+            write_list(self.dig, io_stream, RGBA.write)
 
         if self.scg:
-            write_chunk_head(io_stream, W3D_CHUNK_SCG,
+            write_chunk_head(W3D_CHUNK_SCG, io_stream,
                              list_size(self.scg, False))
-            write_object_list(io_stream, self.scg, RGBA.write)
+            write_list(self.scg, io_stream, RGBA.write)
 
         if self.shader_material_ids:
-            write_chunk_head(io_stream, W3D_CHUNK_SHADER_MATERIAL_ID,
+            write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_ID, io_stream,
                              long_list_size(self.shader_material_ids, False))
-            write_list(io_stream, self.shader_material_ids, write_ulong)
+            write_list(self.shader_material_ids, io_stream, write_ulong)
 
-        write_object_list(io_stream, self.tx_stages, TextureStage.write)
+        write_list(self.tx_stages, io_stream, TextureStage.write)
 
         if self.tx_coords:
-            write_chunk_head(io_stream, W3D_CHUNK_STAGE_TEXCOORDS,
+            write_chunk_head(W3D_CHUNK_STAGE_TEXCOORDS, io_stream,
                              vec2_list_size(self.tx_coords, False))
-            write_list(io_stream, self.tx_coords, write_vector2)
+            write_list(self.tx_coords, io_stream, write_vector2)

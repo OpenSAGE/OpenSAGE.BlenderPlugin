@@ -25,7 +25,7 @@ class TestIOBinary(unittest.TestCase):
 
         for expected in expecteds:
             io_stream = io.BytesIO()
-            write_string(io_stream, expected)
+            write_string(expected, io_stream)
 
             self.assertEqual(expected + '\x00',
                              io_stream.getvalue().decode("utf-8"))
@@ -55,7 +55,7 @@ class TestIOBinary(unittest.TestCase):
 
         for i, expected in enumerate(expecteds):
             io_stream = io.BytesIO()
-            write_fixed_string(io_stream, inputs[i])
+            write_fixed_string(inputs[i], io_stream)
 
             while len(expected) < STRING_LENGTH:
                 expected += '\x00'
@@ -87,7 +87,7 @@ class TestIOBinary(unittest.TestCase):
 
         for i, expected in enumerate(expecteds):
             io_stream = io.BytesIO()
-            write_long_fixed_string(io_stream, inputs[i])
+            write_long_fixed_string(inputs[i], io_stream)
 
             while len(expected) < LARGE_STRING_LENGTH:
                 expected += '\x00'
@@ -106,7 +106,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_long(io_stream, inp)
+            write_long(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<l", io_stream.getvalue())[0])
 
     def test_read_ulong(self):
@@ -121,7 +121,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_ulong(io_stream, inp)
+            write_ulong(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<L", io_stream.getvalue())[0])
 
     def test_read_short(self):
@@ -136,7 +136,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_short(io_stream, inp)
+            write_short(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<h", io_stream.getvalue())[0])
 
     def test_read_ushort(self):
@@ -151,7 +151,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_ushort(io_stream, inp)
+            write_ushort(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<H", io_stream.getvalue())[0])
 
     def test_read_float(self):
@@ -168,7 +168,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_float(io_stream, inp)
+            write_float(inp, io_stream)
             self.assertAlmostEqual(inp, struct.unpack(
                 "<f", io_stream.getvalue())[0], 5)
 
@@ -186,7 +186,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_byte(io_stream, inp)
+            write_byte(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<b", io_stream.getvalue())[0])
 
     def test_read_ubyte(self):
@@ -203,7 +203,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_ubyte(io_stream, inp)
+            write_ubyte(inp, io_stream)
             self.assertEqual(inp, struct.unpack("<B", io_stream.getvalue())[0])
 
     def test_read_vector(self):
@@ -222,7 +222,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_vector(io_stream, inp)
+            write_vector(inp, io_stream)
 
             data = io_stream.getvalue()
             x = struct.unpack("<f", data[0:4])[0]
@@ -248,7 +248,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_quaternion(io_stream, inp)
+            write_quaternion(inp, io_stream)
 
             data = io_stream.getvalue()
             x = struct.unpack("<f", data[0:4])[0]
@@ -273,7 +273,7 @@ class TestIOBinary(unittest.TestCase):
 
         for inp in inputs:
             io_stream = io.BytesIO()
-            write_vector2(io_stream, inp)
+            write_vector2(inp, io_stream)
 
             data = io_stream.getvalue()
             x = struct.unpack("<f", data[0:4])[0]
@@ -304,11 +304,11 @@ class TestIOBinary(unittest.TestCase):
                   (6, Quaternion((1.0, 2.0, 3.0, 4.0)))]
 
         for inp in inputs:
-            type_ = inp[0]
+            type = inp[0]
             io_stream = io.BytesIO()
-            write_channel_value(io_stream, type_, inp[1])
+            write_channel_value(inp[1], io_stream, type)
             data = io_stream.getvalue()
-            if type_ == 6:
+            if type == 6:
                 self.assertEqual(inp[1].x, struct.unpack("<f", data[0:4])[0])
                 self.assertEqual(inp[1].y, struct.unpack("<f", data[4:8])[0])
                 self.assertEqual(inp[1].z, struct.unpack("<f", data[8:12])[0])
@@ -337,7 +337,7 @@ class TestIOBinary(unittest.TestCase):
 
         for i, inp in enumerate(inputs):
             io_stream = io.BytesIO()
-            write_chunk_head(io_stream, inp[0], inp[1], inp[2])
+            write_chunk_head(inp[0], io_stream, inp[1], inp[2])
             io_stream.seek(0)
             chunk_type = struct.unpack("<L", io_stream.read(4))[0]
             chunk_size = struct.unpack("<L", io_stream.read(4))[0]
