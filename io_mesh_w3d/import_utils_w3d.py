@@ -158,8 +158,13 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
         mod.use_vertex_groups = True
 
     else:
-        pivot = [pivot for pivot in hierarchy.pivots if pivot.name ==
-                 mesh_struct.header.mesh_name][0]
+        pivot_list = [
+            pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name]
+        if len(pivot_list) == 0:
+            return
+
+        pivot = pivot_list[0]
+
         if pivot is None:
             return
 
@@ -267,7 +272,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 
 
 def rgba_to_vector(rgba, scale=255.0):
-    return (rgba.r / scale, rgba.g / scale, rgba.b / scale, 0.0)
+    return (rgba.r / scale, rgba.g / scale, rgba.b / scale, rgba.a / scale)
 
 
 def create_material_from_vertex_material(self, mesh, vert_mat):

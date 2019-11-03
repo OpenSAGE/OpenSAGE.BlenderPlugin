@@ -491,7 +491,7 @@ def retrieve_uncompressed_animation(animation_name, hierarchy):
         print("Error: too many actions in scene")
 
     channel = None
-    
+
     action = bpy.data.actions[0]
     for fcu in action.fcurves:
         pivot_name = fcu.data_path.split('"')[1]
@@ -523,6 +523,7 @@ def retrieve_uncompressed_animation(animation_name, hierarchy):
         for i, sample in enumerate(fcu.sampled_points):
             frame = int(keyframe.co.x)
             val = keyframe.co.y
+
 
 def retrieve_timecoded_animation(animation_name, hierarchy):
     # only time coded compression for now

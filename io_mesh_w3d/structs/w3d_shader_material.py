@@ -27,7 +27,8 @@ class ShaderMaterialHeader(Struct):
         return const_size(37, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER, io_stream, self.size(False))
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER,
+                         io_stream, self.size(False))
         write_ubyte(self.number, io_stream)
         write_long_fixed_string(self.type_name, io_stream)
         write_long(self.reserved, io_stream)
@@ -146,4 +147,4 @@ class ShaderMaterial(Struct):
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
         write_list(self.properties, io_stream,
-                          ShaderMaterialProperty.write)
+                   ShaderMaterialProperty.write)

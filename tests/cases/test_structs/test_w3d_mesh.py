@@ -118,10 +118,10 @@ class TestMesh(utils.W3dTestCase):
         write_ubyte(0x00, output)
         write_chunk_head(W3D_CHUNK_BITANGENTS, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
-        write_chunk_head(W3D_CHUNK_PRELIT_UNLIT, output, 
+        write_chunk_head(W3D_CHUNK_PRELIT_UNLIT, output,
                          1, has_sub_chunks=False)
         write_ubyte(0x00, output)
-        write_chunk_head(W3D_CHUNK_PRELIT_VERTEX, output, 
+        write_chunk_head(W3D_CHUNK_PRELIT_VERTEX, output,
                          1, has_sub_chunks=False)
         write_ubyte(0x00, output)
         write_chunk_head(
@@ -138,7 +138,7 @@ class TestMesh(utils.W3dTestCase):
         write_ubyte(0x00, output)
         write_chunk_head(W3D_CHUNK_DEFORM, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
-        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output, 
+        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output,
                          1, has_sub_chunks=False)
         write_ubyte(0x00, output)
         write_chunk_head(0, output, 1, has_sub_chunks=False)

@@ -278,7 +278,7 @@ class Mesh(Struct):
             write_chunk_head(W3D_CHUNK_VERTEX_MATERIALS, io_stream,
                              list_size(self.vert_materials, False), has_sub_chunks=True)
             write_list(self.vert_materials, io_stream,
-                              VertexMaterial.write)
+                       VertexMaterial.write)
 
         if self.shaders:
             write_chunk_head(W3D_CHUNK_SHADERS, io_stream,
@@ -294,11 +294,11 @@ class Mesh(Struct):
             write_chunk_head(W3D_CHUNK_SHADER_MATERIALS, io_stream,
                              list_size(self.shader_materials, False), has_sub_chunks=True)
             write_list(self.shader_materials, io_stream,
-                              ShaderMaterial.write)
+                       ShaderMaterial.write)
 
         if self.material_passes:
             write_list(self.material_passes, io_stream,
-                              MaterialPass.write)
+                       MaterialPass.write)
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)

@@ -49,4 +49,3 @@ def data_list_size(list, include_head=True, data_size=1):
     if include_head:
         size += HEAD
     return size
-
