@@ -111,7 +111,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     b_mesh.from_mesh(mesh)
 
     for mat_pass in mesh_struct.material_passes:
-        create_uvlayers(mesh, b_mesh, triangles, mat_pass)
+        create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
     for shaderMat in mesh_struct.shader_materials:
         mesh.materials.append(create_material_from_shader_material(
@@ -404,26 +404,26 @@ def set_shader_properties(material, shader):
 ##########################################################################
 
 
-def create_uv_layer(mesh, b_mesh, tris, tx_coords, index=""):
+def create_uvlayer(mesh, b_mesh, tris, mat_pass):
+    tx_coords = None
+    if mat_pass.tx_coords:
+        tx_coords = mat_pass.tx_coords
+    else:
+        if len(mat_pass.tx_stages) > 0:
+            tx_coords = mat_pass.tx_stages[0].tx_coords
+        if len(mat_pass.tx_stages) > 1:
+            print("Warning!: only one texture stage per material pass supported on export")
+
     if not tx_coords:
         return
 
-    uv_layer = mesh.uv_layers.new(name="texcoords" + index, do_init=False)
+    uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):
         tri = tris[i]
         for loop in face.loops:
             idx = tri[loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx]
 
-
-def create_uvlayers(mesh, b_mesh, tris, mat_pass):
-    create_uv_layer(mesh, b_mesh, tris, mat_pass.tx_coords)
-
-    if len(mat_pass.tx_stages) > 1:
-        print("Warning!: only one texture stage per material pass supported on export")
-
-    for i, stage in enumerate(mat_pass.tx_stages):
-        create_uv_layer(mesh, b_mesh, tris, stage.tx_coords, str(i))
 
 
 ##########################################################################
