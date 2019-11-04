@@ -42,7 +42,7 @@ def retrieve_boxes(hlod):
                  box_mesh.vertices[0].co.z))
 
             for material in box_mesh.materials:
-                box.color = vector_to_rgba(material.diffuse_color)
+                box.color = RGBA(material.diffuse_color)
             boxes.append(box)
 
             subObject = HLodSubObject(
@@ -252,20 +252,6 @@ class PrincipledBSDF(Struct):
     bump_scale = None
 
 
-def vector_to_rgba(vec, scale=255):
-    return RGBA(
-        r=int(
-            vec[0] *
-            scale),
-        g=int(
-            vec[1] *
-            scale),
-        b=int(
-            vec[2] *
-            scale),
-        a=0)
-
-
 def retrieve_principled_bsdf(material):
     result = PrincipledBSDF()
 
@@ -294,10 +280,10 @@ def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
         attributes=0,
         shininess=material.specular_intensity,
-        specular=vector_to_rgba(material.specular_color),
-        diffuse=vector_to_rgba(material.diffuse_color),
-        emissive=vector_to_rgba(material.emission),
-        ambient=vector_to_rgba(material.ambient),
+        specular=RGBA(vec = material.specular_color, a = 0),
+        diffuse=RGBA(vec = material.diffuse_color, a = 0),
+        emissive=RGBA(vec = material.emission),
+        ambient=RGBA(vec = material.ambient),
         translucency=material.translucency,
         opacity=material.opacity)
 
@@ -356,11 +342,11 @@ def retrieve_shader_material(material, principled):
         "Sampler_ClampU_ClampV_NoMip_0",
         material.sampler_clamp_uv_no_mip)
     append_property(shader_material.properties, 5,
-                    "AmbientColor", vector_to_rgba(material.ambient))
+                    "AmbientColor", RGBA(material.ambient))
     append_property(shader_material.properties, 5, "DiffuseColor",
-                    vector_to_rgba(material.diffuse_color))
+                    RGBA(material.diffuse_color))
     append_property(shader_material.properties, 5, "SpecularColor",
-                    vector_to_rgba(material.specular_color))
+                    RGBA(material.specular_color, a=0.0))
     append_property(
         shader_material.properties,
         6,
@@ -410,11 +396,9 @@ def retrieve_hierarchy(container_name):
     rig = None
     rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
 
-    if len(rigs) > 1:
-        print("Error: only one armature per scene allowed")
-        return
-
-    if len(rigs) == 1:
+    if len(rigs) == 0:
+        hierarchy.header.name = container_name
+    elif len(rigs) == 1:
         rig = rigs[0]
         root = HierarchyPivot(
             name="ROOTTRANSFORM",
@@ -445,26 +429,31 @@ def retrieve_hierarchy(container_name):
             hierarchy.pivots.append(pivot)
             hierarchy.pivot_fixups.append(Vector())
     else:
-        hierarchy.header.name = container_name
+        print("Error: only one armature per scene allowed")
+        return
 
     mesh_objects = get_mesh_objects()
 
     for mesh_object in mesh_objects:
-        # TODO: use a constant here
-        if not mesh_object.vertex_groups and mesh_object.name != "BOUNDINGBOX":
-            pivot = HierarchyPivot(
-                name=mesh_object.name,
-                parent_id=0,
-                translation=mesh_object.location,
-                rotation=mesh_object.rotation_quaternion)
+        identity = Quaternion((1.0, 0.0, 0.0, 0.0))
 
-            if mesh_object.parent_bone is not None:
-                for index, piv in enumerate(hierarchy.pivots):
-                    if piv.name == mesh_object.parent_bone:
-                        pivot.parent_id = index
+        if mesh_object.location.length < 0.01 and mesh_object.rotation_quaternion == identity \
+                 or mesh_object.vertex_groups or mesh_object.name == "BOUNDINGBOX":
+            continue
 
-            hierarchy.pivots.append(pivot)
-            hierarchy.pivot_fixups.append(Vector())
+        pivot = HierarchyPivot(
+            name=mesh_object.name,
+            parent_id=0,
+            translation=mesh_object.location,
+            rotation=mesh_object.rotation_quaternion)
+
+        if mesh_object.parent_bone is not None:
+            for index, piv in enumerate(hierarchy.pivots):
+                if piv.name == mesh_object.parent_bone:
+                    pivot.parent_id = index
+
+        hierarchy.pivots.append(pivot)
+        hierarchy.pivot_fixups.append(Vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
 

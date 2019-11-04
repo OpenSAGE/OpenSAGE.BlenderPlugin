@@ -74,7 +74,8 @@ class TestUtils(utils.W3dTestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="shield"),
+            get_mesh(name="pike")]
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, expected, coll)
@@ -83,7 +84,7 @@ class TestUtils(utils.W3dTestCase):
             create_mesh(context, mesh, expected, rig)
 
         for mesh in meshes:
-            rig_mesh(mesh, expected, rig, coll)
+            rig_mesh(mesh, expected, hlod, rig, coll)
 
         get_or_create_skeleton(hlod, expected, get_collection(None))
         (actual, rig) = retrieve_hierarchy("containerName")
@@ -97,7 +98,8 @@ class TestUtils(utils.W3dTestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="shield"),
+            get_mesh(name="pike")]
 
         coll = get_collection(expected)
         rig = get_or_create_skeleton(expected, hierarchy, coll)
@@ -107,7 +109,7 @@ class TestUtils(utils.W3dTestCase):
             create_mesh(context, mesh, hierarchy, rig)
 
         for mesh in meshes:
-            rig_mesh(mesh, hierarchy, rig, coll)
+            rig_mesh(mesh, hierarchy, expected, rig, coll)
 
         actual = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual)
@@ -122,7 +124,8 @@ class TestUtils(utils.W3dTestCase):
         expecteds = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield", shader_mats=True)]
+            get_mesh(name="shield", shader_mats=True),
+            get_mesh(name="pike")]
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
@@ -135,7 +138,7 @@ class TestUtils(utils.W3dTestCase):
             create_mesh(context, mesh, hierarchy, rig)
 
         for mesh in expecteds:
-            rig_mesh(mesh, hierarchy, rig, coll)
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
         hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(hlod)

@@ -139,7 +139,7 @@ def load(self, context, import_settings):
         create_mesh(self, mesh_struct, hierarchy, rig)
 
     for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
-        rig_mesh(mesh_struct, hierarchy, rig, coll)
+        rig_mesh(mesh_struct, hierarchy, hlod, rig, coll)
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressedAnimation, hierarchy, compressed=True)

@@ -129,7 +129,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
         set_shader_properties(mesh.materials[i], shader)
 
 
-def rig_mesh(mesh_struct, hierarchy, rig, coll):
+def rig_mesh(mesh_struct, hierarchy, hlod, rig, coll):
     mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
     link_object_to_active_scene(mesh_ob, coll)
 
@@ -158,12 +158,17 @@ def rig_mesh(mesh_struct, hierarchy, rig, coll):
         mod.use_vertex_groups = True
 
     else:
-        pivot_list = [
-            pivot for pivot in hierarchy.pivots if pivot.name == mesh_struct.header.mesh_name]
-        if len(pivot_list) == 0:
-            return
-
-        pivot = pivot_list[0]
+        pivot = None
+        mesh_name = mesh_struct.header.mesh_name
+        pivot_list = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
+        if not pivot_list:
+             sub_objects_list = [sub_object for obj in hlod.lod_array.sub_objects if obj.name == mesh_name]
+             if not sub_objects_list:
+                 return
+             sub_object = sub_objects[0]
+             pivot = hierarchy.pivots[sub_object.bone]
+        else:
+             pivot = pivot_list[0]
 
         if pivot is None:
             return
@@ -271,10 +276,6 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 ##########################################################################
 
 
-def rgba_to_vector(rgba, scale=255.0):
-    return (rgba.r / scale, rgba.g / scale, rgba.b / scale, rgba.a / scale)
-
-
 def create_material_from_vertex_material(self, mesh, vert_mat):
     mat = bpy.data.materials.new(
         mesh.header.mesh_name + "." + vert_mat.vm_name)
@@ -294,11 +295,11 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
 
     mat.attributes = atts
     mat.specular_intensity = vert_mat.vm_info.shininess
-    mat.specular_color = rgba_to_vector(vert_mat.vm_info.specular)[0:3]
-    mat.diffuse_color = rgba_to_vector(vert_mat.vm_info.diffuse)
+    mat.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
+    mat.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
 
-    mat.emission = rgba_to_vector(vert_mat.vm_info.emissive)
-    mat.ambient = rgba_to_vector(vert_mat.vm_info.ambient)
+    mat.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
+    mat.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
     mat.translucency = vert_mat.vm_info.translucency
     mat.opacity = vert_mat.vm_info.opacity
 
@@ -306,9 +307,8 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     mat.vm_args_1 = vert_mat.vm_args_1
 
     create_principled_bsdf(
-        self, material=mat, base_color=rgba_to_vector(
-            vert_mat.vm_info.diffuse)[
-            0:3], alpha=vert_mat.vm_info.opacity)
+        self, material=mat, base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
+			alpha=vert_mat.vm_info.opacity)
     return mat
 
 
@@ -329,11 +329,11 @@ def create_material_from_shader_material(self, mesh, shader_mat):
         elif prop.name == "SpecularExponent":
             material.specular_intensity = prop.value
         elif prop.name == "AmbientColor":
-            material.ambient = rgba_to_vector(prop.value)
+            material.ambient = prop.value.to_vector_rgba()
         elif prop.name == "DiffuseColor":
-            material.diffuse_color = rgba_to_vector(prop.value)
+            material.diffuse_color = prop.value.to_vector_rgba()
         elif prop.name == "SpecularColor":
-            material.specular_color = rgba_to_vector(prop.value)[0:3]
+            material.specular_color = prop.value.to_vector_rgb()
         elif prop.name == "AlphaTestEnable":
             material.alpha_test = bool(prop.value)
         elif prop.name == "BlendMode":
@@ -615,7 +615,7 @@ def create_box(box, coll):
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new("BOUNDINGBOX.Material")
 
-    mat.diffuse_color = rgba_to_vector(box.color)
+    mat.diffuse_color = box.color.to_vector_rgba()
     cube.materials.append(mat)
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)

@@ -11,6 +11,25 @@ class RGBA(Struct):
     b = 0
     a = 0
 
+    def __init__(self, vec=None, a=None, scale=255, r=0, g=0, b=0):
+        if vec is None:
+            self.r = r
+            self.g = g
+            self.b = b
+            if a is not None:
+                self.a = int(a)
+            else:
+                self.a = 0
+            return
+
+        self.r = int(vec[0] * scale)
+        self.g = int(vec[1] * scale)
+        self.b = int(vec[2] * scale)
+        if a is not None:
+            self.a = int(a)
+        else:
+            self.a = int(vec[3] * scale)
+
     @staticmethod
     def read(io_stream):
         return RGBA(r=read_ubyte(io_stream),
@@ -39,6 +58,14 @@ class RGBA(Struct):
         write_float(self.g / 255, io_stream)
         write_float(self.b / 255, io_stream)
         write_float(self.a / 255, io_stream)
+
+    def to_vector_rgba(self, alpha = None, scale=255.0):
+        if alpha is None:
+            alpha = self.a / scale
+        return (self.r / scale, self.g / scale, self.b / scale, self.a / scale)
+
+    def to_vector_rgb(self, scale=255.0):
+        return (self.r / scale, self.g / scale, self.b / scale)
 
     def __eq__(self, other):
         if isinstance(other, RGBA):

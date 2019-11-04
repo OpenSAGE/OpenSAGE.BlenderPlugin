@@ -15,7 +15,7 @@ class TestHLod(unittest.TestCase):
         expected = get_hlod()
 
         self.assertEqual(48, expected.header.size())
-        self.assertEqual(248, expected.size())
+        self.assertEqual(292, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

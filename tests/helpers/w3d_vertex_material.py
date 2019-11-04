@@ -12,10 +12,10 @@ from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 def get_vertex_material_info():
     return VertexMaterialInfo(
         attributes=13,
-        ambient=get_rgba(),  # alpha is only padding in this and below
-        diffuse=get_rgba(),
-        specular=get_rgba(),
-        emissive=get_rgba(),
+        ambient=get_rgba(a=0),  # alpha is only padding in this and below
+        diffuse=get_rgba(a=0),
+        specular=get_rgba(a=0),
+        emissive=get_rgba(a=0),
         shininess=0.5,
         opacity=0.32,
         translucency=0.12)
