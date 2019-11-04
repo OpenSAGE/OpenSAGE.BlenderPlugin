@@ -58,6 +58,7 @@ class TestRoundtrip(utils.W3dTestCase):
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "M"
+        export_settings['w3d_compression'] = "U"
         save(self.outpath() + "output_skn.w3d", bpy.context, export_settings)
 
         export_settings['w3d_mode'] = "H"

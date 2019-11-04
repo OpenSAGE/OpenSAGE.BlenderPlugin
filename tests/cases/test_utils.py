@@ -148,6 +148,41 @@ class TestUtils(utils.W3dTestCase):
         for i, expected in enumerate(expecteds):
             compare_meshes(self, expected, actuals[i])
 
+
+    def test_animation_roundtrip(self):
+        print("start Roundtrip")
+        context = utils.ImportWrapper(self.outpath())
+        expected = get_animation()
+        hlod = get_hlod()
+        hierarchy = get_hierarchy()
+
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield", shader_mats=True),
+            get_mesh(name="pike")]
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for mesh in meshes:
+            create_mesh(context, mesh, hierarchy, rig)
+
+        for mesh in meshes:
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+
+        for chan in expected.channels:
+            print(str(chan.pivot) + " " + str(chan.type))
+
+        create_animation(rig, expected, hierarchy)
+
+        print("##############")
+
+        actual = retrieve_uncompressed_animation(expected.header.name, hierarchy, rig)
+        for chan in actual.channels:
+            print(str(chan.pivot) + " " + str(chan.type))
+        compare_animations(self, expected, actual)
+
     # def test_compressed_animation_roundtrip(self):
         # TODO
         #context = utils.ImportWrapper(self.outpath())
@@ -176,6 +211,3 @@ class TestUtils(utils.W3dTestCase):
         #create_animation(rig, expected, hierarchy, compressed=True)
         #actual = retrieve_timecoded_animation("containerName", hierarchy)
         #compare_compressed_animations(self, expected, actual)
-
-    # def test_animation_roundtrip(self):
-        # TODO
