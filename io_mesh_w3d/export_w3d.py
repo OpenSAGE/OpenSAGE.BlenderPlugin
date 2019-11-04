@@ -51,7 +51,12 @@ def save(givenfilepath, _context, export_settings):
 
     elif export_mode == 'A':
         aniFile = open(givenfilepath, "wb")
-        animation = retrieve_timecoded_animation(containerName, hierarchy)
+
+        compressionMode = export_settings['w3d_compression']
+        if compressionMode == "U":
+            animation = retrieve_uncompressed_animation(containerName, hierarchy, rig)
+        elif compressionMode == "TC":
+            animation = retrieve_timecoded_animation(containerName, hierarchy, rig)
         animation.write(aniFile)
         aniFile.close()
 

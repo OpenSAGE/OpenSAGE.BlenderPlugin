@@ -280,10 +280,10 @@ def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
         attributes=0,
         shininess=material.specular_intensity,
-        specular=RGBA(vec = material.specular_color, a = 0),
-        diffuse=RGBA(vec = material.diffuse_color, a = 0),
-        emissive=RGBA(vec = material.emission),
-        ambient=RGBA(vec = material.ambient),
+        specular=RGBA(vec=material.specular_color, a=0),
+        diffuse=RGBA(vec=material.diffuse_color, a=0),
+        emissive=RGBA(vec=material.emission),
+        ambient=RGBA(vec=material.ambient),
         translucency=material.translucency,
         opacity=material.opacity)
 
@@ -438,7 +438,7 @@ def retrieve_hierarchy(container_name):
         identity = Quaternion((1.0, 0.0, 0.0, 0.0))
 
         if mesh_object.location.length < 0.01 and mesh_object.rotation_quaternion == identity \
-                 or mesh_object.vertex_groups or mesh_object.name == "BOUNDINGBOX":
+                or mesh_object.vertex_groups or mesh_object.name == "BOUNDINGBOX":
             continue
 
         pivot = HierarchyPivot(
@@ -465,7 +465,7 @@ def retrieve_hierarchy(container_name):
 ##########################################################################
 
 
-def retrieve_uncompressed_animation(animation_name, hierarchy):
+def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
     ani_struct = Animation()
     ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.header.name
@@ -483,7 +483,9 @@ def retrieve_uncompressed_animation(animation_name, hierarchy):
 
     action = bpy.data.actions[0]
     for fcu in action.fcurves:
-        pivot_name = fcu.data_path.split('"')[1]
+        pose_bone_path = fcu.data_path.rpartition('.')[0]
+        pose_bone = rig.path_resolve(pose_bone_path)
+        pivot_name = pose_bone.name
         pivot_index = 0
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
@@ -501,20 +503,26 @@ def retrieve_uncompressed_animation(animation_name, hierarchy):
         if not (channel_type == 6 and index > 0):
             range = fcu.range()
             channel = AnimationChannel(
-                first_frame=range[0],
-                last_frame=range[1],
+                first_frame=int(range[0]),
+                last_frame=int(range[1]),
                 vector_len=vec_len,
                 type=channel_type,
                 pivot=pivot_index)
 
-            channel.data = [None] * len(sampled_points)
+            channel.data = [None] * len(fcu.sampled_points)
 
         for i, sample in enumerate(fcu.sampled_points):
             frame = int(keyframe.co.x)
             val = keyframe.co.y
+            channel.data[i] = val
+
+        if channel_type < 6 or index == 3:
+            ani_struct.channels.append(channel)
+
+    return ani_struct
 
 
-def retrieve_timecoded_animation(animation_name, hierarchy):
+def retrieve_timecoded_animation(animation_name, hierarchy, rig):
     # only time coded compression for now
     ani_struct = CompressedAnimation(time_coded_channels=[])
     ani_struct.header.name = animation_name
@@ -534,7 +542,9 @@ def retrieve_timecoded_animation(animation_name, hierarchy):
 
     action = bpy.data.actions[0]
     for fcu in action.fcurves:
-        pivot_name = fcu.data_path.split('"')[1]
+        pose_bone_path = fcu.data_path.rpartition('.')[0]
+        pose_bone = rig.path_resolve(pose_bone_path)
+        pivot_name = pose_bone.name
         pivot_index = 0
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
@@ -560,8 +570,8 @@ def retrieve_timecoded_animation(animation_name, hierarchy):
             channel.time_codes = [None] * num_keyframes
             channel.num_time_codes = num_keyframes
             range = fcu.range()
-            channel.first_frame = range[0]
-            channel.last_frame = range[1]
+            channel.first_frame = int(range[0])
+            channel.last_frame = int(range[1])
 
         for i, keyframe in enumerate(fcu.keyframe_points):
             frame = int(keyframe.co.x)
