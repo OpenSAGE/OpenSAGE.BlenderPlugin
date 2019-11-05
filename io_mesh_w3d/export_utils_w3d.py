@@ -487,6 +487,8 @@ def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
         pose_bone = rig.path_resolve(pose_bone_path)
         pivot_name = pose_bone.name
         pivot_index = 0
+        parent = pose_bone.parent
+
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
                 pivot_index = i
@@ -501,20 +503,26 @@ def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
             channel_type = index
 
         if not (channel_type == 6 and index > 0):
-            range = fcu.range()
+            range_ = fcu.range()
             channel = AnimationChannel(
-                first_frame=int(range[0]),
-                last_frame=int(range[1]),
+                first_frame=int(range_[0]),
+                last_frame=int(range_[1]),
                 vector_len=vec_len,
                 type=channel_type,
                 pivot=pivot_index)
 
-            channel.data = [None] * len(fcu.sampled_points)
+            num_frames = channel.last_frame + 1 - channel.first_frame
 
-        for i, sample in enumerate(fcu.sampled_points):
-            frame = int(keyframe.co.x)
-            val = keyframe.co.y
-            channel.data[i] = val
+            channel.data = [None] * num_frames
+
+        for i in range(channel.first_frame, channel.last_frame + 1):
+            val = fcu.evaluate(i)
+            if channel_type < 6:
+                channel.data[i] = val
+            else:
+                if channel.data[i] is None:
+                    channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                channel.data[i][index] = val
 
         if channel_type < 6 or index == 3:
             ani_struct.channels.append(channel)
@@ -569,9 +577,9 @@ def retrieve_timecoded_animation(animation_name, hierarchy, rig):
             num_keyframes = len(fcu.keyframe_points)
             channel.time_codes = [None] * num_keyframes
             channel.num_time_codes = num_keyframes
-            range = fcu.range()
-            channel.first_frame = int(range[0])
-            channel.last_frame = int(range[1])
+            range_ = fcu.range()
+            channel.first_frame = int(range_[0])
+            channel.last_frame = int(range_[1])
 
         for i, keyframe in enumerate(fcu.keyframe_points):
             frame = int(keyframe.co.x)

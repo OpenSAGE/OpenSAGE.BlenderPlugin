@@ -150,7 +150,6 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_animation_roundtrip(self):
-        print("start Roundtrip")
         context = utils.ImportWrapper(self.outpath())
         expected = get_animation()
         hlod = get_hlod()
@@ -171,30 +170,24 @@ class TestUtils(utils.W3dTestCase):
         for mesh in meshes:
             rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
-        for chan in expected.channels:
-            print(str(chan.pivot) + " " + str(chan.type))
-
         create_animation(rig, expected, hierarchy)
 
-        print("##############")
-
         actual = retrieve_uncompressed_animation(expected.header.name, hierarchy, rig)
-        for chan in actual.channels:
-            print(str(chan.pivot) + " " + str(chan.type))
         compare_animations(self, expected, actual)
 
-    # def test_compressed_animation_roundtrip(self):
-        # TODO
-        #context = utils.ImportWrapper(self.outpath())
-        # expected = get_compressed_animation(
+    def test_compressed_animation_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        #expected = get_compressed_animation(
+        #    flavor=0,
         #    bit_channels=False,
         #    motion_tc=False,
         #    motion_ad4=False,
-        #    motion_ad8=False)
+        #    motion_ad8=False, 
+        #    random_interpolation=False)
         #hlod = get_hlod()
         #box = get_box()
         #hierarchy = get_hierarchy()
-        # meshes = [
+        #meshes = [
         #    get_mesh(name="sword"),
         #    get_mesh(name="soldier", skin=True),
         #    get_mesh(name="shield")]
@@ -202,12 +195,12 @@ class TestUtils(utils.W3dTestCase):
         #coll = get_collection(hlod)
         #rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        # for mesh in meshes:
+        #for mesh in meshes:
         #    create_mesh(context, mesh, hierarchy, rig)
 
-        # for mesh in meshes:
-        #    rig_mesh(mesh, hierarchy, rig, coll)
+        #for mesh in meshes:
+        #    rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
         #create_animation(rig, expected, hierarchy, compressed=True)
-        #actual = retrieve_timecoded_animation("containerName", hierarchy)
+        #actual = retrieve_timecoded_animation("containerName", hierarchy, rig)
         #compare_compressed_animations(self, expected, actual)

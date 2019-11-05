@@ -7,6 +7,7 @@ from mathutils import Vector, Quaternion
 from io_mesh_w3d.structs.w3d_hierarchy import Hierarchy, HierarchyHeader, HierarchyPivot
 
 from tests.helpers.w3d_version import get_version, compare_versions
+from tests.utils import almost_equal
 
 
 def get_hierarchy_header(name="TestHierarchy"):
@@ -31,10 +32,6 @@ def get_hierarchy_pivot(name="pivot", parent=1):
         translation=Vector((22.0, 33.0, 1.0)),
         euler_angles=Vector((0.0, 0.0, 0.0)),
         rotation=Quaternion((1.0, -0.1, -0.2, -0.3)))
-
-
-def almost_equal(self, x, y, threshold=0.0001):
-    self.assertTrue(abs(x - y) < threshold)
 
 
 def compare_hierarchy_pivots(self, expected, actual):

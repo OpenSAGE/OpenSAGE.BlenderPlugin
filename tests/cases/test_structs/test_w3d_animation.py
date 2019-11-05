@@ -15,7 +15,7 @@ class TestAnimation(unittest.TestCase):
         expected = get_animation()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(2004, expected.size())
+        self.assertEqual(492, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -50,6 +50,6 @@ class TestAnimation(unittest.TestCase):
 
         self.assertEqual(44, ani.header.size(False))
 
-        self.assertEqual(148, list_size(ani.channels, False))
+        self.assertEqual(40, list_size(ani.channels, False))
 
-        self.assertEqual(200, ani.size())
+        self.assertEqual(92, ani.size())

@@ -7,6 +7,7 @@ from mathutils import Quaternion
 from io_mesh_w3d.structs.w3d_animation import Animation, AnimationHeader, AnimationChannel
 
 from tests.helpers.w3d_version import get_version, compare_versions
+from tests.utils import almost_equal
 
 
 def get_animation_header(hierarchy_name="hierarchy"):
@@ -14,8 +15,8 @@ def get_animation_header(hierarchy_name="hierarchy"):
         version=get_version(),
         name="containerName",
         hierarchy_name=hierarchy_name,
-        num_frames=155,
-        frame_rate=300)
+        num_frames=5,
+        frame_rate=30)
 
 
 def compare_animation_headers(self, expected, actual):
@@ -28,23 +29,29 @@ def compare_animation_headers(self, expected, actual):
 
 def get_animation_channel(type=1, pivot=0):
     channel = AnimationChannel(
-        first_frame=1,
-        last_frame=33,
+        first_frame=0,
+        last_frame=4,
         type=type,
         pivot=pivot,
-        unknown=123,
+        unknown=0,
         data=[])
 
     if type == 6:
         channel.vector_len = 4
+
+        channel.data.append(Quaternion((-.1, -2.1, -1.7, -1.7)))
+        channel.data.append(Quaternion((-0.1, -2.1, 1.6, 1.6)))
+        channel.data.append(Quaternion((0.9, -2.1, 1.6, 1.6)))
+        channel.data.append(Quaternion((0.9, 1.8, 1.6, 1.6)))
+        channel.data.append(Quaternion((0.9, 1.8, -1.6, 1.6)))
     else:
         channel.vector_len = 1
 
-    for i in range(channel.first_frame, channel.last_frame):
-        if type == 6:
-            channel.data.append(Quaternion((1.0, 0.0, 0.9, 0.0)))
-        else:
-            channel.data.append(1.0 * i)
+        channel.data.append(3.0)
+        channel.data.append(3.5)
+        channel.data.append(2.0)
+        channel.data.append(1.0)
+        channel.data.append(-1.0)
     return channel
 
 
@@ -58,7 +65,13 @@ def compare_animation_channels(self, expected, actual):
 
     self.assertEqual(len(expected.data), len(actual.data))
     for i in range(len(expected.data)):
-        self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
+        if expected.type < 6:
+            self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
+        else:
+            almost_equal(self, expected.data[i][0], actual.data[i][0], 0.2)
+            almost_equal(self, expected.data[i][1], actual.data[i][1], 0.2)
+            almost_equal(self, expected.data[i][2], actual.data[i][2], 0.2)
+            almost_equal(self, expected.data[i][3], actual.data[i][3], 0.2)
 
 
 def get_animation(hierarchy_name="TestHierarchy"):
@@ -94,6 +107,10 @@ def compare_animations(self, expected, actual):
     compare_animation_headers(self, expected.header, actual.header)
 
     self.assertEqual(len(expected.channels), len(actual.channels))
-    for i in range(len(expected.channels)):
-        compare_animation_channels(
-            self, expected.channels[i], actual.channels[i])
+    for i, chan in enumerate(expected.channels):
+        match_found = False
+        for act in actual.channels:
+            if chan.type == act.type and chan.pivot == act.pivot:
+                compare_animation_channels(self, chan, act)
+                match_found = True
+        self.assertTrue(match_found)

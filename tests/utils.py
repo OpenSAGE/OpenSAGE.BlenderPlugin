@@ -11,6 +11,8 @@ import bpy
 
 import addon_utils
 
+def almost_equal(self, x, y, threshold=0.0001):
+    self.assertTrue(abs(x - y) < threshold)
 
 class ImportWrapper:
     def __init__(self, filepath):
