@@ -16,7 +16,7 @@ from bpy.props import StringProperty,\
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d)',
     'author': 'OpenSage Developers',
-    'version': (0, 0, 1),
+    'version': (0, 2, 0),
     "blender": (2, 80, 0),
     'location': 'File > Import/Export > Westerwood W3D (.w3d)',
     'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
@@ -36,18 +36,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     filename_ext = '.w3d'
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
-    ui_tab: EnumProperty(
-        items=(('GENERAL', "General", "General settings"),
-               #('MESHES', "Meshes", "Mesh settings"),
-               #('OBJECTS', "Objects", "Object settings"),
-               #('MATERIALS', "Materials", "Material settings"),
-               ('ANIMATION', "Animation", "Animation settings")),
-        name="ui_tab",
-        description="Export setting categories",
-    )
-
     export_mode: EnumProperty(
-        name="Export Mode",
+        name="Mode",
         items=(
             ('M',
              "Model",
@@ -61,6 +51,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
             ('HAM',
              "HierarchicalAnimatedModel",
              "This will export the meshes with the hierarchy and animation into one file")),
+        description="Select the export mode",
         default='M',
     )
 
@@ -71,6 +62,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                # ('AD', "AdaptiveDelta",
                # "This will use adaptive delta compression to reduce size"),
                ),
+        description="The method used for compressing the animation data",
         default='TC',)
 
     will_save_settings: BoolProperty(default=False)
@@ -118,10 +110,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         return export_w3d.save(self.filepath, context, export_settings)
 
     def draw(self, _context):
-        self.layout.prop(self, 'ui_tab', expand=True)
-        if self.ui_tab == 'GENERAL':
-            self.draw_general_settings()
-        elif self.ui_tab == 'ANIMATION':
+        # self.layout.prop(self, 'ui_tab', expand=True)
+        # if self.ui_tab == 'GENERAL':
+        self.draw_general_settings()
+        if self.export_mode == 'A':
             self.draw_animation_settings()
 
     def draw_general_settings(self):
@@ -194,32 +186,32 @@ Material.attributes = EnumProperty(
     options={'ENUM_FLAG'})
 
 Material.emission = FloatVectorProperty(
-    name="emission",
+    name="Emission",
     subtype='COLOR',
     size=4,
     default=(1.0, 1.0, 1.0, 0.0),
     min=0.0, max=1.0,
-    description="emission color")
+    description="Emission color")
 
 Material.ambient = FloatVectorProperty(
-    name="ambient",
+    name="Ambient",
     subtype='COLOR',
     size=4,
     default=(1.0, 1.0, 1.0, 0.0),
     min=0.0, max=1.0,
-    description="ambient color")
+    description="Ambient color")
 
 Material.translucency = FloatProperty(
-    name="translucency",
+    name="Translucency",
     default=0.0,
     min=0.0, max=1.0,
     description="translucency property")
 
 Material.opacity = FloatProperty(
-    name="opacity",
+    name="Opacity",
     default=0.0,
     min=0.0, max=1.0,
-    description="opacity property")
+    description="Opacity property")
 
 Material.vm_args_0 = StringProperty(
     name="vm_args_0",
@@ -232,13 +224,13 @@ Material.vm_args_1 = StringProperty(
     default="")
 
 Material.alpha_test = BoolProperty(
-    name="alpha_test",
-    description="AlphaTestEnable",
+    name="Alpha test",
+    description="Enable the alpha test",
     default=False)
 
 Material.surface_type = EnumProperty(
-    name='surface_type',
-    description='describes the surface type for this material',
+    name='Surface type',
+    description='Describes the surface type for this material',
     items=[
         ('0', 'LightMetal', 'desc: todo'),
         ('1', 'HeavyMetal', 'desc: todo'),
@@ -277,14 +269,14 @@ Material.surface_type = EnumProperty(
 # not yet visible in gui
 
 Material.blend_mode = IntProperty(
-    name="blend_mode",
-    description="BlendMode",
+    name="Blend mode",
+    description="Which blend mode should be used",
     default=0,
     min=0,
     max=5)
 
 Material.bump_uv_scale = FloatVectorProperty(
-    name="bump_uv_scale",
+    name="Bump UV Scale",
     subtype='TRANSLATION',
     size=2,
     default=(0.0, 0.0),
