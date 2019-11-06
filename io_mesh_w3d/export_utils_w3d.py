@@ -15,8 +15,9 @@ from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
 
-def get_mesh_objects():
-    return [object for object in bpy.context.scene.objects if object.type == 'MESH']
+
+def get_objects(type): #MESH, ARMATURE
+    return [object for object in bpy.context.scene.objects if object.type == type]
 
 
 ##########################################################################
@@ -26,10 +27,9 @@ def get_mesh_objects():
 
 def retrieve_boxes(hlod):
     boxes = []
-    mesh_objects = get_mesh_objects()
     container_name = hlod.header.model_name
 
-    for mesh_object in mesh_objects:
+    for mesh_object in get_objects('MESH'):
         if mesh_object.name == "BOUNDINGBOX":
             box = Box(
                 name=container_name + "." + mesh_object.name,
@@ -55,9 +55,12 @@ def retrieve_boxes(hlod):
 
 def retrieve_meshes(hierarchy, rig, hlod, container_name):
     mesh_structs = []
-    mesh_objects = get_mesh_objects()
 
-    for mesh_object in mesh_objects:
+    for mesh_object in get_objects('MESH'):
+        if mesh_object.animation_data is not None:
+            print(mesh_object.animation_data)
+            
+            #print(mesh_object.animation_data.action)
         if mesh_object.name == "BOUNDINGBOX":
             continue
 
@@ -394,7 +397,7 @@ def retrieve_hierarchy(container_name):
         pivot_fixups=[])
 
     rig = None
-    rigs = [object for object in bpy.context.scene.objects if object.type == 'ARMATURE']
+    rigs = get_objects('ARMATURE')
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
@@ -432,9 +435,7 @@ def retrieve_hierarchy(container_name):
         print("Error: only one armature per scene allowed")
         return
 
-    mesh_objects = get_mesh_objects()
-
-    for mesh_object in mesh_objects:
+    for mesh_object in get_objects('MESH'):
         identity = Quaternion((1.0, 0.0, 0.0, 0.0))
 
         if mesh_object.location.length < 0.01 and mesh_object.rotation_quaternion == identity \
@@ -464,30 +465,20 @@ def retrieve_hierarchy(container_name):
 # Animation data
 ##########################################################################
 
+def retrieve_channels(obj, hierarchy, name=None):
+    channels = []
 
-def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
-    ani_struct = Animation()
-    ani_struct.header.name = animation_name
-    ani_struct.header.hierarchy_name = hierarchy.header.name
-
-    start_frame = bpy.context.scene.frame_start
-    end_frame = bpy.context.scene.frame_end
-
-    ani_struct.header.num_frames = end_frame + 1 - start_frame
-    ani_struct.header.frame_rate = bpy.context.scene.render.fps
-
-    if len(bpy.data.actions) > 1:
-        print("Error: too many actions in scene")
+    if obj.animation_data is None or obj.animation_data.action is None:
+        return channels
 
     channel = None
 
-    action = bpy.data.actions[0]
-    for fcu in action.fcurves:
-        pose_bone_path = fcu.data_path.rpartition('.')[0]
-        pose_bone = rig.path_resolve(pose_bone_path)
-        pivot_name = pose_bone.name
+    for fcu in obj.animation_data.action.fcurves:
+        if name is None:
+            pivot_name = fcu.data_path.split('"')[1]
+        else:
+            pivot_name = name
         pivot_index = 0
-        parent = pose_bone.parent
 
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
@@ -512,7 +503,6 @@ def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
                 pivot=pivot_index)
 
             num_frames = channel.last_frame + 1 - channel.first_frame
-
             channel.data = [None] * num_frames
 
         for i in range(channel.first_frame, channel.last_frame + 1):
@@ -525,7 +515,27 @@ def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
                 channel.data[i][index] = val
 
         if channel_type < 6 or index == 3:
-            ani_struct.channels.append(channel)
+            channels.append(channel)
+
+    return channels
+
+
+def retrieve_uncompressed_animation(animation_name, hierarchy, rig):
+    ani_struct = Animation()
+    ani_struct.header.name = animation_name
+    ani_struct.header.hierarchy_name = hierarchy.header.name
+
+    start_frame = bpy.context.scene.frame_start
+    end_frame = bpy.context.scene.frame_end
+
+    ani_struct.header.num_frames = end_frame + 1 - start_frame
+    ani_struct.header.frame_rate = bpy.context.scene.render.fps
+
+    for mesh in get_objects('MESH'):
+        ani_struct.channels.extend(retrieve_channels(mesh, hierarchy, mesh.name))
+
+    for armature in get_objects('ARMATURE'):
+        ani_struct.channels.extend(retrieve_channels(armature, hierarchy))
 
     return ani_struct
 
