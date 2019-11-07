@@ -57,7 +57,7 @@ def save(givenfilepath, _context, export_settings):
         if compressionMode == "TC":
             timecoded = True
 
-        animation = retrieve_timecoded_animation(containerName, hierarchy, timecoded, rig)
+        animation = retrieve_animation(containerName, hierarchy, timecoded, rig)
         animation.write(aniFile)
         aniFile.close()
 

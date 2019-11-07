@@ -86,7 +86,7 @@ class TestUtils(utils.W3dTestCase):
         for mesh in meshes:
             rig_mesh(mesh, expected, hlod, rig, coll)
 
-        get_or_create_skeleton(hlod, expected, get_collection(None))
+        expected.pivot_fixups = [] # not supported
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
 

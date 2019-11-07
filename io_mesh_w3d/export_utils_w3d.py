@@ -408,7 +408,6 @@ def retrieve_hierarchy(container_name):
             parentID=-1,
             translation=rig.location)
         hierarchy.pivots.append(root)
-        hierarchy.pivot_fixups.append(Vector())
 
         hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location
@@ -430,7 +429,6 @@ def retrieve_hierarchy(container_name):
             pivot.rotation = rotation
 
             hierarchy.pivots.append(pivot)
-            hierarchy.pivot_fixups.append(Vector())
     else:
         print("Error: only one armature per scene allowed")
         return
@@ -454,7 +452,6 @@ def retrieve_hierarchy(container_name):
                     pivot.parent_id = index
 
         hierarchy.pivots.append(pivot)
-        hierarchy.pivot_fixups.append(Vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
 

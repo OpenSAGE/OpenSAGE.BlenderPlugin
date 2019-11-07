@@ -63,7 +63,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                # "This will use adaptive delta compression to reduce size"),
                ),
         description="The method used for compressing the animation data",
-        default='TC',)
+        default='U',)
 
     will_save_settings: BoolProperty(default=False)
 
