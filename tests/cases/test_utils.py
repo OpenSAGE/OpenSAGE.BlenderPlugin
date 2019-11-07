@@ -172,35 +172,35 @@ class TestUtils(utils.W3dTestCase):
 
         create_animation(rig, expected, hierarchy)
 
-        actual = retrieve_uncompressed_animation(expected.header.name, hierarchy, rig)
+        actual = retrieve_animation(expected.header.name, hierarchy, rig)
         compare_animations(self, expected, actual)
 
     def test_compressed_animation_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
-        #expected = get_compressed_animation(
-        #    flavor=0,
-        #    bit_channels=False,
-        #    motion_tc=False,
-        #    motion_ad4=False,
-        #    motion_ad8=False, 
-        #    random_interpolation=False)
-        #hlod = get_hlod()
-        #box = get_box()
-        #hierarchy = get_hierarchy()
-        #meshes = [
-        #    get_mesh(name="sword"),
-        #    get_mesh(name="soldier", skin=True),
-        #    get_mesh(name="shield")]
+        expected = get_compressed_animation(
+            flavor=0,
+            bit_channels=False,
+            motion_tc=False,
+            motion_ad4=False,
+            motion_ad8=False, 
+            random_interpolation=False)
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
 
-        #coll = get_collection(hlod)
-        #rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        #for mesh in meshes:
-        #    create_mesh(context, mesh, hierarchy, rig)
+        for mesh in meshes:
+            create_mesh(context, mesh, hierarchy, rig)
 
-        #for mesh in meshes:
-        #    rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        for mesh in meshes:
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
-        #create_animation(rig, expected, hierarchy, compressed=True)
-        #actual = retrieve_timecoded_animation("containerName", hierarchy, rig)
-        #compare_compressed_animations(self, expected, actual)
+        create_animation(rig, expected, hierarchy, compressed=True)
+        actual = retrieve_animation("containerName", hierarchy, rig, timecoded=True)
+        compare_compressed_animations(self, expected, actual)

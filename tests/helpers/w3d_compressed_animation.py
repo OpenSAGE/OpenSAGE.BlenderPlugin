@@ -28,9 +28,9 @@ def compare_compressed_animation_headers(self, expected, actual):
     self.assertEqual(expected.flavor, actual.flavor)
 
 
-def get_time_coded_datum(type=0, random_interpolation=False):
+def get_time_coded_datum(time_code, type=0, random_interpolation=True):
     datum = TimeCodedDatum(
-        time_code=34,
+        time_code=time_code,
         non_interpolated=False)
 
     if random_interpolation:
@@ -49,21 +49,32 @@ def compare_time_coded_datums(self, expected, actual):
     self.assertAlmostEqual(expected.value, actual.value, 5)
 
 
-def get_time_coded_animation_channel(type=0):
+def get_time_coded_animation_channel(type_=0, random_interpolation=True):
     channel = TimeCodedAnimationChannel(
-        num_time_codes=55,
+        num_time_codes=5,
         pivot=4,
-        type=type,
+        type=type_,
         time_codes=[])
 
-    if type == 6:
+    values = []
+    if type_ == 6:
         channel.vector_len = 4
+        values = [Quaternion((-.1, -2.1, -1.7, -1.7)),
+                  Quaternion((-0.1, -2.1, 1.6, 1.6)),
+                  Quaternion((0.9, -2.1, 1.6, 1.6)),
+                  Quaternion((0.9, 1.8, 1.6, 1.6)),
+                  Quaternion((0.9, 1.8, -1.6, 1.6))]
     else:
         channel.vector_len = 1
+        values = [3.0, 3.5, 2.0, 1.0, -1.0]
 
-    for _ in range(channel.num_time_codes):
-        channel.time_codes.append(get_time_coded_datum(
-            type, random_interpolation=True))
+    for i, value in enumerate(values):
+        datum = TimeCodedDatum(
+            time_code=i,
+            value=value)
+        if random_interpolation: 
+            datum.non_interpolated = (random() < 0.5)
+        channel.time_codes.append(datum)
     return channel
 
 
@@ -72,7 +83,7 @@ def get_time_coded_animation_channel_minimal():
         num_time_codes=55,
         pivot=4,
         type=1,
-        time_codes=[get_time_coded_datum()])
+        time_codes=[get_time_coded_datum(0)])
 
 
 def get_time_coded_animation_channel_empty():
@@ -270,7 +281,7 @@ def get_motion_channel(type, delta_type, num_time_codes=55):
 
     if delta_type == 0:
         for _ in range(channel.num_time_codes):
-            channel.data.append(get_time_coded_datum(type, False))
+            channel.data.append(get_time_coded_datum(0, type, False))
     elif delta_type == 1:
         channel.data = get_adaptive_delta_motion_animation_channel(
             type, 4, channel.num_time_codes)
@@ -286,7 +297,7 @@ def get_motion_channel_minimal():
         type=2,
         num_time_codes=1,
         pivot=3,
-        data=[get_time_coded_datum(2, False)])
+        data=[get_time_coded_datum(0, 2, False)])
 
 
 def get_motion_channel_empty():
@@ -315,7 +326,13 @@ def compare_motion_channels(self, expected, actual):
 
 def get_compressed_animation(
         hierarchy_name="TestHierarchy",
-        flavor=0):
+        flavor=0,
+        bit_channels=True,
+        motion_tc=True,
+        motion_ad4=True,
+        motion_ad8=True, 
+        random_interpolation=True):
+
     animation = CompressedAnimation(
         header=get_compressed_animation_header(hierarchy_name, flavor),
         time_coded_channels=[],
@@ -325,13 +342,13 @@ def get_compressed_animation(
 
     if flavor == 0:
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type=0))
+            get_time_coded_animation_channel(type_=0, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type=1))
+            get_time_coded_animation_channel(type_=1, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type=2))
+            get_time_coded_animation_channel(type_=2, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type=6))
+            get_time_coded_animation_channel(type_=6, random_interpolation=random_interpolation))
 
     else:
         animation.adaptive_delta_channels.append(
@@ -343,35 +360,39 @@ def get_compressed_animation(
         animation.adaptive_delta_channels.append(
             get_adaptive_delta_animation_channel(type=6, num_bits=4))
 
-    animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
-    animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
+    if bit_channels:
+        animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
+        animation.time_coded_bit_channels.append(get_time_coded_bit_channel())
 
-    animation.motion_channels.append(get_motion_channel(
-        type=0, delta_type=0, num_time_codes=50))
-    animation.motion_channels.append(get_motion_channel(
-        type=1, delta_type=0, num_time_codes=50))
-    animation.motion_channels.append(
-        get_motion_channel(type=2, delta_type=0))
-    animation.motion_channels.append(
-        get_motion_channel(type=6, delta_type=0))
+    if motion_tc:
+        animation.motion_channels.append(get_motion_channel(
+            type=0, delta_type=0, num_time_codes=50))
+        animation.motion_channels.append(get_motion_channel(
+            type=1, delta_type=0, num_time_codes=50))
+        animation.motion_channels.append(
+            get_motion_channel(type=2, delta_type=0))
+        animation.motion_channels.append(
+            get_motion_channel(type=6, delta_type=0))
 
-    animation.motion_channels.append(
-        get_motion_channel(type=0, delta_type=1))
-    animation.motion_channels.append(
-        get_motion_channel(type=1, delta_type=1))
-    animation.motion_channels.append(
-        get_motion_channel(type=2, delta_type=1))
-    animation.motion_channels.append(
-        get_motion_channel(type=6, delta_type=1))
+    if motion_ad4:
+        animation.motion_channels.append(
+            get_motion_channel(type=0, delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(type=1, delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(type=2, delta_type=1))
+        animation.motion_channels.append(
+            get_motion_channel(type=6, delta_type=1))
 
-    animation.motion_channels.append(
-        get_motion_channel(type=0, delta_type=2))
-    animation.motion_channels.append(
-        get_motion_channel(type=1, delta_type=2))
-    animation.motion_channels.append(
-        get_motion_channel(type=2, delta_type=2))
-    animation.motion_channels.append(
-        get_motion_channel(type=6, delta_type=2))
+    if motion_ad8:
+        animation.motion_channels.append(
+            get_motion_channel(type=0, delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(type=1, delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(type=2, delta_type=2))
+        animation.motion_channels.append(
+            get_motion_channel(type=6, delta_type=2))
 
     return animation
 

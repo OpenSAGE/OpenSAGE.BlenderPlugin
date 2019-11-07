@@ -14,7 +14,7 @@ class TestCompressedAnimation(unittest.TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 
-        self.assertEqual(5940, expected.size())
+        self.assertEqual(3740, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
