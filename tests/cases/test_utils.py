@@ -29,7 +29,7 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         for source in mesh.vert_materials:
-            material = create_material_from_vertex_material(
+            (material, _) = create_material_from_vertex_material(
                 context, mesh, source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
@@ -42,7 +42,7 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         for source in mesh.shader_materials:
-            material = create_material_from_shader_material(
+            (material, _) = create_material_from_shader_material(
                 context, mesh, source)
             principled = retrieve_principled_bsdf(material)
             actual = retrieve_shader_material(material, principled)
@@ -52,7 +52,7 @@ class TestUtils(utils.W3dTestCase):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
 
-        material = create_material_from_vertex_material(
+        (material, _) = create_material_from_vertex_material(
             context, mesh, mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)

@@ -110,20 +110,25 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
+    principleds = []
     for mat_pass in mesh_struct.material_passes:
         create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
     for shaderMat in mesh_struct.shader_materials:
-        mesh.materials.append(create_material_from_shader_material(
-            self, mesh_struct, shaderMat))
+        (material, principled) = create_material_from_shader_material(
+            self, mesh_struct, shaderMat)
+        mesh.materials.append(material)
+        principleds.append(principled)
 
     for vertMat in mesh_struct.vert_materials:
-        mesh.materials.append(
-            create_material_from_vertex_material(self, mesh_struct, vertMat))
+        (material, principled) = create_material_from_vertex_material(self, mesh_struct, vertMat)
+        mesh.materials.append(material)
+        principleds.append(principled)
 
     for i, texture in enumerate(mesh_struct.textures):
-        create_principled_bsdf(
-            self, material=mesh.materials[i], diffuse_tex=texture.name)
+        tex = load_texture(self, texture.name)
+        if tex is not None:
+            principleds[i].base_color_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -277,10 +282,10 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 
 
 def create_material_from_vertex_material(self, mesh, vert_mat):
-    mat = bpy.data.materials.new(
+    material = bpy.data.materials.new(
         mesh.header.mesh_name + "." + vert_mat.vm_name)
-    mat.use_nodes = True
-    #mat.blend_method = 'BLEND'
+    material.use_nodes = True
+    #material.blend_method = 'BLEND'
 
     atts = {'DEFAULT'}
     attributes = vert_mat.vm_info.attributes
@@ -293,23 +298,23 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     if attributes & DEPTH_CUE_TO_ALPHA:
         atts.add('DEPTH_CUE_TO_ALPHA')
 
-    mat.attributes = atts
-    mat.specular_intensity = vert_mat.vm_info.shininess
-    mat.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    mat.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
+    material.attributes = atts
+    material.specular_intensity = vert_mat.vm_info.shininess
+    material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
+    material.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
 
-    mat.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
-    mat.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
-    mat.translucency = vert_mat.vm_info.translucency
-    mat.opacity = vert_mat.vm_info.opacity
+    material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
+    material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
+    material.translucency = vert_mat.vm_info.translucency
+    material.opacity = vert_mat.vm_info.opacity
 
-    mat.vm_args_0 = vert_mat.vm_args_0
-    mat.vm_args_1 = vert_mat.vm_args_1
+    material.vm_args_0 = vert_mat.vm_args_0
+    material.vm_args_1 = vert_mat.vm_args_1
 
-    create_principled_bsdf(
-        self, material=mat, base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
-			alpha=vert_mat.vm_info.opacity)
-    return mat
+    principled = create_principled_bsdf(
+        self, material=material, base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
+            alpha=vert_mat.vm_info.opacity)
+    return (material, principled)
 
 
 def create_material_from_shader_material(self, mesh, shader_mat):
@@ -347,9 +352,9 @@ def create_material_from_shader_material(self, mesh, shader_mat):
             self.report(
                 {'ERROR'}, "shader property not implemented: " + prop.name)
 
-    create_principled_bsdf(self, material=material, diffuse_tex=diffuse,
+    principled = create_principled_bsdf(self, material=material, diffuse_tex=diffuse,
                            normal_tex=normal, bump_scale=bump_scale)
-    return material
+    return (material, principled)
 
 
 def create_principled_bsdf(
@@ -374,6 +379,7 @@ def create_principled_bsdf(
         if tex is not None:
             principled.normalmap_texture.image = tex
             principled.normalmap_strength = bump_scale
+    return principled
 
 
 ##########################################################################
