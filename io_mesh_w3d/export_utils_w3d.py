@@ -14,7 +14,8 @@ from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
-
+bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
+pick_plane_names = ["PICK"]
 
 def get_objects(type): #MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
@@ -30,26 +31,28 @@ def retrieve_boxes(hlod):
     container_name = hlod.header.model_name
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.name == "BOUNDINGBOX":
-            box = Box(
-                name=container_name + "." + mesh_object.name,
-                center=mesh_object.location)
-            box_mesh = mesh_object.to_mesh(
-                preserve_all_data_layers=False, depsgraph=None)
-            box.extend = Vector(
-                (box_mesh.vertices[0].co.x * 2,
-                 box_mesh.vertices[0].co.y * 2,
-                 box_mesh.vertices[0].co.z))
+        if not mesh_object.name in bounding_box_names:
+            continue
 
-            for material in box_mesh.materials:
-                box.color = RGBA(material.diffuse_color)
-            boxes.append(box)
+        box = Box(
+            name=container_name + "." + mesh_object.name,
+            center=mesh_object.location)
+        box_mesh = mesh_object.to_mesh(
+            preserve_all_data_layers=False, depsgraph=None)
+        box.extend = Vector(
+            (box_mesh.vertices[0].co.x * 2,
+                box_mesh.vertices[0].co.y * 2,
+                box_mesh.vertices[0].co.z))
 
-            subObject = HLodSubObject(
-                name=container_name + "." + mesh_object.name,
-                bone_index=0)
-            hlod.lod_array.sub_objects.append(subObject)
-            hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+        for material in box_mesh.materials:
+            box.color = RGBA(material.diffuse_color)
+        boxes.append(box)
+
+        subObject = HLodSubObject(
+            name=container_name + "." + mesh_object.name,
+            bone_index=0)
+        hlod.lod_array.sub_objects.append(subObject)
+        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     return boxes
 
 
@@ -57,11 +60,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.animation_data is not None:
-            print(mesh_object.animation_data)
-            
-            #print(mesh_object.animation_data.action)
-        if mesh_object.name == "BOUNDINGBOX":
+        if mesh_object.name in bounding_box_names:
             continue
 
         mesh_struct = Mesh(
@@ -362,7 +361,7 @@ def retrieve_shader_material(material, principled):
 
 
 ##########################################################################
-# hierarchy data
+# shader data
 ##########################################################################
 
 
@@ -435,10 +434,9 @@ def retrieve_hierarchy(container_name):
         return
 
     for mesh_object in get_objects('MESH'):
-        identity = Quaternion((1.0, 0.0, 0.0, 0.0))
-
-        if mesh_object.location.length < 0.01 and mesh_object.rotation_quaternion == identity \
-                or mesh_object.vertex_groups or mesh_object.name == "BOUNDINGBOX":
+        if mesh_object.vertex_groups \
+                or mesh_object.name in bounding_box_names \
+                or mesh_object.name in pick_plane_names:
             continue
 
         pivot = HierarchyPivot(

@@ -89,7 +89,6 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
     verts = mesh_struct.verts.copy()
-    print(mesh.name)
     if rig is not None:
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
@@ -606,8 +605,6 @@ def create_box(box, coll):
     if box is None:
         return
 
-    # to keep name always equal (sometimes it is "BOUNDING BOX")
-    name = "BOUNDINGBOX"
     x = box.extend[0] / 2.0
     y = box.extend[1] / 2.0
     z = box.extend[2]
@@ -617,10 +614,13 @@ def create_box(box, coll):
     faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1),
              (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
 
+    name = box.name
+    if "." in name:
+       name = name.split(".")[1]
     cube = bpy.data.meshes.new(name)
     box_object = bpy.data.objects.new(name, cube)
     box_object.display_type = 'WIRE'
-    mat = bpy.data.materials.new("BOUNDINGBOX.Material")
+    mat = bpy.data.materials.new(name + ".Material")
 
     mat.diffuse_color = box.color.to_vector_rgba()
     cube.materials.append(mat)
