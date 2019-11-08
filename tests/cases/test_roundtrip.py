@@ -27,7 +27,7 @@ class TestRoundtrip(utils.W3dTestCase):
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
-        #comp_animation = get_compressed_animation(hierarchy_name)
+        comp_animation = get_compressed_animation(hierarchy_name)
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -46,7 +46,7 @@ class TestRoundtrip(utils.W3dTestCase):
 
         ani = open(self.outpath() + "base_ani.w3d", "wb")
         animation.write(ani)
-        #comp_animation.write(ani)
+        comp_animation.write(ani)
         ani.close()
 
         # import
@@ -58,14 +58,18 @@ class TestRoundtrip(utils.W3dTestCase):
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "M"
-        export_settings['w3d_compression'] = "U"
         save(self.outpath() + "output_skn.w3d", bpy.context, export_settings)
 
         export_settings['w3d_mode'] = "H"
         save(self.outpath() + "output_skl.w3d", bpy.context, export_settings)
 
-        #export_settings['w3d_mode'] = "A"
-        #save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
+        export_settings['w3d_mode'] = "A"
+        export_settings['w3d_compression'] = "U"
+        save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
+
+        export_settings['w3d_mode'] = "A"
+        export_settings['w3d_compression'] = "TC"
+        save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"

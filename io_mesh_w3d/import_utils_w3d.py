@@ -89,6 +89,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
     verts = mesh_struct.verts.copy()
+    print(mesh.name)
     if rig is not None:
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf

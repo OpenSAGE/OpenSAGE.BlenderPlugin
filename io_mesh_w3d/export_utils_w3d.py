@@ -411,6 +411,7 @@ def retrieve_hierarchy(container_name):
 
         hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location
+        # process child bones recursive, how to check if a bone has already been processed?
         for bone in rig.pose.bones:
             pivot = HierarchyPivot(
                 name=bone.name,
