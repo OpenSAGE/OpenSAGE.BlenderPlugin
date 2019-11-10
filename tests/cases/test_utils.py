@@ -155,42 +155,6 @@ class TestUtils(utils.W3dTestCase):
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
 
-    def test_hlod_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
-        box = get_box()
-        hierarchy = get_hierarchy()
-        meshes = [
-            get_mesh(name="rock"),
-            get_mesh(name="troll", skin=True),
-            get_mesh(name="trunk")]
-
-        hlod.lod_array.sub_objects = []
-        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
-            bone=32, name="containerName.rock"))
-        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
-            bone=0, name="containerName.troll"))
-        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
-            bone=0, name="containerName.BOUNDINGBOX"))
-        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
-            bone=24, name="containerName.trunk"))
-
-        hlod.lod_array.header.model_count = 4
-
-        coll = get_collection(expected)
-        rig = get_or_create_skeleton(expected, hierarchy, coll)
-        create_box(box, coll)
-
-        for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, rig)
-
-        for mesh in meshes:
-            rig_mesh(mesh, hierarchy, expected, rig, coll)
-
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual)
-        retrieve_meshes(hierarchy, rig, actual, "containerName")
-        compare_hlods(self, expected, actual)
 
     def test_PICK_mesh_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -223,7 +187,7 @@ class TestUtils(utils.W3dTestCase):
         # why is building two times in pivots
         for piv in actual_hiera.pivots:
             print(piv.name)
-        #compare_hierarchies(self, hierarchy, actual_hiera)
+        compare_hierarchies(self, hierarchy, actual_hiera)
 
         #actual_hlod = create_hlod("containerName", hierarchy.header.name)
         #retrieve_boxes(actual_hlod)

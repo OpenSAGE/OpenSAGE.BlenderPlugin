@@ -395,18 +395,22 @@ def retrieve_hierarchy(container_name):
         pivots=[],
         pivot_fixups=[])
 
+    root = HierarchyPivot(
+            name="ROOTTRANSFORM",
+            parentID=-1,
+            translation=Vector())
+    hierarchy.pivots.append(root)
+
     rig = None
     rigs = get_objects('ARMATURE')
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
+        hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
+        print("we have rigs!!")
         rig = rigs[0]
-        root = HierarchyPivot(
-            name="ROOTTRANSFORM",
-            parentID=-1,
-            translation=rig.location)
-        hierarchy.pivots.append(root)
+        root.translation = rig.location
 
         hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location
