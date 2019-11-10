@@ -66,9 +66,10 @@ class TestRoundtrip(utils.W3dTestCase):
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "U"
         save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
+
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "TC"
-        save(self.outpath() + "output_ani_tc.w3d", bpy.context, export_settings)
+        save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"

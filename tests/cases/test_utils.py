@@ -34,6 +34,7 @@ class TestUtils(utils.W3dTestCase):
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
+
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
@@ -48,6 +49,7 @@ class TestUtils(utils.W3dTestCase):
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
 
+
     def test_shader_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
@@ -59,6 +61,7 @@ class TestUtils(utils.W3dTestCase):
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
 
+
     def test_box_roundtrip(self):
         expected = get_box()
         hlod = get_hlod()
@@ -66,6 +69,7 @@ class TestUtils(utils.W3dTestCase):
 
         boxes = retrieve_boxes(hlod)
         compare_boxes(self, expected, boxes[0])
+
 
     def test_hierarchy_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -75,7 +79,7 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
-            get_mesh(name="pike")]
+            get_mesh(name="PICK")]
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, expected, coll)
@@ -90,7 +94,45 @@ class TestUtils(utils.W3dTestCase):
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
 
-    def test_hierarchy_pivot_order(self):
+    def test_hierarchy_bone_order(self):
+        print("bone order test")
+        context = utils.ImportWrapper(self.outpath())
+        
+        hlod = get_hlod()
+        hlod.lod_array.sub_objects = [
+            get_hlod_sub_object(bone=0, name="containerName.skin"),
+            get_hlod_sub_object(bone=3, name="containerName.mesh")]
+        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+
+        meshes = [
+            get_mesh(name="skin"),
+            get_mesh(name="mesh")]
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_hierarchy_pivot("ROOTTRANSFORM", -1),
+            get_hierarchy_pivot("pivot_1", 0),
+            get_hierarchy_pivot("pivot_2", 1),
+            get_hierarchy_pivot("mesh", 2),
+            get_hierarchy_pivot("pivot_3", 1)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for mesh in meshes:
+            create_mesh(context, mesh, hierarchy, rig)
+
+        for mesh in meshes:
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+
+        (actual, rig) = retrieve_hierarchy("containerName")
+
+        #self.assertEqual(len(hierarchy.pivots), len(actual.pivots))
+        #for i, pivot in enumerate(hierarchy.pivots):
+        #    self.assertEqual(pivot.name, actual.pivots[i].name)
+
+    def test_hlod_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         expected = Hierarchy()
         hlod = get_hlod()
@@ -150,6 +192,48 @@ class TestUtils(utils.W3dTestCase):
         retrieve_meshes(hierarchy, rig, actual, "containerName")
         compare_hlods(self, expected, actual)
 
+    def test_PICK_mesh_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        hlod.lod_array.sub_objects = [
+            get_hlod_sub_object(bone=0, name="containerName.building"),
+            get_hlod_sub_object(bone=0, name="containerName.PICK")]
+        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+
+        meshes = [
+            get_mesh(name="building"),
+            get_mesh(name="PICK")]
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_hierarchy_pivot("ROOTTRANSFORM", -1),
+            get_hierarchy_pivot("building", 0)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for mesh in meshes:
+            create_mesh(context, mesh, hierarchy, rig)
+
+        for mesh in meshes:
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        # why is building two times in pivots
+        for piv in actual_hiera.pivots:
+            print(piv.name)
+        #compare_hierarchies(self, hierarchy, actual_hiera)
+
+        #actual_hlod = create_hlod("containerName", hierarchy.header.name)
+        #retrieve_boxes(actual_hlod)
+        #actual_meshs = retrieve_meshes(actual_hiera, rig, actual_hlod, "containerName")
+        #compare_hlods(self, hlod, actual_hlod)
+
+        #self.assertEqual(len(meshes), len(actual_meshs))
+        #for i, expected in enumerate(meshes):
+        #    compare_meshes(self, expected, actual_meshs[i])
+
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
@@ -208,6 +292,7 @@ class TestUtils(utils.W3dTestCase):
 
         actual = retrieve_animation(expected.header.name, hierarchy, rig)
         compare_animations(self, expected, actual)
+
 
     def test_compressed_animation_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
