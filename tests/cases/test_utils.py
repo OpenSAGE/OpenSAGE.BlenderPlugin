@@ -105,7 +105,7 @@ class TestUtils(utils.W3dTestCase):
         hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
 
         meshes = [
-            get_mesh(name="skin"),
+            get_mesh(name="skin", skin=True),
             get_mesh(name="mesh")]
 
         hierarchy = get_hierarchy()
@@ -127,33 +127,41 @@ class TestUtils(utils.W3dTestCase):
             rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
         (actual, rig) = retrieve_hierarchy("containerName")
+        for pivot in actual.pivots:
+            print(pivot.name)
 
-        #self.assertEqual(len(hierarchy.pivots), len(actual.pivots))
-        #for i, pivot in enumerate(hierarchy.pivots):
-        #    self.assertEqual(pivot.name, actual.pivots[i].name)
+        self.assertEqual(len(hierarchy.pivots), len(actual.pivots))
+        for i, pivot in enumerate(hierarchy.pivots):
+            self.assertEqual(pivot.name, actual.pivots[i].name)
+
 
     def test_hlod_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
-        expected = Hierarchy()
         hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
-            get_mesh(name="pike")]
+            get_mesh(name="PICK")]
 
         coll = get_collection(hlod)
-        rig = get_or_create_skeleton(hlod, expected, coll)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        create_box(box, coll)
 
         for mesh in meshes:
-            create_mesh(context, mesh, expected, rig)
+            create_mesh(context, mesh, hierarchy, rig)
 
         for mesh in meshes:
-            rig_mesh(mesh, expected, hlod, rig, coll)
+            rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
-        expected.pivot_fixups = [] # not supported
-        (actual, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, expected, actual)
+        actual = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(actual)
+        retrieve_meshes(hierarchy, rig, actual, "containerName")
+        compare_hlods(self, hlod, actual)
 
 
     def test_PICK_mesh_roundtrip(self):
@@ -184,9 +192,7 @@ class TestUtils(utils.W3dTestCase):
             rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        # why is building two times in pivots
-        for piv in actual_hiera.pivots:
-            print(piv.name)
+
         compare_hierarchies(self, hierarchy, actual_hiera)
 
         #actual_hlod = create_hlod("containerName", hierarchy.header.name)

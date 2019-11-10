@@ -388,6 +388,16 @@ def retrieve_shader(material):
 # hierarchy data
 ##########################################################################
 
+def process_pivot(pivot, pivots, hierarchy, processed):
+    processed.append(pivot.name)
+    hierarchy.pivots.append(pivot)
+    children = [child for child in pivots if child.parent_id == pivot.name]
+    parent_index = len(hierarchy.pivots) - 1
+    for child in children:
+        child.parent_id = parent_index
+        process_pivot(child, pivots, hierarchy, processed)
+    return processed
+
 
 def retrieve_hierarchy(container_name):
     hierarchy = Hierarchy(
@@ -403,18 +413,18 @@ def retrieve_hierarchy(container_name):
 
     rig = None
     rigs = get_objects('ARMATURE')
+    pivots = []
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
-        print("we have rigs!!")
         rig = rigs[0]
         root.translation = rig.location
 
         hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location
-        # process child bones recursive, how to check if a bone has already been processed?
+
         for bone in rig.pose.bones:
             pivot = HierarchyPivot(
                 name=bone.name,
@@ -423,16 +433,14 @@ def retrieve_hierarchy(container_name):
             matrix = bone.matrix
 
             if bone.parent is not None:
-                for index, piv in enumerate(hierarchy.pivots):
-                    if piv.name == bone.parent.name:
-                        pivot.parent_id = index
+                pivot.parent_id = bone.parent.name
                 matrix = bone.parent.matrix.inverted() @ matrix
 
             (translation, rotation, _) = matrix.decompose()
             pivot.translation = translation
             pivot.rotation = rotation
 
-            hierarchy.pivots.append(pivot)
+            pivots.append(pivot)
     else:
         print("Error: only one armature per scene allowed")
         return
@@ -449,12 +457,16 @@ def retrieve_hierarchy(container_name):
             translation=mesh_object.location,
             rotation=mesh_object.rotation_quaternion)
 
-        if mesh_object.parent_bone is not None:
-            for index, piv in enumerate(hierarchy.pivots):
-                if piv.name == mesh_object.parent_bone:
-                    pivot.parent_id = index
+        if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
+            pivot.parent_id = mesh_object.parent_bone
 
-        hierarchy.pivots.append(pivot)
+        pivots.append(pivot)
+
+    processed = []
+    for pivot in pivots:
+        if pivot.name in processed:
+            continue
+        processed = process_pivot(pivot, pivots, hierarchy, processed)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
 

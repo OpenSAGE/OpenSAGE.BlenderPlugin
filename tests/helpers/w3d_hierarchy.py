@@ -74,10 +74,10 @@ def get_hierarchy(name="TestHierarchy"):
     hierarchy.pivots.append(get_hierarchy_pivot("arml", 3))
     hierarchy.pivot_fixups.append(Vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
+    hierarchy.pivots.append(get_hierarchy_pivot("shield", 4))
     hierarchy.pivot_fixups.append(Vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("shield", 4))
+    hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
     hierarchy.pivot_fixups.append(Vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
