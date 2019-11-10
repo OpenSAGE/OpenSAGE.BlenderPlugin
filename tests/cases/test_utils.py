@@ -90,16 +90,50 @@ class TestUtils(utils.W3dTestCase):
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
 
-    def test_hlod_roundtrip(self):
+    def test_hierarchy_pivot_order(self):
         context = utils.ImportWrapper(self.outpath())
-        expected = get_hlod()
-        box = get_box()
-        hierarchy = get_hierarchy()
+        expected = Hierarchy()
+        hlod = get_hlod()
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
             get_mesh(name="pike")]
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, expected, coll)
+
+        for mesh in meshes:
+            create_mesh(context, mesh, expected, rig)
+
+        for mesh in meshes:
+            rig_mesh(mesh, expected, hlod, rig, coll)
+
+        expected.pivot_fixups = [] # not supported
+        (actual, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, expected, actual)
+
+    def test_hlod_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        meshes = [
+            get_mesh(name="rock"),
+            get_mesh(name="troll", skin=True),
+            get_mesh(name="trunk")]
+
+        hlod.lod_array.sub_objects = []
+        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
+            bone=32, name="containerName.rock"))
+        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
+            bone=0, name="containerName.troll"))
+        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
+            bone=0, name="containerName.BOUNDINGBOX"))
+        hlod.lod_array.sub_objects.append(get_hlod_sub_object(
+            bone=24, name="containerName.trunk"))
+
+        hlod.lod_array.header.model_count = 4
 
         coll = get_collection(expected)
         rig = get_or_create_skeleton(expected, hierarchy, coll)
