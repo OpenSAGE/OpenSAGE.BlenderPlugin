@@ -9,9 +9,9 @@ from io_mesh_w3d.structs.w3d_vertex_material import *
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 
-def get_vertex_material_info():
+def get_vertex_material_info(attributes=0):
     return VertexMaterialInfo(
-        attributes=13,
+        attributes=attributes,
         ambient=get_rgba(a=0),  # alpha is only padding in this and below
         diffuse=get_rgba(a=0),
         specular=get_rgba(a=0),
@@ -33,9 +33,12 @@ def compare_vertex_material_infos(self, expected, actual):
 
 
 def get_vertex_material():
+    attrs = USE_DEPTH_CUE & ARGB_EMISSIVE_ONLY & COPY_SPECULAR_TO_DIFFUSE \
+        & DEPTH_CUE_TO_ALPHA
     return VertexMaterial(
         vm_name="VM_NAME",
-        vm_info=get_vertex_material_info(),
+        vm_info=get_vertex_material_info(
+            attributes=attrs),
         vm_args_0="VM_ARGS0",
         vm_args_1="VM_ARGS1")
 

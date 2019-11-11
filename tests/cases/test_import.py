@@ -34,10 +34,6 @@ class TestObjectImport(utils.W3dTestCase):
         load(sut, bpy.context, import_settings={})
 
     def test_unkown_chunk_skip(self):
-        output = open(self.outpath() + "output.w3d", "wb")
-
-        write_chunk_head(0x00, output, 0)
-
         hierarchy_name = "TestHiera_SKL"
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
@@ -53,12 +49,12 @@ class TestObjectImport(utils.W3dTestCase):
             mesh.write(skn)
         hlod.write(skn)
         box.write(skn)
-        write_chunk_head(0xFFFF, output, 0)
+        write_chunk_head(0xFFFF, skn, 0)
         skn.close()
 
         skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
         hierarchy.write(skl)
-        write_chunk_head(0x00, output, 0)
+        write_chunk_head(0x00, skl, 0)
         skl.close()
 
         # import

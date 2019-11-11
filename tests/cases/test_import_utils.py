@@ -30,3 +30,18 @@ class TestImportUtils(utils.W3dTestCase):
 
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(mesh, b_mesh, triangles, mat_pass)
+
+    def test_read_chunk_array(self):
+        context = utils.ImportWrapper(self.outpath())
+        output = io.BytesIO()
+
+        mat_pass = get_material_pass()
+        mat_pass.write(output)
+        mat_pass.write(output)
+        mat_pass.write(output)
+
+        write_chunk_head(0x00, output, 9, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        read_chunk_array(context, io_stream, 27, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
