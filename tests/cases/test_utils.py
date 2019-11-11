@@ -223,7 +223,7 @@ class TestUtils(utils.W3dTestCase):
 
         create_animation(rig, expected, hierarchy)
 
-        actual = retrieve_animation(expected.header.name, hierarchy, rig)
+        actual = retrieve_animation(expected.header.name, hierarchy, rig, timecoded=False)
         compare_animations(self, expected, actual)
 
 

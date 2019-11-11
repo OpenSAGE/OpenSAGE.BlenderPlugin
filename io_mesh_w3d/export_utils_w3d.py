@@ -506,18 +506,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             channel_type = index
 
         if not (channel_type == 6 and index > 0):
-           if not timecoded:
-                range_ = fcu.range()
-                channel = AnimationChannel(
-                    first_frame=int(range_[0]),
-                    last_frame=int(range_[1]),
-                    vector_len=vec_len,
-                    type=channel_type,
-                    pivot=pivot_index)
-
-                num_frames = channel.last_frame + 1 - channel.first_frame
-                channel.data = [None] * num_frames
-           else:
+           if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
                     type=channel_type,
@@ -530,18 +519,19 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 range_ = fcu.range()
                 channel.first_frame = int(range_[0])
                 channel.last_frame = int(range_[1])
+           else:
+                range_ = fcu.range()
+                channel = AnimationChannel(
+                    first_frame=int(range_[0]),
+                    last_frame=int(range_[1]),
+                    vector_len=vec_len,
+                    type=channel_type,
+                    pivot=pivot_index)
 
-        if not timecoded:
-            for i in range(channel.first_frame, channel.last_frame + 1):
-                val = fcu.evaluate(i)
-                if channel_type < 6:
-                    channel.data[i] = val
-                else:
-                    if channel.data[i] is None:
-                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
-                    channel.data[i][index] = val
+                num_frames = channel.last_frame + 1 - channel.first_frame
+                channel.data = [None] * num_frames
 
-        else:
+        if timecoded:
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
@@ -555,6 +545,17 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                             time_code=frame,
                             value=Quaternion())
                     channel.time_codes[i].value[index] = val
+        else:
+            for frame in range(channel.first_frame, channel.last_frame + 1):
+                val = fcu.evaluate(frame)
+                i = frame - channel.first_frame
+                print(i)
+                if channel_type < 6:
+                    channel.data[i] = val
+                else:
+                    if channel.data[i] is None:
+                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                    channel.data[i][index] = val
 
         if channel_type < 6 or index == 3:
             channels.append(channel)
@@ -562,7 +563,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     return channels
 
 
-def retrieve_animation(animation_name, hierarchy, rig, timecoded=False):
+def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     ani_struct = None
     channels = []
 
@@ -572,11 +573,11 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded=False):
     for armature in get_objects('ARMATURE'):
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
 
-    if not timecoded:
-        ani_struct = Animation(channels=channels)
-    else:
+    if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)
         ani_struct.header.flavor = 0 # time coded
+    else:
+        ani_struct = Animation(channels=channels)
 
     ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.header.name
