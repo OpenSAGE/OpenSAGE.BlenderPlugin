@@ -5,6 +5,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
+from io_mesh_w3d.utils import skip_unknown_chunk
 
 
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D

@@ -4,13 +4,15 @@
 import unittest
 import io
 
+from tests import utils
+
 from io_mesh_w3d.structs.w3d_compressed_animation import *
-from io_mesh_w3d.io_binary import read_chunk_head
+from io_mesh_w3d.io_binary import *
 
 from tests.helpers.w3d_compressed_animation import *
 
 
-class TestCompressedAnimation(unittest.TestCase):
+class TestCompressedAnimation(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 
@@ -58,6 +60,27 @@ class TestCompressedAnimation(unittest.TestCase):
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
+
+    def test_unknown_chunk_skip(self):
+        context = utils.ImportWrapper(self.outpath())
+        output = io.BytesIO()
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION, output, 70, has_sub_chunks=True)
+
+        header = get_compressed_animation_header(flavor=2)
+        header.write(output)
+
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunk_type)
+
+        CompressedAnimation.read(context, io_stream, subchunk_end)
 
     def test_chunk_sizes(self):
         ani = get_compressed_animation_minimal()

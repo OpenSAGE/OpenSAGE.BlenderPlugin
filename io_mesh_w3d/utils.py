@@ -4,6 +4,14 @@
 from io_mesh_w3d.structs.struct import HEAD
 
 
+def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
+    message = "WARNING: unknown chunk_type in io_stream: %s" % hex(chunk_type)
+    print(message)
+    if self is not None:
+        self.report({'ERROR'}, message)
+    io_stream.seek(chunk_size, 1)
+
+
 def const_size(size, include_head=True):
     if include_head:
         size += HEAD

@@ -5,6 +5,7 @@ import unittest
 import io
 
 from mathutils import Vector
+from tests import utils
 
 from io_mesh_w3d.structs.w3d_version import Version
 from io_mesh_w3d.structs.w3d_rgba import RGBA
@@ -12,7 +13,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 from tests.helpers.w3d_vertex_material import *
 
 
-class TestVertexMaterial(unittest.TestCase):
+class TestVertexMaterial(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_vertex_material()
 
@@ -45,6 +46,21 @@ class TestVertexMaterial(unittest.TestCase):
 
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
+
+    def test_unknown_chunk_skip(self):
+        context = utils.ImportWrapper(self.outpath())
+        output = io.BytesIO()
+        write_chunk_head(W3D_CHUNK_VERTEX_MATERIAL, output, 9, has_sub_chunks=True)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_VERTEX_MATERIAL, chunk_type)
+
+        VertexMaterial.read(context, io_stream, subchunk_end)
 
     def test_chunk_sizes(self):
         vm = get_vertex_material_minimal()

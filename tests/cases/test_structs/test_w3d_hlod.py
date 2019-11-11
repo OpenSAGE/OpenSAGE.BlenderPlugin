@@ -4,13 +4,15 @@
 import unittest
 import io
 
-from io_mesh_w3d.structs.w3d_hlod import HLod, HLodHeader, W3D_CHUNK_HLOD
-from io_mesh_w3d.io_binary import read_chunk_head
+from tests import utils
+
+from io_mesh_w3d.structs.w3d_hlod import *
+from io_mesh_w3d.io_binary import *
 
 from tests.helpers.w3d_hlod import *
 
 
-class TestHLod(unittest.TestCase):
+class TestHLod(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_hlod()
 
@@ -27,6 +29,25 @@ class TestHLod(unittest.TestCase):
 
         actual = HLod.read(self, io_stream, chunkEnd)
         compare_hlods(self, expected, actual)
+
+    def test_unknown_chunk_skip(self):
+        context = utils.ImportWrapper(self.outpath())
+        output = io.BytesIO()
+        write_chunk_head(W3D_CHUNK_HLOD, output, 26, has_sub_chunks=True)
+
+        write_chunk_head(W3D_CHUNK_HLOD_LOD_ARRAY, output, 9, has_sub_chunks=True)
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_HLOD, chunk_type)
+
+        HLod.read(context, io_stream, subchunk_end)
 
     def test_chunk_sizes(self):
         hlod = get_hlod_minimal()

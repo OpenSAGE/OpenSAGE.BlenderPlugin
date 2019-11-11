@@ -184,7 +184,7 @@ class Mesh(Struct):
                     context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunk_type == W3D_CHUNK_MATERIAL_PASS:
                 result.material_passes.append(MaterialPass.read(
-                    io_stream, subchunk_end))
+                    context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_SHADER_MATERIALS:
                 result.shader_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)

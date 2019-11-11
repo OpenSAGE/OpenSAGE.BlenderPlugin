@@ -14,7 +14,10 @@ def save(givenfilepath, _context, export_settings):
     export_mode = export_settings['w3d_mode']
     print("export mode: " + str(export_mode))
 
-    bpy.ops.object.mode_set(mode='OBJECT')
+    try:
+        bpy.ops.object.mode_set(mode='OBJECT')
+    except:
+        print("nice try")
 
     containerName = (os.path.splitext(
         os.path.basename(givenfilepath))[0]).upper()

@@ -3,8 +3,13 @@
 
 import bpy
 from io_mesh_w3d.import_w3d import *
-from io_mesh_w3d.io_binary import write_chunk_head
+from io_mesh_w3d.io_binary import *
 from tests import utils
+from tests.helpers.w3d_mesh import get_mesh
+from tests.helpers.w3d_hlod import get_hlod
+from tests.helpers.w3d_box import get_box
+from tests.helpers.w3d_hierarchy import get_hierarchy
+from io_mesh_w3d.import_w3d import load
 
 
 class TestObjectImport(utils.W3dTestCase):
@@ -27,3 +32,35 @@ class TestObjectImport(utils.W3dTestCase):
 
         sut = utils.ImportWrapper(self.outpath() + "output.w3d")
         load(sut, bpy.context, import_settings={})
+
+    def test_unkown_chunk_skip(self):
+        output = open(self.outpath() + "output.w3d", "wb")
+
+        write_chunk_head(0x00, output, 0)
+
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+        box = get_box()
+
+        # write to file
+        skn = open(self.outpath() + "base_skn.w3d", "wb")
+        for mesh in meshes:
+            mesh.write(skn)
+        hlod.write(skn)
+        box.write(skn)
+        write_chunk_head(0xFFFF, output, 0)
+        skn.close()
+
+        skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
+        hierarchy.write(skl)
+        write_chunk_head(0x00, output, 0)
+        skl.close()
+
+        # import
+        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, bpy.context, import_settings={})

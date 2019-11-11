@@ -4,13 +4,15 @@
 import unittest
 import io
 
+from tests import utils
+
 from io_mesh_w3d.structs.struct import HEAD
-from io_mesh_w3d.structs.w3d_texture import Texture, TextureInfo, W3D_CHUNK_TEXTURE
-from io_mesh_w3d.io_binary import read_chunk_head
+from io_mesh_w3d.structs.w3d_texture import *
+from io_mesh_w3d.io_binary import *
 from tests.helpers.w3d_texture import *
 
 
-class TestTexture(unittest.TestCase):
+class TestTexture(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_texture()
 
@@ -43,6 +45,21 @@ class TestTexture(unittest.TestCase):
 
         actual = Texture.read(self, io_stream, chunkEnd)
         compare_textures(self, expected, actual)
+
+    def test_unknown_chunk_skip(self):
+        context = utils.ImportWrapper(self.outpath())
+        output = io.BytesIO()
+        write_chunk_head(W3D_CHUNK_TEXTURE, output, 9, has_sub_chunks=True)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_TEXTURE, chunk_type)
+
+        Texture.read(context, io_stream, subchunk_end)
 
     def test_chunk_sizes(self):
         tex = get_texture_minimal()

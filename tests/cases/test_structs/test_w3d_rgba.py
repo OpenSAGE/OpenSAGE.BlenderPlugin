@@ -34,3 +34,8 @@ class TestRGBA(unittest.TestCase):
         rgba = RGBA(r=2, g=3, b=0, a=0)
         self.assertNotEqual(rgba, "test")
         self.assertNotEqual(rgba, 1)
+
+    def test_to_string(self):
+        rgba = RGBA(r=244, g=123, b=33, a=99)
+        expected = "RGBA(r:244, g:123, b:33, a:99)"
+        self.assertEqual(expected, str(rgba))

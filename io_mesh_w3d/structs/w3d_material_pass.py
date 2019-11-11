@@ -20,7 +20,7 @@ class TextureStage(Struct):
     tx_coords = []
 
     @staticmethod
-    def read(io_stream, chunk_end):
+    def read(context, io_stream, chunk_end):
         result = TextureStage(
             tx_ids=[],
             per_face_tx_coords=[],
@@ -38,7 +38,7 @@ class TextureStage(Struct):
                 result.per_face_tx_coords = read_list(
                     io_stream, subchunk_end, read_vector)
             else:
-                skip_unknown_chunk(None, io_stream, chunk_type, chunk_size)
+                skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
     def size(self, include_head=True):
@@ -88,7 +88,7 @@ class MaterialPass(Struct):
     tx_coords = []
 
     @staticmethod
-    def read(io_stream, chunk_end):
+    def read(context, io_stream, chunk_end):
         result = MaterialPass(
             vertex_material_ids=[],
             shader_ids=[],
@@ -119,12 +119,12 @@ class MaterialPass(Struct):
                     io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_TEXTURE_STAGE:
                 result.tx_stages.append(
-                    TextureStage.read(io_stream, subchunk_end))
+                    TextureStage.read(context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_STAGE_TEXCOORDS:
                 result.tx_coords = read_list(
                     io_stream, subchunk_end, read_vector2)
             else:
-                skip_unknown_chunk(None, io_stream, chunk_type, chunk_size)
+                skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
     def size(self, include_head=True):

@@ -41,14 +41,6 @@ def insensitive_path(path):
     return path
 
 
-def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
-    message = "WARNING: unknown chunk_type in io_stream: %s" % hex(chunk_type)
-    print(message)
-    if self is not None:
-        self.report({'ERROR'}, message)
-    io_stream.seek(chunk_size, 1)
-
-
 def link_object_to_active_scene(obj, coll, appendix=""):
     if obj.name in coll.objects:
         obj.name += appendix
@@ -470,10 +462,6 @@ def load_texture(self, tex_name):
 ##########################################################################
 
 
-def is_roottransform(pivot):
-    return pivot == 0
-
-
 def is_translation(channel):
     return channel.type == 0 or channel.type == 1 or channel.type == 2
 
@@ -539,9 +527,6 @@ def apply_uncompressed(bone, channel):
 
 def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
-        if is_roottransform(channel.pivot):
-            continue
-
         pivot = hierarchy.pivots[channel.pivot]
         obj = get_bone(rig, pivot.name)
 
@@ -550,9 +535,6 @@ def process_channels(hierarchy, channels, rig, apply_func):
 
 def process_motion_channels(hierarchy, channels, rig):
     for channel in channels:
-        if is_roottransform(channel.pivot):
-            continue
-
         pivot = hierarchy.pivots[channel.pivot]
         obj = get_bone(rig, pivot.name)
 
