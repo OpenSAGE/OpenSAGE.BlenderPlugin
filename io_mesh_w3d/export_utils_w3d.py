@@ -67,6 +67,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             header=MeshHeader(),
             verts=[],
             normals=[],
+            tangents=[],
+            bitangents=[],
             vert_infs=[],
             triangles=[],
             shade_ids=[],
@@ -83,6 +85,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
         mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
         triangulate(mesh)
+        mesh.calc_tangents()
 
         header.vert_count = len(mesh.vertices)
 
@@ -114,6 +117,9 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
 
+        mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
+        mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
+
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
              mesh_object.bound_box[0][1],
@@ -133,6 +139,16 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             tri_pos = (vec1 + vec2 + vec3) / 3.0
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
+
+            for vert in [mesh.loops[i] for i in face.loop_indices]:
+                normal = vert.normal
+                tangent = vert.tangent
+                #print("#####")
+                #print(i)
+                #print(vert.index)
+                #mesh_struct.tangents[vert.index] = tangent
+                #print(tangent)
+                #bitangent = vert.bitangent_sign * normal.cross(tangent)
 
         header.face_count = len(mesh_struct.triangles)
 
@@ -314,9 +330,7 @@ def append_property(properties, type, name, value):
 
 def retrieve_shader_material(material, principled):
     shader_material = ShaderMaterial(
-        # TODO: do those values have any meaning?
         header=ShaderMaterialHeader(
-            number=55,
             type_name="headerType"),
         properties=[])
 

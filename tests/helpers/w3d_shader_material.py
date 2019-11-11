@@ -11,9 +11,9 @@ from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 def get_shader_material_header():
     return ShaderMaterialHeader(
-        number=55,
+        number=1,
         type_name="headerType",
-        reserved=0)
+        reserved=2)
 
 
 def compare_shader_material_headers(self, expected, actual):

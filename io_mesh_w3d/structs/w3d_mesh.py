@@ -110,6 +110,8 @@ class Mesh(Struct):
     user_text = ""
     verts = []
     normals = []
+    tangents = []
+    bitangents = []
     vert_infs = []
     triangles = []
     shade_ids = []
@@ -189,10 +191,10 @@ class Mesh(Struct):
                 result.shader_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                #print("-> tangents chunk is not supported")
+                #print("-> tangents are computed in blender")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                #print("-> bitangents chunk is not supported")
+                #print("-> bitangents are computed in blender")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = AABBTree.read(
