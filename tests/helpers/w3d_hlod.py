@@ -53,7 +53,7 @@ def get_hlod_array():
     array.sub_objects.append(get_hlod_sub_object(
         bone=0, name="containerName.BOUNDINGBOX"))
     array.sub_objects.append(get_hlod_sub_object(
-        bone=6, name="containerName.sword"))
+        bone=7, name="containerName.sword"))
     array.sub_objects.append(get_hlod_sub_object(
         bone=0, name="containerName.soldier"))
     array.sub_objects.append(get_hlod_sub_object(

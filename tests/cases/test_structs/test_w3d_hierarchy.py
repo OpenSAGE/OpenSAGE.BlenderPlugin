@@ -15,7 +15,7 @@ class TestHierarchy(unittest.TestCase):
         expected = get_hierarchy()
 
         self.assertEqual(44, expected.header.size())
-        self.assertEqual(564, expected.size())
+        self.assertEqual(636, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
