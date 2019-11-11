@@ -516,9 +516,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 num_keyframes = len(fcu.keyframe_points)
                 channel.time_codes = [None] * num_keyframes
                 channel.num_time_codes = num_keyframes
-                range_ = fcu.range()
-                channel.first_frame = int(range_[0])
-                channel.last_frame = int(range_[1])
            else:
                 range_ = fcu.range()
                 channel = AnimationChannel(
@@ -549,7 +546,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
-                print(i)
                 if channel_type < 6:
                     channel.data[i] = val
                 else:
