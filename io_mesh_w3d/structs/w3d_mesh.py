@@ -267,13 +267,15 @@ class Mesh(Struct):
                          vec_list_size(self.normals, False))
         write_list(self.normals, io_stream, write_vector)
 
-        write_chunk_head(W3D_CHUNK_TANGENTS, io_stream,
-                         vec_list_size(self.tangents, False))
-        write_list(self.tangents, io_stream, write_vector)
+        if self.tangents:
+            write_chunk_head(W3D_CHUNK_TANGENTS, io_stream,
+                             vec_list_size(self.tangents, False))
+            write_list(self.tangents, io_stream, write_vector)
 
-        write_chunk_head(W3D_CHUNK_BITANGENTS, io_stream,
-                         vec_list_size(self.bitangents, False))
-        write_list(self.bitangents, io_stream, write_vector)
+        if self.bitangents:
+            write_chunk_head(W3D_CHUNK_BITANGENTS, io_stream,
+                             vec_list_size(self.bitangents, False))
+            write_list(self.bitangents, io_stream, write_vector)
 
         write_chunk_head(W3D_CHUNK_TRIANGLES, io_stream,
                          list_size(self.triangles, False))

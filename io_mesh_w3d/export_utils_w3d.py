@@ -221,6 +221,9 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+        else:
+            mesh_struct.tangents = []
+            mesh_struct.bitangents = []
 
         mesh_struct.mat_info = MaterialInfo(
             pass_count=len(mesh_struct.material_passes),
