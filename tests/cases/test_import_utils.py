@@ -31,6 +31,18 @@ class TestImportUtils(utils.W3dTestCase):
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
+    def test_mesh_import_2_textures_1_vertex_material(self):
+        context = utils.ImportWrapper(self.outpath())
+        mesh = get_mesh_two_textures()
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+               self.outpath() + "texture.dds")
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+               self.outpath() + "texture2.dds")
+
+        create_mesh(context, mesh, None, None)
+
+
     def test_read_chunk_array(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()

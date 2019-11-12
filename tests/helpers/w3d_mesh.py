@@ -85,6 +85,8 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
         user_text="",
         verts=[],
         normals=[],
+        tangents=[],
+        bitangents=[],
         vert_infs=[],
         triangles=[],
         shade_ids=[],
