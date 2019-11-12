@@ -33,8 +33,8 @@ def compare_vertex_material_infos(self, expected, actual):
 
 
 def get_vertex_material():
-    attrs = USE_DEPTH_CUE & ARGB_EMISSIVE_ONLY & COPY_SPECULAR_TO_DIFFUSE \
-        & DEPTH_CUE_TO_ALPHA
+    attrs = USE_DEPTH_CUE | ARGB_EMISSIVE_ONLY | COPY_SPECULAR_TO_DIFFUSE \
+        | DEPTH_CUE_TO_ALPHA
     return VertexMaterial(
         vm_name="VM_NAME",
         vm_info=get_vertex_material_info(

@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from shutil import copyfile
+
 import bpy
 from io_mesh_w3d.import_w3d import *
 from io_mesh_w3d.io_binary import *
@@ -9,10 +11,100 @@ from tests.helpers.w3d_mesh import get_mesh
 from tests.helpers.w3d_hlod import get_hlod
 from tests.helpers.w3d_box import get_box
 from tests.helpers.w3d_hierarchy import get_hierarchy
+from tests.helpers.w3d_animation import get_animation
+from tests.helpers.w3d_compressed_animation import get_compressed_animation
 from io_mesh_w3d.import_w3d import load
 
 
 class TestObjectImport(utils.W3dTestCase):
+    def test_import_no_skeleton_file(self):
+        hierarchy_name = "TestHiera_SKL"
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+        box = get_box()
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        # write to file
+        skn = open(self.outpath() + "base_skn.w3d", "wb")
+        for mesh in meshes:
+            mesh.write(skn)
+        hlod.write(skn)
+        box.write(skn)
+        skn.close()
+
+        # import
+        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, bpy.context, import_settings={})
+
+    def test_import_skeleton_file_referenced_by_animation(self):
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+        box = get_box()
+        animation = get_animation(hierarchy_name)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        # write to file
+        skn = open(self.outpath() + "base_skn.w3d", "wb")
+        for mesh in meshes:
+            mesh.write(skn)
+        hlod.write(skn)
+        box.write(skn)
+        animation.write(skn)
+        skn.close()
+
+        skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
+        hierarchy.write(skl)
+        skl.close()
+
+        # import
+        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, bpy.context, import_settings={})
+
+
+    def test_import_skeleton_file_referenced_by_compressed_animation(self):
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+        box = get_box()
+        comp_animation = get_compressed_animation(hierarchy_name)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        # write to file
+        skn = open(self.outpath() + "base_skn.w3d", "wb")
+        for mesh in meshes:
+            mesh.write(skn)
+        hlod.write(skn)
+        box.write(skn)
+        comp_animation.write(skn)
+        skn.close()
+
+        skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
+        hierarchy.write(skl)
+        skl.close()
+
+        # import
+        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, bpy.context, import_settings={})
+
+
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + "output.w3d", "wb")
 

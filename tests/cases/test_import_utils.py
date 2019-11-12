@@ -56,4 +56,4 @@ class TestImportUtils(utils.W3dTestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        read_chunk_array(context, io_stream, 27, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
+        read_chunk_array(context, io_stream, mat_pass.size() * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)

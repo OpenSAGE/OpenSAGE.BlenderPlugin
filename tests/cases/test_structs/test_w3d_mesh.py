@@ -16,7 +16,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(3321, expected.size())
+        self.assertEqual(3113, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -45,6 +45,8 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(expected.size(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
+        expected.tangents = [] # import not supported -> are calculated in blender
+        expected.bitangents = [] # import not supported -> are calculated in blender
         compare_meshes(self, expected, actual)
 
     def test_write_read_empty(self):
@@ -82,10 +84,11 @@ class TestMesh(utils.W3dTestCase):
             W3D_CHUNK_SHADERS,
             W3D_CHUNK_TEXTURES,
             W3D_CHUNK_SHADER_MATERIALS,
-            W3D_CHUNK_MATERIAL_PASS
-        ]
+            W3D_CHUNK_MATERIAL_PASS]
 
         expected = get_mesh()
+        expected.tangents = expected.normals
+        expected.bitangents = expected.normals
         expected.vert_infs = get_vertex_influences()
         expected.shader_materials = [get_shader_material()]
         expected.shaders = [get_shader()]

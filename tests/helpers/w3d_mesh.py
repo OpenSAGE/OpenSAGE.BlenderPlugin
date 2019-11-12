@@ -118,23 +118,24 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
     mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
 
-    mesh.tangents.append(Vector((0.577, 0.577, 0.577)))
-    mesh.tangents.append(Vector((0.577, 0.577, -0.577)))
-    mesh.tangents.append(Vector((0.577, -0.577, 0.577)))
-    mesh.tangents.append(Vector((0.577, -0.577, -0.577)))
-    mesh.tangents.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.tangents.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.tangents.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.tangents.append(Vector((-0.577, -0.577, -0.577)))
+    if shader_mats:
+        mesh.tangents.append(Vector((0.577, 0.577, 0.577)))
+        mesh.tangents.append(Vector((0.577, 0.577, -0.577)))
+        mesh.tangents.append(Vector((0.577, -0.577, 0.577)))
+        mesh.tangents.append(Vector((0.577, -0.577, -0.577)))
+        mesh.tangents.append(Vector((-0.577, 0.577, 0.577)))
+        mesh.tangents.append(Vector((-0.577, 0.577, -0.577)))
+        mesh.tangents.append(Vector((-0.577, -0.577, 0.577)))
+        mesh.tangents.append(Vector((-0.577, -0.577, -0.577)))
 
-    mesh.bitangents.append(Vector((0.577, 0.577, 0.577)))
-    mesh.bitangents.append(Vector((0.577, 0.577, -0.577)))
-    mesh.bitangents.append(Vector((0.577, -0.577, 0.577)))
-    mesh.bitangents.append(Vector((0.577, -0.577, -0.577)))
-    mesh.bitangents.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.bitangents.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.bitangents.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.bitangents.append(Vector((-0.577, -0.577, -0.577)))
+        mesh.bitangents.append(Vector((0.577, 0.577, 0.577)))
+        mesh.bitangents.append(Vector((0.577, 0.577, -0.577)))
+        mesh.bitangents.append(Vector((0.577, -0.577, 0.577)))
+        mesh.bitangents.append(Vector((0.577, -0.577, -0.577)))
+        mesh.bitangents.append(Vector((-0.577, 0.577, 0.577)))
+        mesh.bitangents.append(Vector((-0.577, 0.577, -0.577)))
+        mesh.bitangents.append(Vector((-0.577, -0.577, 0.577)))
+        mesh.bitangents.append(Vector((-0.577, -0.577, -0.577)))
 
     mesh.triangles.append(get_triangle(
         (4, 2, 0), 13, Vector((0.0, 0.0, 1.0)), 0.63))
@@ -269,6 +270,9 @@ def compare_meshes(self, expected, actual):
             self.assertAlmostEqual(expect[0], actual.normals[i][0], 1)
             self.assertAlmostEqual(expect[1], actual.normals[i][1], 1)
             self.assertAlmostEqual(expect[2], actual.normals[i][2], 1)
+
+    self.assertEqual(len(expected.tangents), len(actual.tangents))
+    self.assertEqual(len(expected.bitangents), len(actual.bitangents))
 
     self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
     for i, expect in enumerate(expected.shade_ids):

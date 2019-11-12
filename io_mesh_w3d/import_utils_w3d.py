@@ -41,9 +41,7 @@ def insensitive_path(path):
     return path
 
 
-def link_object_to_active_scene(obj, coll, appendix=""):
-    if obj.name in coll.objects:
-        obj.name += appendix
+def link_object_to_active_scene(obj, coll):
     coll.objects.link(obj)
     bpy.context.view_layer.objects.active = obj
     obj.select_set(True)
@@ -236,7 +234,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
 
-    link_object_to_active_scene(rig, coll, "SKL")
+    link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
 
     non_bone_pivots = []
