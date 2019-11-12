@@ -19,7 +19,7 @@ from tests.helpers.w3d_vertex_influence import *
 from tests.helpers.w3d_version import *
 
 
-def get_mesh_header(name="mesh_name", skin=False):
+def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
     header = MeshHeader(
         version=get_version(),
         attrs=0,
@@ -27,18 +27,20 @@ def get_mesh_header(name="mesh_name", skin=False):
         container_name="containerName",
         face_count=0,
         vert_count=0,
-        matl_count=0,
+        matl_count=2,
         damage_stage_count=0,
         sort_level=0,
         prelit_version=0,
         future_count=0,
-        vert_channel_flags=3,
+        vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
         face_channel_flags=1,
         min_corner=Vector((-1.0, -1.0, -1.0)),
         max_corner=Vector((1.0, 1.0, 1.0)),
         sph_center=Vector((0.0, 0.0, 0.0)),
         sph_radius=0.0)
 
+    if shader_mats:
+        header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
     if skin:
         header.attrs = GEOMETRY_TYPE_SKIN
     return header
@@ -79,7 +81,7 @@ def get_vertex_influences():
 
 def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh = Mesh(
-        header=get_mesh_header(name, skin),
+        header=get_mesh_header(name, skin, shader_mats),
         user_text="",
         verts=[],
         normals=[],
@@ -184,7 +186,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
 
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
-    mesh.header.matl_count = len(mesh.vert_materials)
+    mesh.header.matl_count = max(len(mesh.vert_materials), len(mesh.shader_materials))
     return mesh
 
 

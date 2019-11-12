@@ -103,8 +103,6 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     b_mesh.from_mesh(mesh)
 
     principleds = []
-    for mat_pass in mesh_struct.material_passes:
-        create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
     for shaderMat in mesh_struct.shader_materials:
         (material, principled) = create_material_from_shader_material(
@@ -117,10 +115,17 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
         mesh.materials.append(material)
         principleds.append(principled)
 
-    for i, texture in enumerate(mesh_struct.textures):
-        tex = load_texture(self, texture.name)
-        if tex is not None:
-            principleds[i].base_color_texture.image = tex
+    for mat_pass in mesh_struct.material_passes:
+        create_uvlayer(mesh, b_mesh, triangles, mat_pass)
+
+        if mat_pass.tx_stages:
+            tx_stage = mat_pass.tx_stages[0]
+            mat_id = mat_pass.vertex_material_ids[0]
+            tex_id = tx_stage.tx_ids[0]
+            texture = mesh_struct.textures[tex_id]
+            tex = load_texture(self, texture.name)
+            if tex is not None:
+                principleds[mat_id].base_color_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)

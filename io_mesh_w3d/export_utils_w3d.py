@@ -217,13 +217,18 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
             mesh_struct.material_passes.append(mat_pass)
 
+        header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
+
+        if mesh_struct.shader_materials:
+            header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+
         mesh_struct.mat_info = MaterialInfo(
             pass_count=len(mesh_struct.material_passes),
             vert_matl_count=len(mesh_struct.vert_materials),
             shader_count=len(mesh_struct.shaders),
             texture_count=len(mesh_struct.textures))
 
-        mesh_struct.header.matl_count = len(mesh_struct.vert_materials)
+        mesh_struct.header.matl_count = max(len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
     return mesh_structs
 

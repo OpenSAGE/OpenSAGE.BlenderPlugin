@@ -40,15 +40,16 @@ W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 class ShaderMaterialProperty(Struct):
     type = 0
     name = ""
-    num_chars = 0
     value = None
 
     @staticmethod
     def read(io_stream):
+        type = read_long(io_stream)
+        read_long(io_stream)  # num available chars
+        name=read_string(io_stream)
         result = ShaderMaterialProperty(
-            type=read_long(io_stream),
-            num_chars=read_long(io_stream),
-            name=read_string(io_stream))
+            type=type,
+            name=name)
 
         if result.type == 1:
             read_long(io_stream)  # num available chars
@@ -91,7 +92,7 @@ class ShaderMaterialProperty(Struct):
             W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream,
             self.size(False))
         write_long(self.type, io_stream)
-        write_long(self.num_chars, io_stream)
+        write_long(len(self.name) + 1, io_stream)
         write_string(self.name, io_stream)
 
         if self.type == 1:

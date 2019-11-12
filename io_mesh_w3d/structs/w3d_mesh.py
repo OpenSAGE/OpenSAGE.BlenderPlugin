@@ -18,8 +18,13 @@ from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
+
 GEOMETRY_TYPE_SKIN = 0x00020000
 
+VERTEX_CHANNEL_LOCATION = 0x01
+VERTEX_CHANNEL_NORMAL = 0x02
+VERTEX_CHANNEL_TANGENT = 0x20
+VERTEX_CHANNEL_BITANGENT = 0x40
 
 class MeshHeader(Struct):
     version = Version()
@@ -33,7 +38,7 @@ class MeshHeader(Struct):
     sort_level = 0
     prelit_version = 0
     future_count = 0
-    vert_channel_flags = 3
+    vert_channel_flags = 0
     face_channel_flags = 1
     min_corner = Vector((0.0, 0.0, 0.0))
     max_corner = Vector((0.0, 0.0, 0.0))
