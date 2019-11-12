@@ -12,7 +12,7 @@ from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 def get_shader_material_header():
     return ShaderMaterialHeader(
         number=1,
-        type_name="headerType",
+        type_name="NormalMapped.fx",
         reserved=2)
 
 

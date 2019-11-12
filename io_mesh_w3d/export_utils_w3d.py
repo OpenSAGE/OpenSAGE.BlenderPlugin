@@ -181,7 +181,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
                 vertex_material_ids=[],
-                shader_ids=[i],
+                shader_ids=[],
                 dcg=[],
                 dig=[],
                 scg=[],
@@ -198,6 +198,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                     retrieve_shader_material(material, principled))
             else:
                 mesh_struct.shaders.append(retrieve_shader(material))
+                mat_pass.shader_ids=[i]
                 mat_pass.vertex_material_ids = [i]
                 mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(
@@ -329,7 +330,7 @@ def append_property(properties, type, name, value):
 def retrieve_shader_material(material, principled):
     shader_material = ShaderMaterial(
         header=ShaderMaterialHeader(
-            type_name="headerType"),
+            type_name="NormalMapped.fx"),
         properties=[])
 
     principled = retrieve_principled_bsdf(material)

@@ -92,7 +92,7 @@ def compare_texture_stages(self, expected, actual):
 def get_material_pass(index=0, shader_mat=False, num_stages=1):
     matpass = MaterialPass(
         vertex_material_ids=[],
-        shader_ids=[index],
+        shader_ids=[],
         dcg=[],
         dig=[],
         scg=[],
@@ -102,19 +102,18 @@ def get_material_pass(index=0, shader_mat=False, num_stages=1):
 
     if shader_mat:
         matpass.shader_material_ids = [index]
+        matpass.tx_coords = get_uvs()
     else:
+        matpass.shader_ids=[index]
         matpass.vertex_material_ids = [index]
+        for i in range(num_stages):
+            matpass.tx_stages.append(get_texture_stage(index=index + i))
 
     for _ in range(8):
         matpass.dcg.append(get_rgba())
         matpass.dig.append(get_rgba())
         matpass.scg.append(get_rgba())
 
-    if shader_mat:
-        matpass.tx_coords = get_uvs()
-    else:
-        for i in range(num_stages):
-            matpass.tx_stages.append(get_texture_stage(index=index + i))
     return matpass
 
 
