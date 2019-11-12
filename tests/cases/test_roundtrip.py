@@ -49,11 +49,17 @@ class TestRoundtrip(utils.W3dTestCase):
         comp_animation.write(ani)
         ani.close()
 
+        comp_ani = open(self.outpath() + "base_comp_ani.w3d", "wb")
+        comp_animation.write(comp_ani)
+        comp_ani.close()
+
         # import
         model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
         load(model, bpy.context, import_settings={})
         anim = utils.ImportWrapper(self.outpath() + "base_ani.w3d")
         load(anim, bpy.context, import_settings={})
+        comp_anim = utils.ImportWrapper(self.outpath() + "base_comp_ani.w3d")
+        load(comp_anim, bpy.context, import_settings={})
 
         # export
         export_settings = {}
@@ -69,7 +75,7 @@ class TestRoundtrip(utils.W3dTestCase):
 
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "TC"
-        save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
+        save(self.outpath() + "output_comp_ani.w3d", bpy.context, export_settings)
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"

@@ -117,6 +117,8 @@ def load(self, context, import_settings):
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 hlod.header.hierarchy_name.lower() + ".w3d"
+
+        # if we load a animation file afterwards and need the hierarchy again
         elif animation is not None and animation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 animation.header.hierarchy_name.lower() + ".w3d"
