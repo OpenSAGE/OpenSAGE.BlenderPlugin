@@ -16,7 +16,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(3113, expected.size())
+        self.assertEqual(5433, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -33,7 +33,7 @@ class TestMesh(utils.W3dTestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(3601, expected.size())
+        self.assertEqual(6113, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -71,6 +71,8 @@ class TestMesh(utils.W3dTestCase):
             W3D_CHUNK_VERTICES,
             # vertices copies not used
             W3D_CHUNK_VERTEX_NORMALS,
+            W3D_CHUNK_TANGENTS,
+            W3D_CHUNK_BITANGENTS,
             # normals copies not used
             W3D_CHUNK_TRIANGLES,
             W3D_CHUNK_VERTEX_INFLUENCES,
@@ -177,6 +179,10 @@ class TestMesh(utils.W3dTestCase):
 
         self.assertEqual(12, vec_list_size(mesh.normals, False))
 
+        self.assertEqual(12, vec_list_size(mesh.tangents, False))
+
+        self.assertEqual(12, vec_list_size(mesh.bitangents, False))
+
         self.assertEqual(32, list_size(mesh.triangles, False))
 
         self.assertEqual(16, list_size(mesh.shaders, False))
@@ -191,4 +197,4 @@ class TestMesh(utils.W3dTestCase):
 
         self.assertEqual(78, list_size(mesh.vert_materials, False))
 
-        self.assertEqual(1041, mesh.size())
+        self.assertEqual(1081, mesh.size())

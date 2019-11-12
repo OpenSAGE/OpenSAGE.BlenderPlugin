@@ -141,14 +141,12 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             mesh_struct.triangles.append(triangle)
 
             for vert in [mesh.loops[i] for i in face.loop_indices]:
+                # TODO: compute the mean value from the face-vertex-tangents etc?
                 normal = vert.normal
                 tangent = vert.tangent
-                #print("#####")
-                #print(i)
-                #print(vert.index)
-                #mesh_struct.tangents[vert.index] = tangent
-                #print(tangent)
-                #bitangent = vert.bitangent_sign * normal.cross(tangent)
+                mesh_struct.tangents[vert.vertex_index] = tangent
+                bitangent = vert.bitangent_sign * normal.cross(tangent)
+                mesh_struct.bitangents[vert.vertex_index] = bitangent
 
         header.face_count = len(mesh_struct.triangles)
 

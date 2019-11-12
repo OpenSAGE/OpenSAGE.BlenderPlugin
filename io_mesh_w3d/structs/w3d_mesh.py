@@ -131,6 +131,8 @@ class Mesh(Struct):
         result = Mesh(
             verts=[],
             normals=[],
+            tangents = [],
+            bitangents = [],
             vert_infs=[],
             triangles=[],
             shade_ids=[],
@@ -226,6 +228,8 @@ class Mesh(Struct):
         size += text_size(self.user_text)
         size += vec_list_size(self.verts)
         size += vec_list_size(self.normals)
+        size += vec_list_size(self.tangents)
+        size += vec_list_size(self.bitangents)
         size += list_size(self.triangles)
         size += list_size(self.vert_infs)
         size += list_size(self.shaders)
@@ -257,6 +261,14 @@ class Mesh(Struct):
         write_chunk_head(W3D_CHUNK_VERTEX_NORMALS, io_stream,
                          vec_list_size(self.normals, False))
         write_list(self.normals, io_stream, write_vector)
+
+        write_chunk_head(W3D_CHUNK_TANGENTS, io_stream,
+                         vec_list_size(self.tangents, False))
+        write_list(self.tangents, io_stream, write_vector)
+
+        write_chunk_head(W3D_CHUNK_BITANGENTS, io_stream,
+                         vec_list_size(self.bitangents, False))
+        write_list(self.bitangents, io_stream, write_vector)
 
         write_chunk_head(W3D_CHUNK_TRIANGLES, io_stream,
                          list_size(self.triangles, False))

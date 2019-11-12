@@ -114,6 +114,24 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
     mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
 
+    mesh.tangents.append(Vector((0.577, 0.577, 0.577)))
+    mesh.tangents.append(Vector((0.577, 0.577, -0.577)))
+    mesh.tangents.append(Vector((0.577, -0.577, 0.577)))
+    mesh.tangents.append(Vector((0.577, -0.577, -0.577)))
+    mesh.tangents.append(Vector((-0.577, 0.577, 0.577)))
+    mesh.tangents.append(Vector((-0.577, 0.577, -0.577)))
+    mesh.tangents.append(Vector((-0.577, -0.577, 0.577)))
+    mesh.tangents.append(Vector((-0.577, -0.577, -0.577)))
+
+    mesh.bitangents.append(Vector((0.577, 0.577, 0.577)))
+    mesh.bitangents.append(Vector((0.577, 0.577, -0.577)))
+    mesh.bitangents.append(Vector((0.577, -0.577, 0.577)))
+    mesh.bitangents.append(Vector((0.577, -0.577, -0.577)))
+    mesh.bitangents.append(Vector((-0.577, 0.577, 0.577)))
+    mesh.bitangents.append(Vector((-0.577, 0.577, -0.577)))
+    mesh.bitangents.append(Vector((-0.577, -0.577, 0.577)))
+    mesh.bitangents.append(Vector((-0.577, -0.577, -0.577)))
+
     mesh.triangles.append(get_triangle(
         (4, 2, 0), 13, Vector((0.0, 0.0, 1.0)), 0.63))
     mesh.triangles.append(get_triangle(
@@ -196,6 +214,8 @@ def get_mesh_minimal():
         user_text="text",
         verts=[Vector()],
         normals=[Vector()],
+        tangents=[Vector()],
+        bitangents=[Vector()],
         vert_infs=[get_vertex_influence()],
         triangles=[get_triangle()],
         shade_ids=[1],
@@ -214,6 +234,8 @@ def get_mesh_empty():
         user_text="",
         verts=[Vector()],
         normals=[Vector()],
+        tangents=[],
+        bitangents=[],
         vert_infs=[],
         triangles=[get_triangle()],
         shade_ids=[],
