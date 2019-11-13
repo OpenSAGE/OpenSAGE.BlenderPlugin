@@ -33,7 +33,7 @@ def save(self, context, export_settings):
         for box in boxes:
             box.write(sknFile)
 
-        meshes = retrieve_meshes(hierarchy, rig, hlod, containerName)
+        meshes = retrieve_meshes(self, hierarchy, rig, hlod, containerName)
         for mesh in meshes:
             mesh.write(sknFile)
 

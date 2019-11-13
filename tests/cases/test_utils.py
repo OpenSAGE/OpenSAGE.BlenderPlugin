@@ -120,7 +120,7 @@ class TestUtils(utils.W3dTestCase):
 
         actual = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual)
-        retrieve_meshes(hierarchy, rig, actual, "containerName")
+        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
 
@@ -162,7 +162,7 @@ class TestUtils(utils.W3dTestCase):
 
         actual_hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual_hlod)
-        actual_meshs = retrieve_meshes(actual_hiera, rig, actual_hlod, "containerName")
+        actual_meshs = retrieve_meshes(context, actual_hiera, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
 
         self.assertEqual(len(meshes), len(actual_meshs))
@@ -193,7 +193,7 @@ class TestUtils(utils.W3dTestCase):
 
         hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(hlod)
-        actuals = retrieve_meshes(hierarchy, rig, hlod, "containerName")
+        actuals = retrieve_meshes(context, hierarchy, rig, hlod, "containerName")
 
         self.assertEqual(len(expecteds), len(actuals))
         for i, expected in enumerate(expecteds):

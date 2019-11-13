@@ -56,7 +56,7 @@ def retrieve_boxes(hlod):
     return boxes
 
 
-def retrieve_meshes(hierarchy, rig, hlod, container_name):
+def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
     for mesh_object in get_objects('MESH'):
@@ -85,7 +85,6 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
         mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
         triangulate(mesh)
-        mesh.calc_tangents()
 
         header.vert_count = len(mesh.vertices)
 
@@ -108,17 +107,16 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                             vertInf.xtra_idx = index
                     vertInf.xtra_inf = vertex.groups[1].weight
 
-                elif len(vertex.groups) > 2:
-                    print("Error: max 2 bone influences per vertex supported!")
+                if len(vertex.groups) > 2:
+                    message = "WARNING: max 2 bone influences per vertex supported!"
+                    print(message)
+                    context.report({'ERROR'}, message)
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
 
             mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
-
-        mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
-        mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
@@ -128,6 +126,11 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             (mesh_object.bound_box[6][0],
              mesh_object.bound_box[6][1],
              mesh_object.bound_box[6][2]))
+
+        if mesh.uv_layers:
+            mesh.calc_tangents()
+            mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
+            mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
         for face in mesh.polygons:
             triangle = Triangle()
@@ -140,13 +143,14 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
-            for vert in [mesh.loops[i] for i in face.loop_indices]:
-                # TODO: compute the mean value from the face-vertex-tangents etc?
-                normal = vert.normal
-                tangent = vert.tangent
-                mesh_struct.tangents[vert.vertex_index] = tangent
-                bitangent = vert.bitangent_sign * normal.cross(tangent)
-                mesh_struct.bitangents[vert.vertex_index] = bitangent
+            if mesh.uv_layers:
+                for vert in [mesh.loops[i] for i in face.loop_indices]:
+                    # TODO: compute the mean value from the face-vertex-tangents etc?
+                    normal = vert.normal
+                    tangent = vert.tangent
+                    mesh_struct.tangents[vert.vertex_index] = tangent
+                    bitangent = vert.bitangent_sign * normal.cross(tangent)
+                    mesh_struct.bitangents[vert.vertex_index] = bitangent
 
         header.face_count = len(mesh_struct.triangles)
 
@@ -219,7 +223,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
-        if mesh_struct.shader_materials:
+        if mesh_struct.shader_materials and mesh.uv_layers:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
         else:
             mesh_struct.tangents = []
