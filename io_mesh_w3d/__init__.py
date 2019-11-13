@@ -16,7 +16,7 @@ from bpy.props import StringProperty,\
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d)',
     'author': 'OpenSage Developers',
-    'version': (0, 2, 0),
+    'version': (0, 2, 1),
     "blender": (2, 80, 0),
     'location': 'File > Import/Export > Westerwood W3D (.w3d)',
     'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
@@ -160,8 +160,6 @@ Object.UserText = StringProperty(
     description="This is a text defined by the user",
     default="")
 
-Object.CastS
-
 
 class OBJECT_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
@@ -286,7 +284,7 @@ Material.bump_uv_scale = FloatVectorProperty(
     description="Bump uv scale")
 
 Material.sampler_clamp_uv_no_mip = FloatVectorProperty(
-    name="Sampker clamp UV no MIP",
+    name="Sampler clamp UV no MIP",
     subtype='TRANSLATION',
     size=3,
     default=(0.0, 0.0, 0.0),
