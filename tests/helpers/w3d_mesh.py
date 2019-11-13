@@ -189,7 +189,8 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
 
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
-    mesh.header.matl_count = max(len(mesh.vert_materials), len(mesh.shader_materials))
+    mesh.header.matl_count = max(
+        len(mesh.vert_materials), len(mesh.shader_materials))
     return mesh
 
 

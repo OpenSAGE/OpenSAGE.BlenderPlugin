@@ -29,6 +29,45 @@ class TestShaderMaterial(utils.W3dTestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
+    def test_read_invalid_property(self):
+        context = utils.ImportWrapper(self.outpath())
+        io_stream = io.BytesIO()
+
+        name = "InvalidProp"
+        size = 8 + len(name) + 1 + 1
+        type = 0
+
+        write_chunk_head(
+            W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
+        write_long(type, io_stream)
+        write_long(len(name) + 1, io_stream)
+        write_string(name, io_stream)
+        write_ubyte(0x00, io_stream)  # fake data
+
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
+        self.assertEqual(size, chunkSize)
+
+        actual = ShaderMaterialProperty.read(context, io_stream)
+
+    def test_write_invalid_property(self):
+        io_stream = io.BytesIO()
+
+        prop = ShaderMaterialProperty(
+            type=0,
+            name="InvalidProp",
+            value=0x00)
+
+        prop.write(io_stream)
+
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
+        self.assertEqual(prop.size(False), chunkSize)
+
     def test_write_read_empty(self):
         expected = get_shader_material_empty()
 
@@ -49,7 +88,8 @@ class TestShaderMaterial(utils.W3dTestCase):
     def test_unknown_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL,
+                         output, 9, has_sub_chunks=True)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)

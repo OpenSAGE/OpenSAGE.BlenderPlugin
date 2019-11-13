@@ -107,7 +107,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['w3d_mode'] = self.export_mode
         export_settings['w3d_compression'] = self.animation_compression
 
-        return export_w3d.save(self.filepath, context, export_settings)
+        return export_w3d.save(self, context, export_settings)
 
     def draw(self, _context):
         # self.layout.prop(self, 'ui_tab', expand=True)
@@ -160,6 +160,8 @@ Object.UserText = StringProperty(
     description="This is a text defined by the user",
     default="")
 
+Object.CastS
+
 
 class OBJECT_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
@@ -175,7 +177,7 @@ class OBJECT_PANEL_PT_w3d(Panel):
 
 Material.attributes = EnumProperty(
     name="attributes",
-    description="TEST",
+    description="Attributes that define the behaviour of this material",
     items=[
         ('DEFAULT', 'Default', 'desc: todo', 0),
         ('USE_DEPTH_CUE', 'UseDepthCue', 'desc: todo', 1),
@@ -205,7 +207,7 @@ Material.translucency = FloatProperty(
     name="Translucency",
     default=0.0,
     min=0.0, max=1.0,
-    description="translucency property")
+    description="Translucency property")
 
 Material.opacity = FloatProperty(
     name="Opacity",
@@ -284,7 +286,7 @@ Material.bump_uv_scale = FloatVectorProperty(
     description="Bump uv scale")
 
 Material.sampler_clamp_uv_no_mip = FloatVectorProperty(
-    name="sampler_clamp_uv_no_mip",
+    name="Sampker clamp UV no MIP",
     subtype='TRANSLATION',
     size=3,
     default=(0.0, 0.0, 0.0),

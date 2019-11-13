@@ -62,20 +62,24 @@ class TestRoundtrip(utils.W3dTestCase):
         load(comp_anim, bpy.context, import_settings={})
 
         # export
+        context = utils.ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
         export_settings['w3d_mode'] = "M"
-        save(self.outpath() + "output_skn.w3d", bpy.context, export_settings)
+        save(context, bpy.context, export_settings)
 
+        context = utils.ImportWrapper(self.outpath() + "output_skl.w3d")
         export_settings['w3d_mode'] = "H"
-        save(self.outpath() + "output_skl.w3d", bpy.context, export_settings)
+        save(context, bpy.context, export_settings)
 
+        context = utils.ImportWrapper(self.outpath() + "output_ani.w3d")
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "U"
-        save(self.outpath() + "output_ani.w3d", bpy.context, export_settings)
+        save(context, bpy.context, export_settings)
 
+        context = utils.ImportWrapper(self.outpath() + "output_comp_ani.w3d")
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "TC"
-        save(self.outpath() + "output_comp_ani.w3d", bpy.context, export_settings)
+        save(context, bpy.context, export_settings)
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"
@@ -109,7 +113,7 @@ class TestRoundtrip(utils.W3dTestCase):
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
-
-        save(self.outpath() + "output.w3d", bpy.context, export_settings)
+        context = utils.ImportWrapper(self.outpath() + "output.w3d")
+        save(context, bpy.context, export_settings)
 
         # TODO: compare exported file with output.w3d

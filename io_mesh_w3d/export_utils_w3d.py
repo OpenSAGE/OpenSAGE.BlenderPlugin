@@ -17,7 +17,8 @@ from io_mesh_w3d.structs.w3d_compressed_animation import *
 bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
 pick_plane_names = ["PICK"]
 
-def get_objects(type): #MESH, ARMATURE
+
+def get_objects(type):  # MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
 
 
@@ -56,7 +57,7 @@ def retrieve_boxes(hlod):
     return boxes
 
 
-def retrieve_meshes(hierarchy, rig, hlod, container_name):
+def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
     for mesh_object in get_objects('MESH'):
@@ -85,7 +86,6 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
         mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
         triangulate(mesh)
-        mesh.calc_tangents()
 
         header.vert_count = len(mesh.vertices)
 
@@ -108,17 +108,16 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                             vertInf.xtra_idx = index
                     vertInf.xtra_inf = vertex.groups[1].weight
 
-                elif len(vertex.groups) > 2:
-                    print("Error: max 2 bone influences per vertex supported!")
+                if len(vertex.groups) > 2:
+                    message = "WARNING: max 2 bone influences per vertex supported!"
+                    print(message)
+                    context.report({'ERROR'}, message)
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
 
             mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
-
-        mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
-        mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
@@ -128,6 +127,11 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             (mesh_object.bound_box[6][0],
              mesh_object.bound_box[6][1],
              mesh_object.bound_box[6][2]))
+
+        if mesh.uv_layers:
+            mesh.calc_tangents()
+            mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
+            mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
         for face in mesh.polygons:
             triangle = Triangle()
@@ -140,13 +144,14 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
-            for vert in [mesh.loops[i] for i in face.loop_indices]:
-                # TODO: compute the mean value from the face-vertex-tangents etc?
-                normal = vert.normal
-                tangent = vert.tangent
-                mesh_struct.tangents[vert.vertex_index] = tangent
-                bitangent = vert.bitangent_sign * normal.cross(tangent)
-                mesh_struct.bitangents[vert.vertex_index] = bitangent
+            if mesh.uv_layers:
+                for vert in [mesh.loops[i] for i in face.loop_indices]:
+                    # TODO: compute the mean value from the face-vertex-tangents etc?
+                    normal = vert.normal
+                    tangent = vert.tangent
+                    mesh_struct.tangents[vert.vertex_index] = tangent
+                    bitangent = vert.bitangent_sign * normal.cross(tangent)
+                    mesh_struct.bitangents[vert.vertex_index] = bitangent
 
         header.face_count = len(mesh_struct.triangles)
 
@@ -198,7 +203,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
                     retrieve_shader_material(material, principled))
             else:
                 mesh_struct.shaders.append(retrieve_shader(material))
-                mat_pass.shader_ids=[i]
+                mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
                 mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(
@@ -219,7 +224,7 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
-        if mesh_struct.shader_materials:
+        if mesh_struct.shader_materials and mesh.uv_layers:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
         else:
             mesh_struct.tangents = []
@@ -231,7 +236,8 @@ def retrieve_meshes(hierarchy, rig, hlod, container_name):
             shader_count=len(mesh_struct.shaders),
             texture_count=len(mesh_struct.textures))
 
-        mesh_struct.header.matl_count = max(len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
+        mesh_struct.header.matl_count = max(
+            len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
     return mesh_structs
 
@@ -427,9 +433,9 @@ def retrieve_hierarchy(container_name):
         pivot_fixups=[])
 
     root = HierarchyPivot(
-            name="ROOTTRANSFORM",
-            parentID=-1,
-            translation=Vector())
+        name="ROOTTRANSFORM",
+        parentID=-1,
+        translation=Vector())
     hierarchy.pivots.append(root)
 
     rig = None
@@ -511,23 +517,22 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             pivot_name = fcu.data_path.split('"')[1]
         else:
             pivot_name = name
-        pivot_index = 0
 
+        pivot_index = 0
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
                 pivot_index = i
 
-        channel_type = 0
-        vec_len = 1
         index = fcu.array_index
+        channel_type = index
+        vec_len = 1
+
         if "rotation_quaternion" in fcu.data_path:
             channel_type = 6
             vec_len = 4
-        else:
-            channel_type = index
 
         if not (channel_type == 6 and index > 0):
-           if timecoded:
+            if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
                     type=channel_type,
@@ -537,7 +542,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 num_keyframes = len(fcu.keyframe_points)
                 channel.time_codes = [None] * num_keyframes
                 channel.num_time_codes = num_keyframes
-           else:
+            else:
                 range_ = fcu.range()
                 channel = AnimationChannel(
                     first_frame=int(range_[0]),
@@ -575,7 +580,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
-                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                        channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
                     channel.data[i][index] = val
 
         if channel_type < 6 or index == 3:
@@ -589,14 +594,15 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     channels = []
 
     for mesh in get_objects('MESH'):
-        channels.extend(retrieve_channels(mesh, hierarchy, timecoded, mesh.name))
+        channels.extend(retrieve_channels(
+            mesh, hierarchy, timecoded, mesh.name))
 
     for armature in get_objects('ARMATURE'):
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)
-        ani_struct.header.flavor = 0 # time coded
+        ani_struct.header.flavor = 0  # time coded
     else:
         ani_struct = Animation(channels=channels)
 

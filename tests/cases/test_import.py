@@ -41,7 +41,6 @@ class TestObjectImport(utils.W3dTestCase):
         model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
         load(model, bpy.context, import_settings={})
 
-
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + "output.w3d", "wb")
 

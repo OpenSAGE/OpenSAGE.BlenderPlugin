@@ -49,7 +49,8 @@ class TestMaterialPass(utils.W3dTestCase):
     def test_unknown_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_MATERIAL_PASS, output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_MATERIAL_PASS,
+                         output, 9, has_sub_chunks=True)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
@@ -116,7 +117,8 @@ class TestTextureStage(utils.W3dTestCase):
     def test_unsupported_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_TEXTURE_STAGE, output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_TEXTURE_STAGE,
+                         output, 9, has_sub_chunks=True)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)

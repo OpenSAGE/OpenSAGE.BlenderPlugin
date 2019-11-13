@@ -35,7 +35,8 @@ class TestHLod(utils.W3dTestCase):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HLOD, output, 26, has_sub_chunks=True)
 
-        write_chunk_head(W3D_CHUNK_HLOD_LOD_ARRAY, output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_HLOD_LOD_ARRAY,
+                         output, 9, has_sub_chunks=True)
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
 

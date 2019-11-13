@@ -17,16 +17,16 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 from io_mesh_w3d.structs.w3d_vertex_material import *
 
 
-def read_chunk_array(self, io_stream, chunk_end, type_, read_func):
+def read_chunk_array(context, io_stream, chunk_end, type_, read_func):
     result = []
 
     while io_stream.tell() < chunk_end:
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         if chunk_type == type_:
-            result.append(read_func(self, io_stream, subchunk_end))
+            result.append(read_func(context, io_stream, subchunk_end))
         else:
-            skip_unknown_chunk(self, io_stream, chunk_type, chunk_size)
+            skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
     return result
 
 
@@ -109,7 +109,8 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
         principleds.append(principled)
 
     for vertMat in mesh_struct.vert_materials:
-        (material, principled) = create_material_from_vertex_material(self, mesh_struct, vertMat)
+        (material, principled) = create_material_from_vertex_material(
+            self, mesh_struct, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
@@ -160,15 +161,17 @@ def rig_mesh(mesh_struct, hierarchy, hlod, rig, coll):
     else:
         pivot = None
         mesh_name = mesh_struct.header.mesh_name
-        pivot_list = [pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
+        pivot_list = [
+            pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
         if not pivot_list:
-             sub_objects_list = [sub_object for obj in hlod.lod_array.sub_objects if obj.name == mesh_name]
-             if not sub_objects_list:
-                 return
-             sub_object = sub_objects[0]
-             pivot = hierarchy.pivots[sub_object.bone]
+            sub_objects_list = [
+                sub_object for obj in hlod.lod_array.sub_objects if obj.name == mesh_name]
+            if not sub_objects_list:
+                return
+            sub_object = sub_objects[0]
+            pivot = hierarchy.pivots[sub_object.bone]
         else:
-             pivot = pivot_list[0]
+            pivot = pivot_list[0]
 
         if pivot is None:
             return
@@ -308,7 +311,7 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
 
     principled = create_principled_bsdf(
         self, material=material, base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
-            alpha=vert_mat.vm_info.opacity)
+        alpha=vert_mat.vm_info.opacity)
     return (material, principled)
 
 
@@ -348,7 +351,7 @@ def create_material_from_shader_material(self, mesh, shader_mat):
                 {'ERROR'}, "shader property not implemented: " + prop.name)
 
     principled = create_principled_bsdf(self, material=material, diffuse_tex=diffuse,
-                           normal_tex=normal, bump_scale=bump_scale)
+                                        normal_tex=normal, bump_scale=bump_scale)
     return (material, principled)
 
 
@@ -413,7 +416,8 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
         if len(mat_pass.tx_stages) > 0:
             tx_coords = mat_pass.tx_stages[0].tx_coords
         if len(mat_pass.tx_stages) > 1:
-            print("Warning!: only one texture stage per material pass supported on export")
+            print(
+                "Warning!: only one texture stage per material pass supported on export")
 
     if not tx_coords:
         return
@@ -424,7 +428,6 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
         for loop in face.loops:
             idx = tri[loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx]
-
 
 
 ##########################################################################
@@ -601,7 +604,7 @@ def create_box(box, coll):
 
     name = box.name
     if "." in name:
-       name = name.split(".")[1]
+        name = name.split(".")[1]
     cube = bpy.data.meshes.new(name)
     box_object = bpy.data.objects.new(name, cube)
     box_object.display_type = 'WIRE'

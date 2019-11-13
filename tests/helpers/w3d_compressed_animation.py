@@ -72,7 +72,7 @@ def get_time_coded_animation_channel(type_=0, random_interpolation=True):
         datum = TimeCodedDatum(
             time_code=i,
             value=value)
-        if random_interpolation: 
+        if random_interpolation:
             datum.non_interpolated = (random() < 0.5)
         channel.time_codes.append(datum)
     return channel
@@ -330,7 +330,7 @@ def get_compressed_animation(
         bit_channels=True,
         motion_tc=True,
         motion_ad4=True,
-        motion_ad8=True, 
+        motion_ad8=True,
         random_interpolation=True):
 
     animation = CompressedAnimation(

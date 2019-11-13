@@ -59,7 +59,7 @@ class RGBA(Struct):
         write_float(self.b / 255, io_stream)
         write_float(self.a / 255, io_stream)
 
-    def to_vector_rgba(self, alpha = None, scale=255.0):
+    def to_vector_rgba(self, alpha=None, scale=255.0):
         if alpha is None:
             alpha = self.a / scale
         return (self.r / scale, self.g / scale, self.b / scale, self.a / scale)
