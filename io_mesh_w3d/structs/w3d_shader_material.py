@@ -43,7 +43,7 @@ class ShaderMaterialProperty(Struct):
     value = None
 
     @staticmethod
-    def read(io_stream):
+    def read(context, io_stream):
         type = read_long(io_stream)
         read_long(io_stream)  # num available chars
         name=read_string(io_stream)
@@ -66,6 +66,10 @@ class ShaderMaterialProperty(Struct):
             result.value = read_long(io_stream)
         elif result.type == 7:
             result.value = read_ubyte(io_stream)
+        else:
+            message = "WARNING: unknown property type in shader material: %s" % result.type
+            print(message)
+            context.report({'ERROR'}, message)
         return result
 
     def size(self, include_head=True):
@@ -85,6 +89,9 @@ class ShaderMaterialProperty(Struct):
             size += 4
         elif self.type == 7:
             size += 1
+        else:
+            message = "WARNING: invalid property type in shader material: %s" % self.type
+            print(message)
         return size
 
     def write(self, io_stream):
@@ -110,6 +117,9 @@ class ShaderMaterialProperty(Struct):
             write_long(self.value, io_stream)
         elif self.type == 7:
             write_ubyte(self.value, io_stream)
+        else:
+            message = "WARNING: invalid property type in shader material: %s" % self.type
+            print(message)
 
 
 W3D_CHUNK_SHADER_MATERIAL = 0x51
@@ -131,7 +141,7 @@ class ShaderMaterial(Struct):
                 result.header = ShaderMaterialHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADER_MATERIAL_PROPERTY:
                 result.properties.append(
-                    ShaderMaterialProperty.read(io_stream))
+                    ShaderMaterialProperty.read(context, io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result

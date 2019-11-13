@@ -7,9 +7,9 @@ import bpy
 from io_mesh_w3d.export_utils_w3d import *
 
 
-def save(givenfilepath, _context, export_settings):
+def save(self, context, export_settings):
     """Start the w3d export and save to a .w3d file."""
-    print('Saving file', givenfilepath)
+    print('Saving file', self.filepath)
 
     export_mode = export_settings['w3d_mode']
     print("export mode: " + str(export_mode))
@@ -17,17 +17,17 @@ def save(givenfilepath, _context, export_settings):
     try:
         bpy.ops.object.mode_set(mode='OBJECT')
     except:
-        print("nice try")
+        print("could not set mode to OBJECT")
 
     containerName = (os.path.splitext(
-        os.path.basename(givenfilepath))[0]).upper()
+        os.path.basename(self.filepath))[0]).upper()
 
     (hierarchy, rig) = retrieve_hierarchy(containerName)
 
     hlod = create_hlod(containerName, hierarchy.header.name)
 
     if export_mode in ('M', 'HAM'):
-        sknFile = open(givenfilepath, "wb")
+        sknFile = open(self.filepath, "wb")
 
         boxes = retrieve_boxes(hlod)
         for box in boxes:
@@ -45,15 +45,15 @@ def save(givenfilepath, _context, export_settings):
         sknFile.close()
 
     elif export_mode == 'H':
-        filename = os.path.splitext(os.path.basename(givenfilepath))[0]
-        sklFilePath = givenfilepath.replace(
+        filename = os.path.splitext(os.path.basename(self.filepath))[0]
+        sklFilePath = self.filepath.replace(
             filename, hierarchy.header.name.lower())
         sklFile = open(sklFilePath, "wb")
         hierarchy.write(sklFile)
         sklFile.close()
 
     elif export_mode == 'A':
-        aniFile = open(givenfilepath, "wb")
+        aniFile = open(self.filepath, "wb")
         timecoded = False
         compressionMode = export_settings['w3d_compression']
 
@@ -63,5 +63,10 @@ def save(givenfilepath, _context, export_settings):
         animation = retrieve_animation(containerName, hierarchy, rig, timecoded)
         animation.write(aniFile)
         aniFile.close()
+
+    else:
+         message = "WARNING: unsupported export mode: %s" % export_mode
+         print(message)
+         self.report({'ERROR'}, message)
 
     return {'FINISHED'}

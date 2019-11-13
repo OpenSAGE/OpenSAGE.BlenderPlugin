@@ -511,20 +511,19 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             pivot_name = fcu.data_path.split('"')[1]
         else:
             pivot_name = name
-        pivot_index = 0
 
+        pivot_index = 0
         for i, pivot in enumerate(hierarchy.pivots):
             if pivot.name == pivot_name:
                 pivot_index = i
 
-        channel_type = 0
-        vec_len = 1
         index = fcu.array_index
+        channel_type = index
+        vec_len = 1
+
         if "rotation_quaternion" in fcu.data_path:
             channel_type = 6
             vec_len = 4
-        else:
-            channel_type = index
 
         if not (channel_type == 6 and index > 0):
            if timecoded:

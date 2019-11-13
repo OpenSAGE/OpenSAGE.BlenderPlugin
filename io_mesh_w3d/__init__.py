@@ -107,7 +107,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['w3d_mode'] = self.export_mode
         export_settings['w3d_compression'] = self.animation_compression
 
-        return export_w3d.save(self.filepath, context, export_settings)
+        return export_w3d.save(self, context, export_settings)
 
     def draw(self, _context):
         # self.layout.prop(self, 'ui_tab', expand=True)
