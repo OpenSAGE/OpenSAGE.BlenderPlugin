@@ -547,6 +547,10 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                     pivot=pivot_index)
 
                 num_frames = channel.last_frame + 1 - channel.first_frame
+                if num_frames == 1:
+                    channel.first_frame = bpy.context.scene.frame_start
+                    channel.last_frame = bpy.context.scene.frame_end
+                num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
 
         if timecoded:
