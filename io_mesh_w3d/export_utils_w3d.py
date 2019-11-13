@@ -17,7 +17,8 @@ from io_mesh_w3d.structs.w3d_compressed_animation import *
 bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
 pick_plane_names = ["PICK"]
 
-def get_objects(type): #MESH, ARMATURE
+
+def get_objects(type):  # MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
 
 
@@ -202,7 +203,7 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
                     retrieve_shader_material(material, principled))
             else:
                 mesh_struct.shaders.append(retrieve_shader(material))
-                mat_pass.shader_ids=[i]
+                mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
                 mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(
@@ -235,7 +236,8 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
             shader_count=len(mesh_struct.shaders),
             texture_count=len(mesh_struct.textures))
 
-        mesh_struct.header.matl_count = max(len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
+        mesh_struct.header.matl_count = max(
+            len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
     return mesh_structs
 
@@ -431,9 +433,9 @@ def retrieve_hierarchy(container_name):
         pivot_fixups=[])
 
     root = HierarchyPivot(
-            name="ROOTTRANSFORM",
-            parentID=-1,
-            translation=Vector())
+        name="ROOTTRANSFORM",
+        parentID=-1,
+        translation=Vector())
     hierarchy.pivots.append(root)
 
     rig = None
@@ -530,7 +532,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             vec_len = 4
 
         if not (channel_type == 6 and index > 0):
-           if timecoded:
+            if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
                     type=channel_type,
@@ -540,7 +542,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 num_keyframes = len(fcu.keyframe_points)
                 channel.time_codes = [None] * num_keyframes
                 channel.num_time_codes = num_keyframes
-           else:
+            else:
                 range_ = fcu.range()
                 channel = AnimationChannel(
                     first_frame=int(range_[0]),
@@ -574,7 +576,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
-                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                        channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
                     channel.data[i][index] = val
 
         if channel_type < 6 or index == 3:
@@ -588,14 +590,15 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     channels = []
 
     for mesh in get_objects('MESH'):
-        channels.extend(retrieve_channels(mesh, hierarchy, timecoded, mesh.name))
+        channels.extend(retrieve_channels(
+            mesh, hierarchy, timecoded, mesh.name))
 
     for armature in get_objects('ARMATURE'):
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)
-        ani_struct.header.flavor = 0 # time coded
+        ani_struct.header.flavor = 0  # time coded
     else:
         ani_struct = Animation(channels=channels)
 

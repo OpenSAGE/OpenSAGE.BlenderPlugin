@@ -36,13 +36,13 @@ class TestShaderMaterial(utils.W3dTestCase):
         name = "InvalidProp"
         size = 8 + len(name) + 1 + 1
         type = 0
-        
+
         write_chunk_head(
             W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
         write_long(type, io_stream)
         write_long(len(name) + 1, io_stream)
         write_string(name, io_stream)
-        write_ubyte(0x00, io_stream) #fake data
+        write_ubyte(0x00, io_stream)  # fake data
 
         io_stream = io.BytesIO(io_stream.getvalue())
 
@@ -88,7 +88,8 @@ class TestShaderMaterial(utils.W3dTestCase):
     def test_unknown_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL,
+                         output, 9, has_sub_chunks=True)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)

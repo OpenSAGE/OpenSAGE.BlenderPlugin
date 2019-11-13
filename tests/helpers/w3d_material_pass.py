@@ -104,7 +104,7 @@ def get_material_pass(index=0, shader_mat=False, num_stages=1):
         matpass.shader_material_ids = [index]
         matpass.tx_coords = get_uvs()
     else:
-        matpass.shader_ids=[index]
+        matpass.shader_ids = [index]
         matpass.vertex_material_ids = [index]
         for i in range(num_stages):
             matpass.tx_stages.append(get_texture_stage(index=index + i))

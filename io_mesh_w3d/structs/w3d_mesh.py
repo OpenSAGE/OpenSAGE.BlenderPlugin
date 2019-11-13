@@ -26,6 +26,7 @@ VERTEX_CHANNEL_NORMAL = 0x02
 VERTEX_CHANNEL_TANGENT = 0x20
 VERTEX_CHANNEL_BITANGENT = 0x40
 
+
 class MeshHeader(Struct):
     version = Version()
     attrs = 0
@@ -136,8 +137,8 @@ class Mesh(Struct):
         result = Mesh(
             verts=[],
             normals=[],
-            tangents = [],
-            bitangents = [],
+            tangents=[],
+            bitangents=[],
             vert_infs=[],
             triangles=[],
             shade_ids=[],

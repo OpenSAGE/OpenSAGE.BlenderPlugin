@@ -11,5 +11,5 @@ class TestExport(utils.W3dTestCase):
         context = utils.ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
         export_settings['w3d_mode'] = "B"
-        
+
         save(context, bpy.context, export_settings)

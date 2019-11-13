@@ -64,12 +64,14 @@ class TestCompressedAnimation(utils.W3dTestCase):
     def test_unknown_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION, output, 70, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION,
+                         output, 70, has_sub_chunks=True)
 
         header = get_compressed_animation_header(flavor=2)
         header.write(output)
 
-        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL, output, 1, has_sub_chunks=False)
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+                         output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)

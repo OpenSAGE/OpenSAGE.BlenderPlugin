@@ -60,13 +60,14 @@ def save(self, context, export_settings):
         if compressionMode == "TC":
             timecoded = True
 
-        animation = retrieve_animation(containerName, hierarchy, rig, timecoded)
+        animation = retrieve_animation(
+            containerName, hierarchy, rig, timecoded)
         animation.write(aniFile)
         aniFile.close()
 
     else:
-         message = "WARNING: unsupported export mode: %s" % export_mode
-         print(message)
-         self.report({'ERROR'}, message)
+        message = "WARNING: unsupported export mode: %s" % export_mode
+        print(message)
+        self.report({'ERROR'}, message)
 
     return {'FINISHED'}

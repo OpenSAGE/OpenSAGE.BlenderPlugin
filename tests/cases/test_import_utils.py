@@ -36,12 +36,11 @@ class TestImportUtils(utils.W3dTestCase):
         mesh = get_mesh_two_textures()
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
-               self.outpath() + "texture.dds")
+                 self.outpath() + "texture.dds")
         copyfile(self.relpath() + "/testfiles/texture.dds",
-               self.outpath() + "texture2.dds")
+                 self.outpath() + "texture2.dds")
 
         create_mesh(context, mesh, None, None)
-
 
     def test_read_chunk_array(self):
         context = utils.ImportWrapper(self.outpath())
@@ -56,4 +55,5 @@ class TestImportUtils(utils.W3dTestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        read_chunk_array(context, io_stream, mat_pass.size() * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
+        read_chunk_array(context, io_stream, mat_pass.size()
+                         * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)

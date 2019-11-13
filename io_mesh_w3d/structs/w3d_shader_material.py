@@ -11,9 +11,9 @@ W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 
 class ShaderMaterialHeader(Struct):
-    number = 1 # what is this?
+    number = 1  # what is this?
     type_name = ""
-    reserved = 2 # what is this?
+    reserved = 2  # what is this?
 
     @staticmethod
     def read(io_stream):
@@ -46,7 +46,7 @@ class ShaderMaterialProperty(Struct):
     def read(context, io_stream):
         type = read_long(io_stream)
         read_long(io_stream)  # num available chars
-        name=read_string(io_stream)
+        name = read_string(io_stream)
         result = ShaderMaterialProperty(
             type=type,
             name=name)

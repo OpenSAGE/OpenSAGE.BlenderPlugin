@@ -45,8 +45,8 @@ class TestMesh(utils.W3dTestCase):
         self.assertEqual(expected.size(), chunk_size)
 
         actual = Mesh.read(self, io_stream, subchunk_end)
-        expected.tangents = [] # import not supported -> are calculated in blender
-        expected.bitangents = [] # import not supported -> are calculated in blender
+        expected.tangents = []  # import not supported -> are calculated in blender
+        expected.bitangents = []  # import not supported -> are calculated in blender
         compare_meshes(self, expected, actual)
 
     def test_write_read_empty(self):

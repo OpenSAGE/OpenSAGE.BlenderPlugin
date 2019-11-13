@@ -34,7 +34,6 @@ class TestUtils(utils.W3dTestCase):
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
-
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
@@ -49,7 +48,6 @@ class TestUtils(utils.W3dTestCase):
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
 
-
     def test_shader_roundtrip(self):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
@@ -61,7 +59,6 @@ class TestUtils(utils.W3dTestCase):
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
 
-
     def test_box_roundtrip(self):
         expected = get_box()
         hlod = get_hlod()
@@ -69,7 +66,6 @@ class TestUtils(utils.W3dTestCase):
 
         boxes = retrieve_boxes(hlod)
         compare_boxes(self, expected, boxes[0])
-
 
     def test_hierarchy_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -90,10 +86,9 @@ class TestUtils(utils.W3dTestCase):
         for mesh in meshes:
             rig_mesh(mesh, expected, hlod, rig, coll)
 
-        expected.pivot_fixups = [] # not supported
+        expected.pivot_fixups = []  # not supported
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
-
 
     def test_hlod_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -122,7 +117,6 @@ class TestUtils(utils.W3dTestCase):
         retrieve_boxes(actual)
         retrieve_meshes(context, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
-
 
     def test_PICK_mesh_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -162,7 +156,8 @@ class TestUtils(utils.W3dTestCase):
 
         actual_hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual_hlod)
-        actual_meshs = retrieve_meshes(context, actual_hiera, rig, actual_hlod, "containerName")
+        actual_meshs = retrieve_meshes(
+            context, actual_hiera, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
 
         self.assertEqual(len(meshes), len(actual_meshs))
@@ -193,12 +188,12 @@ class TestUtils(utils.W3dTestCase):
 
         hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(hlod)
-        actuals = retrieve_meshes(context, hierarchy, rig, hlod, "containerName")
+        actuals = retrieve_meshes(
+            context, hierarchy, rig, hlod, "containerName")
 
         self.assertEqual(len(expecteds), len(actuals))
         for i, expected in enumerate(expecteds):
             compare_meshes(self, expected, actuals[i])
-
 
     def test_animation_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -223,9 +218,9 @@ class TestUtils(utils.W3dTestCase):
 
         create_animation(rig, expected, hierarchy)
 
-        actual = retrieve_animation(expected.header.name, hierarchy, rig, timecoded=False)
+        actual = retrieve_animation(
+            expected.header.name, hierarchy, rig, timecoded=False)
         compare_animations(self, expected, actual)
-
 
     def test_compressed_animation_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -234,7 +229,7 @@ class TestUtils(utils.W3dTestCase):
             bit_channels=False,
             motion_tc=False,
             motion_ad4=False,
-            motion_ad8=False, 
+            motion_ad8=False,
             random_interpolation=False)
         hlod = get_hlod()
         box = get_box()
@@ -254,5 +249,6 @@ class TestUtils(utils.W3dTestCase):
             rig_mesh(mesh, hierarchy, hlod, rig, coll)
 
         create_animation(rig, expected, hierarchy, compressed=True)
-        actual = retrieve_animation("containerName", hierarchy, rig, timecoded=True)
+        actual = retrieve_animation(
+            "containerName", hierarchy, rig, timecoded=True)
         compare_compressed_animations(self, expected, actual)
