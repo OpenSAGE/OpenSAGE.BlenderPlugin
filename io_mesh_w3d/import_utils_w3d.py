@@ -536,11 +536,12 @@ def apply_adaptive_delta(bone, channel):
 
 
 def apply_uncompressed(bone, channel):
-    for frame in range(channel.last_frame - channel.first_frame):
+    for frame in range(channel.last_frame - channel.first_frame + 1):
         data = channel.data[frame]
         if isinstance(channel, AnimationBitChannel):
             set_visibility(bone, frame, data)
-        set_transform(bone, channel, frame, data)
+        else:
+            set_transform(bone, channel, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, apply_func):

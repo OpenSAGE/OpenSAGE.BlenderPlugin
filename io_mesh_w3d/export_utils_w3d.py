@@ -557,7 +557,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         type=channel_type)
 
                 channel.data = []
-                channel.pviot = pivot_index
+                channel.pivot = pivot_index
                 num_frames = range_[1] + 1 - range_[0]
                 if num_frames == 1:
                     channel.first_frame = bpy.context.scene.frame_start
@@ -597,8 +597,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
         if channel_type < 6 or index == 3 or "hide_render" in fcu.data_path:
             channels.append(channel)
-            print(pivot_name + " " + fcu.data_path)
-            print("count: " + str(len(channels)))
 
     return channels
 
@@ -606,7 +604,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     ani_struct = None
     channels = []
-    print("channels: ")
 
     for mesh in get_objects('MESH'):
         channels.extend(retrieve_channels(

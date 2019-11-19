@@ -117,7 +117,8 @@ class AnimationBitChannel(Struct):
         for i in range(num_frames):
             if i % 8 == 0:
                 temp = read_ubyte(io_stream)
-            result.data[i] = (temp & (1 << (i % 8))) != 0
+            val = (temp & (1 << (i % 8))) != 0
+            result.data[i] = val
         return result
 
     def size(self, include_head=True):

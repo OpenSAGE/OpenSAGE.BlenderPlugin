@@ -80,7 +80,7 @@ def get_animation_bit_channel(pivot=0):
         last_frame=9,
         type=0,
         pivot=pivot,
-        default=True,
+        default=False,
         data=[])
 
     channel.data.append(True)
@@ -114,6 +114,8 @@ def get_animation(hierarchy_name="TestHierarchy"):
         channels=[])
 
     animation.channels.append(get_animation_channel(type=0, pivot=0))
+    animation.channels.append(get_animation_channel(type=1, pivot=0))
+    animation.channels.append(get_animation_channel(type=2, pivot=0))
 
     animation.channels.append(get_animation_channel(type=0, pivot=2))
     animation.channels.append(get_animation_channel(type=1, pivot=2))
@@ -125,8 +127,8 @@ def get_animation(hierarchy_name="TestHierarchy"):
     animation.channels.append(get_animation_channel(type=2, pivot=3))
     animation.channels.append(get_animation_channel(type=6, pivot=3))
 
-    #animation.channels.append(get_animation_bit_channel(pivot=5))
-    #animation.channels.append(get_animation_bit_channel(pivot=7))
+    animation.channels.append(get_animation_bit_channel(pivot=5))
+    animation.channels.append(get_animation_bit_channel(pivot=7))
     return animation
 
 
