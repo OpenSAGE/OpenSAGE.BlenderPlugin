@@ -515,8 +515,11 @@ def set_transform(bone, channel, frame, value):
         set_rotation(bone, frame, value)
 
 def set_visibility(bone, frame, value):
-    bone.hide_render = value
-    bone.keyframe_insert(data_path='hide_render', frame=frame)
+    try:
+        bone.hide_viewport = value
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame)
+    except:
+        print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
 
 def apply_timecoded(bone, channel):
