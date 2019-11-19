@@ -15,6 +15,7 @@ from io_mesh_w3d.io_binary import read_chunk_head
 from io_mesh_w3d.w3d_adaptive_delta import decode
 
 from io_mesh_w3d.structs.w3d_vertex_material import *
+from io_mesh_w3d.structs.w3d_animation import *
 
 
 def read_chunk_array(context, io_stream, chunk_end, type_, read_func):
@@ -467,20 +468,25 @@ def load_texture(self, tex_name):
 # createAnimation
 ##########################################################################
 
+def is_roottransform(channel):
+    return channel.pivot == 0
+
 
 def is_translation(channel):
-    return channel.type == 0 or channel.type == 1 or channel.type == 2
+    return channel.type < 3
 
 
 def is_rotation(channel):
     return channel.type == 6
 
 
-def get_bone(rig, name):
-    # sometimes objects are animated, not just bones
-    if rig is not None and name in rig.pose.bones:
-        return rig.pose.bones[name]
-    return bpy.data.objects[name]
+def get_bone(rig, hierarchy, channel):
+    if is_roottransform(channel):
+        return rig
+    pivot = hierarchy.pivots[channel.pivot]
+    if rig is not None and pivot.name in rig.pose.bones:
+        return rig.pose.bones[pivot.name]
+    return bpy.data.objects[pivot.name]
 
 
 def setup_animation(animation):
@@ -508,6 +514,10 @@ def set_transform(bone, channel, frame, value):
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
 
+def set_visibility(bone, frame, value):
+    bone.hide_render = value
+    bone.keyframe_insert(data_path='hide_render', frame=frame)
+
 
 def apply_timecoded(bone, channel):
     for key in channel.time_codes:
@@ -526,23 +536,24 @@ def apply_adaptive_delta(bone, channel):
 
 
 def apply_uncompressed(bone, channel):
-    for frame in range(channel.first_frame, channel.last_frame + 1):
-        data = channel.data[frame - channel.first_frame]
-        set_transform(bone, channel, frame, data)
+    for frame in range(channel.last_frame - channel.first_frame + 1):
+        data = channel.data[frame]
+        if isinstance(channel, AnimationBitChannel):
+            set_visibility(bone, frame, data)
+        else:
+            set_transform(bone, channel, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
-        pivot = hierarchy.pivots[channel.pivot]
-        obj = get_bone(rig, pivot.name)
+        obj = get_bone(rig, hierarchy, channel)
 
         apply_func(obj, channel)
 
 
 def process_motion_channels(hierarchy, channels, rig):
     for channel in channels:
-        pivot = hierarchy.pivots[channel.pivot]
-        obj = get_bone(rig, pivot.name)
+        obj = get_bone(rig, hierarchy, channel)
 
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)

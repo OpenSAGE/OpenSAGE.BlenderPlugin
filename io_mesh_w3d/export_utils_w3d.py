@@ -514,7 +514,11 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
     for fcu in obj.animation_data.action.fcurves:
         if name is None:
-            pivot_name = fcu.data_path.split('"')[1]
+            values = fcu.data_path.split('"')
+            if len(values) == 1:
+                pivot_name = "ROOTTRANSFORM"
+            else:
+                pivot_name = values[1]
         else:
             pivot_name = name
 
@@ -544,17 +548,23 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 channel.num_time_codes = num_keyframes
             else:
                 range_ = fcu.range()
-                channel = AnimationChannel(
-                    first_frame=int(range_[0]),
-                    last_frame=int(range_[1]),
-                    vector_len=vec_len,
-                    type=channel_type,
-                    pivot=pivot_index)
 
-                num_frames = channel.last_frame + 1 - channel.first_frame
+                if "hide_render" in fcu.data_path:
+                    channel = AnimationBitChannel()
+                else:
+                    channel = AnimationChannel(
+                        vector_len=vec_len,
+                        type=channel_type)
+
+                channel.data = []
+                channel.pivot = pivot_index
+                num_frames = range_[1] + 1 - range_[0]
                 if num_frames == 1:
                     channel.first_frame = bpy.context.scene.frame_start
                     channel.last_frame = bpy.context.scene.frame_end
+                else:
+                    channel.first_frame = int(range_[0])
+                    channel.last_frame = int(range_[1])
                 num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
 
@@ -576,14 +586,16 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
-                if channel_type < 6:
+                if "hide_render" in fcu.data_path:
+                    channel.data[i] = bool(val)
+                elif channel_type < 6:
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
                     channel.data[i][index] = val
 
-        if channel_type < 6 or index == 3:
+        if channel_type < 6 or index == 3 or "hide_render" in fcu.data_path:
             channels.append(channel)
 
     return channels

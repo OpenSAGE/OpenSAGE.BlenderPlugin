@@ -17,7 +17,7 @@ class TestAnimation(utils.W3dTestCase):
         expected = get_animation()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(492, expected.size())
+        self.assertEqual(650, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

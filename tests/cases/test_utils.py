@@ -52,6 +52,9 @@ class TestUtils(utils.W3dTestCase):
         mesh = get_mesh()
         context = utils.ImportWrapper(self.outpath())
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
         (material, _) = create_material_from_vertex_material(
             context, mesh, mesh.vert_materials[0])
         expected = mesh.shaders[0]
@@ -77,6 +80,9 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="shield"),
             get_mesh(name="PICK")]
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, expected, coll)
 
@@ -101,6 +107,9 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
             get_mesh(name="PICK")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
@@ -129,6 +138,9 @@ class TestUtils(utils.W3dTestCase):
         meshes = [
             get_mesh(name="building"),
             get_mesh(name="PICK")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
         root.translation = Vector()
@@ -173,6 +185,9 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="shield", shader_mats=True),
             get_mesh(name="pike")]
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, coll)
@@ -207,6 +222,9 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="shield", shader_mats=True),
             get_mesh(name="pike")]
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -238,6 +256,9 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)

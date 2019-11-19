@@ -92,6 +92,60 @@ class AnimationChannel(Struct):
             write_list(self.data, io_stream, write_quaternion)
 
 
+W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
+
+class AnimationBitChannel(Struct):
+    first_frame = 0
+    last_frame = 0
+    type = 0
+    pivot = 0
+    default = False
+    data = []
+
+    @staticmethod
+    def read(io_stream, chunk_end):
+        result = AnimationBitChannel(
+            first_frame=read_ushort(io_stream),
+            last_frame=read_ushort(io_stream),
+            type=read_ushort(io_stream),
+            pivot=read_ushort(io_stream),
+            default=read_ubyte(io_stream))
+
+        num_frames = result.last_frame - result.first_frame + 1
+        result.data = [bool] * num_frames
+        temp = 0
+        for i in range(num_frames):
+            if i % 8 == 0:
+                temp = read_ubyte(io_stream)
+            val = (temp & (1 << (i % 8))) != 0
+            result.data[i] = val
+        return result
+
+    def size(self, include_head=True):
+        size = const_size(9, include_head)
+        size += (int)(len(self.data) / 8)
+        if len(self.data) % 8 > 0:
+            size += 1
+        return size
+
+    def write(self, io_stream):
+        write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream,
+                         self.size(False))
+        write_ushort(self.first_frame, io_stream)
+        write_ushort(self.last_frame, io_stream)
+        write_ushort(self.type, io_stream)
+        write_ushort(self.pivot, io_stream)
+        write_ubyte(self.default, io_stream)
+
+        value = 0x00
+        for i, datum in enumerate(self.data):
+            if i > 0 and i % 8 == 0:
+                write_ubyte(value, io_stream)
+                value = 0x00
+            value |= (int(datum) << (i % 8))
+        write_ubyte(value, io_stream)
+
+
 W3D_CHUNK_ANIMATION = 0x00000200
 
 
@@ -111,6 +165,9 @@ class Animation(Struct):
             elif chunk_type == W3D_CHUNK_ANIMATION_CHANNEL:
                 result.channels.append(
                     AnimationChannel.read(io_stream, subchunk_end))
+            elif chunk_type == W3D_CHUNK_ANIMATION_BIT_CHANNEL:
+                result.channels.append(
+                    AnimationBitChannel.read(io_stream, subchunk_end))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -125,4 +182,5 @@ class Animation(Struct):
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        write_list(self.channels, io_stream, AnimationChannel.write)
+        for channel in self.channels: #combination of animation and animationbit channels
+            channel.write(io_stream)
