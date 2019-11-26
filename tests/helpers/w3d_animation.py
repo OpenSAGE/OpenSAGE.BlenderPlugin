@@ -155,10 +155,12 @@ def compare_animations(self, expected, actual):
         for act in actual.channels:
             if isinstance(act, AnimationBitChannel):
                 continue
+            
             if chan.type == act.type and chan.pivot == act.pivot:
                 compare_animation_channels(self, chan, act)
                 match_found = True
         self.assertTrue(match_found)
+
     for i, chan in enumerate(expected.channels):
         if isinstance(chan, AnimationChannel):
             continue

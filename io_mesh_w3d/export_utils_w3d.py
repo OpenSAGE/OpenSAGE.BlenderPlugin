@@ -549,7 +549,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             else:
                 range_ = fcu.range()
 
-                if "hide_render" in fcu.data_path:
+                if "hide" in fcu.data_path:
                     channel = AnimationBitChannel()
                 else:
                     channel = AnimationChannel(
@@ -586,7 +586,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
-                if "hide_render" in fcu.data_path:
+                if "hide" in fcu.data_path:
                     channel.data[i] = bool(val)
                 elif channel_type < 6:
                     channel.data[i] = val
@@ -595,7 +595,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
                     channel.data[i][index] = val
 
-        if channel_type < 6 or index == 3 or "hide_render" in fcu.data_path:
+        if channel_type < 6 or index == 3 or "hide" in fcu.data_path:
             channels.append(channel)
 
     return channels
