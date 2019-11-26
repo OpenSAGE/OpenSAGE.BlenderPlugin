@@ -48,7 +48,7 @@ def load(self, context, import_settings):
     file = open(self.filepath, "rb")
     filesize = os.path.getsize(self.filepath)
 
-    meshes = []
+    mesh_structs = []
     hierarchy = None
     animation = None
     compressedAnimation = None
@@ -59,7 +59,7 @@ def load(self, context, import_settings):
         (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
         if chunk_type == W3D_CHUNK_MESH:
-            meshes.append(Mesh.read(self, file, chunk_end))
+            mesh_structs.append(Mesh.read(self, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
             hierarchy = Hierarchy.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_ANIMATION:
@@ -134,14 +134,16 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
     coll = get_collection(hlod)
-    rig = get_or_create_skeleton(hlod, hierarchy, coll)
     create_box(box, coll)
 
-    for mesh_struct in meshes:
-        create_mesh(self, mesh_struct, hierarchy, rig)
+    meshes = []
+    for mesh_struct in mesh_structs:
+        meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
-    for mesh_struct in meshes:  # need an extra loop because the order of the meshes is random
-        rig_mesh(mesh_struct, hierarchy, hlod, rig, coll)
+    rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+    for i, mesh_struct in enumerate(mesh_structs):  # need an extra loop because the order of the meshes is random
+        rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressedAnimation, hierarchy, compressed=True)

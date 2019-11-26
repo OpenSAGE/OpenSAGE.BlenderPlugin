@@ -74,7 +74,7 @@ class TestUtils(utils.W3dTestCase):
         context = utils.ImportWrapper(self.outpath())
         expected = get_hierarchy()
         hlod = get_hlod()
-        meshes = [
+        mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
@@ -84,13 +84,15 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, expected, coll))
+
         rig = get_or_create_skeleton(hlod, expected, coll)
 
-        for mesh in meshes:
-            create_mesh(context, mesh, expected, rig)
-
-        for mesh in meshes:
-            rig_mesh(mesh, expected, hlod, rig, coll)
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], expected, hlod, rig)
 
         expected.pivot_fixups = []  # not supported
         (actual, rig) = retrieve_hierarchy("containerName")
@@ -102,7 +104,7 @@ class TestUtils(utils.W3dTestCase):
         box = get_box()
         hierarchy = get_hierarchy()
 
-        meshes = [
+        mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
@@ -112,15 +114,16 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-
         create_box(box, coll)
 
-        for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, rig)
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
 
-        for mesh in meshes:
-            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         actual = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual)
@@ -135,7 +138,7 @@ class TestUtils(utils.W3dTestCase):
             get_hlod_sub_object(bone=0, name="containerName.PICK")]
         hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
 
-        meshes = [
+        mesh_structs = [
             get_mesh(name="building"),
             get_mesh(name="PICK")]
 
@@ -154,13 +157,15 @@ class TestUtils(utils.W3dTestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, rig)
-
-        for mesh in meshes:
-            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
 
@@ -168,11 +173,11 @@ class TestUtils(utils.W3dTestCase):
 
         actual_hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual_hlod)
-        actual_meshs = retrieve_meshes(
+        actual_mesh_structs = retrieve_meshes(
             context, actual_hiera, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
 
-        self.assertEqual(len(meshes), len(actual_meshs))
+        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
 
     def test_meshes_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -195,11 +200,14 @@ class TestUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        for mesh in expecteds:
-            create_mesh(context, mesh, hierarchy, rig)
+        meshes = []
+        for mesh_struct in expecteds:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
 
-        for mesh in expecteds:
-            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(expecteds):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(hlod)
@@ -216,7 +224,7 @@ class TestUtils(utils.W3dTestCase):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
 
-        meshes = [
+        mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield", shader_mats=True),
@@ -226,13 +234,15 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, rig)
-
-        for mesh in meshes:
-            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy)
 
@@ -252,7 +262,7 @@ class TestUtils(utils.W3dTestCase):
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
-        meshes = [
+        mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield")]
@@ -261,13 +271,15 @@ class TestUtils(utils.W3dTestCase):
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-        for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, rig)
-
-        for mesh in meshes:
-            rig_mesh(mesh, hierarchy, hlod, rig, coll)
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy, compressed=True)
         actual = retrieve_animation(

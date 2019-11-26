@@ -40,7 +40,7 @@ class TestImportUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture2.dds")
 
-        create_mesh(context, mesh, None, None)
+        create_mesh(context, mesh, None, bpy.context.collection)
 
     def test_read_chunk_array(self):
         context = utils.ImportWrapper(self.outpath())

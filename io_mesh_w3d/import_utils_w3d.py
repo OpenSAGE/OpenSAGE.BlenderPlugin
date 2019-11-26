@@ -71,7 +71,7 @@ def get_collection(hlod):
 ##########################################################################
 
 
-def create_mesh(self, mesh_struct, hierarchy, rig):
+def create_mesh(self, mesh_struct, hierarchy, coll):
     triangles = []
 
     for triangle in mesh_struct.triangles:
@@ -80,14 +80,6 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
 
     verts = mesh_struct.verts.copy()
-    if rig is not None:
-        for i, vert_inf in enumerate(mesh_struct.vert_infs):
-            weight = vert_inf.bone_inf
-            if weight == 0.0:
-                weight = 1.0
-
-            bone = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name]
-            verts[i] = bone.matrix_local @ mesh_struct.verts[i]
 
     mesh.from_pydata(verts, [], triangles)
     mesh.update()
@@ -96,6 +88,7 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
     smooth_mesh(mesh)
 
     mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
+    link_object_to_active_scene(mesh_ob, coll)
     mesh_ob['UserText'] = mesh_struct.user_text
 
     b_mesh = bmesh.new()
@@ -129,11 +122,11 @@ def create_mesh(self, mesh_struct, hierarchy, rig):
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
+    return mesh
 
 
-def rig_mesh(mesh_struct, hierarchy, hlod, rig, coll):
+def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
     mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
-    link_object_to_active_scene(mesh_ob, coll)
 
     if hierarchy is None or not hierarchy.pivots:
         return
@@ -142,17 +135,20 @@ def rig_mesh(mesh_struct, hierarchy, hlod, rig, coll):
         for pivot in hierarchy.pivots:
             mesh_ob.vertex_groups.new(name=pivot.name)
 
-        for i in range(len(mesh_struct.vert_infs)):
-            weight = mesh_struct.vert_infs[i].bone_inf
+        for i, vert_inf in enumerate(mesh_struct.vert_infs):
+            weight = vert_inf.bone_inf
             if weight < 0.01:
                 weight = 1.0
 
-            mesh_ob.vertex_groups[mesh_struct.vert_infs[i].bone_idx].add(
+            bone = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name]
+            mesh.vertices[i].co = bone.matrix_local @ mesh.vertices[i].co
+
+            mesh_ob.vertex_groups[vert_inf.bone_idx].add(
                 [i], weight, 'REPLACE')
 
-            if mesh_struct.vert_infs[i].xtra_idx != 0:
-                mesh_ob.vertex_groups[mesh_struct.vert_infs[i].xtra_idx].add(
-                    [i], mesh_struct.vert_infs[i].xtra_inf, 'ADD')
+            if vert_inf.xtra_idx != 0:
+                mesh_ob.vertex_groups[vert_inf.xtra_idx].add(
+                    [i], vert_inf.xtra_inf, 'ADD')
 
         mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
         mod.object = rig
@@ -256,7 +252,11 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
-            bone.parent = amt.edit_bones[parent_pivot.name]
+            if parent_pivot.name in amt.edit_bones:
+                bone.parent = amt.edit_bones[parent_pivot.name]
+            else:
+                if parent_pivot.name in bpy.data.objects:
+                    bone.parent = bpy.data.objects[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
