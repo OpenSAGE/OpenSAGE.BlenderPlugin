@@ -485,6 +485,7 @@ def get_bone(rig, hierarchy, channel):
         return rig
     pivot = hierarchy.pivots[channel.pivot]
     if rig is not None and pivot.name in rig.pose.bones:
+        bone = rig.pose.bones[pivot.name]
         return rig.pose.bones[pivot.name]
     return bpy.data.objects[pivot.name]
 
@@ -519,7 +520,11 @@ def set_visibility(bone, frame, value):
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport', frame=frame)
     except:
-        print("Warning: " + str(bone.name) + " does not support visibility bit channels")
+        try:
+            bone.bone.hide = value
+            bone.bone.keyframe_insert(data_path='hide', frame=frame)
+        except:
+            print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
 
 def apply_timecoded(bone, channel):
