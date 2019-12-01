@@ -7,7 +7,7 @@ from mathutils import Quaternion
 
 def fill_with_exponents_of_10(table):
     for i in range(16):
-        table.append(pow(10, i - 8.0))
+        table.append(pow(10, i - 8))
 
 
 def fill_with_sinus_function(table):
@@ -26,34 +26,47 @@ def calculate_table():
 DELTA_TABLE = calculate_table()
 
 
-def to_signed(byte):
-    if byte > 127:
-        return (256 - byte) * (-1)
-    return byte
-
-
 def get_deltas(delta_bytes, num_bits):
     deltas = [None] * 16
 
     for i, byte in enumerate(delta_bytes):
-        index = i * 2
         if num_bits == 4:
-            deltas[index] = to_signed(byte)
+            index = i * 2
+            lower = byte & 0x0F
+            upper = byte >> 4
             # Bitflip
-            if (deltas[index] & 8) != 0:
-                deltas[index] = to_signed(deltas[index] | 0xF0)
-            else:
-                deltas[index] = to_signed(deltas[index] & 0x0F)
-            deltas[index + 1] = to_signed(byte >> 4)
+            if lower & 0x08:
+                lower -= 16
+
+            deltas[index] = lower
+            deltas[index + 1] = upper
         elif num_bits == 8:
             # Bitflip
-            if byte & 0x80 != 0:
-                byte &= 0x7F
-            else:
-                byte |= 0x80
-            deltas[i] = to_signed(byte)
-
+            byte += 128
+            if byte & 0x80:
+                byte -= 256
+            deltas[i] = byte
     return deltas
+
+
+def set_deltas(bytes, num_bits):
+    result = [None] * num_bits * 2
+
+    if num_bits == 4:
+        for i in range(int(len(bytes) / 2)):
+            lower = bytes[i * 2]
+            if lower & 0x08:
+                lower += 16
+            upper = bytes[i * 2 + 1]
+            result[i] = (upper << 4) | lower
+    elif num_bits == 8:
+        for i in range(len(bytes)):
+            byte = bytes[i]
+            byte -= 128
+            if byte < -127:
+                byte += 256
+            result[i] = byte
+    return result
 
 
 def decode(channel):
