@@ -35,7 +35,7 @@ def get_deltas(delta_bytes, num_bits):
             lower = byte & 0x0F
             upper = byte >> 4
             # Bitflip
-            if lower & 0x08:
+            if lower >= 8:
                 lower -= 16
 
             deltas[index] = lower
@@ -43,7 +43,7 @@ def get_deltas(delta_bytes, num_bits):
         elif num_bits == 8:
             # Bitflip
             byte += 128
-            if byte & 0x80:
+            if byte >= 128:
                 byte -= 256
             deltas[i] = byte
     return deltas
@@ -55,7 +55,7 @@ def set_deltas(bytes, num_bits):
     if num_bits == 4:
         for i in range(int(len(bytes) / 2)):
             lower = bytes[i * 2]
-            if lower & 0x08:
+            if lower < 0:
                 lower += 16
             upper = bytes[i * 2 + 1]
             result[i] = (upper << 4) | lower
