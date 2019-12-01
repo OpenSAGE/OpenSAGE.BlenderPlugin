@@ -70,13 +70,12 @@ def set_deltas(bytes, num_bits):
 
 
 def decode(channel):
-    scaleFactor = float(1.0)
-
     data = channel.data.data
     scale = channel.data.scale
 
+    scaleFactor = 1.0
     if data.bit_count == 8:
-        scaleFactor = 1 / float(16)
+        scaleFactor /= 16.0
 
     result = [None] * channel.num_time_codes
     result[0] = data.initial_value
@@ -101,8 +100,6 @@ def decode(channel):
                     result[idx].y = result[idx - 1].y
                     result[idx].z = result[idx - 1].z
                 result[idx][index] = value
-
             else:
                 result[idx] = result[idx - 1] + deltaScale * delta
-
     return result

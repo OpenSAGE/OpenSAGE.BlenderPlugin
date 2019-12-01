@@ -220,7 +220,7 @@ def get_adaptive_delta_animation_channel(type, num_bits=4):
         type=type,
         scale=4,
         num_time_codes=5,
-        data=[])
+        data=None)
 
     if type == 6:
         channel.vector_len = 4
