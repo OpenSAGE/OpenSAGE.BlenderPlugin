@@ -466,7 +466,8 @@ def retrieve_hierarchy(container_name):
             (translation, rotation, _) = matrix.decompose()
             pivot.translation = translation
             pivot.rotation = rotation
-            pivot.euler_angles = rotation.to_euler()
+            eulers = rotation.to_euler()
+            pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
             pivots.append(pivot)
     else:
