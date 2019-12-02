@@ -4,7 +4,6 @@
 import math
 from mathutils import Quaternion
 
-
 def fill_with_exponents_of_10(table):
     for i in range(16):
         table.append(pow(10, i - 8))
@@ -90,15 +89,10 @@ def decode(channel):
                 break
 
             if channel.type == 6:
-                # access quat as xyzw instead of wxyz
                 index = (delta_block.vector_index + 1) % 4
                 value = result[idx - 1][index] + deltaScale * delta
                 if result[idx] is None:
-                    result[idx] = Quaternion()
-                    result[idx].w = result[idx - 1].w
-                    result[idx].x = result[idx - 1].x
-                    result[idx].y = result[idx - 1].y
-                    result[idx].z = result[idx - 1].z
+                    result[idx] = result[idx - 1].copy()
                 result[idx][index] = value
             else:
                 result[idx] = result[idx - 1] + deltaScale * delta
@@ -113,28 +107,30 @@ def encode(channel, num_bits):
         delta_type = 2
         scaleFactor /= 16.0
 
-    num_time_codes = channel.last_frame - channel.first_frame
+    num_time_codes = len(channel.data)
 
-    delta_data = AdaptiveDeltaData(
-            initial_value=channel.data[0],
-            delta_blocks=[],
-            bit_count=num_bits)
+    #delta_data = AdaptiveDeltaData(
+    #        initial_value=channel.data[0],
+    #        delta_blocks=[],
+    #        bit_count=num_bits)
 
-    animationChannel = AdaptiveDeltaMotionAnimationChannel(
-        scale=0.0,
-        data=delta_data)
+    #animationChannel = AdaptiveDeltaMotionAnimationChannel(
+    #    scale=0.0,
+    #    data=delta_data)
 
-    output = MotionChannel(
-        delta_type=delta_type,
-        vector_len=channel.vector_len,
-        type=channel.type,
-        pivot=channel.pivot,
-        num_time_codes=num_time_codes,
-        data=animationChannel)
+    #output = MotionChannel(
+    #    delta_type=delta_type,
+    #    vector_len=channel.vector_len,
+    #    type=channel.type,
+    #    pivot=channel.pivot,
+    #    num_time_codes=num_time_codes,
+    #    data=animationChannel)
 
-    num_blocks = (num_time_codes - (num_bits * 2) - 1) / 16
-    print(num_blocks)
+    #16 delta bytes
+    num_delta_blocks = (num_time_codes - (num_bits * 2) - 1) / 16
+    delta_blocks = []
+    print(num_delta_blocks)
 
     #TODO
 
-    return output
+    return delta_blocks

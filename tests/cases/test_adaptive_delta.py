@@ -4,6 +4,7 @@
 from io_mesh_w3d.w3d_adaptive_delta import *
 from tests import utils
 from tests.helpers.w3d_compressed_animation import *
+from tests.helpers.w3d_animation import *
 
 
 class TestAdaptiveDelta(utils.W3dTestCase):
@@ -41,9 +42,23 @@ class TestAdaptiveDelta(utils.W3dTestCase):
 
     def test_decode(self):
         channel = get_motion_channel(type=0, delta_type=1, num_time_codes=5)
-        expected = [-3.14, -3.14, -3.14,  -3.14, -3.14]
+        expected = [-3.14, -3.14, -3.14,  -3.136, -3.136]
 
         actual = decode(channel)
 
         self.assertEqual(len(expected), len(actual))
         self.assertEqual(expected, actual)
+
+    def test_encode_4bit(self):
+        channel = AnimationChannel(
+            first_frame=0,
+            last_frame=7,
+            type=1,
+            pivot=2,
+            unknown=0,
+            data=[0, 1, 2, 3, 4, 5, 6, 7])
+        expected = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
+
+        actual = encode(channel, num_bits=4)
+
+        #self.assertEqual(len(expected), len(actual))

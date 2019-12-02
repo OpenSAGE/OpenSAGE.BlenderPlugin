@@ -180,8 +180,8 @@ def compare_adaptive_delta_blocks(self, expected, actual):
 
 def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
     data = []
-    for _ in range(num_bits * 2):
-        data.append(0x00)
+    for i in range(num_bits * 2):
+        data.append(i)
     data = bytes(data)
 
     ad_data = AdaptiveDeltaData(
@@ -218,7 +218,7 @@ def get_adaptive_delta_animation_channel(type, num_bits=4):
     channel = AdaptiveDeltaAnimationChannel(
         pivot=3,
         type=type,
-        scale=4,
+        scale=400,
         num_time_codes=5,
         data=None)
 
@@ -255,7 +255,7 @@ def compare_adaptive_delta_animation_channels(self, expected, actual):
 def get_adaptive_delta_motion_animation_channel(
         type, num_bits, num_time_codes):
     channel = AdaptiveDeltaMotionAnimationChannel(
-        scale=4.0,
+        scale=400.0,
         data=get_adaptive_delta_data(type, num_bits, num_time_codes))
     return channel
 
