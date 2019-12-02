@@ -218,7 +218,7 @@ class AdaptiveDeltaMotionAnimationChannel(Struct):
     def read(io_stream, channel, bits):
         result = AdaptiveDeltaMotionAnimationChannel(
             scale=read_float(io_stream),
-            data=[])
+            data=None)
 
         result.data = AdaptiveDeltaData.read(io_stream, channel, bits)
         return result

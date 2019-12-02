@@ -30,8 +30,8 @@ def get_hierarchy_pivot(name="pivot", parent=1):
         name=name,
         parent_id=parent,
         translation=Vector((22.0, 33.0, 1.0)),
-        euler_angles=Vector((0.0, 0.0, 0.0)),
-        rotation=Quaternion((1.0, -0.1, -0.2, -0.3)))
+        euler_angles=Vector((0.32, -0.65, 0.67)),
+        rotation=Quaternion((0.86, 0.25, -0.25, 0.36)))
 
 
 def compare_hierarchy_pivots(self, expected, actual):
@@ -42,7 +42,9 @@ def compare_hierarchy_pivots(self, expected, actual):
     self.assertAlmostEqual(expected.translation[1], actual.translation[1], 1)
     self.assertAlmostEqual(expected.translation[2], actual.translation[2], 1)
 
-    self.assertEqual(expected.euler_angles, actual.euler_angles)
+    almost_equal(self, expected.euler_angles.x, actual.euler_angles.x, 0.2)
+    almost_equal(self, expected.euler_angles.y, actual.euler_angles.y, 0.2)
+    almost_equal(self, expected.euler_angles.z, actual.euler_angles.z, 0.2)
 
     almost_equal(self, expected.rotation[0], actual.rotation[0], 0.2)
     almost_equal(self, expected.rotation[1], actual.rotation[1], 0.2)
@@ -59,6 +61,7 @@ def get_hierarchy(name="TestHierarchy"):
     root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
     root.translation = Vector()
     root.rotation = Quaternion()
+    root.euler_angles = Vector((0.0, 0.0, 0.0))
     hierarchy.pivots.append(root)
     hierarchy.pivot_fixups.append(Vector())
 

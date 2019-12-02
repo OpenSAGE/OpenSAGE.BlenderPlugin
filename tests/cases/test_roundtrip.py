@@ -61,6 +61,16 @@ class TestRoundtrip(utils.W3dTestCase):
         comp_anim = utils.ImportWrapper(self.outpath() + "base_comp_ani.w3d")
         load(comp_anim, bpy.context, import_settings={})
 
+        # check created objects
+        self.assertTrue("TestHiera_SKL" in bpy.data.objects)
+        self.assertTrue("TestHiera_SKL" in bpy.data.armatures)
+        amt = bpy.data.armatures["TestHiera_SKL"]
+        self.assertEqual(5, len(amt.bones))
+
+        self.assertTrue("sword" in bpy.data.objects)
+        self.assertTrue("soldier" in bpy.data.objects)
+        self.assertTrue("shield" in bpy.data.objects)
+
         # export
         context = utils.ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
@@ -108,12 +118,17 @@ class TestRoundtrip(utils.W3dTestCase):
         model = utils.ImportWrapper(self.outpath() + "base.w3d")
         load(model, bpy.context, import_settings={})
 
-        # TODO: compare blender data to generated structs
+        # check created objects
+        self.assertTrue("TestName" in bpy.data.armatures)
+        amt = bpy.data.armatures["TestName"]
+        self.assertEqual(5, len(amt.bones))
+
+        self.assertTrue("sword" in bpy.data.objects)
+        self.assertTrue("soldier" in bpy.data.objects)
+        self.assertTrue("shield" in bpy.data.objects)
 
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
         context = utils.ImportWrapper(self.outpath() + "output.w3d")
         save(context, bpy.context, export_settings)
-
-        # TODO: compare exported file with output.w3d

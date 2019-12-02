@@ -103,3 +103,38 @@ def decode(channel):
             else:
                 result[idx] = result[idx - 1] + deltaScale * delta
     return result
+
+
+def encode(channel, num_bits):
+    delta_type = 1
+    scaleFactor = 1.0
+
+    if num_bits == 8:
+        delta_type = 2
+        scaleFactor /= 16.0
+
+    num_time_codes = channel.last_frame - channel.first_frame
+
+    delta_data = AdaptiveDeltaData(
+            initial_value=channel.data[0],
+            delta_blocks=[],
+            bit_count=num_bits)
+
+    animationChannel = AdaptiveDeltaMotionAnimationChannel(
+        scale=0.0,
+        data=delta_data)
+
+    output = MotionChannel(
+        delta_type=delta_type,
+        vector_len=channel.vector_len,
+        type=channel.type,
+        pivot=channel.pivot,
+        num_time_codes=num_time_codes,
+        data=animationChannel)
+
+    num_blocks = (num_time_codes - (num_bits * 2) - 1) / 16
+    print(num_blocks)
+
+    #TODO
+
+    return output

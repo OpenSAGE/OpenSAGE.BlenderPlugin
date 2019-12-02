@@ -148,6 +148,7 @@ class TestUtils(utils.W3dTestCase):
         root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
         root.translation = Vector()
         root.rotation = Quaternion()
+        root.euler_angles = Vector()
 
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []

@@ -21,8 +21,8 @@ bl_info = {
     'location': 'File > Import/Export > Westerwood W3D (.w3d)',
     'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
     'warning': 'Still in Progress',
-    'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE',
-    'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE/issues',
+    'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
+    'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
     'support': 'OFFICIAL',
     'category': 'Import-Export'}
 

@@ -466,6 +466,7 @@ def retrieve_hierarchy(container_name):
             (translation, rotation, _) = matrix.decompose()
             pivot.translation = translation
             pivot.rotation = rotation
+            pivot.euler_angles = rotation.to_euler()
 
             pivots.append(pivot)
     else:
@@ -478,11 +479,13 @@ def retrieve_hierarchy(container_name):
                 or mesh_object.name in pick_plane_names:
             continue
 
+        eulers = mesh_object.rotation_quaternion.to_euler()
         pivot = HierarchyPivot(
             name=mesh_object.name,
             parent_id=0,
             translation=mesh_object.location,
-            rotation=mesh_object.rotation_quaternion)
+            rotation=mesh_object.rotation_quaternion,
+            euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
         if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
             pivot.parent_id = mesh_object.parent_bone
@@ -597,7 +600,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
         if channel_type < 6 or index == 3 or "hide" in fcu.data_path:
             channels.append(channel)
-
     return channels
 
 
