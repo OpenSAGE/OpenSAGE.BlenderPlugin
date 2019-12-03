@@ -188,8 +188,6 @@ def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
         bit_count=num_bits,
         delta_blocks=[])
 
-    count = (num_time_codes + 15) >> 4
-
     if type == 6:
         vec_len = 4
         ad_data.initial_value = Quaternion((3.14, 2.0, -1.0, 0.1))
@@ -197,6 +195,7 @@ def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
         vec_len = 1
         ad_data.initial_value = -3.14
 
+    count = int(num_time_codes / 16) + 1
     for _ in range(count):
         for i in range(vec_len):
             ad_data.delta_blocks.append(

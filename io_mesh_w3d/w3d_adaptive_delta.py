@@ -54,6 +54,7 @@ def set_deltas(bytes, num_bits):
     if num_bits == 4:
         for i in range(int(len(bytes) / 2)):
             lower = bytes[i * 2]
+            # Bitflip
             if lower < 0:
                 lower += 16
             upper = bytes[i * 2 + 1]
@@ -61,6 +62,7 @@ def set_deltas(bytes, num_bits):
     elif num_bits == 8:
         for i in range(len(bytes)):
             byte = bytes[i]
+            # Bitflip
             byte -= 128
             if byte < -127:
                 byte += 256
@@ -89,7 +91,7 @@ def decode(channel):
                 break
 
             if channel.type == 6:
-                index = (delta_block.vector_index + 1) % 4
+                index = (delta_block.vector_index + 1) % 4 # shift from wxyz to xyzw
                 value = result[idx - 1][index] + deltaScale * delta
                 if result[idx] is None:
                     result[idx] = result[idx - 1].copy()
@@ -100,14 +102,41 @@ def decode(channel):
 
 
 def encode(channel, num_bits):
-    delta_type = 1
     scaleFactor = 1.0
-
     if num_bits == 8:
-        delta_type = 2
-        scaleFactor /= 16.0
+        scaleFactor = 16.0
 
-    num_time_codes = len(channel.data)
+    scale = 1.0 # ???
+
+    num_time_codes = len(channel.data) - 1 # minus initial value
+    num_delta_blocks = int(num_time_codes / 16) + 1
+    delta_blocks = []
+
+    #delta_block = AdaptiveDeltaBlock(
+    #    vector_index=0,
+    #    block_index=0,
+    #    delta_bytes=[None] * 16)
+
+    default_value = None
+
+    for i, value in enumerate(channel.data):
+        if i == 0:
+            default_value = value
+            continue
+
+        print("########## new")
+        delta = value - channel.data[i - 1]
+        delta /= scaleFactor * scale
+
+        block_index = 0
+        #this is just wild guessing for now
+        for j, tabl in enumerate(DELTA_TABLE):
+            current = int(delta / tabl)
+            if current > -127 and current <= 127:
+                block_index = j
+                delta = current
+                print("delta: " + str(delta) + " index: " + str(block_index))
+                break
 
     #delta_data = AdaptiveDeltaData(
     #        initial_value=channel.data[0],
@@ -125,11 +154,6 @@ def encode(channel, num_bits):
     #    pivot=channel.pivot,
     #    num_time_codes=num_time_codes,
     #    data=animationChannel)
-
-    #16 delta bytes
-    num_delta_blocks = (num_time_codes - (num_bits * 2) - 1) / 16
-    delta_blocks = []
-    print(num_delta_blocks)
 
     #TODO
 

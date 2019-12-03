@@ -42,7 +42,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
 
     def test_decode(self):
         channel = get_motion_channel(type=0, delta_type=1, num_time_codes=5)
-        expected = [-3.14, -3.14, -3.14,  -3.136, -3.136]
+        expected = [-3.14, -3.14, -3.14, -3.136, -3.136]
 
         actual = decode(channel)
 
@@ -56,7 +56,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
             type=1,
             pivot=2,
             unknown=0,
-            data=[0, 1, 2, 3, 4, 5, 6, 7])
+            data=[0.14, 0.15, 0.45, 0.45, 0.15, -0.04, -0.01, 0.06])
         expected = [0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07]
 
         actual = encode(channel, num_bits=4)
