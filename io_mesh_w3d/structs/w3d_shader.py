@@ -4,6 +4,8 @@
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.io_binary import *
 
+W3D_CHUNK_SHADERS = 0x00000029
+
 
 class Shader(Struct):
     depth_compare = 0

@@ -12,14 +12,27 @@ from io_mesh_w3d.structs.w3d_shader import *
 from io_mesh_w3d.structs.w3d_vertex_influence import *
 from io_mesh_w3d.structs.w3d_shader_material import *
 from io_mesh_w3d.structs.w3d_texture import *
+from io_mesh_w3d.structs.w3d_prelit import *
+from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
 
+# Geometry types
+GEOMETRY_TYPE_NORMAL = 0x00000000
+GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
 
+# Prelit types
+PRELIT_MASK = 0x0F000000
+PRELIT_UNLIT = 0x01000000
+PRELIT_VERTEX = 0x02000000
+PRELIT_LIGHTMAP_MULTI_PASS = 0x04000000
+PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x08000000
+
+# Vertex channels
 VERTEX_CHANNEL_LOCATION = 0x01
 VERTEX_CHANNEL_NORMAL = 0x02
 VERTEX_CHANNEL_TANGENT = 0x20
@@ -102,9 +115,6 @@ W3D_CHUNK_MESH_USER_TEXT = 0x0000000C
 W3D_CHUNK_VERTEX_INFLUENCES = 0x0000000E
 W3D_CHUNK_TRIANGLES = 0x00000020
 W3D_CHUNK_VERTEX_SHADE_INDICES = 0x00000022
-W3D_CHUNK_SHADERS = 0x00000029
-W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
-W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_SHADER_MATERIALS = 0x50
 W3D_CHUNK_TANGENTS = 0x60
 W3D_CHUNK_BITANGENTS = 0x61
@@ -127,9 +137,16 @@ class Mesh(Struct):
     shader_materials = []
     material_passes = []
     aabbtree = None
+    prelit_unlit = None
+    prelit_vertex = None
+    prelit_lightmap_multi_pass = None
+    prelit_lightmap_multi_texture = None
 
     def is_skin(self):
         return (self.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+
+    def has_prelit_vertex(self):
+        return (self.header.attrs & PRELIT_VERTEX) > 0
 
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -147,7 +164,11 @@ class Mesh(Struct):
             textures=[],
             material_passes=[],
             shader_materials=[],
-            aabbtree=None)
+            aabbtree=None,
+            prelit_unlit=None,
+            prelit_vertex=None,
+            prelit_lightmap_multi_pass=None,
+            prelit_lightmap_multi_texture=None)
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -207,17 +228,17 @@ class Mesh(Struct):
                 result.aabbtree = AABBTree.read(
                     context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
-                print("-> prelit unlit chunk is not supported")
-                io_stream.seek(chunk_size, 1)
+                result.prelit_unlit = PrelitBase.read(
+                    context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_VERTEX:
-                print("-> prelit vertex chunk is not supported")
-                io_stream.seek(chunk_size, 1)
+                result.prelit_vertex = PrelitBase.read(
+                    context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
-                print("-> prelit lightmap multi pass chunk is not supported")
-                io_stream.seek(chunk_size, 1)
+                result.prelit_lightmap_multi_pass = PrelitBase.read(
+                    context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
-                print("-> prelit lightmap multi texture chunk is not supported")
-                io_stream.seek(chunk_size, 1)
+                result.prelit_lightmap_multi_texture = PrelitBase.read(
+                    context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_DEFORM:
                 print("-> deform chunk is not supported")
                 io_stream.seek(chunk_size, 1)
@@ -329,10 +350,6 @@ class Mesh(Struct):
 # Unsupported
 ##########################################################################
 
-W3D_CHUNK_PRELIT_UNLIT = 0x00000023
-W3D_CHUNK_PRELIT_VERTEX = 0x00000024
-W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025
-W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 
 W3D_CHUNK_DEFORM = 0x00000058
 W3D_CHUNK_PS2_SHADERS = 0x00000080
