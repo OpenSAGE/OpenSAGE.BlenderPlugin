@@ -130,6 +130,41 @@ class TestUtils(utils.W3dTestCase):
         retrieve_meshes(context, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
+    def test_bone_creation_if_referenced_by_subObject_but_also_child_bones(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+
+        hlod.sub_objects[0].bone = 2
+
+        mesh_structs = [
+            get_mesh(name="sword"),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="shield"),
+            get_mesh(name="PICK")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        coll = get_collection(hlod)
+        create_box(box, coll)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        actual = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(actual)
+        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
+        compare_hlods(self, hlod, actual)
+
+
     def test_PICK_mesh_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
