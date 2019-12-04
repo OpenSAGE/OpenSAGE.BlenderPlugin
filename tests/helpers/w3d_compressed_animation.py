@@ -163,7 +163,7 @@ def compare_time_coded_bit_channels(self, expected, actual):
 def get_adaptive_delta_block(data, type, index):
     ad_block = AdaptiveDeltaBlock(
         vector_index=0,
-        block_index=3,
+        block_index=33,
         delta_bytes=data)
     if type == 6:
         ad_block.vector_index = index
@@ -179,10 +179,9 @@ def compare_adaptive_delta_blocks(self, expected, actual):
 
 
 def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
-    data = []
-    for i in range(num_bits * 2):
-        data.append(i)
-    data = bytes(data)
+    data = [84, 119, 119, 53, 0, 16, 82, 0]
+    if num_bits == 8:
+        data = [95, 44, 12, 2, 12, 44, 96, -99, -53, -25, -17, -25, -53, -99, -128, -128]
 
     ad_data = AdaptiveDeltaData(
         bit_count=num_bits,
@@ -190,10 +189,10 @@ def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
 
     if type == 6:
         vec_len = 4
-        ad_data.initial_value = Quaternion((3.14, 2.0, -1.0, 0.1))
+        ad_data.initial_value = Quaternion((0.9904, 0.1199, -0.0631, 0.0284))
     else:
         vec_len = 1
-        ad_data.initial_value = -3.14
+        ad_data.initial_value = 4.3611
 
     count = int(num_time_codes / 16) + 1
     for _ in range(count):
@@ -217,7 +216,7 @@ def get_adaptive_delta_animation_channel(type, num_bits=4):
     channel = AdaptiveDeltaAnimationChannel(
         pivot=3,
         type=type,
-        scale=400,
+        scale=2,
         num_time_codes=5,
         data=None)
 
@@ -254,7 +253,7 @@ def compare_adaptive_delta_animation_channels(self, expected, actual):
 def get_adaptive_delta_motion_animation_channel(
         type, num_bits, num_time_codes):
     channel = AdaptiveDeltaMotionAnimationChannel(
-        scale=400.0,
+        scale=0.07435,
         data=get_adaptive_delta_data(type, num_bits, num_time_codes))
     return channel
 

@@ -4,6 +4,7 @@
 import io
 from tests import utils
 from shutil import copyfile
+import os
 
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.export_utils_w3d import *
@@ -226,12 +227,11 @@ class TestUtils(utils.W3dTestCase):
             get_mesh(name="shield", shader_mats=True),
             get_mesh(name="pike")]
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
         coll = get_collection(hlod)
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, coll)
+
+        print(os.listdir(self.outpath()))
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
