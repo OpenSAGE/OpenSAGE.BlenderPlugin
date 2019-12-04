@@ -137,7 +137,7 @@ class TestUtils(utils.W3dTestCase):
         box = get_box()
         hierarchy = get_hierarchy()
 
-        hlod.sub_objects[0].bone = 2
+        hlod.lod_array.sub_objects[0].bone = 2
 
         mesh_structs = [
             get_mesh(name="sword"),

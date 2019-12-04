@@ -158,15 +158,16 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
     else:
         pivot = None
         mesh_name = mesh_struct.header.mesh_name
+        name = mesh_struct.header.container_name + "." + mesh_name
         pivot_list = [
             pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
         if not pivot_list:
-            sub_objects_list = [
-                sub_object for obj in hlod.lod_array.sub_objects if obj.name == mesh_name]
-            if not sub_objects_list:
+            sub_objects = [
+                sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
+            if not sub_objects:
                 return
             sub_object = sub_objects[0]
-            pivot = hierarchy.pivots[sub_object.bone]
+            pivot = hierarchy.pivots[sub_object.bone_index]
         else:
             pivot = pivot_list[0]
 
@@ -241,7 +242,11 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     basic_sphere = create_sphere()
 
     for obj in sub_objects:
-        non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
+        index = obj.bone_index
+        pivot = hierarchy.pivots[index]
+        childs = [pivot for pivot in hierarchy.pivots if pivot.parent_id == index]
+        if not childs:
+            non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
 
     for pivot in hierarchy.pivots:
         if pivot.parent_id == -1 or non_bone_pivots.count(pivot) > 0:
@@ -608,7 +613,7 @@ def create_sphere():
     return basic_sphere
 
 
-def create_box(box, coll):
+def create_box(box, hlod, hierarchy, rig, coll):
     if box is None:
         return
 
@@ -625,6 +630,8 @@ def create_box(box, coll):
     if "." in name:
         name = name.split(".")[1]
     cube = bpy.data.meshes.new(name)
+    cube.from_pydata(verts, [], faces)
+    cube.update(calc_edges=True)
     box_object = bpy.data.objects.new(name, cube)
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new(name + ".Material")
@@ -633,5 +640,13 @@ def create_box(box, coll):
     cube.materials.append(mat)
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)
-    cube.from_pydata(verts, [], faces)
-    cube.update(calc_edges=True)
+
+    sub_objects = [
+        sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == box.name]
+    if not sub_objects:
+        return
+    sub_object = sub_objects[0]
+    pivot = hierarchy.pivots[sub_object.bone_index]
+    box_object.parent = rig
+    box_object.parent_bone = pivot.name
+    box_object.parent_type = 'BONE'
