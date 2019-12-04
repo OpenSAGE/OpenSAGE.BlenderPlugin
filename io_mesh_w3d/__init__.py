@@ -16,8 +16,8 @@ from bpy.props import StringProperty,\
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d)',
     'author': 'OpenSage Developers',
-    'version': (0, 2, 1),
-    "blender": (2, 80, 0),
+    'version': (0, 3, 0),
+    "blender": (2, 81, 0),
     'location': 'File > Import/Export > Westerwood W3D (.w3d)',
     'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
     'warning': 'Still in Progress',
@@ -110,8 +110,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         return export_w3d.save(self, context, export_settings)
 
     def draw(self, _context):
-        # self.layout.prop(self, 'ui_tab', expand=True)
-        # if self.ui_tab == 'GENERAL':
         self.draw_general_settings()
         if self.export_mode == 'A':
             self.draw_animation_settings()
@@ -151,6 +149,7 @@ def menu_func_export(self, _context):
 
 def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
+
 
 # custom property stuff
 

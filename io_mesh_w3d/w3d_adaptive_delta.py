@@ -104,13 +104,13 @@ def decode(channel):
 def encode(channel, num_bits):
     scaleFactor = 1.0
     if num_bits == 8:
-        scaleFactor = 16.0
+        scaleFactor /= 16.0
 
-    scale = 1.0 # ???
+    scale = 0.07435 # how to get this ???
 
     num_time_codes = len(channel.data) - 1 # minus initial value
     num_delta_blocks = int(num_time_codes / 16) + 1
-    delta_blocks = []
+    deltas = [0x00] * (num_delta_blocks * 16)
 
     #delta_block = AdaptiveDeltaBlock(
     #    vector_index=0,
@@ -124,19 +124,17 @@ def encode(channel, num_bits):
             default_value = value
             continue
 
-        print("########## new")
-        delta = value - channel.data[i - 1]
-        delta /= scaleFactor * scale
+        block_index = 33 # how to get this one?
 
-        block_index = 0
-        #this is just wild guessing for now
-        for j, tabl in enumerate(DELTA_TABLE):
-            current = int(delta / tabl)
-            if current > -127 and current <= 127:
-                block_index = j
-                delta = current
-                print("delta: " + str(delta) + " index: " + str(block_index))
-                break
+        old = default_value
+        if i > 1:
+            channel.data[i - 1]
+        delta = value - old
+        delta /= (scaleFactor * scale * DELTA_TABLE[block_index])
+
+        delta = int(delta)
+        print("delta: " + str(delta) + " index: " + str(block_index))
+        deltas[i - 1] = delta
 
     #delta_data = AdaptiveDeltaData(
     #        initial_value=channel.data[0],
@@ -155,6 +153,7 @@ def encode(channel, num_bits):
     #    num_time_codes=num_time_codes,
     #    data=animationChannel)
 
-    #TODO
+    deltas = set_deltas(deltas, num_bits)
 
-    return delta_blocks
+    print(deltas)
+    return deltas
