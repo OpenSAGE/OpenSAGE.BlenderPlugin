@@ -245,8 +245,8 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
 
     for obj in sub_objects:
         pivot = hierarchy.pivots[obj.bone_index]
-        print("has sub: " + pivot.name)
-        if not pivot.name.startswith("B_"):
+        # BAT -> BoneArmatureTree ? replaced B in later games?
+        if not pivot.name.startswith("B_") or not pivot.name.startswith("BAT_"):
             pivot.is_bone = False
 
     non_bone_pivots = []
@@ -257,17 +257,14 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
                 pivot.is_bone = True
 
     for pivot in hierarchy.pivots:
-        print("current: " + pivot.name + " " + str(pivot.is_bone))
         if pivot.parent_id == -1 or not pivot.is_bone:
             continue
 
         bone = amt.edit_bones.new(pivot.name)
-        print("created: " + pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
-            print(pivot.name + " " + parent_pivot.name)
             if parent_pivot.name in amt.edit_bones:
                 bone.parent = amt.edit_bones[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
