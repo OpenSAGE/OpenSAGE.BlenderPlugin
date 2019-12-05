@@ -29,7 +29,7 @@ def save(self, context, export_settings):
     if export_mode in ('M', 'HAM'):
         sknFile = open(self.filepath, "wb")
 
-        boxes = retrieve_boxes(hlod)
+        boxes = retrieve_boxes(hlod, hierarchy)
         for box in boxes:
             box.write(sknFile)
 

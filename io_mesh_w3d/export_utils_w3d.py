@@ -27,7 +27,7 @@ def get_objects(type):  # MESH, ARMATURE
 ##########################################################################
 
 
-def retrieve_boxes(hlod):
+def retrieve_boxes(hlod, hierarchy):
     boxes = []
     container_name = hlod.header.model_name
 
@@ -52,6 +52,11 @@ def retrieve_boxes(hlod):
         subObject = HLodSubObject(
             name=container_name + "." + mesh_object.name,
             bone_index=0)
+
+        for index, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == mesh_object.parent_bone:
+                subObject.bone_index = index
+
         hlod.lod_array.sub_objects.append(subObject)
         hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
     return boxes
@@ -490,6 +495,8 @@ def retrieve_hierarchy(container_name):
 
         if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
             pivot.parent_id = mesh_object.parent_bone
+        elif mesh_object.parent is not None:
+            pivot.parent_id = mesh_object.parent.name
 
         pivots.append(pivot)
 

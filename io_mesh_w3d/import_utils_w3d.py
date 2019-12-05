@@ -238,30 +238,38 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
 
-    non_bone_pivots = []
     basic_sphere = create_sphere()
 
+    for pivot in hierarchy.pivots:
+        pivot.is_bone = True
+
     for obj in sub_objects:
-        index = obj.bone_index
-        pivot = hierarchy.pivots[index]
-        childs = [pivot for pivot in hierarchy.pivots if pivot.parent_id == index]
-        if not childs:
-            non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
+        pivot = hierarchy.pivots[obj.bone_index]
+        print("has sub: " + pivot.name)
+        if not pivot.name.startswith("B_"):
+            pivot.is_bone = False
+
+    non_bone_pivots = []
+    for i, pivot in enumerate(hierarchy.pivots):
+        childs = [child for child in hierarchy.pivots if child.parent_id == i]
+        for child in childs:
+            if child.is_bone:
+                pivot.is_bone = True
 
     for pivot in hierarchy.pivots:
-        if pivot.parent_id == -1 or non_bone_pivots.count(pivot) > 0:
+        print("current: " + pivot.name + " " + str(pivot.is_bone))
+        if pivot.parent_id == -1 or not pivot.is_bone:
             continue
 
         bone = amt.edit_bones.new(pivot.name)
+        print("created: " + pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
+            print(pivot.name + " " + parent_pivot.name)
             if parent_pivot.name in amt.edit_bones:
                 bone.parent = amt.edit_bones[parent_pivot.name]
-            else:
-                if parent_pivot.name in bpy.data.objects:
-                    bone.parent = bpy.data.objects[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
@@ -271,6 +279,9 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
         bone.matrix = matrix
 
     bpy.ops.object.mode_set(mode='POSE')
+
+    if not rig.pose.bones:
+        return None
 
     for bone in rig.pose.bones:
         bone.custom_shape = basic_sphere
@@ -641,11 +652,16 @@ def create_box(box, hlod, hierarchy, rig, coll):
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)
 
+    if hierarchy is None or rig is None:
+        return
+
     sub_objects = [
         sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == box.name]
     if not sub_objects:
         return
     sub_object = sub_objects[0]
+    if sub_object.bone_index == 0:
+        return
     pivot = hierarchy.pivots[sub_object.bone_index]
     box_object.parent = rig
     box_object.parent_bone = pivot.name
