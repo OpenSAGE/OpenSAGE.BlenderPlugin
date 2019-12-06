@@ -268,7 +268,9 @@ def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
 
     if not mesh_struct.is_skin():
         for index, pivot in enumerate(hierarchy.pivots):
-            if pivot.name == name:
+            pivot_name = pivot.name.replace("B_", "").replace("BAT_","")
+            actual_name = name.replace("V_", "")
+            if pivot_name == actual_name:
                 subObject.bone_index = index
 
     hlod.lod_array.sub_objects.append(subObject)
@@ -482,7 +484,8 @@ def retrieve_hierarchy(container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.vertex_groups \
                 or mesh_object.name in bounding_box_names \
-                or mesh_object.name in pick_plane_names:
+                or mesh_object.name in pick_plane_names \
+                or "V_" in mesh_object.name:
             continue
 
         eulers = mesh_object.rotation_quaternion.to_euler()

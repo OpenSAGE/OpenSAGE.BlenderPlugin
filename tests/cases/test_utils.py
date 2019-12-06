@@ -138,7 +138,7 @@ class TestUtils(utils.W3dTestCase):
         compare_hlods(self, hlod, actual)
 
 
-    def test_bone_creation_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
+    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
@@ -213,11 +213,12 @@ class TestUtils(utils.W3dTestCase):
         compare_hierarchies(self, hierarchy, actual_hiera)
 
 
-    def test_no_bone_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
+    def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
 
         root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
         root.translation = Vector()
@@ -245,9 +246,9 @@ class TestUtils(utils.W3dTestCase):
         array.sub_objects.append(get_hlod_sub_object(
             bone=2, name="containerName.left"))
         array.sub_objects.append(get_hlod_sub_object(
-            bone=3, name="containerName.left2"))
-        array.sub_objects.append(get_hlod_sub_object(
             bone=4, name="containerName.right"))
+        array.sub_objects.append(get_hlod_sub_object(
+            bone=3, name="containerName.left2"))
         array.sub_objects.append(get_hlod_sub_object(
             bone=5, name="containerName.right2"))
 
@@ -287,7 +288,7 @@ class TestUtils(utils.W3dTestCase):
         compare_hierarchies(self, hierarchy, actual_hiera)
 
 
-    def test_bone_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
+    def test_bone_is_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         hierarchy = get_hierarchy()
@@ -298,9 +299,9 @@ class TestUtils(utils.W3dTestCase):
         root.rotation = Quaternion()
         root.euler_angles = Vector((0.0, 0.0, 0.0))
 
-        hierarchy.pivots= [root]
+        hierarchy.pivots = [root]
 
-        hierarchy.pivots.append(get_hierarchy_pivot("B_main", 0))
+        hierarchy.pivots.append(get_hierarchy_pivot("B_MAIN", 0))
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
@@ -308,13 +309,13 @@ class TestUtils(utils.W3dTestCase):
         sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name="containerName.v_main"))
+            bone=1, name="containerName.V_MAIN"))
         array.header.model_count = len(array.sub_objects)
 
         hlod.lod_array = array
 
         mesh_structs = [
-            get_mesh(name="v_main")]
+            get_mesh(name="V_MAIN")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")

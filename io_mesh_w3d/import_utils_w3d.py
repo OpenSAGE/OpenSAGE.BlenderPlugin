@@ -246,7 +246,7 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     for obj in sub_objects:
         pivot = hierarchy.pivots[obj.bone_index]
         # BAT -> BoneArmatureTree ? replaced B in later games?
-        if not pivot.name.startswith("B_") or not pivot.name.startswith("BAT_"):
+        if not pivot.name.startswith("B_") and not pivot.name.startswith("BAT_"):
             pivot.is_bone = False
 
     non_bone_pivots = []
