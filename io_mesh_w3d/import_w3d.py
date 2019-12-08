@@ -134,13 +134,13 @@ def load(self, context, import_settings):
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
     coll = get_collection(hlod)
-    create_box(box, coll)
 
     meshes = []
     for mesh_struct in mesh_structs:
         meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    create_box(box, hlod, hierarchy, rig, coll)
 
     for i, mesh_struct in enumerate(mesh_structs):  # need an extra loop because the order of the meshes is random
         rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)

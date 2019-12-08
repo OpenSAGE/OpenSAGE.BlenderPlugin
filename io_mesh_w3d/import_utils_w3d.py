@@ -158,15 +158,16 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
     else:
         pivot = None
         mesh_name = mesh_struct.header.mesh_name
+        name = mesh_struct.header.container_name + "." + mesh_name
         pivot_list = [
             pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
         if not pivot_list:
-            sub_objects_list = [
-                sub_object for obj in hlod.lod_array.sub_objects if obj.name == mesh_name]
-            if not sub_objects_list:
+            sub_objects = [
+                sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
+            if not sub_objects:
                 return
             sub_object = sub_objects[0]
-            pivot = hierarchy.pivots[sub_object.bone]
+            pivot = hierarchy.pivots[sub_object.bone_index]
         else:
             pivot = pivot_list[0]
 
@@ -237,14 +238,26 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
 
-    non_bone_pivots = []
     basic_sphere = create_sphere()
 
+    for pivot in hierarchy.pivots:
+        pivot.is_bone = True
+
     for obj in sub_objects:
-        non_bone_pivots.append(hierarchy.pivots[obj.bone_index])
+        pivot = hierarchy.pivots[obj.bone_index]
+        # BAT -> BoneArmatureTree ? replaced B in later games?
+        if not pivot.name.startswith("B_") and not pivot.name.startswith("BAT_"):
+            pivot.is_bone = False
+
+    non_bone_pivots = []
+    for i, pivot in enumerate(hierarchy.pivots):
+        childs = [child for child in hierarchy.pivots if child.parent_id == i]
+        for child in childs:
+            if child.is_bone:
+                pivot.is_bone = True
 
     for pivot in hierarchy.pivots:
-        if pivot.parent_id == -1 or non_bone_pivots.count(pivot) > 0:
+        if pivot.parent_id == -1 or not pivot.is_bone:
             continue
 
         bone = amt.edit_bones.new(pivot.name)
@@ -254,9 +267,6 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             if parent_pivot.name in amt.edit_bones:
                 bone.parent = amt.edit_bones[parent_pivot.name]
-            else:
-                if parent_pivot.name in bpy.data.objects:
-                    bone.parent = bpy.data.objects[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
@@ -266,6 +276,9 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
         bone.matrix = matrix
 
     bpy.ops.object.mode_set(mode='POSE')
+
+    if not rig.pose.bones:
+        return None
 
     for bone in rig.pose.bones:
         bone.custom_shape = basic_sphere
@@ -608,7 +621,7 @@ def create_sphere():
     return basic_sphere
 
 
-def create_box(box, coll):
+def create_box(box, hlod, hierarchy, rig, coll):
     if box is None:
         return
 
@@ -625,6 +638,8 @@ def create_box(box, coll):
     if "." in name:
         name = name.split(".")[1]
     cube = bpy.data.meshes.new(name)
+    cube.from_pydata(verts, [], faces)
+    cube.update(calc_edges=True)
     box_object = bpy.data.objects.new(name, cube)
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new(name + ".Material")
@@ -633,5 +648,18 @@ def create_box(box, coll):
     cube.materials.append(mat)
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)
-    cube.from_pydata(verts, [], faces)
-    cube.update(calc_edges=True)
+
+    if hierarchy is None or rig is None:
+        return
+
+    sub_objects = [
+        sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == box.name]
+    if not sub_objects:
+        return
+    sub_object = sub_objects[0]
+    if sub_object.bone_index == 0:
+        return
+    pivot = hierarchy.pivots[sub_object.bone_index]
+    box_object.parent = rig
+    box_object.parent_bone = pivot.name
+    box_object.parent_type = 'BONE'

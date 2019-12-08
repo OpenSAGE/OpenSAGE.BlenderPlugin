@@ -41,8 +41,8 @@ def get_hlod_sub_object(bone, name):
 
 
 def compare_hlod_sub_objects(self, expected, actual):
-    self.assertEqual(expected.bone_index, actual.bone_index)
     self.assertEqual(expected.name, actual.name)
+    self.assertEqual(expected.bone_index, actual.bone_index)
 
 
 def get_hlod_array():

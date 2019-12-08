@@ -112,11 +112,6 @@ def encode(channel, num_bits):
     num_delta_blocks = int(num_time_codes / 16) + 1
     deltas = [0x00] * (num_delta_blocks * 16)
 
-    #delta_block = AdaptiveDeltaBlock(
-    #    vector_index=0,
-    #    block_index=0,
-    #    delta_bytes=[None] * 16)
-
     default_value = None
 
     for i, value in enumerate(channel.data):
@@ -133,27 +128,8 @@ def encode(channel, num_bits):
         delta /= (scaleFactor * scale * DELTA_TABLE[block_index])
 
         delta = int(delta)
-        print("delta: " + str(delta) + " index: " + str(block_index))
+        #print("delta: " + str(delta) + " index: " + str(block_index))
         deltas[i - 1] = delta
 
-    #delta_data = AdaptiveDeltaData(
-    #        initial_value=channel.data[0],
-    #        delta_blocks=[],
-    #        bit_count=num_bits)
-
-    #animationChannel = AdaptiveDeltaMotionAnimationChannel(
-    #    scale=0.0,
-    #    data=delta_data)
-
-    #output = MotionChannel(
-    #    delta_type=delta_type,
-    #    vector_len=channel.vector_len,
-    #    type=channel.type,
-    #    pivot=channel.pivot,
-    #    num_time_codes=num_time_codes,
-    #    data=animationChannel)
-
     deltas = set_deltas(deltas, num_bits)
-
-    print(deltas)
     return deltas
