@@ -159,17 +159,18 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
         pivot = None
         mesh_name = mesh_struct.header.mesh_name
         name = mesh_struct.header.container_name + "." + mesh_name
-        pivot_list = [
-            pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
-        if not pivot_list:
-            sub_objects = [
-                sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
-            if not sub_objects:
+
+        sub_objects = [
+            sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
+        if not sub_objects:
+            pivot_list = [
+                pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
+            if not pivot_list:
                 return
+            pivot = pivot_list[0]
+        else:
             sub_object = sub_objects[0]
             pivot = hierarchy.pivots[sub_object.bone_index]
-        else:
-            pivot = pivot_list[0]
 
         if pivot is None:
             return
@@ -178,8 +179,9 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
         mesh_ob.location = pivot.translation
         mesh_ob.rotation_euler = pivot.euler_angles
         mesh_ob.rotation_quaternion = pivot.rotation
+        print(pivot.rotation)
 
-        if pivot.parent_id == 0:
+        if pivot.parent_id <= 0:
             return
 
         parent_pivot = hierarchy.pivots[pivot.parent_id]
@@ -556,8 +558,12 @@ def apply_adaptive_delta(bone, channel):
         set_transform(bone, channel, i, data[i])
 
 
-def apply_uncompressed(bone, channel):
-    for frame in range(channel.last_frame - channel.first_frame + 1):
+def apply_uncompressed(bone, channel, hierarchy):
+    #pivot = hierarchy.pivots[channel.pivot]
+    #if Not isinstance(channel, AnimationBitChannel):
+    #    set_transform(bone, channel, 0, data)
+
+    for frame in range(channel.first_frame, channel.last_frame - channel.first_frame + 1):
         data = channel.data[frame]
         if isinstance(channel, AnimationBitChannel):
             set_visibility(bone, frame, data)
@@ -569,7 +575,7 @@ def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
         obj = get_bone(rig, hierarchy, channel)
 
-        apply_func(obj, channel)
+        apply_func(obj, channel, hierarchy)
 
 
 def process_motion_channels(hierarchy, channels, rig):
