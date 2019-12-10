@@ -495,6 +495,10 @@ def is_rotation(channel):
     return channel.type == 6
 
 
+def is_visibility(channel):
+    return isinstance(channel, AnimationBitChannel)
+
+
 def get_bone(rig, hierarchy, channel):
     if is_roottransform(channel):
         return rig
@@ -508,6 +512,7 @@ def get_bone(rig, hierarchy, channel):
 def setup_animation(animation):
     bpy.context.scene.render.fps = animation.header.frame_rate
     bpy.context.scene.frame_start = 0
+    # TODO: how to use option flag: INSERTKEY_NEEDED
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
@@ -524,14 +529,6 @@ def set_rotation(bone, frame, value):
     bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
-def set_transform(bone, channel, frame, value):
-    if is_translation(channel):
-        set_translation(bone, channel.type, frame, value)
-    elif is_rotation(channel):
-        set_rotation(bone, frame, value)
-    else:
-        print(channel.type)
-
 def set_visibility(bone, frame, value):
     try:
         bone.hide_viewport = value
@@ -544,33 +541,58 @@ def set_visibility(bone, frame, value):
             print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
 
+def set_keyframe(bone, channel, frame, value):
+    if is_translation(channel):
+        set_translation(bone, channel.type, frame, value)
+    elif is_rotation(channel):
+        set_rotation(bone, frame, value)
+    elif is_visibility(channel):
+        set_visibility(bone, frame, value)
+
+
 def apply_timecoded(bone, channel):
     for key in channel.time_codes:
-        set_transform(bone, channel, key.time_code, key.value)
+        set_keyframe(bone, channel, key.time_code, key.value)
 
 
 def apply_motion_channel_time_coded(bone, channel):
     for dat in channel.data:
-        set_transform(bone, channel, dat.time_code, dat.value)
+        set_keyframe(bone, channel, dat.time_code, dat.value)
 
 
 def apply_adaptive_delta(bone, channel):
     data = decode(channel)
     for i in range(channel.num_time_codes):
-        set_transform(bone, channel, i, data[i])
+        set_keyframe(bone, channel, i, data[i])
 
 
 def apply_uncompressed(bone, channel, hierarchy):
-    #pivot = hierarchy.pivots[channel.pivot]
-    #if Not isinstance(channel, AnimationBitChannel):
-    #    set_transform(bone, channel, 0, data)
+    pivot = hierarchy.pivots[channel.pivot]
+    rest_location = pivot.translation
+    rest_rotation = pivot.rotation
+    if channel.type < 6:
+        value = None
+        if channel.type == 0:
+            value = rest_location.x
+        if channel.type == 1:
+            value = rest_location.y
+        if channel.type == 2:
+            value = rest_location.z
+        set_translation(bone, channel.type, 0, value)
+    else:
+        set_rotation(bone, 0, rest_rotation)
 
     for frame in range(channel.first_frame, channel.last_frame - channel.first_frame + 1):
         data = channel.data[frame]
-        if isinstance(channel, AnimationBitChannel):
-            set_visibility(bone, frame, data)
-        else:
-            set_transform(bone, channel, frame, data)
+        if channel.type == 6:
+            data = rest_rotation @ data
+        if channel.type == 0:
+            data = rest_location.x + data
+        if channel.type == 1:
+            data = rest_location.y + data
+        if channel.type == 2:
+            data = rest_location.z + data
+        set_keyframe(bone, channel, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, apply_func):

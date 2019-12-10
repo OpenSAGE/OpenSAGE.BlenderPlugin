@@ -165,7 +165,6 @@ class Animation(Struct):
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-            print(chunk_size)
             if chunk_type == W3D_CHUNK_ANIMATION_HEADER:
                 result.header = AnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_ANIMATION_CHANNEL:
