@@ -529,6 +529,8 @@ def set_transform(bone, channel, frame, value):
         set_translation(bone, channel.type, frame, value)
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
+    else:
+        print(channel.type)
 
 def set_visibility(bone, frame, value):
     try:

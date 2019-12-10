@@ -22,13 +22,13 @@ def compare_shader_material_headers(self, expected, actual):
     self.assertEqual(expected.reserved, actual.reserved)
 
 
-def get_shader_material_property(_type=1, name="property"):
+def get_shader_material_property(_type=1, name="property", tex_name="texture.dds"):
     result = ShaderMaterialProperty(
         type=_type,
         name=name)
 
     if _type == 1:
-        result.value = "texture.dds"
+        result.value = tex_name
     elif _type == 2:
         result.value = 0.25
     elif _type == 3:
@@ -59,7 +59,7 @@ def compare_shader_material_properties(self, expected, actual):
 def get_shader_material_properties():
     return [
         get_shader_material_property(1, "DiffuseTexture"),
-        get_shader_material_property(1, "NormalMap"),
+        get_shader_material_property(1, "NormalMap", "texture_nrm.dds"),
         get_shader_material_property(2, "BumpScale"),
         get_shader_material_property(2, "SpecularExponent"),
         get_shader_material_property(3, "BumpUVScale"),

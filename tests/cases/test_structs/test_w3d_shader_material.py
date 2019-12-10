@@ -16,7 +16,7 @@ class TestShaderMaterial(utils.W3dTestCase):
         expected = get_shader_material()
 
         self.assertEqual(45, expected.header.size())
-        self.assertEqual(502, expected.size())
+        self.assertEqual(506, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

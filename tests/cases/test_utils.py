@@ -409,6 +409,9 @@ class TestUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture_nrm.dds")
+
         meshes = []
         for mesh_struct in expecteds:
             meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))

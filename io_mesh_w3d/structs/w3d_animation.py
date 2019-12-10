@@ -64,10 +64,16 @@ class AnimationChannel(Struct):
             unknown=read_ushort(io_stream),
             data=[])
 
+        num_elements = result.last_frame - result.first_frame + 1
+
         if result.vector_len == 1:
-            result.data = read_list(io_stream, chunk_end, read_float)
+            result.data = read_fixed_list(io_stream, num_elements, read_float)
         elif result.vector_len == 4:
-            result.data = read_list(io_stream, chunk_end, read_quaternion)
+            result.data = read_fixed_list(io_stream, num_elements, read_quaternion)
+
+        pad_bytes = []
+        while io_stream.tell() < chunk_end:
+            pad_bytes.append(io_stream.read(1))
         return result
 
     def size(self, include_head=True):
@@ -159,7 +165,7 @@ class Animation(Struct):
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
+            print(chunk_size)
             if chunk_type == W3D_CHUNK_ANIMATION_HEADER:
                 result.header = AnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_ANIMATION_CHANNEL:
