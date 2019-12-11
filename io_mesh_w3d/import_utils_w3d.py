@@ -483,6 +483,7 @@ def load_texture(self, tex_name):
 # createAnimation
 ##########################################################################
 
+
 def is_roottransform(channel):
     return channel.pivot == 0
 
