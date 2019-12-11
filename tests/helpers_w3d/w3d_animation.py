@@ -2,9 +2,12 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.structs.w3d_animation import *
-from tests.helpers.w3d_version import *
-from tests.helpers.mathutils import *
+from mathutils import Quaternion
+
+from io_mesh_w3d.structs_w3d.w3d_animation import *
+
+from tests.helpers_w3d.w3d_version import *
+from tests.utils import almost_equal
 
 
 def get_animation_header(hierarchy_name="hierarchy"):

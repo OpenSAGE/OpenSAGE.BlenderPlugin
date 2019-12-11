@@ -2,7 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.structs.w3d_material_info import *
+
+from io_mesh_w3d.structs_w3d.w3d_material_info import *
 
 
 def get_material_info(mesh=None):
