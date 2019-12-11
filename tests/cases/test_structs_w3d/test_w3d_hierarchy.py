@@ -24,6 +24,25 @@ class TestHierarchy(TestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
+
+    def test_write_read_minimal(self):
+        expected = get_hierarchy_minimal()
+
+        self.assertEqual(44, expected.header.size())
+        self.assertEqual(132, expected.size())
+
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
+        self.assertEqual(expected.size(), chunkSize)
+
+        actual = Hierarchy.read(self, io_stream, chunkEnd)
+        compare_hierarchies(self, expected, actual)
+
+
     def test_write_read_empty(self):
         expected = get_hierarchy_empty()
 
@@ -41,6 +60,7 @@ class TestHierarchy(TestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HIERARCHY, output, 9, has_sub_chunks=True)
@@ -54,6 +74,7 @@ class TestHierarchy(TestCase):
         self.assertEqual(W3D_CHUNK_HIERARCHY, chunk_type)
 
         Hierarchy.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         hierarchy = get_hierarchy_minimal()
