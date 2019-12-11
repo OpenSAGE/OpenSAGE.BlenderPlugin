@@ -1,9 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from bpy import context
-from io_mesh_w3d.structs.struct import HEAD
-from io_mesh_w3d.io_binary import read_chunk_head
+from io_mesh_w3d.structs_w3d.w3d_struct import HEAD
 
 
 def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):

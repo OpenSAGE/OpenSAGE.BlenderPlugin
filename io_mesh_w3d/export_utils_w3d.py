@@ -6,7 +6,7 @@ import bmesh
 from mathutils import Vector
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.structs_w3d.struct import Struct
+from io_mesh_w3d.structs_w3d.w3d_struct import Struct
 from io_mesh_w3d.structs_w3d.w3d_hlod import *
 from io_mesh_w3d.structs_w3d.w3d_mesh import *
 from io_mesh_w3d.structs_w3d.w3d_box import *
