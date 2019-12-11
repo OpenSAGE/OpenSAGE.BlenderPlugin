@@ -464,6 +464,143 @@ class TestUtils(utils.W3dTestCase):
         compare_animations(self, expected, actual)
 
 
+    def test_animation_channel_starting_at_frame_0_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        hierarchy = get_hierarchy()
+
+        mesh_structs = [
+            get_mesh(name="soldier", skin=True)]
+
+        animation = animation = Animation(
+            header=get_animation_header("TestHierarchy"),
+            channels=[])
+
+        channel = AnimationChannel(
+            first_frame=0,
+            last_frame=4,
+            vector_len=1,
+            type=1,
+            pivot=2,
+            unknown=0,
+            data=[2.14, 3.14, 5.12, 3.14, 2.0])
+
+        animation.channels.append(channel)
+
+        expecteds = [2.14, 3.14, 5.12, 3.14, 2.0]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        create_animation(rig, animation, hierarchy)
+
+        self.assertTrue("TestHierarchy" in bpy.data.objects)
+        armature = bpy.data.objects["TestHierarchy"]
+
+        for fcu in armature.animation_data.action.fcurves:
+            pivot_name = fcu.data_path.split('"')[1]
+
+            range_ = fcu.range()
+            first_frame = int(range_[0])
+            last_frame = int(range_[1])
+            i = 0
+            for frame in range(first_frame, last_frame + 1):
+                val = fcu.evaluate(frame)
+                self.assertAlmostEqual(expecteds[i], val, 2)
+                i += 1
+
+        actual = retrieve_animation(
+            animation.header.name, hierarchy, rig, timecoded=False)
+        compare_animations(self, animation, actual)
+
+
+    def test_animation_channel_starting_at_frame_1_roundtrip(self):
+        context = utils.ImportWrapper(self.outpath())
+        hlod = get_hlod()
+        hierarchy = get_hierarchy()
+
+        mesh_structs = [
+            get_mesh(name="soldier", skin=True)]
+
+        expected = animation = Animation(
+            header=get_animation_header("TestHierarchy"),
+            channels=[])
+
+        expected_channel = AnimationChannel(
+            first_frame=0,
+            last_frame=5,
+            vector_len=1,
+            type=1,
+            pivot=2,
+            unknown=0,
+            data=[33.0, 35.139999, 36.139999, 38.119999, 36.139999, 35.0])
+
+        expected.channels.append(expected_channel)
+
+        animation = animation = Animation(
+            header=get_animation_header("TestHierarchy"),
+            channels=[])
+
+        channel = AnimationChannel(
+            first_frame=1,
+            last_frame=5,
+            vector_len=1,
+            type=1,
+            pivot=2,
+            unknown=0,
+            data=[2.14, 3.14, 5.12, 3.14, 2.0])
+
+        animation.channels.append(channel)
+
+        expecteds = [33.0, 35.139, 36.139, 38.119, 36.139, 35.0]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        create_animation(rig, animation, hierarchy)
+
+        self.assertTrue("TestHierarchy" in bpy.data.objects)
+        armature = bpy.data.objects["TestHierarchy"]
+
+        for fcu in armature.animation_data.action.fcurves:
+            pivot_name = fcu.data_path.split('"')[1]
+
+            range_ = fcu.range()
+            first_frame = int(range_[0])
+            last_frame = int(range_[1])
+            i = 0
+            for frame in range(first_frame, last_frame + 1):
+                val = fcu.evaluate(frame)
+                self.assertAlmostEqual(expecteds[i], val, 2)
+                i += 1
+
+        actual = retrieve_animation(
+            animation.header.name, hierarchy, rig, timecoded=False)
+        compare_animations(self, expected, actual)
+
+
     def test_compressed_animation_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
         expected = get_compressed_animation(

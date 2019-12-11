@@ -600,6 +600,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
+
                 if "hide" in fcu.data_path:
                     channel.data[i] = bool(val)
                 elif channel_type < 6:

@@ -550,7 +550,7 @@ def set_keyframe(bone, channel, frame, value):
         set_visibility(bone, frame, value)
 
 
-def apply_timecoded(bone, channel):
+def apply_timecoded(bone, channel, _):
     for key in channel.time_codes:
         set_keyframe(bone, channel, key.time_code, key.value)
 
@@ -567,31 +567,34 @@ def apply_adaptive_delta(bone, channel):
 
 
 def apply_uncompressed(bone, channel, hierarchy):
-    pivot = hierarchy.pivots[channel.pivot]
-    rest_location = pivot.translation
-    rest_rotation = pivot.rotation
-    if channel.type < 6:
-        value = None
-        if channel.type == 0:
-            value = rest_location.x
-        if channel.type == 1:
-            value = rest_location.y
-        if channel.type == 2:
-            value = rest_location.z
-        set_translation(bone, channel.type, 0, value)
-    else:
-        set_rotation(bone, 0, rest_rotation)
+    if channel.first_frame == 1:
+        pivot = hierarchy.pivots[channel.pivot]
+        rest_location = pivot.translation
+        rest_rotation = pivot.rotation
+        if channel.type < 6:
+            value = None
+            if channel.type == 0:
+                value = rest_location.x
+            if channel.type == 1:
+                value = rest_location.y
+            if channel.type == 2:
+                value = rest_location.z
+            set_translation(bone, channel.type, 0, value)
+        else:
+            set_rotation(bone, 0, rest_rotation)
 
-    for frame in range(channel.first_frame, channel.last_frame - channel.first_frame + 1):
-        data = channel.data[frame]
-        if channel.type == 6:
-            data = rest_rotation @ data
-        if channel.type == 0:
-            data = rest_location.x + data
-        if channel.type == 1:
-            data = rest_location.y + data
-        if channel.type == 2:
-            data = rest_location.z + data
+    for index in range(channel.last_frame - channel.first_frame + 1):
+        data = channel.data[index]
+        if channel.first_frame == 1:
+            if channel.type == 6:
+                data = rest_rotation @ data
+            if channel.type == 0:
+                data = rest_location.x + data
+            if channel.type == 1:
+                data = rest_location.y + data
+            if channel.type == 2:
+                data = rest_location.z + data
+        frame = index + channel.first_frame
         set_keyframe(bone, channel, frame, data)
 
 
