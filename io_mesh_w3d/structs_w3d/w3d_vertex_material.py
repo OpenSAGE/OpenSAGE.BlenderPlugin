@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.structs.struct import Struct, HEAD
-from io_mesh_w3d.structs.w3d_rgba import RGBA
+from io_mesh_w3d.structs_w3d.struct import Struct, HEAD
+from io_mesh_w3d.structs_w3d.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 from io_mesh_w3d.utils import skip_unknown_chunk

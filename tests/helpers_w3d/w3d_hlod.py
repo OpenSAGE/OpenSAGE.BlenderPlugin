@@ -5,6 +5,10 @@ import unittest
 from io_mesh_w3d.structs.w3d_hlod import *
 from tests.helpers.w3d_version import *
 
+from io_mesh_w3d.structs.w3d_hlod import HLod, HLodHeader, HLodArray, HLodArrayHeader, HLodSubObject
+
+from tests.helpers_w3d.w3d_version import get_version, compare_versions
+
 
 def get_hlod_header(model_name, hierarchy_name):
     return HLodHeader(

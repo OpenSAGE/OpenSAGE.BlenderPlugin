@@ -8,17 +8,17 @@ import os
 from tests.utils import TestCase
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.export_utils_w3d import *
-from tests.helpers.w3d_mesh import *
-from tests.helpers.w3d_material_pass import *
-from tests.helpers.w3d_material_info import *
-from tests.helpers.w3d_vertex_material import *
-from tests.helpers.w3d_shader_material import *
-from tests.helpers.w3d_shader import *
-from tests.helpers.w3d_box import *
-from tests.helpers.w3d_hierarchy import *
-from tests.helpers.w3d_hlod import *
-from tests.helpers.w3d_animation import *
-from tests.helpers.w3d_compressed_animation import *
+from tests.helpers_w3d.w3d_mesh import *
+from tests.helpers_w3d.w3d_material_pass import *
+from tests.helpers_w3d.w3d_material_info import *
+from tests.helpers_w3d.w3d_vertex_material import *
+from tests.helpers_w3d.w3d_shader_material import *
+from tests.helpers_w3d.w3d_shader import *
+from tests.helpers_w3d.w3d_box import *
+from tests.helpers_w3d.w3d_hierarchy import *
+from tests.helpers_w3d.w3d_hlod import *
+from tests.helpers_w3d.w3d_animation import *
+from tests.helpers_w3d.w3d_compressed_animation import *
 
 
 class TestUtils(TestCase):

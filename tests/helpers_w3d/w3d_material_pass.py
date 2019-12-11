@@ -3,9 +3,12 @@
 
 import unittest
 
-from io_mesh_w3d.structs.w3d_material_pass import *
-from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
-from tests.helpers.mathutils import *
+from mathutils import Vector
+
+from io_mesh_w3d.structs_w3d.w3d_rgba import RGBA
+from io_mesh_w3d.structs_w3d.w3d_material_pass import *
+
+from tests.helpers_w3d.w3d_rgba import get_rgba, compare_rgbas
 
 
 def get_uvs():

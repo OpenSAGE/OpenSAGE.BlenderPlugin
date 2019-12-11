@@ -6,14 +6,14 @@ import bmesh
 from mathutils import Vector
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.structs.struct import Struct
-from io_mesh_w3d.structs.w3d_hlod import *
-from io_mesh_w3d.structs.w3d_mesh import *
-from io_mesh_w3d.structs.w3d_box import *
-from io_mesh_w3d.structs.w3d_shader import *
-from io_mesh_w3d.structs.w3d_hierarchy import *
-from io_mesh_w3d.structs.w3d_animation import *
-from io_mesh_w3d.structs.w3d_compressed_animation import *
+from io_mesh_w3d.structs_w3d.struct import Struct
+from io_mesh_w3d.structs_w3d.w3d_hlod import *
+from io_mesh_w3d.structs_w3d.w3d_mesh import *
+from io_mesh_w3d.structs_w3d.w3d_box import *
+from io_mesh_w3d.structs_w3d.w3d_shader import *
+from io_mesh_w3d.structs_w3d.w3d_hierarchy import *
+from io_mesh_w3d.structs_w3d.w3d_animation import *
+from io_mesh_w3d.structs_w3d.w3d_compressed_animation import *
 
 
 bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
