@@ -37,7 +37,7 @@ def create_quaternion(quat, doc):
 
 
 def parse_matrix(xml_quaternion):
-    return Quaternion((
+    return Matrix((
         [float(xml_quaternion.attributes['M00'].value),
         float(xml_quaternion.attributes['M10'].value),
         float(xml_quaternion.attributes['M20'].value),
