@@ -35,7 +35,7 @@ class HierarchyPivot(Struct):
         pivot.setAttribute('Name', self.name)
         pivot.setAttribute('NameID', str(self.name_id))
         pivot.setAttribute('Parent', str(self.parent_id))
-        pivot.appendChild(create_vector(self.translation, doc))
+        pivot.appendChild(create_vector(self.translation, doc, 'Translation'))
         pivot.appendChild(create_quaternion(self.rotation, doc))
         pivot.appendChild(create_matrix(self.fixup_matrix, doc))
         return pivot
