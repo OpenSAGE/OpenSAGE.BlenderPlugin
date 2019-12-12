@@ -4,6 +4,19 @@
 from mathutils import Vector, Quaternion, Matrix
 
 
+def parse_vector2(xml_vector2):
+    return Vector((
+        float(xml_vector2.attributes['X'].value), 
+        float(xml_vector2.attributes['Y'].value)))
+
+
+def create_vector2(vec2, doc, name):
+    vector = doc.createElement(name)
+    vector.setAttribute('X', str(vec2.x))
+    vector.setAttribute('Y', str(vec2.y))
+    return vector
+
+
 def parse_vector(xml_vector):
     return Vector((
         float(xml_vector.attributes['X'].value), 
@@ -11,8 +24,8 @@ def parse_vector(xml_vector):
         float(xml_vector.attributes['Z'].value)))
 
 
-def create_vector(vec, doc):
-    vector = doc.createElement('Translation')
+def create_vector(vec, doc, name):
+    vector = doc.createElement(name)
     vector.setAttribute('X', str(vec.x))
     vector.setAttribute('Y', str(vec.y))
     vector.setAttribute('Z', str(vec.z))
