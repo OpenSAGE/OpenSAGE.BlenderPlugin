@@ -20,8 +20,6 @@ class TestHierarchyW3X(utils.W3dTestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        print(doc)
-        print(doc.toprettyxml(indent = '   '))
         io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
@@ -33,39 +31,37 @@ class TestHierarchyW3X(utils.W3dTestCase):
         compare_hierarchies(self, expected, actual)
 
 
-    #def test_write_read_minimal(self):
-    #    expected = get_hierarchy_minimal()
-    #
-    #    self.assertEqual(44, expected.header.size())
-    #    self.assertEqual(44, expected.size())
+    def test_write_read_minimal(self):
+        expected = get_hierarchy_minimal()
 
-    #    io_stream = io.BytesIO()
-    #    expected.write(io_stream)
-    #    io_stream = io.BytesIO(io_stream.getvalue())
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
 
-    #    (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-    #    self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
-    #    self.assertEqual(expected.size(), chunkSize)
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
 
-    #    actual = Hierarchy.read(self, io_stream, chunkEnd)
-    #    compare_hierarchies(self, expected, actual)
+        dom = minidom.parse(io_stream)
+        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
+        self.assertEqual(1, len(xml_hierarchies))
 
-
-    #def test_write_read_empty(self):
-    #    expected = get_hierarchy_empty()
-
-    #    self.assertEqual(44, expected.header.size())
-    #    self.assertEqual(44, expected.size())
-
-    #    io_stream = io.BytesIO()
-    #    expected.write(io_stream)
-    #    io_stream = io.BytesIO(io_stream.getvalue())
-
-    #    (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-    #    self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
-    #    self.assertEqual(expected.size(), chunkSize)
-
-     #   actual = Hierarchy.read(self, io_stream, chunkEnd)
-    #    compare_hierarchies(self, expected, actual)
+        actual = Hierarchy.parse(xml_hierarchies[0])
+        compare_hierarchies(self, expected, actual)
 
 
+    def test_write_read_empty(self):
+        expected = get_hierarchy_empty()
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
+        self.assertEqual(1, len(xml_hierarchies))
+
+        actual = Hierarchy.parse(xml_hierarchies[0])
+        compare_hierarchies(self, expected, actual)
