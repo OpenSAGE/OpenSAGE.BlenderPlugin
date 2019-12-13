@@ -8,13 +8,13 @@ from xml.dom import minidom
 
 from tests import utils
 
-from io_mesh_w3d.structs_w3x.w3x_hierarchy import *
-from tests.helpers_w3x.w3x_hierarchy import *
+from io_mesh_w3d.structs_w3x.w3x_fx_shader import *
+from tests.helpers_w3x.w3x_fx_shader import *
 
 
-class TestHierarchyW3X(utils.W3dTestCase):
+class TestFxShaderW3X(utils.W3dTestCase):
     def test_write_read(self):
-        expected = get_hierarchy()
+        expected = get_fx_shader()
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
@@ -24,15 +24,15 @@ class TestHierarchyW3X(utils.W3dTestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
-        self.assertEqual(1, len(xml_hierarchies))
+        xml_fx_shaders = dom.getElementsByTagName('FXShader')
+        self.assertEqual(1, len(xml_fx_shaders))
 
-        actual = Hierarchy.parse(xml_hierarchies[0])
-        compare_hierarchies(self, expected, actual)
+        actual = FXShader.parse(xml_fx_shaders[0])
+        compare_fx_shaders(self, expected, actual)
 
 
     def test_write_read_minimal(self):
-        expected = get_hierarchy_minimal()
+        expected = get_fx_shader_minimal()
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
@@ -42,8 +42,8 @@ class TestHierarchyW3X(utils.W3dTestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
-        self.assertEqual(1, len(xml_hierarchies))
+        xml_fx_shaders = dom.getElementsByTagName('FXShader')
+        self.assertEqual(1, len(xml_fx_shaders))
 
-        actual = Hierarchy.parse(xml_hierarchies[0])
-        compare_hierarchies(self, expected, actual)
+        actual = FXShader.parse(xml_fx_shaders[0])
+        compare_fx_shaders(self, expected, actual)
