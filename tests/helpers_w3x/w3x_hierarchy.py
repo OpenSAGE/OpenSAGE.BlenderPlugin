@@ -73,12 +73,6 @@ def get_hierarchy_minimal():
         pivots=[get_hierarchy_pivot()])
 
 
-def get_hierarchy_empty():
-    return Hierarchy(
-        id="",
-        pivots=[])
-
-
 def compare_hierarchies(self, expected, actual):
     self.assertEqual(expected.id, actual.id)
 
