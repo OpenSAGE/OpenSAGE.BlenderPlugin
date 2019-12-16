@@ -60,15 +60,12 @@ def get_collection(hlod):
 
 def create_mesh(self, mesh_struct, hierarchy, coll):
     triangles = []
-
     for triangle in mesh_struct.triangles:
-        triangles.append(triangle.vert_ids)
+        triangles.append(tuple(triangle.vert_ids))
 
     mesh = bpy.data.meshes.new(mesh_struct.name())
 
-    verts = mesh_struct.verts.copy()
-
-    mesh.from_pydata(verts, [], triangles)
+    mesh.from_pydata(mesh_struct.verts, [], triangles)
     mesh.update()
     mesh.validate()
 
@@ -424,9 +421,8 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
 
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):
-        tri = tris[i]
         for loop in face.loops:
-            idx = tri[loop.index % 3]
+            idx = tris[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 

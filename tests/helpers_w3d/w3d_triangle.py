@@ -6,7 +6,7 @@ from mathutils import Vector
 from io_mesh_w3d.structs_w3d.w3d_triangle import Triangle
 
 
-def get_triangle(vert_ids=(1, 2, 3),
+def get_triangle(vert_ids=[1, 2, 3],
                  surface_type=66,
                  normal=get_vector(x=1.0, y=22.0, z=-5.0),
                  distance=103.0):

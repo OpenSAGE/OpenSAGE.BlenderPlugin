@@ -5,54 +5,80 @@ from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.io_xml import *
 
 
-#<Node>
-#	<Min X="-14.729331" Y="5.105928" Z="-1.288723"/>
-#	<Max X="-2.990558" Y="9.814140" Z="2.538390"/>
-#	<Polys Begin="47" Count="4"/>
-#</Node>
-#<Node>
-#	<Min X="-15.416054" Y="-6.912834" Z="-1.306865"/>
-#	<Max X="-9.852810" Y="6.912835" Z="1.577101"/>
-#	<Children Front="37" Back="38"/>
-#</Node>
-
-
 class Children(Struct):
     front = 0
     back = 0
+
+    @staticmethod
+    def parse(xml_children):
+        return Children(
+            front=int(xml_children.attributes['Front'].value),
+            back=int(xml_children.attributes['Back'].value))
+
+    def create(self, doc):
+        xml_children = doc.createElement('Children')
+        xml_children.setAttribute('Front', str(self.front))
+        xml_children.setAttribute('Back', str(self.back))
+        return xml_children
+
 
 class Polys(Struct):
     begin = 0
     count = 0
 
+    @staticmethod
+    def parse(xml_polys):
+        return Polys(
+            begin=int(xml_polys.attributes['Begin'].value),
+            count=int(xml_polys.attributes['Count'].value))
+
+    def create(self, doc):
+        xml_polys = doc.createElement('Polys')
+        xml_polys.setAttribute('Begin', str(self.begin))
+        xml_polys.setAttribute('Count', str(self.count))
+        return xml_polys
+
 
 class Node(Struct):
     min = Vector((0, 0, 0))
     max = Vector((0, 0, 0))
+    polys = None
     children = None
 
     @staticmethod
-    def parse(xml_constant):
-        constant = Constant(
-            type=xml_constant.tagName,
-            name=xml_constant.attributes['Name'].value,
-            values=[])
+    def parse(xml_node):
+        node = Node(
+            children=None,
+            polys=None)
 
-        xml_values = xml_constant.getElementsByTagName('Value')
-        for xml_value in xml_values:
-            constant.values.append(xml_value.childNodes[0].nodeValue)
-        return constant
+        xml_min = xml_node.getElementsByTagName('Min')[0]
+        node.min = parse_vector(xml_min)
+
+        xml_max = xml_node.getElementsByTagName('Max')[0]
+        node.max = parse_vector(xml_max)
+
+        xml_polys = xml_node.getElementsByTagName('Polys')
+        if xml_polys:
+            node.polys = Polys.parse(xml_polys[0])
+
+        xml_children = xml_node.getElementsByTagName('Children')
+        if xml_children:
+            node.children = Children.parse(xml_children[0])
+        return node
 
     def create(self, doc):
-        xml_constant = doc.createElement(self.type)
-        xml_constant.setAttribute('Name', self.name)
-        
-        for value in self.values:
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(value)))
-            xml_constant.appendChild(xml_value)
+        xml_node = doc.createElement('Node')
+
+        xml_node.appendChild(create_vector(self.min, doc, 'Min'))
+        xml_node.appendChild(create_vector(self.max, doc, 'Max'))
+
+        if self.polys is not None:
+            xml_node.appendChild(self.polys.create(doc))
+
+        if self.children is not None:
+            xml_node.appendChild(self.children.create(doc))
        
-        return xml_constant
+        return xml_node
 
 
 class AABBTree(Struct):
@@ -74,7 +100,6 @@ class AABBTree(Struct):
             result.nodes.append(Node.parse(xml_node))
         return result
 
-
     def create(self, doc):
         aabbtree = doc.createElement('AABTree')
 
@@ -86,8 +111,5 @@ class AABBTree(Struct):
             poly_indices.appendChild(xml_index)
 
         for node in self.nodes:
-            xml_node = doc.createElement('Node')
-            xml_node_min = doc.createElement('Node')
-
-            aabbtree.appendChild(xml_node)
+            aabbtree.appendChild(node.create(doc))
         return aabbtree

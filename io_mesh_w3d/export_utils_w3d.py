@@ -153,7 +153,7 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 
         for face in mesh.polygons:
             triangle = Triangle()
-            triangle.vert_ids = tuple(face.vertices)
+            triangle.vert_ids = list(face.vertices)
             triangle.normal = Vector(face.normal)
             vec1 = mesh.vertices[face.vertices[0]].normal
             vec2 = mesh.vertices[face.vertices[1]].normal
