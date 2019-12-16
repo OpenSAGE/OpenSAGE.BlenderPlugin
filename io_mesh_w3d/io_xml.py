@@ -4,6 +4,16 @@
 from mathutils import Vector, Quaternion, Matrix
 
 
+def parse_value(xml_obj, cast_func=str):
+    return cast_func(xml_obj.childNodes[0].nodeValue)
+
+
+def create_value(value, doc, identifier):
+    xml_obj = doc.createElement(identifier)
+    xml_obj.appendChild(doc.createTextNode(str(value)))
+    return xml_obj
+
+
 def parse_vector2(xml_vector2):
     return Vector((
         float(xml_vector2.attributes['X'].value), 
@@ -84,3 +94,29 @@ def create_matrix(mat, doc):
     matrix.setAttribute('M22', str(mat[2][2]))
     matrix.setAttribute('M32', str(mat[2][3]))
     return matrix
+
+
+def parse_object_list(parent, name, identifier, parse_func, par1=None):
+    list_objects = parent.getElementsByTagName(name)
+    if not list_objects:
+        return []
+    if len(list_objects) > 1:
+        print("Error")
+    result = []
+    objects = list_objects[0].getElementsByTagName(identifier)
+    for obj in objects:
+        if par1 is not None:
+            result.append(parse_func(obj, par1))
+        else:
+            result.append(parse_func(obj))
+    return result
+
+
+def create_object_list(doc, name, objects, write_func, par1=None):
+    xml_objects_list = doc.createElement(name)
+    for obj in objects:
+        if par1 is not None:
+            xml_objects_list.appendChild(write_func(obj, doc, par1))
+        else:
+            xml_objects_list.appendChild(write_func(obj, doc))
+    return xml_objects_list
