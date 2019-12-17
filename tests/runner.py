@@ -5,7 +5,7 @@ import unittest
 import coverage
 import sys
 
-if '--nocoverage' not in sys.argv:
+if '--coverage' in sys.argv:
     # Start collecting coverage
     cov = coverage.Coverage()
     cov.start()
@@ -17,9 +17,9 @@ suite = unittest.defaultTestLoader.discover('.')
 if not unittest.TextTestRunner().run(suite).wasSuccessful():
     exit(1)
 
-if '--nocoverage' not in sys.argv:
+if '--coverage' in sys.argv:
     cov.stop()
     cov.xml_report()
 
-if '--nocoverage' not in sys.argv and '--save-html-report' in sys.argv:
+if '--coverage' in sys.argv and '--save-html-report' in sys.argv:
     cov.html_report()

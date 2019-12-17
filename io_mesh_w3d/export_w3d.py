@@ -4,7 +4,7 @@
 import os
 import bpy
 
-from io_mesh_w3d.export_utils_w3d import *
+from io_mesh_w3d.export_utils import *
 
 
 def save(self, export_settings):
