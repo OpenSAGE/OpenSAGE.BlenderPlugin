@@ -3,7 +3,7 @@
 
 from mathutils import Vector
 
-from io_mesh_w3d.structs_w3d.w3d_struct import Struct, HEAD
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *

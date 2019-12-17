@@ -4,6 +4,8 @@
 import struct
 from mathutils import Vector, Quaternion
 
+HEAD = 8  # 4(long = chunk_type) + 4 (long = chunk_size)
+
 STRING_LENGTH = 16
 LARGE_STRING_LENGTH = 32
 

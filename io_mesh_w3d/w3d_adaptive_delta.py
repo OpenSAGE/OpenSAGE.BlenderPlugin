@@ -5,6 +5,7 @@ import math
 
 
 
+
 def fill_with_exponents_of_10(table):
     for i in range(16):
         table.append(pow(10, i - 8))

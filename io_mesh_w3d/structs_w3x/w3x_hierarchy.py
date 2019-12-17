@@ -3,7 +3,7 @@
 
 from mathutils import Vector, Quaternion, Matrix
 
-from io_mesh_w3d.structs_w3x.w3x_struct import Struct
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.io_xml import *
 
 class HierarchyPivot(Struct):

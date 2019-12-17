@@ -1,18 +1,18 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.structs.struct import Struct, HEAD
-from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_material_pass import *
-from io_mesh_w3d.structs.w3d_material_info import *
-from io_mesh_w3d.structs.w3d_vertex_material import *
-from io_mesh_w3d.structs.w3d_triangle import *
-from io_mesh_w3d.structs.w3d_aabbtree import *
-from io_mesh_w3d.structs.w3d_shader import *
-from io_mesh_w3d.structs.w3d_vertex_influence import *
-from io_mesh_w3d.structs.w3d_shader_material import *
-from io_mesh_w3d.structs.w3d_texture import *
-from io_mesh_w3d.structs.w3d_prelit import *
+from io_mesh_w3d.struct import Struct
+from io_mesh_w3d.structs_w3d.w3d_version import Version
+from io_mesh_w3d.structs_w3d.w3d_material_pass import *
+from io_mesh_w3d.structs_w3d.w3d_material_info import *
+from io_mesh_w3d.structs_w3d.w3d_vertex_material import *
+from io_mesh_w3d.structs_w3d.w3d_triangle import *
+from io_mesh_w3d.structs_w3d.w3d_aabbtree import *
+from io_mesh_w3d.structs_w3d.w3d_shader import *
+from io_mesh_w3d.structs_w3d.w3d_vertex_influence import *
+from io_mesh_w3d.structs_w3d.w3d_shader_material import *
+from io_mesh_w3d.structs_w3d.w3d_texture import *
+from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
