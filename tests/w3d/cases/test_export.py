@@ -4,6 +4,7 @@
 import bpy
 from tests.utils import TestCase
 from io_mesh_w3d.export_w3d import save
+from tests.utils import *
 
 
 class TestExport(TestCase):

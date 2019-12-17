@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
+
 from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
@@ -10,7 +12,6 @@ from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
-from io_mesh_w3d.w3d.structs.mesh_structs.triangle import *
 from io_mesh_w3d.w3d.structs.mesh_structs.aabbtree import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import *
