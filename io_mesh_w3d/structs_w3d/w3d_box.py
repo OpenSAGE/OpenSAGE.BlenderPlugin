@@ -3,7 +3,7 @@
 
 from mathutils import Vector
 
-from io_mesh_w3d.structs_w3d.w3d_struct import Struct
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.structs_w3d.w3d_version import Version
 from io_mesh_w3d.structs_w3d.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
