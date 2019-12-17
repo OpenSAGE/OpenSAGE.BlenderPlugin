@@ -9,8 +9,8 @@ import shutil
 import inspect
 import tempfile
 
-#import addon_utils
-
+import addon_utils
+from os.path import dirname as up
 
 def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)

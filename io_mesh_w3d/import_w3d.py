@@ -2,15 +2,15 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.structs_w3d.w3d_mesh import *
-from io_mesh_w3d.structs_w3d.w3d_hierarchy import *
-from io_mesh_w3d.structs_w3d.w3d_animation import *
-from io_mesh_w3d.structs_w3d.w3d_compressed_animation import *
-from io_mesh_w3d.structs_w3d.w3d_box import *
-from io_mesh_w3d.structs_w3d.w3d_hlod import *
+from io_mesh_w3d.w3d.structs.mesh import *
+from io_mesh_w3d.w3d.structs.hierarchy import *
+from io_mesh_w3d.w3d.structs.animation import *
+from io_mesh_w3d.w3d.structs.compressed_animation import *
+from io_mesh_w3d.w3d.structs.box import *
+from io_mesh_w3d.w3d.structs.hlod import *
 
 from io_mesh_w3d.io_binary import *
-from io_mesh_w3d.import_utils_w3d import *
+from io_mesh_w3d.import_utils import *
 
 
 ##########################################################################
