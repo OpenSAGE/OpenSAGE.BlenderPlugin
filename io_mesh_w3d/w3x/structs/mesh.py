@@ -11,7 +11,8 @@ from io_mesh_w3d.structs_w3x.w3x_aabbtree import *
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.io_xml import *
 
-from io_mesh_w3d.w3x.structs.mesh_structs.triangle import *
+from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
+
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
 from io_mesh_w3d.w3x.structs.mesh_structs.fx_shader import *

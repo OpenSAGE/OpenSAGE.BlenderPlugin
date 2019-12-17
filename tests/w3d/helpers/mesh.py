@@ -3,9 +3,9 @@
 
 import unittest
 
+from tests.shared.helpers.mesh_structs.triangle import *
+
 from io_mesh_w3d.w3d.structs.mesh import *
-from io_mesh_w3d.w3d.structs.mesh_structs.triangle import Triangle
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import VertexInfluence
 
 from tests.w3d.helpers.version import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
@@ -15,7 +15,6 @@ from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.texture import *
 from tests.w3d.helpers.mesh_structs.shader_material import *
 from tests.w3d.helpers.mesh_structs.aabbtree import *
-from tests.w3d.helpers.mesh_structs.triangle import *
 from tests.w3d.helpers.mesh_structs.vertex_influence import *
 
 

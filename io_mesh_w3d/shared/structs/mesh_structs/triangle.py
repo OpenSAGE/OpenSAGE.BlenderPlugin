@@ -4,13 +4,39 @@
 from mathutils import Vector
 
 from io_mesh_w3d.struct import Struct
+from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.io_xml import *
 
 
 class Triangle(Struct):
     vert_ids = []
-    normal = Vector((0, 0, 0))
+    surface_type = 13
+    normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
+
+    @staticmethod
+    def read(io_stream):
+        return Triangle(
+            vert_ids=[read_ulong(io_stream), read_ulong(
+                io_stream), read_ulong(io_stream)],
+            surface_type=read_ulong(io_stream),
+            normal=read_vector(io_stream),
+            distance=read_float(io_stream))
+
+
+    @staticmethod
+    def size():
+        return 32
+
+
+    def write(self, io_stream):
+        write_ulong(self.vert_ids[0], io_stream)
+        write_ulong(self.vert_ids[1], io_stream)
+        write_ulong(self.vert_ids[2], io_stream)
+        write_ulong(self.surface_type, io_stream)
+        write_vector(self.normal, io_stream)
+        write_float(self.distance, io_stream)
+
 
     @staticmethod
     def parse(xml_triangle):
@@ -23,6 +49,7 @@ class Triangle(Struct):
         result.normal = parse_vector(xml_triangle.getElementsByTagName('Nrm')[0])
         result.distance = float(xml_triangle.getElementsByTagName('Dist')[0].childNodes[0].nodeValue)
         return result
+
 
     def create(self, doc):
         result = doc.createElement('T')

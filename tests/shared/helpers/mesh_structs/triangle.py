@@ -2,8 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector
-from io_mesh_w3d.w3d.structs.mesh_structs.triangle import Triangle
+from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
 
 
 def get_triangle(vert_ids=[1, 2, 3],
