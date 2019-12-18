@@ -500,14 +500,28 @@ def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel)
 
 
+class Element(Struct):
+    obj = None
+    isBone = False
+    pivot = None
+
+
 def get_bone(rig, hierarchy, channel):
+    elem = Element(
+        obj=None,
+        isBone=False,
+        pivot=hierarchy.pivots[channel.pivot])
+
     if is_roottransform(channel):
-        return rig
-    pivot = hierarchy.pivots[channel.pivot]
-    if rig is not None and pivot.name in rig.pose.bones:
-        bone = rig.pose.bones[pivot.name]
-        return rig.pose.bones[pivot.name]
-    return bpy.data.objects[pivot.name]
+        elem.obj = rig
+        return elem
+    
+    if rig is not None and elem.pivot.name in rig.pose.bones:
+        elem.obj = rig.pose.bones[elem.pivot.name]
+        elem.isBone = True
+    else:
+        elem.obj = bpy.data.objects[elem.pivot.name]
+    return elem
 
 
 def setup_animation(animation):
@@ -518,26 +532,33 @@ def setup_animation(animation):
 
 
 def set_translation(bone, index, frame, value):
-    bone.location[index] = value
+    if not bone.isBone and bone.pivot is not None:
+        bone.obj.location[index] = bone.pivot.translation[index] + value
+    else:
+        bone.obj.location[index] = value
     # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.keyframe_insert(data_path='location', index=index, frame=frame)
+    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame)
 
 
 def set_rotation(bone, frame, value):
-    bone.rotation_mode = 'QUATERNION'
-    bone.rotation_quaternion = value
+    bone.obj.rotation_mode = 'QUATERNION'
+
+    if not bone.isBone and bone.pivot is not None:
+        bone.obj.rotation_quaternion = bone.pivot.rotation @ value
+    else:
+        bone.obj.rotation_quaternion = value
     # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
 def set_visibility(bone, frame, value):
-    try:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame)
-    except:
+    if not bone.isBone:
+        bone.obj.hide_viewport = value
+        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame)
+    else:
         try:
-            bone.bone.hide = value
-            bone.bone.keyframe_insert(data_path='hide', frame=frame)
+            bone.obj.bone.hide = value
+            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame)
         except:
             print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
@@ -568,33 +589,8 @@ def apply_adaptive_delta(bone, channel):
 
 
 def apply_uncompressed(bone, channel, hierarchy):
-    if channel.first_frame == 1:
-        pivot = hierarchy.pivots[channel.pivot]
-        rest_location = pivot.translation
-        rest_rotation = pivot.rotation
-        if channel.type < 6:
-            value = None
-            if channel.type == 0:
-                value = rest_location.x
-            if channel.type == 1:
-                value = rest_location.y
-            if channel.type == 2:
-                value = rest_location.z
-            set_translation(bone, channel.type, 0, value)
-        else:
-            set_rotation(bone, 0, rest_rotation)
-
     for index in range(channel.last_frame - channel.first_frame + 1):
         data = channel.data[index]
-        if channel.first_frame == 1:
-            if channel.type == 6:
-                data = rest_rotation @ data
-            if channel.type == 0:
-                data = rest_location.x + data
-            if channel.type == 1:
-                data = rest_location.y + data
-            if channel.type == 2:
-                data = rest_location.z + data
         frame = index + channel.first_frame
         set_keyframe(bone, channel, frame, data)
 
