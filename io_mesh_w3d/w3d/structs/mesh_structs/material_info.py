@@ -15,6 +15,7 @@ class MaterialInfo(Struct):
     shader_count = 0
     texture_count = 0
 
+
     @staticmethod
     def read(io_stream):
         return MaterialInfo(
@@ -23,9 +24,11 @@ class MaterialInfo(Struct):
             shader_count=read_ulong(io_stream),
             texture_count=read_ulong(io_stream))
 
+
     @staticmethod
     def size(include_head=True):
         return const_size(16, include_head)
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_MATERIAL_INFO, io_stream,

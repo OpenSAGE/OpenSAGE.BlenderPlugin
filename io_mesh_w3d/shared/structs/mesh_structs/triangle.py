@@ -14,6 +14,7 @@ class Triangle(Struct):
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 
+
     @staticmethod
     def read(io_stream):
         return Triangle(
