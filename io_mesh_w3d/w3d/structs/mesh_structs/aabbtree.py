@@ -24,9 +24,11 @@ class AABBTreeHeader(Struct):
         io_stream.read(24)  # padding
         return result
 
+
     @staticmethod
     def size(include_head=True):
         return const_size(8, include_head)
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_AABBTREE_HEADER, io_stream,
@@ -44,6 +46,7 @@ class AABBTreeNode(Struct):
     front_or_poly_0 = 0
     back_or_poly_count = 0
 
+
     @staticmethod
     def read(io_stream):
         return AABBTreeNode(
@@ -52,9 +55,11 @@ class AABBTreeNode(Struct):
             front_or_poly_0=read_long(io_stream),
             back_or_poly_count=read_long(io_stream))
 
+
     @staticmethod
     def size():
         return 32
+
 
     def write(self, io_stream):
         write_vector(self.min, io_stream)
@@ -72,6 +77,7 @@ class AABBTree(Struct):
     header = AABBTreeHeader()
     poly_indices = []
     nodes = []
+
 
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -92,12 +98,14 @@ class AABBTree(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
+
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += self.header.size()
         size += long_list_size(self.poly_indices)
         size += list_size(self.nodes)
         return size
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_AABBTREE, io_stream,

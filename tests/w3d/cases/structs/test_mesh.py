@@ -5,7 +5,7 @@ import io
 from tests.utils import TestCase
 from io_mesh_w3d.utils import *
 from io_mesh_w3d.w3d.structs.mesh import *
-from io_mesh_w3d.io_binary import read_chunk_head, write_chunk_head, write_ubyte
+from io_mesh_w3d.io_binary import *
 
 from tests.w3d.helpers.mesh import *
 
