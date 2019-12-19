@@ -527,7 +527,6 @@ def get_bone(rig, hierarchy, channel):
 def setup_animation(animation):
     bpy.context.scene.render.fps = animation.header.frame_rate
     bpy.context.scene.frame_start = 0
-    # TODO: how to use option flag: INSERTKEY_NEEDED
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
@@ -536,8 +535,7 @@ def set_translation(bone, index, frame, value):
         bone.obj.location[index] = bone.pivot.translation[index] + value
     else:
         bone.obj.location[index] = value
-    # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame)
+    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame, options={'INSERTKEY_NEEDED'})
 
 
 def set_rotation(bone, frame, value):
@@ -547,18 +545,17 @@ def set_rotation(bone, frame, value):
         bone.obj.rotation_quaternion = bone.pivot.rotation @ value
     else:
         bone.obj.rotation_quaternion = value
-    # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame, options={'INSERTKEY_NEEDED'})
 
 
 def set_visibility(bone, frame, value):
     if not bone.isBone:
         bone.obj.hide_viewport = value
-        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame)
+        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame, options={'INSERTKEY_NEEDED'})
     else:
         try:
             bone.obj.bone.hide = value
-            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame)
+            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame, options={'INSERTKEY_NEEDED'})
         except:
             print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
