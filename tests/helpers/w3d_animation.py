@@ -165,17 +165,11 @@ def compare_animations(self, expected, actual):
         if isinstance(chan, AnimationChannel):
             continue
         match_found = False
-        print("#### searching")
         for act in actual.channels:
             if isinstance(act, AnimationChannel):
-                print("ani_channel ")
                 continue
 
-            print("##")
-            print(str(chan.type) + " " + str(act.type))
-            print(str(chan.pivot) + " " + str(act.pivot))
             if chan.type == act.type and chan.pivot == act.pivot:
                 compare_animation_bit_channels(self, chan, act)
                 match_found = True
-        print(match_found)
         self.assertTrue(match_found)

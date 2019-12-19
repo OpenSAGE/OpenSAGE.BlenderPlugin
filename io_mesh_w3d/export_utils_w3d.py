@@ -518,6 +518,15 @@ def retrieve_hierarchy(container_name):
 # Animation data
 ##########################################################################
 
+
+def is_rotation(fcu):
+    return "rotation_quaternion" in fcu.data_path
+
+
+def is_visibility(fcu):
+    return "hide" in fcu.data_path
+
+
 def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
@@ -545,7 +554,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
         channel_type = index
         vec_len = 1
 
-        if "rotation_quaternion" in fcu.data_path:
+        if is_rotation(fcu):
             channel_type = 6
             vec_len = 4
 
@@ -563,7 +572,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             else:
                 range_ = fcu.range()
 
-                if "hide" in fcu.data_path:
+                if is_visibility(fcu):
                     channel = AnimationBitChannel()
                 else:
                     channel = AnimationChannel(
@@ -601,7 +610,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
 
-                if "hide" in fcu.data_path:
+                if is_visibility(fcu):
                     channel.data[i] = bool(val)
                 elif channel_type < 6:
                     channel.data[i] = val
@@ -610,7 +619,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
                     channel.data[i][index] = val
 
-        if channel_type < 6 or index == 3 or "hide" in fcu.data_path:
+        if channel_type < 6 or index == 3 or is_visibility(fcu):
             channels.append(channel)
     return channels
 

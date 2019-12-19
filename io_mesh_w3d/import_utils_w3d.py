@@ -179,7 +179,6 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
         mesh_ob.location = pivot.translation
         mesh_ob.rotation_euler = pivot.euler_angles
         mesh_ob.rotation_quaternion = pivot.rotation
-        print(pivot.rotation)
 
         if pivot.parent_id <= 0:
             return
@@ -507,6 +506,8 @@ class Element(Struct):
 
 
 def get_bone(rig, hierarchy, channel):
+    print(channel.pivot)
+    print(hierarchy.pivots[channel.pivot].translation)
     elem = Element(
         obj=None,
         isBone=False,
@@ -516,6 +517,7 @@ def get_bone(rig, hierarchy, channel):
         elem.obj = rig
         return elem
     
+    print(elem.pivot.name)
     if rig is not None and elem.pivot.name in rig.pose.bones:
         elem.obj = rig.pose.bones[elem.pivot.name]
         elem.isBone = True
@@ -531,7 +533,10 @@ def setup_animation(animation):
 
 
 def set_translation(bone, index, frame, value):
-    if not bone.isBone and bone.pivot is not None:
+    print(bone.obj.name)
+    if not bone.isBone:
+        print("added pose translation")
+        print(str(value) + " + " + str(bone.pivot.translation[index]))
         bone.obj.location[index] = bone.pivot.translation[index] + value
     else:
         bone.obj.location[index] = value
@@ -541,7 +546,8 @@ def set_translation(bone, index, frame, value):
 def set_rotation(bone, frame, value):
     bone.obj.rotation_mode = 'QUATERNION'
 
-    if not bone.isBone and bone.pivot is not None:
+    if not bone.isBone:
+        print("added pose rotation")
         bone.obj.rotation_quaternion = bone.pivot.rotation @ value
     else:
         bone.obj.rotation_quaternion = value
@@ -561,12 +567,12 @@ def set_visibility(bone, frame, value):
 
 
 def set_keyframe(bone, channel, frame, value):
-    if is_translation(channel):
+    if is_visibility(channel):
+        set_visibility(bone, frame, value)
+    elif is_translation(channel):
         set_translation(bone, channel.type, frame, value)
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
-    elif is_visibility(channel):
-        set_visibility(bone, frame, value)
 
 
 def apply_timecoded(bone, channel, _):
