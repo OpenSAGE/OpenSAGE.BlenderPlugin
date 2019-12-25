@@ -10,6 +10,8 @@ from tests.helpers.w3d_mesh import *
 from tests.helpers.w3d_material_pass import *
 from tests.helpers.w3d_hlod import * 
 from tests.helpers.w3d_hierarchy import *
+from tests.helpers.w3d_animation import *
+from tests.helpers.w3d_compressed_animation import *
 
 
 class TestImportUtils(utils.W3dTestCase):
@@ -118,3 +120,186 @@ class TestImportUtils(utils.W3dTestCase):
         io_stream = io.BytesIO(output.getvalue())
         read_chunk_array(context, io_stream, mat_pass.size()
                          * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
+
+
+    def test_non_bone_animation_channel_import(self):
+        context = utils.ImportWrapper(self.outpath())
+        animation = get_animation()
+        x_channel = get_animation_channel(type=0, pivot=1)
+        x_channel.data = [2.0, 3.1, 4.3, 5.2, 4.3]
+        rot_channel = get_animation_channel(type=6, pivot=1)
+        rot_channel.data = [Quaternion((-.1, -2.1, -1.7, -1.7)),
+                           Quaternion((-0.1, -2.1, 1.6, 1.6)),
+                           Quaternion((0.9, -2.1, 1.6, 1.6)),
+                           Quaternion((0.9, 1.8, 1.6, 1.6)),
+                           Quaternion((0.9, 1.8, -1.6, 1.6))]
+        animation.channels = [x_channel, rot_channel]
+
+        hlod = get_hlod()
+        hlod.lod_array.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.NONE_BONE")]
+
+        hierarchy = get_hierarchy()
+        pivot = HierarchyPivot(
+            name="none_bone",
+            parent_id=0,
+            translation=Vector((22.0, 33.0, 1.0)),
+            euler_angles=Vector((0.32, -0.65, 0.67)),
+            rotation=Quaternion((0.86, 0.25, -0.25, 0.36)))
+
+        hierarchy.pivots = [get_roottransform(), pivot]
+
+        mesh_structs = [get_mesh(name="none_bone")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        expected_x = [24.0, 25.1, 26.3, 27.2, 26.3]
+        expected_rot = [Quaternion((0.626, -0.793, -1.768, -2.447)),
+                        Quaternion((0.262, -2.806, 0.245, 1.215)),
+                        Quaternion((1.122, -2.556, -0.004, 1.575)),
+                        Quaternion((0.147, 0.796, 1.399, 2.550)),
+                        Quaternion((-0.652, 1.949, -1.353, 1.75))]
+
+        coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        create_animation(rig, animation, hierarchy)
+
+        obj = bpy.data.objects['none_bone']
+        for fcu in obj.animation_data.action.fcurves:
+            range_ = fcu.range()
+            for i in range(0, int(range_[1]) + 1):
+                val = fcu.evaluate(i + int(range_[0]))
+                if "rotation_quaternion" in fcu.data_path:
+                    index = fcu.array_index
+                    self.assertAlmostEqual(expected_rot[i][index], val, 2)
+                else:
+                    self.assertAlmostEqual(expected_x[i], val, 2)
+
+
+    def test_bone_animation_channel_import(self):
+        context = utils.ImportWrapper(self.outpath())
+        animation = get_animation()
+        x_channel = get_animation_channel(type=0, pivot=1)
+        x_channel.data = [2.0, 3.1, 4.3, 5.2, 4.3]
+        rot_channel = get_animation_channel(type=6, pivot=1)
+        rot_channel.data = [Quaternion((-.1, -2.1, -1.7, -1.7)),
+                           Quaternion((-0.1, -2.1, 1.6, 1.6)),
+                           Quaternion((0.9, -2.1, 1.6, 1.6)),
+                           Quaternion((0.9, 1.8, 1.6, 1.6)),
+                           Quaternion((0.9, 1.8, -1.6, 1.6))]
+        animation.channels = [x_channel, rot_channel]
+
+        hlod = get_hlod()
+        hlod.lod_array.sub_objects = []
+
+        hiera_name = "TestHierarchy"
+        hierarchy = get_hierarchy(name=hiera_name)
+        pivot = HierarchyPivot(
+            name="bone",
+            parent_id=0,
+            translation=Vector((22.0, 33.0, 1.0)),
+            euler_angles=Vector((0.32, -0.65, 0.67)),
+            rotation=Quaternion((0.86, 0.25, -0.25, 0.36)))
+
+        hierarchy.pivots = [get_roottransform(), pivot]
+
+        mesh_structs = [get_mesh(name="bone")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        expected_x = [2.0, 3.1, 4.3, 5.2, 4.3]
+        expected_rot = [Quaternion((-.1, -2.1, -1.7, -1.7)),
+                        Quaternion((-0.1, -2.1, 1.6, 1.6)),
+                        Quaternion((0.9, -2.1, 1.6, 1.6)),
+                        Quaternion((0.9, 1.8, 1.6, 1.6)),
+                        Quaternion((0.9, 1.8, -1.6, 1.6))]
+
+        coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        create_animation(rig, animation, hierarchy)
+
+        obj = bpy.data.objects[hiera_name]
+        for fcu in obj.animation_data.action.fcurves:
+            range_ = fcu.range()
+            for i in range(0, int(range_[1]) + 1):
+                val = fcu.evaluate(i + int(range_[0]))
+                if "rotation_quaternion" in fcu.data_path:
+                    index = fcu.array_index
+                    self.assertAlmostEqual(expected_rot[i][index], val, 2)
+                else:
+                    self.assertAlmostEqual(expected_x[i], val, 2)
+
+
+    def test_only_needed_keyframe_creation(self):
+        context = utils.ImportWrapper(self.outpath())
+        animation = get_compressed_animation_empty()
+
+        channel = TimeCodedAnimationChannel(
+            num_time_codes=5,
+            pivot=1,
+            type=1,
+            time_codes=[TimeCodedDatum(time_code=0, value=3.0),
+                        TimeCodedDatum(time_code=1, value=3.0),
+                        TimeCodedDatum(time_code=2, value=3.0),
+                        TimeCodedDatum(time_code=3, value=3.0),
+                        TimeCodedDatum(time_code=4, value=3.0)])
+        animation.time_coded_channels = [channel]
+
+        hlod = get_hlod()
+        hlod.lod_array.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.MESH")]
+
+        hierarchy = get_hierarchy()
+        pivot = HierarchyPivot(
+            name="mesh",
+            parent_id=0)
+
+        hierarchy.pivots = [get_roottransform(), pivot]
+
+        mesh_structs = [get_mesh(name="mesh")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        expected_frames = [0, 4]
+        expected = [3.0, 3.0]
+
+        coll = get_collection(hlod)
+
+        meshes = []
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        create_animation(rig, animation, hierarchy, compressed=True)
+
+        obj = bpy.data.objects['mesh']
+        for fcu in obj.animation_data.action.fcurves:
+            self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
+            for i, keyframe in enumerate(fcu.keyframe_points):
+                frame = int(keyframe.co.x)
+                self.assertEqual(expected_frames[i], frame)
+                val = keyframe.co.y
+                self.assertEqual(expected[i], val)

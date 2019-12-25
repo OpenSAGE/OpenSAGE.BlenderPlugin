@@ -14,6 +14,7 @@ from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
+
 bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
 pick_plane_names = ["PICK"]
 

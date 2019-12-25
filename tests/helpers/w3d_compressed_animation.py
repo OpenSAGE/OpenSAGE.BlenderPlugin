@@ -395,9 +395,9 @@ def get_compressed_animation(
     return animation
 
 
-def get_compressed_animation_minimal():
+def get_compressed_animation_minimal(hierarchy_name="TestHierarchy"):
     return CompressedAnimation(
-        header=get_compressed_animation_header(),
+        header=get_compressed_animation_header(hierarchy_name),
         time_coded_channels=[get_time_coded_animation_channel_minimal()],
         adaptive_delta_channels=[
             get_adaptive_delta_animation_channel_minimal()],
@@ -405,9 +405,9 @@ def get_compressed_animation_minimal():
         motion_channels=[get_motion_channel_minimal()])
 
 
-def get_compressed_animation_empty():
+def get_compressed_animation_empty(hierarchy_name="TestHierarchy"):
     return CompressedAnimation(
-        header=get_compressed_animation_header(),
+        header=get_compressed_animation_header(hierarchy_name),
         time_coded_channels=[],
         adaptive_delta_channels=[],
         time_coded_bit_channels=[],

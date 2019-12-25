@@ -506,8 +506,6 @@ class Element(Struct):
 
 
 def get_bone(rig, hierarchy, channel):
-    print(channel.pivot)
-    print(hierarchy.pivots[channel.pivot].translation)
     elem = Element(
         obj=None,
         isBone=False,
@@ -517,7 +515,6 @@ def get_bone(rig, hierarchy, channel):
         elem.obj = rig
         return elem
     
-    print(elem.pivot.name)
     if rig is not None and elem.pivot.name in rig.pose.bones:
         elem.obj = rig.pose.bones[elem.pivot.name]
         elem.isBone = True
@@ -532,36 +529,35 @@ def setup_animation(animation):
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
+creation_options = {'INSERTKEY_NEEDED'}
+
+
 def set_translation(bone, index, frame, value):
-    print(bone.obj.name)
     if not bone.isBone:
-        print("added pose translation")
-        print(str(value) + " + " + str(bone.pivot.translation[index]))
         bone.obj.location[index] = bone.pivot.translation[index] + value
     else:
         bone.obj.location[index] = value
-    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame, options={'INSERTKEY_NEEDED'})
+    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame, options=creation_options)
 
 
 def set_rotation(bone, frame, value):
     bone.obj.rotation_mode = 'QUATERNION'
 
     if not bone.isBone:
-        print("added pose rotation")
         bone.obj.rotation_quaternion = bone.pivot.rotation @ value
     else:
         bone.obj.rotation_quaternion = value
-    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame, options={'INSERTKEY_NEEDED'})
+    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame, options=creation_options)
 
 
 def set_visibility(bone, frame, value):
     if not bone.isBone:
         bone.obj.hide_viewport = value
-        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame, options={'INSERTKEY_NEEDED'})
+        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
     else:
         try:
             bone.obj.bone.hide = value
-            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame, options={'INSERTKEY_NEEDED'})
+            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
         except:
             print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 

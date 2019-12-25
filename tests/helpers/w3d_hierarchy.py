@@ -34,6 +34,15 @@ def get_hierarchy_pivot(name="pivot", parent=1):
         rotation=Quaternion((0.86, 0.25, -0.25, 0.36)))
 
 
+def get_roottransform():
+    return HierarchyPivot(
+        name="ROOTTRANSFORM",
+        parent_id=-1,
+        translation=Vector(),
+        euler_angles=Vector(),
+        rotation=Quaternion())
+
+
 def compare_hierarchy_pivots(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.parent_id, actual.parent_id)
@@ -58,11 +67,7 @@ def get_hierarchy(name="TestHierarchy"):
         pivots=[],
         pivot_fixups=[])
 
-    root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-    root.translation = Vector()
-    root.rotation = Quaternion()
-    root.euler_angles = Vector((0.0, 0.0, 0.0))
-    hierarchy.pivots.append(root)
+    hierarchy.pivots.append(get_roottransform())
     hierarchy.pivot_fixups.append(Vector())
 
     hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
