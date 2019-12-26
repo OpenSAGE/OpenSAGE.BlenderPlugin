@@ -43,10 +43,17 @@ def get_time_coded_datum(time_code, type=0, random_interpolation=True):
     return datum
 
 
-def compare_time_coded_datums(self, expected, actual):
+def compare_time_coded_datums(self, type, expected, actual):
     self.assertEqual(expected.time_code, actual.time_code)
     self.assertEqual(expected.non_interpolated, actual.non_interpolated)
-    self.assertAlmostEqual(expected.value, actual.value, 5)
+
+    if type == 6:
+        self.assertAlmostEqual(expected.value[0], actual.value[0], 2)
+        self.assertAlmostEqual(expected.value[1], actual.value[1], 2)
+        self.assertAlmostEqual(expected.value[2], actual.value[2], 2)
+        self.assertAlmostEqual(expected.value[3], actual.value[3], 2)
+    else:
+        self.assertAlmostEqual(expected.value, actual.value, 2)
 
 
 def get_time_coded_animation_channel(type_=0, random_interpolation=True):
@@ -59,11 +66,11 @@ def get_time_coded_animation_channel(type_=0, random_interpolation=True):
     values = []
     if type_ == 6:
         channel.vector_len = 4
-        values = [Quaternion((-.1, -2.1, -1.7, -1.7)),
-                  Quaternion((-0.1, -2.1, 1.6, 1.6)),
-                  Quaternion((0.9, -2.1, 1.6, 1.6)),
-                  Quaternion((0.9, 1.8, 1.6, 1.6)),
-                  Quaternion((0.9, 1.8, -1.6, 1.6))]
+        values = [Quaternion((-0.6, -0.4, 0.3, -0.8)),
+                  Quaternion((0.6, 1.2, 0.3, -0.8)),
+                  Quaternion((-0.6, 1.2, -0.7, -2.1)),
+                  Quaternion((-1.7, 0.0, 0.3, -2.1)),
+                  Quaternion((-1.7, 1.2, -0.7, 0.0))]
     else:
         channel.vector_len = 1
         values = [3.0, 3.5, 2.0, 1.0, -1.0]
@@ -103,7 +110,7 @@ def compare_time_coded_animation_channels(self, expected, actual):
     self.assertEqual(len(expected.time_codes), len(actual.time_codes))
     for i in range(len(expected.time_codes)):
         compare_time_coded_datums(
-            self, expected.time_codes[i], actual.time_codes[i])
+            self, expected.type, expected.time_codes[i], actual.time_codes[i])
 
 
 def get_time_coded_bit_datum():
@@ -316,7 +323,7 @@ def compare_motion_channels(self, expected, actual):
     if expected.delta_type == 0:
         self.assertEqual(len(expected.data), len(actual.data))
         for i in range(len(expected.data)):
-            compare_time_coded_datums(self, expected.data[i], actual.data[i])
+            compare_time_coded_datums(self, expected.type, expected.data[i], actual.data[i])
     else:
         compare_adaptive_delta_motion_animation_channels(
             self, expected.data, actual.data, expected.type)

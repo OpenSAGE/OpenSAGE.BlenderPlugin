@@ -113,9 +113,9 @@ def get_animation(hierarchy_name="TestHierarchy"):
         header=get_animation_header(hierarchy_name),
         channels=[])
 
-    animation.channels.append(get_animation_channel(type=0, pivot=0))
-    animation.channels.append(get_animation_channel(type=1, pivot=0))
-    animation.channels.append(get_animation_channel(type=2, pivot=0))
+    animation.channels.append(get_animation_channel(type=0, pivot=1))
+    animation.channels.append(get_animation_channel(type=1, pivot=1))
+    animation.channels.append(get_animation_channel(type=2, pivot=1))
 
     animation.channels.append(get_animation_channel(type=0, pivot=2))
     animation.channels.append(get_animation_channel(type=1, pivot=2))

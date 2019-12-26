@@ -176,9 +176,9 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
             return
 
         mesh_ob.rotation_mode = 'QUATERNION'
-        mesh_ob.location = pivot.translation
-        mesh_ob.rotation_euler = pivot.euler_angles
-        mesh_ob.rotation_quaternion = pivot.rotation
+        mesh_ob.delta_location = pivot.translation
+        #mesh_ob.rotation_euler = pivot.euler_angles
+        mesh_ob.delta_rotation_quaternion = pivot.rotation
 
         if pivot.parent_id <= 0:
             return
@@ -499,28 +499,15 @@ def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel)
 
 
-class Element(Struct):
-    obj = None
-    isBone = False
-    pivot = None
-
-
 def get_bone(rig, hierarchy, channel):
-    elem = Element(
-        obj=None,
-        isBone=False,
-        pivot=hierarchy.pivots[channel.pivot])
-
     if is_roottransform(channel):
-        elem.obj = rig
-        return elem
-    
-    if rig is not None and elem.pivot.name in rig.pose.bones:
-        elem.obj = rig.pose.bones[elem.pivot.name]
-        elem.isBone = True
-    else:
-        elem.obj = bpy.data.objects[elem.pivot.name]
-    return elem
+        return rig
+
+    pivot = hierarchy.pivots[channel.pivot]
+    if rig is not None and pivot.name in rig.pose.bones:
+        return rig.pose.bones[pivot.name]
+
+    return bpy.data.objects[pivot.name]
 
 
 def setup_animation(animation):
@@ -533,33 +520,23 @@ creation_options = {'INSERTKEY_NEEDED'}
 
 
 def set_translation(bone, index, frame, value):
-    if not bone.isBone:
-        bone.obj.location[index] = bone.pivot.translation[index] + value
-    else:
-        bone.obj.location[index] = value
-    bone.obj.keyframe_insert(data_path='location', index=index, frame=frame, options=creation_options)
+    bone.location[index] = value
+    bone.keyframe_insert(data_path='location', index=index, frame=frame, options=creation_options)
 
 
 def set_rotation(bone, frame, value):
-    bone.obj.rotation_mode = 'QUATERNION'
-
-    if not bone.isBone:
-        bone.obj.rotation_quaternion = bone.pivot.rotation @ value
-    else:
-        bone.obj.rotation_quaternion = value
-    bone.obj.keyframe_insert(data_path='rotation_quaternion', frame=frame, options=creation_options)
+    bone.rotation_mode = 'QUATERNION'
+    bone.rotation_quaternion = value
+    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame, options=creation_options)
 
 
 def set_visibility(bone, frame, value):
-    if not bone.isBone:
-        bone.obj.hide_viewport = value
-        bone.obj.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
+    if isinstance(bone, bpy.types.PoseBone):
+        bone.bone.hide = value
+        bone.bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
     else:
-        try:
-            bone.obj.bone.hide = value
-            bone.obj.bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
-        except:
-            print("Warning: " + str(bone.name) + " does not support visibility bit channels")
+        bone.hide_viewport = value
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

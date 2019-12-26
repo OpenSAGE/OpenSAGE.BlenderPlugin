@@ -66,12 +66,19 @@ def retrieve_boxes(hlod, hierarchy):
 def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
+    if rig is not None:
+        rig.data.pose_position = 'REST'
+        bpy.context.view_layer.update()
+
     for mesh_object in get_objects('MESH'):
         if mesh_object.name in bounding_box_names:
             continue
 
         mesh_struct = Mesh(
             header=MeshHeader(),
+            attrs=0,
+            vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
+            face_channel_flags=1,
             verts=[],
             normals=[],
             tangents=[],
@@ -136,6 +143,7 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 
         if mesh.uv_layers:
             mesh.calc_tangents()
+            mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
             mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
@@ -245,6 +253,11 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
         mesh_struct.header.matl_count = max(
             len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
+
+    if rig is not None:
+        rig.data.pose_position = 'POSE'
+        bpy.context.view_layer.update()
+
     return mesh_structs
 
 
@@ -455,6 +468,9 @@ def retrieve_hierarchy(container_name):
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
         rig = rigs[0]
+        rig.data.pose_position = 'REST'
+        bpy.context.view_layer.update()
+
         root.translation = rig.location
 
         hierarchy.header.name = rig.name
@@ -478,6 +494,9 @@ def retrieve_hierarchy(container_name):
             pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
             pivots.append(pivot)
+
+        rig.data.pose_position = 'POSE'
+        bpy.context.view_layer.update()
     else:
         print("Error: only one armature per scene allowed")
         return
@@ -493,8 +512,8 @@ def retrieve_hierarchy(container_name):
         pivot = HierarchyPivot(
             name=mesh_object.name,
             parent_id=0,
-            translation=mesh_object.location,
-            rotation=mesh_object.rotation_quaternion,
+            translation=mesh_object.delta_location,
+            rotation=mesh_object.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
         if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
@@ -536,6 +555,10 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
     channel = None
 
+    need_depose = False
+    if name is not None:
+        need_depose = True
+
     for fcu in obj.animation_data.action.fcurves:
         if name is None:
             values = fcu.data_path.split('"')
@@ -546,10 +569,12 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
         else:
             pivot_name = name
 
+        pivot = None
         pivot_index = 0
-        for i, pivot in enumerate(hierarchy.pivots):
-            if pivot.name == pivot_name:
+        for i, piv in enumerate(hierarchy.pivots):
+            if piv.name == pivot_name:
                 pivot_index = i
+                pivot = piv
 
         index = fcu.array_index
         channel_type = index
@@ -596,6 +621,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
+                
                 if channel_type < 6:
                     channel.time_codes[i] = TimeCodedDatum(
                         time_code=frame,
@@ -618,6 +644,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 else:
                     if channel.data[i] is None:
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+
                     channel.data[i][index] = val
 
         if channel_type < 6 or index == 3 or is_visibility(fcu):

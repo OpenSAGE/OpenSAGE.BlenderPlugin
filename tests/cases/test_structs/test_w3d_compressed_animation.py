@@ -29,6 +29,7 @@ class TestCompressedAnimation(utils.W3dTestCase):
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
 
+
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(flavor=1)
 
@@ -45,6 +46,7 @@ class TestCompressedAnimation(utils.W3dTestCase):
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
 
+
     def test_write_read_empty(self):
         expected = get_compressed_animation_empty()
 
@@ -60,6 +62,7 @@ class TestCompressedAnimation(utils.W3dTestCase):
 
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
+
 
     def test_unknown_chunk_skip(self):
         context = utils.ImportWrapper(self.outpath())
@@ -83,6 +86,7 @@ class TestCompressedAnimation(utils.W3dTestCase):
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunk_type)
 
         CompressedAnimation.read(context, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         ani = get_compressed_animation_minimal()

@@ -139,6 +139,7 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
+        #TODO: simplify this test
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
@@ -214,6 +215,7 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
+        #TODO: simplify this test
         context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
@@ -435,13 +437,15 @@ class TestUtils(utils.W3dTestCase):
         context = utils.ImportWrapper(self.outpath())
         expected = get_animation()
         hlod = get_hlod()
+        box = get_box()
         hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
 
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield", shader_mats=True),
-            get_mesh(name="pike")]
+            get_mesh(name="shield"),
+            get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -453,11 +457,26 @@ class TestUtils(utils.W3dTestCase):
             meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        actual_mesh_structs = retrieve_meshes(
+            context, actual_hiera, rig, actual_hlod, "containerName")
+
+        compare_hlods(self, hlod, actual_hlod)
+
+        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
+        for i, mesh in enumerate(mesh_structs):
+            compare_meshes(self, mesh, actual_mesh_structs[i])
 
         actual = retrieve_animation(
             expected.header.name, hierarchy, rig, timecoded=False)
@@ -476,10 +495,12 @@ class TestUtils(utils.W3dTestCase):
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="shield"),
+            get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -491,11 +512,27 @@ class TestUtils(utils.W3dTestCase):
             meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy, compressed=True)
+
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        actual_mesh_structs = retrieve_meshes(
+            context, actual_hiera, rig, actual_hlod, "containerName")
+
+        compare_hlods(self, hlod, actual_hlod)
+
+        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
+        for i, mesh in enumerate(mesh_structs):
+            compare_meshes(self, mesh, actual_mesh_structs[i])
+
         actual = retrieve_animation(
             "containerName", hierarchy, rig, timecoded=True)
         compare_compressed_animations(self, expected, actual)
