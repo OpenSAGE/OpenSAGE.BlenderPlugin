@@ -9,7 +9,7 @@ from io_mesh_w3d.structs.w3d_compressed_animation import *
 from tests.helpers.w3d_version import get_version, compare_versions
 
 
-def get_compressed_animation_header(hierarchy_name="hierarchy", flavor=1):
+def get_compressed_animation_header(hierarchy_name="hierarchy", flavor=ADAPTIVE_DELTA_FLAVOR):
     return CompressedAnimationHeader(
         version=get_version(),
         name="containerName",
@@ -331,7 +331,7 @@ def compare_motion_channels(self, expected, actual):
 
 def get_compressed_animation(
         hierarchy_name="TestHierarchy",
-        flavor=0,
+        flavor=TIME_CODED_FLAVOR,
         bit_channels=True,
         motion_tc=True,
         motion_ad4=True,
@@ -345,7 +345,7 @@ def get_compressed_animation(
         time_coded_bit_channels=[],
         motion_channels=[])
 
-    if flavor == 0:
+    if flavor == TIME_CODED_FLAVOR:
         animation.time_coded_channels.append(
             get_time_coded_animation_channel(type_=0, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(

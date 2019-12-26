@@ -23,6 +23,13 @@ def get_objects(type):  # MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
 
 
+def switch_to_pose(rig, pose):
+    if rig is not None:
+        rig.data.pose_position = pose
+        bpy.context.view_layer.update()
+
+
+
 ##########################################################################
 # Mesh data
 ##########################################################################
@@ -66,9 +73,7 @@ def retrieve_boxes(hlod, hierarchy):
 def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
-    if rig is not None:
-        rig.data.pose_position = 'REST'
-        bpy.context.view_layer.update()
+    switch_to_pose(rig, 'REST')
 
     for mesh_object in get_objects('MESH'):
         if mesh_object.name in bounding_box_names:
@@ -254,9 +259,7 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
             len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
 
-    if rig is not None:
-        rig.data.pose_position = 'POSE'
-        bpy.context.view_layer.update()
+    switch_to_pose(rig, 'POSE')
 
     return mesh_structs
 
@@ -468,8 +471,8 @@ def retrieve_hierarchy(container_name):
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
         rig = rigs[0]
-        rig.data.pose_position = 'REST'
-        bpy.context.view_layer.update()
+
+        switch_to_pose(rig, 'REST')
 
         root.translation = rig.location
 
@@ -495,8 +498,7 @@ def retrieve_hierarchy(container_name):
 
             pivots.append(pivot)
 
-        rig.data.pose_position = 'POSE'
-        bpy.context.view_layer.update()
+        switch_to_pose(rig, 'POSE')
     else:
         print("Error: only one armature per scene allowed")
         return
@@ -548,16 +550,11 @@ def is_visibility(fcu):
 
 
 def retrieve_channels(obj, hierarchy, timecoded, name=None):
-    channels = []
-
     if obj.animation_data is None or obj.animation_data.action is None:
-        return channels
+        return []
 
     channel = None
-
-    need_depose = False
-    if name is not None:
-        need_depose = True
+    channels = []
 
     for fcu in obj.animation_data.action.fcurves:
         if name is None:
@@ -569,22 +566,19 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
         else:
             pivot_name = name
 
-        pivot = None
         pivot_index = 0
-        for i, piv in enumerate(hierarchy.pivots):
-            if piv.name == pivot_name:
+        for i, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == pivot_name:
                 pivot_index = i
-                pivot = piv
 
-        index = fcu.array_index
-        channel_type = index
+        channel_type = fcu.array_index
         vec_len = 1
 
         if is_rotation(fcu):
             channel_type = 6
             vec_len = 4
 
-        if not (channel_type == 6 and index > 0):
+        if not (channel_type == 6 and fcu.array_index > 0):
             if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
@@ -631,7 +625,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.time_codes[i] = TimeCodedDatum(
                             time_code=frame,
                             value=Quaternion())
-                    channel.time_codes[i].value[index] = val
+                    channel.time_codes[i].value[fcu.array_index] = val
         else:
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
@@ -644,10 +638,9 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 else:
                     if channel.data[i] is None:
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                    channel.data[i][fcu.array_index] = val
 
-                    channel.data[i][index] = val
-
-        if channel_type < 6 or index == 3 or is_visibility(fcu):
+        if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
     return channels
 
@@ -665,7 +658,7 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
 
     if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)
-        ani_struct.header.flavor = 0  # time coded
+        ani_struct.header.flavor = TIME_CODED_FLAVOR
     else:
         ani_struct = Animation(channels=channels)
 

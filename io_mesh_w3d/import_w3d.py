@@ -19,7 +19,7 @@ from io_mesh_w3d.import_utils_w3d import *
 
 
 def load_hierarchy_file(self, sklpath):
-    hierarchy = Hierarchy()
+    hierarchy = None
     path = insensitive_path(sklpath)
     file = open(path, "rb")
     filesize = os.path.getsize(path)
@@ -42,7 +42,6 @@ def load_hierarchy_file(self, sklpath):
 
 
 def load(self, context, import_settings):
-    """Start the w3d import"""
     print('Loading file', self.filepath)
 
     file = open(self.filepath, "rb")

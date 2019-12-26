@@ -8,7 +8,6 @@ from io_mesh_w3d.export_utils_w3d import *
 
 
 def save(self, context, export_settings):
-    """Start the w3d export and save to a .w3d file."""
     print('Saving file', self.filepath)
 
     export_mode = export_settings['w3d_mode']

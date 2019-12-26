@@ -145,13 +145,7 @@ class TestUtils(utils.W3dTestCase):
         box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots= [root]
+        hierarchy.pivots= [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
@@ -217,17 +211,11 @@ class TestUtils(utils.W3dTestCase):
     def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
         #TODO: simplify this test
         context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
+        hlod = get_hlod(hierarchy_name="containerName")
         box = get_box()
-        hierarchy = get_hierarchy()
+        hierarchy = get_hierarchy("containerName")
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots= [root]
+        hierarchy.pivots= [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("main", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("left", 1))
@@ -282,12 +270,13 @@ class TestUtils(utils.W3dTestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        retrieve_meshes(context, actual_hiera, rig, actual_hlod, "containerName")
+        compare_hlods(self, hlod, actual_hlod)
 
 
     def test_bone_is_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
@@ -295,13 +284,7 @@ class TestUtils(utils.W3dTestCase):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots = [root]
+        hierarchy.pivots = [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("B_MAIN", 0))
         hierarchy.header.num_pivots = len(hierarchy.pivots)
@@ -335,16 +318,17 @@ class TestUtils(utils.W3dTestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_meshes(context, hierarchy, rig, actual_hlod, "containerName")
+        compare_hlods(self, hlod, actual_hlod)
 
 
     def test_PICK_mesh_roundtrip(self):
         context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
+        hlod = get_hlod(hierarchy_name="containerName")
         hlod.lod_array.sub_objects = [
             get_hlod_sub_object(bone=1, name="containerName.building"),
             get_hlod_sub_object(bone=0, name="containerName.PICK")]
@@ -357,15 +341,10 @@ class TestUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector()
-
-        hierarchy = get_hierarchy()
+        hierarchy = get_hierarchy("containerName")
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [
-            root,
+            get_roottransform(),
             get_hierarchy_pivot("building", 0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
