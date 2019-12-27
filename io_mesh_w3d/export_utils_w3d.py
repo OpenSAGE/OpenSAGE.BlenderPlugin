@@ -4,6 +4,7 @@
 import bpy
 import bmesh
 from mathutils import Vector
+from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_hlod import *
@@ -310,7 +311,7 @@ class PrincipledBSDF(Struct):
 def retrieve_principled_bsdf(material):
     result = PrincipledBSDF()
 
-    principled = PrincipledBSDFWrapper(material, is_readonly=True)
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
     result.base_color = principled.base_color
     result.alpha = principled.alpha
     diffuse_tex = principled.base_color_texture

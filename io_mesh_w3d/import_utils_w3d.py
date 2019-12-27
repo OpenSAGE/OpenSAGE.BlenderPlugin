@@ -8,7 +8,7 @@ import sys
 
 from mathutils import Vector, Matrix, Quaternion
 
-from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
+from bpy_extras import node_shader_utils
 from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.io_binary import read_chunk_head
@@ -354,7 +354,7 @@ def create_material_from_shader_material(self, mesh, shader_mat):
         elif prop.name == "BlendMode":
             material.blend_mode = prop.value
         elif prop.name == "BumpUVScale":
-            material.bump_uv_scale = prop.value
+            material.bump_uv_scale = prop.value.xy
         elif prop.name == "Sampler_ClampU_ClampV_NoMip_0":
             material.sampler_clamp_uv_no_mip = prop.value
         else:
@@ -375,7 +375,7 @@ def create_principled_bsdf(
         diffuse_tex=None,
         normal_tex=None,
         bump_scale=0):
-    principled = PrincipledBSDFWrapper(material, is_readonly=False)
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
     if alpha > 0:
@@ -439,7 +439,7 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
         tri = tris[i]
         for loop in face.loops:
             idx = tri[loop.index % 3]
-            uv_layer.data[loop.index].uv = tx_coords[idx]
+            uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 
 ##########################################################################

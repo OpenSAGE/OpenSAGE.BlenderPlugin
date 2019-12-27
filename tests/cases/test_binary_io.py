@@ -4,6 +4,7 @@
 import io
 import struct
 from io_mesh_w3d.io_binary import *
+from tests.helpers.mathutils import *
 from tests.utils import TestCase
 
 
@@ -227,7 +228,7 @@ class TestIOBinary(TestCase):
 
 
     def test_read_vector(self):
-        inputs = [Vector(), Vector((1, 2, 3))]
+        inputs = [get_vector(), get_vector(1, 2, 3)]
 
         for inp in inputs:
             data = struct.pack("<f", inp.x)
@@ -235,11 +236,11 @@ class TestIOBinary(TestCase):
             data += struct.pack("<f", inp.z)
             io_stream = io.BytesIO(data)
 
-            self.assertEqual(inp, read_vector(io_stream))
+            compare_vectors(self, inp, read_vector(io_stream))
 
 
     def test_write_vector(self):
-        inputs = [Vector(), Vector((1, 2, 3))]
+        inputs = [get_vector(), get_vector(1, 2, 3)]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -250,11 +251,11 @@ class TestIOBinary(TestCase):
             y = struct.unpack("<f", data[4:8])[0]
             z = struct.unpack("<f", data[8:12])[0]
 
-            self.assertEqual(inp, Vector((x, y, z)))
+            compare_vectors(self, inp, get_vector(x, y, z))
 
 
     def test_read_quaternion(self):
-        inputs = [Quaternion(), Quaternion((0, 1, 2, 3))]
+        inputs = [get_quat(), get_quat(0, 1, 2, 3)]
 
         for inp in inputs:
             data = struct.pack("<f", inp.x)
@@ -263,11 +264,11 @@ class TestIOBinary(TestCase):
             data += struct.pack("<f", inp.w)
             io_stream = io.BytesIO(data)
 
-            self.assertEqual(inp, read_quaternion(io_stream))
+            compare_quats(self, inp, read_quaternion(io_stream))
 
 
     def test_write_quaternion(self):
-        inputs = [Quaternion((0, 0, 0, 0)), Quaternion((0, 1, 2, 3))]
+        inputs = [get_quat(0, 0, 0, 0), get_quat(0, 1, 2, 3)]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -279,22 +280,22 @@ class TestIOBinary(TestCase):
             z = struct.unpack("<f", data[8:12])[0]
             w = struct.unpack("<f", data[12:16])[0]
 
-            self.assertEqual(inp, Quaternion((w, x, y, z)))
+            compare_quats(self, inp, get_quat(w, x, y, z))
 
 
     def test_read_vector2(self):
-        inputs = [Vector((0, 0)), Vector((1, 2))]
+        inputs = [get_vector2(), get_vector2(1, 2)]
 
         for inp in inputs:
-            data = struct.pack("<f", inp[0])
-            data += struct.pack("<f", inp[1])
+            data = struct.pack("<f", inp.x)
+            data += struct.pack("<f", inp.y)
             io_stream = io.BytesIO(data)
 
-            self.assertEqual(inp, read_vector2(io_stream))
+            compare_vectors2(self, inp, read_vector2(io_stream))
 
 
     def test_write_vector2(self):
-        inputs = [Vector((0, 0)), Vector((1, 2))]
+        inputs = [get_vector2(), get_vector2(1, 2)]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -304,11 +305,11 @@ class TestIOBinary(TestCase):
             x = struct.unpack("<f", data[0:4])[0]
             y = struct.unpack("<f", data[4:8])[0]
 
-            self.assertEqual(inp, Vector((x, y)))
+            compare_vectors2(self, inp, get_vector2(x, y))
 
 
     def test_read_channel_value(self):
-        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, Quaternion((1, 2, 3, 4)))]
+        inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, get_quat(1, 2, 3, 4))]
 
         for inp in inputs:
             if inp[0] <= 3:
@@ -322,13 +323,12 @@ class TestIOBinary(TestCase):
                 data += struct.pack("<f", inp[1].z)
                 data += struct.pack("<f", inp[1].w)
                 io_stream = io.BytesIO(data)
-                self.assertEqual(
-                    inp[1], read_channel_value(io_stream, inp[0]))
+                compare_quats(self, inp[1], read_channel_value(io_stream, inp[0]))
 
 
     def test_write_channel_value(self):
         inputs = [(0, 1.0), (1, 2.0), (3, 4.0),
-                  (6, Quaternion((1.0, 2.0, 3.0, 4.0)))]
+                  (6, get_quat(1.0, 2.0, 3.0, 4.0))]
 
         for inp in inputs:
             type = inp[0]
