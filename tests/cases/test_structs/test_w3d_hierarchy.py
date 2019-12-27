@@ -1,17 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_hierarchy import *
-from io_mesh_w3d.io_binary import *
+from tests.utils import TestCase
 from tests.helpers.w3d_hierarchy import *
 
 
-class TestHierarchy(utils.W3dTestCase):
+class TestHierarchy(TestCase):
     def test_write_read(self):
         expected = get_hierarchy()
 
@@ -28,6 +23,7 @@ class TestHierarchy(utils.W3dTestCase):
 
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
+
 
     def test_write_read_empty(self):
         expected = get_hierarchy_empty()
@@ -46,8 +42,8 @@ class TestHierarchy(utils.W3dTestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HIERARCHY, output, 9, has_sub_chunks=True)
 
@@ -59,7 +55,8 @@ class TestHierarchy(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_HIERARCHY, chunk_type)
 
-        Hierarchy.read(context, io_stream, subchunk_end)
+        Hierarchy.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         hierarchy = get_hierarchy_minimal()

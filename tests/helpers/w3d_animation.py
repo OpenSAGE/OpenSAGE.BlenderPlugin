@@ -2,10 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Quaternion
-
 from io_mesh_w3d.structs.w3d_animation import *
-
 from tests.helpers.w3d_version import *
 from tests.utils import almost_equal
 
@@ -113,9 +110,9 @@ def get_animation(hierarchy_name="TestHierarchy"):
         header=get_animation_header(hierarchy_name),
         channels=[])
 
-    animation.channels.append(get_animation_channel(type=0, pivot=0))
-    animation.channels.append(get_animation_channel(type=1, pivot=0))
-    animation.channels.append(get_animation_channel(type=2, pivot=0))
+    animation.channels.append(get_animation_channel(type=0, pivot=1))
+    animation.channels.append(get_animation_channel(type=1, pivot=1))
+    animation.channels.append(get_animation_channel(type=2, pivot=1))
 
     animation.channels.append(get_animation_channel(type=0, pivot=2))
     animation.channels.append(get_animation_channel(type=1, pivot=2))
@@ -168,6 +165,7 @@ def compare_animations(self, expected, actual):
         for act in actual.channels:
             if isinstance(act, AnimationChannel):
                 continue
+
             if chan.type == act.type and chan.pivot == act.pivot:
                 compare_animation_bit_channels(self, chan, act)
                 match_found = True

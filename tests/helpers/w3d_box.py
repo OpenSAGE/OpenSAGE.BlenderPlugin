@@ -2,13 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector
-from io_mesh_w3d.structs.w3d_box import Box
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.structs.w3d_version import Version
-
+from io_mesh_w3d.structs.w3d_box import *
 from tests.helpers.w3d_version import get_version, compare_versions
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
+from tests.helpers.mathutils import *
 
 
 def get_box():
@@ -18,8 +15,8 @@ def get_box():
         collision_types=0,
         name="containerName.BOUNDINGBOX",
         color=get_rgba(),
-        center=Vector((1.0, 2.0, 3.0)),
-        extend=Vector((4.0, 5.0, 6.0)))
+        center=get_vector(1.0, 2.0, 3.0),
+        extend=get_vector(4.0, 5.0, 6.0))
 
 
 def compare_boxes(self, expected, actual):
@@ -29,10 +26,5 @@ def compare_boxes(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
     compare_rgbas(self, expected.color, actual.color)
 
-    self.assertEqual(expected.center.x, actual.center.x)
-    self.assertEqual(expected.center.y, actual.center.y)
-    self.assertEqual(expected.center.z, actual.center.z)
-
-    self.assertEqual(expected.extend.x, actual.extend.x)
-    self.assertEqual(expected.extend.y, actual.extend.y)
-    self.assertEqual(expected.extend.z, actual.extend.z)
+    compare_vectors(self, expected.center, actual.center)
+    compare_vectors(self, expected.extend, actual.extend)

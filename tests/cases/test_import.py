@@ -6,7 +6,7 @@ from shutil import copyfile
 import bpy
 from io_mesh_w3d.import_w3d import *
 from io_mesh_w3d.io_binary import *
-from tests import utils
+from tests.utils import TestCase, ImportWrapper
 from tests.helpers.w3d_mesh import get_mesh
 from tests.helpers.w3d_hlod import get_hlod
 from tests.helpers.w3d_box import get_box
@@ -16,7 +16,7 @@ from tests.helpers.w3d_compressed_animation import get_compressed_animation
 from io_mesh_w3d.import_w3d import load
 
 
-class TestObjectImport(utils.W3dTestCase):
+class TestObjectImport(TestCase):
     def test_import_no_skeleton_file(self):
         hierarchy_name = "TestHiera_SKL"
         meshes = [
@@ -38,8 +38,9 @@ class TestObjectImport(utils.W3dTestCase):
         skn.close()
 
         # import
-        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
-        load(model, bpy.context, import_settings={})
+        model = ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, import_settings={})
+
 
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + "output.w3d", "wb")
@@ -58,8 +59,9 @@ class TestObjectImport(utils.W3dTestCase):
         write_chunk_head(W3D_CHUNK_SOUNDROBJ, output, 0)
         output.close()
 
-        sut = utils.ImportWrapper(self.outpath() + "output.w3d")
-        load(sut, bpy.context, import_settings={})
+        sut = ImportWrapper(self.outpath() + "output.w3d")
+        load(sut, import_settings={})
+
 
     def test_unkown_chunk_skip(self):
         hierarchy_name = "TestHiera_SKL"
@@ -86,5 +88,5 @@ class TestObjectImport(utils.W3dTestCase):
         skl.close()
 
         # import
-        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
-        load(model, bpy.context, import_settings={})
+        model = ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, import_settings={})

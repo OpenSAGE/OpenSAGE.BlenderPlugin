@@ -113,8 +113,11 @@ def write_ubyte(byte, io_stream):
 
 
 def read_vector(io_stream):
-    return Vector((read_float(io_stream), read_float(
-        io_stream), read_float(io_stream)))
+    vec = Vector((0, 0, 0))
+    vec.x = read_float(io_stream)
+    vec.y = read_float(io_stream)
+    vec.z = read_float(io_stream)
+    return vec
 
 
 def write_vector(vec, io_stream):
@@ -124,27 +127,30 @@ def write_vector(vec, io_stream):
 
 
 def read_quaternion(io_stream):
-    quat = (read_float(io_stream), read_float(io_stream),
-            read_float(io_stream), read_float(io_stream))
-    # change order from xyzw to wxyz
-    return Quaternion((quat[3], quat[0], quat[1], quat[2]))
+    quat = Quaternion((0, 0, 0, 0))
+    quat.x = read_float(io_stream)
+    quat.y = read_float(io_stream)
+    quat.z = read_float(io_stream)
+    quat.w = read_float(io_stream)
+    return quat
 
 
 def write_quaternion(quat, io_stream):
-    # changes the order from wxyz to xyzw
-    write_float(quat[1], io_stream)
-    write_float(quat[2], io_stream)
-    write_float(quat[3], io_stream)
-    write_float(quat[0], io_stream)
+    write_float(quat.x, io_stream)
+    write_float(quat.y, io_stream)
+    write_float(quat.z, io_stream)
+    write_float(quat.w, io_stream)
 
 
 def read_vector2(io_stream):
-    return Vector((read_float(io_stream), read_float(io_stream)))
-
+    vec =  Vector((0, 0, 0))
+    vec.x = read_float(io_stream)
+    vec.y = read_float(io_stream)
+    return vec
 
 def write_vector2(vec, io_stream):
-    write_float(vec[0], io_stream)
-    write_float(vec[1], io_stream)
+    write_float(vec.x, io_stream)
+    write_float(vec.y, io_stream)
 
 
 def read_channel_value(io_stream, channel_type):

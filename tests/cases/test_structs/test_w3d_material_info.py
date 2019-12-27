@@ -1,18 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from mathutils import Vector
-
-from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.io_binary import read_chunk_head
+from tests.utils import TestCase
 from tests.helpers.w3d_material_info import *
 
 
-class TestMaterialInfo(unittest.TestCase):
+class TestMaterialInfo(TestCase):
     def test_write_read(self):
         expected = get_material_info()
 
@@ -29,6 +23,7 @@ class TestMaterialInfo(unittest.TestCase):
         actual = MaterialInfo.read(io_stream)
 
         compare_material_infos(self, expected, actual)
+
 
     def test_chunk_size(self):
         expected = get_material_info()

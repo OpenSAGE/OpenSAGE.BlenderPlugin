@@ -10,6 +10,8 @@ from io_mesh_w3d.utils import *
 
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 
+TIME_CODED_FLAVOR = 0
+ADAPTIVE_DELTA_FLAVOR = 1
 
 class CompressedAnimationHeader(Struct):
     version = Version()
@@ -404,10 +406,10 @@ class CompressedAnimation(Struct):
             if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-                if result.header.flavor == 0:
+                if result.header.flavor == TIME_CODED_FLAVOR:
                     result.time_coded_channels.append(
                         TimeCodedAnimationChannel.read(io_stream))
-                elif result.header.flavor == 1:
+                elif result.header.flavor == ADAPTIVE_DELTA_FLAVOR:
                     result.adaptive_delta_channels.append(
                         AdaptiveDeltaAnimationChannel.read(io_stream))
                 else:

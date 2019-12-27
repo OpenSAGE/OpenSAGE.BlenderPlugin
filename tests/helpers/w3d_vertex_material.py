@@ -2,10 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-
-from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.structs.w3d_vertex_material import *
-
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 

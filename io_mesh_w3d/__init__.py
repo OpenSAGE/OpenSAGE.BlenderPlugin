@@ -107,7 +107,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['w3d_mode'] = self.export_mode
         export_settings['w3d_compression'] = self.animation_compression
 
-        return export_w3d.save(self, context, export_settings)
+        return export_w3d.save(self, export_settings)
 
     def draw(self, _context):
         self.draw_general_settings()
@@ -137,7 +137,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
 
         import_settings = {}
 
-        import_w3d.load(self, context, import_settings)
+        import_w3d.load(self, import_settings)
 
         print('finished')
         return {'FINISHED'}

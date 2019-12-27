@@ -2,10 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests import utils
 from shutil import copyfile
 import os
 
+from tests.utils import TestCase
 from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.export_utils_w3d import *
 from tests.helpers.w3d_mesh import *
@@ -21,31 +21,29 @@ from tests.helpers.w3d_animation import *
 from tests.helpers.w3d_compressed_animation import *
 
 
-class TestUtils(utils.W3dTestCase):
+class TestUtils(TestCase):
     def test_vertex_material_roundtrip(self):
         mesh = get_mesh()
-        context = utils.ImportWrapper(self.outpath())
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         for source in mesh.vert_materials:
             (material, _) = create_material_from_vertex_material(
-                context, mesh, source)
+                self, mesh, source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
 
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
-        context = utils.ImportWrapper(self.outpath())
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
-                context, mesh, source)
+                self, mesh, source)
             principled = retrieve_principled_bsdf(material)
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
@@ -53,13 +51,12 @@ class TestUtils(utils.W3dTestCase):
 
     def test_shader_roundtrip(self):
         mesh = get_mesh()
-        context = utils.ImportWrapper(self.outpath())
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         (material, _) = create_material_from_vertex_material(
-            context, mesh, mesh.vert_materials[0])
+            self, mesh, mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -77,7 +74,6 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_hierarchy_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         expected = get_hierarchy()
         hlod = get_hlod()
         mesh_structs = [
@@ -93,7 +89,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, expected, coll))
+            meshes.append(create_mesh(self, mesh_struct, expected, coll))
 
         rig = get_or_create_skeleton(hlod, expected, coll)
 
@@ -106,7 +102,6 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_hlod_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
@@ -124,7 +119,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, hlod, hierarchy, rig, coll)
@@ -134,23 +129,17 @@ class TestUtils(utils.W3dTestCase):
 
         actual = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
+        retrieve_meshes(self, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
 
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
+        #TODO: simplify this test
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots= [root]
+        hierarchy.pivots= [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
@@ -194,7 +183,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, hlod, hierarchy, rig, coll)
@@ -207,25 +196,19 @@ class TestUtils(utils.W3dTestCase):
         actual = create_hlod("containerName", hierarchy.header.name)
 
         retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
+        retrieve_meshes(self, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
 
 
     def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
+        #TODO: simplify this test
+        hlod = get_hlod(hierarchy_name="containerName")
         box = get_box()
-        hierarchy = get_hierarchy()
+        hierarchy = get_hierarchy("containerName")
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots= [root]
+        hierarchy.pivots= [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("main", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("left", 1))
@@ -270,7 +253,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, hlod, hierarchy, rig, coll)
@@ -280,26 +263,20 @@ class TestUtils(utils.W3dTestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
 
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        retrieve_meshes(self, actual_hiera, rig, actual_hlod, "containerName")
+        compare_hlods(self, hlod, actual_hlod)
+
 
     def test_bone_is_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots = [root]
+        hierarchy.pivots = [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("B_MAIN", 0))
         hierarchy.header.num_pivots = len(hierarchy.pivots)
@@ -324,7 +301,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -333,16 +310,16 @@ class TestUtils(utils.W3dTestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
 
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_meshes(self, hierarchy, rig, actual_hlod, "containerName")
+        compare_hlods(self, hlod, actual_hlod)
+
 
     def test_PICK_mesh_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
-        hlod = get_hlod()
+        hlod = get_hlod(hierarchy_name="containerName")
         hlod.lod_array.sub_objects = [
             get_hlod_sub_object(bone=1, name="containerName.building"),
             get_hlod_sub_object(bone=0, name="containerName.PICK")]
@@ -355,15 +332,10 @@ class TestUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector()
-
-        hierarchy = get_hierarchy()
+        hierarchy = get_hierarchy("containerName")
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [
-            root,
+            get_roottransform(),
             get_hierarchy_pivot("building", 0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
@@ -371,7 +343,7 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -385,14 +357,13 @@ class TestUtils(utils.W3dTestCase):
         actual_hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(actual_hlod, actual_hiera)
         actual_mesh_structs = retrieve_meshes(
-            context, actual_hiera, rig, actual_hlod, "containerName")
+            self, actual_hiera, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
 
         self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
 
 
     def test_meshes_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
@@ -409,9 +380,12 @@ class TestUtils(utils.W3dTestCase):
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture_nrm.dds")
+
         meshes = []
         for mesh_struct in expecteds:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -421,7 +395,7 @@ class TestUtils(utils.W3dTestCase):
         hlod = create_hlod("containerName", hierarchy.header.name)
         retrieve_boxes(hlod, hierarchy)
         actuals = retrieve_meshes(
-            context, hierarchy, rig, hlod, "containerName")
+            self, hierarchy, rig, hlod, "containerName")
 
         self.assertEqual(len(expecteds), len(actuals))
         for i, expected in enumerate(expecteds):
@@ -429,16 +403,17 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_animation_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         expected = get_animation()
         hlod = get_hlod()
+        box = get_box()
         hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
 
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield", shader_mats=True),
-            get_mesh(name="pike")]
+            get_mesh(name="shield"),
+            get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -447,14 +422,29 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        actual_mesh_structs = retrieve_meshes(
+            self, actual_hiera, rig, actual_hlod, "containerName")
+
+        compare_hlods(self, hlod, actual_hlod)
+
+        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
+        for i, mesh in enumerate(mesh_structs):
+            compare_meshes(self, mesh, actual_mesh_structs[i])
 
         actual = retrieve_animation(
             expected.header.name, hierarchy, rig, timecoded=False)
@@ -462,7 +452,6 @@ class TestUtils(utils.W3dTestCase):
 
 
     def test_compressed_animation_roundtrip(self):
-        context = utils.ImportWrapper(self.outpath())
         expected = get_compressed_animation(
             flavor=0,
             bit_channels=False,
@@ -473,10 +462,12 @@ class TestUtils(utils.W3dTestCase):
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="shield"),
+            get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -485,14 +476,30 @@ class TestUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
         create_animation(rig, expected, hierarchy, compressed=True)
+
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
+        retrieve_boxes(actual_hlod, actual_hiera)
+        actual_mesh_structs = retrieve_meshes(
+            self, actual_hiera, rig, actual_hlod, "containerName")
+
+        compare_hlods(self, hlod, actual_hlod)
+
+        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
+        for i, mesh in enumerate(mesh_structs):
+            compare_meshes(self, mesh, actual_mesh_structs[i])
+
         actual = retrieve_animation(
             "containerName", hierarchy, rig, timecoded=True)
         compare_compressed_animations(self, expected, actual)

@@ -1,13 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
+from tests.utils import TestCase
 from io_mesh_w3d.structs.w3d_version import Version
 
 
-class TestVersion(unittest.TestCase):
+class TestVersion(TestCase):
     def test_write_read(self):
         expected = Version(major=8, minor=2)
 
@@ -17,9 +16,11 @@ class TestVersion(unittest.TestCase):
 
         self.assertEqual(expected, Version.read(io_stream))
 
+
     def test_eq_true(self):
         ver = Version(major=3, minor=1)
         self.assertEqual(ver, ver)
+
 
     def test_eq_false(self):
         ver = Version(major=4, minor=2)

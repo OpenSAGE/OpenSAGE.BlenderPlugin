@@ -1,14 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
+from tests.utils import TestCase
+from tests.helpers.w3d_triangle import *
 
-from io_mesh_w3d.structs.w3d_triangle import Triangle
-from tests.helpers.w3d_triangle import get_triangle, compare_triangles
 
-
-class TestTriangle(unittest.TestCase):
+class TestTriangle(TestCase):
     def test_write_read(self):
         expected = get_triangle()
 

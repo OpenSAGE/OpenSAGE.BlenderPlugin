@@ -8,7 +8,7 @@ import sys
 
 from mathutils import Vector, Matrix, Quaternion
 
-from bpy_extras.node_shader_utils import PrincipledBSDFWrapper
+from bpy_extras import node_shader_utils
 from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.io_binary import read_chunk_head
@@ -132,54 +132,57 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
         return
 
     if mesh_struct.is_skin():
-        for pivot in hierarchy.pivots:
-            mesh_ob.vertex_groups.new(name=pivot.name)
-
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
             if weight < 0.01:
                 weight = 1.0
 
-            bone = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name]
+            pivot = hierarchy.pivots[vert_inf.bone_idx]
+            bone = rig.data.bones[pivot.name]
             mesh.vertices[i].co = bone.matrix_local @ mesh.vertices[i].co
 
-            mesh_ob.vertex_groups[vert_inf.bone_idx].add(
+            if not pivot.name in mesh_ob.vertex_groups:
+                mesh_ob.vertex_groups.new(name=pivot.name)
+            mesh_ob.vertex_groups[pivot.name].add(
                 [i], weight, 'REPLACE')
 
             if vert_inf.xtra_idx != 0:
-                mesh_ob.vertex_groups[vert_inf.xtra_idx].add(
+                xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
+                if not xtra_pivot.name in mesh_ob.vertex_groups:
+                    mesh_ob.vertex_groups.new(name=xtra_pivot.name)
+                mesh_ob.vertex_groups[xtra_pivot.name].add(
                     [i], vert_inf.xtra_inf, 'ADD')
 
-        mod = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
-        mod.object = rig
-        mod.use_bone_envelopes = False
-        mod.use_vertex_groups = True
+        modifier = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
+        modifier.object = rig
+        modifier.use_bone_envelopes = False
+        modifier.use_vertex_groups = True
 
     else:
         pivot = None
         mesh_name = mesh_struct.header.mesh_name
         name = mesh_struct.header.container_name + "." + mesh_name
-        pivot_list = [
-            pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
-        if not pivot_list:
-            sub_objects = [
-                sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
-            if not sub_objects:
+
+        sub_objects = [
+            sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
+        if not sub_objects:
+            pivot_list = [
+                pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
+            if not pivot_list:
                 return
+            pivot = pivot_list[0]
+        else:
             sub_object = sub_objects[0]
             pivot = hierarchy.pivots[sub_object.bone_index]
-        else:
-            pivot = pivot_list[0]
 
         if pivot is None:
             return
 
         mesh_ob.rotation_mode = 'QUATERNION'
-        mesh_ob.location = pivot.translation
-        mesh_ob.rotation_euler = pivot.euler_angles
-        mesh_ob.rotation_quaternion = pivot.rotation
+        mesh_ob.delta_location = pivot.translation
+        mesh_ob.delta_rotation_quaternion = pivot.rotation
 
-        if pivot.parent_id == 0:
+        if pivot.parent_id <= 0:
             return
 
         parent_pivot = hierarchy.pivots[pivot.parent_id]
@@ -198,24 +201,16 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
 
 
 def get_or_create_skeleton(hlod, hierarchy, coll):
-    rig = None
-
     if hlod is None or hierarchy is None:
-        return rig
+        return None
 
-    if hlod.header.model_name == hlod.header.hierarchy_name:
-        amtName = hierarchy.header.name + "SKL"
-    else:
-        amtName = hierarchy.header.name
+    if hierarchy.header.name in bpy.data.objects:
+        obj = bpy.data.objects[hierarchy.header.name]
+        if obj.type == 'ARMATURE':
+            return obj
+        return None
 
-    for obj in bpy.data.objects:
-        if obj.name == amtName:
-            rig = obj
-
-    if rig is None:
-        rig = create_armature(hierarchy, amtName,
-                              hlod.lod_array.sub_objects, coll)
-    return rig
+    return process_hierarchy(hierarchy, hlod.lod_array.sub_objects, coll)
 
 
 def make_transform_matrix(loc, rot):
@@ -224,21 +219,23 @@ def make_transform_matrix(loc, rot):
     return mat_loc @ mat_rot
 
 
-def create_armature(hierarchy, amt_name, sub_objects, coll):
-    amt = bpy.data.armatures.new(hierarchy.header.name)
-    amt.show_names = False
+def create_rig(name, location, coll):
+    basic_sphere = create_sphere()
+    armature = bpy.data.armatures.new(name)
+    armature.show_names = False
 
-    root = hierarchy.pivots[0]
-
-    rig = bpy.data.objects.new(amt_name, amt)
-    rig.location = root.translation
+    rig = bpy.data.objects.new(name, armature)
+    rig.location = location
     rig.rotation_mode = 'QUATERNION'
     rig.track_axis = "POS_X"
-
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
+    return (rig, armature)
 
-    basic_sphere = create_sphere()
+
+def process_hierarchy(hierarchy, sub_objects, coll):
+    root = hierarchy.pivots[0]
+    rig = None
 
     for pivot in hierarchy.pivots:
         pivot.is_bone = True
@@ -256,35 +253,36 @@ def create_armature(hierarchy, amt_name, sub_objects, coll):
             if child.is_bone:
                 pivot.is_bone = True
 
+    armature = None
     for pivot in hierarchy.pivots:
         if pivot.parent_id == -1 or not pivot.is_bone:
             continue
 
-        bone = amt.edit_bones.new(pivot.name)
+        if rig is None:
+            (rig, armature) = create_rig(hierarchy.header.name, root.translation, coll)
+
+        bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
-            if parent_pivot.name in amt.edit_bones:
-                bone.parent = amt.edit_bones[parent_pivot.name]
+            if parent_pivot.name in armature.edit_bones:
+                bone.parent = armature.edit_bones[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
-        # has to point in y direction, so that the rotation is applied
-        # correctly
+        # has to point in y direction, so rotation is applied correctly
         bone.tail = Vector((0.0, 0.01, 0.0))
         bone.matrix = matrix
 
-    bpy.ops.object.mode_set(mode='POSE')
+    if rig is not None:
+        bpy.ops.object.mode_set(mode='POSE')
+        basic_sphere = create_sphere()
 
-    if not rig.pose.bones:
-        return None
-
-    for bone in rig.pose.bones:
-        bone.custom_shape = basic_sphere
+        for bone in rig.pose.bones:
+            bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
-
     return rig
 
 
@@ -356,7 +354,7 @@ def create_material_from_shader_material(self, mesh, shader_mat):
         elif prop.name == "BlendMode":
             material.blend_mode = prop.value
         elif prop.name == "BumpUVScale":
-            material.bump_uv_scale = prop.value
+            material.bump_uv_scale = prop.value.xy
         elif prop.name == "Sampler_ClampU_ClampV_NoMip_0":
             material.sampler_clamp_uv_no_mip = prop.value
         else:
@@ -377,7 +375,7 @@ def create_principled_bsdf(
         diffuse_tex=None,
         normal_tex=None,
         bump_scale=0):
-    principled = PrincipledBSDFWrapper(material, is_readonly=False)
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
     if alpha > 0:
@@ -441,7 +439,7 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
         tri = tris[i]
         for loop in face.loops:
             idx = tri[loop.index % 3]
-            uv_layer.data[loop.index].uv = tx_coords[idx]
+            uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 
 ##########################################################################
@@ -481,6 +479,7 @@ def load_texture(self, tex_name):
 # createAnimation
 ##########################################################################
 
+
 def is_roottransform(channel):
     return channel.pivot == 0
 
@@ -493,12 +492,16 @@ def is_rotation(channel):
     return channel.type == 6
 
 
+def is_visibility(channel):
+    return isinstance(channel, AnimationBitChannel)
+
+
 def get_bone(rig, hierarchy, channel):
     if is_roottransform(channel):
         return rig
+
     pivot = hierarchy.pivots[channel.pivot]
     if rig is not None and pivot.name in rig.pose.bones:
-        bone = rig.pose.bones[pivot.name]
         return rig.pose.bones[pivot.name]
     return bpy.data.objects[pivot.name]
 
@@ -509,67 +512,65 @@ def setup_animation(animation):
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
+creation_options = {'INSERTKEY_NEEDED'}
+
+
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
-    # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.keyframe_insert(data_path='location', index=index, frame=frame)
+    bone.keyframe_insert(data_path='location', index=index, frame=frame, options=creation_options)
 
 
 def set_rotation(bone, frame, value):
-    bone.rotation_mode = 'QUATERNION'
     bone.rotation_quaternion = value
-    # TODO: how to use option flag: INSERTKEY_NEEDED
-    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
+    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame, options=creation_options)
 
 
-def set_transform(bone, channel, frame, value):
-    if is_translation(channel):
+def set_visibility(bone, frame, value):
+    if isinstance(bone, bpy.types.PoseBone):
+        bone.bone.hide = value
+        bone.bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
+    else:
+        bone.hide_viewport = value
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
+
+
+def set_keyframe(bone, channel, frame, value):
+    if is_visibility(channel):
+        set_visibility(bone, frame, value)
+    elif is_translation(channel):
         set_translation(bone, channel.type, frame, value)
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
 
-def set_visibility(bone, frame, value):
-    try:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame)
-    except:
-        try:
-            bone.bone.hide = value
-            bone.bone.keyframe_insert(data_path='hide', frame=frame)
-        except:
-            print("Warning: " + str(bone.name) + " does not support visibility bit channels")
 
-
-def apply_timecoded(bone, channel):
+def apply_timecoded(bone, channel, _):
     for key in channel.time_codes:
-        set_transform(bone, channel, key.time_code, key.value)
+        set_keyframe(bone, channel, key.time_code, key.value)
 
 
 def apply_motion_channel_time_coded(bone, channel):
     for dat in channel.data:
-        set_transform(bone, channel, dat.time_code, dat.value)
+        set_keyframe(bone, channel, dat.time_code, dat.value)
 
 
 def apply_adaptive_delta(bone, channel):
     data = decode(channel)
     for i in range(channel.num_time_codes):
-        set_transform(bone, channel, i, data[i])
+        set_keyframe(bone, channel, i, data[i])
 
 
-def apply_uncompressed(bone, channel):
-    for frame in range(channel.last_frame - channel.first_frame + 1):
-        data = channel.data[frame]
-        if isinstance(channel, AnimationBitChannel):
-            set_visibility(bone, frame, data)
-        else:
-            set_transform(bone, channel, frame, data)
+def apply_uncompressed(bone, channel, hierarchy):
+    for index in range(channel.last_frame - channel.first_frame + 1):
+        data = channel.data[index]
+        frame = index + channel.first_frame
+        set_keyframe(bone, channel, frame, data)
 
 
 def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
         obj = get_bone(rig, hierarchy, channel)
 
-        apply_func(obj, channel)
+        apply_func(obj, channel, hierarchy)
 
 
 def process_motion_channels(hierarchy, channels, rig):
@@ -586,8 +587,10 @@ def create_animation(rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
-    if rig is None:
-        rig = bpy.data.objects[animation.header.hierarchy_name]
+    if rig is None and animation.header.hierarchy_name in bpy.data.objects:
+        obj = bpy.data.objects[animation.header.hierarchy_name]
+        if obj.type == 'ARMATURE':
+            rig = obj
 
     setup_animation(animation)
 

@@ -2,10 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-
-from io_mesh_w3d.structs.w3d_hlod import HLod, HLodHeader, HLodArray, HLodArrayHeader, HLodSubObject
-
-from tests.helpers.w3d_version import get_version, compare_versions
+from io_mesh_w3d.structs.w3d_hlod import *
+from tests.helpers.w3d_version import *
 
 
 def get_hlod_header(model_name, hierarchy_name):

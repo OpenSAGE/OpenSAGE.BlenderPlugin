@@ -1,14 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
+from tests.utils import TestCase
+from tests.helpers.w3d_vertex_influence import *
 
-from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
-from tests.helpers.w3d_vertex_influence import get_vertex_influence, compare_vertex_influences
 
-
-class TestVertexInfluence(unittest.TestCase):
+class TestVertexInfluence(TestCase):
     def test_write_read(self):
         expected = get_vertex_influence()
 

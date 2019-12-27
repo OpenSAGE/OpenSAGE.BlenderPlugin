@@ -3,11 +3,7 @@
 
 import unittest
 
-from mathutils import Vector
-
-from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.structs.w3d_material_pass import *
-
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 

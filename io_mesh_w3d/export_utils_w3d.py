@@ -4,6 +4,7 @@
 import bpy
 import bmesh
 from mathutils import Vector
+from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.structs.struct import Struct
 from io_mesh_w3d.structs.w3d_hlod import *
@@ -14,12 +15,20 @@ from io_mesh_w3d.structs.w3d_hierarchy import *
 from io_mesh_w3d.structs.w3d_animation import *
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 
+
 bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
 pick_plane_names = ["PICK"]
 
 
 def get_objects(type):  # MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
+
+
+def switch_to_pose(rig, pose):
+    if rig is not None:
+        rig.data.pose_position = pose
+        bpy.context.view_layer.update()
+
 
 
 ##########################################################################
@@ -65,12 +74,17 @@ def retrieve_boxes(hlod, hierarchy):
 def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
     mesh_structs = []
 
+    switch_to_pose(rig, 'REST')
+
     for mesh_object in get_objects('MESH'):
         if mesh_object.name in bounding_box_names:
             continue
 
         mesh_struct = Mesh(
             header=MeshHeader(),
+            attrs=0,
+            vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
+            face_channel_flags=1,
             verts=[],
             normals=[],
             tangents=[],
@@ -135,6 +149,7 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 
         if mesh.uv_layers:
             mesh.calc_tangents()
+            mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
             mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
 
@@ -244,6 +259,9 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
         mesh_struct.header.matl_count = max(
             len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
+
+    switch_to_pose(rig, 'POSE')
+
     return mesh_structs
 
 
@@ -293,7 +311,7 @@ class PrincipledBSDF(Struct):
 def retrieve_principled_bsdf(material):
     result = PrincipledBSDF()
 
-    principled = PrincipledBSDFWrapper(material, is_readonly=True)
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
     result.base_color = principled.base_color
     result.alpha = principled.alpha
     diffuse_tex = principled.base_color_texture
@@ -454,6 +472,9 @@ def retrieve_hierarchy(container_name):
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
         rig = rigs[0]
+
+        switch_to_pose(rig, 'REST')
+
         root.translation = rig.location
 
         hierarchy.header.name = rig.name
@@ -477,6 +498,8 @@ def retrieve_hierarchy(container_name):
             pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
             pivots.append(pivot)
+
+        switch_to_pose(rig, 'POSE')
     else:
         print("Error: only one armature per scene allowed")
         return
@@ -492,8 +515,8 @@ def retrieve_hierarchy(container_name):
         pivot = HierarchyPivot(
             name=mesh_object.name,
             parent_id=0,
-            translation=mesh_object.location,
-            rotation=mesh_object.rotation_quaternion,
+            translation=mesh_object.delta_location,
+            rotation=mesh_object.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
         if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
@@ -518,13 +541,21 @@ def retrieve_hierarchy(container_name):
 # Animation data
 ##########################################################################
 
-def retrieve_channels(obj, hierarchy, timecoded, name=None):
-    channels = []
 
+def is_rotation(fcu):
+    return "rotation_quaternion" in fcu.data_path
+
+
+def is_visibility(fcu):
+    return "hide" in fcu.data_path
+
+
+def retrieve_channels(obj, hierarchy, timecoded, name=None):
     if obj.animation_data is None or obj.animation_data.action is None:
-        return channels
+        return []
 
     channel = None
+    channels = []
 
     for fcu in obj.animation_data.action.fcurves:
         if name is None:
@@ -541,15 +572,14 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             if pivot.name == pivot_name:
                 pivot_index = i
 
-        index = fcu.array_index
-        channel_type = index
+        channel_type = fcu.array_index
         vec_len = 1
 
-        if "rotation_quaternion" in fcu.data_path:
+        if is_rotation(fcu):
             channel_type = 6
             vec_len = 4
 
-        if not (channel_type == 6 and index > 0):
+        if not (channel_type == 6 and fcu.array_index > 0):
             if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
@@ -563,7 +593,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             else:
                 range_ = fcu.range()
 
-                if "hide" in fcu.data_path:
+                if is_visibility(fcu):
                     channel = AnimationBitChannel()
                 else:
                     channel = AnimationChannel(
@@ -586,6 +616,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
+                
                 if channel_type < 6:
                     channel.time_codes[i] = TimeCodedDatum(
                         time_code=frame,
@@ -595,21 +626,22 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.time_codes[i] = TimeCodedDatum(
                             time_code=frame,
                             value=Quaternion())
-                    channel.time_codes[i].value[index] = val
+                    channel.time_codes[i].value[fcu.array_index] = val
         else:
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
-                if "hide" in fcu.data_path:
+
+                if is_visibility(fcu):
                     channel.data[i] = bool(val)
                 elif channel_type < 6:
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
                         channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
-                    channel.data[i][index] = val
+                    channel.data[i][fcu.array_index] = val
 
-        if channel_type < 6 or index == 3 or "hide" in fcu.data_path:
+        if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
     return channels
 
@@ -627,7 +659,7 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
 
     if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)
-        ani_struct.header.flavor = 0  # time coded
+        ani_struct.header.flavor = TIME_CODED_FLAVOR
     else:
         ani_struct = Animation(channels=channels)
 

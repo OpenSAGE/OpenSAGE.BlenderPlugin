@@ -2,9 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from tests import utils
 from shutil import copyfile
-
+from tests.utils import TestCase, ImportWrapper
 from tests.helpers.w3d_mesh import get_mesh
 from tests.helpers.w3d_hlod import get_hlod
 from tests.helpers.w3d_hierarchy import get_hierarchy
@@ -16,7 +15,7 @@ from io_mesh_w3d.export_w3d import save
 from io_mesh_w3d.import_w3d import load
 
 
-class TestRoundtrip(utils.W3dTestCase):
+class TestRoundtrip(TestCase):
     def test_roundtrip(self):
         hierarchy_name = "TestHiera_SKL"
         hierarchy = get_hierarchy(hierarchy_name)
@@ -54,12 +53,12 @@ class TestRoundtrip(utils.W3dTestCase):
         comp_ani.close()
 
         # import
-        model = utils.ImportWrapper(self.outpath() + "base_skn.w3d")
-        load(model, bpy.context, import_settings={})
-        anim = utils.ImportWrapper(self.outpath() + "base_ani.w3d")
-        load(anim, bpy.context, import_settings={})
-        comp_anim = utils.ImportWrapper(self.outpath() + "base_comp_ani.w3d")
-        load(comp_anim, bpy.context, import_settings={})
+        model = ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, import_settings={})
+        anim = ImportWrapper(self.outpath() + "base_ani.w3d")
+        load(anim, import_settings={})
+        comp_anim = ImportWrapper(self.outpath() + "base_comp_ani.w3d")
+        load(comp_anim, import_settings={})
 
         # check created objects
         self.assertTrue("TestHiera_SKL" in bpy.data.objects)
@@ -72,24 +71,25 @@ class TestRoundtrip(utils.W3dTestCase):
         self.assertTrue("shield" in bpy.data.objects)
 
         # export
-        context = utils.ImportWrapper(self.outpath() + "output_skn.w3d")
+        context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
         export_settings['w3d_mode'] = "M"
-        save(context, bpy.context, export_settings)
+        save(context, export_settings)
 
-        context = utils.ImportWrapper(self.outpath() + "output_skl.w3d")
+        context = ImportWrapper(self.outpath() + "output_skl.w3d")
         export_settings['w3d_mode'] = "H"
-        save(context, bpy.context, export_settings)
+        save(context, export_settings)
 
-        context = utils.ImportWrapper(self.outpath() + "output_ani.w3d")
+        context = ImportWrapper(self.outpath() + "output_ani.w3d")
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "U"
-        save(context, bpy.context, export_settings)
+        save(context, export_settings)
 
-        context = utils.ImportWrapper(self.outpath() + "output_comp_ani.w3d")
+        context = ImportWrapper(self.outpath() + "output_comp_ani.w3d")
         export_settings['w3d_mode'] = "A"
         export_settings['w3d_compression'] = "TC"
-        save(context, bpy.context, export_settings)
+        save(context, export_settings)
+
 
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"
@@ -115,8 +115,8 @@ class TestRoundtrip(utils.W3dTestCase):
         output.close()
 
         # import
-        model = utils.ImportWrapper(self.outpath() + "base.w3d")
-        load(model, bpy.context, import_settings={})
+        model = ImportWrapper(self.outpath() + "base.w3d")
+        load(model, import_settings={})
 
         # check created objects
         self.assertTrue("TestName" in bpy.data.armatures)
@@ -130,5 +130,5 @@ class TestRoundtrip(utils.W3dTestCase):
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
-        context = utils.ImportWrapper(self.outpath() + "output.w3d")
-        save(context, bpy.context, export_settings)
+        context = ImportWrapper(self.outpath() + "output.w3d")
+        save(context, export_settings)

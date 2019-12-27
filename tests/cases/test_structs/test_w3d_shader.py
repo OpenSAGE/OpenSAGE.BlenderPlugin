@@ -1,14 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
+from tests.utils import TestCase
+from tests.helpers.w3d_shader import *
 
-from io_mesh_w3d.structs.w3d_shader import Shader
-from tests.helpers.w3d_shader import get_shader, compare_shaders
 
-
-class TestShader(unittest.TestCase):
+class TestShader(TestCase):
     def test_write_read(self):
         expected = get_shader()
 
