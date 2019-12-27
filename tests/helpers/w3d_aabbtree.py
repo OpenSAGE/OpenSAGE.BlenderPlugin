@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector
 from io_mesh_w3d.structs.w3d_aabbtree import *
+from tests.helpers.mathutils import *
 
 
 def get_aabbtree_header(num_nodes=33, num_polys=41):
@@ -26,15 +26,15 @@ def get_aabbtree_poly_indices(num_polys=41):
 
 def get_aabbtree_node():
     return AABBTreeNode(
-        min=Vector((1.0, 2.0, 3.0)),
-        max=Vector((4.0, 5.0, 6.0)),
+        min=get_vector(1.0, 2.0, 3.0),
+        max=get_vector(4.0, 5.0, 6.0),
         front_or_poly_0=34,
         back_or_poly_count=123)
 
 
 def compare_aabbtree_nodes(self, expected, actual):
-    self.assertEqual(expected.min, actual.min)
-    self.assertEqual(expected.max, actual.max)
+    compare_vectors(self, expected.min, actual.min)
+    compare_vectors(self, expected.max, actual.max)
     self.assertEqual(expected.front_or_poly_0, actual.front_or_poly_0)
     self.assertEqual(expected.back_or_poly_count, actual.back_or_poly_count)
 
