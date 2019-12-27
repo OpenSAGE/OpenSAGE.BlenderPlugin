@@ -5,6 +5,7 @@ import unittest
 from random import random
 
 from io_mesh_w3d.structs.w3d_compressed_animation import *
+from tests.helpers.mathutils import *
 from tests.helpers.w3d_version import get_version, compare_versions
 
 
@@ -36,7 +37,7 @@ def get_time_coded_datum(time_code, type=0, random_interpolation=True):
         datum.non_interpolated = (random() < 0.5)
 
     if type == 6:
-        datum.value = Quaternion((0.1, -2.0, -0.3, 2.0))
+        datum.value = get_quat(0.1, -2.0, -0.3, 2.0)
     else:
         datum.value = 3.14
     return datum
@@ -47,10 +48,7 @@ def compare_time_coded_datums(self, type, expected, actual):
     self.assertEqual(expected.non_interpolated, actual.non_interpolated)
 
     if type == 6:
-        self.assertAlmostEqual(expected.value[0], actual.value[0], 2)
-        self.assertAlmostEqual(expected.value[1], actual.value[1], 2)
-        self.assertAlmostEqual(expected.value[2], actual.value[2], 2)
-        self.assertAlmostEqual(expected.value[3], actual.value[3], 2)
+        compare_quats(self, expected.value, actual.value)
     else:
         self.assertAlmostEqual(expected.value, actual.value, 2)
 
@@ -65,11 +63,11 @@ def get_time_coded_animation_channel(type_=0, random_interpolation=True):
     values = []
     if type_ == 6:
         channel.vector_len = 4
-        values = [Quaternion((-0.6, -0.4, 0.3, -0.8)),
-                  Quaternion((0.6, 1.2, 0.3, -0.8)),
-                  Quaternion((-0.6, 1.2, -0.7, -2.1)),
-                  Quaternion((-1.7, 0.0, 0.3, -2.1)),
-                  Quaternion((-1.7, 1.2, -0.7, 0.0))]
+        values = [get_quat(-0.6, -0.4, 0.3, -0.8),
+                  get_quat(0.6, 1.2, 0.3, -0.8),
+                  get_quat(-0.6, 1.2, -0.7, -2.1),
+                  get_quat(-1.7, 0.0, 0.3, -2.1),
+                  get_quat(-1.7, 1.2, -0.7, 0.0)]
     else:
         channel.vector_len = 1
         values = [3.0, 3.5, 2.0, 1.0, -1.0]
@@ -195,7 +193,7 @@ def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
 
     if type == 6:
         vec_len = 4
-        ad_data.initial_value = Quaternion((0.9904, 0.1199, -0.0631, 0.0284))
+        ad_data.initial_value = get_quat(0.9904, 0.1199, -0.0631, 0.0284)
     else:
         vec_len = 1
         ad_data.initial_value = 4.3611
@@ -213,6 +211,10 @@ def compare_adaptive_delta_datas(self, expected, actual, type):
         type), actual.size(type))
     self.assertEqual(expected.bit_count, actual.bit_count)
     self.assertEqual(len(expected.delta_blocks), len(actual.delta_blocks))
+    if type == 6:
+        compare_quats(self, expected.initial_value, actual.initial_value)
+    else:
+        self.assertAlmostEqual(expected.initial_value, actual.initial_value, 2)
     for i in range(len(expected.delta_blocks)):
         compare_adaptive_delta_blocks(
             self, expected.delta_blocks[i], actual.delta_blocks[i])
