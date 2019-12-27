@@ -4,7 +4,7 @@
 import unittest
 from io_mesh_w3d.structs.w3d_animation import *
 from tests.helpers.w3d_version import *
-from tests.utils import almost_equal
+from tests.helpers.mathutils import *
 
 
 def get_animation_header(hierarchy_name="hierarchy"):
@@ -35,20 +35,14 @@ def get_animation_channel(type=1, pivot=0):
 
     if type == 6:
         channel.vector_len = 4
-
-        channel.data.append(Quaternion((-.1, -2.1, -1.7, -1.7)))
-        channel.data.append(Quaternion((-0.1, -2.1, 1.6, 1.6)))
-        channel.data.append(Quaternion((0.9, -2.1, 1.6, 1.6)))
-        channel.data.append(Quaternion((0.9, 1.8, 1.6, 1.6)))
-        channel.data.append(Quaternion((0.9, 1.8, -1.6, 1.6)))
+        channel.data = [get_quat(-.1, -2.1, -1.7, -1.7),
+                        get_quat(-0.1, -2.1, 1.6, 1.6),
+                        get_quat(0.9, -2.1, 1.6, 1.6),
+                        get_quat(0.9, 1.8, 1.6, 1.6),
+                        get_quat(0.9, 1.8, -1.6, 1.6)]
     else:
         channel.vector_len = 1
-
-        channel.data.append(3.0)
-        channel.data.append(3.5)
-        channel.data.append(2.0)
-        channel.data.append(1.0)
-        channel.data.append(-1.0)
+        channel.data = [3.0, 3.5, 2.0, 1.0, -1.0]
     return channel
 
 
@@ -65,32 +59,19 @@ def compare_animation_channels(self, expected, actual):
         if expected.type < 6:
             self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
         else:
-            almost_equal(self, expected.data[i][0], actual.data[i][0], 0.2)
-            almost_equal(self, expected.data[i][1], actual.data[i][1], 0.2)
-            almost_equal(self, expected.data[i][2], actual.data[i][2], 0.2)
-            almost_equal(self, expected.data[i][3], actual.data[i][3], 0.2)
+            compare_quats(self, expected.data[i], actual.data[i])
 
 
 def get_animation_bit_channel(pivot=0):
-    channel = AnimationBitChannel(
+    return AnimationBitChannel(
         first_frame=0,
         last_frame=9,
         type=0,
         pivot=pivot,
         default=False,
-        data=[])
-
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(True)
-    channel.data.append(False)
-    channel.data.append(False)
-    channel.data.append(False)
-    return channel
+        data=[True, True, True, True,
+              True, True, True, False,
+              False, False])
 
 
 def compare_animation_bit_channels(self, expected, actual):
@@ -106,27 +87,24 @@ def compare_animation_bit_channels(self, expected, actual):
 
 
 def get_animation(hierarchy_name="TestHierarchy"):
-    animation = Animation(
+    return Animation(
         header=get_animation_header(hierarchy_name),
-        channels=[])
+        channels=[get_animation_channel(type=0, pivot=1),
+                    get_animation_channel(type=1, pivot=1),
+                    get_animation_channel(type=2, pivot=1),
 
-    animation.channels.append(get_animation_channel(type=0, pivot=1))
-    animation.channels.append(get_animation_channel(type=1, pivot=1))
-    animation.channels.append(get_animation_channel(type=2, pivot=1))
+                    get_animation_channel(type=0, pivot=2),
+                    get_animation_channel(type=1, pivot=2),
+                    get_animation_channel(type=2, pivot=2),
+                    get_animation_channel(type=6, pivot=2),
 
-    animation.channels.append(get_animation_channel(type=0, pivot=2))
-    animation.channels.append(get_animation_channel(type=1, pivot=2))
-    animation.channels.append(get_animation_channel(type=2, pivot=2))
-    animation.channels.append(get_animation_channel(type=6, pivot=2))
+                    get_animation_channel(type=0, pivot=3),
+                    get_animation_channel(type=1, pivot=3),
+                    get_animation_channel(type=2, pivot=3),
+                    get_animation_channel(type=6, pivot=3),
 
-    animation.channels.append(get_animation_channel(type=0, pivot=3))
-    animation.channels.append(get_animation_channel(type=1, pivot=3))
-    animation.channels.append(get_animation_channel(type=2, pivot=3))
-    animation.channels.append(get_animation_channel(type=6, pivot=3))
-
-    animation.channels.append(get_animation_bit_channel(pivot=5))
-    animation.channels.append(get_animation_bit_channel(pivot=7))
-    return animation
+                    get_animation_bit_channel(pivot=5),
+                    get_animation_bit_channel(pivot=7)])
 
 
 def get_animation_minimal():

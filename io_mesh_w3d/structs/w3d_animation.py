@@ -3,7 +3,6 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
@@ -76,10 +75,12 @@ class AnimationChannel(Struct):
             pad_bytes.append(io_stream.read(1))
         return result
 
+
     def size(self, include_head=True):
         size = const_size(12, include_head)
         size += (len(self.data) * self.vector_len) * 4
         return size
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION_CHANNEL, io_stream,
@@ -127,12 +128,14 @@ class AnimationBitChannel(Struct):
             result.data[i] = val
         return result
 
+
     def size(self, include_head=True):
         size = const_size(9, include_head)
         size += (int)(len(self.data) / 8)
         if len(self.data) % 8 > 0:
             size += 1
         return size
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream,
@@ -177,10 +180,12 @@ class Animation(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
+
     def size(self):
         size = self.header.size()
         size += list_size(self.channels, False)
         return size
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION, io_stream,
