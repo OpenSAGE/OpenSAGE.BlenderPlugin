@@ -16,6 +16,7 @@ from tests.helpers.w3d_aabbtree import *
 from tests.helpers.w3d_triangle import *
 from tests.helpers.w3d_vertex_influence import *
 from tests.helpers.w3d_version import *
+from tests.helpers.mathutils import *
 
 
 def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
@@ -33,9 +34,9 @@ def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
         future_count=0,
         vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
         face_channel_flags=1,
-        min_corner=Vector((-1.0, -1.0, -1.0)),
-        max_corner=Vector((1.0, 1.0, 1.0)),
-        sph_center=Vector((0.0, 0.0, 0.0)),
+        min_corner=get_vector(-1.0, -1.0, -1.0),
+        max_corner=get_vector(1.0, 1.0, 1.0),
+        sph_center=get_vector(0.0, 0.0, 0.0),
         sph_radius=0.0)
 
     if shader_mats:
@@ -59,23 +60,21 @@ def compare_mesh_headers(self, expected, actual):
     self.assertEqual(expected.future_count, actual.future_count)
     self.assertEqual(expected.vert_channel_flags, actual.vert_channel_flags)
     self.assertEqual(expected.face_channel_flags, actual.face_channel_flags)
-    #self.assertEqual(expected.min_corner, actual.min_corner)
-    #self.assertEqual(expected.max_corner, actual.max_corner)
-    #self.assertEqual(expected.sph_center, actual.sph_center)
-    #self.assertEqual(expected.sph_radius, actual.sph_radius)
+    #compare_vectors(self, expected.min_corner, actual.min_corner)
+    #compare_vectors(self, expected.max_corner, actual.max_corner)
+    #compare_vectors(self, expected.sph_center, actual.sph_center)
+    #self.assertAlmostEqual(expected.sph_radius, actual.sph_radius, 2)
 
 
 def get_vertex_influences():
-    vert_infs = []
-    vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
-    vert_infs.append(get_vertex_influence(1, 0, 0.0, 0.0))
-    vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
-    vert_infs.append(get_vertex_influence(2, 1, 0.75, 0.25))
-    vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
-    vert_infs.append(get_vertex_influence(3, 2, 0.50, 0.50))
-    vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
-    vert_infs.append(get_vertex_influence(4, 3, 0.25, 0.75))
-    return vert_infs
+    return [get_vertex_influence(1, 0, 0.0, 0.0),
+            get_vertex_influence(1, 0, 0.0, 0.0),
+            get_vertex_influence(2, 1, 0.75, 0.25),
+            get_vertex_influence(2, 1, 0.75, 0.25),
+            get_vertex_influence(3, 2, 0.50, 0.50),
+            get_vertex_influence(3, 2, 0.50, 0.50),
+            get_vertex_influence(4, 3, 0.25, 0.75),
+            get_vertex_influence(4, 3, 0.25, 0.75)]
 
 
 def get_mesh(name="meshName", skin=False, shader_mats=False):
@@ -99,67 +98,67 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
 
     mesh.user_text = "TestUserText"
 
-    mesh.verts.append(Vector((1.0, 1.0, 1.0)))
-    mesh.verts.append(Vector((1.0, 1.0, -1.0)))
-    mesh.verts.append(Vector((1.0, -1.0, 1.0)))
-    mesh.verts.append(Vector((1.0, -1.0, -1.0)))
-    mesh.verts.append(Vector((-1.0, 1.0, 1.0)))
-    mesh.verts.append(Vector((-1.0, 1.0, -1.0)))
-    mesh.verts.append(Vector((-1.0, -1.0, 1.0)))
-    mesh.verts.append(Vector((-1.0, -1.0, -1.0)))
+    mesh.verts = [get_vector(1.0, 1.0, 1.0),
+                    get_vector(1.0, 1.0, -1.0),
+                    get_vector(1.0, -1.0, 1.0),
+                    get_vector(1.0, -1.0, -1.0),
+                    get_vector(-1.0, 1.0, 1.0),
+                    get_vector(-1.0, 1.0, -1.0),
+                    get_vector(-1.0, -1.0, 1.0),
+                    get_vector(-1.0, -1.0, -1.0)]
 
-    mesh.normals.append(Vector((0.577, 0.577, 0.577)))
-    mesh.normals.append(Vector((0.577, 0.577, -0.577)))
-    mesh.normals.append(Vector((0.577, -0.577, 0.577)))
-    mesh.normals.append(Vector((0.577, -0.577, -0.577)))
-    mesh.normals.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.normals.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
+    mesh.normals = [get_vector(0.577, 0.577, 0.577),
+                    get_vector(0.577, 0.577, -0.577),
+                    get_vector(0.577, -0.577, 0.577),
+                    get_vector(0.577, -0.577, -0.577),
+                    get_vector(-0.577, 0.577, 0.577),
+                    get_vector(-0.577, 0.577, -0.577),
+                    get_vector(-0.577, -0.577, 0.577),
+                    get_vector(-0.577, -0.577, -0.577)]
 
     if shader_mats:
-        mesh.tangents.append(Vector((0.577, 0.577, 0.577)))
-        mesh.tangents.append(Vector((0.577, 0.577, -0.577)))
-        mesh.tangents.append(Vector((0.577, -0.577, 0.577)))
-        mesh.tangents.append(Vector((0.577, -0.577, -0.577)))
-        mesh.tangents.append(Vector((-0.577, 0.577, 0.577)))
-        mesh.tangents.append(Vector((-0.577, 0.577, -0.577)))
-        mesh.tangents.append(Vector((-0.577, -0.577, 0.577)))
-        mesh.tangents.append(Vector((-0.577, -0.577, -0.577)))
+        mesh.tangents = [get_vector(0.577, 0.577, 0.577),
+                            get_vector(0.577, 0.577, -0.577),
+                            get_vector(0.577, -0.577, 0.577),
+                            get_vector(0.577, -0.577, -0.577),
+                            get_vector(-0.577, 0.577, 0.577),
+                            get_vector(-0.577, 0.577, -0.577),
+                            get_vector(-0.577, -0.577, 0.577),
+                            get_vector(-0.577, -0.577, -0.577)]
 
-        mesh.bitangents.append(Vector((0.577, 0.577, 0.577)))
-        mesh.bitangents.append(Vector((0.577, 0.577, -0.577)))
-        mesh.bitangents.append(Vector((0.577, -0.577, 0.577)))
-        mesh.bitangents.append(Vector((0.577, -0.577, -0.577)))
-        mesh.bitangents.append(Vector((-0.577, 0.577, 0.577)))
-        mesh.bitangents.append(Vector((-0.577, 0.577, -0.577)))
-        mesh.bitangents.append(Vector((-0.577, -0.577, 0.577)))
-        mesh.bitangents.append(Vector((-0.577, -0.577, -0.577)))
+        mesh.bitangents = [get_vector(0.577, 0.577, 0.577),
+                            get_vector(0.577, 0.577, -0.577),
+                            get_vector(0.577, -0.577, 0.577),
+                            get_vector(0.577, -0.577, -0.577),
+                            get_vector(-0.577, 0.577, 0.577),
+                            get_vector(-0.577, 0.577, -0.577),
+                            get_vector(-0.577, -0.577, 0.577),
+                            get_vector(-0.577, -0.577, -0.577)]
 
     mesh.triangles.append(get_triangle(
-        (4, 2, 0), 13, Vector((0.0, 0.0, 1.0)), 0.63))
+        (4, 2, 0), 13, get_vector(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (2, 7, 3), 13, Vector((0.0, -1.0, 0.0)), 0.63))
+        (2, 7, 3), 13, get_vector(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (6, 5, 7), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
+        (6, 5, 7), 13, get_vector(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (1, 7, 5), 13, Vector((0.0, 0.0, -1.0)), 0.63))
+        (1, 7, 5), 13, get_vector(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (0, 3, 1), 13, Vector((1.0, 0.0, 0.0)), 0.63))
+        (0, 3, 1), 13, get_vector(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 1, 5), 13, Vector((0.0, 1.0, 0.0)), 0.63))
+        (4, 1, 5), 13, get_vector(0.0, 1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 6, 2), 13, Vector((0.0, 0.0, 1.0)), 0.63))
+        (4, 6, 2), 13, get_vector(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (2, 6, 7), 13, Vector((0.0, -1.0, 0.0)), 0.63))
+        (2, 6, 7), 13, get_vector(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (6, 4, 5), 13, Vector((-1.0, 0.0, 0.0)), 0.63))
+        (6, 4, 5), 13, get_vector(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (1, 3, 7), 13, Vector((0.0, 0.0, -1.0)), 0.63))
+        (1, 3, 7), 13, get_vector(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (0, 2, 3), 13, Vector((1.0, 0.0, 0.0)), 0.63))
+        (0, 2, 3), 13, get_vector(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 0, 1), 13, Vector((0.0, 1.0, 0.0)), 0.63))
+        (4, 0, 1), 13, get_vector(0.0, 1.0, 0.0), 0.63))
 
     if skin:
         mesh.vert_infs = get_vertex_influences()
@@ -217,10 +216,10 @@ def get_mesh_minimal():
     return Mesh(
         header=get_mesh_header(),
         user_text="text",
-        verts=[Vector()],
-        normals=[Vector()],
-        tangents=[Vector()],
-        bitangents=[Vector()],
+        verts=[get_vector()],
+        normals=[get_vector()],
+        tangents=[get_vector()],
+        bitangents=[get_vector()],
         vert_infs=[get_vertex_influence()],
         triangles=[get_triangle()],
         shade_ids=[1],
@@ -237,8 +236,8 @@ def get_mesh_empty():
     return Mesh(
         header=get_mesh_header(),
         user_text="",
-        verts=[Vector()],
-        normals=[Vector()],
+        verts=[get_vector()],
+        normals=[get_vector()],
         tangents=[],
         bitangents=[],
         vert_infs=[],
@@ -260,16 +259,12 @@ def compare_meshes(self, expected, actual):
 
     self.assertEqual(len(expected.verts), len(actual.verts))
     for i, expect in enumerate(expected.verts):
-        self.assertAlmostEqual(expect[0], actual.verts[i][0], 3)
-        self.assertAlmostEqual(expect[1], actual.verts[i][1], 3)
-        self.assertAlmostEqual(expect[2], actual.verts[i][2], 3)
+        compare_vectors(self, expect, actual.verts[i])
 
     self.assertEqual(len(expected.normals), len(actual.normals))
     if not is_skin:  # generated by blender if mesh is skinned/rigged
         for i, expect in enumerate(expected.normals):
-            self.assertAlmostEqual(expect[0], actual.normals[i][0], 1)
-            self.assertAlmostEqual(expect[1], actual.normals[i][1], 1)
-            self.assertAlmostEqual(expect[2], actual.normals[i][2], 1)
+            compare_vectors(self, expect, actual.normals[i])
 
     self.assertEqual(len(expected.tangents), len(actual.tangents))
     self.assertEqual(len(expected.bitangents), len(actual.bitangents))

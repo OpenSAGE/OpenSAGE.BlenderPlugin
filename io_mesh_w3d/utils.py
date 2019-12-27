@@ -3,6 +3,7 @@
 
 from bpy import context
 from io_mesh_w3d.structs.struct import HEAD
+from io_mesh_w3d.io_binary import read_chunk_head
 
 
 def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
@@ -10,6 +11,19 @@ def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
     print(message)
     self.report({'ERROR'}, message)
     io_stream.seek(chunk_size, 1)
+
+
+def read_chunk_array(context, io_stream, chunk_end, type_, read_func):
+    result = []
+
+    while io_stream.tell() < chunk_end:
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        if chunk_type == type_:
+            result.append(read_func(context, io_stream, subchunk_end))
+        else:
+            skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
+    return result
 
 
 def const_size(size, include_head=True):
