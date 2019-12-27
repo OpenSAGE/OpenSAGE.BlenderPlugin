@@ -149,7 +149,7 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
             if vert_inf.xtra_idx != 0:
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
                 if not xtra_pivot.name in mesh_ob.vertex_groups:
-                    mesh_ob.vertex_groups.new(name=pivot.name)
+                    mesh_ob.vertex_groups.new(name=xtra_pivot.name)
                 mesh_ob.vertex_groups[xtra_pivot.name].add(
                     [i], vert_inf.xtra_inf, 'ADD')
 
@@ -205,7 +205,10 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
         return None
 
     if hierarchy.header.name in bpy.data.objects:
-        return bpy.data.objects[hierarchy.header.name]
+        obj = bpy.data.objects[hierarchy.header.name]
+        if obj.type == 'ARMATURE':
+            return obj
+        return None
 
     return process_hierarchy(hierarchy, hlod.lod_array.sub_objects, coll)
 
@@ -584,8 +587,10 @@ def create_animation(rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
-    if animation.header.hierarchy_name in bpy.data.objects:
-        rig = bpy.data.objects[animation.header.hierarchy_name]
+    if rig is None and animation.header.hierarchy_name in bpy.data.objects:
+        obj = bpy.data.objects[animation.header.hierarchy_name]
+        if obj.type == 'ARMATURE':
+            rig = obj
 
     setup_animation(animation)
 

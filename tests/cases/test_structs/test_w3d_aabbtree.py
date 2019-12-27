@@ -1,17 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
+
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_aabbtree import *
-from io_mesh_w3d.io_binary import *
+from tests.utils import TestCase
 from tests.helpers.w3d_aabbtree import *
 
 
-class TestAABBTree(utils.W3dTestCase):
+class TestAABBTree(TestCase):
     def test_write_read(self):
         expected = get_aabbtree()
 
@@ -29,6 +25,7 @@ class TestAABBTree(utils.W3dTestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
+
     def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
@@ -45,8 +42,8 @@ class TestAABBTree(utils.W3dTestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_AABBTREE, output, 9, has_sub_chunks=True)
 
@@ -58,7 +55,8 @@ class TestAABBTree(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_AABBTREE, chunk_type)
 
-        AABBTree.read(context, io_stream, subchunk_end)
+        AABBTree.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         expected = get_aabbtree_minimal()

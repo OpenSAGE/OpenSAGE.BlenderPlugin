@@ -1,18 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_animation import *
-from io_mesh_w3d.io_binary import *
-
+from tests.utils import TestCase
 from tests.helpers.w3d_animation import *
 
 
-class TestAnimation(utils.W3dTestCase):
+class TestAnimation(TestCase):
     def test_write_read(self):
         expected = get_animation()
 
@@ -29,6 +23,7 @@ class TestAnimation(utils.W3dTestCase):
 
         actual = Animation.read(self, io_stream, chunkEnd)
         compare_animations(self, expected, actual)
+
 
     def test_write_read_empty(self):
         expected = get_animation_empty()
@@ -47,8 +42,8 @@ class TestAnimation(utils.W3dTestCase):
         actual = Animation.read(self, io_stream, chunkEnd)
         compare_animations(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_ANIMATION, output, 9, has_sub_chunks=True)
 
@@ -60,7 +55,8 @@ class TestAnimation(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_ANIMATION, chunk_type)
 
-        Animation.read(context, io_stream, subchunk_end)
+        Animation.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         ani = get_animation_minimal()

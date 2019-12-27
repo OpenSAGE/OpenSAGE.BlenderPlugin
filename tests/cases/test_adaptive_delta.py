@@ -2,18 +2,19 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.w3d_adaptive_delta import *
-from tests import utils
+from tests.utils import *
 from tests.helpers.w3d_compressed_animation import *
 from tests.helpers.w3d_animation import *
 
 
-class TestAdaptiveDelta(utils.W3dTestCase):
+class TestAdaptiveDelta(TestCase):
     def test_get_deltas_4bit(self):
         deltaBytes = [-3, 17, -32, -101, 120, 88, -20, -1]
         deltas = get_deltas(deltaBytes, 4)
         expected = [-3, -1, 1, 1, 0, -2, -5, -
                     7, -8, 7, -8, 5, -4, -2, -1, -1]
         self.assertEqual(expected, deltas)
+
 
     def test_get_deltas_8bit(self):
         deltaBytes = [-49, -50, -53, -57, -62, -69, -
@@ -23,6 +24,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
                     46, 34, 17, -5, -46, -91, -116, -124]
         self.assertEqual(expected, deltas)
 
+
     def test_set_deltas_4bit(self):
         bytes = [-3, -1, 1, 1, 0, -2, -5, -
                     7, -8, 7, -8, 5, -4, -2, -1, -1]
@@ -30,6 +32,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
         actual = set_deltas(bytes, 4)
 
         self.assertEqual(expected, actual)
+
 
     def test_set_deltas_8bit(self):
         bytes = [79, 78, 75, 71, 66, 59, 55, 53,
@@ -40,6 +43,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
 
         self.assertEqual(expected, actual)
 
+
     def test_decode(self):
         channel = get_motion_channel(type=0, delta_type=1, num_time_codes=5)
         expected = [4.3611, 4.6254, 4.9559, 5.4186, 5.8812]
@@ -49,6 +53,7 @@ class TestAdaptiveDelta(utils.W3dTestCase):
         self.assertEqual(len(expected), len(actual))
         for i, value in enumerate(expected):
             self.assertAlmostEqual(value, actual[i], 3)
+
 
     def test_encode_8bit(self):
         channel = AnimationChannel(

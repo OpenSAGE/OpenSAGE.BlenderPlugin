@@ -3,7 +3,6 @@
 
 import unittest
 from random import random
-from mathutils import Quaternion
 
 from io_mesh_w3d.structs.w3d_compressed_animation import *
 from tests.helpers.w3d_version import get_version, compare_versions

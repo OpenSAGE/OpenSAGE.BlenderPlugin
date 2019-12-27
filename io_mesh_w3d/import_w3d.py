@@ -41,7 +41,7 @@ def load_hierarchy_file(self, sklpath):
 ##########################################################################
 
 
-def load(self, context, import_settings):
+def load(self, import_settings):
     print('Loading file', self.filepath)
 
     file = open(self.filepath, "rb")

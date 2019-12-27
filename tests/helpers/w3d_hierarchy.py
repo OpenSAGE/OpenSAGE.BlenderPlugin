@@ -2,10 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector, Quaternion
-
-from io_mesh_w3d.structs.w3d_hierarchy import Hierarchy, HierarchyHeader, HierarchyPivot
-
+from io_mesh_w3d.structs.w3d_hierarchy import *
 from tests.helpers.w3d_version import get_version, compare_versions
 from tests.utils import almost_equal
 
@@ -51,6 +48,7 @@ def compare_hierarchy_pivots(self, expected, actual):
     self.assertAlmostEqual(expected.translation[1], actual.translation[1], 1)
     self.assertAlmostEqual(expected.translation[2], actual.translation[2], 1)
 
+    #dont care for those
     #almost_equal(self, expected.euler_angles.x, actual.euler_angles.x, 0.2)
     #almost_equal(self, expected.euler_angles.y, actual.euler_angles.y, 0.2)
     #almost_equal(self, expected.euler_angles.z, actual.euler_angles.z, 0.2)

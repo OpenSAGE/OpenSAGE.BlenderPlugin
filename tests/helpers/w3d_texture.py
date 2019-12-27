@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.structs.w3d_texture import Texture, TextureInfo
+from io_mesh_w3d.structs.w3d_texture import *
 
 
 def get_texture_info():

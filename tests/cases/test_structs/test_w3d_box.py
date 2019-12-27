@@ -1,16 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from io_mesh_w3d.structs.w3d_box import Box, W3D_CHUNK_BOX
-from io_mesh_w3d.io_binary import read_chunk_head
-
-from tests.helpers.w3d_box import get_box, compare_boxes
+from tests.utils import TestCase
+from tests.helpers.w3d_box import *
 
 
-class TestBox(unittest.TestCase):
+class TestBox(TestCase):
     def test_write_read(self):
         expected = get_box()
 

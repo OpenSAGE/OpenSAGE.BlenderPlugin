@@ -1,18 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_hlod import *
-from io_mesh_w3d.io_binary import *
-
+from tests.utils import TestCase
 from tests.helpers.w3d_hlod import *
 
 
-class TestHLod(utils.W3dTestCase):
+class TestHLod(TestCase):
     def test_write_read(self):
         expected = get_hlod()
 
@@ -30,8 +24,8 @@ class TestHLod(utils.W3dTestCase):
         actual = HLod.read(self, io_stream, chunkEnd)
         compare_hlods(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HLOD, output, 26, has_sub_chunks=True)
 
@@ -48,7 +42,8 @@ class TestHLod(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_HLOD, chunk_type)
 
-        HLod.read(context, io_stream, subchunk_end)
+        HLod.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         hlod = get_hlod_minimal()

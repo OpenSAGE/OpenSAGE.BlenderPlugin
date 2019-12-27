@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from bpy import context
 from io_mesh_w3d.structs.struct import HEAD
 
 

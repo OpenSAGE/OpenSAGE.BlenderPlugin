@@ -1,18 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-from tests import utils
-
+from tests.utils import TestCase
 from io_mesh_w3d.utils import *
-from io_mesh_w3d.structs.w3d_mesh import *
-from io_mesh_w3d.io_binary import read_chunk_head, write_chunk_head, write_ubyte
-
 from tests.helpers.w3d_mesh import *
 
 
-class TestMesh(utils.W3dTestCase):
+class TestMesh(TestCase):
     def test_write_read(self):
         expected = get_mesh()
 
@@ -29,6 +24,7 @@ class TestMesh(utils.W3dTestCase):
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
+
 
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
@@ -49,6 +45,7 @@ class TestMesh(utils.W3dTestCase):
         expected.bitangents = []  # import not supported -> are calculated in blender
         compare_meshes(self, expected, actual)
 
+
     def test_write_read_empty(self):
         expected = get_mesh_empty()
 
@@ -65,6 +62,7 @@ class TestMesh(utils.W3dTestCase):
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
+
 
     def test_chunk_order(self):
         expected_chunks = [
@@ -110,8 +108,8 @@ class TestMesh(utils.W3dTestCase):
             self.assertEqual(hex(chunk), hex(chunk_type))
             io_stream.seek(chunk_size, 1)
 
+
     def test_unsupported_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 90, has_sub_chunks=True)
 
@@ -153,10 +151,10 @@ class TestMesh(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
-        Mesh.read(context, io_stream, subchunk_end)
+        Mesh.read(self, io_stream, subchunk_end)
+
 
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 9, has_sub_chunks=True)
 
@@ -168,7 +166,8 @@ class TestMesh(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
-        Mesh.read(context, io_stream, subchunk_end)
+        Mesh.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         mesh = get_mesh_minimal()

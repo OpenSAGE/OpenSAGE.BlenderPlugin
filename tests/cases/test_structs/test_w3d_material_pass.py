@@ -1,19 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-from mathutils import Vector
-
-from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.io_binary import *
+from tests.utils import TestCase
 from tests.helpers.w3d_material_pass import *
 
 
-class TestMaterialPass(utils.W3dTestCase):
+class TestMaterialPass(TestCase):
     def test_write_read(self):
         expected = get_material_pass()
 
@@ -29,6 +22,7 @@ class TestMaterialPass(utils.W3dTestCase):
 
         actual = MaterialPass.read(self, io_stream, chunkEnd)
         compare_material_passes(self, expected, actual)
+
 
     def test_write_read_empty(self):
         expected = get_material_pass_empty()
@@ -46,8 +40,8 @@ class TestMaterialPass(utils.W3dTestCase):
         actual = MaterialPass.read(self, io_stream, chunkEnd)
         compare_material_passes(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MATERIAL_PASS,
                          output, 9, has_sub_chunks=True)
@@ -60,7 +54,8 @@ class TestMaterialPass(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_MATERIAL_PASS, chunk_type)
 
-        MaterialPass.read(context, io_stream, subchunk_end)
+        MaterialPass.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         mpass = get_material_pass_minimal()
@@ -81,7 +76,7 @@ class TestMaterialPass(utils.W3dTestCase):
         self.assertEqual(292, mpass.size())
 
 
-class TestTextureStage(utils.W3dTestCase):
+class TestTextureStage(TestCase):
     def test_write_read(self):
         expected = get_texture_stage()
 
@@ -97,6 +92,7 @@ class TestTextureStage(utils.W3dTestCase):
 
         actual = TextureStage.read(self, io_stream, chunkEnd)
         compare_texture_stages(self, expected, actual)
+
 
     def test_write_read_empty(self):
         expected = get_texture_stage_empty()
@@ -114,8 +110,8 @@ class TestTextureStage(utils.W3dTestCase):
         actual = TextureStage.read(self, io_stream, chunkEnd)
         compare_texture_stages(self, expected, actual)
 
+
     def test_unsupported_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_TEXTURE_STAGE,
                          output, 9, has_sub_chunks=True)
@@ -128,7 +124,8 @@ class TestTextureStage(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_TEXTURE_STAGE, chunk_type)
 
-        TextureStage.read(context, io_stream, subchunk_end)
+        TextureStage.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         stage = get_texture_stage_minimal()

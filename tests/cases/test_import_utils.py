@@ -2,9 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests import utils
 from shutil import copyfile
-
+from tests.utils import TestCase
 from io_mesh_w3d.import_utils_w3d import *
 from tests.helpers.w3d_mesh import *
 from tests.helpers.w3d_material_pass import *
@@ -14,7 +13,7 @@ from tests.helpers.w3d_animation import *
 from tests.helpers.w3d_compressed_animation import *
 
 
-class TestImportUtils(utils.W3dTestCase):
+class TestImportUtils(TestCase):
     def test_material_pass_with_2_texture_stages(self):
         mesh_struct = get_mesh()
         triangles = []
@@ -37,19 +36,18 @@ class TestImportUtils(utils.W3dTestCase):
 
 
     def test_mesh_import_2_textures_1_vertex_material(self):
-        context = utils.ImportWrapper(self.outpath())
         mesh = get_mesh_two_textures()
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
+
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture2.dds")
 
-        create_mesh(context, mesh, None, bpy.context.collection)
+        create_mesh(self, mesh, None, bpy.context.collection)
 
 
     def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
-        context = utils.ImportWrapper(self.outpath())
         hlod = get_hlod()
         hierarchy = get_hierarchy()
 
@@ -89,7 +87,7 @@ class TestImportUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -106,7 +104,6 @@ class TestImportUtils(utils.W3dTestCase):
 
 
     def test_read_chunk_array(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
 
         mat_pass = get_material_pass()
@@ -118,12 +115,11 @@ class TestImportUtils(utils.W3dTestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        read_chunk_array(context, io_stream, mat_pass.size()
+        read_chunk_array(self, io_stream, mat_pass.size()
                          * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
 
 
     def test_only_needed_keyframe_creation(self):
-        context = utils.ImportWrapper(self.outpath())
         animation = get_compressed_animation_empty()
 
         channel = TimeCodedAnimationChannel(
@@ -159,7 +155,7 @@ class TestImportUtils(utils.W3dTestCase):
 
         meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 

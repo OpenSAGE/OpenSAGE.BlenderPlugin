@@ -1,11 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from mathutils import Vector
-
-from io_mesh_w3d.structs.w3d_shader_material import ShaderMaterial, ShaderMaterialHeader, \
-    ShaderMaterialProperty
-
+from io_mesh_w3d.structs.w3d_shader_material import *
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 
 

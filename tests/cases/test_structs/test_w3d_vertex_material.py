@@ -1,19 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from mathutils import Vector
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.io_binary import read_chunk_head
+from tests.utils import TestCase
 from tests.helpers.w3d_vertex_material import *
 
 
-class TestVertexMaterial(utils.W3dTestCase):
+class TestVertexMaterial(TestCase):
     def test_write_read(self):
         expected = get_vertex_material()
 
@@ -31,6 +24,7 @@ class TestVertexMaterial(utils.W3dTestCase):
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
 
+
     def test_write_read_empty(self):
         expected = get_vertex_material_empty()
 
@@ -47,8 +41,8 @@ class TestVertexMaterial(utils.W3dTestCase):
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_VERTEX_MATERIAL,
                          output, 9, has_sub_chunks=True)
@@ -61,7 +55,8 @@ class TestVertexMaterial(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_VERTEX_MATERIAL, chunk_type)
 
-        VertexMaterial.read(context, io_stream, subchunk_end)
+        VertexMaterial.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         vm = get_vertex_material_minimal()

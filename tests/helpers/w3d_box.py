@@ -2,11 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector
-from io_mesh_w3d.structs.w3d_box import Box
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-from io_mesh_w3d.structs.w3d_version import Version
-
+from io_mesh_w3d.structs.w3d_box import *
 from tests.helpers.w3d_version import get_version, compare_versions
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
 

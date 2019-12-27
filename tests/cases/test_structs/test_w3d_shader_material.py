@@ -1,17 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.w3d_shader_material import *
-from io_mesh_w3d.io_binary import *
+from tests.utils import TestCase
 from tests.helpers.w3d_shader_material import *
 
 
-class TestShaderMaterial(utils.W3dTestCase):
+class TestShaderMaterial(TestCase):
     def test_write_read(self):
         expected = get_shader_material()
 
@@ -29,8 +24,8 @@ class TestShaderMaterial(utils.W3dTestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
+
     def test_read_invalid_property(self):
-        context = utils.ImportWrapper(self.outpath())
         io_stream = io.BytesIO()
 
         name = "InvalidProp"
@@ -50,7 +45,8 @@ class TestShaderMaterial(utils.W3dTestCase):
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(size, chunkSize)
 
-        actual = ShaderMaterialProperty.read(context, io_stream)
+        actual = ShaderMaterialProperty.read(self, io_stream)
+
 
     def test_write_invalid_property(self):
         io_stream = io.BytesIO()
@@ -67,6 +63,7 @@ class TestShaderMaterial(utils.W3dTestCase):
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(prop.size(False), chunkSize)
+
 
     def test_write_read_empty(self):
         expected = get_shader_material_empty()
@@ -85,8 +82,8 @@ class TestShaderMaterial(utils.W3dTestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL,
                          output, 9, has_sub_chunks=True)
@@ -99,7 +96,8 @@ class TestShaderMaterial(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL, chunk_type)
 
-        ShaderMaterial.read(context, io_stream, subchunk_end)
+        ShaderMaterial.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         material = get_shader_material_minimal()

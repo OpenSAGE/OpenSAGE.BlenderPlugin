@@ -2,10 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Quaternion
-
 from io_mesh_w3d.structs.w3d_animation import *
-
 from tests.helpers.w3d_version import *
 from tests.utils import almost_equal
 

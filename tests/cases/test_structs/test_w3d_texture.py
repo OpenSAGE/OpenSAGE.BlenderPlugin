@@ -1,18 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-
-from tests import utils
-
-from io_mesh_w3d.structs.struct import HEAD
-from io_mesh_w3d.structs.w3d_texture import *
-from io_mesh_w3d.io_binary import *
+from tests.utils import TestCase
 from tests.helpers.w3d_texture import *
 
 
-class TestTexture(utils.W3dTestCase):
+class TestTexture(TestCase):
     def test_write_read(self):
         expected = get_texture()
 
@@ -30,6 +24,7 @@ class TestTexture(utils.W3dTestCase):
         actual = Texture.read(self, io_stream, chunkEnd)
         compare_textures(self, expected, actual)
 
+
     def test_minimal_write_read(self):
         expected = get_texture_empty()
 
@@ -46,8 +41,8 @@ class TestTexture(utils.W3dTestCase):
         actual = Texture.read(self, io_stream, chunkEnd)
         compare_textures(self, expected, actual)
 
+
     def test_unknown_chunk_skip(self):
-        context = utils.ImportWrapper(self.outpath())
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_TEXTURE, output, 9, has_sub_chunks=True)
 
@@ -59,7 +54,8 @@ class TestTexture(utils.W3dTestCase):
 
         self.assertEqual(W3D_CHUNK_TEXTURE, chunk_type)
 
-        Texture.read(context, io_stream, subchunk_end)
+        Texture.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         tex = get_texture_minimal()
