@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import math
-from mathutils import Quaternion
 
 def fill_with_exponents_of_10(table):
     for i in range(16):
