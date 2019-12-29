@@ -9,6 +9,7 @@ from io_mesh_w3d.utils import *
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 
+
 class HLodHeader(Struct):
     version = Version()
     lod_count = 1

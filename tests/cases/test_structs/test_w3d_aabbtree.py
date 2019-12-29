@@ -24,7 +24,6 @@ class TestAABBTree(TestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
-
     def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
@@ -41,7 +40,6 @@ class TestAABBTree(TestCase):
         actual = AABBTree.read(self, io_stream, chunkEnd)
         compare_aabbtrees(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_AABBTREE, output, 9, has_sub_chunks=True)
@@ -55,7 +53,6 @@ class TestAABBTree(TestCase):
         self.assertEqual(W3D_CHUNK_AABBTREE, chunk_type)
 
         AABBTree.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         expected = get_aabbtree_minimal()

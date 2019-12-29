@@ -47,7 +47,7 @@ def compare_hierarchy_pivots(self, expected, actual):
 
     compare_vectors(self, expected.translation, actual.translation)
 
-    #dont care for those
+    # dont care for those
     #compare_vectors(self, expected.euler_angles, actual.euler_angles)
 
     compare_quats(self, expected.rotation, actual.rotation)

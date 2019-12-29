@@ -68,19 +68,18 @@ class AnimationChannel(Struct):
         if result.vector_len == 1:
             result.data = read_fixed_list(io_stream, num_elements, read_float)
         elif result.vector_len == 4:
-            result.data = read_fixed_list(io_stream, num_elements, read_quaternion)
+            result.data = read_fixed_list(
+                io_stream, num_elements, read_quaternion)
 
         pad_bytes = []
         while io_stream.tell() < chunk_end:
             pad_bytes.append(io_stream.read(1))
         return result
 
-
     def size(self, include_head=True):
         size = const_size(12, include_head)
         size += (len(self.data) * self.vector_len) * 4
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION_CHANNEL, io_stream,
@@ -100,6 +99,7 @@ class AnimationChannel(Struct):
 
 
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
+
 
 class AnimationBitChannel(Struct):
     first_frame = 0
@@ -128,14 +128,12 @@ class AnimationBitChannel(Struct):
             result.data[i] = val
         return result
 
-
     def size(self, include_head=True):
         size = const_size(9, include_head)
         size += (int)(len(self.data) / 8)
         if len(self.data) % 8 > 0:
             size += 1
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream,
@@ -180,17 +178,15 @@ class Animation(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self):
         size = self.header.size()
         size += list_size(self.channels, False)
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION, io_stream,
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        for channel in self.channels: #combination of animation and animationbit channels
+        for channel in self.channels:  # combination of animation and animationbit channels
             channel.write(io_stream)

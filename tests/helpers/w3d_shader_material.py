@@ -53,7 +53,7 @@ def compare_shader_material_properties(self, expected, actual):
         compare_vectors(self, expected.value, actual.value)
     elif expected.type == 5:
         compare_rgbas(self, expected.value, actual.value)
-    
+
     else:
         self.assertEqual(expected.value, actual.value)
 

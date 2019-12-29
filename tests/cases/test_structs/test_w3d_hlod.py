@@ -24,7 +24,6 @@ class TestHLod(TestCase):
         actual = HLod.read(self, io_stream, chunkEnd)
         compare_hlods(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HLOD, output, 26, has_sub_chunks=True)
@@ -43,7 +42,6 @@ class TestHLod(TestCase):
         self.assertEqual(W3D_CHUNK_HLOD, chunk_type)
 
         HLod.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         hlod = get_hlod_minimal()

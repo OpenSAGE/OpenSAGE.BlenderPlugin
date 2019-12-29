@@ -90,21 +90,21 @@ def get_animation(hierarchy_name="TestHierarchy"):
     return Animation(
         header=get_animation_header(hierarchy_name),
         channels=[get_animation_channel(type=0, pivot=1),
-                    get_animation_channel(type=1, pivot=1),
-                    get_animation_channel(type=2, pivot=1),
+                  get_animation_channel(type=1, pivot=1),
+                  get_animation_channel(type=2, pivot=1),
 
-                    get_animation_channel(type=0, pivot=2),
-                    get_animation_channel(type=1, pivot=2),
-                    get_animation_channel(type=2, pivot=2),
-                    get_animation_channel(type=6, pivot=2),
+                  get_animation_channel(type=0, pivot=2),
+                  get_animation_channel(type=1, pivot=2),
+                  get_animation_channel(type=2, pivot=2),
+                  get_animation_channel(type=6, pivot=2),
 
-                    get_animation_channel(type=0, pivot=3),
-                    get_animation_channel(type=1, pivot=3),
-                    get_animation_channel(type=2, pivot=3),
-                    get_animation_channel(type=6, pivot=3),
+                  get_animation_channel(type=0, pivot=3),
+                  get_animation_channel(type=1, pivot=3),
+                  get_animation_channel(type=2, pivot=3),
+                  get_animation_channel(type=6, pivot=3),
 
-                    get_animation_bit_channel(pivot=5),
-                    get_animation_bit_channel(pivot=7)])
+                  get_animation_bit_channel(pivot=5),
+                  get_animation_bit_channel(pivot=7)])
 
 
 def get_animation_minimal():
@@ -130,7 +130,7 @@ def compare_animations(self, expected, actual):
         for act in actual.channels:
             if isinstance(act, AnimationBitChannel):
                 continue
-            
+
             if chan.type == act.type and chan.pivot == act.pivot:
                 compare_animation_channels(self, chan, act)
                 match_found = True

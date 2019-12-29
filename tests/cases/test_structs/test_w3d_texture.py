@@ -24,7 +24,6 @@ class TestTexture(TestCase):
         actual = Texture.read(self, io_stream, chunkEnd)
         compare_textures(self, expected, actual)
 
-
     def test_minimal_write_read(self):
         expected = get_texture_empty()
 
@@ -41,7 +40,6 @@ class TestTexture(TestCase):
         actual = Texture.read(self, io_stream, chunkEnd)
         compare_textures(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_TEXTURE, output, 9, has_sub_chunks=True)
@@ -55,7 +53,6 @@ class TestTexture(TestCase):
         self.assertEqual(W3D_CHUNK_TEXTURE, chunk_type)
 
         Texture.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         tex = get_texture_minimal()

@@ -185,7 +185,8 @@ def compare_adaptive_delta_blocks(self, expected, actual):
 def get_adaptive_delta_data(type, num_bits, num_time_codes=33):
     data = [84, 119, 119, 53, 0, 16, 82, 0]
     if num_bits == 8:
-        data = [95, 44, 12, 2, 12, 44, 96, -99, -53, -25, -17, -25, -53, -99, -128, -128]
+        data = [95, 44, 12, 2, 12, 44, 96, -99, -
+                53, -25, -17, -25, -53, -99, -128, -128]
 
     ad_data = AdaptiveDeltaData(
         bit_count=num_bits,
@@ -324,7 +325,8 @@ def compare_motion_channels(self, expected, actual):
     if expected.delta_type == 0:
         self.assertEqual(len(expected.data), len(actual.data))
         for i in range(len(expected.data)):
-            compare_time_coded_datums(self, expected.type, expected.data[i], actual.data[i])
+            compare_time_coded_datums(
+                self, expected.type, expected.data[i], actual.data[i])
     else:
         compare_adaptive_delta_motion_animation_channels(
             self, expected.data, actual.data, expected.type)

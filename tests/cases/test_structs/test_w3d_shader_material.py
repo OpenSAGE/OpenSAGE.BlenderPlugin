@@ -24,7 +24,6 @@ class TestShaderMaterial(TestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
-
     def test_read_invalid_property(self):
         io_stream = io.BytesIO()
 
@@ -47,7 +46,6 @@ class TestShaderMaterial(TestCase):
 
         actual = ShaderMaterialProperty.read(self, io_stream)
 
-
     def test_write_invalid_property(self):
         io_stream = io.BytesIO()
 
@@ -63,7 +61,6 @@ class TestShaderMaterial(TestCase):
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(prop.size(False), chunkSize)
-
 
     def test_write_read_empty(self):
         expected = get_shader_material_empty()
@@ -82,7 +79,6 @@ class TestShaderMaterial(TestCase):
         actual = ShaderMaterial.read(self, io_stream, chunkEnd)
         compare_shader_materials(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL,
@@ -97,7 +93,6 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL, chunk_type)
 
         ShaderMaterial.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         material = get_shader_material_minimal()

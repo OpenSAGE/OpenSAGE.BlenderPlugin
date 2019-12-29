@@ -30,7 +30,6 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
-
 ##########################################################################
 # Mesh data
 ##########################################################################
@@ -286,7 +285,7 @@ def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
 
     if not mesh_struct.is_skin():
         for index, pivot in enumerate(hierarchy.pivots):
-            pivot_name = pivot.name.replace("B_", "").replace("BAT_","")
+            pivot_name = pivot.name.replace("B_", "").replace("BAT_", "")
             actual_name = name.replace("V_", "")
             if pivot_name == actual_name:
                 subObject.bone_index = index
@@ -311,7 +310,8 @@ class PrincipledBSDF(Struct):
 def retrieve_principled_bsdf(material):
     result = PrincipledBSDF()
 
-    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+    principled = node_shader_utils.PrincipledBSDFWrapper(
+        material, is_readonly=True)
     result.base_color = principled.base_color
     result.alpha = principled.alpha
     diffuse_tex = principled.base_color_texture
@@ -616,7 +616,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
-                
+
                 if channel_type < 6:
                     channel.time_codes[i] = TimeCodedDatum(
                         time_code=frame,

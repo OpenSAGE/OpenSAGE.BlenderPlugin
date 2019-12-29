@@ -99,13 +99,13 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
     mesh.user_text = "TestUserText"
 
     mesh.verts = [get_vector(1.0, 1.0, 1.0),
-                    get_vector(1.0, 1.0, -1.0),
-                    get_vector(1.0, -1.0, 1.0),
-                    get_vector(1.0, -1.0, -1.0),
-                    get_vector(-1.0, 1.0, 1.0),
-                    get_vector(-1.0, 1.0, -1.0),
-                    get_vector(-1.0, -1.0, 1.0),
-                    get_vector(-1.0, -1.0, -1.0)]
+                  get_vector(1.0, 1.0, -1.0),
+                  get_vector(1.0, -1.0, 1.0),
+                  get_vector(1.0, -1.0, -1.0),
+                  get_vector(-1.0, 1.0, 1.0),
+                  get_vector(-1.0, 1.0, -1.0),
+                  get_vector(-1.0, -1.0, 1.0),
+                  get_vector(-1.0, -1.0, -1.0)]
 
     mesh.normals = [get_vector(0.577, 0.577, 0.577),
                     get_vector(0.577, 0.577, -0.577),
@@ -118,22 +118,22 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
 
     if shader_mats:
         mesh.tangents = [get_vector(0.577, 0.577, 0.577),
-                            get_vector(0.577, 0.577, -0.577),
-                            get_vector(0.577, -0.577, 0.577),
-                            get_vector(0.577, -0.577, -0.577),
-                            get_vector(-0.577, 0.577, 0.577),
-                            get_vector(-0.577, 0.577, -0.577),
-                            get_vector(-0.577, -0.577, 0.577),
-                            get_vector(-0.577, -0.577, -0.577)]
+                         get_vector(0.577, 0.577, -0.577),
+                         get_vector(0.577, -0.577, 0.577),
+                         get_vector(0.577, -0.577, -0.577),
+                         get_vector(-0.577, 0.577, 0.577),
+                         get_vector(-0.577, 0.577, -0.577),
+                         get_vector(-0.577, -0.577, 0.577),
+                         get_vector(-0.577, -0.577, -0.577)]
 
         mesh.bitangents = [get_vector(0.577, 0.577, 0.577),
-                            get_vector(0.577, 0.577, -0.577),
-                            get_vector(0.577, -0.577, 0.577),
-                            get_vector(0.577, -0.577, -0.577),
-                            get_vector(-0.577, 0.577, 0.577),
-                            get_vector(-0.577, 0.577, -0.577),
-                            get_vector(-0.577, -0.577, 0.577),
-                            get_vector(-0.577, -0.577, -0.577)]
+                           get_vector(0.577, 0.577, -0.577),
+                           get_vector(0.577, -0.577, 0.577),
+                           get_vector(0.577, -0.577, -0.577),
+                           get_vector(-0.577, 0.577, 0.577),
+                           get_vector(-0.577, 0.577, -0.577),
+                           get_vector(-0.577, -0.577, 0.577),
+                           get_vector(-0.577, -0.577, -0.577)]
 
     mesh.triangles.append(get_triangle(
         (4, 2, 0), 13, get_vector(0.0, 0.0, 1.0), 0.63))

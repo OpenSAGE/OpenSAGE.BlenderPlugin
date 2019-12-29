@@ -4,6 +4,7 @@
 import unittest
 from mathutils import Vector, Quaternion
 
+
 def get_vector(x=0.0, y=0.0, z=0.0):
     vec = Vector((0, 0, 0))
     vec.x = x
@@ -44,4 +45,3 @@ def compare_quats(self, expected, actual):
     self.assertAlmostEqual(expected.x, actual.x, 1)
     self.assertAlmostEqual(expected.y, actual.y, 1)
     self.assertAlmostEqual(expected.z, actual.z, 1)
-

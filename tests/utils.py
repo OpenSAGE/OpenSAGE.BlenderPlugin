@@ -11,6 +11,7 @@ import tempfile
 
 #import addon_utils
 
+
 def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
 
@@ -27,7 +28,6 @@ class TestCase(unittest.TestCase):
     filepath = os.path.join(__tmp_base, 'out/')
     _reports = []
     report = print
-    
 
     @classmethod
     def relpath(cls, path=None):
@@ -42,7 +42,7 @@ class TestCase(unittest.TestCase):
             os.makedirs(cls.filepath)
         return os.path.join(cls.filepath, path)
 
-    #def loadBlend(self, blend_file):
+    # def loadBlend(self, blend_file):
     #    bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
@@ -61,4 +61,4 @@ class TestCase(unittest.TestCase):
                 os.renames(self.filepath, new_path)
             else:
                 shutil.rmtree(self.filepath)
-        #addon_utils.disable('io_mesh_w3d')
+        # addon_utils.disable('io_mesh_w3d')

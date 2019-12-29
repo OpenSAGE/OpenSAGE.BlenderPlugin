@@ -69,7 +69,8 @@ def compare_texture_stages(self, expected, actual):
         self.assertEqual(len(expected.per_face_tx_coords),
                          len(actual.per_face_tx_coords))
         for i in range(len(expected.per_face_tx_coords)):
-            compare_vectors(self, expected.per_face_tx_coords[i], actual.per_face_tx_coords[i])
+            compare_vectors(
+                self, expected.per_face_tx_coords[i], actual.per_face_tx_coords[i])
 
 
 def get_material_pass(index=0, shader_mat=False, num_stages=1):

@@ -12,6 +12,7 @@ W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 TIME_CODED_FLAVOR = 0
 ADAPTIVE_DELTA_FLAVOR = 1
 
+
 class CompressedAnimationHeader(Struct):
     version = Version()
     name = ""
