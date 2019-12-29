@@ -272,7 +272,16 @@ class Mesh(Struct):
         size += list_size(self.material_passes, False)
         if self.aabbtree is not None:
             size += self.aabbtree.size()
+        if self.prelit_unlit is not None:
+            size += self.prelit_unlit.size()
+        if self.prelit_vertex is not None:
+            size += self.prelit_vertex.size()
+        if self.prelit_lightmap_multi_pass is not None:
+            size += self.prelit_lightmap_multi_pass.size()
+        if self.prelit_lightmap_multi_texture is not None:
+            size += self.prelit_lightmap_multi_texture.size()
         return size
+
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_MESH, io_stream,
@@ -348,6 +357,15 @@ class Mesh(Struct):
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)
+
+        if self.prelit_unlit is not None:
+            self.prelit_unlit.write(io_stream)
+        if self.prelit_vertex is not None:
+            self.prelit_vertex.write(io_stream)
+        if self.prelit_lightmap_multi_pass is not None:
+            self.prelit_lightmap_multi_pass.write(io_stream)
+        if self.prelit_lightmap_multi_texture is not None:
+            self.prelit_lightmap_multi_texture.write(io_stream)
 
 
 ##########################################################################

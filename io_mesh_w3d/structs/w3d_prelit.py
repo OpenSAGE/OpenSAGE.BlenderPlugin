@@ -16,7 +16,6 @@ W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025
 W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 
 
-
 class PrelitBase(Struct):
     type = W3D_CHUNK_PRELIT_UNLIT
 
@@ -33,6 +32,7 @@ class PrelitBase(Struct):
             version=None,
             material_passes=[],
             vert_materials=[],
+            textures=[],
             shaders=[])
 
         while io_stream.tell() < chunk_end:

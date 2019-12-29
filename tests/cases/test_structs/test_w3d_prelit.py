@@ -13,7 +13,7 @@ class TestPrelit(TestCase):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit(type=type)
 
-        self.assertEqual(566, expected.size())
+        self.assertEqual(583, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

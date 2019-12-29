@@ -29,11 +29,11 @@ def compare_vertex_material_infos(self, expected, actual):
     self.assertAlmostEqual(expected.translucency, actual.translucency, 5)
 
 
-def get_vertex_material():
+def get_vertex_material(vm_name="VM_NAME"):
     attrs = USE_DEPTH_CUE | ARGB_EMISSIVE_ONLY | COPY_SPECULAR_TO_DIFFUSE \
         | DEPTH_CUE_TO_ALPHA
     return VertexMaterial(
-        vm_name="VM_NAME",
+        vm_name=vm_name,
         vm_info=get_vertex_material_info(
             attributes=attrs),
         vm_args_0="VM_ARGS0",

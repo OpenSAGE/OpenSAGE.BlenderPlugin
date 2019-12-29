@@ -8,6 +8,7 @@ from io_mesh_w3d.structs.w3d_triangle import Triangle
 from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
 from tests.helpers.w3d_material_pass import *
 from tests.helpers.w3d_material_info import *
+from tests.helpers.w3d_prelit import *
 from tests.helpers.w3d_vertex_material import *
 from tests.helpers.w3d_shader import *
 from tests.helpers.w3d_texture import *
@@ -77,7 +78,7 @@ def get_vertex_influences():
             get_vertex_influence(4, 3, 0.25, 0.75)]
 
 
-def get_mesh(name="meshName", skin=False, shader_mats=False):
+def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
     mesh = Mesh(
         header=get_mesh_header(name, skin, shader_mats),
         user_text="",
@@ -94,7 +95,11 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
         textures=[],
         shader_materials=[],
         material_passes=[],
-        aabbtree=None)
+        aabbtree=None,
+        prelit_unlit=None,
+        prelit_vertex=None,
+        prelit_lightmap_multi_pass=None,
+        prelit_lightmap_multi_texture=None)
 
     mesh.user_text = "TestUserText"
 
@@ -178,6 +183,13 @@ def get_mesh(name="meshName", skin=False, shader_mats=False):
 
         mesh.material_passes.append(
             get_material_pass(index=i, shader_mat=shader_mats))
+
+    if prelit:
+        mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
+        mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
+        mesh.prelit_lightmap_multi_pass = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
+        mesh.prelit_lightmap_multi_texture = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
+
 
     mesh.mat_info = get_material_info()
     mesh.mat_info.pass_count = len(mesh.material_passes)

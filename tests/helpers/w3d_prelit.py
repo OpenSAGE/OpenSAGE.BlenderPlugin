@@ -26,11 +26,23 @@ def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
         shader_count=count,
         texture_count=count)
 
-    for _ in range(count):
+    vm_name = "INVALID_TYPE"
+    if type == W3D_CHUNK_PRELIT_UNLIT:
+        vm_name = "W3D_CHUNK_PRELIT_UNLIT"
+    elif type == W3D_CHUNK_PRELIT_VERTEX:
+        vm_name = "W3D_CHUNK_PRELIT_VERTEX"
+    elif type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
+        vm_name = "W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS"
+    elif type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
+        vm_name = "W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE"
+
+    for i in range(count):
         result.material_passes.append(get_material_pass())
-        result.vert_materials.append(get_vertex_material())
+        name = vm_name + str(i)
+        result.vert_materials.append(get_vertex_material(vm_name = name))
         result.textures.append(get_texture())
         result.shaders.append(get_shader())
+    print(len(result.material_passes))
     return result
 
 
