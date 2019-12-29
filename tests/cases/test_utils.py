@@ -391,6 +391,41 @@ class TestUtils(TestCase):
         for i, expected in enumerate(expecteds):
             compare_meshes(self, expected, actuals[i])
 
+
+    def test_prelit_meshes_roundtrip(self):
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        expecteds = [get_mesh(name="sword", prelit=True)]
+
+        coll = get_collection(hlod)
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        meshes = []
+        for mesh_struct in expecteds:
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
+        for i, mesh_struct in enumerate(expecteds):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        hlod = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(hlod, hierarchy)
+        actuals = retrieve_meshes(
+            self, hierarchy, rig, hlod, "containerName")
+
+        self.assertEqual(len(expecteds), len(actuals))
+        #for i, expected in enumerate(expecteds):
+        #    compare_meshes(self, expected, actuals[i])
+        # prelit roundtrip not supported yet
+        # need a way to reference a material to its prelit chunk
+
+
     def test_animation_roundtrip(self):
         expected = get_animation()
         hlod = get_hlod()

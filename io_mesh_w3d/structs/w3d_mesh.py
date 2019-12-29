@@ -253,6 +253,7 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
+
     def size(self):
         size = self.header.size()
         size += text_size(self.user_text)
@@ -360,10 +361,13 @@ class Mesh(Struct):
 
         if self.prelit_unlit is not None:
             self.prelit_unlit.write(io_stream)
+
         if self.prelit_vertex is not None:
             self.prelit_vertex.write(io_stream)
+
         if self.prelit_lightmap_multi_pass is not None:
             self.prelit_lightmap_multi_pass.write(io_stream)
+
         if self.prelit_lightmap_multi_texture is not None:
             self.prelit_lightmap_multi_texture.write(io_stream)
 

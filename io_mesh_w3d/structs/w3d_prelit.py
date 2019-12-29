@@ -71,7 +71,7 @@ class PrelitBase(Struct):
 
     def write(self, io_stream):
         write_chunk_head(self.type, io_stream,
-                         self.size(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
 
         self.mat_info.write(io_stream)
 

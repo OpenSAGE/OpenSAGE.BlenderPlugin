@@ -21,7 +21,7 @@ class TestPrelit(TestCase):
 
         (chunkType, chunkSize, _) = read_chunk_head(io_stream)
         self.assertEqual(type, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
+        self.assertEqual(expected.size(False), chunkSize)
 
         actual = PrelitBase.read(self, io_stream, chunkSize, type)
         compare_prelits(self, expected, actual)
@@ -39,7 +39,15 @@ class TestPrelit(TestCase):
 
         (chunkType, chunkSize, _) = read_chunk_head(io_stream)
         self.assertEqual(type, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
+        self.assertEqual(expected.size(False), chunkSize)
 
         actual = PrelitBase.read(self, io_stream, chunkSize, type)
         compare_prelits(self, expected, actual)
+
+
+    def test_chunk_size(self):
+        type = W3D_CHUNK_PRELIT_VERTEX
+        expected = get_prelit(type=type)
+
+        self.assertEqual(575, expected.size(False))
+        self.assertEqual(583, expected.size())

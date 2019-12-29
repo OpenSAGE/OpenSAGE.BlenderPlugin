@@ -42,7 +42,6 @@ def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
         result.vert_materials.append(get_vertex_material(vm_name = name))
         result.textures.append(get_texture())
         result.shaders.append(get_shader())
-    print(len(result.material_passes))
     return result
 
 

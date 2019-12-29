@@ -173,16 +173,19 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
 
     mesh.aabbtree = get_aabbtree()
 
+    # TODO: find a cleaner way for creating the material stuff
+    # vertex / shader / prelit
     for i in range(2):
         if shader_mats:
             mesh.shader_materials.append(get_shader_material())
-        else:
+        elif not prelit:
             mesh.shaders.append(get_shader())
             mesh.vert_materials.append(get_vertex_material())
             mesh.textures.append(get_texture())
 
-        mesh.material_passes.append(
-            get_material_pass(index=i, shader_mat=shader_mats))
+        if not prelit:
+            mesh.material_passes.append(
+                get_material_pass(index=i, shader_mat=shader_mats))
 
     if prelit:
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
@@ -190,12 +193,12 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
         mesh.prelit_lightmap_multi_pass = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
         mesh.prelit_lightmap_multi_texture = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
 
-
-    mesh.mat_info = get_material_info()
-    mesh.mat_info.pass_count = len(mesh.material_passes)
-    mesh.mat_info.vert_matl_count = len(mesh.vert_materials)
-    mesh.mat_info.shader_count = len(mesh.shaders)
-    mesh.mat_info.texture_count = len(mesh.textures)
+    if not prelit:
+        mesh.mat_info = get_material_info()
+        mesh.mat_info.pass_count = len(mesh.material_passes)
+        mesh.mat_info.vert_matl_count = len(mesh.vert_materials)
+        mesh.mat_info.shader_count = len(mesh.shaders)
+        mesh.mat_info.texture_count = len(mesh.textures)
 
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
@@ -241,7 +244,11 @@ def get_mesh_minimal():
         textures=[get_texture_minimal()],
         shader_materials=[get_shader_material_minimal()],
         material_passes=[get_material_pass_minimal()],
-        aabbtree=get_aabbtree_minimal())
+        aabbtree=get_aabbtree_minimal(),
+        prelit_unlit=None,
+        prelit_vertex=None,
+        prelit_lightmap_multi_pass=None,
+        prelit_lightmap_multi_texture=None)
 
 
 def get_mesh_empty():
@@ -261,7 +268,11 @@ def get_mesh_empty():
         textures=[],
         shader_materials=[],
         material_passes=[],
-        aabbtree=None)
+        aabbtree=None,
+        prelit_unlit=None,
+        prelit_vertex=None,
+        prelit_lightmap_multi_pass=None,
+        prelit_lightmap_multi_texture=None)
 
 
 def compare_meshes(self, expected, actual):
@@ -326,3 +337,12 @@ def compare_meshes(self, expected, actual):
     for i in range(len(expected.shader_materials)):
         compare_shader_materials(
             self, expected.shader_materials[i], actual.shader_materials[i])
+
+    if expected.prelit_unlit is not None:
+        compare_prelits(self, expected.prelit_unlit, actual.prelit_unlit)
+    if expected.prelit_vertex is not None:
+        compare_prelits(self, expected.prelit_vertex, actual.prelit_vertex)
+    if expected.prelit_lightmap_multi_pass is not None:
+        compare_prelits(self, expected.prelit_lightmap_multi_pass, actual.prelit_lightmap_multi_pass)
+    if expected.prelit_lightmap_multi_texture is not None:
+        compare_prelits(self, expected.prelit_lightmap_multi_texture, actual.prelit_lightmap_multi_texture)
