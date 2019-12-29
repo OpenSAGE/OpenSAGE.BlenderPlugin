@@ -229,16 +229,20 @@ class Mesh(Struct):
                     context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
                 result.prelit_unlit = PrelitBase.read(
-                    context, io_stream, subchunk_end)
+                    context, io_stream, subchunk_end,
+                    chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_VERTEX:
                 result.prelit_vertex = PrelitBase.read(
-                    context, io_stream, subchunk_end)
+                    context, io_stream, subchunk_end,
+                    chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
                 result.prelit_lightmap_multi_pass = PrelitBase.read(
-                    context, io_stream, subchunk_end)
+                    context, io_stream, subchunk_end,
+                    chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
                 result.prelit_lightmap_multi_texture = PrelitBase.read(
-                    context, io_stream, subchunk_end)
+                    context, io_stream, subchunk_end,
+                    chunk_type)
             elif chunk_type == W3D_CHUNK_DEFORM:
                 print("-> deform chunk is not supported")
                 io_stream.seek(chunk_size, 1)
