@@ -41,7 +41,6 @@ class TestObjectImport(TestCase):
         model = ImportWrapper(self.outpath() + "base_skn.w3d")
         load(model, import_settings={})
 
-
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + "output.w3d", "wb")
 
@@ -61,7 +60,6 @@ class TestObjectImport(TestCase):
 
         sut = ImportWrapper(self.outpath() + "output.w3d")
         load(sut, import_settings={})
-
 
     def test_unkown_chunk_skip(self):
         hierarchy_name = "TestHiera_SKL"

@@ -24,7 +24,6 @@ class TestAnimation(TestCase):
         actual = Animation.read(self, io_stream, chunkEnd)
         compare_animations(self, expected, actual)
 
-
     def test_write_read_empty(self):
         expected = get_animation_empty()
 
@@ -42,7 +41,6 @@ class TestAnimation(TestCase):
         actual = Animation.read(self, io_stream, chunkEnd)
         compare_animations(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_ANIMATION, output, 9, has_sub_chunks=True)
@@ -56,7 +54,6 @@ class TestAnimation(TestCase):
         self.assertEqual(W3D_CHUNK_ANIMATION, chunk_type)
 
         Animation.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         ani = get_animation_minimal()

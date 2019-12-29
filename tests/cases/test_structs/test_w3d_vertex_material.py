@@ -24,7 +24,6 @@ class TestVertexMaterial(TestCase):
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
 
-
     def test_write_read_empty(self):
         expected = get_vertex_material_empty()
 
@@ -41,7 +40,6 @@ class TestVertexMaterial(TestCase):
         actual = VertexMaterial.read(self, io_stream, chunkEnd)
         compare_vertex_materials(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_VERTEX_MATERIAL,
@@ -56,7 +54,6 @@ class TestVertexMaterial(TestCase):
         self.assertEqual(W3D_CHUNK_VERTEX_MATERIAL, chunk_type)
 
         VertexMaterial.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         vm = get_vertex_material_minimal()

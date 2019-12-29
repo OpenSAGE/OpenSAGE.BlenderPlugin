@@ -16,7 +16,6 @@ class TestRGBA(TestCase):
 
         self.assertEqual(expected, RGBA.read(io_stream))
 
-
     def test_write_read_f(self):
         expected = RGBA(r=244, g=123, b=33, a=99)
 
@@ -26,17 +25,14 @@ class TestRGBA(TestCase):
 
         self.assertEqual(expected, RGBA.read_f(io_stream))
 
-
     def test_eq_true(self):
         rgba = RGBA(r=244, g=222, b=1, a=0)
         self.assertEqual(rgba, rgba)
-
 
     def test_eq_false(self):
         rgba = RGBA(r=2, g=3, b=0, a=0)
         self.assertNotEqual(rgba, "test")
         self.assertNotEqual(rgba, 1)
-
 
     def test_to_string(self):
         rgba = RGBA(r=244, g=123, b=33, a=99)

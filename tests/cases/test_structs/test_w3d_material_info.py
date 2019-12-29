@@ -24,7 +24,6 @@ class TestMaterialInfo(TestCase):
 
         compare_material_infos(self, expected, actual)
 
-
     def test_chunk_size(self):
         expected = get_material_info()
 

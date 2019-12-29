@@ -3,7 +3,6 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
@@ -69,7 +68,8 @@ class AnimationChannel(Struct):
         if result.vector_len == 1:
             result.data = read_fixed_list(io_stream, num_elements, read_float)
         elif result.vector_len == 4:
-            result.data = read_fixed_list(io_stream, num_elements, read_quaternion)
+            result.data = read_fixed_list(
+                io_stream, num_elements, read_quaternion)
 
         pad_bytes = []
         while io_stream.tell() < chunk_end:
@@ -99,6 +99,7 @@ class AnimationChannel(Struct):
 
 
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
+
 
 class AnimationBitChannel(Struct):
     first_frame = 0
@@ -187,5 +188,5 @@ class Animation(Struct):
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        for channel in self.channels: #combination of animation and animationbit channels
+        for channel in self.channels:  # combination of animation and animationbit channels
             channel.write(io_stream)

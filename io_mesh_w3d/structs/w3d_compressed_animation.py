@@ -3,7 +3,6 @@
 
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_version import Version
-from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
@@ -12,6 +11,7 @@ W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
 
 TIME_CODED_FLAVOR = 0
 ADAPTIVE_DELTA_FLAVOR = 1
+
 
 class CompressedAnimationHeader(Struct):
     version = Version()

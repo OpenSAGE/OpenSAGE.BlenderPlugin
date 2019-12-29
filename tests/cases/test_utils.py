@@ -34,7 +34,6 @@ class TestUtils(TestCase):
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
-
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
 
@@ -47,7 +46,6 @@ class TestUtils(TestCase):
             principled = retrieve_principled_bsdf(material)
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
-
 
     def test_shader_roundtrip(self):
         mesh = get_mesh()
@@ -62,7 +60,6 @@ class TestUtils(TestCase):
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
 
-
     def test_box_roundtrip(self):
         expected = get_box()
         hlod = get_hlod()
@@ -71,7 +68,6 @@ class TestUtils(TestCase):
 
         boxes = retrieve_boxes(hlod, hierarchy)
         compare_boxes(self, expected, boxes[0])
-
 
     def test_hierarchy_roundtrip(self):
         expected = get_hierarchy()
@@ -99,7 +95,6 @@ class TestUtils(TestCase):
         expected.pivot_fixups = []  # not supported
         (actual, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, expected, actual)
-
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -132,14 +127,13 @@ class TestUtils(TestCase):
         retrieve_meshes(self, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
-
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
-        #TODO: simplify this test
+        # TODO: simplify this test
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-        hierarchy.pivots= [get_roottransform()]
+        hierarchy.pivots = [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
@@ -152,8 +146,8 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+            header=get_hlod_array_header(),
+            sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
             bone=3, name="containerName.BOUNDINGBOX"))
@@ -201,14 +195,13 @@ class TestUtils(TestCase):
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
 
-
     def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
-        #TODO: simplify this test
+        # TODO: simplify this test
         hlod = get_hlod(hierarchy_name="containerName")
         box = get_box()
         hierarchy = get_hierarchy("containerName")
         hierarchy.pivot_fixups = []
-        hierarchy.pivots= [get_roottransform()]
+        hierarchy.pivots = [get_roottransform()]
 
         hierarchy.pivots.append(get_hierarchy_pivot("main", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("left", 1))
@@ -219,8 +212,8 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+            header=get_hlod_array_header(),
+            sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
             bone=0, name="containerName.BOUNDINGBOX"))
@@ -271,7 +264,6 @@ class TestUtils(TestCase):
         retrieve_meshes(self, actual_hiera, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
 
-
     def test_bone_is_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
@@ -282,8 +274,8 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+            header=get_hlod_array_header(),
+            sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
             bone=1, name="containerName.V_MAIN"))
@@ -316,7 +308,6 @@ class TestUtils(TestCase):
         actual_hlod = create_hlod("containerName", actual_hiera.header.name)
         retrieve_meshes(self, hierarchy, rig, actual_hlod, "containerName")
         compare_hlods(self, hlod, actual_hlod)
-
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod(hierarchy_name="containerName")
@@ -362,7 +353,6 @@ class TestUtils(TestCase):
 
         self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
 
-
     def test_meshes_roundtrip(self):
         hlod = get_hlod()
         box = get_box()
@@ -400,7 +390,6 @@ class TestUtils(TestCase):
         self.assertEqual(len(expecteds), len(actuals))
         for i, expected in enumerate(expecteds):
             compare_meshes(self, expected, actuals[i])
-
 
     def test_animation_roundtrip(self):
         expected = get_animation()
@@ -449,7 +438,6 @@ class TestUtils(TestCase):
         actual = retrieve_animation(
             expected.header.name, hierarchy, rig, timecoded=False)
         compare_animations(self, expected, actual)
-
 
     def test_compressed_animation_roundtrip(self):
         expected = get_compressed_animation(

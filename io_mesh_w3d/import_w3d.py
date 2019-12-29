@@ -141,7 +141,8 @@ def load(self, import_settings):
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
     create_box(box, hlod, hierarchy, rig, coll)
 
-    for i, mesh_struct in enumerate(mesh_structs):  # need an extra loop because the order of the meshes is random
+    # need an extra loop because the order of the meshes is random
+    for i, mesh_struct in enumerate(mesh_structs):
         rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
     create_animation(rig, animation, hierarchy)

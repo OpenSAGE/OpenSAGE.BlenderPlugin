@@ -18,19 +18,6 @@ from io_mesh_w3d.structs.w3d_vertex_material import *
 from io_mesh_w3d.structs.w3d_animation import *
 
 
-def read_chunk_array(context, io_stream, chunk_end, type_, read_func):
-    result = []
-
-    while io_stream.tell() < chunk_end:
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
-        if chunk_type == type_:
-            result.append(read_func(context, io_stream, subchunk_end))
-        else:
-            skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
-    return result
-
-
 def insensitive_path(path):
      # find the io_stream on unix
     directory = os.path.dirname(path)
@@ -259,7 +246,8 @@ def process_hierarchy(hierarchy, sub_objects, coll):
             continue
 
         if rig is None:
-            (rig, armature) = create_rig(hierarchy.header.name, root.translation, coll)
+            (rig, armature) = create_rig(
+                hierarchy.header.name, root.translation, coll)
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
@@ -375,7 +363,8 @@ def create_principled_bsdf(
         diffuse_tex=None,
         normal_tex=None,
         bump_scale=0):
-    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+    principled = node_shader_utils.PrincipledBSDFWrapper(
+        material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
     if alpha > 0:
@@ -517,21 +506,25 @@ creation_options = {'INSERTKEY_NEEDED'}
 
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
-    bone.keyframe_insert(data_path='location', index=index, frame=frame, options=creation_options)
+    bone.keyframe_insert(data_path='location', index=index,
+                         frame=frame, options=creation_options)
 
 
 def set_rotation(bone, frame, value):
     bone.rotation_quaternion = value
-    bone.keyframe_insert(data_path='rotation_quaternion', frame=frame, options=creation_options)
+    bone.keyframe_insert(data_path='rotation_quaternion',
+                         frame=frame, options=creation_options)
 
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
         bone.bone.hide = value
-        bone.bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
+        bone.bone.keyframe_insert(
+            data_path='hide', frame=frame, options=creation_options)
     else:
         bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
+        bone.keyframe_insert(data_path='hide_viewport',
+                             frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

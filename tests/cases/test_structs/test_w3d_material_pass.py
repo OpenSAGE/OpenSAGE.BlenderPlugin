@@ -23,7 +23,6 @@ class TestMaterialPass(TestCase):
         actual = MaterialPass.read(self, io_stream, chunkEnd)
         compare_material_passes(self, expected, actual)
 
-
     def test_write_read_empty(self):
         expected = get_material_pass_empty()
 
@@ -40,7 +39,6 @@ class TestMaterialPass(TestCase):
         actual = MaterialPass.read(self, io_stream, chunkEnd)
         compare_material_passes(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MATERIAL_PASS,
@@ -55,7 +53,6 @@ class TestMaterialPass(TestCase):
         self.assertEqual(W3D_CHUNK_MATERIAL_PASS, chunk_type)
 
         MaterialPass.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         mpass = get_material_pass_minimal()
@@ -93,7 +90,6 @@ class TestTextureStage(TestCase):
         actual = TextureStage.read(self, io_stream, chunkEnd)
         compare_texture_stages(self, expected, actual)
 
-
     def test_write_read_empty(self):
         expected = get_texture_stage_empty()
 
@@ -110,7 +106,6 @@ class TestTextureStage(TestCase):
         actual = TextureStage.read(self, io_stream, chunkEnd)
         compare_texture_stages(self, expected, actual)
 
-
     def test_unsupported_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_TEXTURE_STAGE,
@@ -125,7 +120,6 @@ class TestTextureStage(TestCase):
         self.assertEqual(W3D_CHUNK_TEXTURE_STAGE, chunk_type)
 
         TextureStage.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         stage = get_texture_stage_minimal()

@@ -4,9 +4,7 @@
 from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.structs.w3d_rgba import RGBA
 from io_mesh_w3d.io_binary import *
-from io_mesh_w3d.import_utils_w3d import skip_unknown_chunk
 from io_mesh_w3d.utils import *
-
 
 W3D_CHUNK_TEXTURE_STAGE = 0x00000048
 W3D_CHUNK_TEXTURE_IDS = 0x00000049

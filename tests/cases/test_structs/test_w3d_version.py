@@ -16,11 +16,9 @@ class TestVersion(TestCase):
 
         self.assertEqual(expected, Version.read(io_stream))
 
-
     def test_eq_true(self):
         ver = Version(major=3, minor=1)
         self.assertEqual(ver, ver)
-
 
     def test_eq_false(self):
         ver = Version(major=4, minor=2)

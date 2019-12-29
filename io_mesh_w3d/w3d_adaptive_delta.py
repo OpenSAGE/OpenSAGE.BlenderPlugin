@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import math
-from mathutils import Quaternion
+
 
 def fill_with_exponents_of_10(table):
     for i in range(16):
@@ -91,7 +91,8 @@ def decode(channel):
                 break
 
             if channel.type == 6:
-                index = (delta_block.vector_index + 1) % 4 # shift from wxyz to xyzw
+                # shift from wxyz to xyzw
+                index = (delta_block.vector_index + 1) % 4
                 value = result[idx - 1][index] + deltaScale * delta
                 if result[idx] is None:
                     result[idx] = result[idx - 1].copy()
@@ -106,9 +107,9 @@ def encode(channel, num_bits):
     if num_bits == 8:
         scaleFactor /= 16.0
 
-    scale = 0.07435 # how to get this ???
+    scale = 0.07435  # how to get this ???
 
-    num_time_codes = len(channel.data) - 1 # minus initial value
+    num_time_codes = len(channel.data) - 1  # minus initial value
     num_delta_blocks = int(num_time_codes / 16) + 1
     deltas = [0x00] * (num_delta_blocks * 16)
 
@@ -119,7 +120,7 @@ def encode(channel, num_bits):
             default_value = value
             continue
 
-        block_index = 33 # how to get this one?
+        block_index = 33  # how to get this one?
 
         old = default_value
         if i > 1:

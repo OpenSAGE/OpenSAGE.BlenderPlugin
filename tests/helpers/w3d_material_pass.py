@@ -5,31 +5,32 @@ import unittest
 
 from io_mesh_w3d.structs.w3d_material_pass import *
 from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
+from tests.helpers.mathutils import *
 
 
 def get_uvs():
     uvs = []
-    uvs.append(Vector((0.0, 0.1)))
-    uvs.append(Vector((0.0, 0.4)))
-    uvs.append(Vector((1.0, 0.6)))
-    uvs.append(Vector((0.3, 0.1)))
-    uvs.append(Vector((0.2, 0.2)))
-    uvs.append(Vector((0.6, 0.6)))
-    uvs.append(Vector((0.1, 0.8)))
-    uvs.append(Vector((0.7, 0.7)))
+    uvs.append(get_vector2(0.0, 0.1))
+    uvs.append(get_vector2(0.0, 0.4))
+    uvs.append(get_vector2(1.0, 0.6))
+    uvs.append(get_vector2(0.3, 0.1))
+    uvs.append(get_vector2(0.2, 0.2))
+    uvs.append(get_vector2(0.6, 0.6))
+    uvs.append(get_vector2(0.1, 0.8))
+    uvs.append(get_vector2(0.7, 0.7))
     return uvs
 
 
 def get_per_face_txcoords():
     tx_coords = []
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
-    tx_coords.append(Vector((1.0, 0.0, -1.0)))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
+    tx_coords.append(get_vector(1.0, 0.0, -1.0))
     return tx_coords
 
 
@@ -43,8 +44,8 @@ def get_texture_stage(index=0):
 def get_texture_stage_minimal():
     return TextureStage(
         tx_ids=[0],
-        per_face_tx_coords=[Vector()],
-        tx_coords=[Vector()])
+        per_face_tx_coords=[get_vector()],
+        tx_coords=[get_vector()])
 
 
 def get_texture_stage_empty():
@@ -62,27 +63,14 @@ def compare_texture_stages(self, expected, actual):
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
     for i in range(len(expected.tx_coords)):
-        self.assertAlmostEqual(
-            expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
-        self.assertAlmostEqual(
-            expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
+        compare_vectors2(self, expected.tx_coords[i], actual.tx_coords[i])
 
     if actual.per_face_tx_coords:  # roundtrip not yet supported
         self.assertEqual(len(expected.per_face_tx_coords),
                          len(actual.per_face_tx_coords))
         for i in range(len(expected.per_face_tx_coords)):
-            self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][0],
-                actual.per_face_tx_coords[i][0],
-                5)
-            self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][1],
-                actual.per_face_tx_coords[i][1],
-                5)
-            self.assertAlmostEqual(
-                expected.per_face_tx_coords[i][2],
-                actual.per_face_tx_coords[i][2],
-                5)
+            compare_vectors(
+                self, expected.per_face_tx_coords[i], actual.per_face_tx_coords[i])
 
 
 def get_material_pass(index=0, shader_mat=False, num_stages=1):
@@ -122,7 +110,7 @@ def get_material_pass_minimal():
         scg=[get_rgba()],
         shader_material_ids=[0],
         tx_stages=[get_texture_stage()],
-        tx_coords=[Vector()])
+        tx_coords=[get_vector()])
 
 
 def get_material_pass_empty():
@@ -160,10 +148,7 @@ def compare_material_passes(self, expected, actual):
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
     for i in range(len(expected.tx_coords)):
-        self.assertAlmostEqual(
-            expected.tx_coords[i][0], actual.tx_coords[i][0], 5)
-        self.assertAlmostEqual(
-            expected.tx_coords[i][1], actual.tx_coords[i][1], 5)
+        compare_vectors2(self, expected.tx_coords[i], actual.tx_coords[i])
 
     self.assertEqual(len(expected.tx_stages), len(actual.tx_stages))
     for i in range(len(expected.tx_stages)):
