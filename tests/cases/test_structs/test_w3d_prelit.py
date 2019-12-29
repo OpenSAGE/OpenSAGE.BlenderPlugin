@@ -3,17 +3,17 @@
 
 import unittest
 import io
-from tests.utils import W3dTestCase
+from tests.utils import TestCase
 from io_mesh_w3d.io_binary import read_chunk_head
 from tests.helpers.w3d_prelit import *
 
 
-class TestPrelit(W3dTestCase):
+class TestPrelit(TestCase):
     def test_write_read(self):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit(type=type)
 
-        self.assertEqual(68, expected.size())
+        self.assertEqual(566, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -27,7 +27,7 @@ class TestPrelit(W3dTestCase):
         compare_prelits(self, expected, actual)
 
 
-    def test_write_read(self):
+    def test_write_read_minimal(self):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit_minimal(type=type)
 
