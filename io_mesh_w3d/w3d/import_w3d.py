@@ -37,6 +37,8 @@ def load_file(context, path, data_context):
             data_context.hlod = HLod.read(context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
+        elif chunk_type == W3D_CHUNK_DAZZLE:
+            dazzles.append(Dazzle.read(self, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)
@@ -66,9 +68,6 @@ def load_file(context, path, data_context):
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LIGHTSCAPE:
             print("-> lightscape chunk is not supported")
-            file.seek(chunk_size, 1)
-        elif chunk_type == W3D_CHUNK_DAZZLE:
-            print("-> dazzle chunk is not supported")
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_SOUNDROBJ:
             print("-> soundobj chunk is not supported")
@@ -146,5 +145,4 @@ W3D_CHUNK_EMITTER = 0x00000500
 W3D_CHUNK_AGGREGATE = 0x00000600
 W3D_CHUNK_NULL_OBJECT = 0x00000750
 W3D_CHUNK_LIGHTSCAPE = 0x00000800
-W3D_CHUNK_DAZZLE = 0x00000900
 W3D_CHUNK_SOUNDROBJ = 0x00000A00

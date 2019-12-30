@@ -50,7 +50,6 @@ class TestObjectImport(TestCase):
         write_chunk_head(W3D_CHUNK_AGGREGATE, output, 0)
         write_chunk_head(W3D_CHUNK_NULL_OBJECT, output, 0)
         write_chunk_head(W3D_CHUNK_LIGHTSCAPE, output, 0)
-        write_chunk_head(W3D_CHUNK_DAZZLE, output, 0)
         write_chunk_head(W3D_CHUNK_SOUNDROBJ, output, 0)
         output.close()
 

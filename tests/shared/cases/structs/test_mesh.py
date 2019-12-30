@@ -129,6 +129,7 @@ class TestMesh(TestCase):
             self.assertEqual(hex(chunk), hex(chunk_type))
             io_stream.seek(chunk_size, 1)
 
+
     def test_unsupported_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 54, has_sub_chunks=True)
@@ -155,6 +156,7 @@ class TestMesh(TestCase):
 
         Mesh.read(self, io_stream, subchunk_end)
 
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 9, has_sub_chunks=True)
@@ -168,6 +170,7 @@ class TestMesh(TestCase):
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
         Mesh.read(self, io_stream, subchunk_end)
+
 
     def test_chunk_sizes(self):
         mesh = get_mesh_minimal()
