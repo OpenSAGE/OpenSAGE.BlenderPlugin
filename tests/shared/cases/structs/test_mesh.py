@@ -25,6 +25,7 @@ class TestMesh(TestCase):
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
+
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
