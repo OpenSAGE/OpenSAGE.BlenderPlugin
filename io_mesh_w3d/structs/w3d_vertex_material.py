@@ -8,6 +8,7 @@ from io_mesh_w3d.utils import *
 from io_mesh_w3d.utils import skip_unknown_chunk
 
 
+W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D
 
 USE_DEPTH_CUE = 0x1

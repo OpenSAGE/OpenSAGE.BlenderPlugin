@@ -5,7 +5,7 @@ from io_mesh_w3d.structs.struct import Struct, HEAD
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
-
+W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_TEXTURE_INFO = 0x00000033
 
 

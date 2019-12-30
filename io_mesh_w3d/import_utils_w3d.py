@@ -57,7 +57,6 @@ def get_collection(hlod):
 # mesh
 ##########################################################################
 
-
 def create_mesh(self, mesh_struct, hierarchy, coll):
     triangles = []
 
@@ -89,20 +88,30 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
         mesh.materials.append(material)
         principleds.append(principled)
 
-    for vertMat in mesh_struct.vert_materials:
+    vert_materials = mesh_struct.vert_materials
+    material_passes = mesh_struct.material_passes
+    textures = mesh_struct.textures
+
+    # When this mesh is using prelit materials use that version
+    if mesh_struct.has_prelit_vertex():
+        vert_materials = mesh_struct.prelit_vertex.vert_materials
+        material_passes = mesh_struct.prelit_vertex.material_passes
+        textures = mesh_struct.prelit_vertex.textures
+
+    for vertMat in vert_materials:
         (material, principled) = create_material_from_vertex_material(
             self, mesh_struct, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
-    for mat_pass in mesh_struct.material_passes:
+    for mat_pass in material_passes:
         create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
-            texture = mesh_struct.textures[tex_id]
+            texture = textures[tex_id]
             tex = load_texture(self, texture.name)
             if tex is not None:
                 principleds[mat_id].base_color_texture.image = tex
@@ -534,6 +543,19 @@ def set_keyframe(bone, channel, frame, value):
         set_translation(bone, channel.type, frame, value)
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
+
+
+def set_visibility(bone, frame, value):
+    try:
+        bone.hide_viewport = value
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame)
+    except:
+        try:
+            bone.bone.hide = value
+            bone.bone.keyframe_insert(data_path='hide', frame=frame)
+        except:
+            print("Warning: " + str(bone.name) +
+                  " does not support visibility bit channels")
 
 
 def apply_timecoded(bone, channel, _):

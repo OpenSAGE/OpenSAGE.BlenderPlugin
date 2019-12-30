@@ -45,6 +45,16 @@ class TestImportUtils(TestCase):
 
         create_mesh(self, mesh, None, bpy.context.collection)
 
+
+    def test_prelit_mesh_import(self):
+        mesh = get_mesh(prelit = True)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_mesh(self, mesh, None, bpy.context.collection)
+
+
     def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()

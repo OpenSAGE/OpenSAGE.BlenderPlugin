@@ -131,3 +131,46 @@ class TestRoundtrip(TestCase):
         export_settings['w3d_mode'] = "HAM"
         context = ImportWrapper(self.outpath() + "output.w3d")
         save(context, export_settings)
+
+
+    def test_roundtrip_prelit(self):
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [get_mesh(name="sword", prelit=True),
+                  get_mesh(name="soldier", skin=True),
+                  get_mesh(name="shield", prelit=True)]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        # write to file
+        skn = open(self.outpath() + "base_skn.w3d", "wb")
+        for mesh in meshes:
+            mesh.write(skn)
+        hlod.write(skn)
+        skn.close()
+
+        skl = open(self.outpath() + hierarchy_name + ".w3d", "wb")
+        hierarchy.write(skl)
+        skl.close()
+
+        # import
+        model = ImportWrapper(self.outpath() + "base_skn.w3d")
+        load(model, import_settings={})
+
+        # check created objects
+        self.assertTrue("TestHiera_SKL" in bpy.data.objects)
+        self.assertTrue("TestHiera_SKL" in bpy.data.armatures)
+        amt = bpy.data.armatures["TestHiera_SKL"]
+        self.assertEqual(5, len(amt.bones))
+
+        self.assertTrue("sword" in bpy.data.objects)
+        self.assertTrue("soldier" in bpy.data.objects)
+        self.assertTrue("shield" in bpy.data.objects)
+
+        # export
+        context = ImportWrapper(self.outpath() + "output_skn.w3d")
+        export_settings = {}
+        export_settings['w3d_mode'] = "M"
+        save(context, export_settings)
