@@ -145,12 +145,12 @@ class TestImportUtils(TestCase):
 
         hierarchy = get_hierarchy()
         pivot = HierarchyPivot(
-            name="mesh",
+            name="MESH",
             parent_id=0)
 
         hierarchy.pivots = [get_roottransform(), pivot]
 
-        mesh_structs = [get_mesh(name="mesh")]
+        mesh_structs = [get_mesh(name="MESH")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -171,7 +171,7 @@ class TestImportUtils(TestCase):
 
         create_animation(rig, animation, hierarchy, compressed=True)
 
-        obj = bpy.data.objects['mesh']
+        obj = bpy.data.objects['MESH']
         for fcu in obj.animation_data.action.fcurves:
             self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
             for i, keyframe in enumerate(fcu.keyframe_points):

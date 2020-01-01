@@ -507,8 +507,7 @@ def retrieve_hierarchy(container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.vertex_groups \
                 or mesh_object.name in bounding_box_names \
-                or mesh_object.name in pick_plane_names \
-                or "V_" in mesh_object.name:
+                or mesh_object.name in pick_plane_names:
             continue
 
         eulers = mesh_object.rotation_quaternion.to_euler()
@@ -519,12 +518,19 @@ def retrieve_hierarchy(container_name):
             rotation=mesh_object.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
-        if mesh_object.parent_bone is not None and mesh_object.parent_bone is not "":
+        print(pivot.name)
+        print("-" + mesh_object.parent_bone + "-")
+        print(mesh_object.parent_bone is None)
+        print(mesh_object.parent_bone == "")
+        if mesh_object.parent_bone != "":
             pivot.parent_id = mesh_object.parent_bone
-        elif mesh_object.parent is not None:
+            print("parent bone is not none")
+
+        if mesh_object.parent is not None:
             pivot.parent_id = mesh_object.parent.name
 
         pivots.append(pivot)
+        print("added: " + pivot.name)
 
     processed = []
     for pivot in pivots:

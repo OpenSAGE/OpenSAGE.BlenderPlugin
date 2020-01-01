@@ -22,7 +22,7 @@ class TestObjectImport(TestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="BAT_SHIELD")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
 
@@ -67,7 +67,7 @@ class TestObjectImport(TestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="BAT_SHIELD")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
 

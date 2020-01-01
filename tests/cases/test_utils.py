@@ -70,12 +70,13 @@ class TestUtils(TestCase):
         compare_boxes(self, expected, boxes[0])
 
     def test_hierarchy_roundtrip(self):
+        print("#####################  hierarchy test")
         expected = get_hierarchy()
         hlod = get_hlod()
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="BAT_SHIELD"),
             get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
@@ -94,6 +95,9 @@ class TestUtils(TestCase):
 
         expected.pivot_fixups = []  # not supported
         (actual, rig) = retrieve_hierarchy("containerName")
+
+        for pivot in actual.pivots:
+            print(pivot.name)
         compare_hierarchies(self, expected, actual)
 
     def test_hlod_roundtrip(self):
@@ -104,7 +108,7 @@ class TestUtils(TestCase):
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="BAT_SHIELD"),
             get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
@@ -139,7 +143,7 @@ class TestUtils(TestCase):
         hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
         hierarchy.pivots.append(get_hierarchy_pivot("shoulderl", 2))
         hierarchy.pivots.append(get_hierarchy_pivot("arml", 3))
-        hierarchy.pivots.append(get_hierarchy_pivot("shield", 4))
+        hierarchy.pivots.append(get_hierarchy_pivot("BAT_SHIELD", 4))
         hierarchy.pivots.append(get_hierarchy_pivot("armr", 3))
         hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
 
@@ -156,7 +160,7 @@ class TestUtils(TestCase):
         array.sub_objects.append(get_hlod_sub_object(
             bone=0, name="containerName.soldier"))
         array.sub_objects.append(get_hlod_sub_object(
-            bone=5, name="containerName.shield"))
+            bone=5, name="containerName.BAT_SHIELD"))
         array.sub_objects.append(get_hlod_sub_object(
             bone=0, name="containerName.PICK"))
 
@@ -167,7 +171,7 @@ class TestUtils(TestCase):
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="BAT_SHIELD"),
             get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
@@ -360,7 +364,7 @@ class TestUtils(TestCase):
         expecteds = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield", shader_mats=True),
+            get_mesh(name="BAT_SHIELD", shader_mats=True),
             get_mesh(name="pike")]
 
         coll = get_collection(hlod)
@@ -436,7 +440,7 @@ class TestUtils(TestCase):
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="BAT_SHIELD"),
             get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
@@ -489,7 +493,7 @@ class TestUtils(TestCase):
         mesh_structs = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="BAT_SHIELD"),
             get_mesh(name="PICK")]
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
