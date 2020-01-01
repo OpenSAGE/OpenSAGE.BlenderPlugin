@@ -103,8 +103,7 @@ def get_animation(hierarchy_name="TestHierarchy"):
                   get_animation_channel(type=2, pivot=3),
                   get_animation_channel(type=6, pivot=3),
 
-                  get_animation_bit_channel(pivot=5),
-                  get_animation_bit_channel(pivot=7)])
+                  get_animation_bit_channel(pivot=6)])
 
 
 def get_animation_minimal():

@@ -20,9 +20,9 @@ class TestObjectImport(TestCase):
     def test_import_no_skeleton_file(self):
         hierarchy_name = "TestHiera_SKL"
         meshes = [
-            get_mesh(name="sword"),
+            get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="BAT_SHIELD")]
+            get_mesh(name="TRUNK")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
 
@@ -65,9 +65,9 @@ class TestObjectImport(TestCase):
         hierarchy_name = "TestHiera_SKL"
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name="sword"),
+            get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="BAT_SHIELD")]
+            get_mesh(name="TRUNK")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
 

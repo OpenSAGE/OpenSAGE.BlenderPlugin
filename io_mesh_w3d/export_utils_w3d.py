@@ -518,19 +518,13 @@ def retrieve_hierarchy(container_name):
             rotation=mesh_object.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
-        print(pivot.name)
-        print("-" + mesh_object.parent_bone + "-")
-        print(mesh_object.parent_bone is None)
-        print(mesh_object.parent_bone == "")
         if mesh_object.parent_bone != "":
             pivot.parent_id = mesh_object.parent_bone
-            print("parent bone is not none")
 
-        if mesh_object.parent is not None:
+        elif mesh_object.parent is not None:
             pivot.parent_id = mesh_object.parent.name
 
         pivots.append(pivot)
-        print("added: " + pivot.name)
 
     processed = []
     for pivot in pivots:
