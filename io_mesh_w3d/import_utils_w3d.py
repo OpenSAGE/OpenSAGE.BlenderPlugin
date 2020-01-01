@@ -16,6 +16,7 @@ from io_mesh_w3d.w3d_adaptive_delta import decode
 
 from io_mesh_w3d.structs.w3d_vertex_material import *
 from io_mesh_w3d.structs.w3d_animation import *
+from io_mesh_w3d.structs.w3d_mesh import *
 
 
 def insensitive_path(path):
@@ -237,12 +238,6 @@ def process_hierarchy(hierarchy, sub_objects, coll):
         if pivot.name == sub_obj_name:
             pivot.is_bone = False
 
-    for i, pivot in enumerate(hierarchy.pivots):
-        childs = [child for child in hierarchy.pivots if child.parent_id == i]
-        for child in childs:
-            if child.is_bone:
-                pivot.is_bone = True
-
     armature = None
     for pivot in hierarchy.pivots:
         if pivot.parent_id == -1 or not pivot.is_bone:
@@ -253,7 +248,6 @@ def process_hierarchy(hierarchy, sub_objects, coll):
                 hierarchy.header.name, root.translation, coll)
 
         bone = armature.edit_bones.new(pivot.name)
-        print("created: " + pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parent_id > 0:
