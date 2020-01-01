@@ -46,10 +46,9 @@ class TestMesh(TestCase):
 
 
     def test_write_read_prelit(self):
-        print("###################          Prelit test")
         expected = get_mesh(prelit=True)
 
-        #self.assertEqual(5488, expected.size())
+        self.assertEqual(5488, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

@@ -22,7 +22,7 @@ class TestRoundtrip(TestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="BAT_SHIELD")]
         hlod = get_hlod("TestModelName", hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
@@ -64,11 +64,11 @@ class TestRoundtrip(TestCase):
         self.assertTrue("TestHiera_SKL" in bpy.data.objects)
         self.assertTrue("TestHiera_SKL" in bpy.data.armatures)
         amt = bpy.data.armatures["TestHiera_SKL"]
-        self.assertEqual(5, len(amt.bones))
+        self.assertEqual(6, len(amt.bones))
 
         self.assertTrue("sword" in bpy.data.objects)
         self.assertTrue("soldier" in bpy.data.objects)
-        self.assertTrue("shield" in bpy.data.objects)
+        self.assertTrue("BAT_SHIELD" in bpy.data.objects)
 
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
@@ -96,7 +96,7 @@ class TestRoundtrip(TestCase):
         meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield")]
+            get_mesh(name="BAT_SHIELD")]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         box = get_box()
         animation = get_animation(hierarchy_name)
@@ -120,11 +120,11 @@ class TestRoundtrip(TestCase):
         # check created objects
         self.assertTrue("TestName" in bpy.data.armatures)
         amt = bpy.data.armatures["TestName"]
-        self.assertEqual(5, len(amt.bones))
+        self.assertEqual(6, len(amt.bones))
 
         self.assertTrue("sword" in bpy.data.objects)
         self.assertTrue("soldier" in bpy.data.objects)
-        self.assertTrue("shield" in bpy.data.objects)
+        self.assertTrue("BAT_SHIELD" in bpy.data.objects)
 
         # export
         export_settings = {}
@@ -138,7 +138,7 @@ class TestRoundtrip(TestCase):
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [get_mesh(name="sword", prelit=True),
                   get_mesh(name="soldier", skin=True),
-                  get_mesh(name="shield", prelit=True)]
+                  get_mesh(name="BAT_SHIELD", prelit=True)]
         hlod = get_hlod("TestModelName", hierarchy_name)
 
         copyfile(self.relpath() + "/testfiles/texture.dds",
@@ -163,11 +163,11 @@ class TestRoundtrip(TestCase):
         self.assertTrue("TestHiera_SKL" in bpy.data.objects)
         self.assertTrue("TestHiera_SKL" in bpy.data.armatures)
         amt = bpy.data.armatures["TestHiera_SKL"]
-        self.assertEqual(5, len(amt.bones))
+        self.assertEqual(6, len(amt.bones))
 
         self.assertTrue("sword" in bpy.data.objects)
         self.assertTrue("soldier" in bpy.data.objects)
-        self.assertTrue("shield" in bpy.data.objects)
+        self.assertTrue("BAT_SHIELD" in bpy.data.objects)
 
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")

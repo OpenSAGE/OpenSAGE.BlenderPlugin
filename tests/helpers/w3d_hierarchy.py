@@ -62,10 +62,10 @@ def get_hierarchy(name="TestHierarchy"):
     hierarchy.pivots.append(get_roottransform())
     hierarchy.pivot_fixups.append(get_vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
+    hierarchy.pivots.append(get_hierarchy_pivot("b_waist", 0))
     hierarchy.pivot_fixups.append(get_vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
+    hierarchy.pivots.append(get_hierarchy_pivot("b_hip", 1))
     hierarchy.pivot_fixups.append(get_vector())
 
     hierarchy.pivots.append(get_hierarchy_pivot("shoulderl", 2))
@@ -74,13 +74,13 @@ def get_hierarchy(name="TestHierarchy"):
     hierarchy.pivots.append(get_hierarchy_pivot("arml", 3))
     hierarchy.pivot_fixups.append(get_vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("shield", 4))
-    hierarchy.pivot_fixups.append(get_vector())
-
     hierarchy.pivots.append(get_hierarchy_pivot("armr", 3))
     hierarchy.pivot_fixups.append(get_vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
+    hierarchy.pivots.append(get_hierarchy_pivot("B_SWORD", 0))
+    hierarchy.pivot_fixups.append(get_vector())
+
+    hierarchy.pivots.append(get_hierarchy_pivot("BAT_SHIELD", 0))
     hierarchy.pivot_fixups.append(get_vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)

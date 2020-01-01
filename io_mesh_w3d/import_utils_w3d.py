@@ -162,17 +162,10 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
         sub_objects = [
             sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
         if not sub_objects:
-            pivot_list = [
-                pivot for pivot in hierarchy.pivots if pivot.name == mesh_name]
-            if not pivot_list:
-                return
-            pivot = pivot_list[0]
+            return
         else:
             sub_object = sub_objects[0]
             pivot = hierarchy.pivots[sub_object.bone_index]
-
-        if pivot is None:
-            return
 
         mesh_ob.rotation_mode = 'QUATERNION'
         mesh_ob.delta_location = pivot.translation
@@ -238,11 +231,12 @@ def process_hierarchy(hierarchy, sub_objects, coll):
 
     for obj in sub_objects:
         pivot = hierarchy.pivots[obj.bone_index]
-        # BAT -> BoneArmatureTree ? replaced B in later games?
-        if not pivot.name.startswith("B_") and not pivot.name.startswith("BAT_"):
+        sub_obj_name = obj.name
+        if '.' in obj.name:
+            sub_obj_name = obj.name.split('.')[1]
+        if pivot.name == sub_obj_name:
             pivot.is_bone = False
 
-    non_bone_pivots = []
     for i, pivot in enumerate(hierarchy.pivots):
         childs = [child for child in hierarchy.pivots if child.parent_id == i]
         for child in childs:
@@ -259,6 +253,7 @@ def process_hierarchy(hierarchy, sub_objects, coll):
                 hierarchy.header.name, root.translation, coll)
 
         bone = armature.edit_bones.new(pivot.name)
+        print("created: " + pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
         if pivot.parent_id > 0:
