@@ -96,7 +96,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
-        from . import export_w3d
+        from w3d.export import save
 
         if self.will_save_settings:
             self.save_settings(context)
@@ -107,7 +107,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['w3d_mode'] = self.export_mode
         export_settings['w3d_compression'] = self.animation_compression
 
-        return export_w3d.save(self, export_settings)
+        return save(self, export_settings)
 
     def draw(self, _context):
         self.draw_general_settings()
@@ -133,11 +133,11 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     def execute(self, context):
-        from . import import_w3d
+        from w3d.import_w3d import load
 
         import_settings = {}
 
-        import_w3d.load(self, import_settings)
+        load(self, import_settings)
 
         print('finished')
         return {'FINISHED'}

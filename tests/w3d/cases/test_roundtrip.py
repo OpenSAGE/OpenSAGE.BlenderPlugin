@@ -13,8 +13,8 @@ from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
 from tests.w3d.helpers.box import get_box
 
-from io_mesh_w3d.export_w3d import save
-from io_mesh_w3d.import_w3d import load
+from io_mesh_w3d.w3d.export_w3d import save
+from io_mesh_w3d.w3d.import_w3d import load
 
 
 class TestRoundtrip(TestCase):

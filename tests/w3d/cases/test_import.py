@@ -4,7 +4,7 @@
 from shutil import copyfile
 
 import bpy
-from io_mesh_w3d.import_w3d import *
+from io_mesh_w3d.w3d.import_w3d import *
 from io_mesh_w3d.w3d.io_binary import *
 from tests.utils import *
 from tests.w3d.helpers.mesh import get_mesh
