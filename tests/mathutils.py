@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Vector, Quaternion
+from mathutils import Vector, Quaternion, Matrix
 
 
 def get_vector(x=0.0, y=0.0, z=0.0):
