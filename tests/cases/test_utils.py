@@ -343,3 +343,61 @@ class TestUtils(TestCase):
         actual = retrieve_animation(
             "containerName", hierarchy, rig, timecoded=True)
         compare_compressed_animations(self, expected, actual)
+
+    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
+        hlod = get_hlod()
+        box = get_box()
+        hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
+        hierarchy.pivots = [get_roottransform()]
+
+        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot", 0))
+        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot2", 1))
+        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot4", 2))
+        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot3", 1))
+
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        array = HLodArray(
+            header=get_hlod_array_header(),
+            sub_objects=[])
+
+        array.sub_objects.append(get_hlod_sub_object(
+            bone=0, name="containerName.BOUNDINGBOX"))
+        array.sub_objects.append(get_hlod_sub_object(
+            bone=0, name="containerName.mesh"))
+        array.sub_objects.append(get_hlod_sub_object(
+            bone=1, name="containerName.bone_pivot"))
+
+        array.header.model_count = len(array.sub_objects)
+        hlod.lod_array = array
+        mesh_structs = [
+            get_mesh(name="mesh", skin=True),
+            get_mesh(name="bone_pivot")]
+
+        copyfile(self.relpath() + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        coll = get_collection(hlod)
+        meshes = []
+
+        for mesh_struct in mesh_structs:
+            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_box(box, hlod, hierarchy, rig, coll)
+        self.assertEqual(4, len(rig.data.bones))
+
+        for i, mesh_struct in enumerate(mesh_structs):
+            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+
+        actual_hlod = create_hlod("containerName", hierarchy.header.name)
+        retrieve_boxes(actual_hlod, hierarchy)
+
+        retrieve_meshes(self, hierarchy, rig, actual_hlod, "containerName")
+
+        for sub in actual_hlod.lod_array.sub_objects:
+            print(sub.name)
+        compare_hlods(self, hlod, actual_hlod)
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        compare_hierarchies(self, hierarchy, actual_hiera)
