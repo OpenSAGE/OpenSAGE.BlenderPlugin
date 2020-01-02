@@ -13,7 +13,6 @@ from io_mesh_w3d.structs.w3d_vertex_influence import *
 from io_mesh_w3d.structs.w3d_shader_material import *
 from io_mesh_w3d.structs.w3d_texture import *
 from io_mesh_w3d.structs.w3d_prelit import *
-from io_mesh_w3d.import_utils_w3d import *
 from io_mesh_w3d.io_binary import *
 from io_mesh_w3d.utils import *
 
