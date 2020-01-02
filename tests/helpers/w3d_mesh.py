@@ -4,8 +4,6 @@
 import unittest
 
 from io_mesh_w3d.structs.w3d_mesh import *
-from io_mesh_w3d.structs.w3d_triangle import Triangle
-from io_mesh_w3d.structs.w3d_vertex_influence import VertexInfluence
 from tests.helpers.w3d_material_pass import *
 from tests.helpers.w3d_material_info import *
 from tests.helpers.w3d_prelit import *
