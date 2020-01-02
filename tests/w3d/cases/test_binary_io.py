@@ -3,8 +3,8 @@
 
 import io
 import struct
-from io_mesh_w3d.io_binary import *
-from tests.helpers.mathutils import *
+from io_mesh_w3d.w3d.io_binary import *
+from tests.mathutils import *
 from tests.utils import TestCase
 
 

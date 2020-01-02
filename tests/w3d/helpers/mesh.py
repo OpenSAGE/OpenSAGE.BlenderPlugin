@@ -16,6 +16,7 @@ from tests.w3d.helpers.mesh_structs.texture import *
 from tests.w3d.helpers.mesh_structs.shader_material import *
 from tests.w3d.helpers.mesh_structs.aabbtree import *
 from tests.w3d.helpers.mesh_structs.vertex_influence import *
+from tests.w3d.helpers.mesh_structs.prelit import *
 
 
 def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
@@ -139,29 +140,29 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
                            get_vector(-0.577, -0.577, -0.577)]
 
     mesh.triangles.append(get_triangle(
-        (4, 2, 0), 13, get_vector(0.0, 0.0, 1.0), 0.63))
+        [4, 2, 0], 13, get_vector(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (2, 7, 3), 13, get_vector(0.0, -1.0, 0.0), 0.63))
+        [2, 7, 3], 13, get_vector(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (6, 5, 7), 13, get_vector(-1.0, 0.0, 0.0), 0.63))
+        [6, 5, 7], 13, get_vector(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (1, 7, 5), 13, get_vector(0.0, 0.0, -1.0), 0.63))
+        [1, 7, 5], 13, get_vector(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (0, 3, 1), 13, get_vector(1.0, 0.0, 0.0), 0.63))
+        [0, 3, 1], 13, get_vector(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 1, 5), 13, get_vector(0.0, 1.0, 0.0), 0.63))
+        [4, 1, 5], 13, get_vector(0.0, 1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 6, 2), 13, get_vector(0.0, 0.0, 1.0), 0.63))
+        [4, 6, 2], 13, get_vector(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (2, 6, 7), 13, get_vector(0.0, -1.0, 0.0), 0.63))
+        [2, 6, 7], 13, get_vector(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (6, 4, 5), 13, get_vector(-1.0, 0.0, 0.0), 0.63))
+        [6, 4, 5], 13, get_vector(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (1, 3, 7), 13, get_vector(0.0, 0.0, -1.0), 0.63))
+        [1, 3, 7], 13, get_vector(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (0, 2, 3), 13, get_vector(1.0, 0.0, 0.0), 0.63))
+        [0, 2, 3], 13, get_vector(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        (4, 0, 1), 13, get_vector(0.0, 1.0, 0.0), 0.63))
+        [4, 0, 1], 13, get_vector(0.0, 1.0, 0.0), 0.63))
 
     if skin:
         mesh.vert_infs = get_vertex_influences()

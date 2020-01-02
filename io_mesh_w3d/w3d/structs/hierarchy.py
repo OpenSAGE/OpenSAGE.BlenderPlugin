@@ -3,8 +3,8 @@
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
-from io_mesh_w3d.io_binary import *
-from io_mesh_w3d.utils import *
+from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3d.utils import *
 
 
 W3D_CHUNK_HIERARCHY_HEADER = 0x00000101

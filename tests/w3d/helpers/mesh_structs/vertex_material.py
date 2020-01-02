@@ -7,6 +7,7 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
 
+
 def get_vertex_material_info(attributes=0):
     return VertexMaterialInfo(
         attributes=attributes,

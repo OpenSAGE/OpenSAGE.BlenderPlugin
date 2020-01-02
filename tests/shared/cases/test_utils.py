@@ -204,133 +204,6 @@ class TestUtils(TestCase):
         compare_hierarchies(self, hierarchy, actual_hiera)
 
 
-    def test_no_bone_is_created_if_referenced_by_subObject_and_only_child_pivots_roundtrip(self):
-        context = ImportWrapper(self.outpath())
-        hlod = get_hlod()
-        box = get_box()
-        hierarchy = get_hierarchy()
-        hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots= [root]
-
-        hierarchy.pivots.append(get_hierarchy_pivot("main", 0))
-        hierarchy.pivots.append(get_hierarchy_pivot("left", 1))
-        hierarchy.pivots.append(get_hierarchy_pivot("left2", 2))
-        hierarchy.pivots.append(get_hierarchy_pivot("right", 1))
-        hierarchy.pivots.append(get_hierarchy_pivot("right2", 4))
-
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
-
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=0, name="containerName.BOUNDINGBOX"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name="containerName.main"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=2, name="containerName.left"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=4, name="containerName.right"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=3, name="containerName.left2"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=5, name="containerName.right2"))
-
-        array.header.model_count = len(array.sub_objects)
-
-        hlod.lod_array = array
-
-        mesh_structs = [
-            get_mesh(name="main"),
-            get_mesh(name="left"),
-            get_mesh(name="right"),
-            get_mesh(name="left2"),
-            get_mesh(name="right2")]
-
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
-        coll = get_collection(hlod)
-
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
-
-        self.assertIsNone(rig)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
-
-
-    def test_bone_is_created_if_referenced_by_subObject_but_starts_with_B__roundtrip(self):
-        context = ImportWrapper(self.outpath())
-        hlod = get_hlod()
-        hierarchy = get_hierarchy()
-        hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots = [root]
-
-        hierarchy.pivots.append(get_hierarchy_pivot("B_MAIN", 0))
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
-
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name="containerName.V_MAIN"))
-        array.header.model_count = len(array.sub_objects)
-
-        hlod.lod_array = array
-
-        mesh_structs = [
-            get_mesh(name="V_MAIN")]
-
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
-        coll = get_collection(hlod)
-
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-
-        self.assertEqual(1, len(rig.data.bones))
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
-
-
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod(hierarchy_name="containerName")
         hlod.lod_array.sub_objects = [
@@ -392,7 +265,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture_nrm.dds")
 
         meshes = []
@@ -423,7 +296,7 @@ class TestUtils(TestCase):
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         create_box(box, hlod, hierarchy, rig, coll)
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         meshes = []
@@ -578,7 +451,7 @@ class TestUtils(TestCase):
             get_mesh(name="mesh", skin=True),
             get_mesh(name="bone_pivot")]
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
@@ -599,8 +472,6 @@ class TestUtils(TestCase):
 
         retrieve_meshes(self, hierarchy, rig, actual_hlod, "containerName")
 
-        for sub in actual_hlod.lod_array.sub_objects:
-            print(sub.name)
         compare_hlods(self, hlod, actual_hlod)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)

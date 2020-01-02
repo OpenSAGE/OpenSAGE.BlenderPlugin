@@ -9,7 +9,7 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.box import *
 from io_mesh_w3d.w3d.structs.hlod import *
 
-from io_mesh_w3d.io_binary import *
+from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.import_utils import *
 
 

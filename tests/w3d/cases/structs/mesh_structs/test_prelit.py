@@ -4,8 +4,8 @@
 import unittest
 import io
 from tests.utils import TestCase
-from io_mesh_w3d.io_binary import read_chunk_head
-from tests.helpers.w3d_prelit import *
+from io_mesh_w3d.w3d.io_binary import read_chunk_head
+from tests.w3d.helpers.mesh_structs.prelit import *
 
 
 class TestPrelit(TestCase):

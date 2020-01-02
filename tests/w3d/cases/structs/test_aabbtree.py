@@ -3,7 +3,8 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_aabbtree import *
+from tests.mathutils import *
+from tests.w3d.helpers.mesh_structs.aabbtree import *
 
 
 class TestAABBTree(TestCase):

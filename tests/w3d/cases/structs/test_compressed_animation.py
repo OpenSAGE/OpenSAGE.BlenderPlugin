@@ -3,17 +3,10 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_compressed_animation import *
-
-
-class TestCompressedAnimation(TestCase):
-from io_mesh_w3d.w3d.structs.compressed_animation import *
-from io_mesh_w3d.io_binary import *
-
 from tests.w3d.helpers.compressed_animation import *
 
 
-class TestCompressedAnimation(utils.W3dTestCase):
+class TestCompressedAnimation(TestCase):
     def test_write_read(self):
         expected = get_compressed_animation()
 

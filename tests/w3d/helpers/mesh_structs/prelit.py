@@ -3,12 +3,12 @@
 
 import unittest
 from mathutils import Vector
-from io_mesh_w3d.structs.w3d_prelit import *
-from tests.helpers.w3d_material_info import *
-from tests.helpers.w3d_material_pass import *
-from tests.helpers.w3d_vertex_material import *
-from tests.helpers.w3d_texture import *
-from tests.helpers.w3d_shader import*
+from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
+from tests.w3d.helpers.mesh_structs.material_info import *
+from tests.w3d.helpers.mesh_structs.material_pass import *
+from tests.w3d.helpers.mesh_structs.vertex_material import *
+from tests.w3d.helpers.mesh_structs.texture import *
+from tests.w3d.helpers.mesh_structs.shader import*
 
 
 def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):

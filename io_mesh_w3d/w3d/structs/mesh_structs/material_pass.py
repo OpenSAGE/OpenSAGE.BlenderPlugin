@@ -3,8 +3,8 @@
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.rgba import RGBA
-from io_mesh_w3d.io_binary import *
-from io_mesh_w3d.utils import *
+from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3d.utils import *
 
 W3D_CHUNK_TEXTURE_STAGE = 0x00000048
 W3D_CHUNK_TEXTURE_IDS = 0x00000049

@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_hierarchy import *
+from tests.w3d.helpers.hierarchy import *
 
 
 class TestHierarchy(TestCase):

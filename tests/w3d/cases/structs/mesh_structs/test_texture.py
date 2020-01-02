@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_texture import *
+from tests.w3d.helpers.mesh_structs.texture import *
 
 
 class TestTexture(TestCase):

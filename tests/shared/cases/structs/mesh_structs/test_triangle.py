@@ -9,7 +9,7 @@ from tests.utils import *
 from tests.shared.helpers.mesh_structs.triangle import *
 
 
-class TestTriangle(W3dTestCase):
+class TestTriangle(TestCase):
     def test_write_read_bin(self):
         expected = get_triangle()
 

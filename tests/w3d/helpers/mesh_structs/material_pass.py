@@ -2,38 +2,32 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-
 from mathutils import Vector
-
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
-
+from tests.mathutils import *
 from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
 
 
 def get_uvs():
-    uvs = []
-    uvs.append(get_vector2(0.0, 0.1))
-    uvs.append(get_vector2(0.0, 0.4))
-    uvs.append(get_vector2(1.0, 0.6))
-    uvs.append(get_vector2(0.3, 0.1))
-    uvs.append(get_vector2(0.2, 0.2))
-    uvs.append(get_vector2(0.6, 0.6))
-    uvs.append(get_vector2(0.1, 0.8))
-    uvs.append(get_vector2(0.7, 0.7))
-    return uvs
+    return [get_vector2(0.0, 0.1),
+            get_vector2(0.0, 0.4),
+            get_vector2(1.0, 0.6),
+            get_vector2(0.3, 0.1),
+            get_vector2(0.2, 0.2),
+            get_vector2(0.6, 0.6),
+            get_vector2(0.1, 0.8),
+            get_vector2(0.7, 0.7)]
 
 
 def get_per_face_txcoords():
-    tx_coords = []
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    tx_coords.append(get_vector(1.0, 0.0, -1.0))
-    return tx_coords
+    return [get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0),
+            get_vector(1.0, 0.0, -1.0)]
 
 
 def get_texture_stage(index=0):

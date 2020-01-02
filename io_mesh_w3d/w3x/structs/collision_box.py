@@ -4,7 +4,7 @@
 from mathutils import Vector
 
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.io_xml import *
+from io_mesh_w3d.w3x.io_xml import *
 
 
 class CollisionBox(Struct):

@@ -2,8 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from mathutils import Quaternion
-
+from tests.mathutils import *
 from io_mesh_w3d.w3d.structs.animation import *
 
 from tests.w3d.helpers.version import *
