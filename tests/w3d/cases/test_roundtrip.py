@@ -144,7 +144,7 @@ class TestRoundtrip(TestCase):
                   get_mesh(name="TRUNK", prelit=True)]
         hlod = get_hlod("TestModelName", hierarchy_name)
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         # write to file

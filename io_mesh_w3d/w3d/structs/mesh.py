@@ -16,6 +16,7 @@ from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.w3d.structs.mesh_structs.texture import *
+from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F

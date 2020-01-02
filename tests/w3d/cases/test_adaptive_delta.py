@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.w3d.adaptive_delta import *
-from tests import utils
+from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.animation import *
 

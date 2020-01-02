@@ -3,7 +3,7 @@
 
 import unittest
 from tests.mathutils import *
-from io_mesh_w3d.w3d.structs.box import Box
+from io_mesh_w3d.w3d.structs.box import *
 from io_mesh_w3d.w3d.structs.rgba import RGBA
 from io_mesh_w3d.w3d.structs.version import Version
 

@@ -8,6 +8,10 @@ from shutil import copyfile
 from io_mesh_w3d.import_utils import *
 from tests.w3d.helpers.mesh import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
+from tests.w3d.helpers.hlod import *
+from tests.w3d.helpers.hierarchy import *
+from tests.w3d.helpers.animation import *
+from tests.w3d.helpers.compressed_animation import *
 
 
 class TestImportUtils(TestCase):
@@ -46,7 +50,7 @@ class TestImportUtils(TestCase):
     def test_prelit_mesh_import(self):
         mesh = get_mesh(prelit = True)
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         create_mesh(self, mesh, None, bpy.context.collection)
@@ -85,7 +89,7 @@ class TestImportUtils(TestCase):
             get_mesh(name="first"),
             get_mesh(name="second")]
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         coll = get_collection(hlod)
@@ -149,7 +153,7 @@ class TestImportUtils(TestCase):
 
         mesh_structs = [get_mesh(name="MESH")]
 
-        copyfile(self.relpath() + "/testfiles/texture.dds",
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         expected_frames = [0, 4]
