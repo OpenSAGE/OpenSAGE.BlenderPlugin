@@ -5,12 +5,6 @@ import bpy
 from tests.utils import *
 from shutil import copyfile
 from tests.utils import TestCase, ImportWrapper
-from tests.helpers.w3d_mesh import get_mesh
-from tests.helpers.w3d_hlod import get_hlod
-from tests.helpers.w3d_hierarchy import get_hierarchy
-from tests.helpers.w3d_animation import get_animation
-from tests.helpers.w3d_compressed_animation import get_compressed_animation
-from tests.helpers.w3d_box import get_box
 
 from tests.w3d.helpers.mesh import get_mesh
 from tests.w3d.helpers.hlod import get_hlod

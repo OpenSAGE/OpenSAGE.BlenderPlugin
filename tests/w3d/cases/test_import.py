@@ -13,7 +13,6 @@ from tests.w3d.helpers.box import get_box
 from tests.w3d.helpers.hierarchy import get_hierarchy
 from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
-from io_mesh_w3d.import_w3d import load
 
 
 class TestObjectImport(TestCase):

@@ -11,7 +11,7 @@ from mathutils import Vector, Matrix, Quaternion
 from bpy_extras import node_shader_utils
 from bpy_extras.image_utils import load_image
 
-from io_mesh_w3d.io_binary import read_chunk_head
+from io_mesh_w3d.w3d.io_binary import read_chunk_head
 
 from io_mesh_w3d.w3d.adaptive_delta import decode
 from io_mesh_w3d.w3d.structs.animation import *

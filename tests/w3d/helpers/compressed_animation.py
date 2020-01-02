@@ -3,7 +3,7 @@
 
 import unittest
 from random import random
-
+from tests.mathutils import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 from tests.w3d.helpers.version import get_version, compare_versions
 

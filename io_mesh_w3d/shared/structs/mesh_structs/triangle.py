@@ -4,13 +4,13 @@
 from mathutils import Vector
 
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.io_binary import *
-from io_mesh_w3d.io_xml import *
+from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3x.io_xml import *
 
 
 class Triangle(Struct):
     vert_ids = []
-    surface_type = 13
+    surface_type = 13  # w3d only
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 

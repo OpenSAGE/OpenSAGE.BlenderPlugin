@@ -3,9 +3,8 @@
 
 import io
 from tests.utils import TestCase
-from io_mesh_w3d.structs.w3d_rgba import RGBA
-
 from io_mesh_w3d.w3d.structs.rgba import RGBA
+
 
 class TestRGBA(TestCase):
     def test_write_read(self):

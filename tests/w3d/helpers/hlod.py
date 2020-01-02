@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.structs.w3d_hlod import *
-from tests.helpers.w3d_version import *
+from io_mesh_w3d.w3d.structs.hlod import *
+from tests.w3d.helpers.version import *
 
 from io_mesh_w3d.w3d.structs.hlod import *
 

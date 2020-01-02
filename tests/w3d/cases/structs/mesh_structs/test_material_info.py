@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_material_info import *
+from tests.w3d.helpers.mesh_structs.material_info import *
 
 
 class TestMaterialInfo(TestCase):

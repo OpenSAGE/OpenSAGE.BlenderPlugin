@@ -6,13 +6,13 @@ import io
 
 from xml.dom import minidom
 
-from tests import utils
+from tests.utils import TestCase
 
 from io_mesh_w3d.w3x.structs.mesh_structs.fx_shader import *
 from tests.w3x.helpers.mesh_structs.fx_shader import *
 
 
-class TestFxShaderW3X(utils.W3dTestCase):
+class TestFxShaderW3X(TestCase):
     def test_write_read(self):
         expected = get_fx_shader()
 

@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_shader import *
+from tests.w3d.helpers.mesh_structs.shader import *
 
 
 class TestShader(TestCase):

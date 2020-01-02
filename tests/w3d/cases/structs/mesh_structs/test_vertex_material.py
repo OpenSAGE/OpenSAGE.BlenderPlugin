@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_vertex_material import *
+from tests.w3d.helpers.mesh_structs.vertex_material import *
 
 
 class TestVertexMaterial(TestCase):

@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_material_pass import *
+from tests.w3d.helpers.mesh_structs.material_pass import *
 
 
 class TestMaterialPass(TestCase):

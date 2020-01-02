@@ -3,9 +3,8 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_box import *
+from tests.w3d.helpers.box import *
 
-from tests.w3d.helpers.box import get_box, compare_boxes
 
 class TestBox(TestCase):
     def test_write_read(self):

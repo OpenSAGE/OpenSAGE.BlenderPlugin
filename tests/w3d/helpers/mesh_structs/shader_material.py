@@ -1,13 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.structs.w3d_shader_material import *
-from tests.helpers.w3d_rgba import get_rgba, compare_rgbas
-from tests.helpers.mathutils import *
-
 from io_mesh_w3d.w3d.structs.mesh_structs.shader_material import *
-
 from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
+from tests.mathutils import *
 
 
 def get_shader_material_header():

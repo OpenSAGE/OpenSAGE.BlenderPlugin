@@ -6,13 +6,13 @@ import io
 
 from xml.dom import minidom
 
-from tests import utils
+from tests.utils import *
 
 from io_mesh_w3d.w3x.structs.mesh import *
 from tests.w3x.helpers.mesh import *
 
 
-class TestHierarchyW3X(utils.W3dTestCase):
+class TestHierarchyW3X(TestCase):
     def test_write_read(self):
         expected = get_mesh()
 

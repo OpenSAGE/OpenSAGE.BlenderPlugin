@@ -11,7 +11,7 @@ from io_mesh_w3d.w3x.structs.hierarchy import *
 from tests.w3x.helpers.hierarchy import *
 
 
-class TestHierarchyW3X(W3dTestCase):
+class TestHierarchyW3X(TestCase):
     def test_write_read(self):
         expected = get_hierarchy()
 

@@ -6,13 +6,13 @@ import io
 
 from xml.dom import minidom
 
-from tests import utils
+from tests.utils import TestCase
 
 from io_mesh_w3d.w3x.structs.mesh_structs.aabbtree import *
 from tests.w3x.helpers.mesh_structs.aabbtree import *
 
 
-class TestAABBTreeW3X(utils.W3dTestCase):
+class TestAABBTreeW3X(TestCase):
     def test_write_read(self):
         expected = get_aabbtree()
 

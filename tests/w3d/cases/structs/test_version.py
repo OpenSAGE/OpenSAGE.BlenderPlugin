@@ -3,9 +3,8 @@
 
 import io
 from tests.utils import TestCase
-from io_mesh_w3d.structs.w3d_version import Version
-
 from tests.w3d.helpers.version import *
+
 
 class TestVersion(TestCase):
     def test_write_read(self):
