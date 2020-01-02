@@ -2,15 +2,15 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
+from io_mesh_w3d.struct import Struct
+from io_mesh_w3d.w3x.io_xml import *
 
 from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
-
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
 from io_mesh_w3d.w3x.structs.mesh_structs.fx_shader import *
 from io_mesh_w3d.w3x.structs.mesh_structs.aabbtree import *
-from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3x.io_xml import *
+
 
 
 class Mesh(Struct):

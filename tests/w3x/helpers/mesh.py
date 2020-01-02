@@ -11,7 +11,7 @@ from tests.utils import almost_equal
 
 
 def get_triangle(vert_ids=[1, 2, 3],
-                 normal=Vector((1.0, 22.0, -5.0)),
+                 normal=get_vector(1.0, 22.0, -5.0),
                  distance=103.0):
     return Triangle(
         vert_ids=vert_ids,
@@ -75,75 +75,63 @@ def get_mesh():
         fx_shader=get_fx_shader(),
         aabbtree=get_aabbtree())
 
-    mesh.verts.append(Vector((1.0, 1.0, 1.0)))
-    mesh.verts.append(Vector((1.0, 1.0, -1.0)))
-    mesh.verts.append(Vector((1.0, -1.0, 1.0)))
-    mesh.verts.append(Vector((1.0, -1.0, -1.0)))
-    mesh.verts.append(Vector((-1.0, 1.0, 1.0)))
-    mesh.verts.append(Vector((-1.0, 1.0, -1.0)))
-    mesh.verts.append(Vector((-1.0, -1.0, 1.0)))
-    mesh.verts.append(Vector((-1.0, -1.0, -1.0)))
+    mesh.verts = [get_vector(1.0, 1.0, 1.0),
+                  get_vector(1.0, 1.0, -1.0),
+                  get_vector(1.0, -1.0, 1.0),
+                  get_vector(1.0, -1.0, -1.0),
+                  get_vector(-1.0, 1.0, 1.0),
+                  get_vector(-1.0, 1.0, -1.0),
+                  get_vector(-1.0, -1.0, 1.0),
+                  get_vector(-1.0, -1.0, -1.0)]
 
-    mesh.normals.append(Vector((0.577, 0.577, 0.577)))
-    mesh.normals.append(Vector((0.577, 0.577, -0.577)))
-    mesh.normals.append(Vector((0.577, -0.577, 0.577)))
-    mesh.normals.append(Vector((0.577, -0.577, -0.577)))
-    mesh.normals.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.normals.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.normals.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.normals.append(Vector((-0.577, -0.577, -0.577)))
+    mesh.normals = [get_vector(0.577, 0.577, 0.577),
+                    get_vector(0.577, 0.577, -0.577),
+                    get_vector(0.577, -0.577, 0.577),
+                    get_vector(0.577, -0.577, -0.577),
+                    get_vector(-0.577, 0.577, 0.577),
+                    get_vector(-0.577, 0.577, -0.577),
+                    get_vector(-0.577, -0.577, 0.577),
+                    get_vector(-0.577, -0.577, -0.577)]
 
-    mesh.tangents.append(Vector((0.577, 0.577, 0.577)))
-    mesh.tangents.append(Vector((0.577, 0.577, -0.577)))
-    mesh.tangents.append(Vector((0.577, -0.577, 0.577)))
-    mesh.tangents.append(Vector((0.577, -0.577, -0.577)))
-    mesh.tangents.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.tangents.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.tangents.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.tangents.append(Vector((-0.577, -0.577, -0.577)))
+    mesh.tangents = [get_vector(0.577, 0.577, 0.577),
+                        get_vector(0.577, 0.577, -0.577),
+                        get_vector(0.577, -0.577, 0.577),
+                        get_vector(0.577, -0.577, -0.577),
+                        get_vector(-0.577, 0.577, 0.577),
+                        get_vector(-0.577, 0.577, -0.577),
+                        get_vector(-0.577, -0.577, 0.577),
+                        get_vector(-0.577, -0.577, -0.577)]
 
-    mesh.bitangents.append(Vector((0.577, 0.577, 0.577)))
-    mesh.bitangents.append(Vector((0.577, 0.577, -0.577)))
-    mesh.bitangents.append(Vector((0.577, -0.577, 0.577)))
-    mesh.bitangents.append(Vector((0.577, -0.577, -0.577)))
-    mesh.bitangents.append(Vector((-0.577, 0.577, 0.577)))
-    mesh.bitangents.append(Vector((-0.577, 0.577, -0.577)))
-    mesh.bitangents.append(Vector((-0.577, -0.577, 0.577)))
-    mesh.bitangents.append(Vector((-0.577, -0.577, -0.577)))
+    mesh.bitangents = [get_vector(0.577, 0.577, 0.577),
+                        get_vector(0.577, 0.577, -0.577),
+                        get_vector(0.577, -0.577, 0.577),
+                        get_vector(0.577, -0.577, -0.577),
+                        get_vector(-0.577, 0.577, 0.577),
+                        get_vector(-0.577, 0.577, -0.577),
+                        get_vector(-0.577, -0.577, 0.577),
+                        get_vector(-0.577, -0.577, -0.577)]
 
-    mesh.triangles.append(get_triangle(
-        [4, 2, 0], Vector((0.0, 0.0, 1.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [2, 7, 3], Vector((0.0, -1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [6, 5, 7], Vector((-1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [1, 7, 5], Vector((0.0, 0.0, -1.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [0, 3, 1], Vector((1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [4, 1, 5], Vector((0.0, 1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [4, 6, 2], Vector((0.0, 0.0, 1.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [2, 6, 7], Vector((0.0, -1.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [6, 4, 5], Vector((-1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [1, 3, 7], Vector((0.0, 0.0, -1.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [0, 2, 3], Vector((1.0, 0.0, 0.0)), 0.63))
-    mesh.triangles.append(get_triangle(
-        [4, 0, 1], Vector((0.0, 1.0, 0.0)), 0.63))
+    mesh.triangles = [get_triangle([4, 2, 0], get_vector(0.0, 0.0, 1.0), 0.63),
+                        get_triangle([2, 7, 3], get_vector(0.0, -1.0, 0.0), 0.63),
+                        get_triangle([6, 5, 7], get_vector(-1.0, 0.0, 0.0), 0.63),
+                        get_triangle([1, 7, 5], get_vector(0.0, 0.0, -1.0), 0.63),
+                        get_triangle([0, 3, 1], get_vector(1.0, 0.0, 0.0), 0.63),
+                        get_triangle([4, 1, 5], get_vector(0.0, 1.0, 0.0), 0.63),
+                        get_triangle([4, 6, 2], get_vector(0.0, 0.0, 1.0), 0.63),
+                        get_triangle([2, 6, 7], get_vector(0.0, -1.0, 0.0), 0.63),
+                        get_triangle([6, 4, 5], get_vector(-1.0, 0.0, 0.0), 0.63),
+                        get_triangle([1, 3, 7], get_vector(0.0, 0.0, -1.0), 0.63),
+                        get_triangle([0, 2, 3], get_vector(1.0, 0.0, 0.0), 0.63),
+                        get_triangle([4, 0, 1], get_vector(0.0, 1.0, 0.0), 0.63)]
 
-    mesh.tex_coords.append(Vector((0.0, 0.1)))
-    mesh.tex_coords.append(Vector((0.0, 0.4)))
-    mesh.tex_coords.append(Vector((1.0, 0.6)))
-    mesh.tex_coords.append(Vector((0.3, 0.1)))
-    mesh.tex_coords.append(Vector((0.2, 0.2)))
-    mesh.tex_coords.append(Vector((0.6, 0.6)))
-    mesh.tex_coords.append(Vector((0.1, 0.8)))
-    mesh.tex_coords.append(Vector((0.7, 0.7)))
+    mesh.tex_coords = [get_vector(0.0, 0.1),
+                        get_vector(0.0, 0.4),
+                        get_vector(1.0, 0.6),
+                        get_vector(0.3, 0.1),
+                        get_vector(0.2, 0.2),
+                        get_vector(0.6, 0.6),
+                        get_vector(0.1, 0.8),
+                        get_vector(0.7, 0.7)]
 
     mesh.shade_indices = [1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -156,14 +144,14 @@ def get_mesh_minimal():
         geometry_type="Normal",
         bounding_box=get_bounding_box(),
         bounding_sphere=get_bounding_sphere(),
-        verts=[Vector((1.0, 1.0, 1.0))],
-        normals=[Vector((0.577, 0.577, 0.577))],
+        verts=[get_vector(1.0, 1.0, 1.0)],
+        normals=[get_vector(0.577, 0.577, 0.577)],
         tangents=[],
         bitangents=[],
-        tex_coords=[Vector((0.0, 0.1))],
+        tex_coords=[get_vector(0.0, 0.1)],
         shade_indices=[1],
         triangles=[get_triangle(
-            [4, 2, 0], Vector((0.0, 0.0, 1.0)), 0.63)],
+            [4, 2, 0], get_vector(0.0, 0.0, 1.0), 0.63)],
         fx_shader=get_fx_shader_minimal(),
         aabbtree=get_aabbtree_minimal())
 
