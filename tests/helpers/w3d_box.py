@@ -13,7 +13,7 @@ def get_box():
         version=get_version(),
         box_type=0,
         collision_types=0,
-        name="containerName.BOUNDINGBOX",
+        name_="containerName.BOUNDINGBOX",
         color=get_rgba(),
         center=get_vector(1.0, 2.0, 3.0),
         extend=get_vector(4.0, 5.0, 6.0))
@@ -23,7 +23,7 @@ def compare_boxes(self, expected, actual):
     compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.box_type, actual.box_type)
     self.assertEqual(expected.collision_types, actual.collision_types)
-    self.assertEqual(expected.name, actual.name)
+    self.assertEqual(expected.name_, actual.name_)
     compare_rgbas(self, expected.color, actual.color)
 
     compare_vectors(self, expected.center, actual.center)

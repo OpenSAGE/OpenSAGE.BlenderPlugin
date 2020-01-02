@@ -148,6 +148,9 @@ class Mesh(Struct):
     def has_prelit_vertex(self):
         return (self.header.attrs & PRELIT_VERTEX) > 0
 
+    def name(self):
+        return self.header.mesh_name
+
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = Mesh(

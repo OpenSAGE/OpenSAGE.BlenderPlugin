@@ -42,9 +42,9 @@ def retrieve_boxes(hlod, hierarchy):
     for mesh_object in get_objects('MESH'):
         if not mesh_object.name in bounding_box_names:
             continue
-
+        name = container_name + "." + mesh_object.name
         box = Box(
-            name=container_name + "." + mesh_object.name,
+            name_=name,
             center=mesh_object.location)
         box_mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
@@ -58,7 +58,7 @@ def retrieve_boxes(hlod, hierarchy):
         boxes.append(box)
 
         subObject = HLodSubObject(
-            name=container_name + "." + mesh_object.name,
+            name_=name,
             bone_index=0)
 
         for index, pivot in enumerate(hierarchy.pivots):
@@ -280,14 +280,12 @@ def create_hlod(container_name, hierarchy_name):
 def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
     name = mesh_struct.header.mesh_name
     subObject = HLodSubObject()
-    subObject.name = container_name + "." + name
+    subObject.name_ = container_name + "." + name
     subObject.bone_index = 0
 
     if not mesh_struct.is_skin():
         for index, pivot in enumerate(hierarchy.pivots):
-            pivot_name = pivot.name.replace("B_", "").replace("BAT_", "")
-            actual_name = name.replace("V_", "")
-            if pivot_name == actual_name:
+            if pivot.name == name:
                 subObject.bone_index = index
 
     hlod.lod_array.sub_objects.append(subObject)

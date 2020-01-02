@@ -64,7 +64,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     for triangle in mesh_struct.triangles:
         triangles.append(triangle.vert_ids)
 
-    mesh = bpy.data.meshes.new(mesh_struct.header.mesh_name)
+    mesh = bpy.data.meshes.new(mesh_struct.name())
 
     verts = mesh_struct.verts.copy()
 
@@ -74,7 +74,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
 
     smooth_mesh(mesh)
 
-    mesh_ob = bpy.data.objects.new(mesh_struct.header.mesh_name, mesh)
+    mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
     link_object_to_active_scene(mesh_ob, coll)
     mesh_ob['UserText'] = mesh_struct.user_text
 
@@ -93,7 +93,6 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     material_passes = mesh_struct.material_passes
     textures = mesh_struct.textures
 
-    # When this mesh is using prelit materials use that version
     if mesh_struct.has_prelit_vertex():
         vert_materials = mesh_struct.prelit_vertex.vert_materials
         material_passes = mesh_struct.prelit_vertex.material_passes
@@ -123,7 +122,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
 
 
 def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
-    mesh_ob = bpy.data.objects[mesh_struct.header.mesh_name]
+    mesh_ob = bpy.data.objects[mesh_struct.name()]
 
     if hierarchy is None or not hierarchy.pivots:
         return
@@ -157,11 +156,8 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
 
     else:
         pivot = None
-        mesh_name = mesh_struct.header.mesh_name
-        name = mesh_struct.header.container_name + "." + mesh_name
-
         sub_objects = [
-            sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == name]
+            sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name() == mesh_struct.name()]
         if not sub_objects:
             return
         else:
@@ -232,10 +228,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
     for obj in sub_objects:
         pivot = hierarchy.pivots[obj.bone_index]
-        sub_obj_name = obj.name
-        if '.' in obj.name:
-            sub_obj_name = obj.name.split('.')[1]
-        if pivot.name == sub_obj_name:
+        if pivot.name == obj.name():
             pivot.is_bone = False
 
     for i, pivot in enumerate(hierarchy.pivots):
@@ -287,7 +280,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
 def create_material_from_vertex_material(self, mesh, vert_mat):
     material = bpy.data.materials.new(
-        mesh.header.mesh_name + "." + vert_mat.vm_name)
+        mesh.name() + "." + vert_mat.vm_name)
     material.use_nodes = True
     #material.blend_method = 'BLEND'
 
@@ -323,7 +316,7 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
 
 def create_material_from_shader_material(self, mesh, shader_mat):
     material = bpy.data.materials.new(
-        mesh.header.mesh_name + ".ShaderMaterial")
+        mesh.name() + ".ShaderMaterial")
     material.use_nodes = True
     diffuse = None
     normal = None
@@ -649,15 +642,12 @@ def create_box(box, hlod, hierarchy, rig, coll):
     faces = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 4, 5, 1),
              (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
 
-    name = box.name
-    if "." in name:
-        name = name.split(".")[1]
-    cube = bpy.data.meshes.new(name)
+    cube = bpy.data.meshes.new(box.name())
     cube.from_pydata(verts, [], faces)
     cube.update(calc_edges=True)
-    box_object = bpy.data.objects.new(name, cube)
+    box_object = bpy.data.objects.new(box.name(), cube)
     box_object.display_type = 'WIRE'
-    mat = bpy.data.materials.new(name + ".Material")
+    mat = bpy.data.materials.new(box.name() + ".Material")
 
     mat.diffuse_color = box.color.to_vector_rgba()
     cube.materials.append(mat)
@@ -668,7 +658,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
         return
 
     sub_objects = [
-        sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name == box.name]
+        sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name() == box.name()]
     if not sub_objects:
         return
     sub_object = sub_objects[0]
