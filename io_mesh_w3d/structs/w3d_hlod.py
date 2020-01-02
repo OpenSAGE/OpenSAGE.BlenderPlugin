@@ -66,13 +66,18 @@ W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
 
 class HLodSubObject(Struct):
     bone_index = 0
-    name = ""
+    name_ = ""
+
+    def name(self):
+        if '.' in self.name_:
+            return self.name_.split('.')[1]
+        return self.name_
 
     @staticmethod
     def read(io_stream):
         return HLodSubObject(
             bone_index=read_ulong(io_stream),
-            name=read_long_fixed_string(io_stream))
+            name_=read_long_fixed_string(io_stream))
 
     @staticmethod
     def size(include_head=True):
@@ -82,7 +87,7 @@ class HLodSubObject(Struct):
         write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT, io_stream,
                          self.size(False))
         write_ulong(self.bone_index, io_stream)
-        write_long_fixed_string(self.name, io_stream)
+        write_long_fixed_string(self.name_, io_stream)
 
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702

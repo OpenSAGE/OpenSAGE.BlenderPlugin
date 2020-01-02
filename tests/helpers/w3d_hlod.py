@@ -35,11 +35,11 @@ def compare_hlod_array_headers(self, expected, actual):
 def get_hlod_sub_object(bone, name):
     return HLodSubObject(
         bone_index=bone,
-        name=name)
+        name_=name)
 
 
 def compare_hlod_sub_objects(self, expected, actual):
-    self.assertEqual(expected.name, actual.name)
+    self.assertEqual(expected.name_, actual.name_)
     self.assertEqual(expected.bone_index, actual.bone_index)
 
 

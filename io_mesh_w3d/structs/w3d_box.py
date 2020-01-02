@@ -16,10 +16,15 @@ class Box(Struct):
     version = Version()
     box_type = 0
     collision_types = 0
-    name = ""
+    name_ = ""
     color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
+
+    def name(self):
+        if '.' in self.name_:
+            return self.name_.split('.')[1]
+        return self.name_
 
     @staticmethod
     def read(io_stream):
@@ -29,7 +34,7 @@ class Box(Struct):
             version=ver,
             box_type=(flags & 0b11),
             collision_types=(flags & 0xFF0),
-            name=read_long_fixed_string(io_stream),
+            name_=read_long_fixed_string(io_stream),
             color=RGBA.read(io_stream),
             center=read_vector(io_stream),
             extend=read_vector(io_stream))
@@ -44,7 +49,7 @@ class Box(Struct):
         self.version.write(io_stream)
         write_ulong((self.collision_types & 0xFF)
                     | (self.box_type & 0b11), io_stream)
-        write_long_fixed_string(self.name, io_stream)
+        write_long_fixed_string(self.name_, io_stream)
         self.color.write(io_stream)
         write_vector(self.center, io_stream)
         write_vector(self.extend, io_stream)
