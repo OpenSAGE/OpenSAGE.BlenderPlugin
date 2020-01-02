@@ -38,7 +38,7 @@ class SubObject(Struct):
 
         xml_render_objects = xml_sub_object.getElementsByTagName('RenderObject')
         for xml_render_object in xml_render_objects:
-            sub_object.render_objects.append(RenderObject.parse(xml_render_object)
+            sub_object.render_objects.append(RenderObject.parse(xml_render_object))
         return sub_object
 
     def create(self, doc):

@@ -6,6 +6,7 @@ from mathutils import Vector
 
 from io_mesh_w3d.w3x.structs.mesh_structs.aabbtree import *
 from tests.utils import almost_equal
+from tests.mathutils import *
 
 
 def get_children():
@@ -36,8 +37,8 @@ def compare_polys(self, expected, actual):
 
 def get_node(polys = None, children = None):
     return Node(
-        min=Vector((3.1, 3.2, 0.2)),
-        max=Vector((2.0, -1.0, 22.0)),
+        min=get_vector(3.1, 3.2, 0.2),
+        max=get_vector(2.0, -1.0, 22.0),
         polys=polys,
         children=children)
 
