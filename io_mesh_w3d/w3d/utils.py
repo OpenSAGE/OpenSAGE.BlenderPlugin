@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.io_binary import HEAD
+from io_mesh_w3d.w3d.io_binary import *
 
 
 def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):

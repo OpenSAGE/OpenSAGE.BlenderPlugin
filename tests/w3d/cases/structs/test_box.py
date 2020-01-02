@@ -4,6 +4,7 @@
 import io
 from tests.utils import TestCase
 from tests.w3d.helpers.box import *
+from io_mesh_w3d.w3d.io_binary import *
 
 
 class TestBox(TestCase):

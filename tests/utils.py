@@ -47,7 +47,7 @@ class TestCase(unittest.TestCase):
 
     def setUp(self):
         bpy.ops.wm.read_homefile(use_empty=True)
-        #addon_utils.enable('io_mesh_w3d', default_set=True)
+        addon_utils.enable('io_mesh_w3d', default_set=True)
 
     def tearDown(self):
         if os.path.exists(self.filepath):
@@ -61,4 +61,4 @@ class TestCase(unittest.TestCase):
                 os.renames(self.filepath, new_path)
             else:
                 shutil.rmtree(self.filepath)
-        # addon_utils.disable('io_mesh_w3d')
+        addon_utils.disable('io_mesh_w3d')
