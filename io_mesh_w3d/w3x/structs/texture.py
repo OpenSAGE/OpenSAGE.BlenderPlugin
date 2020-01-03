@@ -11,10 +11,12 @@ class Texture(Struct):
 
     @staticmethod
     def parse(xml_texture):
+        print(xml_texture.toprettyxml(indent = '   '))
+        print(xml_texture.attributes['id'].value)
+        print(xml_texture.attributes['File'].value)
         return Texture(
             id=xml_texture.attributes['id'].value,
             File=xml_texture.attributes['File'].value)
-
 
     def create(self, doc):
         texture = doc.createElement('Texture')

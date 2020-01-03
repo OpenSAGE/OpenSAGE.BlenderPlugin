@@ -18,12 +18,12 @@ class CollisionBox(Struct):
         xml_center = xml_collision_box.getElementsByTagName('Center')[0]
         result.center = parse_vector(xml_center)
 
-        xml_extend = xml_collision_box.getElementsByTagName('Extend')[0]
+        xml_extend = xml_collision_box.getElementsByTagName('Extent')[0]
         result.extend = parse_vector(xml_extend)
         return result
 
     def create(self, doc):
         result = doc.createElement('W3DCollisionBox')
         result.appendChild(create_vector(self.center, doc, 'Center'))
-        result.appendChild(create_vector(self.extend, doc, 'Extend'))
+        result.appendChild(create_vector(self.extend, doc, 'Extent'))
         return result

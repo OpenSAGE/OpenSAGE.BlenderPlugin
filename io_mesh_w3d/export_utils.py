@@ -15,7 +15,7 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
 
-bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX"]
+bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX", "WORLDBOX"]
 pick_plane_names = ["PICK"]
 
 

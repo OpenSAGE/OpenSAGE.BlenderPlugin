@@ -18,9 +18,14 @@ class HierarchyPivot(Struct):
     @staticmethod
     def parse(xml_pivot):
         pivot = HierarchyPivot(
-            name=xml_pivot.attributes['Name'].value,
-            name_id=int(xml_pivot.attributes['NameID'].value),
+            name="",
+            name_id=0,
             parent_id=int(xml_pivot.attributes['Parent'].value))
+
+        if 'Name' in xml_pivot.attributes:
+            pivot.name = xml_pivot.attributes['Name'].value
+        if 'NameID' in xml_pivot.attributes:
+            pivot.name_id = int(xml_pivot.attributes['NameID'].value)
 
         xml_translation = xml_pivot.getElementsByTagName('Translation')[0]
         pivot.translation = parse_vector(xml_translation)

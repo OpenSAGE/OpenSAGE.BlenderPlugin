@@ -4,6 +4,7 @@ import bpy
 from bpy.types import Panel, Object, Material, Operator, AddonPreferences, PropertyGroup
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 
+
 from bpy.props import StringProperty,\
     BoolProperty, \
     EnumProperty, \
@@ -14,12 +15,12 @@ from bpy.props import StringProperty,\
 
 
 bl_info = {
-    'name': 'Import/Export Westwood W3D Format (.w3d)',
+    'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
     'version': (0, 3, 0),
     "blender": (2, 81, 0),
-    'location': 'File > Import/Export > Westerwood W3D (.w3d)',
-    'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
+    'location': 'File > Import/Export > Westerwood W3D (.w3d/.w3x)',
+    'description': 'Import or Export the Westerwood W3D-Format (.w3d/.w3x)',
     'warning': 'Still in Progress',
     'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
     'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
@@ -33,7 +34,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     bl_label = 'Export W3D'
     bl_options = {'UNDO', 'PRESET'}
 
-    filename_ext = '.w3d'
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     export_mode: EnumProperty(
@@ -96,7 +96,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
-        from w3d.export import save
+        from .w3d.export_w3d import save
 
         if self.will_save_settings:
             self.save_settings(context)
@@ -126,18 +126,18 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
     bl_idname = 'import_mesh.westwood_w3d'
-    bl_label = 'Import W3D'
+    bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
-    filename_ext = '.w3d'
-    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
 
     def execute(self, context):
-        from w3d.import_w3d import load
-
-        import_settings = {}
-
-        load(self, import_settings)
+        if self.filepath.lower().endswith('.w3d'):
+            from .w3d.import_w3d import load
+            load(self, import_settings={})
+        else:
+            from .w3x.import_w3x import load
+            load(self, import_settings={})
 
         print('finished')
         return {'FINISHED'}
