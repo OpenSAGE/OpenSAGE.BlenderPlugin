@@ -52,7 +52,7 @@ def load(self, import_settings):
     animation = None
     compressedAnimation = None
     hlod = None
-    box = None
+    boxes = []
 
     while file.tell() < filesize:
         (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
@@ -69,7 +69,7 @@ def load(self, import_settings):
         elif chunk_type == W3D_CHUNK_HLOD:
             hlod = HLod.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
-            box = Box.read(file)
+            boxes.append(Box.read(file))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)
@@ -139,7 +139,8 @@ def load(self, import_settings):
         meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
 
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
-    create_box(box, hlod, hierarchy, rig, coll)
+    for box in boxes:
+        create_box(box, hlod, hierarchy, rig, coll)
 
     # need an extra loop because the order of the meshes is random
     for i, mesh_struct in enumerate(mesh_structs):

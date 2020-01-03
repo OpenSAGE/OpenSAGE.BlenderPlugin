@@ -60,14 +60,18 @@ class TestUtils(TestCase):
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
 
-    def test_box_roundtrip(self):
-        expected = get_box()
+    def test_boxES_roundtrip(self):
+        bound_box = get_box()
+        world_box = get_box("WORLDBOX")
         hlod = get_hlod()
         hierarchy = get_hierarchy()
-        create_box(expected, hlod, None, None, get_collection(None))
+
+        create_box(bound_box, hlod, None, None, get_collection(None))
+        create_box(world_box, hlod, None, None, get_collection(None))
 
         boxes = retrieve_boxes(hlod, hierarchy)
-        compare_boxes(self, expected, boxes[0])
+        compare_boxes(self, bound_box, boxes[0])
+        compare_boxes(self, world_box, boxes[1])
 
     def test_hierarchy_roundtrip(self):
         expected = get_hierarchy()

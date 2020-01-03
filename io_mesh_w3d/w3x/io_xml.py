@@ -96,20 +96,28 @@ def create_matrix(mat, doc):
     return matrix
 
 
-def parse_object_list(parent, name, identifier, parse_func, par1=None):
-    list_objects = parent.getElementsByTagName(name)
-    if not list_objects:
-        return []
-    if len(list_objects) > 1:
-        print("Error")
+def parse_objects(parent, name, parse_func, par1=None):
     result = []
-    objects = list_objects[0].getElementsByTagName(identifier)
+    objects = parent.getElementsByTagName(name)
+    if not objects:
+        return result
     for obj in objects:
         if par1 is not None:
             result.append(parse_func(obj, par1))
         else:
             result.append(parse_func(obj))
     return result
+
+
+def parse_object_list(parent, name, identifier, parse_func, par1=None):
+    result = []
+    list_objects = parent.getElementsByTagName(name)
+    if not list_objects:
+        return result
+    if len(list_objects) > 1:
+        print("Error") # TODO: concrete error with report
+
+    return parse_objects(list_objects[0], identifier, parse_func, par1)
 
 
 def create_object_list(doc, name, objects, write_func, par1=None):

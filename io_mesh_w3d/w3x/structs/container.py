@@ -7,13 +7,20 @@ from io_mesh_w3d.w3x.io_xml import *
 
 class RenderObject(Struct):
     meshes = []
+    collision_boxes = []
 
     @staticmethod
     def parse(xml_render_object):
-        render_object = RenderObject(meshes=[])
+        render_object = RenderObject(
+            meshes=[],
+            collision_boxes=[])
         xml_meshes = xml_render_object.getElementsByTagName('Mesh')
         for xml_mesh in xml_meshes:
-            render_object.meshes.append(xml_mesh.data)
+            render_object.meshes.append(xml_mesh.childNodes[0].nodeValue)
+
+        xml_collision_boxes = xml_render_object.getElementsByTagName('CollisionBox')
+        for xml_collision_box in xml_collision_boxes:
+            render_object.collision_boxes.append(xml_collision_box.childNodes[0].nodeValue)
         return render_object
 
     def create(self, doc):
@@ -22,6 +29,10 @@ class RenderObject(Struct):
             xml_mesh = doc.createElement('Mesh')
             xml_mesh.data = mesh
             render_object.appendChild(xml_mesh)
+        for box in self.collision_boxes:
+            xml_box = doc.createElement('CollisionBox')
+            xml_box.data = box
+            render_object.appendChild(xml_box)
         return render_object
 
 

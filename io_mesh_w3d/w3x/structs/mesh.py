@@ -62,8 +62,9 @@ class Mesh(Struct):
         xml_fx_shader = xml_mesh.getElementsByTagName('FXShader')[0]
         result.fx_shader = FXShader.parse(xml_fx_shader)
 
-        xml_aabbtree = xml_mesh.getElementsByTagName('AABTree')[0]
-        result.aabbtree = AABBTree.parse(xml_aabbtree)
+        xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
+        if xml_aabbtrees:
+            result.aabbtree = AABBTree.parse(xml_aabbtrees[0])
 
         return result
 

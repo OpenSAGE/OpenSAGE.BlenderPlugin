@@ -11,12 +11,12 @@ from tests.w3d.helpers.version import get_version, compare_versions
 from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
 
 
-def get_box():
+def get_box(name="BOUNDINGBOX"):
     return Box(
         version=get_version(),
         box_type=0,
         collision_types=0,
-        name_="containerName.BOUNDINGBOX",
+        name_="containerName." + name,
         color=get_rgba(),
         center=get_vector(1.0, 2.0, 3.0),
         extend=get_vector(4.0, 5.0, 6.0))
