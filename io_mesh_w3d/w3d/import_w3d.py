@@ -142,7 +142,6 @@ def load(self, import_settings):
     for box in boxes:
         create_box(box, hlod, hierarchy, rig, coll)
 
-    # need an extra loop because the order of the meshes is random
     for i, mesh_struct in enumerate(mesh_structs):
         rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
 
