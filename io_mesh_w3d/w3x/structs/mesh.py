@@ -12,7 +12,6 @@ from io_mesh_w3d.w3x.structs.mesh_structs.fx_shader import *
 from io_mesh_w3d.w3x.structs.mesh_structs.aabbtree import *
 
 
-
 class Mesh(Struct):
     id = ""
     geometry_type = ""

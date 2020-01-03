@@ -3,8 +3,8 @@
 
 import bpy
 import os
-from xml.dom import minidom
 
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.import_utils import *
 
@@ -16,11 +16,11 @@ from io_mesh_w3d.w3x.structs.collision_box import *
 from io_mesh_w3d.w3x.structs.container import *
 
 
-class W3X_CONTEXT():
+class W3X_CONTEXT(Struct):
     meshes = []
     textures = []
-    hierarchy = None
     collision_boxes = []
+    hierarchy = None
     container = None
 
 
@@ -30,26 +30,37 @@ def load_file(self, path, w3x_context):
     if not os.path.exists(path):
         print("!!! file not found: " + path)
         self.report({'ERROR'}, "file not found: " + path)
-        return
-
-    dir = os.path.dirname(path)
+        return w3x_context
 
     doc = minidom.parse(path)
-    if path.lower().endswith(".xml"):
-        print(doc.toprettyxml(indent = '   '))
+    assets = doc.getElementsByTagName('AssetDeclaration')
+    if not assets:
+        return w3x_context
 
-    includes = parse_object_list(doc, 'Includes', 'Include', Include.parse)
-    for include in includes:
-        source = include.source.replace("ART:", "")
-        load_file(self, os.path.join(dir, source), w3x_context)
+    dir = os.path.dirname(path)
+    for node in assets[0].childs():
+        if node.tagName == "Includes":
+            for xml_include in node.childs():
+                include = Include.parse(xml_include)
+                source = include.source.replace("ART:", "")
+                load_file(self, os.path.join(dir, source), w3x_context)
 
-    #TODO: only ever parse objects that are immediate childs of the current node
-    # since there is a texture node in xml files describing textures and one in fx shaders
-    w3x_context.meshes.append(parse_objects(doc, "W3DMesh", Mesh.parse))
-    w3x_context.collision_boxes.append(parse_objects(doc, "W3DCollisionBox", CollisionBox.parse))
-    w3x_context.container = parse_objects(doc, "W3DContainer", Container.parse)
-    w3x_context.hierarchy = parse_objects(doc, "W3DHierarchy", Hierarchy.parse)
-    w3x_context.textures.append(parse_objects(doc, "Texture", Texture.parse))
+        elif node.tagName == "W3DMesh":
+            w3x_context.meshes.append(Mesh.parse(node))
+        elif node.tagName == "W3DCollisionBox":
+            w3x_context.collision_boxes.append(CollisionBox.parse(node))
+        elif node.tagName == "W3DContainer":
+            w3x_context.container = Container.parse(node)
+        elif node.tagName == "W3DHierarchy":
+            w3x_context.hierarchy = Hierarchy.parse(node)
+        elif node.tagName == "Texture":
+            w3x_context.textures.append(Texture.parse(node))
+        else:
+            print("!!! unsupported node " + node.tagName + " in file: " + path)
+            self.report({'WARNING'}, "!!! unsupported node " + node.tagName + " in file: " + path)
+
+    return w3x_context
+
 
 ##########################################################################
 # Load
@@ -57,12 +68,32 @@ def load_file(self, path, w3x_context):
 
 
 def load(self, import_settings):
-    w3x_context = W3X_CONTEXT()
+    w3x_context = W3X_CONTEXT(
+        meshes=[],
+        textures=[],
+        collision_boxes=[],
+        hierarchy=None,
+        container=None)
 
-    load_file(self, self.filepath, w3x_context)
+    w3x_context = load_file(self, self.filepath, w3x_context)
 
-    print(len(w3x_context.meshes))
-    print(len(w3x_context.collision_boxes))
-    print(len(w3x_context.textures))
+    meshes = w3x_context.meshes
+    hierarchy = w3x_context.hierarchy
+    boxes = w3x_context.collision_boxes
+
+    hlod = None # for now
+    coll = get_collection(hlod)
+
+    mesh_objects = []
+    for mesh in meshes:
+        mesh_objects.append(create_mesh(self, mesh, hierarchy, coll))
+
+    rig = get_or_create_skeleton(hlod, hierarchy, coll)
+    for box in boxes:
+        create_box(box, hlod, hierarchy, rig, coll)
+
+    # need an extra loop because the order of the meshes is random
+    for i, mesh in enumerate(meshes):
+        rig_mesh(mesh, mesh_objects[i], hierarchy, hlod, rig)
 
     return {'FINISHED'}

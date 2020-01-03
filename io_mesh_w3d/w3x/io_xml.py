@@ -2,6 +2,13 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector, Quaternion, Matrix
+from xml.dom import minidom
+
+
+def childs(self):
+    return [node for node in self.childNodes if node.nodeName != "#text"]
+
+minidom.Node.childs = childs
 
 
 def parse_value(xml_obj, cast_func=str):
