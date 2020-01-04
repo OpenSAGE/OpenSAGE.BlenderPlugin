@@ -39,7 +39,7 @@ def retrieve_boxes(hlod, hierarchy):
     container_name = hlod.header.model_name
 
     for mesh_object in get_objects('MESH'):
-        if not mesh_object.name in bounding_box_names:
+        if mesh_object.name not in bounding_box_names:
             continue
         name = container_name + "." + mesh_object.name
         box = Box(
@@ -164,7 +164,8 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 
             if mesh.uv_layers:
                 for vert in [mesh.loops[i] for i in face.loop_indices]:
-                    # TODO: compute the mean value from the face-vertex-tangents etc?
+                    # TODO: compute the mean value from the
+                    # face-vertex-tangents etc?
                     normal = vert.normal
                     tangent = vert.tangent
                     mesh_struct.tangents[vert.vertex_index] = tangent

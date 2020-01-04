@@ -132,7 +132,8 @@ class TestUtils(TestCase):
         retrieve_meshes(self, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
-    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
+    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
+            self):
         context = ImportWrapper(self.outpath())
         hlod = get_hlod()
         box = get_box()
@@ -422,7 +423,8 @@ class TestUtils(TestCase):
             "containerName", hierarchy, rig, timecoded=True)
         compare_compressed_animations(self, expected, actual)
 
-    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
+    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
+            self):
         hlod = get_hlod()
         box = get_box()
         hierarchy = get_hierarchy()

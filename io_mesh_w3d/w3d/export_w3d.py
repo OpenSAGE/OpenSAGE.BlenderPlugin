@@ -15,7 +15,7 @@ def save(self, export_settings):
 
     try:
         bpy.ops.object.mode_set(mode='OBJECT')
-    except:
+    except BaseException:
         print("could not set mode to OBJECT")
 
     containerName = (os.path.splitext(
