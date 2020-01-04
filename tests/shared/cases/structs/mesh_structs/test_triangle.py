@@ -22,7 +22,6 @@ class TestTriangle(TestCase):
         actual = Triangle.read(io_stream)
         compare_triangles(self, expected, actual)
 
-
     def test_write_read_xml(self):
         expected = get_triangle()
 
@@ -30,7 +29,7 @@ class TestTriangle(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)

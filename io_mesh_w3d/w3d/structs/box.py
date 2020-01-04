@@ -9,7 +9,6 @@ from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.structs.rgba import RGBA
 
 
-
 W3D_CHUNK_BOX = 0x00000740
 
 

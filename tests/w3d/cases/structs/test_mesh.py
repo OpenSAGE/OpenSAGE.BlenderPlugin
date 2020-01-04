@@ -9,6 +9,7 @@ from io_mesh_w3d.w3d.io_binary import *
 
 from tests.w3d.helpers.mesh import *
 
+
 class TestMesh(TestCase):
     def test_write_read(self):
         expected = get_mesh()
@@ -46,7 +47,6 @@ class TestMesh(TestCase):
         expected.bitangents = []  # import not supported -> are calculated in blender
         compare_meshes(self, expected, actual)
 
-
     def test_write_read_prelit(self):
         expected = get_mesh(prelit=True)
 
@@ -63,7 +63,6 @@ class TestMesh(TestCase):
 
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
-
 
     def test_write_read_empty(self):
         expected = get_mesh_empty()
@@ -215,4 +214,3 @@ class TestMesh(TestCase):
         self.assertEqual(78, list_size(mesh.vert_materials, False))
 
         self.assertEqual(1081, mesh.size())
-

@@ -35,7 +35,6 @@ class HierarchyPivot(Struct):
         pivot.fixup_matrix = parse_matrix(xml_fixup_matrix)
         return pivot
 
-
     def create(self, doc):
         pivot = doc.createElement('Pivot')
         pivot.setAttribute('Name', self.name)
@@ -47,7 +46,7 @@ class HierarchyPivot(Struct):
         return pivot
 
 
-#W3DHierarchy
+# W3DHierarchy
 class Hierarchy(Struct):
     id = ""
     pivots = []
@@ -61,7 +60,6 @@ class Hierarchy(Struct):
         for xml_pivot in xml_pivots:
             result.pivots.append(HierarchyPivot.parse(xml_pivot))
         return result
-
 
     def create(self, doc):
         hierarchy = doc.createElement('W3DHierarchy')

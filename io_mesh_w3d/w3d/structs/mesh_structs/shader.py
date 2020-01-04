@@ -25,7 +25,6 @@ class Shader(Struct):
     post_detail_alpha_func = 0
     pad = 0
 
-
     @staticmethod
     def read(io_stream):
         return Shader(
@@ -46,11 +45,9 @@ class Shader(Struct):
             post_detail_alpha_func=read_ubyte(io_stream),
             pad=read_ubyte(io_stream))
 
-
     @staticmethod
     def size():
         return 16
-
 
     def write(self, io_stream):
         write_ubyte(self.depth_compare, io_stream)

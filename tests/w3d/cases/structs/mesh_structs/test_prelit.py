@@ -26,7 +26,6 @@ class TestPrelit(TestCase):
         actual = PrelitBase.read(self, io_stream, chunkSize, type)
         compare_prelits(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit_minimal(type=type)
@@ -43,7 +42,6 @@ class TestPrelit(TestCase):
 
         actual = PrelitBase.read(self, io_stream, chunkSize, type)
         compare_prelits(self, expected, actual)
-
 
     def test_chunk_size(self):
         type = W3D_CHUNK_PRELIT_VERTEX

@@ -39,7 +39,7 @@ def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
     for i in range(count):
         result.material_passes.append(get_material_pass())
         name = vm_name + str(i)
-        result.vert_materials.append(get_vertex_material(vm_name = name))
+        result.vert_materials.append(get_vertex_material(vm_name=name))
         result.textures.append(get_texture())
         result.shaders.append(get_shader())
     return result
@@ -59,7 +59,8 @@ def compare_prelits(self, expected, actual):
     self.assertEqual(expected.type, actual.type)
     compare_material_infos(self, expected.mat_info, actual.mat_info)
 
-    self.assertEqual(len(expected.material_passes), len(actual.material_passes))
+    self.assertEqual(len(expected.material_passes),
+                     len(actual.material_passes))
     for i, mat_pass in enumerate(expected.material_passes):
         compare_material_passes(self, mat_pass, actual.material_passes[i])
 

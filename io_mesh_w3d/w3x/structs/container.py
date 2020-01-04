@@ -18,9 +18,11 @@ class RenderObject(Struct):
         for xml_mesh in xml_meshes:
             render_object.meshes.append(xml_mesh.childNodes[0].nodeValue)
 
-        xml_collision_boxes = xml_render_object.getElementsByTagName('CollisionBox')
+        xml_collision_boxes = xml_render_object.getElementsByTagName(
+            'CollisionBox')
         for xml_collision_box in xml_collision_boxes:
-            render_object.collision_boxes.append(xml_collision_box.childNodes[0].nodeValue)
+            render_object.collision_boxes.append(
+                xml_collision_box.childNodes[0].nodeValue)
         return render_object
 
     def create(self, doc):
@@ -47,9 +49,11 @@ class SubObject(Struct):
             id=xml_sub_object.attributes['SubObjectID'].value,
             bone_index=int(xml_sub_object.attributes['BoneIndex'].value))
 
-        xml_render_objects = xml_sub_object.getElementsByTagName('RenderObject')
+        xml_render_objects = xml_sub_object.getElementsByTagName(
+            'RenderObject')
         for xml_render_object in xml_render_objects:
-            sub_object.render_objects.append(RenderObject.parse(xml_render_object))
+            sub_object.render_objects.append(
+                RenderObject.parse(xml_render_object))
         return sub_object
 
     def create(self, doc):

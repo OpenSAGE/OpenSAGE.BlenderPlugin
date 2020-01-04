@@ -20,7 +20,7 @@ class TestFxShaderW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
@@ -30,7 +30,6 @@ class TestFxShaderW3X(TestCase):
         actual = FXShader.parse(xml_fx_shaders[0])
         compare_fx_shaders(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_fx_shader_minimal()
 
@@ -38,7 +37,7 @@ class TestFxShaderW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)

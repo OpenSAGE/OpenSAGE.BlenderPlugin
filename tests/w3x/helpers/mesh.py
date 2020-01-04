@@ -94,44 +94,50 @@ def get_mesh():
                     get_vector(-0.577, -0.577, -0.577)]
 
     mesh.tangents = [get_vector(0.577, 0.577, 0.577),
-                        get_vector(0.577, 0.577, -0.577),
-                        get_vector(0.577, -0.577, 0.577),
-                        get_vector(0.577, -0.577, -0.577),
-                        get_vector(-0.577, 0.577, 0.577),
-                        get_vector(-0.577, 0.577, -0.577),
-                        get_vector(-0.577, -0.577, 0.577),
-                        get_vector(-0.577, -0.577, -0.577)]
+                     get_vector(0.577, 0.577, -0.577),
+                     get_vector(0.577, -0.577, 0.577),
+                     get_vector(0.577, -0.577, -0.577),
+                     get_vector(-0.577, 0.577, 0.577),
+                     get_vector(-0.577, 0.577, -0.577),
+                     get_vector(-0.577, -0.577, 0.577),
+                     get_vector(-0.577, -0.577, -0.577)]
 
     mesh.bitangents = [get_vector(0.577, 0.577, 0.577),
-                        get_vector(0.577, 0.577, -0.577),
-                        get_vector(0.577, -0.577, 0.577),
-                        get_vector(0.577, -0.577, -0.577),
-                        get_vector(-0.577, 0.577, 0.577),
-                        get_vector(-0.577, 0.577, -0.577),
-                        get_vector(-0.577, -0.577, 0.577),
-                        get_vector(-0.577, -0.577, -0.577)]
+                       get_vector(0.577, 0.577, -0.577),
+                       get_vector(0.577, -0.577, 0.577),
+                       get_vector(0.577, -0.577, -0.577),
+                       get_vector(-0.577, 0.577, 0.577),
+                       get_vector(-0.577, 0.577, -0.577),
+                       get_vector(-0.577, -0.577, 0.577),
+                       get_vector(-0.577, -0.577, -0.577)]
 
     mesh.triangles = [get_triangle([4, 2, 0], get_vector(0.0, 0.0, 1.0), 0.63),
-                        get_triangle([2, 7, 3], get_vector(0.0, -1.0, 0.0), 0.63),
-                        get_triangle([6, 5, 7], get_vector(-1.0, 0.0, 0.0), 0.63),
-                        get_triangle([1, 7, 5], get_vector(0.0, 0.0, -1.0), 0.63),
-                        get_triangle([0, 3, 1], get_vector(1.0, 0.0, 0.0), 0.63),
-                        get_triangle([4, 1, 5], get_vector(0.0, 1.0, 0.0), 0.63),
-                        get_triangle([4, 6, 2], get_vector(0.0, 0.0, 1.0), 0.63),
-                        get_triangle([2, 6, 7], get_vector(0.0, -1.0, 0.0), 0.63),
-                        get_triangle([6, 4, 5], get_vector(-1.0, 0.0, 0.0), 0.63),
-                        get_triangle([1, 3, 7], get_vector(0.0, 0.0, -1.0), 0.63),
-                        get_triangle([0, 2, 3], get_vector(1.0, 0.0, 0.0), 0.63),
-                        get_triangle([4, 0, 1], get_vector(0.0, 1.0, 0.0), 0.63)]
+                      get_triangle([2, 7, 3], get_vector(
+                          0.0, -1.0, 0.0), 0.63),
+                      get_triangle(
+                          [6, 5, 7], get_vector(-1.0, 0.0, 0.0), 0.63),
+                      get_triangle([1, 7, 5], get_vector(
+                          0.0, 0.0, -1.0), 0.63),
+                      get_triangle([0, 3, 1], get_vector(1.0, 0.0, 0.0), 0.63),
+                      get_triangle([4, 1, 5], get_vector(0.0, 1.0, 0.0), 0.63),
+                      get_triangle([4, 6, 2], get_vector(0.0, 0.0, 1.0), 0.63),
+                      get_triangle([2, 6, 7], get_vector(
+                          0.0, -1.0, 0.0), 0.63),
+                      get_triangle(
+                          [6, 4, 5], get_vector(-1.0, 0.0, 0.0), 0.63),
+                      get_triangle([1, 3, 7], get_vector(
+                          0.0, 0.0, -1.0), 0.63),
+                      get_triangle([0, 2, 3], get_vector(1.0, 0.0, 0.0), 0.63),
+                      get_triangle([4, 0, 1], get_vector(0.0, 1.0, 0.0), 0.63)]
 
     mesh.tex_coords = [get_vector(0.0, 0.1),
-                        get_vector(0.0, 0.4),
-                        get_vector(1.0, 0.6),
-                        get_vector(0.3, 0.1),
-                        get_vector(0.2, 0.2),
-                        get_vector(0.6, 0.6),
-                        get_vector(0.1, 0.8),
-                        get_vector(0.7, 0.7)]
+                       get_vector(0.0, 0.4),
+                       get_vector(1.0, 0.6),
+                       get_vector(0.3, 0.1),
+                       get_vector(0.2, 0.2),
+                       get_vector(0.6, 0.6),
+                       get_vector(0.1, 0.8),
+                       get_vector(0.7, 0.7)]
 
     mesh.shade_indices = [1, 2, 3, 4, 5, 6, 7, 8]
 
@@ -161,7 +167,8 @@ def compare_meshes(self, expected, actual):
     self.assertEqual(expected.geometry_type, actual.geometry_type)
 
     compare_bounding_boxes(self, expected.bounding_box, actual.bounding_box)
-    compare_bounding_spheres(self, expected.bounding_sphere, actual.bounding_sphere)
+    compare_bounding_spheres(
+        self, expected.bounding_sphere, actual.bounding_sphere)
 
     self.assertEqual(len(expected.verts), len(actual.verts))
     for i, expect in enumerate(expected.verts):

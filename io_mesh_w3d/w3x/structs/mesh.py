@@ -47,16 +47,24 @@ class Mesh(Struct):
         xml_bounding_box = xml_mesh.getElementsByTagName('BoundingBox')[0]
         result.bounding_box = BoundingBox.parse(xml_bounding_box)
 
-        xml_bounding_sphere = xml_mesh.getElementsByTagName('BoundingSphere')[0]
+        xml_bounding_sphere = xml_mesh.getElementsByTagName('BoundingSphere')[
+            0]
         result.bounding_sphere = BoundingSphere.parse(xml_bounding_sphere)
 
-        result.verts = parse_object_list(xml_mesh, 'Vertices', 'V', parse_vector)
-        result.normals = parse_object_list(xml_mesh, 'Normals', 'N', parse_vector)
-        result.tangents = parse_object_list(xml_mesh, 'Tangents', 'T', parse_vector)
-        result.bitangents = parse_object_list(xml_mesh, 'Bitangents', 'B', parse_vector)
-        result.tex_coords = parse_object_list(xml_mesh, 'TexCoords', 'T', parse_vector2)
-        result.shade_indices = parse_object_list(xml_mesh, 'ShadeIndices', 'I', parse_value, int)
-        result.triangles = parse_object_list(xml_mesh, 'Triangles', 'T', Triangle.parse)
+        result.verts = parse_object_list(
+            xml_mesh, 'Vertices', 'V', parse_vector)
+        result.normals = parse_object_list(
+            xml_mesh, 'Normals', 'N', parse_vector)
+        result.tangents = parse_object_list(
+            xml_mesh, 'Tangents', 'T', parse_vector)
+        result.bitangents = parse_object_list(
+            xml_mesh, 'Bitangents', 'B', parse_vector)
+        result.tex_coords = parse_object_list(
+            xml_mesh, 'TexCoords', 'T', parse_vector2)
+        result.shade_indices = parse_object_list(
+            xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+        result.triangles = parse_object_list(
+            xml_mesh, 'Triangles', 'T', Triangle.parse)
 
         xml_fx_shader = xml_mesh.getElementsByTagName('FXShader')[0]
         result.fx_shader = FXShader.parse(xml_fx_shader)
@@ -67,7 +75,6 @@ class Mesh(Struct):
 
         return result
 
-
     def create(self, doc):
         xml_mesh = doc.createElement('W3DMesh')
         xml_mesh.setAttribute('id', self.id)
@@ -76,18 +83,25 @@ class Mesh(Struct):
         xml_mesh.appendChild(self.bounding_box.create(doc))
         xml_mesh.appendChild(self.bounding_sphere.create(doc))
 
-        xml_mesh.appendChild(create_object_list(doc, 'Vertices', self.verts, create_vector, 'V'))
-        xml_mesh.appendChild(create_object_list(doc, 'Normals', self.normals, create_vector, 'N'))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'Vertices', self.verts, create_vector, 'V'))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'Normals', self.normals, create_vector, 'N'))
 
         if self.tangents:
-            xml_mesh.appendChild(create_object_list(doc, 'Tangents', self.tangents, create_vector, 'T'))
+            xml_mesh.appendChild(create_object_list(
+                doc, 'Tangents', self.tangents, create_vector, 'T'))
 
         if self.bitangents:
-            xml_mesh.appendChild(create_object_list(doc, 'Bitangents', self.bitangents, create_vector, 'B'))
+            xml_mesh.appendChild(create_object_list(
+                doc, 'Bitangents', self.bitangents, create_vector, 'B'))
 
-        xml_mesh.appendChild(create_object_list(doc, 'TexCoords', self.tex_coords, create_vector2, 'T'))
-        xml_mesh.appendChild(create_object_list(doc, 'ShadeIndices', self.shade_indices, create_value, 'I'))
-        xml_mesh.appendChild(create_object_list(doc, 'Triangles', self.triangles, Triangle.create))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'TexCoords', self.tex_coords, create_vector2, 'T'))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'ShadeIndices', self.shade_indices, create_value, 'I'))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'Triangles', self.triangles, Triangle.create))
 
         xml_mesh.appendChild(self.fx_shader.create(doc))
         xml_mesh.appendChild(self.aabbtree.create(doc))

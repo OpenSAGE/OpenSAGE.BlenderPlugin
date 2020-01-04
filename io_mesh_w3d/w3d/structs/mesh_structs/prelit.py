@@ -57,7 +57,6 @@ class PrelitBase(Struct):
                     context, io_stream, subchunk_end))
         return result
 
-
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += self.mat_info.size()
@@ -66,7 +65,6 @@ class PrelitBase(Struct):
         size += list_size(self.textures)
         size += list_size(self.material_passes, False)
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(self.type, io_stream,

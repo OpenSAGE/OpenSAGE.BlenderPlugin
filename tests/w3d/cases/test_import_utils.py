@@ -35,7 +35,6 @@ class TestImportUtils(TestCase):
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
-
     def test_mesh_import_2_textures_1_vertex_material(self):
         mesh = get_mesh_two_textures()
 
@@ -46,15 +45,13 @@ class TestImportUtils(TestCase):
 
         create_mesh(self, mesh, None, bpy.context.collection)
 
-
     def test_prelit_mesh_import(self):
-        mesh = get_mesh(prelit = True)
+        mesh = get_mesh(prelit=True)
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         create_mesh(self, mesh, None, bpy.context.collection)
-
 
     def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
         hlod = get_hlod()
