@@ -64,8 +64,9 @@ def retrieve_boxes(hlod, hierarchy):
             if pivot.name == mesh_object.parent_bone:
                 subObject.bone_index = index
 
-        hlod.lod_array.sub_objects.append(subObject)
-        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+        hlod.lod_arrays[0].sub_objects.append(subObject)
+        hlod.lod_arrays[0].header.model_count = len(
+            hlod.lod_arrays[0].sub_objects)
     return boxes
 
 
@@ -270,11 +271,14 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 
 
 def create_hlod(container_name, hierarchy_name):
+    lod_array = HLodArray(
+        header=HLodArrayHeader(),
+        sub_objects=[])
     return HLod(
         header=HLodHeader(
             model_name=container_name,
             hierarchy_name=hierarchy_name),
-        lod_array=HLodArray(sub_objects=[]))
+        lod_arrays=[lod_array])
 
 
 def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
@@ -288,8 +292,8 @@ def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
             if pivot.name == name:
                 subObject.bone_index = index
 
-    hlod.lod_array.sub_objects.append(subObject)
-    hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+    hlod.lod_arrays[0].sub_objects.append(subObject)
+    hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
 
 ##########################################################################

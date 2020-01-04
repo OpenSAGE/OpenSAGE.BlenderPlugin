@@ -49,13 +49,13 @@ class TestHLod(TestCase):
         self.assertEqual(40, hlod.header.size(False))
         self.assertEqual(48, hlod.header.size())
 
-        self.assertEqual(8, hlod.lod_array.header.size(False))
-        self.assertEqual(16, hlod.lod_array.header.size())
+        self.assertEqual(8, hlod.lod_arrays[0].header.size(False))
+        self.assertEqual(16, hlod.lod_arrays[0].header.size())
 
-        self.assertEqual(36, hlod.lod_array.sub_objects[0].size(False))
-        self.assertEqual(44, hlod.lod_array.sub_objects[0].size())
+        self.assertEqual(36, hlod.lod_arrays[0].sub_objects[0].size(False))
+        self.assertEqual(44, hlod.lod_arrays[0].sub_objects[0].size())
 
-        self.assertEqual(60, hlod.lod_array.size(False))
-        self.assertEqual(68, hlod.lod_array.size())
+        self.assertEqual(60, hlod.lod_arrays[0].size(False))
+        self.assertEqual(68, hlod.lod_arrays[0].size())
 
         self.assertEqual(116, hlod.size())

@@ -50,22 +50,22 @@ def list_size(objects, include_head=True):
     return size
 
 
-def vec_list_size(list, include_head=True):
-    return data_list_size(list, include_head, 12)
+def vec_list_size(vec_list, include_head=True):
+    return data_list_size(vec_list, include_head, 12)
 
 
-def vec2_list_size(list, include_head=True):
-    return data_list_size(list, include_head, 8)
+def vec2_list_size(vec_list, include_head=True):
+    return data_list_size(vec_list, include_head, 8)
 
 
-def long_list_size(list, include_head=True):
-    return data_list_size(list, include_head, 4)
+def long_list_size(vec_list, include_head=True):
+    return data_list_size(vec_list, include_head, 4)
 
 
-def data_list_size(list, include_head=True, data_size=1):
-    if not list:
+def data_list_size(data_list, include_head=True, data_size=1):
+    if not data_list:
         return 0
-    size = len(list) * data_size
+    size = len(data_list) * data_size
     if include_head:
         size += HEAD
     return size

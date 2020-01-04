@@ -152,8 +152,7 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
 
     else:
         pivot = None
-        sub_objects = [sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name(
-        ) == mesh_struct.name()]
+        sub_objects = [sub_object for sub_object in hlod.lod_arrays[0].sub_objects if sub_object.name() == mesh_struct.name()]
         if not sub_objects:
             return
         else:
@@ -192,7 +191,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
             return obj
         return None
 
-    return create_bone_hierarchy(hierarchy, hlod.lod_array.sub_objects, coll)
+    return create_bone_hierarchy(hierarchy, hlod.lod_arrays[0].sub_objects, coll)
 
 
 def make_transform_matrix(loc, rot):
@@ -659,7 +658,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
         return
 
     sub_objects = [
-        sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name() == box.name()]
+        sub_object for sub_object in hlod.lod_arrays[0].sub_objects if sub_object.name() == box.name()]
     if not sub_objects:
         return
     sub_object = sub_objects[0]
