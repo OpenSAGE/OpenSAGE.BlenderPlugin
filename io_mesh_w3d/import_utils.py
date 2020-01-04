@@ -42,7 +42,7 @@ def smooth_mesh(mesh):
         for polygon in mesh.polygons:
             polygon.use_smooth = True
     except RuntimeError:
-        print("incorrect context for mesh smooting")
+        print("incorrect context for mesh smoothing")
 
 
 def get_collection(hlod):
