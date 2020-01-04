@@ -293,7 +293,11 @@ class Mesh(Struct):
 
         if len(self.user_text):
             write_chunk_head(
-                W3D_CHUNK_MESH_USER_TEXT, io_stream, text_size(self.user_text, False))
+                W3D_CHUNK_MESH_USER_TEXT,
+                io_stream,
+                text_size(
+                    self.user_text,
+                    False))
             write_string(self.user_text, io_stream)
 
         write_chunk_head(W3D_CHUNK_VERTICES, io_stream,
@@ -333,8 +337,13 @@ class Mesh(Struct):
             self.mat_info.write(io_stream)
 
         if self.vert_materials:
-            write_chunk_head(W3D_CHUNK_VERTEX_MATERIALS, io_stream,
-                             list_size(self.vert_materials, False), has_sub_chunks=True)
+            write_chunk_head(
+                W3D_CHUNK_VERTEX_MATERIALS,
+                io_stream,
+                list_size(
+                    self.vert_materials,
+                    False),
+                has_sub_chunks=True)
             write_list(self.vert_materials, io_stream,
                        VertexMaterial.write)
 
@@ -344,13 +353,23 @@ class Mesh(Struct):
             write_list(self.shaders, io_stream, Shader.write)
 
         if self.textures:
-            write_chunk_head(W3D_CHUNK_TEXTURES, io_stream,
-                             list_size(self.textures, False), has_sub_chunks=True)
+            write_chunk_head(
+                W3D_CHUNK_TEXTURES,
+                io_stream,
+                list_size(
+                    self.textures,
+                    False),
+                has_sub_chunks=True)
             write_list(self.textures, io_stream, Texture.write)
 
         if self.shader_materials:
-            write_chunk_head(W3D_CHUNK_SHADER_MATERIALS, io_stream,
-                             list_size(self.shader_materials, False), has_sub_chunks=True)
+            write_chunk_head(
+                W3D_CHUNK_SHADER_MATERIALS,
+                io_stream,
+                list_size(
+                    self.shader_materials,
+                    False),
+                has_sub_chunks=True)
             write_list(self.shader_materials, io_stream,
                        ShaderMaterial.write)
 

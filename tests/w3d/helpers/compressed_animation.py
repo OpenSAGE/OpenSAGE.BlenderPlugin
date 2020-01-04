@@ -8,7 +8,8 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 from tests.w3d.helpers.version import get_version, compare_versions
 
 
-def get_compressed_animation_header(hierarchy_name="hierarchy", flavor=ADAPTIVE_DELTA_FLAVOR):
+def get_compressed_animation_header(
+        hierarchy_name="hierarchy", flavor=ADAPTIVE_DELTA_FLAVOR):
     return CompressedAnimationHeader(
         version=get_version(),
         name="containerName",
@@ -349,13 +350,17 @@ def get_compressed_animation(
 
     if flavor == TIME_CODED_FLAVOR:
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type_=0, random_interpolation=random_interpolation))
+            get_time_coded_animation_channel(
+                type_=0, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type_=1, random_interpolation=random_interpolation))
+            get_time_coded_animation_channel(
+                type_=1, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type_=2, random_interpolation=random_interpolation))
+            get_time_coded_animation_channel(
+                type_=2, random_interpolation=random_interpolation))
         animation.time_coded_channels.append(
-            get_time_coded_animation_channel(type_=6, random_interpolation=random_interpolation))
+            get_time_coded_animation_channel(
+                type_=6, random_interpolation=random_interpolation))
 
     else:
         animation.adaptive_delta_channels.append(

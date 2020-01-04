@@ -110,5 +110,9 @@ class AABBTree(Struct):
             write_list(self.poly_indices, io_stream, write_long)
         if self.nodes:
             write_chunk_head(
-                W3D_CHUNK_AABBTREE_NODES, io_stream, list_size(self.nodes, False))
+                W3D_CHUNK_AABBTREE_NODES,
+                io_stream,
+                list_size(
+                    self.nodes,
+                    False))
             write_list(self.nodes, io_stream, AABBTreeNode.write)

@@ -73,8 +73,13 @@ class PrelitBase(Struct):
         self.mat_info.write(io_stream)
 
         if self.vert_materials:
-            write_chunk_head(W3D_CHUNK_VERTEX_MATERIALS, io_stream,
-                             list_size(self.vert_materials, False), has_sub_chunks=True)
+            write_chunk_head(
+                W3D_CHUNK_VERTEX_MATERIALS,
+                io_stream,
+                list_size(
+                    self.vert_materials,
+                    False),
+                has_sub_chunks=True)
             write_list(self.vert_materials, io_stream,
                        VertexMaterial.write)
 
@@ -84,8 +89,13 @@ class PrelitBase(Struct):
             write_list(self.shaders, io_stream, Shader.write)
 
         if self.textures:
-            write_chunk_head(W3D_CHUNK_TEXTURES, io_stream,
-                             list_size(self.textures, False), has_sub_chunks=True)
+            write_chunk_head(
+                W3D_CHUNK_TEXTURES,
+                io_stream,
+                list_size(
+                    self.textures,
+                    False),
+                has_sub_chunks=True)
             write_list(self.textures, io_stream, Texture.write)
 
         if self.material_passes:

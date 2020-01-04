@@ -133,14 +133,14 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
             bone = rig.data.bones[pivot.name]
             mesh.vertices[i].co = bone.matrix_local @ mesh.vertices[i].co
 
-            if not pivot.name in mesh_ob.vertex_groups:
+            if pivot.name not in mesh_ob.vertex_groups:
                 mesh_ob.vertex_groups.new(name=pivot.name)
             mesh_ob.vertex_groups[pivot.name].add(
                 [i], weight, 'REPLACE')
 
             if vert_inf.xtra_idx != 0:
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
-                if not xtra_pivot.name in mesh_ob.vertex_groups:
+                if xtra_pivot.name not in mesh_ob.vertex_groups:
                     mesh_ob.vertex_groups.new(name=xtra_pivot.name)
                 mesh_ob.vertex_groups[xtra_pivot.name].add(
                     [i], vert_inf.xtra_inf, 'ADD')
@@ -152,8 +152,8 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
 
     else:
         pivot = None
-        sub_objects = [
-            sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name() == mesh_struct.name()]
+        sub_objects = [sub_object for sub_object in hlod.lod_array.sub_objects if sub_object.name(
+        ) == mesh_struct.name()]
         if not sub_objects:
             return
         else:
@@ -305,7 +305,9 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     material.vm_args_1 = vert_mat.vm_args_1
 
     principled = create_principled_bsdf(
-        self, material=material, base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
+        self,
+        material=material,
+        base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
         alpha=vert_mat.vm_info.opacity)
     return (material, principled)
 
@@ -345,8 +347,12 @@ def create_material_from_shader_material(self, mesh, shader_mat):
             self.report(
                 {'ERROR'}, "shader property not implemented: " + prop.name)
 
-    principled = create_principled_bsdf(self, material=material, diffuse_tex=diffuse,
-                                        normal_tex=normal, bump_scale=bump_scale)
+    principled = create_principled_bsdf(
+        self,
+        material=material,
+        diffuse_tex=diffuse,
+        normal_tex=normal,
+        bump_scale=bump_scale)
     return (material, principled)
 
 
@@ -534,11 +540,11 @@ def set_visibility(bone, frame, value):
     try:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport', frame=frame)
-    except:
+    except BaseException:
         try:
             bone.bone.hide = value
             bone.bone.keyframe_insert(data_path='hide', frame=frame)
-        except:
+        except BaseException:
             print("Warning: " + str(bone.name) +
                   " does not support visibility bit channels")
 

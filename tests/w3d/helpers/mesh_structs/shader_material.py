@@ -19,7 +19,8 @@ def compare_shader_material_headers(self, expected, actual):
     self.assertEqual(expected.reserved, actual.reserved)
 
 
-def get_shader_material_property(_type=1, name="property", tex_name="texture.dds"):
+def get_shader_material_property(
+        _type=1, name="property", tex_name="texture.dds"):
     result = ShaderMaterialProperty(
         type=_type,
         name=name)
