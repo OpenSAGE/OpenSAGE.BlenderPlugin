@@ -52,16 +52,11 @@ def get_hlod_array():
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=0, name="containerName.BOUNDINGBOX"))
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=0, name="containerName.sword"))
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=0, name="containerName.soldier"))
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=6, name="containerName.TRUNK"))
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=0, name="containerName.PICK"))
+    array.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX"),
+                        get_hlod_sub_object(bone=0, name="containerName.sword"),
+                        get_hlod_sub_object(bone=0, name="containerName.soldier"),
+                        get_hlod_sub_object(bone=6, name="containerName.TRUNK"),
+                        get_hlod_sub_object(bone=0, name="containerName.PICK")]
 
     array.header.model_count = len(array.sub_objects)
     return array
@@ -91,15 +86,29 @@ def compare_hlod_arrays(self, expected, actual):
 def get_hlod(model_name="containerName", hierarchy_name="TestHierarchy"):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
-        lod_array=get_hlod_array())
+        lod_arrays=[get_hlod_array()])
 
 
-def get_hlod_minimal():
+def get_hlod_minimal(model_name="containerName", hierarchy_name="TestHierarchy"):
     return HLod(
-        header=get_hlod_header("model_name", "hierarchy_name"),
-        lod_array=get_hlod_array_minimal())
+        header=get_hlod_header(model_name, hierarchy_name),
+        lod_arrays=[get_hlod_array_minimal()])
+
+
+def get_hlod_3_lod(model_name="containerName", hierarchy_name="TestHierarchy"):
+    hlod = HLod(
+        header=get_hlod_header(model_name, hierarchy_name),
+        lod_arrays=[])
+
+    hlod.header.lod_count = 3
+
+
+    return hlod
 
 
 def compare_hlods(self, expected, actual):
     compare_hlod_headers(self, expected.header, actual.header)
-    compare_hlod_arrays(self, expected.lod_array, actual.lod_array)
+    self.assertEqual(len(expected.lod_arrays), len(actual.lod_arrays))
+
+    for i, expected_array in enumerate(expected.lod_arrays):
+        compare_hlod_arrays(self, expected_array, actual.lod_arrays[i])

@@ -36,7 +36,7 @@ def save(self, export_settings):
         for mesh in meshes:
             mesh.write(sknFile)
 
-        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
         hlod.write(sknFile)
 
         if export_mode == 'HAM':

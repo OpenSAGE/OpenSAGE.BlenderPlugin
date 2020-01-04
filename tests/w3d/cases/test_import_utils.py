@@ -138,7 +138,7 @@ class TestImportUtils(TestCase):
         animation.time_coded_channels = [channel]
 
         hlod = get_hlod()
-        hlod.lod_array.sub_objects = [
+        hlod.lod_arrays[0].sub_objects = [
             get_hlod_sub_object(bone=1, name="containerName.MESH")]
 
         hierarchy = get_hierarchy()

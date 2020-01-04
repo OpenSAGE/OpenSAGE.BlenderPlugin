@@ -209,10 +209,10 @@ class TestUtils(TestCase):
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod(hierarchy_name="containerName")
-        hlod.lod_array.sub_objects = [
+        hlod.lod_arrays[0].sub_objects = [
             get_hlod_sub_object(bone=1, name="containerName.building"),
             get_hlod_sub_object(bone=0, name="containerName.PICK")]
-        hlod.lod_array.header.model_count = len(hlod.lod_array.sub_objects)
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         mesh_structs = [
             get_mesh(name="building"),
