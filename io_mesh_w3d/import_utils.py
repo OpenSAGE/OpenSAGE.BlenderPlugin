@@ -45,12 +45,54 @@ def smooth_mesh(mesh):
         print("incorrect context for mesh smoothing")
 
 
-def get_collection(hlod):
+def get_collection(hlod=None):
     if hlod is not None:
         coll = bpy.data.collections.new(hlod.header.model_name)
         bpy.context.collection.children.link(coll)
         return coll
     return bpy.context.collection
+
+
+
+
+def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+    # TODO: clean up this mess!!
+    coll = get_collection(hlod)
+    mesh_objects = []
+    if hlod is not None:
+        current_coll = coll
+        for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
+            if i > 0:
+                current_coll = get_collection(hlod)
+
+            for sub_object in lod_array.sub_objects:
+                for mesh in meshes:
+                    if mesh.name() == sub_object.name():
+                        mesh_objects.append(create_mesh(self, mesh, hierarchy, current_coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        for box in boxes:
+            create_box(box, hlod, hierarchy, rig, coll)
+
+        for lod_array in reversed(hlod.lod_arrays):
+            for sub_object in lod_array.sub_objects:
+                for i, mesh in enumerate(meshes):
+                    if mesh.name() == sub_object.name():
+                        rig_mesh(mesh, mesh_objects[i], hierarchy, rig, sub_object)
+
+    else:
+        for mesh in meshes:
+            mesh_objects.append(create_mesh(self, mesh, hierarchy, coll))
+
+        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        for box in boxes:
+            create_box(box, hlod, hierarchy, rig, coll)
+
+        for i, mesh in enumerate(meshes):
+            rig_mesh(mesh, mesh_objects[i], hierarchy, rig)
+
+    create_animation(rig, animation, hierarchy)
+    create_animation(rig, compressed_animation, hierarchy, compressed=True)
 
 
 ##########################################################################
@@ -117,7 +159,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     return mesh
 
 
-def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
+def rig_mesh(mesh_struct, mesh, hierarchy, rig, sub_object = None):
     mesh_ob = bpy.data.objects[mesh_struct.name()]
 
     if hierarchy is None or not hierarchy.pivots:
@@ -152,23 +194,30 @@ def rig_mesh(mesh_struct, mesh, hierarchy, hlod, rig):
 
     else:
         pivot = None
-        sub_objects = [sub_object for sub_object in hlod.lod_arrays[0].sub_objects if sub_object.name() == mesh_struct.name()]
-        if not sub_objects:
+
+        if not sub_object:
             return
         else:
-            sub_object = sub_objects[0]
             pivot = hierarchy.pivots[sub_object.bone_index]
+
+        if rig is not None and pivot.name in rig.pose.bones:
+            mesh_ob.parent = rig
+            mesh_ob.parent_bone = pivot.name
+            mesh_ob.parent_type = 'BONE'
+            return
 
         mesh_ob.rotation_mode = 'QUATERNION'
         mesh_ob.delta_location = pivot.translation
         mesh_ob.delta_rotation_quaternion = pivot.rotation
 
+        # TODO: try to return here!
         if pivot.parent_id <= 0:
             return
 
         parent_pivot = hierarchy.pivots[pivot.parent_id]
 
         if parent_pivot.name in bpy.data.objects:
+            # TODO: is this needed?
             mesh_ob.parent = bpy.data.objects[parent_pivot.name]
         else:
             mesh_ob.parent = rig
@@ -191,7 +240,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
             return obj
         return None
 
-    return create_bone_hierarchy(hierarchy, hlod.lod_arrays[0].sub_objects, coll)
+    return create_bone_hierarchy(hierarchy, hlod.lod_arrays[-1].sub_objects, coll)
 
 
 def make_transform_matrix(loc, rot):
@@ -658,7 +707,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
         return
 
     sub_objects = [
-        sub_object for sub_object in hlod.lod_arrays[0].sub_objects if sub_object.name() == box.name()]
+        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name() == box.name()]
     if not sub_objects:
         return
     sub_object = sub_objects[0]

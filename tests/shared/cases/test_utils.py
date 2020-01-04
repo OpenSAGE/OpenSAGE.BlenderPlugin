@@ -60,23 +60,22 @@ class TestUtils(TestCase):
         actual = retrieve_shader(material)
         compare_shaders(self, expected, actual)
 
-    def test_boxES_roundtrip(self):
-        bound_box = get_box()
-        world_box = get_box("WORLDBOX")
+    def test_boxes_roundtrip(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
+        meshes = [get_mesh()]
+        boxes = [get_box(), get_box("WORLDBOX")]
 
-        create_box(bound_box, hlod, None, None, get_collection(None))
-        create_box(world_box, hlod, None, None, get_collection(None))
+        create_data(self, meshes, hlod, hierarchy, boxes)
 
-        boxes = retrieve_boxes(hlod, hierarchy)
-        compare_boxes(self, bound_box, boxes[0])
-        compare_boxes(self, world_box, boxes[1])
+        actual_boxes = retrieve_boxes(hlod, hierarchy)
+        
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
     def test_hierarchy_roundtrip(self):
-        expected = get_hierarchy()
+        hierarchy = get_hierarchy()
         hlod = get_hlod()
-        mesh_structs = [
+        meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK"),
@@ -85,28 +84,16 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, expected, coll))
-
-        rig = get_or_create_skeleton(hlod, expected, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], expected, hlod, rig)
-
-        expected.pivot_fixups = []  # not supported
-        (actual, rig) = retrieve_hierarchy("containerName")
-
-        compare_hierarchies(self, expected, actual)
+        self.compare_data(meshes, hlod, hierarchy)
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
-        box = get_box()
+        boxes = [get_box()]
         hierarchy = get_hierarchy()
 
-        mesh_structs = [
+        meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK"),
@@ -115,28 +102,43 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy, boxes)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
+    def test_hlod_4_levels_roundtrip(self):
+        hlod = get_hlod_4_levels()
+        boxes = [get_box()]
+        hierarchy = get_hierarchy()
 
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+        meshes = [
+            get_mesh(name="mesh1"),
+            get_mesh(name="mesh2"),
+            get_mesh(name="mesh3"),
 
-        actual = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(self, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
+            get_mesh(name="mesh1_1"),
+            get_mesh(name="mesh2_1"),
+            get_mesh(name="mesh3_1"),
+
+            get_mesh(name="mesh1_2"),
+            get_mesh(name="mesh2_2"),
+            get_mesh(name="mesh3_2"),
+
+            get_mesh(name="mesh1_3"),
+            get_mesh(name="mesh2_3"),
+            get_mesh(name="mesh3_3")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_data(self, meshes, hlod, hierarchy, boxes)
+
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
             self):
-        context = ImportWrapper(self.outpath())
         hlod = get_hlod()
-        box = get_box()
+        boxes = [get_box()]
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
 
@@ -176,7 +178,7 @@ class TestUtils(TestCase):
 
         hlod.lod_array = array
 
-        mesh_structs = [
+        meshes = [
             get_mesh(name="sword"),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="shield"),
@@ -185,27 +187,9 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy, boxes)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(context, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
-
-        self.assertEqual(5, len(rig.data.bones))
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        actual = create_hlod("containerName", hierarchy.header.name)
-
-        retrieve_boxes(actual, hierarchy)
-        retrieve_meshes(context, hierarchy, rig, actual, "containerName")
-        compare_hlods(self, hlod, actual)
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod(hierarchy_name="containerName")
@@ -214,7 +198,7 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=0, name="containerName.PICK")]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
-        mesh_structs = [
+        meshes = [
             get_mesh(name="building"),
             get_mesh(name="PICK")]
 
@@ -228,42 +212,19 @@ class TestUtils(TestCase):
             get_hierarchy_pivot("building", 0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-
-        compare_hierarchies(self, hierarchy, actual_hiera)
-
-        actual_hlod = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual_hlod, actual_hiera)
-        actual_mesh_structs = retrieve_meshes(
-            self, actual_hiera, rig, actual_hlod, "containerName")
-        compare_hlods(self, hlod, actual_hlod)
-
-        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
+        self.compare_data(meshes, hlod, hierarchy)
 
     def test_meshes_roundtrip(self):
         hlod = get_hlod()
-        box = get_box()
+        boxes = [get_box()]
         hierarchy = get_hierarchy()
-        expecteds = [
+        meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK", shader_mats=True),
             get_mesh(name="pike")]
-
-        coll = get_collection(hlod)
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -271,65 +232,47 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture_nrm.dds")
 
-        meshes = []
-        for mesh_struct in expecteds:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+        create_data(self, meshes, hlod, hierarchy, boxes)
 
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
-        for i, mesh_struct in enumerate(expecteds):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        hlod = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(hlod, hierarchy)
-        actuals = retrieve_meshes(
-            self, hierarchy, rig, hlod, "containerName")
-
-        self.assertEqual(len(expecteds), len(actuals))
-        for i, expected in enumerate(expecteds):
-            compare_meshes(self, expected, actuals[i])
-
-    def test_prelit_meshes_roundtrip(self):
-        hlod = get_hlod()
-        box = get_box()
-        hierarchy = get_hierarchy()
-        expecteds = [get_mesh(name="sword", skin=True, prelit=True)]
-
-        coll = get_collection(hlod)
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
+    def test_meshes_only_roundtrip(self):
+        meshes = [
+            get_mesh(name="wall"),
+            get_mesh(name="tower"),
+            get_mesh(name="tower2", shader_mats=True),
+            get_mesh(name="stone")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        meshes = []
-        for mesh_struct in expecteds:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture_nrm.dds")
 
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
+        create_data(self, meshes)
 
-        for i, mesh_struct in enumerate(expecteds):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+        self.compare_data(meshes)
 
-        hlod = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(hlod, hierarchy)
-        actuals = retrieve_meshes(
-            self, hierarchy, rig, hlod, "containerName")
+    def test_prelit_meshes_roundtrip(self):
+        hlod = get_hlod()
+        hierarchy = get_hierarchy()
+        meshes = [get_mesh(name="sword", skin=True, prelit=True)]
 
-        self.assertEqual(len(expecteds), len(actuals))
-        # for i, expected in enumerate(expecteds):
-        #    compare_meshes(self, expected, actuals[i])
-        # prelit roundtrip not supported yet
-        # need a way to reference a material to its prelit chunk
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        #export not supported yet
+        #self.compare_data(meshes, hlod, hierarchy)
 
     def test_animation_roundtrip(self):
-        expected = get_animation()
+        animation = get_animation()
         hlod = get_hlod()
-        box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
 
-        mesh_structs = [
+        meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK"),
@@ -338,37 +281,9 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy, [], animation)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        create_animation(rig, expected, hierarchy)
-
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
-
-        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
-        retrieve_boxes(actual_hlod, actual_hiera)
-        actual_mesh_structs = retrieve_meshes(
-            self, actual_hiera, rig, actual_hlod, "containerName")
-
-        compare_hlods(self, hlod, actual_hlod)
-
-        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
-        for i, mesh in enumerate(mesh_structs):
-            compare_meshes(self, mesh, actual_mesh_structs[i])
-
-        actual = retrieve_animation(
-            expected.header.name, hierarchy, rig, timecoded=False)
-        compare_animations(self, expected, actual)
+        self.compare_data(meshes, hlod, hierarchy, [], animation)
 
     def test_compressed_animation_roundtrip(self):
         expected = get_compressed_animation(
@@ -379,10 +294,9 @@ class TestUtils(TestCase):
             motion_ad8=False,
             random_interpolation=False)
         hlod = get_hlod()
-        box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
-        mesh_structs = [
+        meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK"),
@@ -391,42 +305,13 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
+        create_data(self, meshes, hlod, hierarchy, [], None, expected)
 
-        meshes = []
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-        create_animation(rig, expected, hierarchy, compressed=True)
-
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
-
-        actual_hlod = create_hlod("containerName", actual_hiera.header.name)
-        retrieve_boxes(actual_hlod, actual_hiera)
-        actual_mesh_structs = retrieve_meshes(
-            self, actual_hiera, rig, actual_hlod, "containerName")
-
-        compare_hlods(self, hlod, actual_hlod)
-
-        self.assertEqual(len(mesh_structs), len(actual_mesh_structs))
-        for i, mesh in enumerate(mesh_structs):
-            compare_meshes(self, mesh, actual_mesh_structs[i])
-
-        actual = retrieve_animation(
-            "containerName", hierarchy, rig, timecoded=True)
-        compare_compressed_animations(self, expected, actual)
+        self.compare_data(meshes, hlod, hierarchy, [], None, expected)
 
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
             self):
         hlod = get_hlod()
-        box = get_box()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [get_roottransform()]
@@ -451,31 +336,50 @@ class TestUtils(TestCase):
 
         array.header.model_count = len(array.sub_objects)
         hlod.lod_arrays = [array]
-        mesh_structs = [
+        meshes = [
             get_mesh(name="mesh", skin=True),
             get_mesh(name="bone_pivot")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        coll = get_collection(hlod)
-        meshes = []
+        create_data(self, meshes, hlod, hierarchy)
 
-        for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+        self.compare_data(meshes, hlod, hierarchy)
 
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        create_box(box, hlod, hierarchy, rig, coll)
-        self.assertEqual(4, len(rig.data.bones))
 
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+    def compare_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+        container_name = "containerName"
+        rig = None
+        actual_hiera = None
+        actual_hlod = None
+        if hierarchy is not None:
+            (actual_hiera, rig) = retrieve_hierarchy(container_name)
+            hierarchy.pivot_fixups = [] # roundtrip not supported
+            compare_hierarchies(self, hierarchy, actual_hiera)
 
-        actual_hlod = create_hlod("containerName", hierarchy.header.name)
-        retrieve_boxes(actual_hlod, hierarchy)
+        if hlod is not None:
+            actual_hlod = create_hlod(container_name, actual_hiera.header.name)
+            compare_hlods(self, hlod, actual_hlod)
 
-        retrieve_meshes(self, hierarchy, rig, actual_hlod, "containerName")
+        actual_meshes = retrieve_meshes(self, actual_hiera, rig, actual_hlod, container_name)
+        self.assertEqual(len(meshes), len(actual_meshes))
+        for i, mesh in enumerate(meshes):
+            compare_meshes(self, mesh, actual_meshes[i])
 
-        compare_hlods(self, hlod, actual_hlod)
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        compare_hierarchies(self, hierarchy, actual_hiera)
+        if boxes:
+            actual_boxes = retrieve_boxes(hlod, hierarchy)
+        
+            self.assertEqual(len(boxes), len(actual_boxes))
+            for i, box in enumerate(boxes):
+                compare_boxes(self, box, actual_boxes[i])
+
+        if animation is not None:
+            actual_animation = retrieve_animation(animation.header.name, actual_hiera, rig, timecoded=False)
+            compare_animations(self, animation, actual_animation)
+
+        if compressed_animation is not None:
+            actual_compressed_animation = retrieve_animation(compressed_animation.header.name, hierarchy, rig, timecoded=True)
+            compare_compressed_animations(self, compressed_animation, actual_compressed_animation)
+
+

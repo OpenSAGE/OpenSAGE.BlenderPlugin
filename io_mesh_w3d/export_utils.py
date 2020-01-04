@@ -287,7 +287,7 @@ def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
     subObject.name_ = container_name + "." + name
     subObject.bone_index = 0
 
-    if not mesh_struct.is_skin():
+    if not mesh_struct.is_skin() and hierarchy is not None:
         for index, pivot in enumerate(hierarchy.pivots):
             if pivot.name == name:
                 subObject.bone_index = index

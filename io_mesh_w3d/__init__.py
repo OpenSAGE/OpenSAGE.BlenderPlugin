@@ -34,6 +34,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     bl_label = 'Export W3D'
     bl_options = {'UNDO', 'PRESET'}
 
+    filename_ext = '.w3d'
+
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     export_mode: EnumProperty(

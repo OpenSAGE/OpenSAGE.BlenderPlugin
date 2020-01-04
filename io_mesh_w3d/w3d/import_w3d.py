@@ -47,24 +47,24 @@ def load(self, import_settings):
     file = open(self.filepath, "rb")
     filesize = os.path.getsize(self.filepath)
 
-    mesh_structs = []
-    hierarchy = None
-    animation = None
-    compressedAnimation = None
+    meshes = []
     hlod = None
+    hierarchy = None
     boxes = []
+    animation = None
+    compressed_animation = None
 
     while file.tell() < filesize:
         (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
         if chunk_type == W3D_CHUNK_MESH:
-            mesh_structs.append(Mesh.read(self, file, chunk_end))
+            meshes.append(Mesh.read(self, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
             hierarchy = Hierarchy.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_ANIMATION:
             animation = Animation.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
-            compressedAnimation = CompressedAnimation.read(
+            compressed_animation = CompressedAnimation.read(
                 self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_HLOD:
             hlod = HLod.read(self, file, chunk_end)
@@ -121,9 +121,9 @@ def load(self, import_settings):
         elif animation is not None and animation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
                 animation.header.hierarchy_name.lower() + ".w3d"
-        elif compressedAnimation is not None and compressedAnimation.header.name != "":
+        elif compressed_animation is not None and compressed_animation.header.name != "":
             sklpath = os.path.dirname(self.filepath) + "/" + \
-                compressedAnimation.header.hierarchy_name.lower() + ".w3d"
+                compressed_animation.header.hierarchy_name.lower() + ".w3d"
 
         if sklpath is not None:
             try:
@@ -132,21 +132,7 @@ def load(self, import_settings):
                 print("!!! hierarchy file not found: " + sklpath)
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
-    coll = get_collection(hlod)
-
-    meshes = []
-    for mesh_struct in mesh_structs:
-        meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
-
-    rig = get_or_create_skeleton(hlod, hierarchy, coll)
-    for box in boxes:
-        create_box(box, hlod, hierarchy, rig, coll)
-
-    for i, mesh_struct in enumerate(mesh_structs):
-        rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
-
-    create_animation(rig, animation, hierarchy)
-    create_animation(rig, compressedAnimation, hierarchy, compressed=True)
+    create_data(self, meshes, hlod, hierarchy, boxes, animation, compressed_animation)
 
     return {'FINISHED'}
 
