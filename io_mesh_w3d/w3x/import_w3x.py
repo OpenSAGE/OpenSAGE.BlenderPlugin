@@ -57,7 +57,8 @@ def load_file(self, path, w3x_context):
             w3x_context.textures.append(Texture.parse(node))
         else:
             print("!!! unsupported node " + node.tagName + " in file: " + path)
-            self.report({'WARNING'}, "!!! unsupported node " + node.tagName + " in file: " + path)
+            self.report({'WARNING'}, "!!! unsupported node " +
+                        node.tagName + " in file: " + path)
 
     return w3x_context
 
@@ -81,7 +82,7 @@ def load(self, import_settings):
     hierarchy = w3x_context.hierarchy
     boxes = w3x_context.collision_boxes
 
-    hlod = None # for now
+    hlod = None  # for now
     coll = get_collection(hlod)
 
     mesh_objects = []

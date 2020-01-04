@@ -129,7 +129,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
-    #default='*.w3d;*.w3x'
+    # default='*.w3d;*.w3x'
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     def execute(self, context):

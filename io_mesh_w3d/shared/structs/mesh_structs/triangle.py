@@ -14,7 +14,6 @@ class Triangle(Struct):
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 
-
     @staticmethod
     def read(io_stream):
         return Triangle(
@@ -24,11 +23,9 @@ class Triangle(Struct):
             normal=read_vector(io_stream),
             distance=read_float(io_stream))
 
-
     @staticmethod
     def size():
         return 32
-
 
     def write(self, io_stream):
         write_ulong(self.vert_ids[0], io_stream)
@@ -38,7 +35,6 @@ class Triangle(Struct):
         write_vector(self.normal, io_stream)
         write_float(self.distance, io_stream)
 
-
     @staticmethod
     def parse(xml_triangle):
         result = Triangle(vert_ids=[])
@@ -47,10 +43,11 @@ class Triangle(Struct):
         for i, xml_vert in enumerate(xml_verts):
             result.vert_ids.append(int(xml_vert.childNodes[0].nodeValue))
 
-        result.normal = parse_vector(xml_triangle.getElementsByTagName('Nrm')[0])
-        result.distance = float(xml_triangle.getElementsByTagName('Dist')[0].childNodes[0].nodeValue)
+        result.normal = parse_vector(
+            xml_triangle.getElementsByTagName('Nrm')[0])
+        result.distance = float(xml_triangle.getElementsByTagName('Dist')[
+                                0].childNodes[0].nodeValue)
         return result
-
 
     def create(self, doc):
         result = doc.createElement('T')

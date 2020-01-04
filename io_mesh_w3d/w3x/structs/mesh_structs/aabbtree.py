@@ -77,7 +77,7 @@ class Node(Struct):
 
         if self.children is not None:
             xml_node.appendChild(self.children.create(doc))
-       
+
         return xml_node
 
 
@@ -93,7 +93,8 @@ class AABBTree(Struct):
 
         xml_polyindices = xml_aabbtree.getElementsByTagName('PolyIndices')[0]
         for xml_poly_index in xml_polyindices.getElementsByTagName('P'):
-            result.poly_indices.append(int(xml_poly_index.childNodes[0].nodeValue))
+            result.poly_indices.append(
+                int(xml_poly_index.childNodes[0].nodeValue))
 
         xml_nodes = xml_aabbtree.getElementsByTagName('Node')
         for xml_node in xml_nodes:
