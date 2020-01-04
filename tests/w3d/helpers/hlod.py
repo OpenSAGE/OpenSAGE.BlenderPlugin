@@ -53,11 +53,12 @@ def get_hlod_array():
         header=get_hlod_array_header(),
         sub_objects=[])
 
-    array.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX"),
+    array.sub_objects = [
                         get_hlod_sub_object(bone=0, name="containerName.sword"),
                         get_hlod_sub_object(bone=0, name="containerName.soldier"),
                         get_hlod_sub_object(bone=6, name="containerName.TRUNK"),
-                        get_hlod_sub_object(bone=0, name="containerName.PICK")]
+                        get_hlod_sub_object(bone=0, name="containerName.PICK"),
+                        get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX")]
 
     array.header.model_count = len(array.sub_objects)
     return array

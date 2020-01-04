@@ -63,18 +63,20 @@ class TestUtils(TestCase):
     def test_boxes_roundtrip(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
-        meshes = [get_mesh()]
+        meshes = []
         boxes = [get_box(), get_box("WORLDBOX")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
-        actual_boxes = retrieve_boxes(hlod, hierarchy)
-        
-        self.compare_data(meshes, hlod, hierarchy, boxes)
+        self.compare_data([], None, None, boxes)
 
     def test_hierarchy_roundtrip(self):
         hierarchy = get_hierarchy()
         hlod = get_hlod()
+        boxes = [get_box()]
         meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
@@ -84,9 +86,9 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        create_data(self, meshes, hlod, hierarchy)
+        create_data(self, meshes, hlod, hierarchy, boxes)
 
-        self.compare_data(meshes, hlod, hierarchy)
+        self.compare_data([], None, hierarchy)
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -104,7 +106,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
-        self.compare_data(meshes, hlod, hierarchy, boxes)
+        self.compare_data([], hlod, hierarchy)
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()
@@ -135,86 +137,24 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
 
-    def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
-            self):
+
+    def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()
         boxes = [get_box()]
         hierarchy = get_hierarchy()
-        hierarchy.pivot_fixups = []
-
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots = [root]
-
-        hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
-        hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
-        hierarchy.pivots.append(get_hierarchy_pivot("shoulderl", 2))
-        hierarchy.pivots.append(get_hierarchy_pivot("arml", 3))
-        hierarchy.pivots.append(get_hierarchy_pivot("shield", 4))
-        hierarchy.pivots.append(get_hierarchy_pivot("armr", 3))
-        hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
-
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        array = HLodArray(
-            header=get_hlod_array_header(),
-            sub_objects=[])
-
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=3, name="containerName.BOUNDINGBOX"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=7, name="containerName.sword"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=0, name="containerName.soldier"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=5, name="containerName.shield"))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=0, name="containerName.PICK"))
-
-        array.header.model_count = len(array.sub_objects)
-
-        hlod.lod_array = array
-
         meshes = [
-            get_mesh(name="sword"),
+            get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
-            get_mesh(name="shield"),
+            get_mesh(name="TRUNK"),
             get_mesh(name="PICK")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
+
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
-
-    def test_PICK_mesh_roundtrip(self):
-        hlod = get_hlod(hierarchy_name="containerName")
-        hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name="containerName.building"),
-            get_hlod_sub_object(bone=0, name="containerName.PICK")]
-        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
-
-        meshes = [
-            get_mesh(name="building"),
-            get_mesh(name="PICK")]
-
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
-        hierarchy = get_hierarchy("containerName")
-        hierarchy.pivot_fixups = []
-        hierarchy.pivots = [
-            get_roottransform(),
-            get_hierarchy_pivot("building", 0)]
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        create_data(self, meshes, hlod, hierarchy)
-
-        self.compare_data(meshes, hlod, hierarchy)
 
     def test_meshes_roundtrip(self):
         hlod = get_hlod()
@@ -224,7 +164,7 @@ class TestUtils(TestCase):
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK", shader_mats=True),
-            get_mesh(name="pike")]
+            get_mesh(name="PICK")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -234,7 +174,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
-        self.compare_data(meshes, hlod, hierarchy, boxes)
+        self.compare_data(meshes)
 
     def test_meshes_only_roundtrip(self):
         meshes = [
@@ -269,6 +209,7 @@ class TestUtils(TestCase):
     def test_animation_roundtrip(self):
         animation = get_animation()
         hlod = get_hlod()
+        boxes = [get_box()]
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
 
@@ -281,18 +222,19 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        create_data(self, meshes, hlod, hierarchy, [], animation)
+        create_data(self, meshes, hlod, hierarchy, boxes, animation)
 
-        self.compare_data(meshes, hlod, hierarchy, [], animation)
+        self.compare_data([], None, None, [], animation)
 
     def test_compressed_animation_roundtrip(self):
-        expected = get_compressed_animation(
+        compressed_animation = get_compressed_animation(
             flavor=0,
             bit_channels=False,
             motion_tc=False,
             motion_ad4=False,
             motion_ad8=False,
             random_interpolation=False)
+        boxes = [get_box()]
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
@@ -305,9 +247,9 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        create_data(self, meshes, hlod, hierarchy, [], None, expected)
+        create_data(self, meshes, hlod, hierarchy, boxes, None, compressed_animation)
 
-        self.compare_data(meshes, hlod, hierarchy, [], None, expected)
+        self.compare_data([], None, None, [], None, compressed_animation)
 
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
             self):
@@ -332,44 +274,48 @@ class TestUtils(TestCase):
         array.sub_objects.append(get_hlod_sub_object(
             bone=0, name="containerName.mesh"))
         array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name="containerName.bone_pivot"))
+            bone=1, name="containerName.bone_pivot2"))
 
         array.header.model_count = len(array.sub_objects)
         hlod.lod_arrays = [array]
         meshes = [
             get_mesh(name="mesh", skin=True),
-            get_mesh(name="bone_pivot")]
+            get_mesh(name="bone_pivot2")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
         create_data(self, meshes, hlod, hierarchy)
 
-        self.compare_data(meshes, hlod, hierarchy)
+        (_, rig) = retrieve_hierarchy("containerName")
+
+        self.assertTrue("bone_pivot2" in rig.pose.bones)
 
 
-    def compare_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+    def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
         container_name = "containerName"
         rig = None
         actual_hiera = None
         actual_hlod = None
+
+        (actual_hiera, rig) = retrieve_hierarchy(container_name)
         if hierarchy is not None:
-            (actual_hiera, rig) = retrieve_hierarchy(container_name)
             hierarchy.pivot_fixups = [] # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
 
+        actual_hlod = create_hlod(actual_hiera, container_name)
         if hlod is not None:
-            actual_hlod = create_hlod(container_name, actual_hiera.header.name)
             compare_hlods(self, hlod, actual_hlod)
 
-        actual_meshes = retrieve_meshes(self, actual_hiera, rig, actual_hlod, container_name)
-        self.assertEqual(len(meshes), len(actual_meshes))
-        for i, mesh in enumerate(meshes):
-            compare_meshes(self, mesh, actual_meshes[i])
+        if meshes:
+            actual_meshes = retrieve_meshes(self, actual_hiera, rig, container_name)
+            self.assertEqual(len(meshes), len(actual_meshes))
+            for i, mesh in enumerate(meshes):
+                compare_meshes(self, mesh, actual_meshes[i])
 
         if boxes:
-            actual_boxes = retrieve_boxes(hlod, hierarchy)
-        
+            actual_boxes = retrieve_boxes(actual_hiera, container_name)
+
             self.assertEqual(len(boxes), len(actual_boxes))
             for i, box in enumerate(boxes):
                 compare_boxes(self, box, actual_boxes[i])
@@ -379,7 +325,7 @@ class TestUtils(TestCase):
             compare_animations(self, animation, actual_animation)
 
         if compressed_animation is not None:
-            actual_compressed_animation = retrieve_animation(compressed_animation.header.name, hierarchy, rig, timecoded=True)
+            actual_compressed_animation = retrieve_animation(compressed_animation.header.name, actual_hiera, rig, timecoded=True)
             compare_compressed_animations(self, compressed_animation, actual_compressed_animation)
 
 
