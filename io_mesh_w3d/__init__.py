@@ -126,7 +126,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
     bl_idname = 'import_mesh.westwood_w3d'
-    bl_label = 'Import W3D/W3X'
+    bl_label = 'Import W3D'
     bl_options = {'UNDO'}
 
     #default='*.w3d;*.w3x'
