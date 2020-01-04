@@ -80,7 +80,7 @@ class TestImportUtils(TestCase):
 
         array.header.model_count = len(array.sub_objects)
 
-        hlod.lod_array = array
+        hlod.lod_arrays = [array]
 
         mesh_structs = [
             get_mesh(name="first"),

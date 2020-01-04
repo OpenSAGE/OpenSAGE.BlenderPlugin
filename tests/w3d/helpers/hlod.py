@@ -95,17 +95,6 @@ def get_hlod_minimal(model_name="containerName", hierarchy_name="TestHierarchy")
         lod_arrays=[get_hlod_array_minimal()])
 
 
-def get_hlod_3_lod(model_name="containerName", hierarchy_name="TestHierarchy"):
-    hlod = HLod(
-        header=get_hlod_header(model_name, hierarchy_name),
-        lod_arrays=[])
-
-    hlod.header.lod_count = 3
-
-
-    return hlod
-
-
 def compare_hlods(self, expected, actual):
     compare_hlod_headers(self, expected.header, actual.header)
     self.assertEqual(len(expected.lod_arrays), len(actual.lod_arrays))
