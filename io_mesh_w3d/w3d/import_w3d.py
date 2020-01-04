@@ -133,7 +133,6 @@ def load(self, import_settings):
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
     create_data(self, meshes, hlod, hierarchy, boxes, animation, compressed_animation)
-
     return {'FINISHED'}
 
 

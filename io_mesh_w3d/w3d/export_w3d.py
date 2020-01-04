@@ -23,16 +23,16 @@ def save(self, export_settings):
 
     (hierarchy, rig) = retrieve_hierarchy(containerName)
 
-    hlod = create_hlod(containerName, hierarchy.header.name)
+    hlod = create_hlod(hierarchy, containerName)
 
     if export_mode in ('M', 'HAM'):
         sknFile = open(self.filepath, "wb")
 
-        boxes = retrieve_boxes(hlod, hierarchy)
+        boxes = retrieve_boxes(hierarchy, containerName)
         for box in boxes:
             box.write(sknFile)
 
-        meshes = retrieve_meshes(self, hierarchy, rig, hlod, containerName)
+        meshes = retrieve_meshes(self, hierarchy, rig, containerName)
         for mesh in meshes:
             mesh.write(sknFile)
 

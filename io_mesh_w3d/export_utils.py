@@ -34,9 +34,8 @@ def switch_to_pose(rig, pose):
 ##########################################################################
 
 
-def retrieve_boxes(hlod, hierarchy):
+def retrieve_boxes(hierarchy, container_name):
     boxes = []
-    container_name = hlod.header.model_name
 
     for mesh_object in get_objects('MESH'):
         if mesh_object.name not in bounding_box_names:
@@ -63,14 +62,10 @@ def retrieve_boxes(hlod, hierarchy):
         for index, pivot in enumerate(hierarchy.pivots):
             if pivot.name == mesh_object.parent_bone:
                 subObject.bone_index = index
-
-        hlod.lod_arrays[0].sub_objects.append(subObject)
-        hlod.lod_arrays[0].header.model_count = len(
-            hlod.lod_arrays[0].sub_objects)
     return boxes
 
 
-def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
+def retrieve_meshes(context, hierarchy, rig, container_name):
     mesh_structs = []
 
     switch_to_pose(rig, 'REST')
@@ -182,8 +177,6 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
         header.sphCenter = center
         header.sphRadius = radius
 
-        append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy)
-
         b_mesh = bmesh.new()
         b_mesh.from_mesh(mesh)
 
@@ -270,30 +263,36 @@ def retrieve_meshes(context, hierarchy, rig, hlod, container_name):
 ##########################################################################
 
 
-def create_hlod(container_name, hierarchy_name):
-    lod_array = HLodArray(
-        header=HLodArrayHeader(),
-        sub_objects=[])
-    return HLod(
+def create_hlod(hierarchy, container_name):
+    hlod = HLod(
         header=HLodHeader(
             model_name=container_name,
-            hierarchy_name=hierarchy_name),
-        lod_arrays=[lod_array])
+            hierarchy_name=hierarchy.header.name),
+        lod_arrays=[])
 
+    for coll in bpy.data.collections:
+        meshes = [object for object in coll.objects if object.type == 'MESH']
+        if not meshes:
+            continue
 
-def append_hlod_subObject(hlod, container_name, mesh_struct, hierarchy):
-    name = mesh_struct.header.mesh_name
-    subObject = HLodSubObject()
-    subObject.name_ = container_name + "." + name
-    subObject.bone_index = 0
+        lod_array = HLodArray(
+            header=HLodArrayHeader(
+                model_count=len(meshes)),
+            sub_objects=[])
 
-    if not mesh_struct.is_skin() and hierarchy is not None:
-        for index, pivot in enumerate(hierarchy.pivots):
-            if pivot.name == name:
-                subObject.bone_index = index
+        for mesh in meshes:
+            subObject = HLodSubObject(
+                name_=container_name + "." + mesh.name,
+                bone_index=0)
 
-    hlod.lod_arrays[0].sub_objects.append(subObject)
-    hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+            for index, pivot in enumerate(hierarchy.pivots):
+                if pivot.name == mesh.name:
+                    subObject.bone_index = index
+
+            lod_array.sub_objects.append(subObject)
+
+        hlod.lod_arrays.append(lod_array)
+    return hlod
 
 
 ##########################################################################
@@ -506,25 +505,35 @@ def retrieve_hierarchy(container_name):
         print("Error: only one armature per scene allowed")
         return
 
-    for mesh_object in get_objects('MESH'):
-        if mesh_object.vertex_groups \
-                or mesh_object.name in bounding_box_names \
-                or mesh_object.name in pick_plane_names:
+    meshes = []
+    if rig is not None:
+        for coll in bpy.data.collections:
+            if rig.name in coll.objects:
+                meshes = [object for object in coll.objects if object.type == 'MESH']
+    else:
+        meshes = get_objects('MESH')
+
+    for mesh in meshes:
+        if mesh.vertex_groups \
+                or mesh.name in bounding_box_names \
+                or mesh.name in pick_plane_names:
             continue
 
-        eulers = mesh_object.rotation_quaternion.to_euler()
+        eulers = mesh.rotation_quaternion.to_euler()
         pivot = HierarchyPivot(
-            name=mesh_object.name,
+            name=mesh.name,
             parent_id=0,
-            translation=mesh_object.delta_location,
-            rotation=mesh_object.delta_rotation_quaternion,
+            translation=mesh.delta_location,
+            rotation=mesh.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
-        if mesh_object.parent_bone != "":
-            pivot.parent_id = mesh_object.parent_bone
+        if mesh.parent_bone != "":
+            pivot.parent_id = mesh.parent_bone
 
-        elif mesh_object.parent is not None:
-            pivot.parent_id = mesh_object.parent.name
+        elif mesh.parent is not None:
+            pivot.parent_id = mesh.parent.name
+        else:
+            print("################")
 
         pivots.append(pivot)
 

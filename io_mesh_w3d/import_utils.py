@@ -48,9 +48,9 @@ def smooth_mesh(mesh):
 def get_collection(hlod=None):
     if hlod is not None:
         coll = bpy.data.collections.new(hlod.header.model_name)
-        bpy.context.collection.children.link(coll)
+        bpy.context.scene.collection.children.link(coll)
         return coll
-    return bpy.context.collection
+    return bpy.context.scene.collection
 
 
 
@@ -210,16 +210,14 @@ def rig_mesh(mesh_struct, mesh, hierarchy, rig, sub_object = None):
         mesh_ob.delta_location = pivot.translation
         mesh_ob.delta_rotation_quaternion = pivot.rotation
 
-        # TODO: try to return here!
         if pivot.parent_id <= 0:
             return
 
         parent_pivot = hierarchy.pivots[pivot.parent_id]
 
         if parent_pivot.name in bpy.data.objects:
-            # TODO: is this needed?
             mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-        else:
+        elif rig is not None and parent_pivot.name in rig.pose.bones:
             mesh_ob.parent = rig
             mesh_ob.parent_bone = parent_pivot.name
             mesh_ob.parent_type = 'BONE'
