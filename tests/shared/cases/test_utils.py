@@ -450,7 +450,7 @@ class TestUtils(TestCase):
             bone=1, name="containerName.bone_pivot"))
 
         array.header.model_count = len(array.sub_objects)
-        hlod.lod_array = array
+        hlod.lod_arrays = [array]
         mesh_structs = [
             get_mesh(name="mesh", skin=True),
             get_mesh(name="bone_pivot")]
