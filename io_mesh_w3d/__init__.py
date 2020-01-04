@@ -15,12 +15,12 @@ from bpy.props import StringProperty,\
 
 
 bl_info = {
-    'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
+    'name': 'Import/Export Westwood W3D Format (.w3d)',
     'author': 'OpenSage Developers',
     'version': (0, 3, 0),
     "blender": (2, 81, 0),
-    'location': 'File > Import/Export > Westerwood W3D (.w3d/.w3x)',
-    'description': 'Import or Export the Westerwood W3D-Format (.w3d/.w3x)',
+    'location': 'File > Import/Export > Westerwood W3D (.w3d)',
+    'description': 'Import or Export the Westerwood W3D-Format (.w3d)',
     'warning': 'Still in Progress',
     'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
     'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
@@ -129,7 +129,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
-    filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
+    #default='*.w3d;*.w3x'
+    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
