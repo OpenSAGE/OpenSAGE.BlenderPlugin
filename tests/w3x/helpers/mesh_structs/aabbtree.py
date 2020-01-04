@@ -35,7 +35,7 @@ def compare_polys(self, expected, actual):
     self.assertEqual(expected.count, actual.count)
 
 
-def get_node(polys = None, children = None):
+def get_node(polys=None, children=None):
     return Node(
         min=get_vector(3.1, 3.2, 0.2),
         max=get_vector(2.0, -1.0, 22.0),
@@ -60,9 +60,9 @@ def get_aabbtree():
     return AABBTree(
         poly_indices=[1, 2, 33, 2, 3, 4, 5],
         nodes=[
-            get_node(polys=get_polys()), 
-            get_node(polys=get_polys()), 
-            get_node(children=get_children()), 
+            get_node(polys=get_polys()),
+            get_node(polys=get_polys()),
+            get_node(children=get_children()),
             get_node(children=get_children())])
 
 

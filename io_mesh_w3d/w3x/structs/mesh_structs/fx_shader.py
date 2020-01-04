@@ -25,12 +25,12 @@ class Constant(Struct):
     def create(self, doc):
         xml_constant = doc.createElement(self.type)
         xml_constant.setAttribute('Name', self.name)
-        
+
         for value in self.values:
             xml_value = doc.createElement('Value')
             xml_value.appendChild(doc.createTextNode(str(value)))
             xml_constant.appendChild(xml_value)
-       
+
         return xml_constant
 
 
@@ -43,7 +43,8 @@ class FXShader(Struct):
     def parse(xml_fx_shader):
         result = FXShader(
             shader_name=xml_fx_shader.attributes['ShaderName'].value,
-            technique_index=int(xml_fx_shader.attributes['TechniqueIndex'].value),
+            technique_index=int(
+                xml_fx_shader.attributes['TechniqueIndex'].value),
             constants=[])
 
         xml_constants = xml_fx_shader.getElementsByTagName('Constants')[0]
@@ -56,7 +57,6 @@ class FXShader(Struct):
         for xml_constant in xml_constants.getElementsByTagName('Texture'):
             result.constants.append(Constant.parse(xml_constant))
         return result
-
 
     def create(self, doc):
         fx_shader = doc.createElement('FXShader')

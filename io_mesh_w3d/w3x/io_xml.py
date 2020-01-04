@@ -8,6 +8,7 @@ from xml.dom import minidom
 def childs(self):
     return [node for node in self.childNodes if node.nodeName != "#text"]
 
+
 minidom.Node.childs = childs
 
 
@@ -23,7 +24,7 @@ def create_value(value, doc, identifier):
 
 def parse_vector2(xml_vector2):
     return Vector((
-        float(xml_vector2.attributes['X'].value), 
+        float(xml_vector2.attributes['X'].value),
         float(xml_vector2.attributes['Y'].value)))
 
 
@@ -36,8 +37,8 @@ def create_vector2(vec2, doc, name):
 
 def parse_vector(xml_vector):
     return Vector((
-        float(xml_vector.attributes['X'].value), 
-        float(xml_vector.attributes['Y'].value), 
+        float(xml_vector.attributes['X'].value),
+        float(xml_vector.attributes['Y'].value),
         float(xml_vector.attributes['Z'].value)))
 
 
@@ -69,23 +70,23 @@ def create_quaternion(quat, doc):
 def parse_matrix(xml_quaternion):
     return Matrix((
         [float(xml_quaternion.attributes['M00'].value),
-        float(xml_quaternion.attributes['M10'].value),
-        float(xml_quaternion.attributes['M20'].value),
-        float(xml_quaternion.attributes['M30'].value)],
+         float(xml_quaternion.attributes['M10'].value),
+         float(xml_quaternion.attributes['M20'].value),
+         float(xml_quaternion.attributes['M30'].value)],
 
         [float(xml_quaternion.attributes['M01'].value),
-        float(xml_quaternion.attributes['M11'].value),
-        float(xml_quaternion.attributes['M21'].value),
-        float(xml_quaternion.attributes['M31'].value)],
+         float(xml_quaternion.attributes['M11'].value),
+         float(xml_quaternion.attributes['M21'].value),
+         float(xml_quaternion.attributes['M31'].value)],
 
         [float(xml_quaternion.attributes['M02'].value),
-        float(xml_quaternion.attributes['M12'].value),
-        float(xml_quaternion.attributes['M22'].value),
-        float(xml_quaternion.attributes['M32'].value)]))
+         float(xml_quaternion.attributes['M12'].value),
+         float(xml_quaternion.attributes['M22'].value),
+         float(xml_quaternion.attributes['M32'].value)]))
 
 
 def create_matrix(mat, doc):
-    matrix= doc.createElement('FixupMatrix')
+    matrix = doc.createElement('FixupMatrix')
     matrix.setAttribute('M00', str(mat[0][0]))
     matrix.setAttribute('M10', str(mat[0][1]))
     matrix.setAttribute('M20', str(mat[0][2]))
@@ -122,7 +123,7 @@ def parse_object_list(parent, name, identifier, parse_func, par1=None):
     if not list_objects:
         return result
     if len(list_objects) > 1:
-        print("Error") # TODO: concrete error with report
+        print("Error")  # TODO: concrete error with report
 
     return parse_objects(list_objects[0], identifier, parse_func, par1)
 

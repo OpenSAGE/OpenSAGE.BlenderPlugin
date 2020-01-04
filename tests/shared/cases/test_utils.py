@@ -132,7 +132,6 @@ class TestUtils(TestCase):
         retrieve_meshes(self, hierarchy, rig, actual, "containerName")
         compare_hlods(self, hlod, actual)
 
-
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(self):
         context = ImportWrapper(self.outpath())
         hlod = get_hlod()
@@ -145,7 +144,7 @@ class TestUtils(TestCase):
         root.rotation = Quaternion()
         root.euler_angles = Vector((0.0, 0.0, 0.0))
 
-        hierarchy.pivots= [root]
+        hierarchy.pivots = [root]
 
         hierarchy.pivots.append(get_hierarchy_pivot("waist", 0))
         hierarchy.pivots.append(get_hierarchy_pivot("hip", 1))
@@ -158,8 +157,8 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+            header=get_hlod_array_header(),
+            sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
             bone=3, name="containerName.BOUNDINGBOX"))
@@ -206,7 +205,6 @@ class TestUtils(TestCase):
         compare_hlods(self, hlod, actual)
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         compare_hierarchies(self, hierarchy, actual_hiera)
-
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod(hierarchy_name="containerName")
@@ -318,7 +316,7 @@ class TestUtils(TestCase):
             self, hierarchy, rig, hlod, "containerName")
 
         self.assertEqual(len(expecteds), len(actuals))
-        #for i, expected in enumerate(expecteds):
+        # for i, expected in enumerate(expecteds):
         #    compare_meshes(self, expected, actuals[i])
         # prelit roundtrip not supported yet
         # need a way to reference a material to its prelit chunk

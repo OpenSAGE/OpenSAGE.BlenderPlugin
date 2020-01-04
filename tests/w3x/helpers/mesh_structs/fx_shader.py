@@ -24,7 +24,8 @@ def get_fx_shader():
 
     fx_shader.constants = [
         Constant(type='Float', name="Opacity", values=["0.314"]),
-        Constant(type='Float', name="ColorAmbient", values=["0.314", "0.0", "1.0", "3.0"]),
+        Constant(type='Float', name="ColorAmbient",
+                 values=["0.314", "0.0", "1.0", "3.0"]),
         Constant(type='Int', name="BlendMode", values=["0"]),
         Constant(type='Bool', name="ColorAmbient", values=["false"]),
         Constant(type='Texture', name="ColorAmbient", values=["texture"])]

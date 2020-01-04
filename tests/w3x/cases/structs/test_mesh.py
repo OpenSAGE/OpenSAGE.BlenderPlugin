@@ -20,7 +20,7 @@ class TestHierarchyW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
@@ -30,7 +30,6 @@ class TestHierarchyW3X(TestCase):
         actual = Mesh.parse(xml_meshes[0])
         compare_meshes(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_mesh_minimal()
 
@@ -38,7 +37,7 @@ class TestHierarchyW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)

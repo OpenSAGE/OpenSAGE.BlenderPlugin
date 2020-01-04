@@ -257,7 +257,6 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-
     def size(self):
         size = self.header.size()
         size += text_size(self.user_text)
@@ -286,7 +285,6 @@ class Mesh(Struct):
         if self.prelit_lightmap_multi_texture is not None:
             size += self.prelit_lightmap_multi_texture.size()
         return size
-
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_MESH, io_stream,

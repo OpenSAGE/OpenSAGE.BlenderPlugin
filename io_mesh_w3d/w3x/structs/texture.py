@@ -6,8 +6,8 @@ from io_mesh_w3d.w3x.io_xml import *
 
 
 class Texture(Struct):
-    id=""
-    File=""
+    id = ""
+    File = ""
 
     @staticmethod
     def parse(xml_texture):

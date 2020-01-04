@@ -92,7 +92,6 @@ class TestRoundtrip(TestCase):
         export_settings['w3d_compression'] = "TC"
         save(context, export_settings)
 
-
     def test_roundtrip_HAM(self):
         hierarchy_name = "TestName"
         hierarchy = get_hierarchy(hierarchy_name)
@@ -134,7 +133,6 @@ class TestRoundtrip(TestCase):
         export_settings['w3d_mode'] = "HAM"
         context = ImportWrapper(self.outpath() + "output.w3d")
         save(context, export_settings)
-
 
     def test_roundtrip_prelit(self):
         hierarchy_name = "TestHiera_SKL"

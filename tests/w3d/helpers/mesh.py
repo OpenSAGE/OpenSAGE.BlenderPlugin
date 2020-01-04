@@ -189,8 +189,10 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
     if prelit:
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
         mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
-        mesh.prelit_lightmap_multi_pass = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
-        mesh.prelit_lightmap_multi_texture = get_prelit(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
+        mesh.prelit_lightmap_multi_pass = get_prelit(
+            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
+        mesh.prelit_lightmap_multi_texture = get_prelit(
+            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
 
     if not prelit:
         mesh.mat_info = get_material_info()
@@ -342,6 +344,8 @@ def compare_meshes(self, expected, actual):
     if expected.prelit_vertex is not None:
         compare_prelits(self, expected.prelit_vertex, actual.prelit_vertex)
     if expected.prelit_lightmap_multi_pass is not None:
-        compare_prelits(self, expected.prelit_lightmap_multi_pass, actual.prelit_lightmap_multi_pass)
+        compare_prelits(self, expected.prelit_lightmap_multi_pass,
+                        actual.prelit_lightmap_multi_pass)
     if expected.prelit_lightmap_multi_texture is not None:
-        compare_prelits(self, expected.prelit_lightmap_multi_texture, actual.prelit_lightmap_multi_texture)
+        compare_prelits(self, expected.prelit_lightmap_multi_texture,
+                        actual.prelit_lightmap_multi_texture)

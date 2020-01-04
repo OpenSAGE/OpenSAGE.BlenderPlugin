@@ -20,7 +20,7 @@ class TestAABBTreeW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
@@ -30,7 +30,6 @@ class TestAABBTreeW3X(TestCase):
         actual = AABBTree.parse(xml_aabbtrees[0])
         compare_aabbtrees(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_aabbtree_minimal()
 
@@ -38,7 +37,7 @@ class TestAABBTreeW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)

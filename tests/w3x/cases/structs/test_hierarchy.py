@@ -19,7 +19,7 @@ class TestHierarchyW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
@@ -29,7 +29,6 @@ class TestHierarchyW3X(TestCase):
         actual = Hierarchy.parse(xml_hierarchies[0])
         compare_hierarchies(self, expected, actual)
 
-
     def test_write_read_minimal(self):
         expected = get_hierarchy_minimal()
 
@@ -37,7 +36,7 @@ class TestHierarchyW3X(TestCase):
         doc.appendChild(expected.create(doc))
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent = '   '), 'UTF-8'))
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
