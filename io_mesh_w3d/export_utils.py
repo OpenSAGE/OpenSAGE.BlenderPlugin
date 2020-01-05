@@ -530,8 +530,8 @@ def retrieve_hierarchy(container_name):
                 or mesh.name in pick_plane_names:
             continue
 
-        if mesh.parent_bone != "" \
-            and (mesh.delta_location == Vector((0.0, 0.0, 0.0)) and mesh.delta_rotation_quaternion == Quaternion((1.0, 0.0, 0.0, 0.0))):
+        if (mesh.delta_location.length < 0.01 \
+                and mesh.delta_rotation_quaternion == Quaternion()):
             continue
 
         eulers = mesh.rotation_quaternion.to_euler()
