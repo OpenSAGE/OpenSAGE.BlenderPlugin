@@ -109,7 +109,6 @@ class TestUtils(TestCase):
         self.compare_data([], hlod, hierarchy)
 
     def test_hlod_4_levels_roundtrip(self):
-        print("###############      hlod 4 roundtrip")
         hlod = get_hlod_4_levels()
         hlod.header.hierarchy_name = "containerName"
         hierarchy = get_hierarchy()
@@ -141,10 +140,6 @@ class TestUtils(TestCase):
                  self.outpath() + "texture.dds")
 
         create_data(self, meshes, hlod, hierarchy)
-
-        (actual_hiera, rig) = retrieve_hierarchy("containerName")
-        for pivot in actual_hiera.pivots:
-            print(pivot.name)
 
         self.compare_data(meshes, hlod, hierarchy)
 
@@ -194,7 +189,6 @@ class TestUtils(TestCase):
         self.compare_data(meshes, hlod, hierarchy)
 
     def test_meshes_roundtrip(self):
-        print("##########  meshes roundtrip test")
         hlod = get_hlod()
         boxes = [get_box()]
         hierarchy = get_hierarchy()
@@ -349,7 +343,6 @@ class TestUtils(TestCase):
             actual_meshes = retrieve_meshes(self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):
-                print(mesh.name())
                 compare_meshes(self, mesh, actual_meshes[i])
 
         if boxes:
