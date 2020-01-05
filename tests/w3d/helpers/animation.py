@@ -76,6 +76,16 @@ def get_animation_bit_channel(pivot=0):
               True, True, True, False,
               False, False])
 
+def get_animation_bit_channel_no_pad(pivot=0):
+    return AnimationBitChannel(
+        first_frame=0,
+        last_frame=7,
+        type=0,
+        pivot=pivot,
+        default=False,
+        data=[True, True, True, True,
+              True, True, True, False])
+
 
 def compare_animation_bit_channels(self, expected, actual):
     self.assertEqual(expected.first_frame, actual.first_frame)
@@ -106,7 +116,8 @@ def get_animation(hierarchy_name="TestHierarchy"):
                   get_animation_channel(type=2, pivot=3),
                   get_animation_channel(type=6, pivot=3),
 
-                  get_animation_bit_channel(pivot=6)])
+                  get_animation_bit_channel(pivot=6),
+                  get_animation_bit_channel(pivot=7)])
 
 
 def get_animation_minimal():

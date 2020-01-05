@@ -69,7 +69,7 @@ class AnimationChannel(Struct):
 
         if result.vector_len == 1:
             result.data = read_fixed_list(io_stream, num_elements, read_float)
-        elif result.vector_len == 4:
+        else:
             result.data = read_fixed_list(
                 io_stream, num_elements, read_quaternion)
 

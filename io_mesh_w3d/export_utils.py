@@ -204,6 +204,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
+        print(mesh.name)
+        print(str(len(mesh.uv_layers)) + " vs " + str(len(mesh.materials)))
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
                 vertex_material_ids=[],
@@ -219,14 +221,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
             if principled.normalmap_tex is not None:
                 mat_pass.shader_material_ids = [i]
-                mat_pass.tx_coords = tx_stages[i].tx_coords
+                if i < len(tx_stages):
+                    mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(material, principled))
             else:
                 mesh_struct.shaders.append(retrieve_shader(material))
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
-                mat_pass.tx_stages.append(tx_stages[i])
+                if i < len(tx_stages):
+                    mat_pass.tx_stages.append(tx_stages[i])
                 mesh_struct.vert_materials.append(
                     retrieve_vertex_material(material))
 
@@ -591,6 +595,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
+        print(fcu.data_path)
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
@@ -599,6 +604,8 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 pivot_name = values[1]
         else:
             pivot_name = name
+
+        print(pivot_name)
 
         pivot_index = 0
         for i, pivot in enumerate(hierarchy.pivots):

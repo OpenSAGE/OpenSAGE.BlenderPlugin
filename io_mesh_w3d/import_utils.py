@@ -154,6 +154,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
             tex = load_texture(self, texture.name)
             if tex is not None:
                 principleds[mat_id].base_color_texture.image = tex
+                # principleds[mat_id].alpha_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -425,7 +426,7 @@ def create_principled_bsdf(
         tex = load_texture(self, diffuse_tex)
         if tex is not None:
             principled.base_color_texture.image = tex
-            #principled.alpha = tex.alpha
+            #principled.alpha_texture.image = tex
     if normal_tex is not None:
         tex = load_texture(self, normal_tex)
         if tex is not None:
@@ -507,6 +508,8 @@ def load_texture(self, tex_name):
             img = load_image(dds_path)
         if img is None:
             print("missing texture:" + dds_path)
+            return None
+    img.alpha_mode = 'STRAIGHT'
     return img
 
 
@@ -564,9 +567,9 @@ def set_rotation(bone, frame, value):
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
-        bone.bone.hide = value
+        bone.bone.hide_viewport = True
         bone.bone.keyframe_insert(
-            data_path='hide', frame=frame, options=creation_options)
+            data_path='hide', frame=frame)
     else:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
@@ -580,19 +583,6 @@ def set_keyframe(bone, channel, frame, value):
         set_translation(bone, channel.type, frame, value)
     elif is_rotation(channel):
         set_rotation(bone, frame, value)
-
-
-def set_visibility(bone, frame, value):
-    try:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame)
-    except BaseException:
-        try:
-            bone.bone.hide = value
-            bone.bone.keyframe_insert(data_path='hide', frame=frame)
-        except BaseException:
-            print("Warning: " + str(bone.name) +
-                  " does not support visibility bit channels")
 
 
 def apply_timecoded(bone, channel, _):
