@@ -80,7 +80,7 @@ def get_hierarchy(name="TestHierarchy"):
     hierarchy.pivots.append(get_hierarchy_pivot("TRUNK", 5))
     hierarchy.pivot_fixups.append(get_vector())
 
-    hierarchy.pivots.append(get_hierarchy_pivot("B_SWORD", 0))
+    hierarchy.pivots.append(get_hierarchy_pivot("sword", 0))
     hierarchy.pivot_fixups.append(get_vector())
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)

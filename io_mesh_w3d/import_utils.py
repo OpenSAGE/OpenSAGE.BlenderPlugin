@@ -58,7 +58,6 @@ def get_collection(hlod=None):
 def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
     # TODO: clean up this mess!!
     coll = get_collection(hlod)
-    mesh_objects = []
     if hlod is not None:
         current_coll = coll
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
@@ -68,7 +67,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name():
-                        mesh_objects.append(create_mesh(self, mesh, hierarchy, current_coll))
+                        create_mesh(self, mesh, hierarchy, current_coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         for box in boxes:
@@ -78,18 +77,18 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
             for sub_object in lod_array.sub_objects:
                 for i, mesh in enumerate(meshes):
                     if mesh.name() == sub_object.name():
-                        rig_mesh(mesh, mesh_objects[i], hierarchy, rig, sub_object)
+                        rig_mesh(mesh, hierarchy, rig, sub_object)
 
     else:
         for mesh in meshes:
-            mesh_objects.append(create_mesh(self, mesh, hierarchy, coll))
+            create_mesh(self, mesh, hierarchy, coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         for box in boxes:
             create_box(box, hlod, hierarchy, rig, coll)
 
         for i, mesh in enumerate(meshes):
-            rig_mesh(mesh, mesh_objects[i], hierarchy, rig)
+            rig_mesh(mesh, hierarchy, rig)
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressed_animation, hierarchy, compressed=True)
@@ -116,9 +115,6 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     link_object_to_active_scene(mesh_ob, coll)
     mesh_ob['UserText'] = mesh_struct.user_text
 
-    b_mesh = bmesh.new()
-    b_mesh.from_mesh(mesh)
-
     principleds = []
 
     for shaderMat in mesh_struct.shader_materials:
@@ -142,6 +138,10 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
         mesh.materials.append(material)
         principleds.append(principled)
 
+    if material_passes:
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
     for mat_pass in material_passes:
         create_uvlayer(mesh, b_mesh, triangles, mat_pass)
 
@@ -156,23 +156,26 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
-    return mesh
 
 
-def rig_mesh(mesh_struct, mesh, hierarchy, rig, sub_object = None):
+def rig_mesh(mesh_struct, hierarchy, rig, sub_object = None):
     mesh_ob = bpy.data.objects[mesh_struct.name()]
 
     if hierarchy is None or not hierarchy.pivots:
         return
 
     if mesh_struct.is_skin():
+        mesh = mesh_ob.to_mesh()
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
             if weight < 0.01:
                 weight = 1.0
 
             pivot = hierarchy.pivots[vert_inf.bone_idx]
-            bone = rig.data.bones[pivot.name]
+            if vert_inf.bone_idx <= 0:
+                bone = rig
+            else:
+                bone = rig.data.bones[pivot.name]
             mesh.vertices[i].co = bone.matrix_local @ mesh.vertices[i].co
 
             if pivot.name not in mesh_ob.vertex_groups:
@@ -193,12 +196,10 @@ def rig_mesh(mesh_struct, mesh, hierarchy, rig, sub_object = None):
         modifier.use_vertex_groups = True
 
     else:
-        pivot = None
-
-        if not sub_object:
+        if not sub_object or sub_object.bone_index <= 0:
             return
-        else:
-            pivot = hierarchy.pivots[sub_object.bone_index]
+
+        pivot = hierarchy.pivots[sub_object.bone_index]
 
         if rig is not None and pivot.name in rig.pose.bones:
             mesh_ob.parent = rig

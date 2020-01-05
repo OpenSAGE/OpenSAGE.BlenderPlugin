@@ -109,6 +109,7 @@ class TestUtils(TestCase):
         self.compare_data([], hlod, hierarchy)
 
     def test_hlod_4_levels_roundtrip(self):
+        print("###############      hlod 4 roundtrip")
         hlod = get_hlod_4_levels()
         boxes = [get_box()]
         hierarchy = get_hierarchy()
@@ -135,8 +136,11 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
-        self.compare_data(meshes, hlod, hierarchy, boxes)
+        (actual_hiera, rig) = retrieve_hierarchy("containerName")
+        for pivot in actual_hiera.pivots:
+            print(pivot.name)
 
+        self.compare_data(meshes, hlod, hierarchy, boxes)
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()
@@ -156,7 +160,35 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
 
+    def test_mesh_is_child_of_mesh_roundtrip(self):
+        hlod = get_hlod()
+        hlod.header.hierarchy_name = "containerName"
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=1, name="containerName.parent"),
+            get_hlod_sub_object(bone=2, name="containerName.child")]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = "containerName"
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot("parent", 0),
+            get_hierarchy_pivot("child", 1)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        meshes = [
+            get_mesh(name="parent"),
+            get_mesh(name="child")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        self.compare_data(meshes, hlod, hierarchy)
+
     def test_meshes_roundtrip(self):
+        print("##########  meshes roundtrip test")
         hlod = get_hlod()
         boxes = [get_box()]
         hierarchy = get_hierarchy()
@@ -311,6 +343,7 @@ class TestUtils(TestCase):
             actual_meshes = retrieve_meshes(self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):
+                print(mesh.name())
                 compare_meshes(self, mesh, actual_meshes[i])
 
         if boxes:
