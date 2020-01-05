@@ -311,6 +311,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
+            bone.bone.hide = True
             bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')
@@ -488,6 +489,7 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
 # load texture
 ##########################################################################
 
+
 def load_texture(self, tex_name):
     if tex_name is None:
         return None
@@ -567,7 +569,7 @@ def set_rotation(bone, frame, value):
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
-        bone.bone.hide_viewport = True
+        bone.bone.hide = True
         bone.bone.keyframe_insert(
             data_path='hide', frame=frame)
     else:

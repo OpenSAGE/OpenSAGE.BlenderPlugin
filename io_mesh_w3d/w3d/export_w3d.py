@@ -41,6 +41,17 @@ def save(self, export_settings):
 
         if export_mode == 'HAM':
             hierarchy.write(sknFile)
+
+            timecoded = False
+            compressionMode = export_settings['w3d_compression']
+
+            if compressionMode == "TC":
+                timecoded = True
+
+            animation = retrieve_animation(
+                containerName, hierarchy, rig, timecoded)
+            animation.write(sknFile)
+
         sknFile.close()
 
     elif export_mode == 'H':

@@ -131,6 +131,7 @@ class TestRoundtrip(TestCase):
         # export
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
+        export_settings['w3d_compression'] = "U"
         context = ImportWrapper(self.outpath() + "output.w3d")
         save(context, export_settings)
 
