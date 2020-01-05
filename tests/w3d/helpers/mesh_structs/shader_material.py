@@ -30,9 +30,9 @@ def get_shader_material_property(
     elif _type == 2:
         result.value = 0.25
     elif _type == 3:
-        result.value = get_vector2(x=1.0, y=0.5)
+        result.value = get_vec2(x=1.0, y=0.5)
     elif _type == 4:
-        result.value = get_vector(x=1.0, y=0.2, z=0.33)
+        result.value = get_vec(x=1.0, y=0.2, z=0.33)
     elif _type == 5:
         result.value = get_rgba()
     elif _type == 6:

@@ -297,9 +297,10 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             if parent_pivot.name in armature.edit_bones:
+                print(parent_pivot.name)
                 bone.parent = armature.edit_bones[parent_pivot.name]
-
-            matrix = bone.parent.matrix @ matrix
+                print(bone.parent)
+                matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction, so rotation is applied correctly
@@ -311,7 +312,6 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
-            bone.bone.hide = True
             bone.custom_shape = basic_sphere
 
     bpy.ops.object.mode_set(mode='OBJECT')

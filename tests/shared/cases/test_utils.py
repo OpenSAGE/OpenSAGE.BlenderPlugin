@@ -6,6 +6,8 @@ from tests.utils import *
 from shutil import copyfile
 import os
 
+from tests.shared.helpers.hierarchy import *
+
 from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.export_utils import *
 from tests.w3d.helpers.mesh import *
@@ -15,7 +17,6 @@ from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.w3d.helpers.mesh_structs.shader_material import *
 from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.box import *
-from tests.w3d.helpers.hierarchy import *
 from tests.w3d.helpers.hlod import *
 from tests.w3d.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *

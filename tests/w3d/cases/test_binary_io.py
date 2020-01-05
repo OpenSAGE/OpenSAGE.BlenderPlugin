@@ -208,7 +208,7 @@ class TestIOBinary(TestCase):
             self.assertEqual(inp, struct.unpack("<B", io_stream.getvalue())[0])
 
     def test_read_vector(self):
-        inputs = [get_vector(), get_vector(1, 2, 3)]
+        inputs = [get_vec(), get_vec(1, 2, 3)]
 
         for inp in inputs:
             data = struct.pack("<f", inp.x)
@@ -219,7 +219,7 @@ class TestIOBinary(TestCase):
             compare_vectors(self, inp, read_vector(io_stream))
 
     def test_write_vector(self):
-        inputs = [get_vector(), get_vector(1, 2, 3)]
+        inputs = [get_vec(), get_vec(1, 2, 3)]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -230,7 +230,7 @@ class TestIOBinary(TestCase):
             y = struct.unpack("<f", data[4:8])[0]
             z = struct.unpack("<f", data[8:12])[0]
 
-            compare_vectors(self, inp, get_vector(x, y, z))
+            compare_vectors(self, inp, get_vec(x, y, z))
 
     def test_read_quaternion(self):
         inputs = [get_quat(), get_quat(0, 1, 2, 3)]
@@ -260,7 +260,7 @@ class TestIOBinary(TestCase):
             compare_quats(self, inp, get_quat(w, x, y, z))
 
     def test_read_vector2(self):
-        inputs = [get_vector2(), get_vector2(1, 2)]
+        inputs = [get_vec2(), get_vec2(1, 2)]
 
         for inp in inputs:
             data = struct.pack("<f", inp.x)
@@ -270,7 +270,7 @@ class TestIOBinary(TestCase):
             compare_vectors2(self, inp, read_vector2(io_stream))
 
     def test_write_vector2(self):
-        inputs = [get_vector2(), get_vector2(1, 2)]
+        inputs = [get_vec2(), get_vec2(1, 2)]
 
         for inp in inputs:
             io_stream = io.BytesIO()
@@ -280,7 +280,7 @@ class TestIOBinary(TestCase):
             x = struct.unpack("<f", data[0:4])[0]
             y = struct.unpack("<f", data[4:8])[0]
 
-            compare_vectors2(self, inp, get_vector2(x, y))
+            compare_vectors2(self, inp, get_vec2(x, y))
 
     def test_read_channel_value(self):
         inputs = [(0, 1.0), (1, 2.0), (3, 4.0), (6, get_quat(1, 2, 3, 4))]

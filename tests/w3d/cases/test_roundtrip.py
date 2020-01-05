@@ -6,9 +6,10 @@ from tests.utils import *
 from shutil import copyfile
 from tests.utils import TestCase, ImportWrapper
 
+from tests.shared.helpers.hierarchy import get_hierarchy
+
 from tests.w3d.helpers.mesh import get_mesh
 from tests.w3d.helpers.hlod import get_hlod
-from tests.w3d.helpers.hierarchy import get_hierarchy
 from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
 from tests.w3d.helpers.box import get_box

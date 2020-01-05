@@ -34,9 +34,9 @@ def get_mesh_header(name="mesh_name", skin=False, shader_mats=False, hidden=Fals
         future_count=0,
         vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
         face_channel_flags=1,
-        min_corner=get_vector(-1.0, -1.0, -1.0),
-        max_corner=get_vector(1.0, 1.0, 1.0),
-        sph_center=get_vector(0.0, 0.0, 0.0),
+        min_corner=get_vec(-1.0, -1.0, -1.0),
+        max_corner=get_vec(1.0, 1.0, 1.0),
+        sph_center=get_vec(0.0, 0.0, 0.0),
         sph_radius=0.0)
 
     if shader_mats:
@@ -104,67 +104,67 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidde
 
     mesh.user_text = "TestUserText"
 
-    mesh.verts = [get_vector(1.0, 1.0, 1.0),
-                  get_vector(1.0, 1.0, -1.0),
-                  get_vector(1.0, -1.0, 1.0),
-                  get_vector(1.0, -1.0, -1.0),
-                  get_vector(-1.0, 1.0, 1.0),
-                  get_vector(-1.0, 1.0, -1.0),
-                  get_vector(-1.0, -1.0, 1.0),
-                  get_vector(-1.0, -1.0, -1.0)]
+    mesh.verts = [get_vec(1.0, 1.0, 1.0),
+                  get_vec(1.0, 1.0, -1.0),
+                  get_vec(1.0, -1.0, 1.0),
+                  get_vec(1.0, -1.0, -1.0),
+                  get_vec(-1.0, 1.0, 1.0),
+                  get_vec(-1.0, 1.0, -1.0),
+                  get_vec(-1.0, -1.0, 1.0),
+                  get_vec(-1.0, -1.0, -1.0)]
 
-    mesh.normals = [get_vector(0.577, 0.577, 0.577),
-                    get_vector(0.577, 0.577, -0.577),
-                    get_vector(0.577, -0.577, 0.577),
-                    get_vector(0.577, -0.577, -0.577),
-                    get_vector(-0.577, 0.577, 0.577),
-                    get_vector(-0.577, 0.577, -0.577),
-                    get_vector(-0.577, -0.577, 0.577),
-                    get_vector(-0.577, -0.577, -0.577)]
+    mesh.normals = [get_vec(0.577, 0.577, 0.577),
+                    get_vec(0.577, 0.577, -0.577),
+                    get_vec(0.577, -0.577, 0.577),
+                    get_vec(0.577, -0.577, -0.577),
+                    get_vec(-0.577, 0.577, 0.577),
+                    get_vec(-0.577, 0.577, -0.577),
+                    get_vec(-0.577, -0.577, 0.577),
+                    get_vec(-0.577, -0.577, -0.577)]
 
     if shader_mats:
-        mesh.tangents = [get_vector(0.577, 0.577, 0.577),
-                         get_vector(0.577, 0.577, -0.577),
-                         get_vector(0.577, -0.577, 0.577),
-                         get_vector(0.577, -0.577, -0.577),
-                         get_vector(-0.577, 0.577, 0.577),
-                         get_vector(-0.577, 0.577, -0.577),
-                         get_vector(-0.577, -0.577, 0.577),
-                         get_vector(-0.577, -0.577, -0.577)]
+        mesh.tangents = [get_vec(0.577, 0.577, 0.577),
+                         get_vec(0.577, 0.577, -0.577),
+                         get_vec(0.577, -0.577, 0.577),
+                         get_vec(0.577, -0.577, -0.577),
+                         get_vec(-0.577, 0.577, 0.577),
+                         get_vec(-0.577, 0.577, -0.577),
+                         get_vec(-0.577, -0.577, 0.577),
+                         get_vec(-0.577, -0.577, -0.577)]
 
-        mesh.bitangents = [get_vector(0.577, 0.577, 0.577),
-                           get_vector(0.577, 0.577, -0.577),
-                           get_vector(0.577, -0.577, 0.577),
-                           get_vector(0.577, -0.577, -0.577),
-                           get_vector(-0.577, 0.577, 0.577),
-                           get_vector(-0.577, 0.577, -0.577),
-                           get_vector(-0.577, -0.577, 0.577),
-                           get_vector(-0.577, -0.577, -0.577)]
+        mesh.bitangents = [get_vec(0.577, 0.577, 0.577),
+                           get_vec(0.577, 0.577, -0.577),
+                           get_vec(0.577, -0.577, 0.577),
+                           get_vec(0.577, -0.577, -0.577),
+                           get_vec(-0.577, 0.577, 0.577),
+                           get_vec(-0.577, 0.577, -0.577),
+                           get_vec(-0.577, -0.577, 0.577),
+                           get_vec(-0.577, -0.577, -0.577)]
 
     mesh.triangles.append(get_triangle(
-        [4, 2, 0], 13, get_vector(0.0, 0.0, 1.0), 0.63))
+        [4, 2, 0], 13, get_vec(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [2, 7, 3], 13, get_vector(0.0, -1.0, 0.0), 0.63))
+        [2, 7, 3], 13, get_vec(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [6, 5, 7], 13, get_vector(-1.0, 0.0, 0.0), 0.63))
+        [6, 5, 7], 13, get_vec(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [1, 7, 5], 13, get_vector(0.0, 0.0, -1.0), 0.63))
+        [1, 7, 5], 13, get_vec(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [0, 3, 1], 13, get_vector(1.0, 0.0, 0.0), 0.63))
+        [0, 3, 1], 13, get_vec(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [4, 1, 5], 13, get_vector(0.0, 1.0, 0.0), 0.63))
+        [4, 1, 5], 13, get_vec(0.0, 1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [4, 6, 2], 13, get_vector(0.0, 0.0, 1.0), 0.63))
+        [4, 6, 2], 13, get_vec(0.0, 0.0, 1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [2, 6, 7], 13, get_vector(0.0, -1.0, 0.0), 0.63))
+        [2, 6, 7], 13, get_vec(0.0, -1.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [6, 4, 5], 13, get_vector(-1.0, 0.0, 0.0), 0.63))
+        [6, 4, 5], 13, get_vec(-1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [1, 3, 7], 13, get_vector(0.0, 0.0, -1.0), 0.63))
+        [1, 3, 7], 13, get_vec(0.0, 0.0, -1.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [0, 2, 3], 13, get_vector(1.0, 0.0, 0.0), 0.63))
+        [0, 2, 3], 13, get_vec(1.0, 0.0, 0.0), 0.63))
     mesh.triangles.append(get_triangle(
-        [4, 0, 1], 13, get_vector(0.0, 1.0, 0.0), 0.63))
+        [4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 0.63))
 
     if skin:
         mesh.header.attrs |= GEOMETRY_TYPE_SKIN
@@ -236,10 +236,10 @@ def get_mesh_minimal():
     return Mesh(
         header=get_mesh_header(),
         user_text="text",
-        verts=[get_vector()],
-        normals=[get_vector()],
-        tangents=[get_vector()],
-        bitangents=[get_vector()],
+        verts=[get_vec()],
+        normals=[get_vec()],
+        tangents=[get_vec()],
+        bitangents=[get_vec()],
         vert_infs=[get_vertex_influence()],
         triangles=[get_triangle()],
         shade_ids=[1],
@@ -260,8 +260,8 @@ def get_mesh_empty():
     return Mesh(
         header=get_mesh_header(),
         user_text="",
-        verts=[get_vector()],
-        normals=[get_vector()],
+        verts=[get_vec()],
+        normals=[get_vec()],
         tangents=[],
         bitangents=[],
         vert_infs=[],

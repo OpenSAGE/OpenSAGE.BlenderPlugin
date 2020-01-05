@@ -9,25 +9,25 @@ from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
 
 
 def get_uvs():
-    return [get_vector2(0.0, 0.1),
-            get_vector2(0.0, 0.4),
-            get_vector2(1.0, 0.6),
-            get_vector2(0.3, 0.1),
-            get_vector2(0.2, 0.2),
-            get_vector2(0.6, 0.6),
-            get_vector2(0.1, 0.8),
-            get_vector2(0.7, 0.7)]
+    return [get_vec2(0.0, 0.1),
+            get_vec2(0.0, 0.4),
+            get_vec2(1.0, 0.6),
+            get_vec2(0.3, 0.1),
+            get_vec2(0.2, 0.2),
+            get_vec2(0.6, 0.6),
+            get_vec2(0.1, 0.8),
+            get_vec2(0.7, 0.7)]
 
 
 def get_per_face_txcoords():
-    return [get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0),
-            get_vector(1.0, 0.0, -1.0)]
+    return [get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0),
+            get_vec(1.0, 0.0, -1.0)]
 
 
 def get_texture_stage(index=0):
@@ -40,8 +40,8 @@ def get_texture_stage(index=0):
 def get_texture_stage_minimal():
     return TextureStage(
         tx_ids=[0],
-        per_face_tx_coords=[get_vector()],
-        tx_coords=[get_vector()])
+        per_face_tx_coords=[get_vec()],
+        tx_coords=[get_vec()])
 
 
 def get_texture_stage_empty():
@@ -107,7 +107,7 @@ def get_material_pass_minimal():
         scg=[get_rgba()],
         shader_material_ids=[0],
         tx_stages=[get_texture_stage()],
-        tx_coords=[get_vector()])
+        tx_coords=[get_vec()])
 
 
 def get_material_pass_empty():

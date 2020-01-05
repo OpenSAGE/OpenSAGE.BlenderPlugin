@@ -2,8 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from io_mesh_w3d.shared.structs.hierarchy import *
+
 from io_mesh_w3d.w3d.structs.mesh import *
-from io_mesh_w3d.w3d.structs.hierarchy import *
 from io_mesh_w3d.w3d.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.box import *
