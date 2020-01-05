@@ -48,7 +48,7 @@ def compare_quats(self, expected, actual):
 
 
 def get_mat(row0=None, row1=None, row2=None):
-    mat = Matrix(([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))
+    mat = Matrix(([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]))
     if row0 is not None:
         mat[0][0] = row0[0]
         mat[0][1] = row0[1]
