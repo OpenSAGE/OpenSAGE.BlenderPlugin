@@ -270,14 +270,22 @@ def create_hlod(hierarchy, container_name):
             hierarchy_name=hierarchy.header.name),
         lod_arrays=[])
 
-    for coll in bpy.data.collections:
+    #hardcoded for now, provide export options?
+    screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03] 
+
+    lod_arrays = []
+    for i, coll in enumerate(bpy.data.collections):
         meshes = [object for object in coll.objects if object.type == 'MESH']
         if not meshes:
             continue
 
+        if i > len(screen_sizes) - 1:
+            i = -1
+
         lod_array = HLodArray(
             header=HLodArrayHeader(
-                model_count=len(meshes)),
+                model_count=len(meshes),
+                max_screen_size=screen_sizes[i]),
             sub_objects=[])
 
         for mesh in meshes:
@@ -285,13 +293,17 @@ def create_hlod(hierarchy, container_name):
                 name_=container_name + "." + mesh.name,
                 bone_index=0)
 
-            for index, pivot in enumerate(hierarchy.pivots):
-                if pivot.name == mesh.name:
-                    subObject.bone_index = index
+            if not mesh.vertex_groups:
+                for index, pivot in enumerate(hierarchy.pivots):
+                    if pivot.name == mesh.name or pivot.name == mesh.parent_bone:
+                        subObject.bone_index = index
 
             lod_array.sub_objects.append(subObject)
+        lod_arrays.append(lod_array)
 
+    for lod_array in reversed(lod_arrays):
         hlod.lod_arrays.append(lod_array)
+    hlod.header.lod_count = len(hlod.lod_arrays)
     return hlod
 
 
@@ -517,6 +529,10 @@ def retrieve_hierarchy(container_name):
         if mesh.vertex_groups \
                 or mesh.name in bounding_box_names \
                 or mesh.name in pick_plane_names:
+            continue
+
+        if mesh.parent_bone != "" \
+            and (mesh.delta_location == Vector((0.0, 0.0, 0.0)) and mesh.delta_rotation_quaternion == Quaternion((1.0, 0.0, 0.0, 0.0))):
             continue
 
         eulers = mesh.rotation_quaternion.to_euler()

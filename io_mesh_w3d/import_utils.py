@@ -183,7 +183,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object = None):
             mesh_ob.vertex_groups[pivot.name].add(
                 [i], weight, 'REPLACE')
 
-            if vert_inf.xtra_idx != 0:
+            if vert_inf.xtra_idx <= 0:
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
                 if xtra_pivot.name not in mesh_ob.vertex_groups:
                     mesh_ob.vertex_groups.new(name=xtra_pivot.name)
