@@ -44,7 +44,7 @@ VERTEX_CHANNEL_BITANGENT = 0x40
 
 class MeshHeader(Struct):
     version = Version()
-    attrs = 0
+    attrs = GEOMETRY_TYPE_NORMAL
     mesh_name = ""
     container_name = ""
     face_count = 0

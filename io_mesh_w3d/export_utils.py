@@ -75,8 +75,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
             continue
 
         mesh_struct = Mesh(
-            header=MeshHeader(),
-            attrs=0,
+            header=MeshHeader(
+                attrs=GEOMETRY_TYPE_NORMAL),
             vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
             face_channel_flags=1,
             verts=[],
@@ -96,6 +96,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         header.mesh_name = mesh_object.name
         header.container_name = container_name
 
+        if mesh_object.hide_get():
+            header.attrs |= GEOMETRY_TYPE_HIDDEN
+
         mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
         triangulate(mesh)
@@ -111,9 +114,14 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 vertInf.bone_inf = vertex.groups[0].weight
                 mesh_struct.vert_infs.append(vertInf)
 
-                bone = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name]
+                matrix = None
+                if vertInf.bone_idx > 0:
+                    matrix = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name].matrix
+                else: 
+                    matrix = rig.matrix_local
+
                 mesh_struct.verts.append(
-                    bone.matrix.inverted() @ vertex.co.xyz)
+                    matrix.inverted() @ vertex.co.xyz)
 
                 if len(vertex.groups) > 1:
                     for index, pivot in enumerate(hierarchy.pivots):
@@ -171,7 +179,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         header.face_count = len(mesh_struct.triangles)
 
         if mesh_struct.vert_infs:
-            header.attrs = GEOMETRY_TYPE_SKIN
+            header.attrs |= GEOMETRY_TYPE_SKIN
 
         center, radius = calculate_mesh_sphere(mesh)
         header.sphCenter = center
@@ -463,7 +471,7 @@ def process_pivot(pivot, pivots, hierarchy, processed):
     return processed
 
 
-def retrieve_hierarchy(container_name):
+def retrieve_hierarchy(context, container_name):
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
         pivots=[],
@@ -513,8 +521,10 @@ def retrieve_hierarchy(container_name):
 
         switch_to_pose(rig, 'POSE')
     else:
-        print("Error: only one armature per scene allowed")
-        return
+        message = "ERROR: only one armature per scene allowed!"
+        print(message)
+        context.report({'ERROR'}, message)
+        return (None, None)
 
     meshes = []
     if rig is not None:

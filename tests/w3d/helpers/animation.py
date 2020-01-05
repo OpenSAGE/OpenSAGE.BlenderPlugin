@@ -33,7 +33,8 @@ def get_animation_channel(type=1, pivot=0):
         type=type,
         pivot=pivot,
         unknown=0,
-        data=[])
+        data=[],
+        pad_bytes=[0xff, 0xff, 0xff])
 
     if type == 6:
         channel.vector_len = 4
@@ -91,7 +92,7 @@ def compare_animation_bit_channels(self, expected, actual):
 def get_animation(hierarchy_name="TestHierarchy"):
     return Animation(
         header=get_animation_header(hierarchy_name),
-        channels=[get_animation_channel(type=0, pivot=1),
+        channels=[get_animation_channel(type=0, pivot=0),
                   get_animation_channel(type=1, pivot=1),
                   get_animation_channel(type=2, pivot=1),
 

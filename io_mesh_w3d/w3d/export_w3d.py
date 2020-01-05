@@ -21,7 +21,7 @@ def save(self, export_settings):
     containerName = (os.path.splitext(
         os.path.basename(self.filepath))[0]).upper()
 
-    (hierarchy, rig) = retrieve_hierarchy(containerName)
+    (hierarchy, rig) = retrieve_hierarchy(self, containerName)
 
     hlod = create_hlod(hierarchy, containerName)
 

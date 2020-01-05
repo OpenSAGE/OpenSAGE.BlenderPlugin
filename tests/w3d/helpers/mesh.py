@@ -19,7 +19,7 @@ from tests.w3d.helpers.mesh_structs.vertex_influence import *
 from tests.w3d.helpers.mesh_structs.prelit import *
 
 
-def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
+def get_mesh_header(name="mesh_name", skin=False, shader_mats=False, hidden=False):
     header = MeshHeader(
         version=get_version(),
         attrs=0,
@@ -43,6 +43,8 @@ def get_mesh_header(name="mesh_name", skin=False, shader_mats=False):
         header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
     if skin:
         header.attrs = GEOMETRY_TYPE_SKIN
+    if hidden:
+        header.attrs = GEOMETRY_TYPE_HIDDEN
     return header
 
 
@@ -67,19 +69,19 @@ def compare_mesh_headers(self, expected, actual):
 
 
 def get_vertex_influences():
-    return [get_vertex_influence(1, 0, 0.0, 0.0),
+    return [get_vertex_influence(0, 0, 0.0, 0.0),
             get_vertex_influence(1, 0, 0.0, 0.0),
             get_vertex_influence(2, 1, 0.75, 0.25),
             get_vertex_influence(2, 1, 0.75, 0.25),
             get_vertex_influence(3, 2, 0.50, 0.50),
             get_vertex_influence(3, 2, 0.50, 0.50),
-            get_vertex_influence(4, 3, 0.25, 0.75),
-            get_vertex_influence(4, 3, 0.25, 0.75)]
+            get_vertex_influence(3, 4, 0.25, 0.75),
+            get_vertex_influence(3, 4, 0.25, 0.75)]
 
 
-def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
+def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidden=False):
     mesh = Mesh(
-        header=get_mesh_header(name, skin, shader_mats),
+        header=get_mesh_header(name, skin, shader_mats, hidden),
         user_text="",
         verts=[],
         normals=[],
@@ -165,6 +167,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
         [4, 0, 1], 13, get_vector(0.0, 1.0, 0.0), 0.63))
 
     if skin:
+        mesh.header.attrs |= GEOMETRY_TYPE_SKIN
         mesh.vert_infs = get_vertex_influences()
 
     for i in range(len(mesh.verts)):
@@ -187,6 +190,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False):
                 get_material_pass(index=i, shader_mat=shader_mats))
 
     if prelit:
+        mesh.header.attrs |= PRELIT_VERTEX
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
         mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
         mesh.prelit_lightmap_multi_pass = get_prelit(

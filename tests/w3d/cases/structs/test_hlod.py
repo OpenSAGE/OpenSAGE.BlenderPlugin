@@ -60,6 +60,15 @@ class TestHLod(TestCase):
 
         HLod.read(self, io_stream, subchunk_end)
 
+    def test_name(self):
+        sub_object = get_hlod_sub_object()
+
+        self.assertEqual("containerName.default", sub_object.name_)
+        self.assertEqual("default", sub_object.name())
+
+        sub_object.name_ = "default"
+        self.assertEqual("default", sub_object.name())
+
     def test_chunk_sizes(self):
         hlod = get_hlod_minimal()
 

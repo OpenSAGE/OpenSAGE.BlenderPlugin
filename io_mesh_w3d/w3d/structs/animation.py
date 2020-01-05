@@ -51,6 +51,7 @@ class AnimationChannel(Struct):
     pivot = 0
     unknown = 0
     data = []
+    pad_bytes = []
 
     @staticmethod
     def read(io_stream, chunk_end):
@@ -61,7 +62,8 @@ class AnimationChannel(Struct):
             type=read_ushort(io_stream),
             pivot=read_ushort(io_stream),
             unknown=read_ushort(io_stream),
-            data=[])
+            data=[],
+            pad_bytes=[])
 
         num_elements = result.last_frame - result.first_frame + 1
 
@@ -71,14 +73,14 @@ class AnimationChannel(Struct):
             result.data = read_fixed_list(
                 io_stream, num_elements, read_quaternion)
 
-        pad_bytes = []
         while io_stream.tell() < chunk_end:
-            pad_bytes.append(io_stream.read(1))
+            result.pad_bytes.append(read_ubyte(io_stream))
         return result
 
     def size(self, include_head=True):
         size = const_size(12, include_head)
         size += (len(self.data) * self.vector_len) * 4
+        size += len(self.pad_bytes)
         return size
 
     def write(self, io_stream):
@@ -96,6 +98,7 @@ class AnimationChannel(Struct):
             write_list(self.data, io_stream, write_float)
         else:
             write_list(self.data, io_stream, write_quaternion)
+        write_list(self.pad_bytes, io_stream, write_ubyte)
 
 
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203

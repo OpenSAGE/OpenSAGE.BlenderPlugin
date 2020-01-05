@@ -34,6 +34,19 @@ class TestUtils(TestCase):
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
+    def test_vertex_material_no_attributes_roundtrip(self):
+        mesh = get_mesh()
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        for source in mesh.vert_materials:
+            source.vm_info.attributes = 0
+            (material, _) = create_material_from_vertex_material(
+                self, mesh, source)
+            actual = retrieve_vertex_material(material)
+            compare_vertex_materials(self, source, actual)
+
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
 
@@ -45,6 +58,22 @@ class TestUtils(TestCase):
                 self, mesh, source)
             principled = retrieve_principled_bsdf(material)
             actual = retrieve_shader_material(material, principled)
+            compare_shader_materials(self, source, actual)
+
+    def test_shader_material_minimal_roundtrip(self):
+        mesh = get_mesh()
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        for source in mesh.shader_materials:
+            source.properties = []
+
+            (material, _) = create_material_from_shader_material(
+                self, mesh, source)
+            principled = retrieve_principled_bsdf(material)
+            actual = retrieve_shader_material(material, principled)
+            source.properties = get_shader_material_properties_minimal()
             compare_shader_materials(self, source, actual)
 
     def test_shader_roundtrip(self):
@@ -62,6 +91,8 @@ class TestUtils(TestCase):
 
     def test_boxes_roundtrip(self):
         hlod = get_hlod()
+        hlod.lod_arrays[0].sub_objects.append(
+            get_hlod_sub_object(bone=1, name="containerName.WORLDBOX"))
         hierarchy = get_hierarchy()
         meshes = []
         boxes = [get_box(), get_box("WORLDBOX")]
@@ -89,6 +120,31 @@ class TestUtils(TestCase):
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data([], None, hierarchy)
+
+    def test_too_many_hierarchies_roundtrip(self):
+        hierarchy = get_hierarchy()
+        hierarchy2 = get_hierarchy(name="TestHierarchy2")
+        hlod = get_hlod()
+        boxes = [get_box()]
+        meshes = [
+            get_mesh(name="sword", skin=True),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="TRUNK"),
+            get_mesh(name="PICK")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+
+        create_data(self, meshes, hlod, hierarchy, boxes)
+        coll = get_collection(hlod)
+        rig2 = get_or_create_skeleton(hlod, hierarchy2, coll)
+
+        self.assertEqual(2, len(get_objects('ARMATURE')))
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, "containerName")
+        self.assertIsNone(actual_hiera)
+        self.assertIsNone(rig)
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -208,10 +264,48 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes)
 
+    def test_mesh_too_many_vertex_groups_roundtrip(self):
+        hlod = get_hlod()
+        boxes = [get_box()]
+        hierarchy = get_hierarchy()
+        meshes = [
+            get_mesh(name="sword", skin=True)]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.tga")
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture_nrm.tga")
+
+        create_data(self, meshes, hlod, hierarchy, boxes)
+
+        sword = bpy.context.scene.objects["sword"]
+        sword.vertex_groups.new(name="number3")
+        sword.vertex_groups["number3"].add([3], 0.4, 'REPLACE')
+
+        self.compare_data(meshes)
+
     def test_meshes_only_roundtrip(self):
         meshes = [
             get_mesh(name="wall"),
             get_mesh(name="tower"),
+            get_mesh(name="tower2", shader_mats=True),
+            get_mesh(name="stone")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture_nrm.dds")
+
+        create_data(self, meshes)
+
+        self.compare_data(meshes)
+
+    def test_hidden_meshes_roundtrip(self):
+        meshes = [
+            get_mesh(name="wall", hidden=True),
+            get_mesh(name="tower", hidden=True),
             get_mesh(name="tower2", shader_mats=True),
             get_mesh(name="stone")]
 
@@ -319,7 +413,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (_, rig) = retrieve_hierarchy("containerName")
+        (_, rig) = retrieve_hierarchy(self, "containerName")
 
         self.assertTrue("bone_pivot2" in rig.pose.bones)
 
@@ -330,7 +424,7 @@ class TestUtils(TestCase):
         actual_hiera = None
         actual_hlod = None
 
-        (actual_hiera, rig) = retrieve_hierarchy(container_name)
+        (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:
             hierarchy.pivot_fixups = [] # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)

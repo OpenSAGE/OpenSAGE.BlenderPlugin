@@ -36,7 +36,7 @@ def compare_hlod_array_headers(self, expected, actual):
     self.assertAlmostEqual(expected.max_screen_size, actual.max_screen_size, 2)
 
 
-def get_hlod_sub_object(bone, name):
+def get_hlod_sub_object(bone=0, name="containerName.default"):
     return HLodSubObject(
         bone_index=bone,
         name_=name)

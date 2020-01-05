@@ -23,3 +23,12 @@ class TestBox(TestCase):
 
         actual = Box.read(io_stream)
         compare_boxes(self, expected, actual)
+
+    def test_name(self):
+        box = get_box()
+
+        self.assertEqual("containerName.BOUNDINGBOX", box.name_)
+        self.assertEqual("BOUNDINGBOX", box.name())
+
+        box.name_ = "BOUNDINGBOX"
+        self.assertEqual("BOUNDINGBOX", box.name())

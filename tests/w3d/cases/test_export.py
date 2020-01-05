@@ -9,6 +9,6 @@ from io_mesh_w3d.w3d.export_w3d import save
 class TestExport(TestCase):
     def test_unsupported_export_mode(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "B"
+        export_settings['w3d_mode'] = "NON_EXISTING"
 
         save(self, export_settings)

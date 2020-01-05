@@ -53,10 +53,13 @@ def get_collection(hlod=None):
     return bpy.context.scene.collection
 
 
+##########################################################################
+# data creation
+##########################################################################
 
 
 def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
-    # TODO: clean up this mess!!
+    rig = None
     coll = get_collection(hlod)
     if hlod is not None:
         current_coll = coll
@@ -82,13 +85,6 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
     else:
         for mesh in meshes:
             create_mesh(self, mesh, hierarchy, coll)
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        for box in boxes:
-            create_box(box, hlod, hierarchy, rig, coll)
-
-        for i, mesh in enumerate(meshes):
-            rig_mesh(mesh, hierarchy, rig)
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressed_animation, hierarchy, compressed=True)

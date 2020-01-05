@@ -75,6 +75,18 @@ def get_shader_material_properties():
         get_shader_material_property(7, "AlphaTestEnable")
     ]
 
+def get_shader_material_properties_minimal():
+    return [
+        get_shader_material_property(2, "SpecularExponent"),
+        get_shader_material_property(3, "BumpUVScale"),
+        get_shader_material_property(4, "Sampler_ClampU_ClampV_NoMip_0"),
+        get_shader_material_property(5, "AmbientColor"),
+        get_shader_material_property(5, "DiffuseColor"),
+        get_shader_material_property(5, "SpecularColor"),
+        get_shader_material_property(6, "BlendMode"),
+        get_shader_material_property(7, "AlphaTestEnable")
+    ]
+
 
 def get_shader_material():
     return ShaderMaterial(
