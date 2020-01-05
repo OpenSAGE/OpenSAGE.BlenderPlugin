@@ -165,7 +165,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object = None):
         return
 
     if mesh_struct.is_skin():
-        mesh = mesh_ob.to_mesh()
+        mesh = bpy.data.meshes[mesh_ob.name]
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
             if weight < 0.01:
@@ -183,7 +183,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object = None):
             mesh_ob.vertex_groups[pivot.name].add(
                 [i], weight, 'REPLACE')
 
-            if vert_inf.xtra_idx <= 0:
+            if vert_inf.xtra_idx > 0:
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
                 if xtra_pivot.name not in mesh_ob.vertex_groups:
                     mesh_ob.vertex_groups.new(name=xtra_pivot.name)
@@ -296,8 +296,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             if parent_pivot.name in armature.edit_bones:
                 bone.parent = armature.edit_bones[parent_pivot.name]
-            else:
-                print(parent_pivot.name)
+
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))

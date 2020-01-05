@@ -262,7 +262,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 # hlod
 ##########################################################################
 
-
 def create_hlod(hierarchy, container_name):
     hlod = HLod(
         header=HLodHeader(
@@ -545,11 +544,8 @@ def retrieve_hierarchy(container_name):
 
         if mesh.parent_bone != "":
             pivot.parent_id = mesh.parent_bone
-
         elif mesh.parent is not None:
             pivot.parent_id = mesh.parent.name
-        else:
-            print("################")
 
         pivots.append(pivot)
 
