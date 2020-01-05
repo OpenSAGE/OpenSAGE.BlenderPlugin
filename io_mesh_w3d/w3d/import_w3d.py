@@ -3,11 +3,11 @@
 
 import bpy
 from io_mesh_w3d.shared.structs.hierarchy import *
+from io_mesh_w3d.shared.structs.collision_box import *
 
 from io_mesh_w3d.w3d.structs.mesh import *
 from io_mesh_w3d.w3d.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
-from io_mesh_w3d.w3d.structs.box import *
 from io_mesh_w3d.w3d.structs.hlod import *
 
 from io_mesh_w3d.w3d.io_binary import *
@@ -70,7 +70,7 @@ def load(self, import_settings):
         elif chunk_type == W3D_CHUNK_HLOD:
             hlod = HLod.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
-            boxes.append(Box.read(file))
+            boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)

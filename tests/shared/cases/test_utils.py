@@ -7,6 +7,7 @@ from shutil import copyfile
 import os
 
 from tests.shared.helpers.hierarchy import *
+from tests.shared.helpers.collision_box import *
 
 from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.export_utils import *
@@ -16,7 +17,6 @@ from tests.w3d.helpers.mesh_structs.material_info import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.w3d.helpers.mesh_structs.shader_material import *
 from tests.w3d.helpers.mesh_structs.shader import *
-from tests.w3d.helpers.box import *
 from tests.w3d.helpers.hlod import *
 from tests.w3d.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *
@@ -96,7 +96,7 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=1, name="containerName.WORLDBOX"))
         hierarchy = get_hierarchy()
         meshes = []
-        boxes = [get_box(), get_box("WORLDBOX")]
+        boxes = [get_collision_box(), get_collision_box("containerName.WORLDBOX")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -108,7 +108,7 @@ class TestUtils(TestCase):
     def test_hierarchy_roundtrip(self):
         hierarchy = get_hierarchy()
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
@@ -126,7 +126,7 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         hierarchy2 = get_hierarchy(name="TestHierarchy2")
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         meshes = [
             get_mesh(name="sword", skin=True),
             get_mesh(name="soldier", skin=True),
@@ -149,7 +149,7 @@ class TestUtils(TestCase):
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
 
         meshes = [
@@ -202,7 +202,7 @@ class TestUtils(TestCase):
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
             get_mesh(name="sword", skin=True),
@@ -247,7 +247,7 @@ class TestUtils(TestCase):
 
     def test_meshes_roundtrip(self):
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
             get_mesh(name="sword", skin=True),
@@ -267,7 +267,7 @@ class TestUtils(TestCase):
 
     def test_mesh_too_many_vertex_groups_roundtrip(self):
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
             get_mesh(name="sword", skin=True)]
@@ -345,7 +345,7 @@ class TestUtils(TestCase):
     def test_animation_roundtrip(self):
         animation = get_animation()
         hlod = get_hlod()
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
 
@@ -370,7 +370,7 @@ class TestUtils(TestCase):
             motion_ad4=False,
             motion_ad8=False,
             random_interpolation=False)
-        boxes = [get_box()]
+        boxes = [get_collision_box()]
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []
@@ -454,7 +454,7 @@ class TestUtils(TestCase):
 
             self.assertEqual(len(boxes), len(actual_boxes))
             for i, box in enumerate(boxes):
-                compare_boxes(self, box, actual_boxes[i])
+                compare_collision_boxes(self, box, actual_boxes[i])
 
         if animation is not None:
             actual_animation = retrieve_animation(animation.header.name, actual_hiera, rig, timecoded=False)

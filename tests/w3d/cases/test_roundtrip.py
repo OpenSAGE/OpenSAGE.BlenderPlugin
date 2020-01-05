@@ -7,12 +7,13 @@ from shutil import copyfile
 from tests.utils import TestCase, ImportWrapper
 
 from tests.shared.helpers.hierarchy import get_hierarchy
+from tests.shared.helpers.collision_box import get_collision_box
 
 from tests.w3d.helpers.mesh import get_mesh
 from tests.w3d.helpers.hlod import get_hlod
 from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
-from tests.w3d.helpers.box import get_box
+
 
 from io_mesh_w3d.w3d.export_w3d import save
 from io_mesh_w3d.w3d.import_w3d import load
@@ -27,7 +28,7 @@ class TestRoundtrip(TestCase):
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK")]
         hlod = get_hlod("TestModelName", hierarchy_name)
-        box = get_box()
+        box = get_collision_box()
         animation = get_animation(hierarchy_name)
         comp_animation = get_compressed_animation(hierarchy_name)
 
@@ -101,7 +102,7 @@ class TestRoundtrip(TestCase):
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK")]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
-        box = get_box()
+        box = get_collision_box()
         animation = get_animation(hierarchy_name)
         comp_animation = get_compressed_animation(hierarchy_name)
 
