@@ -111,8 +111,14 @@ class TestUtils(TestCase):
     def test_hlod_4_levels_roundtrip(self):
         print("###############      hlod 4 roundtrip")
         hlod = get_hlod_4_levels()
-        boxes = [get_box()]
+        hlod.header.hierarchy_name = "containerName"
         hierarchy = get_hierarchy()
+        hierarchy.header.name = "containerName"
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot("parent", 0),
+            get_hierarchy_pivot("child", 1)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [
             get_mesh(name="mesh1"),
@@ -134,13 +140,13 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        create_data(self, meshes, hlod, hierarchy, boxes)
+        create_data(self, meshes, hlod, hierarchy)
 
         (actual_hiera, rig) = retrieve_hierarchy("containerName")
         for pivot in actual_hiera.pivots:
             print(pivot.name)
 
-        self.compare_data(meshes, hlod, hierarchy, boxes)
+        self.compare_data(meshes, hlod, hierarchy)
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()

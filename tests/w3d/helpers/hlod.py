@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-import sys
 from io_mesh_w3d.w3d.structs.hlod import *
 from tests.w3d.helpers.version import *
 
@@ -26,7 +25,7 @@ def compare_hlod_headers(self, expected, actual):
     self.assertEqual(expected.hierarchy_name, actual.hierarchy_name)
 
 
-def get_hlod_array_header(count=0, size=0.0):
+def get_hlod_array_header(count=0, size=MAX_SCREEN_SIZE):
     return HLodArrayHeader(
         model_count=count,
         max_screen_size=size)
@@ -99,7 +98,7 @@ def get_hlod_minimal(model_name="containerName", hierarchy_name="TestHierarchy")
 
 def get_hlod_4_levels(model_name="containerName", hierarchy_name="TestHierarchy"):
     array0 = HLodArray(
-        header=get_hlod_array_header(count=3, size=0.0),
+        header=get_hlod_array_header(count=3, size=MAX_SCREEN_SIZE),
         sub_objects=[])
 
     array0.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1"),

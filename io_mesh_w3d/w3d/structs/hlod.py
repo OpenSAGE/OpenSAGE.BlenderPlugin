@@ -39,10 +39,12 @@ class HLodHeader(Struct):
 
 W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 
+MAX_SCREEN_SIZE = 340282346638528859811704183484516925440.000000
+
 
 class HLodArrayHeader(Struct):
     model_count = 0
-    max_screen_size = 0.0
+    max_screen_size = MAX_SCREEN_SIZE
 
     @staticmethod
     def read(io_stream):
