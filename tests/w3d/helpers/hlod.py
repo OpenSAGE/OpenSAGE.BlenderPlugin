@@ -102,37 +102,37 @@ def get_hlod_4_levels(model_name="containerName", hierarchy_name="TestHierarchy"
         header=get_hlod_array_header(count=3, size=0.0),
         sub_objects=[])
 
-    array0.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.mesh1"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh2"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh3")]
+    array0.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh2"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh3")]
 
     array1 = HLodArray(
         header=get_hlod_array_header(count=3, size=1.0),
         sub_objects=[])
 
-    array1.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.mesh1_1"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh2_1"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh3_1")]
+    array1.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_1"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh2_1"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh3_1")]
 
     array2 = HLodArray(
         header=get_hlod_array_header(count=3, size=0.3),
         sub_objects=[])
 
-    array2.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.mesh1_2"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh2_2"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh3_2")]
+    array2.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_2"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh2_2"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh3_2")]
 
     array3 = HLodArray(
         header=get_hlod_array_header(count=3, size=0.03),
         sub_objects=[])
 
-    array3.sub_objects = [get_hlod_sub_object(bone=0, name="containerName.mesh1_3"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh2_3"),
-                            get_hlod_sub_object(bone=0, name="containerName.mesh3_3")]
+    array3.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_3"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh2_3"),
+                            get_hlod_sub_object(bone=1, name="containerName.mesh3_3")]
 
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name, lod_count=4),
-        lod_arrays=[array0, array1, array2, array3])
+        lod_arrays=[array3, array2, array1, array0])
 
 
 def compare_hlods(self, expected, actual):

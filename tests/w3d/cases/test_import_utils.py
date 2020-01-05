@@ -91,14 +91,13 @@ class TestImportUtils(TestCase):
 
         coll = get_collection(hlod)
 
-        meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+            create_mesh(self, mesh_struct, hierarchy, coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+            rig_mesh(mesh_struct, hierarchy, hlod, rig)
 
         self.assertTrue("first" in bpy.data.objects)
         first = bpy.data.objects["first"]
@@ -158,14 +157,13 @@ class TestImportUtils(TestCase):
 
         coll = get_collection(hlod)
 
-        meshes = []
         for mesh_struct in mesh_structs:
-            meshes.append(create_mesh(self, mesh_struct, hierarchy, coll))
+            create_mesh(self, mesh_struct, hierarchy, coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
         for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, meshes[i], hierarchy, hlod, rig)
+            rig_mesh(mesh_struct, hierarchy, hlod, rig)
 
         create_animation(rig, animation, hierarchy, compressed=True)
 
