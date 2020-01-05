@@ -23,8 +23,10 @@ W3D_CHUNK_MESH_HEADER = 0x0000001F
 
 # Geometry types
 GEOMETRY_TYPE_NORMAL = 0x00000000
+GEOMETRY_TYPE_HIDDEN = 0x00001000
 GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
+
 
 # Prelit types
 PRELIT_MASK = 0x0F000000
@@ -143,11 +145,14 @@ class Mesh(Struct):
     prelit_lightmap_multi_pass = None
     prelit_lightmap_multi_texture = None
 
+    def is_hidden(self):
+        return self.header.attrs & GEOMETRY_TYPE_HIDDEN
+
     def is_skin(self):
-        return (self.header.attrs & GEOMETRY_TYPE_SKIN) > 0
+        return self.header.attrs & GEOMETRY_TYPE_SKIN
 
     def has_prelit_vertex(self):
-        return (self.header.attrs & PRELIT_VERTEX) > 0
+        return self.header.attrs & PRELIT_VERTEX
 
     def name(self):
         return self.header.mesh_name

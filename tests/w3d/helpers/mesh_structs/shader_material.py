@@ -46,7 +46,9 @@ def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.type, actual.type)
     self.assertEqual(expected.name, actual.name)
 
-    if expected.type == 2:
+    if expected.type == 1:
+        self.assertEqual(expected.value.split(".")[0], actual.value.split(".")[0])
+    elif expected.type == 2:
         self.assertAlmostEqual(expected.value, actual.value, 5)
     elif expected.type == 3:
         compare_vectors2(self, expected.value, actual.value)
@@ -54,7 +56,6 @@ def compare_shader_material_properties(self, expected, actual):
         compare_vectors(self, expected.value, actual.value)
     elif expected.type == 5:
         compare_rgbas(self, expected.value, actual.value)
-
     else:
         self.assertEqual(expected.value, actual.value)
 

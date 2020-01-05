@@ -115,6 +115,11 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     link_object_to_active_scene(mesh_ob, coll)
     mesh_ob['UserText'] = mesh_struct.user_text
 
+    mesh_ob.use_empty_image_alpha = True
+
+    if mesh_struct.is_hidden():
+        mesh_ob.hide_set(True)
+
     principleds = []
 
     for shaderMat in mesh_struct.shader_materials:
@@ -324,7 +329,8 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     material = bpy.data.materials.new(
         mesh.name() + "." + vert_mat.vm_name)
     material.use_nodes = True
-    #material.blend_method = 'BLEND'
+    material.blend_method = 'BLEND'
+    material.show_transparent_back = False
 
     atts = {'DEFAULT'}
     attributes = vert_mat.vm_info.attributes
@@ -365,6 +371,9 @@ def create_material_from_shader_material(self, mesh, shader_mat):
     diffuse = None
     normal = None
     bump_scale = 0
+    material.blend_method = 'BLEND'
+    material.show_transparent_back = False
+
     for prop in shader_mat.properties:
         if prop.name == "DiffuseTexture":
             diffuse = prop.value
@@ -420,6 +429,7 @@ def create_principled_bsdf(
         tex = load_texture(self, diffuse_tex)
         if tex is not None:
             principled.base_color_texture.image = tex
+            #principled.alpha = tex.alpha
     if normal_tex is not None:
         tex = load_texture(self, normal_tex)
         if tex is not None:
@@ -487,26 +497,20 @@ def load_texture(self, tex_name):
     found_img = False
     basename = os.path.splitext(tex_name)[0]
 
-    # Test if the image file already exists
     for image in bpy.data.images:
         if basename.lower() == os.path.splitext(image.name)[0].lower():
             img = image
             found_img = True
 
-    # Try to load the image file
     if not found_img:
-        tgapath = os.path.dirname(self.filepath) + "/" + basename + ".tga"
-        ddspath = os.path.dirname(self.filepath) + "/" + basename + ".dds"
-        tgapath = insensitive_path(tgapath)
-        ddspath = insensitive_path(ddspath)
+        tga_path = os.path.dirname(self.filepath) + "/" + basename + ".tga"
+        dds_path = tga_path.replace(".tga", ".dds")
 
-        img = load_image(tgapath)
-
+        img = load_image(tga_path)
         if img is None:
-            img = load_image(ddspath)
-
+            img = load_image(dds_path)
         if img is None:
-            print("missing texture:" + ddspath)
+            print("missing texture:" + dds_path)
     return img
 
 

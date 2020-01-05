@@ -32,7 +32,8 @@ def get_texture_empty():
 
 
 def compare_textures(self, expected, actual):
-    self.assertEqual(expected.name, actual.name)
+
+    self.assertEqual(expected.name.split(".")[0], actual.name.split(".")[0])
     if expected.texture_info is not None:
         compare_texture_infos(self, expected.texture_info, actual.texture_info)
 
