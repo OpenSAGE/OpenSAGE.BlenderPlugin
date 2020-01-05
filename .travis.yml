@@ -18,7 +18,7 @@ install:
   - tar zxf coverage-4.5.4.tar.gz
   - mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${BLENDER_VERSION}/python/lib/python3.7"
   - rm -rf coverage-4.5.4
-script: ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1 --python ./tests/runner.py
+script: ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1 --python ./tests/runner.py -- --coverage
 
 after_success:
   - codecov
