@@ -26,8 +26,8 @@ def get_aabbtree_poly_indices(num_polys=41):
 
 def get_aabbtree_node():
     return AABBTreeNode(
-        min=get_vector(1.0, 2.0, 3.0),
-        max=get_vector(4.0, 5.0, 6.0),
+        min=get_vec(1.0, 2.0, 3.0),
+        max=get_vec(4.0, 5.0, 6.0),
         front_or_poly_0=34,
         back_or_poly_count=123)
 

@@ -18,8 +18,8 @@ def get_box(name="BOUNDINGBOX"):
         collision_types=0,
         name_="containerName." + name,
         color=get_rgba(),
-        center=get_vector(1.0, 2.0, 3.0),
-        extend=get_vector(4.0, 5.0, 6.0))
+        center=get_vec(1.0, 2.0, 3.0),
+        extend=get_vec(4.0, 5.0, 6.0))
 
 
 def compare_boxes(self, expected, actual):

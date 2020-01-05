@@ -37,8 +37,8 @@ def compare_polys(self, expected, actual):
 
 def get_node(polys=None, children=None):
     return Node(
-        min=get_vector(3.1, 3.2, 0.2),
-        max=get_vector(2.0, -1.0, 22.0),
+        min=get_vec(3.1, 3.2, 0.2),
+        max=get_vec(2.0, -1.0, 22.0),
         polys=polys,
         children=children)
 

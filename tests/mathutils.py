@@ -5,7 +5,7 @@ import unittest
 from mathutils import Vector, Quaternion, Matrix
 
 
-def get_vector(x=0.0, y=0.0, z=0.0):
+def get_vec(x=0.0, y=0.0, z=0.0):
     vec = Vector((0, 0, 0))
     vec.x = x
     vec.y = y
@@ -19,7 +19,7 @@ def compare_vectors(self, expected, actual):
     self.assertAlmostEqual(expected.z, actual.z, 1)
 
 
-def get_vector2(x=0.0, y=0.0):
+def get_vec2(x=0.0, y=0.0):
     vec = Vector((0, 0, 0))
     vec.x = x
     vec.y = y
@@ -47,22 +47,25 @@ def compare_quats(self, expected, actual):
     self.assertAlmostEqual(expected.z, actual.z, 1)
 
 
-def get_mat(row0, row1, row2):
+def get_mat(row0=None, row1=None, row2=None):
     mat = Matrix(([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))
-    mat[0][0] = row0[0]
-    mat[0][1] = row0[1]
-    mat[0][2] = row0[2]
-    mat[0][3] = row0[3]
+    if row0 is not None:
+        mat[0][0] = row0[0]
+        mat[0][1] = row0[1]
+        mat[0][2] = row0[2]
+        mat[0][3] = row0[3]
 
-    mat[1][0] = row1[0]
-    mat[1][1] = row1[1]
-    mat[1][2] = row1[2]
-    mat[1][3] = row1[3]
+    if row1 is not None:
+        mat[1][0] = row1[0]
+        mat[1][1] = row1[1]
+        mat[1][2] = row1[2]
+        mat[1][3] = row1[3]
 
-    mat[2][0] = row2[0]
-    mat[2][1] = row2[1]
-    mat[2][2] = row2[2]
-    mat[2][3] = row2[3]
+    if row2 is not None:
+        mat[2][0] = row2[0]
+        mat[2][1] = row2[1]
+        mat[2][2] = row2[2]
+        mat[2][3] = row2[3]
 
     return mat
 
