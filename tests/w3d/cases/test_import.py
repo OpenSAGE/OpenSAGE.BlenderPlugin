@@ -5,13 +5,13 @@ import bpy
 from shutil import copyfile
 
 from tests.shared.helpers.hierarchy import get_hierarchy
+from tests.shared.helpers.collision_box import get_collision_box
 
 from io_mesh_w3d.w3d.import_w3d import *
 from io_mesh_w3d.w3d.io_binary import *
 from tests.utils import *
 from tests.w3d.helpers.mesh import get_mesh
 from tests.w3d.helpers.hlod import get_hlod
-from tests.w3d.helpers.box import get_box
 from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
 
@@ -24,7 +24,7 @@ class TestObjectImport(TestCase):
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK")]
         hlod = get_hlod("TestModelName", hierarchy_name)
-        box = get_box()
+        box = get_collision_box()
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -69,7 +69,7 @@ class TestObjectImport(TestCase):
             get_mesh(name="soldier", skin=True),
             get_mesh(name="TRUNK")]
         hlod = get_hlod("TestModelName", hierarchy_name)
-        box = get_box()
+        box = get_collision_box()
 
         # write to file
         skn = open(self.outpath() + "base_skn.w3d", "wb")

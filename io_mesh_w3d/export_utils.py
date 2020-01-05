@@ -7,10 +7,10 @@ from mathutils import Vector
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.shared.structs.hierarchy import *
+from io_mesh_w3d.shared.structs.collision_box import *
 
 from io_mesh_w3d.w3d.structs.hlod import *
 from io_mesh_w3d.w3d.structs.mesh import *
-from io_mesh_w3d.w3d.structs.box import *
 from io_mesh_w3d.w3d.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
@@ -42,7 +42,7 @@ def retrieve_boxes(hierarchy, container_name):
         if mesh_object.name not in bounding_box_names:
             continue
         name = container_name + "." + mesh_object.name
-        box = Box(
+        box = CollisionBox(
             name_=name,
             center=mesh_object.location)
         box_mesh = mesh_object.to_mesh(
@@ -55,14 +55,6 @@ def retrieve_boxes(hierarchy, container_name):
         for material in box_mesh.materials:
             box.color = RGBA(material.diffuse_color)
         boxes.append(box)
-
-        subObject = HLodSubObject(
-            name_=name,
-            bone_index=0)
-
-        for index, pivot in enumerate(hierarchy.pivots):
-            if pivot.name == mesh_object.parent_bone:
-                subObject.bone_index = index
     return boxes
 
 

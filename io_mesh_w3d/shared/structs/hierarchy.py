@@ -75,8 +75,6 @@ class HierarchyPivot(Struct):
             name=xml_pivot.attributes['Name'].value,
             parent_id=int(xml_pivot.attributes['Parent'].value))
 
-        #if 'Name' in xml_pivot.attributes:
-        #    pivot.name = xml_pivot.attributes['Name'].value
         if 'NameID' in xml_pivot.attributes:
             pivot.name_id = int(xml_pivot.attributes['NameID'].value)
 
