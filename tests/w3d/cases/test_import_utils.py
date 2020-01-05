@@ -63,10 +63,9 @@ class TestImportUtils(TestCase):
         root.rotation = Quaternion()
         root.euler_angles = Vector((0.0, 0.0, 0.0))
 
-        hierarchy.pivots = [root]
-
-        hierarchy.pivots.append(get_hierarchy_pivot("first", 0))
-        hierarchy.pivots.append(get_hierarchy_pivot("second", -1))
+        hierarchy.pivots = [get_roottransform(),
+                            get_hierarchy_pivot(name="first", parent=0),
+                            get_hierarchy_pivot(name="second", parent=-1)]
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 

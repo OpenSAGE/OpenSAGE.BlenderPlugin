@@ -277,7 +277,7 @@ def create_hlod(hierarchy, container_name):
     hlod = HLod(
         header=HLodHeader(
             model_name=container_name,
-            hierarchy_name=hierarchy.header.name),
+            hierarchy_name=hierarchy.name()),
         lod_arrays=[])
 
     #hardcoded for now, provide export options?
@@ -491,7 +491,7 @@ def retrieve_hierarchy(context, container_name):
     pivots = []
 
     if len(rigs) == 0:
-        hierarchy.header.name = container_name
+        hierarchy.set_name(container_name)
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
         rig = rigs[0]
@@ -500,7 +500,7 @@ def retrieve_hierarchy(context, container_name):
 
         root.translation = rig.location
 
-        hierarchy.header.name = rig.name
+        hierarchy.set_name(rig.name)
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:
@@ -700,7 +700,7 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
         ani_struct = Animation(channels=channels)
 
     ani_struct.header.name = animation_name
-    ani_struct.header.hierarchy_name = hierarchy.header.name
+    ani_struct.header.hierarchy_name = hierarchy.name()
 
     start_frame = bpy.context.scene.frame_start
     end_frame = bpy.context.scene.frame_end

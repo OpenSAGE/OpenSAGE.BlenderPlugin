@@ -42,12 +42,12 @@ class HierarchyHeader(Struct):
 
 class HierarchyPivot(Struct):
     name = ""
-    name_id = 0
+    name_id = None
     parent_id = -1
-    translation = Vector((0.0, 0.0, 0.0))
-    euler_angles = Vector((0.0, 0.0, 0.0))
-    rotation = Quaternion((1.0, 0.0, 0.0, 0.0))
-    fixup_matrix = Matrix(([0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]))
+    translation = Vector()
+    euler_angles = Vector()
+    rotation = Quaternion()
+    fixup_matrix = Matrix()
 
     @staticmethod
     def read(io_stream):
@@ -72,12 +72,11 @@ class HierarchyPivot(Struct):
     @staticmethod
     def parse(xml_pivot):
         pivot = HierarchyPivot(
-            name="",
-            name_id=0,
+            name=xml_pivot.attributes['Name'].value,
             parent_id=int(xml_pivot.attributes['Parent'].value))
 
-        if 'Name' in xml_pivot.attributes:
-            pivot.name = xml_pivot.attributes['Name'].value
+        #if 'Name' in xml_pivot.attributes:
+        #    pivot.name = xml_pivot.attributes['Name'].value
         if 'NameID' in xml_pivot.attributes:
             pivot.name_id = int(xml_pivot.attributes['NameID'].value)
 
@@ -91,8 +90,10 @@ class HierarchyPivot(Struct):
 
     def create(self, doc):
         pivot = doc.createElement('Pivot')
-        pivot.setAttribute('Name', self.name)
-        pivot.setAttribute('NameID', str(self.name_id))
+        if self.name is not None:
+            pivot.setAttribute('Name', self.name)
+        if self.name_id is not None:
+            pivot.setAttribute('NameID', str(self.name_id))
         pivot.setAttribute('Parent', str(self.parent_id))
         pivot.appendChild(create_vector(self.translation, doc, 'Translation'))
         pivot.appendChild(create_quaternion(self.rotation, doc))
@@ -107,9 +108,13 @@ W3D_CHUNK_PIVOT_FIXUPS = 0x00000103
 
 class Hierarchy(Struct):
     header = None
-    id = ""
+    id = None
     pivots = []
     pivot_fixups = []
+
+    def set_name(self, name):
+        self.header.name = name
+        self.id = name
 
     def name(self):
         if self.header is not None:

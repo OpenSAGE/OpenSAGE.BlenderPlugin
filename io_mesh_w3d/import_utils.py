@@ -235,8 +235,8 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hlod is None or hierarchy is None:
         return None
 
-    if hierarchy.header.name in bpy.data.objects:
-        obj = bpy.data.objects[hierarchy.header.name]
+    if hierarchy.name() in bpy.data.objects:
+        obj = bpy.data.objects[hierarchy.name()]
         if obj.type == 'ARMATURE':
             return obj
         return None
@@ -289,7 +289,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
         if rig is None:
             (rig, armature) = create_rig(
-                hierarchy.header.name, root.translation, coll)
+                hierarchy.name(), root.translation, coll)
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
@@ -297,9 +297,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             if parent_pivot.name in armature.edit_bones:
-                print(parent_pivot.name)
                 bone.parent = armature.edit_bones[parent_pivot.name]
-                print(bone.parent)
                 matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))

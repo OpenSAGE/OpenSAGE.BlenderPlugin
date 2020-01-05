@@ -172,8 +172,8 @@ class TestUtils(TestCase):
         hierarchy.header.name = "containerName"
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot("parent", 0),
-            get_hierarchy_pivot("child", 1)]
+            get_hierarchy_pivot(name="parent", parent=0),
+            get_hierarchy_pivot(name="child", parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [
@@ -230,8 +230,8 @@ class TestUtils(TestCase):
         hierarchy.header.name = "containerName"
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot("parent", 0),
-            get_hierarchy_pivot("child", 1)]
+            get_hierarchy_pivot(name="parent", parent=0),
+            get_hierarchy_pivot(name="child", parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [
@@ -394,10 +394,10 @@ class TestUtils(TestCase):
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [get_roottransform()]
 
-        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot", 0))
-        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot2", 1))
-        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot4", 2))
-        hierarchy.pivots.append(get_hierarchy_pivot("bone_pivot3", 1))
+        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot", parent=0))
+        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot2", parent=1))
+        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot4", parent=2))
+        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot3", parent=1))
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
