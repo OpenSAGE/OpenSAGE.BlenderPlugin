@@ -74,8 +74,9 @@ def get_hlod_array_minimal():
     return array
 
 
-def compare_hlod_arrays(self, expected, actual):
-    compare_hlod_array_headers(self, expected.header, actual.header)
+def compare_hlod_arrays(self, expected, actual, xml=False):
+    if not xml:
+        compare_hlod_array_headers(self, expected.header, actual.header)
 
     self.assertEqual(len(expected.sub_objects), len(actual.sub_objects))
     for i in range(len(expected.sub_objects)):
@@ -133,9 +134,10 @@ def get_hlod_4_levels(model_name="containerName", hierarchy_name="TestHierarchy"
         lod_arrays=[array3, array2, array1, array0])
 
 
-def compare_hlods(self, expected, actual):
-    compare_hlod_headers(self, expected.header, actual.header)
-    self.assertEqual(len(expected.lod_arrays), len(actual.lod_arrays))
+def compare_hlods(self, expected, actual, xml=False):
+    if not xml:
+        compare_hlod_headers(self, expected.header, actual.header)
+        self.assertEqual(len(expected.lod_arrays), len(actual.lod_arrays))
 
     for i, expected_array in enumerate(expected.lod_arrays):
-        compare_hlod_arrays(self, expected_array, actual.lod_arrays[i])
+        compare_hlod_arrays(self, expected_array, actual.lod_arrays[i], xml)

@@ -3,12 +3,11 @@
 
 import unittest
 from tests.mathutils import *
-from io_mesh_w3d.w3d.structs.rgba import RGBA
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.shared.structs.collision_box import *
 
 from tests.w3d.helpers.version import get_version, compare_versions
-from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
+from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 
 
 def get_collision_box(name="containerName.BOUNDINGBOX", xml=False):

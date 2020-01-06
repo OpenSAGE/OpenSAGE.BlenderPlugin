@@ -98,7 +98,7 @@ class TestHLod(TestCase):
         self.assertEqual(1, len(xml_hlods))
 
         actual = HLod.parse(xml_hlods[0])
-        compare_hlods(self, expected, actual)
+        compare_hlods(self, expected, actual, xml=True)
 
     def test_write_read_minimal_xml(self):
         expected = get_hlod_minimal()
@@ -115,4 +115,4 @@ class TestHLod(TestCase):
         self.assertEqual(1, len(xml_hlods))
 
         actual = HLod.parse(xml_hlods[0])
-        compare_hlods(self, expected, actual)
+        compare_hlods(self, expected, actual, xml=True)

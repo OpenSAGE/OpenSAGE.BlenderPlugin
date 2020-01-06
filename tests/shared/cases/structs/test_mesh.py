@@ -4,10 +4,9 @@
 import io
 from tests.utils import TestCase
 from io_mesh_w3d.w3d.utils import *
-from io_mesh_w3d.w3d.structs.mesh import *
 from io_mesh_w3d.w3d.io_binary import *
 
-from tests.w3d.helpers.mesh import *
+from tests.shared.helpers.mesh import *
 
 
 class TestMesh(TestCase):
@@ -196,3 +195,37 @@ class TestMesh(TestCase):
         self.assertEqual(78, list_size(mesh.vert_materials, False))
 
         self.assertEqual(1081, mesh.size())
+
+    def test_write_read_xml(self):
+        expected = get_mesh()
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_meshes = dom.getElementsByTagName('W3DMesh')
+        self.assertEqual(1, len(xml_meshes))
+
+        actual = Mesh.parse(xml_meshes[0])
+        compare_meshes(self, expected, actual)
+
+    def test_write_read_minimal_xml(self):
+        expected = get_mesh_minimal()
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_meshes = dom.getElementsByTagName('W3DMesh')
+        self.assertEqual(1, len(xml_meshes))
+
+        actual = Mesh.parse(xml_meshes[0])
+        compare_meshes(self, expected, actual)

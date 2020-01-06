@@ -4,14 +4,15 @@
 import bpy
 from shutil import copyfile
 
+from io_mesh_w3d.w3d.import_w3d import *
+from io_mesh_w3d.w3d.io_binary import *
+from tests.utils import *
+
+from tests.shared.helpers.mesh import get_mesh
 from tests.shared.helpers.hierarchy import get_hierarchy
 from tests.shared.helpers.hlod import get_hlod
 from tests.shared.helpers.collision_box import get_collision_box
 
-from io_mesh_w3d.w3d.import_w3d import *
-from io_mesh_w3d.w3d.io_binary import *
-from tests.utils import *
-from tests.w3d.helpers.mesh import get_mesh
 from tests.w3d.helpers.animation import get_animation
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
 

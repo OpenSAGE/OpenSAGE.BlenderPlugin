@@ -1,26 +1,25 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
-
+from io_mesh_w3d.w3d.structs.version import Version
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3d.utils import *
-from io_mesh_w3d.struct import Struct
 
-from io_mesh_w3d.w3d.structs.version import Version
+from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
+from io_mesh_w3d.shared.structs.mesh_structs.aabbtree import *
+from io_mesh_w3d.shared.structs.mesh_structs.shader_material import *
+
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
-from io_mesh_w3d.w3d.structs.mesh_structs.aabbtree import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import *
-from io_mesh_w3d.w3d.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.w3d.structs.mesh_structs.texture import *
 from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
 
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
-from io_mesh_w3d.w3x.structs.mesh_structs.fx_shader import *
 
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
@@ -465,25 +464,36 @@ class Mesh(Struct):
                 tx_coords=tex_coords))
 
         #TODO
-        shade_indices = parse_object_list(
-            xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+        #shade_indices = parse_object_list(
+        #    xml_mesh, 'ShadeIndices', 'I', parse_value, int)
 
-        xml_fx_shader = xml_mesh.getElementsByTagName('FXShader')[0]
-        fx_shader = FXShader.parse(xml_fx_shader)
+        #xml_fx_shader = xml_mesh.getElementsByTagName('FXShader')[0]
+        #fx_shader = FXShader.parse(xml_fx_shader)
 
-        #xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
-        #if xml_aabbtrees:
-        #    aabbtree = AABBTree.parse(xml_aabbtrees[0])
+        xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
+        if xml_aabbtrees:
+            aabbtree = AABBTree.parse(xml_aabbtrees[0])
 
         return result
 
     def create(self, doc):
         xml_mesh = doc.createElement('W3DMesh')
-        xml_mesh.setAttribute('id', self.id)
-        xml_mesh.setAttribute('GeometryType', self.geometry_type)
+        id = self.header.container_name + "." + self.header.mesh_name
+        xml_mesh.setAttribute('id', id)
 
-        xml_mesh.appendChild(self.bounding_box.create(doc))
-        xml_mesh.appendChild(self.bounding_sphere.create(doc))
+        # TODO: parse from header attrs
+        xml_mesh.setAttribute('GeometryType', "Skin")
+
+        box = BoundingBox(
+            min=self.header.min_corner,
+            max=self.header.max_corner)
+
+        xml_mesh.appendChild(box.create(doc))
+
+        sphere = BoundingSphere(
+            center=self.header.sph_center,
+            radius=self.header.sph_radius)
+        xml_mesh.appendChild(sphere.create(doc))
 
         xml_mesh.appendChild(create_object_list(
             doc, 'Vertices', self.verts, create_vector, 'V'))
@@ -498,14 +508,17 @@ class Mesh(Struct):
             xml_mesh.appendChild(create_object_list(
                 doc, 'Bitangents', self.bitangents, create_vector, 'B'))
 
-        xml_mesh.appendChild(create_object_list(
-            doc, 'TexCoords', self.tex_coords, create_vector2, 'T'))
-        xml_mesh.appendChild(create_object_list(
-            doc, 'ShadeIndices', self.shade_indices, create_value, 'I'))
+        #xml_mesh.appendChild(create_object_list(
+        #    doc, 'TexCoords', self.tex_coords, create_vector2, 'T'))
+
+        #xml_mesh.appendChild(create_object_list(
+        #    doc, 'ShadeIndices', self.shade_indices, create_value, 'I'))
+
         xml_mesh.appendChild(create_object_list(
             doc, 'Triangles', self.triangles, Triangle.create))
 
-        xml_mesh.appendChild(self.fx_shader.create(doc))
+        #xml_mesh.appendChild(self.fx_shader.create(doc))
+        
         xml_mesh.appendChild(self.aabbtree.create(doc))
 
         return xml_mesh

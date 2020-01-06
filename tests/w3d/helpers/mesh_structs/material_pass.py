@@ -5,7 +5,7 @@ import unittest
 from mathutils import Vector
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from tests.mathutils import *
-from tests.w3d.helpers.rgba import get_rgba, compare_rgbas
+from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 
 
 def get_uvs():

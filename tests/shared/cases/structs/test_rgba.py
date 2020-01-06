@@ -3,18 +3,18 @@
 
 import io
 from tests.utils import TestCase
-from io_mesh_w3d.w3d.structs.rgba import RGBA
+from tests.shared.helpers.rgba import *
 
 
 class TestRGBA(TestCase):
     def test_write_read(self):
-        expected = RGBA(r=244, g=123, b=33, a=99)
+        expected = get_rgba()
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        self.assertEqual(expected, RGBA.read(io_stream))
+        compare_rgbas(self, expected, RGBA.read(io_stream))
 
     def test_write_read_f(self):
         expected = RGBA(r=244, g=123, b=33, a=99)
@@ -23,7 +23,7 @@ class TestRGBA(TestCase):
         expected.write_f(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        self.assertEqual(expected, RGBA.read_f(io_stream))
+        compare_rgbas(self, expected, RGBA.read_f(io_stream))
 
     def test_eq_true(self):
         rgba = RGBA(r=244, g=222, b=1, a=0)
