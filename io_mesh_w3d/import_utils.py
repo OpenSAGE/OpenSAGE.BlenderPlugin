@@ -610,11 +610,13 @@ def get_bone(context, rig, hierarchy, channel):
         return rig
 
     pivot = hierarchy.pivots[channel.pivot]
-    if rig is not None and pivot.name in rig.pose.bones:
-        return rig.pose.bones[pivot.name]
-    if pivot.name in bpy.data.objects:
-        return bpy.data.objects[pivot.name]
-    context.error('no object named: ' + pivot.name + ' found!')
+
+    if rig is not None:
+        if is_visibility(channel) and pivot.name in rig.data.bones:
+            return rig.data.bones[pivot.name]
+        elif pivot.name in rig.pose.bones:
+            return rig.pose.bones[pivot.name]
+    return bpy.data.objects[pivot.name]
 
 
 def setup_animation(animation):
@@ -645,6 +647,7 @@ def set_visibility(bone, frame, value):
         bone.bone.keyframe_insert(
             data_path='hide', frame=frame)  # , options=creation_options)
     else:
+        print("### is object")
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
                              frame=frame)  # , options=creation_options)
