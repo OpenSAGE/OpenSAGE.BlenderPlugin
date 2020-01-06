@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.w3d.structs.rgba import RGBA
+from io_mesh_w3d.shared.structs.rgba import RGBA
 
 
 def get_rgba(a=0):

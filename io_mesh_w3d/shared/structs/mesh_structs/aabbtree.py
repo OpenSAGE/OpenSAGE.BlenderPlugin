@@ -5,6 +5,7 @@ from mathutils import Vector
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3d.utils import *
 
 
@@ -202,7 +203,7 @@ class AABBTree(Struct):
 
         xml_nodes = xml_aabbtree.getElementsByTagName('Node')
         for xml_node in xml_nodes:
-            result.nodes.append(Node.parse(xml_node))
+            result.nodes.append(AABBTreeNode.parse(xml_node))
 
         result.header.poly_count = len(result.poly_indices)
         result.header.node_count = len(result.nodes)

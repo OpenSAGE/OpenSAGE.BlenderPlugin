@@ -2,23 +2,25 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.struct import Struct
+from io_mesh_w3d.shared.structs.rgba import RGBA
+
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3d.utils import *
 from io_mesh_w3d.w3d.structs.version import Version
-from io_mesh_w3d.w3d.structs.rgba import RGBA
+
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 
 class ShaderMaterialHeader(Struct):
-    number = 1  # what is this?
+    technique_index = 0
     type_name = ""
     reserved = 2  # what is this?
 
     @staticmethod
     def read(io_stream):
         return ShaderMaterialHeader(
-            number=read_ubyte(io_stream),
+            technique_index=read_ubyte(io_stream),
             type_name=read_long_fixed_string(io_stream),
             reserved=read_long(io_stream))
 
@@ -29,7 +31,7 @@ class ShaderMaterialHeader(Struct):
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER,
                          io_stream, self.size(False))
-        write_ubyte(self.number, io_stream)
+        write_ubyte(self.technique_index, io_stream)
         write_long_fixed_string(self.type_name, io_stream)
         write_long(self.reserved, io_stream)
 
@@ -121,6 +123,53 @@ class ShaderMaterialProperty(Struct):
             message = "WARNING: invalid property type in shader material: %s" % self.type
             print(message)
 
+    @staticmethod
+    def parse(xml_constant):
+        type_name = xml_constant.tagName
+        constant = ShaderProperty(
+            name=xml_constant.attributes['Name'].value,
+            value=None)
+
+        values = []
+        xml_values = xml_constant.getElementsByTagName('Value')
+        for xml_value in xml_values:
+            values.append(xml_value.childNodes[0].nodeValue)
+
+        if type_name == 'Float':
+            # looks like we also have vec4, but use rgba for now
+            if len(values) == 3:
+                constant.value = Vector((
+                        float(values[0]),
+                        float(values[1]),
+                        float(values[2])))
+            elif len(values) == 4:
+                constant.value = RGBA((
+                        float(values[0]),
+                        float(values[1]),
+                        float(values[2]),
+                        float(values[3])))
+            else:
+                constant.value = float(values[0])
+        elif type_name == 'Int':
+            contant.value = int(values[0])
+        elif type_name == 'Bool':
+            contant.value = bool(values[0])
+        else:
+            constant.value = values[0]
+
+        return constant
+
+    def create(self, doc):
+        xml_constant = doc.createElement(self.type)
+        xml_constant.setAttribute('Name', self.name)
+
+        for value in self.values:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(value)))
+            xml_constant.appendChild(xml_value)
+
+        return xml_constant
+
 
 W3D_CHUNK_SHADER_MATERIAL = 0x51
 
@@ -159,3 +208,27 @@ class ShaderMaterial(Struct):
         self.header.write(io_stream)
         write_list(self.properties, io_stream,
                    ShaderMaterialProperty.write)
+
+    @staticmethod
+    def parse(xml_fx_shader):
+        result = ShaderMaterial(
+                header=ShaderMaterialHeader(
+                    type_name=xml_fx_shader.attributes['ShaderName'].value,
+                    technique_index=int(xml_fx_shader.attributes['TechniqueIndex'].value)),
+                properties=[])
+
+        xml_constants = xml_fx_shader.getElementsByTagName('Constants')[0]
+        for xml_constant in xml_constants:
+            result.properties.append(ShaderMaterialProperty.parse(xml_constant))
+        return result
+
+    def create(self, doc):
+        fx_shader = doc.createElement('FXShader')
+        fx_shader.setAttribute('ShaderName', self.header.type_name)
+        fx_shader.setAttribute('TechniqueIndex', str(self.header.technique_index))
+
+        constants = doc.createElement('Constants')
+        fx_shader.appendChild(constants)
+        for property in self.properties:
+            constants.appendChild(property.create(doc))
+        return fx_shader

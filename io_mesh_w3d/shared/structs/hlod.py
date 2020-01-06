@@ -202,18 +202,15 @@ class HLod(Struct):
     @staticmethod
     def parse(xml_container):
         result = HLod(
-            header=HLodHeader(),
-            lod_arrays=[])
-
-        result.header.model_name = xml_container.attributes['id'].value
-        result.header.hierarchy_name = xml_container.attributes['Hierarchy'].value
+            header=HLodHeader(
+                model_name=xml_container.attributes['id'].value,
+                hierarchy_name=xml_container.attributes['Hierarchy'].value),
+            lod_arrays=[HLodArray()])
 
         xml_sub_objects = xml_container.getElementsByTagName('SubObject')
-        if xml_sub_objects:
-            lod_array = HLodArray()
-            result.lod_arrays = [lod_array]
         for xml_sub_object in xml_sub_objects:
-            lod_array.sub_objects.append(HLodSubObject.parse(xml_sub_object))
+            result.lod_arrays[0].sub_objects.append(HLodSubObject.parse(xml_sub_object))
+        result.lod_arrays[0].header.model_count = len(result.lod_arrays[0].sub_objects)
         return result
 
     def create(self, doc):
