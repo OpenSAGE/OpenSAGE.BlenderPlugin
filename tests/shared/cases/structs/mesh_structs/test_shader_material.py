@@ -133,7 +133,7 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(240, material.size())
 
     def test_write_read_xml(self):
-        expected = get_fx_shader()
+        expected = get_shader_material()
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
@@ -143,14 +143,14 @@ class TestShaderMaterial(TestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_fx_shaders = dom.getElementsByTagName('FXShader')
+        xml_shader_materials = dom.getElementsByTagName('FXShader')
         self.assertEqual(1, len(xml_fx_shaders))
 
-        actual = FXShader.parse(xml_fx_shaders[0])
-        compare_fx_shaders(self, expected, actual)
+        actual = ShaderMaterial.parse(xml_shader_material[0])
+        compare_shader_materials(self, expected, actual)
 
     def test_write_read_minimal_xml(self):
-        expected = get_fx_shader_minimal()
+        expected = get_shader_material_minimal()
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
@@ -160,8 +160,8 @@ class TestShaderMaterial(TestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_fx_shaders = dom.getElementsByTagName('FXShader')
+        xml_shader_materials = dom.getElementsByTagName('FXShader')
         self.assertEqual(1, len(xml_fx_shaders))
 
-        actual = FXShader.parse(xml_fx_shaders[0])
-        compare_fx_shaders(self, expected, actual)
+        actual = ShaderMaterial.parse(xml_shader_material[0])
+        compare_shader_materials(self, expected, actual)
