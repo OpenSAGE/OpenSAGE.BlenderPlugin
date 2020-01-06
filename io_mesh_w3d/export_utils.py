@@ -8,8 +8,8 @@ from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.collision_box import *
+from io_mesh_w3d.shared.structs.hlod import *
 
-from io_mesh_w3d.w3d.structs.hlod import *
 from io_mesh_w3d.w3d.structs.mesh import *
 from io_mesh_w3d.w3d.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
@@ -292,7 +292,8 @@ def create_hlod(hierarchy, container_name):
 
         for mesh in meshes:
             subObject = HLodSubObject(
-                name_=container_name + "." + mesh.name,
+                name=mesh.name,
+                identifier=container_name + "." + mesh.name,
                 bone_index=0)
 
             if not mesh.vertex_groups:
@@ -483,7 +484,7 @@ def retrieve_hierarchy(context, container_name):
     pivots = []
 
     if len(rigs) == 0:
-        hierarchy.set_name(container_name)
+        hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
     elif len(rigs) == 1:
         rig = rigs[0]
@@ -492,7 +493,7 @@ def retrieve_hierarchy(context, container_name):
 
         root.translation = rig.location
 
-        hierarchy.set_name(rig.name)
+        hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:

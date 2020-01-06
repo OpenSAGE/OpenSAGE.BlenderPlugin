@@ -69,7 +69,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
 
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
-                    if mesh.name() == sub_object.name():
+                    if mesh.name() == sub_object.name:
                         create_mesh(self, mesh, hierarchy, current_coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
@@ -79,7 +79,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
                 for i, mesh in enumerate(meshes):
-                    if mesh.name() == sub_object.name():
+                    if mesh.name() == sub_object.name:
                         rig_mesh(mesh, hierarchy, rig, sub_object)
 
     else:
@@ -235,8 +235,8 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hlod is None or hierarchy is None:
         return None
 
-    if hierarchy.name() in bpy.data.objects:
-        obj = bpy.data.objects[hierarchy.name()]
+    if hierarchy.header.name in bpy.data.objects:
+        obj = bpy.data.objects[hierarchy.header.name]
         if obj.type == 'ARMATURE':
             return obj
         return None
@@ -273,7 +273,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
     for obj in sub_objects:
         pivot = hierarchy.pivots[obj.bone_index]
-        if pivot.name == obj.name():
+        if pivot.name == obj.name:
             pivot.is_bone = False
 
     for i, pivot in enumerate(hierarchy.pivots):
@@ -700,7 +700,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
         return
 
     sub_objects = [
-        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name() == box.name()]
+        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == box.name()]
     if not sub_objects:
         return
     sub_object = sub_objects[0]

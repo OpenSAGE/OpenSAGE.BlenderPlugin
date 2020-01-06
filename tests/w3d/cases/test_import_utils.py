@@ -6,11 +6,11 @@ from tests.utils import *
 from shutil import copyfile
 
 from tests.shared.helpers.hierarchy import *
+from tests.shared.helpers.hlod import *
 
 from io_mesh_w3d.import_utils import *
 from tests.w3d.helpers.mesh import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
-from tests.w3d.helpers.hlod import *
 from tests.w3d.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *
 

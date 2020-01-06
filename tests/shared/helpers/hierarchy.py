@@ -8,9 +8,7 @@ from tests.w3d.helpers.version import get_version, compare_versions
 from tests.utils import almost_equal
 
 
-def get_hierarchy_header(name="TestHierarchy", xml=False):
-    if xml:
-        return None
+def get_hierarchy_header(name="TestHierarchy"):
     return HierarchyHeader(
         version=get_version(),
         name=name,
@@ -19,10 +17,6 @@ def get_hierarchy_header(name="TestHierarchy", xml=False):
 
 
 def compare_hierarchy_headers(self, expected, actual):
-    if expected is None:
-        self.assertIsNone(actual)
-        return
-
     compare_versions(self, expected.version, actual.version)
     self.assertEqual(expected.name, actual.name)
     self.assertEqual(expected.num_pivots, actual.num_pivots)
@@ -67,8 +61,7 @@ def compare_hierarchy_pivots(self, expected, actual):
 
 def get_hierarchy(name="TestHierarchy", xml=False):
     hierarchy = Hierarchy(
-        header=None,
-        id=None,
+        header=get_hierarchy_header(name),
         pivots=[],
         pivot_fixups=[])
 
@@ -82,12 +75,11 @@ def get_hierarchy(name="TestHierarchy", xml=False):
         get_hierarchy_pivot(name="TRUNK", parent=5),
         get_hierarchy_pivot(name="sword", parent=0)]
 
+
     if xml:
-        hierarchy.id = name
         hierarchy.pivots.append(
             get_hierarchy_pivot(name_id=4, parent=0))
     else:
-        hierarchy.header = get_hierarchy_header(name)
         hierarchy.header.num_pivots = len(hierarchy.pivots)
         hierarchy.pivot_fixups = [
             get_vec(),
@@ -104,30 +96,24 @@ def get_hierarchy(name="TestHierarchy", xml=False):
 
 def get_hierarchy_minimal(xml=False):
     hierarchy = Hierarchy(
-        header=None,
-        id=None,
+        header=get_hierarchy_header(),
         pivots=[get_hierarchy_pivot()],
         pivot_fixups=[])
 
     if not xml:
-        hierarchy.header = get_hierarchy_header(xml=xml)
         hierarchy.pivot_fixups=[get_vec()]
-    else:
-        hierarchy.id = ""
     return hierarchy
 
 
-def get_hierarchy_empty(xml=False):
+def get_hierarchy_empty():
     return Hierarchy(
-        header=get_hierarchy_header(xml=xml),
+        header=get_hierarchy_header(),
         pivots=[],
         pivot_fixups=[])
 
 
 def compare_hierarchies(self, expected, actual):
     compare_hierarchy_headers(self, expected.header, actual.header)
-    if expected.id is not None:
-        self.assertEqual(expected.id, actual.id)
 
     self.assertEqual(len(expected.pivots), len(actual.pivots))
     for i in range(len(expected.pivots)):

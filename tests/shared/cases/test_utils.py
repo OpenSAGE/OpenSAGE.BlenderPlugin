@@ -7,6 +7,7 @@ from shutil import copyfile
 import os
 
 from tests.shared.helpers.hierarchy import *
+from tests.shared.helpers.hlod import *
 from tests.shared.helpers.collision_box import *
 
 from io_mesh_w3d.import_utils import *
@@ -17,7 +18,6 @@ from tests.w3d.helpers.mesh_structs.material_info import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.w3d.helpers.mesh_structs.shader_material import *
 from tests.w3d.helpers.mesh_structs.shader import *
-from tests.w3d.helpers.hlod import *
 from tests.w3d.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *
 
