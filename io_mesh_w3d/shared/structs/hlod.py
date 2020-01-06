@@ -213,7 +213,7 @@ class HLod(Struct):
             lod_array = HLodArray()
             result.lod_arrays = [lod_array]
         for xml_sub_object in xml_sub_objects:
-            lod_array.sub_objects.append(SubObject.parse(xml_sub_object))
+            lod_array.sub_objects.append(HLodSubObject.parse(xml_sub_object))
         return result
 
     def create(self, doc):
