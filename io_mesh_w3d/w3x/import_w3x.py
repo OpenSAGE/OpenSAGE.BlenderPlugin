@@ -8,12 +8,14 @@ from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.import_utils import *
 
+from io_mesh_w3d.shared.structs.hierarchy import *
+from io_mesh_w3d.shared.structs.collision_box import *
+from io_mesh_w3d.shared.structs.hlod import *
+
 from io_mesh_w3d.w3x.structs.include import *
 from io_mesh_w3d.w3x.structs.mesh import *
 from io_mesh_w3d.w3x.structs.texture import *
-from io_mesh_w3d.w3x.structs.hierarchy import *
-from io_mesh_w3d.w3x.structs.collision_box import *
-from io_mesh_w3d.w3x.structs.container import *
+
 
 
 class W3X_CONTEXT(Struct):
@@ -21,7 +23,7 @@ class W3X_CONTEXT(Struct):
     textures = []
     collision_boxes = []
     hierarchy = None
-    container = None
+    hlod = None
 
 
 def load_file(self, path, w3x_context):
@@ -50,7 +52,7 @@ def load_file(self, path, w3x_context):
         elif node.tagName == "W3DCollisionBox":
             w3x_context.collision_boxes.append(CollisionBox.parse(node))
         elif node.tagName == "W3DContainer":
-            w3x_context.container = Container.parse(node)
+            w3x_context.hlod = HLod.parse(node)
         elif node.tagName == "W3DHierarchy":
             w3x_context.hierarchy = Hierarchy.parse(node)
         elif node.tagName == "Texture":
@@ -74,7 +76,7 @@ def load(self, import_settings):
         textures=[],
         collision_boxes=[],
         hierarchy=None,
-        container=None)
+        hlod=None)
 
     w3x_context = load_file(self, self.filepath, w3x_context)
 
@@ -82,7 +84,7 @@ def load(self, import_settings):
     hierarchy = w3x_context.hierarchy
     boxes = w3x_context.collision_boxes
 
-    hlod = None  # for now
+    hlod = w3x_context.hlod
     coll = get_collection(hlod)
 
     mesh_objects = []

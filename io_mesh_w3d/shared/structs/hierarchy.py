@@ -105,19 +105,12 @@ W3D_CHUNK_PIVOT_FIXUPS = 0x00000103
 
 
 class Hierarchy(Struct):
-    header = None
-    id = None
+    header = HierarchyHeader()
     pivots = []
     pivot_fixups = []
 
-    def set_name(self, name):
-        self.header.name = name
-        self.id = name
-
     def name(self):
-        if self.header is not None:
-            return self.header.name
-        return self.id
+        return self.header.name
 
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -162,8 +155,10 @@ class Hierarchy(Struct):
     @staticmethod
     def parse(xml_hierarchy):
         result = Hierarchy(
-            id=xml_hierarchy.attributes['id'].value,
+            header=HierarchyHeader(),
             pivots=[])
+
+        result.header.name = xml_hierarchy.attributes['id'].value
         xml_pivots = xml_hierarchy.getElementsByTagName('Pivot')
         for xml_pivot in xml_pivots:
             result.pivots.append(HierarchyPivot.parse(xml_pivot))
@@ -171,7 +166,7 @@ class Hierarchy(Struct):
 
     def create(self, doc):
         hierarchy = doc.createElement('W3DHierarchy')
-        hierarchy.setAttribute('id', self.id)
+        hierarchy.setAttribute('id', self.header.name)
 
         for pivot in self.pivots:
             hierarchy.appendChild(pivot.create(doc))

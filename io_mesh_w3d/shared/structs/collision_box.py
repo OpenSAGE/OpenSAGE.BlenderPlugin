@@ -17,14 +17,12 @@ class CollisionBox(Struct):
     box_type = 0
     collision_types = 0
     name_ = "containerName.BOUNDINGBOX"
-    color = None
+    color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
 
     def name(self):
-        if '.' in self.name_:
-            return self.name_.split('.')[1]
-        return self.name_
+        return self.name_.split('.')[-1]
 
     @staticmethod
     def read(io_stream):
