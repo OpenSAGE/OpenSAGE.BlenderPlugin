@@ -15,12 +15,12 @@ from bpy.props import StringProperty,\
 
 
 bl_info = {
-    'name': 'Import/Export Westwood W3D Format (.w3d)',
+    'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 3, 0),
+    'version': (0, 4, 0),
     "blender": (2, 81, 0),
-    'location': 'File > Import/Export > Westwood W3D (.w3d)',
-    'description': 'Import or Export the Westwood W3D-Format (.w3d)',
+    'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
+    'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
     'warning': 'Still in Progress',
     'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
     'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
@@ -128,11 +128,11 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
     bl_idname = 'import_mesh.westwood_w3d'
-    bl_label = 'Import W3D'
+    bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
     # default='*.w3d;*.w3x'
-    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
 
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
@@ -147,11 +147,11 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
 
 
 def menu_func_export(self, _context):
-    self.layout.operator(ExportW3D.bl_idname, text='Westwood W3D (.w3d)')
+    self.layout.operator(ExportW3D.bl_idname, text='Westwood W3D (.w3d/.w3x)')
 
 
 def menu_func_import(self, _context):
-    self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d)')
+    self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d/.w3x)')
 
 
 # custom property stuff

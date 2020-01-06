@@ -8,12 +8,13 @@ from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.import_utils import *
 
+from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.hlod import *
 
 from io_mesh_w3d.w3x.structs.include import *
-from io_mesh_w3d.w3x.structs.mesh import *
+
 from io_mesh_w3d.w3x.structs.texture import *
 
 
@@ -83,20 +84,7 @@ def load(self, import_settings):
     meshes = w3x_context.meshes
     hierarchy = w3x_context.hierarchy
     boxes = w3x_context.collision_boxes
-
     hlod = w3x_context.hlod
-    coll = get_collection(hlod)
 
-    mesh_objects = []
-    for mesh in meshes:
-        mesh_objects.append(create_mesh(self, mesh, hierarchy, coll))
-
-    rig = get_or_create_skeleton(hlod, hierarchy, coll)
-    for box in boxes:
-        create_box(box, hlod, hierarchy, rig, coll)
-
-    # need an extra loop because the order of the meshes is random
-    for i, mesh in enumerate(meshes):
-        rig_mesh(mesh, mesh_objects[i], hierarchy, hlod, rig)
-
+    create_data(self, meshes, hlod, hierarchy, boxes, None, None)
     return {'FINISHED'}
