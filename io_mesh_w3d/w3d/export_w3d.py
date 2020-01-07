@@ -37,17 +37,6 @@ def save(self, export_settings):
             #if len(hierarchy.pivots) > 1:
             hierarchy.write(sknFile)
 
-        boxes = retrieve_boxes(hierarchy, containerName)
-        for box in boxes:
-            box.write(sknFile)
-
-        for mesh in meshes:
-            mesh.write(sknFile)
-
-        #if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
-        hlod.write(sknFile)
-
-        if export_mode == 'HAM':
             timecoded = False
             compressionMode = export_settings['w3d_compression']
 
@@ -60,6 +49,16 @@ def save(self, export_settings):
             channels = animation.time_coded_channels if timecoded else animation.channels
             if channels:
                 animation.write(sknFile)
+
+        boxes = retrieve_boxes(hierarchy, containerName)
+        for box in boxes:
+            box.write(sknFile)
+
+        for mesh in meshes:
+            mesh.write(sknFile)
+
+        #if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
+        hlod.write(sknFile)
 
         sknFile.close()
 
