@@ -418,25 +418,25 @@ def retrieve_shader_material(material, principled):
                         "BumpScale", principled.bump_scale)
 
     append_property(shader_material.properties, 2,
-                    "SpecularExponent", 50.0)
-    #append_property(shader_material.properties, 3,
-     #               "BumpUVScale", material.bump_uv_scale)
-    #append_property(
-    #    shader_material.properties,
-    #    4,
-    #    "Sampler_ClampU_ClampV_NoMip_0",
-    #    material.sampler_clamp_uv_no_mip)
+                    "SpecularExponent", material.specular_intensity)
+    append_property(shader_material.properties, 3,
+                    "BumpUVScale", material.bump_uv_scale)
+    append_property(
+        shader_material.properties,
+        4,
+        "Sampler_ClampU_ClampV_NoMip_0",
+        material.sampler_clamp_uv_no_mip)
     append_property(shader_material.properties, 5,
                     "AmbientColor", RGBA(material.ambient))
     append_property(shader_material.properties, 5, "DiffuseColor",
                     RGBA(material.diffuse_color))
     append_property(shader_material.properties, 5, "SpecularColor",
-                    RGBA(r=0.8, g=0.8, b=0.8, a=0.0))
-    #append_property(
-    #    shader_material.properties,
-    #    6,
-    #    "BlendMode",
-     #   material.blend_mode)
+                    RGBA(material.specular_color, a=0.0))
+    append_property(
+        shader_material.properties,
+        6,
+        "BlendMode",
+        material.blend_mode)
     append_property(shader_material.properties, 7,
                     "AlphaTestEnable", int(material.alpha_test))
 
