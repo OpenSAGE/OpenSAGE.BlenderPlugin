@@ -98,9 +98,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
         mesh = mesh_object.to_mesh(
             preserve_all_data_layers=False, depsgraph=None)
+
         triangulate(mesh)
 
         header.vert_count = len(mesh.vertices)
+        print(len(mesh.vertices))
 
         for i, vertex in enumerate(mesh.vertices):
             if vertex.groups:
@@ -416,25 +418,25 @@ def retrieve_shader_material(material, principled):
                         "BumpScale", principled.bump_scale)
 
     append_property(shader_material.properties, 2,
-                    "SpecularExponent", material.specular_intensity)
-    append_property(shader_material.properties, 3,
-                    "BumpUVScale", material.bump_uv_scale)
-    append_property(
-        shader_material.properties,
-        4,
-        "Sampler_ClampU_ClampV_NoMip_0",
-        material.sampler_clamp_uv_no_mip)
+                    "SpecularExponent", 50.0)
+    #append_property(shader_material.properties, 3,
+     #               "BumpUVScale", material.bump_uv_scale)
+    #append_property(
+    #    shader_material.properties,
+    #    4,
+    #    "Sampler_ClampU_ClampV_NoMip_0",
+    #    material.sampler_clamp_uv_no_mip)
     append_property(shader_material.properties, 5,
                     "AmbientColor", RGBA(material.ambient))
     append_property(shader_material.properties, 5, "DiffuseColor",
                     RGBA(material.diffuse_color))
     append_property(shader_material.properties, 5, "SpecularColor",
-                    RGBA(material.specular_color, a=0.0))
-    append_property(
-        shader_material.properties,
-        6,
-        "BlendMode",
-        material.blend_mode)
+                    RGBA(r=0.8, g=0.8, b=0.8, a=0.0))
+    #append_property(
+    #    shader_material.properties,
+    #    6,
+    #    "BlendMode",
+     #   material.blend_mode)
     append_property(shader_material.properties, 7,
                     "AlphaTestEnable", int(material.alpha_test))
 
@@ -549,9 +551,9 @@ def retrieve_hierarchy(context, container_name):
                 or mesh.name in pick_plane_names:
             continue
 
-        if (mesh.delta_location.length < 0.01 \
-                and mesh.delta_rotation_quaternion == Quaternion()):
-            continue
+        #if (mesh.delta_location.length < 0.01 \
+        #        and mesh.delta_rotation_quaternion == Quaternion()):
+        #    continue
 
         eulers = mesh.rotation_quaternion.to_euler()
         pivot = HierarchyPivot(
