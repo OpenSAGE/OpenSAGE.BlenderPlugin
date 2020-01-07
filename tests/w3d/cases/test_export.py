@@ -99,7 +99,7 @@ class TestExport(TestCase):
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
 
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
 
         file = open(file_path, "rb")
         filesize = os.path.getsize(file_path)
