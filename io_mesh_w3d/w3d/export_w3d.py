@@ -26,21 +26,26 @@ def save(self, export_settings):
     hlod = create_hlod(hierarchy, containerName)
 
     if export_mode in ('M', 'HAM'):
+        meshes = retrieve_meshes(self, hierarchy, rig, containerName)
+        if not meshes:
+            self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
+            return
+
         sknFile = open(self.filepath, "wb")
 
         boxes = retrieve_boxes(hierarchy, containerName)
         for box in boxes:
             box.write(sknFile)
 
-        meshes = retrieve_meshes(self, hierarchy, rig, containerName)
         for mesh in meshes:
             mesh.write(sknFile)
 
-        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
-        hlod.write(sknFile)
+        if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
+            hlod.write(sknFile)
 
         if export_mode == 'HAM':
-            hierarchy.write(sknFile)
+            if len(hierarchy.pivots) > 1:
+                hierarchy.write(sknFile)
 
             timecoded = False
             compressionMode = export_settings['w3d_compression']
@@ -50,7 +55,9 @@ def save(self, export_settings):
 
             animation = retrieve_animation(
                 containerName, hierarchy, rig, timecoded)
-            animation.write(sknFile)
+
+            if len(animation.channels) > 0:
+                animation.write(sknFile)
 
         sknFile.close()
 
@@ -58,20 +65,30 @@ def save(self, export_settings):
         filename = os.path.splitext(os.path.basename(self.filepath))[0]
         sklFilePath = self.filepath.replace(
             filename, hierarchy.header.name.lower())
+        
+        if len(hierarchy.pivots) < 2:
+            self.report({'ERROR'}, "Scene does not contain any hierarchy data, aborting export!")
+            return
+
         sklFile = open(sklFilePath, "wb")
         hierarchy.write(sklFile)
         sklFile.close()
 
     elif export_mode == 'A':
-        aniFile = open(self.filepath, "wb")
         timecoded = False
-        compressionMode = export_settings['w3d_compression']
-
-        if compressionMode == "TC":
+        if export_settings['w3d_compression'] == "TC":
             timecoded = True
 
         animation = retrieve_animation(
             containerName, hierarchy, rig, timecoded)
+        if timecoded and not animation.time_coded_channels:
+            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
+            return
+        if not timecoded and not animation.channels:
+            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
+            return
+
+        aniFile = open(self.filepath, "wb")
         animation.write(aniFile)
         aniFile.close()
 
