@@ -29,7 +29,7 @@ def save(self, export_settings):
         meshes = retrieve_meshes(self, hierarchy, rig, containerName)
         if not meshes:
             self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
-            return
+            return {'CANCELLED'}
 
         sknFile = open(self.filepath, "wb")
 
@@ -68,7 +68,7 @@ def save(self, export_settings):
         
         if len(hierarchy.pivots) < 2:
             self.report({'ERROR'}, "Scene does not contain any hierarchy data, aborting export!")
-            return
+            return {'CANCELLED'}
 
         sklFile = open(sklFilePath, "wb")
         hierarchy.write(sklFile)
@@ -83,10 +83,10 @@ def save(self, export_settings):
             containerName, hierarchy, rig, timecoded)
         if timecoded and not animation.time_coded_channels:
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
-            return
+            return {'CANCELLED'}
         if not timecoded and not animation.channels:
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
-            return
+            return {'CANCELLED'}
 
         aniFile = open(self.filepath, "wb")
         animation.write(aniFile)
@@ -96,5 +96,6 @@ def save(self, export_settings):
         message = "WARNING: unsupported export mode: %s" % export_mode
         print(message)
         self.report({'ERROR'}, message)
+        return {'CANCELLED'}
 
     return {'FINISHED'}

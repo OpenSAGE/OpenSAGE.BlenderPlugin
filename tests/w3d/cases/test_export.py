@@ -18,19 +18,16 @@ class TestExport(TestCase):
         export_settings = {}
         export_settings['w3d_mode'] = "NON_EXISTING"
 
-        save(self, export_settings)
+        self.assertEqual({'CANCELLED'}, save(self, export_settings))
 
     def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
         export_settings = {}
         export_settings['w3d_mode'] = "M"
 
-        #meshes = [get_mesh()]
-
-        #create_data(self, meshes)
-
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         self.assertFalse(os.path.exists(file_path))
 
@@ -44,7 +41,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
 
         file = open(file_path, "rb")
         filesize = os.path.getsize(file_path)
@@ -62,7 +60,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         self.assertFalse(os.path.exists(file_path))
 
@@ -76,7 +75,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
 
         file = open(file_path, "rb")
         filesize = os.path.getsize(file_path)
@@ -98,7 +98,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         file = open(file_path, "rb")
         filesize = os.path.getsize(file_path)
@@ -116,7 +117,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_skl.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         self.assertFalse(os.path.exists(file_path))
 
@@ -127,7 +129,8 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_ani.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         self.assertFalse(os.path.exists(file_path))
 
@@ -138,6 +141,7 @@ class TestExport(TestCase):
 
         file_path = self.outpath() + "output_ani.w3d"
         context = ImportWrapper(file_path)
-        save(context, export_settings)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
         self.assertFalse(os.path.exists(file_path))
