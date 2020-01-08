@@ -509,8 +509,13 @@ def load_texture(self, tex_name):
         if img is None:
             img = load_image(dds_path)
         if img is None:
-            print("missing texture:" + dds_path)
-            return None
+            msg = "texture not found: " + dds_path + "|.tga"
+            print("WARNING: " + msg)
+            self.report({'WARNING'}, msg)
+            img = bpy.data.images.new(tex_name, width=2048, height=2048)
+            img.generated_type = 'COLOR_GRID'
+            img.source = 'GENERATED'
+
     img.alpha_mode = 'STRAIGHT'
     return img
 
