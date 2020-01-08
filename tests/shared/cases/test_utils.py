@@ -302,6 +302,15 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes)
 
+    def test_meshes_no_textures_found_roundtrip(self):
+        meshes = [
+            get_mesh(name="wall"),
+            get_mesh(name="tower2", shader_mats=True)]
+
+        create_data(self, meshes)
+
+        self.compare_data(meshes)
+
     def test_hidden_meshes_roundtrip(self):
         meshes = [
             get_mesh(name="wall", hidden=True),
