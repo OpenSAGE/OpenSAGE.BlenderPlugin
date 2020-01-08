@@ -70,7 +70,7 @@ class TestAABBTree(TestCase):
         self.assertEqual(68, expected.size(False))
         self.assertEqual(76, expected.size())
 
-    def test_write_read(self):
+    def test_write_read_xml(self):
         expected = get_aabbtree(xml=True)
 
         doc = minidom.Document()
@@ -87,7 +87,7 @@ class TestAABBTree(TestCase):
         actual = AABBTree.parse(xml_aabbtrees[0])
         compare_aabbtrees(self, expected, actual)
 
-    def test_write_read_minimal(self):
+    def test_write_read_minimal_xml(self):
         expected = get_aabbtree_minimal()
 
         doc = minidom.Document()

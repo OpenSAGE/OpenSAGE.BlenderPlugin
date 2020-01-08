@@ -126,7 +126,7 @@ class ShaderMaterialProperty(Struct):
     @staticmethod
     def parse(xml_constant):
         type_name = xml_constant.tagName
-        constant = ShaderProperty(
+        constant = ShaderMaterialProperty(
             name=xml_constant.attributes['Name'].value,
             value=None)
 
@@ -136,44 +136,54 @@ class ShaderMaterialProperty(Struct):
             values.append(xml_value.childNodes[0].nodeValue)
 
         if type_name == 'Float':
-            # looks like we also have vec4, but use rgba for now
-            if len(values) == 3:
+            if len(values) == 2:
+                constant.type = 3
+                constant.value = Vector((
+                        float(values[0]),
+                        float(values[1])))
+            elif len(values) == 3:
+                constant.type = 4
                 constant.value = Vector((
                         float(values[0]),
                         float(values[1]),
                         float(values[2])))
             elif len(values) == 4:
-                constant.value = RGBA((
-                        float(values[0]),
-                        float(values[1]),
-                        float(values[2]),
-                        float(values[3])))
+                constant.type = 5
+                constant.value = RGBA(
+                        r=float(values[0]) * 255,
+                        g=float(values[1]) * 255,
+                        b=float(values[2]) * 255,
+                        a=float(values[3]) * 255)
             else:
+                constant.type = 2
                 constant.value = float(values[0])
         elif type_name == 'Int':
-            contant.value = int(values[0])
+            constant.type = 6
+            constant.value = int(values[0])
         elif type_name == 'Bool':
-            contant.value = bool(values[0])
+            constant.type = 7
+            constant.value = bool(values[0])
         else:
+            constant.type = 1
             constant.value = values[0]
 
         return constant
 
     def create(self, doc):
-        xml_constant = doc.createElement(self.type)
-        xml_constant.setAttribute('Name', self.name)
-
         if self.type == 1:
+            xml_constant = doc.createElement('Texture')
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value)))
+            xml_value.appendChild(doc.createTextNode(self.value))
             xml_constant.appendChild(xml_value)
 
         elif self.type == 2:
+            xml_constant = doc.createElement('Float')
             xml_value = doc.createElement('Value')
             xml_value.appendChild(doc.createTextNode(str(self.value)))
             xml_constant.appendChild(xml_value)
 
         elif self.type == 3:
+            xml_constant = doc.createElement('Float')
             xml_value = doc.createElement('Value')
             xml_value.appendChild(doc.createTextNode(str(self.value.x)))
             xml_constant.appendChild(xml_value)
@@ -182,6 +192,7 @@ class ShaderMaterialProperty(Struct):
             xml_constant.appendChild(xml_value)
 
         elif self.type == 4:
+            xml_constant = doc.createElement('Float')
             xml_value = doc.createElement('Value')
             xml_value.appendChild(doc.createTextNode(str(self.value.x)))
             xml_constant.appendChild(xml_value)
@@ -193,24 +204,33 @@ class ShaderMaterialProperty(Struct):
             xml_constant.appendChild(xml_value)
 
         elif self.type == 5:
+            xml_constant = doc.createElement('Float')
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.r)))
+            xml_value.appendChild(doc.createTextNode(str(float(self.value.r) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.g)))
+            xml_value.appendChild(doc.createTextNode(str(float(self.value.g) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.b)))
+            xml_value.appendChild(doc.createTextNode(str(float(self.value.b) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.a)))
+            xml_value.appendChild(doc.createTextNode(str(float(self.value.a) / 255)))
             xml_constant.appendChild(xml_value)
 
-        elif self.type == 6 or self.type == 7:
+        elif self.type == 6:
+            xml_constant = doc.createElement('Int')
             xml_value = doc.createElement('Value')
             xml_value.appendChild(doc.createTextNode(str(self.value)))
             xml_constant.appendChild(xml_value)
 
+        elif self.type == 7:
+            xml_constant = doc.createElement('Bool')
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value)))
+            xml_constant.appendChild(xml_value)
+
+        xml_constant.setAttribute('Name', self.name)
         return xml_constant
 
 
@@ -261,7 +281,7 @@ class ShaderMaterial(Struct):
                 properties=[])
 
         xml_constants = xml_fx_shader.getElementsByTagName('Constants')[0]
-        for xml_constant in xml_constants:
+        for xml_constant in xml_constants.childs():
             result.properties.append(ShaderMaterialProperty.parse(xml_constant))
         return result
 

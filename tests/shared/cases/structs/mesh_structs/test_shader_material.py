@@ -144,9 +144,9 @@ class TestShaderMaterial(TestCase):
 
         dom = minidom.parse(io_stream)
         xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_fx_shaders))
+        self.assertEqual(1, len(xml_shader_materials))
 
-        actual = ShaderMaterial.parse(xml_shader_material[0])
+        actual = ShaderMaterial.parse(xml_shader_materials[0])
         compare_shader_materials(self, expected, actual)
 
     def test_write_read_minimal_xml(self):
@@ -161,7 +161,7 @@ class TestShaderMaterial(TestCase):
 
         dom = minidom.parse(io_stream)
         xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_fx_shaders))
+        self.assertEqual(1, len(xml_shader_materials))
 
-        actual = ShaderMaterial.parse(xml_shader_material[0])
+        actual = ShaderMaterial.parse(xml_shader_materials[0])
         compare_shader_materials(self, expected, actual)
