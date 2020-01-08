@@ -65,14 +65,14 @@ def get_aabbtree(num_nodes=33, num_polys=41, xml=False):
 
 def get_aabbtree_minimal():
     return AABBTree(
-        header=get_aabbtree_header(),
+        header=get_aabbtree_header(num_nodes=1, num_polys=1),
         poly_indices=[1],
         nodes=[get_aabbtree_node()])
 
 
 def get_aabbtree_empty():
     return AABBTree(
-        header=get_aabbtree_header(),
+        header=get_aabbtree_header(num_nodes=0, num_polys=0),
         poly_indices=[],
         nodes=[])
 

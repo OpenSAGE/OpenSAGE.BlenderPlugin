@@ -210,7 +210,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
             principled = retrieve_principled_bsdf(material)
 
-            if principled.normalmap_tex is not None:
+            if principled.normalmap_tex is not None: # TODO: or W3X export
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
@@ -387,6 +387,8 @@ def retrieve_shader_material(material, principled):
         header=ShaderMaterialHeader(
             type_name="NormalMapped.fx"),
         properties=[])
+
+    shader_material.header.technique_index = material.technique
 
     principled = retrieve_principled_bsdf(material)
 

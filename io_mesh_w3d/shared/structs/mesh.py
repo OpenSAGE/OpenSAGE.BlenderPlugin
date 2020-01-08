@@ -437,6 +437,9 @@ class Mesh(Struct):
         if geometry_type == "Skin":
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
+        result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
+                    | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+
         xml_bounding_box = xml_mesh.getElementsByTagName('BoundingBox')[0]
         bounding_box = BoundingBox.parse(xml_bounding_box)
         result.header.min_corner = bounding_box.min
@@ -449,14 +452,20 @@ class Mesh(Struct):
 
         result.verts = parse_object_list(
             xml_mesh, 'Vertices', 'V', parse_vector)
+        result.header.vert_count = len(result.verts)
+
         result.normals = parse_object_list(
             xml_mesh, 'Normals', 'N', parse_vector)
+
         result.tangents = parse_object_list(
             xml_mesh, 'Tangents', 'T', parse_vector)
+
         result.bitangents = parse_object_list(
             xml_mesh, 'Bitangents', 'B', parse_vector)
+
         result.triangles = parse_object_list(
             xml_mesh, 'Triangles', 'T', Triangle.parse)
+        result.header.face_count = len(result.triangles)
 
         tex_coords = parse_object_list(
             xml_mesh, 'TexCoords', 'T', parse_vector2)
@@ -464,12 +473,13 @@ class Mesh(Struct):
             result.material_passes.append(MaterialPass(
                 tx_coords=tex_coords))
 
-        #TODO
-        #shade_indices = parse_object_list(
-        #    xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+        result.shade_ids = parse_object_list(
+            xml_mesh, 'ShadeIndices', 'I', parse_value, int)
 
-        #xml_fx_shader = xml_mesh.getElementsByTagName('FXShader')[0]
-        #fx_shader = FXShader.parse(xml_fx_shader)
+        xml_shader_materials = xml_mesh.getElementsByTagName('FXShader')
+        for xml_shader_material in xml_shader_materials:
+            result.shader_materials.append(ShaderMaterial.parse(xml_shader_material))
+        result.header.matl_count = len(result.shader_materials)
 
         xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
         if xml_aabbtrees:
@@ -510,16 +520,18 @@ class Mesh(Struct):
             xml_mesh.appendChild(create_object_list(
                 doc, 'Bitangents', self.bitangents, create_vector, 'B'))
 
-        #xml_mesh.appendChild(create_object_list(
-        #    doc, 'TexCoords', self.tex_coords, create_vector2, 'T'))
+        if self.material_passes:
+            xml_mesh.appendChild(create_object_list(
+                doc, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T'))
 
-        #xml_mesh.appendChild(create_object_list(
-        #    doc, 'ShadeIndices', self.shade_indices, create_value, 'I'))
+        xml_mesh.appendChild(create_object_list(
+            doc, 'ShadeIndices', self.shade_ids, create_value, 'I'))
 
         xml_mesh.appendChild(create_object_list(
             doc, 'Triangles', self.triangles, Triangle.create))
 
-        #xml_mesh.appendChild(self.fx_shader.create(doc))
+        for shader_material in self.shader_materials:
+            xml_mesh.appendChild(shader_material.create(doc))
         
         xml_mesh.appendChild(self.aabbtree.create(doc))
 

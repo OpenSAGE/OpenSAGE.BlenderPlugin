@@ -214,7 +214,7 @@ class TestMesh(TestCase):
         compare_meshes(self, expected, actual)
 
     def test_write_read_minimal_xml(self):
-        expected = get_mesh_minimal()
+        expected = get_mesh_minimal(xml=True)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))

@@ -270,6 +270,13 @@ Material.surface_type = EnumProperty(
 
 # not yet visible in gui
 
+Material.technique = IntProperty(
+    name="Technique",
+    description="Dont know yet",
+    default=0,
+    min=0,
+    max=1)
+
 Material.blend_mode = IntProperty(
     name="Blend mode",
     description="Which blend mode should be used",

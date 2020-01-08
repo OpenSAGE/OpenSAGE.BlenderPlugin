@@ -104,22 +104,23 @@ class AnimationChannel(Struct):
     @staticmethod
     def parse(xml_channel):
         result = AnimationChannel(
-            pivot=xml_channel.attributes['Pivot'].value,
-            first_frame=xml_channel.attributes['FirstFrame'].value,
+            pivot=int(xml_channel.attributes['Pivot'].value),
+            first_frame=int(xml_channel.attributes['FirstFrame'].value),
             vector_len=1,
             type=0,
             data=[])
 
         type_name = xml_channel.attributes['Type'].value
+
         if type_name == 'XTranslation':
-            result.type == 0
+            result.type = 0
         elif type_name == 'YTranslation':
-            result.type == 1
+            result.type = 1
         elif type_name == 'ZTranslation':
-            result.type == 2
+            result.type = 2
         elif type_name == 'Orientation':
             result.vector_len = 4
-            result.type == 6
+            result.type = 6
 
         if xml_channel.tagName == 'ChannelScalar':
             for value in xml_channel.childs():
@@ -128,7 +129,7 @@ class AnimationChannel(Struct):
             for value in xml_channel.childs():
                 result.data.append(parse_quaternion(value))
    
-        result.last_frame = result.first_frame + len(result.data)
+        result.last_frame = result.first_frame + len(result.data) - 1
         return result
 
     def create(self, doc):
@@ -144,8 +145,8 @@ class AnimationChannel(Struct):
             channel = doc.createElement('Orientation')
             channel.setAttribute('Type', 'Orientation')
 
-        channel.setAttribute('Pivot', self.pivot)
-        channel.setAttribute('FirstFrame', self.first_frame)
+        channel.setAttribute('Pivot', str(self.pivot))
+        channel.setAttribute('FirstFrame', str(self.first_frame))
 
         if self.type < 6:
             for value in self.data:

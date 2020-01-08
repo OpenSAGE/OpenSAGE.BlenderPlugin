@@ -164,6 +164,7 @@ class HLodArray(Struct):
         write_list(self.sub_objects, io_stream, HLodSubObject.write)
 
 
+
 W3D_CHUNK_HLOD = 0x00000700
 
 
@@ -209,7 +210,7 @@ class HLod(Struct):
             header=HLodHeader(
                 model_name=xml_container.attributes['id'].value,
                 hierarchy_name=xml_container.attributes['Hierarchy'].value),
-            lod_arrays=[HLodArray()])
+            lod_arrays=[HLodArray(sub_objects=[])])
 
         xml_sub_objects = xml_container.getElementsByTagName('SubObject')
         for xml_sub_object in xml_sub_objects:

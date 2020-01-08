@@ -117,13 +117,6 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
         mesh_ob.hide_set(True)
 
     principleds = []
-
-    for shaderMat in mesh_struct.shader_materials:
-        (material, principled) = create_material_from_shader_material(
-            self, mesh_struct, shaderMat)
-        mesh.materials.append(material)
-        principleds.append(principled)
-
     vert_materials = mesh_struct.vert_materials
     material_passes = mesh_struct.material_passes
     textures = mesh_struct.textures
@@ -136,6 +129,12 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     for vertMat in vert_materials:
         (material, principled) = create_material_from_vertex_material(
             self, mesh_struct, vertMat)
+        mesh.materials.append(material)
+        principleds.append(principled)
+
+    for shaderMat in mesh_struct.shader_materials:
+        (material, principled) = create_material_from_shader_material(
+            self, mesh_struct, shaderMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
@@ -369,6 +368,8 @@ def create_material_from_shader_material(self, mesh, shader_mat):
     bump_scale = 0
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
+
+    material.technique = shader_mat.header.technique_index
 
     for prop in shader_mat.properties:
         if prop.name == "DiffuseTexture":
