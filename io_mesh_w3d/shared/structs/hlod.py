@@ -112,14 +112,18 @@ class HLodSubObject(Struct):
     def create(self, doc):
         sub_object = doc.createElement('SubObject')
         sub_object.setAttribute('SubObjectID', self.name)
-        sub_object.setAttribute('BoneIndex', self.bone_index)
+        sub_object.setAttribute('BoneIndex', str(self.bone_index))
 
         render_object = doc.createElement('RenderObject')
         sub_object.appendChild(render_object)
-        #TODO: write, how to detect if we need to create a 
-        #doc.createElement('Mesh')
-        #xml_mesh.appendChild(doc.createTextNode(str(sub_obj.identifier)))
-        #doc.createElement('CollisionBox')
+        if "BOX" in self.identifier: # TODO: find a better way
+            box = doc.createElement('CollisionBox')
+            box.appendChild(doc.createTextNode(self.identifier))
+            render_object.appendChild(box)
+        else:
+            mesh = doc.createElement('Mesh')
+            mesh.appendChild(doc.createTextNode(self.identifier))
+            render_object.appendChild(mesh)
         return sub_object
 
 
@@ -219,5 +223,5 @@ class HLod(Struct):
         container.setAttribute('Hierarchy', self.header.hierarchy_name)
 
         for sub_object in self.lod_arrays[0].sub_objects:
-            sub_object.create(doc)
+            container.appendChild(sub_object.create(doc))
         return container

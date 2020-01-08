@@ -15,7 +15,7 @@ W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 class ShaderMaterialHeader(Struct):
     technique_index = 0
     type_name = ""
-    reserved = 2  # what is this?
+    reserved = 0  # what is this?
 
     @staticmethod
     def read(io_stream):
@@ -163,9 +163,52 @@ class ShaderMaterialProperty(Struct):
         xml_constant = doc.createElement(self.type)
         xml_constant.setAttribute('Name', self.name)
 
-        for value in self.values:
+        if self.type == 1:
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(value)))
+            xml_value.appendChild(doc.createTextNode(str(self.value)))
+            xml_constant.appendChild(xml_value)
+
+        elif self.type == 2:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value)))
+            xml_constant.appendChild(xml_value)
+
+        elif self.type == 3:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.x)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.y)))
+            xml_constant.appendChild(xml_value)
+
+        elif self.type == 4:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.x)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.y)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.z)))
+            xml_constant.appendChild(xml_value)
+
+        elif self.type == 5:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.r)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.g)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.b)))
+            xml_constant.appendChild(xml_value)
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value.a)))
+            xml_constant.appendChild(xml_value)
+
+        elif self.type == 6 or self.type == 7:
+            xml_value = doc.createElement('Value')
+            xml_value.appendChild(doc.createTextNode(str(self.value)))
             xml_constant.appendChild(xml_value)
 
         return xml_constant
