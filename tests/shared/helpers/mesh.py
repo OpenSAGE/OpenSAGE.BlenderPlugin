@@ -25,8 +25,8 @@ def get_mesh_header(name="mesh_name", skin=False, shader_mats=False, hidden=Fals
         attrs=0,
         mesh_name=name,
         container_name="containerName",
-        face_count=0,
-        vert_count=0,
+        face_count=12,
+        vert_count=8,
         matl_count=2,
         damage_stage_count=0,
         sort_level=0,
@@ -232,8 +232,8 @@ def get_mesh_two_textures(name="meshName"):
     return mesh
 
 
-def get_mesh_minimal():
-    return Mesh(
+def get_mesh_minimal(xml = False):
+    mesh = Mesh(
         header=get_mesh_header(),
         user_text="text",
         verts=[get_vec()],
@@ -254,6 +254,20 @@ def get_mesh_minimal():
         prelit_vertex=None,
         prelit_lightmap_multi_pass=None,
         prelit_lightmap_multi_texture=None)
+
+
+    if xml:
+        mesh.header = get_mesh_header(shader_mats=True)
+        mesh.vert_materials = []
+        mesh.header.matl_count = 1
+        mesh.shaders = []
+
+    mesh.header.face_count = 1
+    mesh.header.vert_count = 1
+
+
+    return mesh
+
 
 
 def get_mesh_empty():
