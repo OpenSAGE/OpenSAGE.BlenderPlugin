@@ -56,7 +56,8 @@ def save(self, export_settings):
             animation = retrieve_animation(
                 containerName, hierarchy, rig, timecoded)
 
-            if len(animation.channels) > 0:
+            channels = animation.time_coded_channels if timecoded else animation.channels
+            if channels:
                 animation.write(sknFile)
 
         sknFile.close()
@@ -81,10 +82,9 @@ def save(self, export_settings):
 
         animation = retrieve_animation(
             containerName, hierarchy, rig, timecoded)
-        if timecoded and not animation.time_coded_channels:
-            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
-            return {'CANCELLED'}
-        if not timecoded and not animation.channels:
+
+        channels = animation.time_coded_channels if timecoded else animation.channels
+        if not channels:
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
             return {'CANCELLED'}
 
