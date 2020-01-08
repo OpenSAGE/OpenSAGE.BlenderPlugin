@@ -10,7 +10,7 @@ def get_shader_material_header():
     return ShaderMaterialHeader(
         technique_index=1,
         type_name="NormalMapped.fx",
-        reserved=2)
+        reserved=0)
 
 
 def compare_shader_material_headers(self, expected, actual):

@@ -433,6 +433,7 @@ class Mesh(Struct):
             result.header.mesh_name = id
             
         geometry_type = xml_mesh.attributes['GeometryType'].value
+        result.header.attrs = GEOMETRY_TYPE_NORMAL
         if geometry_type == "Skin":
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
@@ -481,8 +482,9 @@ class Mesh(Struct):
         id = self.header.container_name + "." + self.header.mesh_name
         xml_mesh.setAttribute('id', id)
 
-        # TODO: parse from header attrs
-        xml_mesh.setAttribute('GeometryType', "Skin")
+        xml_mesh.setAttribute('GeometryType', "Normal")
+        if self.header.attrs & GEOMETRY_TYPE_SKIN:
+            xml_mesh.setAttribute('GeometryType', "Skin")
 
         box = BoundingBox(
             min=self.header.min_corner,
