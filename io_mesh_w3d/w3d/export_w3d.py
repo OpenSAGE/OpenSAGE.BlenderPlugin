@@ -18,22 +18,23 @@ def save(self, export_settings):
     except BaseException:
         print("could not set mode to OBJECT")
 
-    containerName = (os.path.splitext(
-        os.path.basename(self.filepath))[0]).upper()
+    container_name = None
+    for coll in bpy.data.collections:
 
-    (hierarchy, rig) = retrieve_hierarchy(self, containerName)
 
-    hlod = create_hlod(hierarchy, containerName)
+    hlod = create_hlod(hierarchy)
+    (hierarchy, rig) = retrieve_hierarchy(self, hlod.header.model_name)
 
-    if export_mode in ('M', 'HAM'):
-        meshes = retrieve_meshes(self, hierarchy, rig, containerName)
+    if export_mode == 'M':
+        meshes = retrieve_meshes(self, hierarchy, rig, hlod.header.model_name)
         if not meshes:
             self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
             return {'CANCELLED'}
 
         sknFile = open(self.filepath, "wb")
 
-        if export_mode == 'HAM':
+        print(hlod.header.model_name + " " + hlod.header.hierarchy_name)
+        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
             if len(hierarchy.pivots) > 1:
                 hierarchy.write(sknFile)
 
@@ -50,26 +51,30 @@ def save(self, export_settings):
             if channels:
                 animation.write(sknFile)
 
-        boxes = retrieve_boxes(hierarchy, containerName)
+        boxes = retrieve_boxes(hierarchy, hlod.header.model_name)
         for box in boxes:
             box.write(sknFile)
 
         for mesh in meshes:
             mesh.write(sknFile)
 
-        if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
+        if hlod.lod_arrays:
             hlod.write(sknFile)
 
         sknFile.close()
 
     elif export_mode == 'H':
-        filename = os.path.splitext(os.path.basename(self.filepath))[0]
-        sklFilePath = self.filepath.replace(
-            filename, hierarchy.header.name.lower())
-        
         if len(hierarchy.pivots) < 2:
             self.report({'ERROR'}, "Scene does not contain any hierarchy data, aborting export!")
             return {'CANCELLED'}
+
+        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
+            self.report({'ERROR'}, "Armature is named the same as collection -> use export mode 'M' instead, aborting export!")
+            return {'CANCELLED'}
+
+        filename = os.path.splitext(os.path.basename(self.filepath))[0]
+        sklFilePath = self.filepath.replace(
+            filename, hierarchy.header.name.lower())
 
         sklFile = open(sklFilePath, "wb")
         hierarchy.write(sklFile)
@@ -86,6 +91,10 @@ def save(self, export_settings):
         channels = animation.time_coded_channels if timecoded else animation.channels
         if not channels:
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
+            return {'CANCELLED'}
+
+        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
+            self.report({'ERROR'}, "Armature is named the same as collection -> use export mode 'M' instead, aborting export!")
             return {'CANCELLED'}
 
         aniFile = open(self.filepath, "wb")

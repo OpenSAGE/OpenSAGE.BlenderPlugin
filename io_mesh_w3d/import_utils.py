@@ -61,6 +61,8 @@ def get_collection(hlod=None):
 def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
     rig = None
     coll = get_collection(hlod)
+    coll2 = bpy.data.collections.new(hlod.header.model_name)
+    coll.children.link(coll2)
     if hlod is not None:
         current_coll = coll
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
