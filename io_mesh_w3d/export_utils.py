@@ -100,9 +100,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
             preserve_all_data_layers=False, depsgraph=None)
 
         triangulate(mesh)
-
         header.vert_count = len(mesh.vertices)
-        print(len(mesh.vertices))
 
         for i, vertex in enumerate(mesh.vertices):
             if vertex.groups:
@@ -277,7 +275,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 # hlod
 ##########################################################################
 
-def create_hlod(hierarchy, container_name):
+def create_hlod(hierarchy):
     hlod = HLod(
         header=HLodHeader(
             model_name=container_name,
