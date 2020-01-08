@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
+from xml.dom import minidom
 from tests.utils import TestCase
 from tests.shared.helpers.animation import *
 
@@ -63,3 +64,37 @@ class TestAnimation(TestCase):
         self.assertEqual(43, list_size(ani.channels, False))
 
         self.assertEqual(95, ani.size())
+
+    def test_write_read_xml(self):
+        expected = get_animation()
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_animations = dom.getElementsByTagName('W3DAnimation')
+        self.assertEqual(1, len(xml_animations))
+
+        actual = Animation.parse(xml_animations[0])
+        compare_animations(self, expected, actual)
+
+    def test_write_read_minimal_xml(self):
+        expected = get_animation_minimal()
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_animations = dom.getElementsByTagName('W3DAnimation')
+        self.assertEqual(1, len(xml_animations))
+
+        actual = Animation.parse(xml_animations[0])
+        compare_animations(self, expected, actual)

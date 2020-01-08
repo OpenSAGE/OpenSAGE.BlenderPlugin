@@ -58,8 +58,8 @@ def parse_quaternion(xml_quaternion):
         float(xml_quaternion.attributes['Z'].value)))
 
 
-def create_quaternion(quat, doc):
-    quaternion = doc.createElement('Rotation')
+def create_quaternion(quat, doc, identifier='Rotation'):
+    quaternion = doc.createElement(identifier)
     quaternion.setAttribute('W', str(quat[0]))
     quaternion.setAttribute('X', str(quat[1]))
     quaternion.setAttribute('Y', str(quat[2]))

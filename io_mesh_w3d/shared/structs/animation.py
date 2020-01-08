@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.struct import Struct
+from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3d.utils import *
 from io_mesh_w3d.w3d.structs.version import Version
@@ -99,6 +100,60 @@ class AnimationChannel(Struct):
         else:
             write_list(self.data, io_stream, write_quaternion)
         write_list(self.pad_bytes, io_stream, write_ubyte)
+
+    @staticmethod
+    def parse(xml_channel):
+        result = AnimationChannel(
+            pivot=xml_channel.attributes['Pivot'].value,
+            first_frame=xml_channel.attributes['FirstFrame'].value,
+            vector_len=1,
+            type=0,
+            data=[])
+
+        type_name = xml_channel.attributes['Type'].value
+        if type_name == 'XTranslation':
+            result.type == 0
+        elif type_name == 'YTranslation':
+            result.type == 1
+        elif type_name == 'ZTranslation':
+            result.type == 2
+        elif type_name == 'Orientation':
+            result.vector_len = 4
+            result.type == 6
+
+        if xml_channel.tagName == 'ChannelScalar':
+            for value in xml_channel.childs():
+                result.data.append(parse_value(value, float))
+        elif xml_channel.tagName == 'Orientation':
+            for value in xml_channel.childs():
+                result.data.append(parse_quaternion(value))
+   
+        result.last_frame = result.first_frame + len(result.data)
+        return result
+
+    def create(self, doc):
+        if self.type < 6:
+            channel = doc.createElement('ChannelScalar')
+            if self.type == 0:
+                channel.setAttribute('Type', 'XTranslation')
+            elif self.type == 1:
+                channel.setAttribute('Type', 'YTranslation')
+            elif self.type == 2:
+                channel.setAttribute('Type', 'ZTranslation')
+        else:
+            channel = doc.createElement('Orientation')
+            channel.setAttribute('Type', 'Orientation')
+
+        channel.setAttribute('Pivot', self.pivot)
+        channel.setAttribute('FirstFrame', self.first_frame)
+
+        if self.type < 6:
+            for value in self.data:
+                channel.appendChild(create_value(value, doc, 'Frame'))
+        else:
+            for value in self.data:
+                channel.appendChild(create_quaternion(value, doc, 'Frame'))
+        return channel
 
 
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
@@ -205,10 +260,9 @@ class Animation(Struct):
         result.header.num_frames = int(xml_animation.attributes['NumFrames'].value)
         result.header.frame_rate = int(xml_animation.attributes['FrameRate'].value)
 
-        #xml_channels_list = xml_animation.getElementsByTagName('Channels')[0]
-        #xml_scalar_channels = cml_channels_list.getElementsByTagName('ChannelScalar')
-        #for xml_scalar_channel in xml_scalar_channels:
-        #    result.channels.append(AnimationChannel.parse(xml_scalar_channel))
+        xml_channels_list = xml_animation.getElementsByTagName('Channels')[0]
+        for xml_channel in xml_channels_list.childs():
+            result.channels.append(AnimationChannel.parse(xml_channel))
         return result
 
     def create(self, doc):
@@ -218,5 +272,9 @@ class Animation(Struct):
         animation.setAttribute('NumFrames', str(self.header.num_frames))
         animation.setAttribute('FrameRate', str(self.header.frame_rate))
 
+        channels = doc.createElement('Channels')
+        animation.appendChild(channels)
+        for channel in self.channels:
+            channels.appendChild(channel.create(doc))
 
         return animation
