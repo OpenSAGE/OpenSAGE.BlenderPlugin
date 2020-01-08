@@ -34,8 +34,8 @@ def save(self, export_settings):
         sknFile = open(self.filepath, "wb")
 
         if export_mode == 'HAM':
-            #if len(hierarchy.pivots) > 1:
-            hierarchy.write(sknFile)
+            if len(hierarchy.pivots) > 1:
+                hierarchy.write(sknFile)
 
             timecoded = False
             compressionMode = export_settings['w3d_compression']
@@ -57,8 +57,8 @@ def save(self, export_settings):
         for mesh in meshes:
             mesh.write(sknFile)
 
-        #if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
-        hlod.write(sknFile)
+        if hlod.lod_arrays and len(hlod.lod_arrays[-1].sub_objects) > 1:
+            hlod.write(sknFile)
 
         sknFile.close()
 
