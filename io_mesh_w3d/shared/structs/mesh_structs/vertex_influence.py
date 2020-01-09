@@ -43,14 +43,12 @@ class VertexInfluence(Struct):
             result.xtra_inf = float(xml_vertex_influence2.attributes['Weight'].value)
         return result
 
-    def create(self, doc, multibone=False):
+    def create(self, doc):
         influence = doc.createElement('I')
         influence.setAttribute('Bone', str(self.bone_idx))
         influence.setAttribute('Weight', str(self.bone_inf))
 
-        influence2 = None
-        if multibone:
-            influence2 = doc.createElement('I')
-            influence2.setAttribute('Bone', str(self.xtra_idx))
-            influence2.setAttribute('Weight', str(self.xtra_inf))
+        influence2 = doc.createElement('I')
+        influence2.setAttribute('Bone', str(self.xtra_idx))
+        influence2.setAttribute('Weight', str(self.xtra_inf))
         return (influence, influence2)
