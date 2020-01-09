@@ -165,7 +165,7 @@ class AnimationBitChannel(Struct):
     last_frame = 0
     type = 0
     pivot = 0
-    default = False
+    default = 1.0
     data = []
 
     @staticmethod
@@ -175,10 +175,10 @@ class AnimationBitChannel(Struct):
             last_frame=read_ushort(io_stream),
             type=read_ushort(io_stream),
             pivot=read_ushort(io_stream),
-            default=read_ubyte(io_stream))
+            default=float(read_ubyte(io_stream) / 255))
 
         num_frames = result.last_frame - result.first_frame + 1
-        result.data = [bool] * num_frames
+        result.data = [float] * num_frames
         temp = 0
         for i in range(num_frames):
             if i % 8 == 0:
@@ -201,7 +201,7 @@ class AnimationBitChannel(Struct):
         write_ushort(self.last_frame, io_stream)
         write_ushort(self.type, io_stream)
         write_ushort(self.pivot, io_stream)
-        write_ubyte(self.default, io_stream)
+        write_ubyte(int(self.default * 255), io_stream)
 
         value = 0x00
         for i, datum in enumerate(self.data):
@@ -210,6 +210,33 @@ class AnimationBitChannel(Struct):
                 value = 0x00
             value |= (int(datum) << (i % 8))
         write_ubyte(value, io_stream)
+
+    @staticmethod
+    def parse(xml_bit_channel):
+        result = AnimationBitChannel(
+            pivot=int(xml_bit_channel.attributes['Pivot'].value),
+            first_frame=int(xml_bit_channel.attributes['FirstFrame'].value),
+            type=0,
+            default=True,
+            data=[])
+
+        if xml_bit_channel.tagName == 'ChannelScalar':
+            for value in xml_bit_channel.childs():
+                result.data.append(parse_value(value, float))
+   
+        result.last_frame = result.first_frame + len(result.data) - 1
+        return result
+
+    def create(self, doc):
+        channel = doc.createElement('ChannelScalar')
+        channel.setAttribute('Type', 'Visibility')
+
+        channel.setAttribute('Pivot', str(self.pivot))
+        channel.setAttribute('FirstFrame', str(self.first_frame))
+
+        for value in self.data:
+            channel.appendChild(create_value(value, doc, 'Frame'))
+        return channel
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -247,7 +274,7 @@ class Animation(Struct):
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        for channel in self.channels:  # combination of animation and animationbit channels
+        for channel in self.channels:
             channel.write(io_stream)
 
     @staticmethod
@@ -263,7 +290,10 @@ class Animation(Struct):
 
         xml_channels_list = xml_animation.getElementsByTagName('Channels')[0]
         for xml_channel in xml_channels_list.childs():
-            result.channels.append(AnimationChannel.parse(xml_channel))
+            if xml_channel.attributes['Type'].value == 'Visibility':
+                result.channels.append(AnimationBitChannel.parse(xml_channel))
+            else:
+                result.channels.append(AnimationChannel.parse(xml_channel))
         return result
 
     def create(self, doc):

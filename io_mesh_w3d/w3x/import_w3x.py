@@ -12,11 +12,9 @@ from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.hlod import *
+from io_mesh_w3d.shared.structs.mesh_structs.texture import *
 
 from io_mesh_w3d.w3x.structs.include import *
-
-from io_mesh_w3d.w3x.structs.texture import *
-
 
 
 class W3X_CONTEXT(Struct):

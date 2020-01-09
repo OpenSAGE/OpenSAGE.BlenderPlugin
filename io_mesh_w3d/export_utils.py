@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import os
 import bpy
 import bmesh
 from mathutils import Vector
@@ -231,8 +232,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                         animation_type=0,
                         frame_count=0,
                         frame_rate=0.0)
+                    img = bpy.data.images[principled.diffuse_tex]
                     tex = Texture(
-                        name=principled.diffuse_tex,
+                        id=img.name,
+                        file=os.path.basename(img.filepath),
                         texture_info=info)
                     mesh_struct.textures.append(tex)
 

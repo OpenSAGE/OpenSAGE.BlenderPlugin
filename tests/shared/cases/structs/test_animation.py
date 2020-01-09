@@ -66,7 +66,7 @@ class TestAnimation(TestCase):
         self.assertEqual(95, ani.size())
 
     def test_write_read_xml(self):
-        expected = get_animation()
+        expected = get_animation(xml=True)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
