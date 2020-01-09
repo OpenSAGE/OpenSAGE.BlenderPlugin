@@ -9,13 +9,13 @@ from tests.shared.helpers.mesh_structs.triangle import *
 from tests.shared.helpers.mesh_structs.shader_material import *
 from tests.shared.helpers.mesh_structs.aabbtree import *
 from tests.shared.helpers.mesh_structs.texture import *
+from tests.shared.helpers.mesh_structs.vertex_influence import *
 
 from tests.w3d.helpers.version import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
 from tests.w3d.helpers.mesh_structs.material_info import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.w3d.helpers.mesh_structs.shader import *
-from tests.w3d.helpers.mesh_structs.vertex_influence import *
 from tests.w3d.helpers.mesh_structs.prelit import *
 
 

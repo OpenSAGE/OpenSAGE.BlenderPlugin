@@ -84,7 +84,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
             vert_materials=[],
             textures=[],
             material_passes=[],
-            shader_materials=[])
+            shader_materials=[],
+            multi_bone_skinned=False)
 
         header = mesh_struct.header
         header.mesh_name = mesh_object.name
@@ -118,6 +119,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                     matrix.inverted() @ vertex.co.xyz)
 
                 if len(vertex.groups) > 1:
+                    mesh_struct.multi_bone_skinned = True
                     for index, pivot in enumerate(hierarchy.pivots):
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
                             vertInf.xtra_idx = index

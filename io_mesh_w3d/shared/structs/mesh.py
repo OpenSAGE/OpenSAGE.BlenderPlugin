@@ -10,12 +10,12 @@ from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
 from io_mesh_w3d.shared.structs.mesh_structs.aabbtree import *
 from io_mesh_w3d.shared.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.shared.structs.mesh_structs.texture import *
+from io_mesh_w3d.shared.structs.mesh_structs.vertex_influence import *
 
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import *
 from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
 
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
@@ -147,6 +147,9 @@ class Mesh(Struct):
     prelit_vertex = None
     prelit_lightmap_multi_pass = None
     prelit_lightmap_multi_texture = None
+
+
+    multi_bone_skinned = False
 
     def is_hidden(self):
         return self.header.attrs & GEOMETRY_TYPE_HIDDEN
@@ -475,6 +478,15 @@ class Mesh(Struct):
 
         result.shade_ids = parse_object_list(
             xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+
+        xml_vertex_influence_lists = xml_mesh.getElementsByTagName('BoneInfluences')
+        if xml_vertex_influence_lists:
+            second_influences = None
+            if len(xml_vertex_influence_lists) > 1:
+                second_influences = xml_vertex_influence_lists[1]
+
+            VertexInfluence.parse()
+            
 
         xml_shader_materials = xml_mesh.getElementsByTagName('FXShader')
         for xml_shader_material in xml_shader_materials:
