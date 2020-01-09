@@ -150,7 +150,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            tex = load_texture(self, texture.name)
+            tex = load_texture(self, texture.file, texture.id)
             if tex is not None:
                 principleds[mat_id].base_color_texture.image = tex
                 # principleds[mat_id].alpha_texture.image = tex
@@ -489,32 +489,30 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
 ##########################################################################
 
 
-def load_texture(self, tex_name):
-    if tex_name is None:
-        return None
-    found_img = False
-    basename = os.path.splitext(tex_name)[0]
+def load_texture(self, file, name=None):
+    file = file.split('.')[0]
+    if name is None:
+        name = file
 
-    for image in bpy.data.images:
-        if basename.lower() == os.path.splitext(image.name)[0].lower():
-            img = image
-            found_img = True
+    if name.lower() in bpy.data.images:
+        return bpy.data.images[name.lower()]
 
-    if not found_img:
-        tga_path = os.path.dirname(self.filepath) + "/" + basename + ".tga"
-        dds_path = tga_path.replace(".tga", ".dds")
+    filepath = str(os.path.dirname(self.filepath) + "/" + file)
+    tga_path = filepath + '.tga'
+    dds_path = filepath + '.dds'
 
-        img = load_image(tga_path)
-        if img is None:
-            img = load_image(dds_path)
-        if img is None:
-            msg = "texture not found: " + dds_path + "|.tga"
-            print("WARNING: " + msg)
-            self.report({'WARNING'}, msg)
-            img = bpy.data.images.new(tex_name, width=2048, height=2048)
-            img.generated_type = 'COLOR_GRID'
-            img.source = 'GENERATED'
+    img = load_image(tga_path)
+    if img is None:
+        img = load_image(dds_path)
+    if img is None:
+        msg = "texture not found: " + dds_path + "|.tga"
+        print("WARNING: " + msg)
+        self.report({'WARNING'}, msg)
+        img = bpy.data.images.new(tex_name, width=2048, height=2048)
+        img.generated_type = 'COLOR_GRID'
+        img.source = 'GENERATED'
 
+    img.name = name.lower()
     img.alpha_mode = 'STRAIGHT'
     return img
 

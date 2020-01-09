@@ -65,16 +65,17 @@ def compare_animation_channels(self, expected, actual):
             compare_quats(self, expected.data[i], actual.data[i])
 
 
-def get_animation_bit_channel(pivot=0):
+def get_animation_bit_channel(pivot=0, xml=False):
+    data = [0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
+    if xml:
+        data = [0.0, 1.0, 1.0, 1.0, 0.0, 0.57, 0.33, 1.0, 1.0, 1.0]
     return AnimationBitChannel(
         first_frame=0,
         last_frame=9,
         type=0,
         pivot=pivot,
-        default=False,
-        data=[True, True, True, True,
-              True, True, True, False,
-              False, False])
+        default=1.0,
+        data=data)
 
 def get_animation_bit_channel_no_pad(pivot=0):
     return AnimationBitChannel(
@@ -99,7 +100,7 @@ def compare_animation_bit_channels(self, expected, actual):
         self.assertEqual(datum, actual.data[i])
 
 
-def get_animation(hierarchy_name="TestHierarchy"):
+def get_animation(hierarchy_name="TestHierarchy", xml=False):
     return Animation(
         header=get_animation_header(hierarchy_name),
         channels=[get_animation_channel(type=0, pivot=0),
@@ -116,7 +117,7 @@ def get_animation(hierarchy_name="TestHierarchy"):
                   get_animation_channel(type=2, pivot=3),
                   get_animation_channel(type=6, pivot=3),
 
-                  get_animation_bit_channel(pivot=6)])
+                  get_animation_bit_channel(pivot=6, xml=xml)])
 
                    # this does not work at the moment 
                    # due to an issue in blender
