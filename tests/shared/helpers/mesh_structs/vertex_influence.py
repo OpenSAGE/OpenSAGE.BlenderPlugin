@@ -3,7 +3,7 @@
 
 import unittest
 
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_influence import VertexInfluence
+from io_mesh_w3d.shared.structs.mesh_structs.vertex_influence import VertexInfluence
 
 
 def get_vertex_influence(bone=3, xtra=4, bone_inf=0.25, xtra_inf=0.75):
