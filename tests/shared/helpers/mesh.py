@@ -255,17 +255,30 @@ def get_mesh_minimal(xml = False):
         prelit_lightmap_multi_pass=None,
         prelit_lightmap_multi_texture=None)
 
+    mesh.mat_info.pass_count = 1
+    mesh.mat_info.vert_mat_count = 1
+    mesh.mat_info.shader_count = 1
+    mesh.mat_info.texture_count = 1
 
     if xml:
         mesh.header = get_mesh_header(shader_mats=True)
         mesh.vert_materials = []
         mesh.header.matl_count = 1
         mesh.shaders = []
+        mesh.mat_info.vert_mat_count = 0
+        mesh.mat_info.shader_count = 0
+        mesh.mat_info.texture_count = 0
+
+        mesh.material_passes[0].vertex_material_ids = []
+        mesh.material_passes[0].shader_ids = []
+        mesh.material_passes[0].dcg = []
+        mesh.material_passes[0].dig = []
+        mesh.material_passes[0].scg = []
+        mesh.material_passes[0].shader_material_ids = []
+        mesh.material_passes[0].tx_stages = []
 
     mesh.header.face_count = 1
     mesh.header.vert_count = 1
-
-
     return mesh
 
 

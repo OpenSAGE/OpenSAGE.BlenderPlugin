@@ -470,7 +470,7 @@ class Mesh(Struct):
             xml_mesh, 'Triangles', 'T', Triangle.parse)
         result.header.face_count = len(result.triangles)
 
-        tex_coords = parse_object_list(
+        tex_coords = parse_object_list( #TODO: multiple ones possible?
             xml_mesh, 'TexCoords', 'T', parse_vector2)
         if tex_coords:
             result.material_passes.append(MaterialPass(
@@ -500,7 +500,13 @@ class Mesh(Struct):
 
         xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
         if xml_aabbtrees:
-            aabbtree = AABBTree.parse(xml_aabbtrees[0])
+            result.aabbtree = AABBTree.parse(xml_aabbtrees[0])
+
+        result.mat_info = MaterialInfo(
+            pass_count=len(result.material_passes),
+            vert_mat_count=0,
+            shader_count=0,
+            texture_count=0)
 
         return result
 
