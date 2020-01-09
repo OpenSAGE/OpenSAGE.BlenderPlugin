@@ -184,7 +184,7 @@ class TestMesh(TestCase):
 
         self.assertEqual(16, list_size(mesh.shaders, False))
 
-        self.assertEqual(18, list_size(mesh.textures, False))
+        self.assertEqual(38, list_size(mesh.textures, False))
 
         self.assertEqual(4, long_list_size(mesh.shade_ids, False))
 
@@ -194,7 +194,7 @@ class TestMesh(TestCase):
 
         self.assertEqual(78, list_size(mesh.vert_materials, False))
 
-        self.assertEqual(1061, mesh.size())
+        self.assertEqual(1081, mesh.size())
 
     def test_write_read_xml(self):
         expected = get_mesh()

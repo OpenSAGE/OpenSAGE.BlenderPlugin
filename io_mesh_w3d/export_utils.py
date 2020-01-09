@@ -233,9 +233,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                         frame_count=0,
                         frame_rate=0.0)
                     img = bpy.data.images[principled.diffuse_tex]
+                    filepath = os.path.basename(img.filepath)
+                    if filepath == '':
+                        filepath = img.name + '.dds'
                     tex = Texture(
                         id=img.name,
-                        file=os.path.basename(img.filepath),
+                        file=filepath,
                         texture_info=info)
                     mesh_struct.textures.append(tex)
 
