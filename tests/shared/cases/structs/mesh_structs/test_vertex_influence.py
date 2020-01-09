@@ -32,7 +32,7 @@ class TestVertexInfluence(TestCase):
         bone_infs2 = doc.createElement('BoneInfluences')
         mesh.appendChild(bone_infs2)
 
-        (bone_inf, bone_inf2) = expected.create(doc, multibone=True)
+        (bone_inf, bone_inf2) = expected.create(doc)
         bone_infs.appendChild(bone_inf)
         bone_infs2.appendChild(bone_inf2)
 

@@ -481,12 +481,17 @@ class Mesh(Struct):
 
         xml_vertex_influence_lists = xml_mesh.getElementsByTagName('BoneInfluences')
         if xml_vertex_influence_lists:
-            second_influences = None
+            xml_vertex_influences = xml_vertex_influence_lists[0].getElementsByTagName('I')
+            xml_vertex_influences2 = None
             if len(xml_vertex_influence_lists) > 1:
                 second_influences = xml_vertex_influence_lists[1]
-
-            VertexInfluence.parse()
+                xml_vertex_influences2 = second_influences.getElementsByTagName('I')
             
+            for i, inf in enumerate(xml_vertex_influences):
+                if xml_vertex_influences2 is not None:
+                    result.vert_infs.append(VertexInfluence.parse(inf, xml_vertex_influences2[i]))
+                else:
+                    result.vert_infs.append(VertexInfluence.parse(inf, None))
 
         xml_shader_materials = xml_mesh.getElementsByTagName('FXShader')
         for xml_shader_material in xml_shader_materials:
@@ -541,6 +546,19 @@ class Mesh(Struct):
 
         xml_mesh.appendChild(create_object_list(
             doc, 'Triangles', self.triangles, Triangle.create))
+
+        if self.vert_infs:
+            vertex_influences = doc.createElement('BoneInfluences')
+            vertex_influences2 = doc.createElement('BoneInfluences')
+
+            for vert_inf in self.vert_infs:
+                (bone_inf, bone_inf2) = vert_inf.create(doc)
+                vertex_influences.appendChild(bone_inf)
+                vertex_influences2.appendChild(bone_inf2)
+
+            xml_mesh.appendChild(vertex_influences)
+            if self.multi_bone_skinned:
+                xml_mesh.appendChild(vertex_influences2)
 
         for shader_material in self.shader_materials:
             xml_mesh.appendChild(shader_material.create(doc))
