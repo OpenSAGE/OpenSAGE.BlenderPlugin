@@ -508,7 +508,7 @@ def load_texture(self, file, name=None):
         msg = "texture not found: " + dds_path + "|.tga"
         print("WARNING: " + msg)
         self.report({'WARNING'}, msg)
-        img = bpy.data.images.new(tex_name, width=2048, height=2048)
+        img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
 

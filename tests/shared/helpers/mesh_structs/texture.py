@@ -24,7 +24,7 @@ def get_texture_minimal():
     return Texture(
         id='a',
         file='a',
-        texture_info=None)
+        texture_info=get_texture_info())
 
 
 def compare_textures(self, expected, actual):

@@ -4,12 +4,12 @@
 import bpy
 import os.path
 from tests.utils import *
+from tests.shared.helpers.mesh import *
+from tests.shared.helpers.hlod import *
+from tests.shared.helpers.hierarchy import *
+
 from io_mesh_w3d.w3d.export_w3d import save
 from io_mesh_w3d.import_utils import *
-
-from tests.w3d.helpers.mesh import *
-from tests.w3d.helpers.hlod import *
-from tests.w3d.helpers.hierarchy import *
 
 
 class TestExport(TestCase):

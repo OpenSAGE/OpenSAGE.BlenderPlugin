@@ -83,7 +83,8 @@ class Texture(Struct):
     def parse(xml_texture):
         return Texture(
             id=xml_texture.attributes['id'].value,
-            file=xml_texture.attributes['File'].value)
+            file=xml_texture.attributes['File'].value,
+            texture_info=TextureInfo())
 
     def create(self, doc):
         texture = doc.createElement('Texture')
