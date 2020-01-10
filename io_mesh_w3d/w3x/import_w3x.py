@@ -12,6 +12,7 @@ from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.hlod import *
+from io_mesh_w3d.shared.structs.animation import *
 from io_mesh_w3d.shared.structs.mesh_structs.texture import *
 
 from io_mesh_w3d.w3x.structs.include import *
@@ -22,6 +23,7 @@ class W3X_CONTEXT(Struct):
     textures = []
     collision_boxes = []
     hierarchy = None
+    animation = None
     hlod = None
 
 
@@ -54,6 +56,8 @@ def load_file(self, path, w3x_context):
             w3x_context.hlod = HLod.parse(node)
         elif node.tagName == "W3DHierarchy":
             w3x_context.hierarchy = Hierarchy.parse(node)
+        elif node.tagName == "W3DAnimation":
+            w3x_context.animation = Animation.parse(node)
         elif node.tagName == "Texture":
             w3x_context.textures.append(Texture.parse(node))
         else:
@@ -83,6 +87,7 @@ def load(self, import_settings):
     hierarchy = w3x_context.hierarchy
     boxes = w3x_context.collision_boxes
     hlod = w3x_context.hlod
+    animation = w3x_context.animation
 
-    create_data(self, meshes, hlod, hierarchy, boxes, None, None)
+    create_data(self, meshes, hlod, hierarchy, boxes, animation)
     return {'FINISHED'}
