@@ -79,7 +79,7 @@ def get_vertex_influences():
             get_vertex_influence(3, 4, 0.25, 0.75)]
 
 
-def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidden=False):
+def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidden=False, mat_count=2):
     mesh = Mesh(
         header=get_mesh_header(name, skin, shader_mats, hidden),
         user_text="",
@@ -167,6 +167,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidde
         [4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 0.63))
 
     if skin:
+        mesh.multi_bone_skinned = True
         mesh.header.attrs |= GEOMETRY_TYPE_SKIN
         mesh.vert_infs = get_vertex_influences()
 
@@ -177,7 +178,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidde
 
     # TODO: find a cleaner way for creating the material stuff
     # vertex / shader / prelit
-    for i in range(2):
+    for i in range(mat_count):
         if shader_mats:
             mesh.shader_materials.append(get_shader_material())
         elif not prelit:
@@ -261,10 +262,12 @@ def get_mesh_minimal(xml = False):
     mesh.mat_info.texture_count = 1
 
     if xml:
+        mesh.multi_bone_skinned = True
         mesh.header = get_mesh_header(shader_mats=True)
         mesh.vert_materials = []
         mesh.header.matl_count = 1
         mesh.shaders = []
+        mesh.textures = []
         mesh.mat_info.vert_mat_count = 0
         mesh.mat_info.shader_count = 0
         mesh.mat_info.texture_count = 0
@@ -274,7 +277,7 @@ def get_mesh_minimal(xml = False):
         mesh.material_passes[0].dcg = []
         mesh.material_passes[0].dig = []
         mesh.material_passes[0].scg = []
-        mesh.material_passes[0].shader_material_ids = []
+        mesh.material_passes[0].shader_material_ids = [0]
         mesh.material_passes[0].tx_stages = []
 
     mesh.header.face_count = 1
