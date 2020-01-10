@@ -470,11 +470,12 @@ class Mesh(Struct):
             xml_mesh, 'Triangles', 'T', Triangle.parse)
         result.header.face_count = len(result.triangles)
 
-        tex_coords = parse_object_list( #TODO: multiple ones possible?
+        result.material_passes = [MaterialPass(
+            shader_material_ids=[0])]
+        tex_coords = parse_object_list(
             xml_mesh, 'TexCoords', 'T', parse_vector2)
         if tex_coords:
-            result.material_passes.append(MaterialPass(
-                tx_coords=tex_coords))
+            result.material_passes[0].tx_coords = tex_coords
 
         result.shade_ids = parse_object_list(
             xml_mesh, 'ShadeIndices', 'I', parse_value, int)

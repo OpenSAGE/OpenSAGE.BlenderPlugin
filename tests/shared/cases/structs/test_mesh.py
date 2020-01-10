@@ -197,7 +197,7 @@ class TestMesh(TestCase):
         self.assertEqual(1081, mesh.size())
 
     def test_write_read_xml(self):
-        expected = get_mesh(shader_mats=True)
+        expected = get_mesh(shader_mats=True, mat_count=1)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
