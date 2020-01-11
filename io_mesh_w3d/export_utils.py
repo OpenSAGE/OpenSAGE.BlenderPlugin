@@ -17,7 +17,6 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
 
-bounding_box_names = ["BOUNDINGBOX", "BOUNDING BOX", "WORLDBOX"]
 pick_plane_names = ["PICK"]
 
 
@@ -40,7 +39,7 @@ def retrieve_boxes(hierarchy, container_name):
     boxes = []
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.name not in bounding_box_names:
+        if mesh_object.object_type != 'BOX':
             continue
         name = container_name + "." + mesh_object.name
         box = CollisionBox(
@@ -65,7 +64,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
     switch_to_pose(rig, 'REST')
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.name in bounding_box_names:
+        if mesh_object.object_type != 'NORMAL':
             continue
 
         mesh_struct = Mesh(
@@ -73,6 +72,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 attrs=GEOMETRY_TYPE_NORMAL),
             vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
             face_channel_flags=1,
+            user_text='',
             verts=[],
             normals=[],
             tangents=[],
@@ -90,6 +90,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         header = mesh_struct.header
         header.mesh_name = mesh_object.name
         header.container_name = container_name
+
+        if mesh_object.userText != '':
+            mesh_struct.user_text = mesh_object.userText
 
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
@@ -302,7 +305,8 @@ def create_hlod(hierarchy, container_name):
             subObject = HLodSubObject(
                 name=mesh.name,
                 identifier=container_name + "." + mesh.name,
-                bone_index=0)
+                bone_index=0,
+                is_box=mesh.object_type == 'BOX')
 
             if not mesh.vertex_groups:
                 for index, pivot in enumerate(hierarchy.pivots):
@@ -542,7 +546,7 @@ def retrieve_hierarchy(context, container_name):
 
     for mesh in meshes:
         if mesh.vertex_groups \
-                or mesh.name in bounding_box_names \
+                or mesh.object_type != 'NORMAL' \
                 or mesh.name in pick_plane_names:
             continue
 

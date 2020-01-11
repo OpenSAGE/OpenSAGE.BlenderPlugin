@@ -157,10 +157,20 @@ def menu_func_import(self, _context):
 # custom property stuff
 
 
-Object.UserText = StringProperty(
-    name="UserText",
+Object.userText = StringProperty(
+    name="userText",
     description="This is a text defined by the user",
     default="")
+
+
+Object.object_type = EnumProperty(
+    name="object_type",
+    description="Attributes that define the type of this object",
+    items=[
+        ('NORMAL', 'Normal', 'desc: just a normal mesh'),
+        ('BOX', 'Box', 'desc: this object defines a boundingbox'),
+        ('DAZZLE', 'Dazzle', 'desc: todo')],
+    default='NORMAL')
 
 
 class OBJECT_PANEL_PT_w3d(Panel):
@@ -172,7 +182,9 @@ class OBJECT_PANEL_PT_w3d(Panel):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.active_object, "UserText")
+        col.prop(context.active_object, "object_type")
+        col = layout.column()
+        col.prop(context.active_object, "userText")
 
 
 Material.attributes = EnumProperty(
