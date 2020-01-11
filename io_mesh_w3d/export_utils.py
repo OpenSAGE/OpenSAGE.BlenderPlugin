@@ -275,7 +275,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 # hlod
 ##########################################################################
 
-def create_hlod(hierarchy):
+def create_hlod(hierarchy, container_name):
     hlod = HLod(
         header=HLodHeader(
             model_name=container_name,

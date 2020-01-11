@@ -18,40 +18,41 @@ def save(self, export_settings):
     except BaseException:
         print("could not set mode to OBJECT")
 
-    container_name = None
-    for coll in bpy.data.collections:
+    container_name = os.path.basename(self.filepath).split('.')[0]
+    if bpy.context.scene.collection.children:
+        container_name = bpy.context.scene.collection.children[0].name
 
+    (hierarchy, rig) = retrieve_hierarchy(self, container_name)
+    hlod = create_hlod(hierarchy, container_name)
+    boxes = retrieve_boxes(hierarchy, hlod.header.model_name)
 
-    hlod = create_hlod(hierarchy)
-    (hierarchy, rig) = retrieve_hierarchy(self, hlod.header.model_name)
-
-    if export_mode == 'M':
+    if 'M' in export_mode:
         meshes = retrieve_meshes(self, hierarchy, rig, hlod.header.model_name)
         if not meshes:
             self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
             return {'CANCELLED'}
 
+    if 'A' in export_mode:
+        timecoded = export_settings['w3d_compression'] == "TC"
+        animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
+        channels = animation.time_coded_channels if timecoded else animation.channels
+        if not channels:
+            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
+            return {'CANCELLED'}
+
+    if export_mode == 'M':
         sknFile = open(self.filepath, "wb")
+        if len(meshes) > 1:
+            self.report({'WARNING'}, "Scene does not contain multiple meshes, exporting only the first with export mode M!")
+        meshes[0].write(sknFile)
+        sknFile.close()
+        return {'FINISHED'}
 
-        print(hlod.header.model_name + " " + hlod.header.hierarchy_name)
-        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
-            if len(hierarchy.pivots) > 1:
-                hierarchy.write(sknFile)
+    elif export_mode == 'HM':
+        sknFile = open(self.filepath, "wb")
+        if len(hierarchy.pivots) < 2:
+            hierarchy.write(sknFile)
 
-            timecoded = False
-            compressionMode = export_settings['w3d_compression']
-
-            if compressionMode == "TC":
-                timecoded = True
-
-            animation = retrieve_animation(
-                containerName, hierarchy, rig, timecoded)
-
-            channels = animation.time_coded_channels if timecoded else animation.channels
-            if channels:
-                animation.write(sknFile)
-
-        boxes = retrieve_boxes(hierarchy, hlod.header.model_name)
         for box in boxes:
             box.write(sknFile)
 
@@ -63,13 +64,27 @@ def save(self, export_settings):
 
         sknFile.close()
 
+    elif export_mode == 'HAM':
+        sknFile = open(self.filepath, "wb")
+        if len(hierarchy.pivots) < 2:
+            hierarchy.write(sknFile)
+
+        for box in boxes:
+            box.write(sknFile)
+
+        for mesh in meshes:
+            mesh.write(sknFile)
+
+        if hlod.lod_arrays:
+            hlod.write(sknFile)
+
+        animation.write(sknFile)
+
+        sknFile.close()
+
     elif export_mode == 'H':
         if len(hierarchy.pivots) < 2:
-            self.report({'ERROR'}, "Scene does not contain any hierarchy data, aborting export!")
-            return {'CANCELLED'}
-
-        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
-            self.report({'ERROR'}, "Armature is named the same as collection -> use export mode 'M' instead, aborting export!")
+            self.report({'ERROR'}, "Scene does not contain any hierarchy/skeleton data, aborting export!")
             return {'CANCELLED'}
 
         filename = os.path.splitext(os.path.basename(self.filepath))[0]
@@ -81,22 +96,6 @@ def save(self, export_settings):
         sklFile.close()
 
     elif export_mode == 'A':
-        timecoded = False
-        if export_settings['w3d_compression'] == "TC":
-            timecoded = True
-
-        animation = retrieve_animation(
-            containerName, hierarchy, rig, timecoded)
-
-        channels = animation.time_coded_channels if timecoded else animation.channels
-        if not channels:
-            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
-            return {'CANCELLED'}
-
-        if hlod and hlod.header.model_name == hlod.header.hierarchy_name:
-            self.report({'ERROR'}, "Armature is named the same as collection -> use export mode 'M' instead, aborting export!")
-            return {'CANCELLED'}
-
         aniFile = open(self.filepath, "wb")
         animation.write(aniFile)
         aniFile.close()

@@ -76,7 +76,7 @@ class TestRoundtrip(TestCase):
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
-        export_settings['w3d_mode'] = "M"
+        export_settings['w3d_mode'] = "HM"
         save(context, export_settings)
 
         context = ImportWrapper(self.outpath() + "output_skl.w3d")
@@ -175,5 +175,5 @@ class TestRoundtrip(TestCase):
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
-        export_settings['w3d_mode'] = "M"
+        export_settings['w3d_mode'] = "HM"
         save(context, export_settings)
