@@ -50,7 +50,7 @@ def save(self, export_settings):
 
     elif export_mode == 'HM':
         sknFile = open(self.filepath, "wb")
-        if len(hierarchy.pivots) < 2:
+        if len(hierarchy.pivots) > 1:
             hierarchy.write(sknFile)
 
         for box in boxes:
@@ -66,7 +66,7 @@ def save(self, export_settings):
 
     elif export_mode == 'HAM':
         sknFile = open(self.filepath, "wb")
-        if len(hierarchy.pivots) < 2:
+        if len(hierarchy.pivots) > 1:
             hierarchy.write(sknFile)
 
         for box in boxes:

@@ -287,6 +287,7 @@ def create_hlod(hierarchy, container_name):
 
     lod_arrays = []
     for i, coll in enumerate(bpy.data.collections):
+        print(coll.name)
         meshes = [object for object in coll.objects if object.type == 'MESH']
         if not meshes:
             continue

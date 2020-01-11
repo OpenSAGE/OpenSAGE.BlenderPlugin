@@ -30,7 +30,7 @@ class TestExport(TestCase):
 
         self.assertFalse(os.path.exists(file_path))
 
-    def test_no_file_created_if_MODE_is_hM_and_no_meshes(self):
+    def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
         export_settings = {}
         export_settings['w3d_mode'] = "HM"
 
@@ -75,6 +75,29 @@ class TestExport(TestCase):
 
         self.assertFalse(os.path.exists(file_path))
 
+    def test_no_hierarchy_is_written_if_HM_and_less_than_2_pivots(self):
+        export_settings = {}
+        export_settings['w3d_mode'] = "HM"
+        export_settings['w3d_compression'] = "U"
+
+        meshes = [get_mesh()]
+        create_data(self, meshes)
+
+        file_path = self.outpath() + "output_skn.w3d"
+        context = ImportWrapper(file_path)
+
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
+
+        file = open(file_path, "rb")
+        filesize = os.path.getsize(file_path)
+        while file.tell() < filesize:
+            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
+
+            self.assertNotEqual(W3D_CHUNK_HIERARCHY, chunk_type)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+
+        file.close()
+
     def test_no_hierarchy_is_written_if_HAM_and_less_than_2_pivots(self):
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
@@ -98,6 +121,30 @@ class TestExport(TestCase):
 
         file.close()
 
+    def test_no_hlod_is_written_if_HM_and_less_than_2_sub_objects(self):
+        export_settings = {}
+        export_settings['w3d_mode'] = "HM"
+        export_settings['w3d_compression'] = "U"
+
+        meshes = [get_mesh()]
+        create_data(self, meshes)
+
+        file_path = self.outpath() + "output_skn.w3d"
+        context = ImportWrapper(file_path)
+
+        print("####################################")
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
+
+        file = open(file_path, "rb")
+        filesize = os.path.getsize(file_path)
+        while file.tell() < filesize:
+            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
+
+            self.assertNotEqual(W3D_CHUNK_HLOD, chunk_type)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+
+        file.close()
+
     def test_no_hlod_is_written_if_HAM_and_less_than_2_sub_objects(self):
         export_settings = {}
         export_settings['w3d_mode'] = "HAM"
@@ -109,6 +156,7 @@ class TestExport(TestCase):
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
 
+        print("####################################")
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
         file = open(file_path, "rb")
