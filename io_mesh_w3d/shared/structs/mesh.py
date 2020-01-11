@@ -27,6 +27,7 @@ W3D_CHUNK_MESH_HEADER = 0x0000001F
 # Geometry types
 GEOMETRY_TYPE_NORMAL = 0x00000000
 GEOMETRY_TYPE_HIDDEN = 0x00001000
+GEOMETRY_TYPE_TWO_SIDED = 0x00002000
 GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
 
@@ -570,7 +571,8 @@ class Mesh(Struct):
         for shader_material in self.shader_materials:
             xml_mesh.appendChild(shader_material.create(doc))
         
-        xml_mesh.appendChild(self.aabbtree.create(doc))
+        if self.aabbtree is not None:
+            xml_mesh.appendChild(self.aabbtree.create(doc))
 
         return xml_mesh
 

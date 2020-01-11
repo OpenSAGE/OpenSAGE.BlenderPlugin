@@ -72,6 +72,8 @@ class HLodSubObject(Struct):
     identifier = ""
     name = ""
 
+    is_box = False
+
     @staticmethod
     def read(io_stream):
         sub_obj = HLodSubObject(
@@ -116,7 +118,7 @@ class HLodSubObject(Struct):
 
         render_object = doc.createElement('RenderObject')
         sub_object.appendChild(render_object)
-        if "BOX" in self.identifier: # TODO: find a better way
+        if self.is_box:
             box = doc.createElement('CollisionBox')
             box.appendChild(doc.createTextNode(self.identifier))
             render_object.appendChild(box)
