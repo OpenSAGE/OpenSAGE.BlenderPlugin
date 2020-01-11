@@ -41,17 +41,25 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     export_mode: EnumProperty(
         name="Mode",
         items=(
-            ('M',
-             "Model",
-             "This will export all the meshes of the scene, without skeletons or animation"),
-            ('H',
-             "Hierarchy",
-             "This will export the hierarchy tree without any geometry or animation data"),
+            ('HM',
+             "Hierarchical Model",
+             "This will export all the meshes of the scene with hierarchy/skeleton data"),
+            ('HAM',
+             "Hierarchical Animated Model",
+             "This will export all the meshes of the scene with hierarchy/skeleton and animation data"),
             ('A',
              "Animation",
-             "This will export the animation without any geometry data or skeletons")),
+             "This will export the animation without any geometry or hierarchy/skeleton data"),
+            ('H',
+             "Hierarchy",
+             "This will export the hierarchy/skeleton without any geometry or animation data \
+              the filename is retrieved from the armature if any exists"),
+            ('M',
+             "Mesh",
+             "This will export a simple mesh (only the first of the scene if there are multiple) \
+                without any hierarchy/skeleton and animation data")),
         description="Select the export mode",
-        default='M')
+        default='HM')
 
     animation_compression: EnumProperty(
         name="Compression",

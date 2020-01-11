@@ -30,6 +30,17 @@ class TestExport(TestCase):
 
         self.assertFalse(os.path.exists(file_path))
 
+    def test_no_file_created_if_MODE_is_hM_and_no_meshes(self):
+        export_settings = {}
+        export_settings['w3d_mode'] = "HM"
+
+        file_path = self.outpath() + "output_skn.w3d"
+        context = ImportWrapper(file_path)
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
+
+        self.assertFalse(os.path.exists(file_path))
+
     def test_no_hlod_is_written_if_M_and_less_than_2_sub_objects(self):
         export_settings = {}
         export_settings['w3d_mode'] = "M"
