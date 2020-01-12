@@ -566,6 +566,8 @@ def set_translation(bone, index, frame, value):
 
 
 def set_rotation(bone, frame, value):
+    print(bone.name)
+    print(value)
     bone.rotation_quaternion = value
     bone.keyframe_insert(data_path='rotation_quaternion',
                          frame=frame, options=creation_options)
@@ -583,6 +585,7 @@ def set_visibility(bone, frame, value):
 
 
 def set_keyframe(bone, channel, frame, value):
+    print(is_rotation(channel))
     if is_visibility(channel):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
