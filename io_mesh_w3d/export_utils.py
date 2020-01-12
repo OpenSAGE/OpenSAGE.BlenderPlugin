@@ -102,6 +102,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         triangulate(mesh)
         header.vert_count = len(mesh.vertices)
 
+        (center, radius) = calculate_mesh_sphere(mesh)
+        header.sph_center = center
+        header.sph_radius = radius
+
         for i, vertex in enumerate(mesh.vertices):
             if vertex.groups:
                 vertInf = VertexInfluence()
