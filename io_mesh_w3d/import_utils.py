@@ -35,9 +35,10 @@ def link_object_to_active_scene(obj, coll):
     obj.select_set(True)
 
 
-def smooth_mesh(mesh):
+def smooth_mesh(mesh_ob, mesh):
     try:
-        bpy.ops.object.mode_set(mode='OBJECT')
+        if mesh_ob.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         for polygon in mesh.polygons:
             polygon.use_smooth = True
@@ -79,7 +80,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
-                for i, mesh in enumerate(meshes):
+                for mesh in meshes:
                     if mesh.name() == sub_object.name:
                         rig_mesh(mesh, hierarchy, rig, sub_object)
 
@@ -106,14 +107,13 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
     mesh.update()
     mesh.validate()
 
-    smooth_mesh(mesh)
-
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
     mesh_ob.object_type = 'NORMAL'
-    link_object_to_active_scene(mesh_ob, coll)
     mesh_ob.userText = mesh_struct.user_text
-
     mesh_ob.use_empty_image_alpha = True
+
+    smooth_mesh(mesh_ob, mesh)
+    link_object_to_active_scene(mesh_ob, coll)
 
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
