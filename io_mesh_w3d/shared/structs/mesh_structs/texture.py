@@ -43,7 +43,6 @@ W3D_CHUNK_TEXTURE_NAME = 0x00000032
 class Texture(Struct):
     id = ""
     file = ""
-
     texture_info = None
 
     @staticmethod
@@ -55,7 +54,7 @@ class Texture(Struct):
 
             if chunk_type == W3D_CHUNK_TEXTURE_NAME:
                 result.file = read_string(io_stream)
-                result.id = result.file.split('.')[0]
+                result.id = result.file
             elif chunk_type == W3D_CHUNK_TEXTURE_INFO:
                 result.texture_info = TextureInfo.read(io_stream)
             else:

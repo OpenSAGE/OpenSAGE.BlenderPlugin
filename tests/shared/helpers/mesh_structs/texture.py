@@ -15,7 +15,7 @@ def get_texture_info():
 
 def get_texture(name="texture.dds"):
     return Texture(
-        id=name.split('.')[0],
+        id=name,
         file=name,
         texture_info=get_texture_info())
 

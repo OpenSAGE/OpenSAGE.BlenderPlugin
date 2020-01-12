@@ -20,8 +20,8 @@ def save(self, export_settings):
 
 
     container_name = os.path.basename(self.filepath).split('.')[0]
-    if bpy.context.scene.collection.children:
-        container_name = bpy.context.scene.collection.children[0].name
+    #if bpy.context.scene.collection.children:
+    #    container_name = bpy.context.scene.collection.children[0].name
 
     (hierarchy, rig) = retrieve_hierarchy(self, container_name)
     hlod = create_hlod(hierarchy, container_name)
@@ -46,6 +46,7 @@ def save(self, export_settings):
         if len(meshes) > 1:
             self.report({'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
         meshes[0].header.container_name = ''
+        meshes[0].header.mesh_name = container_name
         meshes[0].write(sknFile)
         sknFile.close()
         return {'FINISHED'}

@@ -492,12 +492,12 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
 
 
 def load_texture(self, file, name=None):
-    file = file.split('.')[0]
     if name is None:
         name = file
 
-    if name.lower() in bpy.data.images:
-        return bpy.data.images[name.lower()]
+    file = file.split('.')[0]
+    if name in bpy.data.images:
+        return bpy.data.images[name]
 
     filepath = str(os.path.dirname(self.filepath) + "/" + file)
     tga_path = filepath + '.tga'
@@ -514,7 +514,7 @@ def load_texture(self, file, name=None):
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
 
-    img.name = name.lower()
+    img.name = name
     img.alpha_mode = 'STRAIGHT'
     return img
 
@@ -566,8 +566,6 @@ def set_translation(bone, index, frame, value):
 
 
 def set_rotation(bone, frame, value):
-    print(bone.name)
-    print(value)
     bone.rotation_quaternion = value
     bone.keyframe_insert(data_path='rotation_quaternion',
                          frame=frame, options=creation_options)
@@ -585,7 +583,6 @@ def set_visibility(bone, frame, value):
 
 
 def set_keyframe(bone, channel, frame, value):
-    print(is_rotation(channel))
     if is_visibility(channel):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
