@@ -10,7 +10,7 @@ from io_mesh_w3d.w3x.io_xml import *
 
 class Triangle(Struct):
     vert_ids = []
-    surface_type = 13  # w3d only
+    surface_type = 13
     normal = Vector((0.0, 0.0, 0.0))
     distance = 0.0
 
