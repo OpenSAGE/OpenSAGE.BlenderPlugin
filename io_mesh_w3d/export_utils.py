@@ -91,8 +91,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         header.mesh_name = mesh_object.name
         header.container_name = container_name
 
-        if mesh_object.userText != '':
-            mesh_struct.user_text = mesh_object.userText
+        mesh_struct.user_text = mesh_object.userText
 
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
