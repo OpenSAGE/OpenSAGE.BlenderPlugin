@@ -18,6 +18,7 @@ def save(self, export_settings):
     except BaseException:
         print("could not set mode to OBJECT")
 
+
     container_name = os.path.basename(self.filepath).split('.')[0]
     if bpy.context.scene.collection.children:
         container_name = bpy.context.scene.collection.children[0].name
@@ -43,15 +44,15 @@ def save(self, export_settings):
     if export_mode == 'M':
         sknFile = open(self.filepath, "wb")
         if len(meshes) > 1:
-            self.report({'WARNING'}, "Scene does not contain multiple meshes, exporting only the first with export mode M!")
+            self.report({'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
+        meshes[0].header.container_name = ''
         meshes[0].write(sknFile)
         sknFile.close()
         return {'FINISHED'}
 
     elif export_mode == 'HM':
         sknFile = open(self.filepath, "wb")
-        if len(hierarchy.pivots) > 1:
-            hierarchy.write(sknFile)
+        hierarchy.write(sknFile)
 
         for box in boxes:
             box.write(sknFile)
@@ -59,15 +60,13 @@ def save(self, export_settings):
         for mesh in meshes:
             mesh.write(sknFile)
 
-        if hlod.lod_arrays:
-            hlod.write(sknFile)
+        hlod.write(sknFile)
 
         sknFile.close()
 
     elif export_mode == 'HAM':
         sknFile = open(self.filepath, "wb")
-        if len(hierarchy.pivots) > 1:
-            hierarchy.write(sknFile)
+        hierarchy.write(sknFile)
 
         for box in boxes:
             box.write(sknFile)
@@ -75,8 +74,7 @@ def save(self, export_settings):
         for mesh in meshes:
             mesh.write(sknFile)
 
-        if hlod.lod_arrays:
-            hlod.write(sknFile)
+        hlod.write(sknFile)
 
         animation.write(sknFile)
 

@@ -125,7 +125,7 @@ class AnimationChannel(Struct):
         if xml_channel.tagName == 'ChannelScalar':
             for value in xml_channel.childs():
                 result.data.append(parse_value(value, float))
-        elif xml_channel.tagName == 'Orientation':
+        elif xml_channel.tagName == 'ChannelQuaternion':
             for value in xml_channel.childs():
                 result.data.append(parse_quaternion(value))
    
