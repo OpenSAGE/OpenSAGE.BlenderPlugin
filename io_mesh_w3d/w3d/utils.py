@@ -31,7 +31,7 @@ def const_size(size, include_head=True):
 
 
 def text_size(text, include_head=True):
-    if not len(text):
+    if len(text) == 0:
         return 0
     size = len(text) + 1
     if include_head:

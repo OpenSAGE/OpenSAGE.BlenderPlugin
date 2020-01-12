@@ -129,7 +129,7 @@ W3D_CHUNK_BITANGENTS = 0x61
 
 class Mesh(Struct):
     header = MeshHeader()
-    user_text = ""
+    user_text = ''
     verts = []
     normals = []
     tangents = []
@@ -167,6 +167,7 @@ class Mesh(Struct):
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = Mesh(
+            user_text='',
             verts=[],
             normals=[],
             tangents=[],
@@ -303,7 +304,7 @@ class Mesh(Struct):
                          self.size(), has_sub_chunks=True)
         self.header.write(io_stream)
 
-        if len(self.user_text):
+        if len(self.user_text) > 0:
             write_chunk_head(
                 W3D_CHUNK_MESH_USER_TEXT,
                 io_stream,
