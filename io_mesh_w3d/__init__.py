@@ -21,7 +21,7 @@ bl_info = {
 
 
 class ExportW3D(bpy.types.Operator, ExportHelper):
-    '''Export from Westwood 3D file format (.w3d)'''
+    '''Export to Westwood 3D file format (.w3d)'''
     bl_idname = 'export_mesh.westwood_w3d'
     bl_label = 'Export W3D'
     bl_options = {'UNDO', 'PRESET'}
@@ -53,9 +53,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         description="Select the export mode",
         default='HM')
 
-    use_existing_skeleton: BoolProperty(name="Export using existing skeleton", description="todo", default=False)
+    use_existing_skeleton: BoolProperty(name="Use existing skeleton", description="Todo", default=False)
 
-    existing_skeleton: StringProperty(name="Existing skeleton", description="todo", default="", subtype='FILE_PATH')
+    skeleton_file: StringProperty(name="Skeleton file", description="todo", default="")
 
     animation_compression: EnumProperty(
         name="Compression",
@@ -69,8 +69,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     will_save_settings: BoolProperty(default=False)
 
-    # Custom scene property for saving settings
     scene_key = "w3dExportSettings"
+
 
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)
@@ -87,10 +87,15 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                     "Loading export settings failed. Removed corrupted settings")
                 del context.scene[self.scene_key]
 
+        from io_mesh_w3d.export_utils import retrieve_hierarchy
+        (hierarchy, rig) = retrieve_hierarchy(self, 'container')
+        if rig is not None:
+            self.use_existing_skeleton = True
+            self.skeleton_file = rig.name
+
         return ExportHelper.invoke(self, context, event)
 
     def save_settings(self, context):
-        # find all export_ props
         all_props = self.properties
         export_props = {x: getattr(self, x) for x in dir(
             all_props) if x.startswith("export_") and all_props.get(x) is not None}
@@ -103,9 +108,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         if self.will_save_settings:
             self.save_settings(context)
 
-        # All custom export settings are stored in this container.
         export_settings = {}
-
         export_settings['w3d_mode'] = self.export_mode
         export_settings['w3d_compression'] = self.animation_compression
 
@@ -117,8 +120,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 or self.export_mode == 'HM' \
                 or self.export_mode == 'HAM':
             self.draw_use_existing_skeleton()
-            if (self.use_existing_skeleton):
-                self.draw_existing_skeleton()
+            if self.use_existing_skeleton:
+                self.draw_skeleton_file()
 
         if self.export_mode == 'A' \
                 or self.export_mode == 'HAM':
@@ -132,15 +135,13 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         col = self.layout.box().column()
         col.prop(self, 'use_existing_skeleton')
 
-    def draw_existing_skeleton(self):
+    def draw_skeleton_file(self):
         col = self.layout.box().column()
-        col.prop(self, 'existing_skeleton')
+        col.prop(self, 'skeleton_file')
 
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
-
-    
 
 
 class ImportW3D(bpy.types.Operator, ImportHelper):
