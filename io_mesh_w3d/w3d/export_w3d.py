@@ -81,6 +81,11 @@ def save(self, export_settings):
 
         sknFile.close()
 
+    elif export_mode == 'A':
+        aniFile = open(self.filepath, "wb")
+        animation.write(aniFile)
+        aniFile.close()
+
     elif export_mode == 'H':
         if len(hierarchy.pivots) < 2:
             self.report({'ERROR'}, "Scene does not contain any hierarchy/skeleton data, aborting export!")
@@ -91,13 +96,9 @@ def save(self, export_settings):
             filename, hierarchy.header.name.lower())
 
         sklFile = open(sklFilePath, "wb")
+        hierarchy.header.name = filename
         hierarchy.write(sklFile)
         sklFile.close()
-
-    elif export_mode == 'A':
-        aniFile = open(self.filepath, "wb")
-        animation.write(aniFile)
-        aniFile.close()
 
     else:
         message = "WARNING: unsupported export mode: %s" % export_mode
