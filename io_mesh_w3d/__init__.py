@@ -53,6 +53,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         description="Select the export mode",
         default='HM')
 
+    use_existing_skeleton: BoolProperty(name="Export using existing skeleton", description="todo", default=False)
+
+    existing_skeleton: StringProperty(name="Existing skeleton", description="todo", default="", subtype='FILE_PATH')
+
     animation_compression: EnumProperty(
         name="Compression",
         items=(('U', "Uncompressed", "This will not compress the animations"),
@@ -109,16 +113,34 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     def draw(self, _context):
         self.draw_general_settings()
-        if self.export_mode == 'A':
+        if self.export_mode == 'A' \
+                or self.export_mode == 'HM' \
+                or self.export_mode == 'HAM':
+            self.draw_use_existing_skeleton()
+            if (self.use_existing_skeleton):
+                self.draw_existing_skeleton()
+
+        if self.export_mode == 'A' \
+                or self.export_mode == 'HAM':
             self.draw_animation_settings()
 
     def draw_general_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'export_mode')
 
+    def draw_use_existing_skeleton(self):
+        col = self.layout.box().column()
+        col.prop(self, 'use_existing_skeleton')
+
+    def draw_existing_skeleton(self):
+        col = self.layout.box().column()
+        col.prop(self, 'existing_skeleton')
+
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
+
+    
 
 
 class ImportW3D(bpy.types.Operator, ImportHelper):
