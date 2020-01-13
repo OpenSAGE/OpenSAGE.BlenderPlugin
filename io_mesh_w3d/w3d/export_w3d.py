@@ -18,17 +18,14 @@ def save(self, export_settings):
     except BaseException:
         print("could not set mode to OBJECT")
 
-
     container_name = os.path.basename(self.filepath).split('.')[0]
-    #if bpy.context.scene.collection.children:
-    #    container_name = bpy.context.scene.collection.children[0].name
 
     (hierarchy, rig) = retrieve_hierarchy(self, container_name)
     hlod = create_hlod(hierarchy, container_name)
-    boxes = retrieve_boxes(hierarchy, hlod.header.model_name)
+    boxes = retrieve_boxes(hierarchy, container_name)
 
     if 'M' in export_mode:
-        meshes = retrieve_meshes(self, hierarchy, rig, hlod.header.model_name)
+        meshes = retrieve_meshes(self, hierarchy, rig, container_name)
         if not meshes:
             self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
             return {'CANCELLED'}
