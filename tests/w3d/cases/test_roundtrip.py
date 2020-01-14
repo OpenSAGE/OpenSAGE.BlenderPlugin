@@ -77,6 +77,7 @@ class TestRoundtrip(TestCase):
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
         export_settings['mode'] = "HM"
+        export_settings['use_existing_skeleton'] = False
         save(context, export_settings)
 
         context = ImportWrapper(self.outpath() + "output_skl.w3d")
@@ -176,4 +177,5 @@ class TestRoundtrip(TestCase):
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
         export_settings['mode'] = "HM"
+        export_settings['use_existing_skeleton'] = False
         save(context, export_settings)

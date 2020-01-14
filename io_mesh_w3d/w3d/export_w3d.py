@@ -13,6 +13,12 @@ def save(self, export_settings):
     export_mode = export_settings['mode']
     print("export mode: " + str(export_mode))
 
+    if not export_mode in ['M', 'HM', 'HAM', 'H', 'A']:
+        message = "WARNING: unsupported export mode: " + export_mode
+        print(message)
+        self.report({'ERROR'}, message)
+        return {'CANCELLED'}
+
     container_name = os.path.basename(self.filepath).split('.')[0]
 
     (hierarchy, rig) = retrieve_hierarchy(self, container_name)
@@ -33,71 +39,39 @@ def save(self, export_settings):
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
             return {'CANCELLED'}
 
-
-    if export_mode == 'M':
-        sknFile = open(self.filepath, "wb")
-        if len(meshes) > 1:
-            self.report({'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
-        meshes[0].header.container_name = ''
-        meshes[0].header.mesh_name = container_name
-        meshes[0].write(sknFile)
-        sknFile.close()
-        return {'FINISHED'}
-
-    elif export_mode == 'HM':
-        sknFile = open(self.filepath, "wb")
-        if not export_settings['use_existing_skeleton']:
-            hierarchy.write(sknFile)
-
-        for box in boxes:
-            box.write(sknFile)
-
-        for mesh in meshes:
-            mesh.write(sknFile)
-
-        hlod.write(sknFile)
-
-        sknFile.close()
-
-    elif export_mode == 'HAM':
-        sknFile = open(self.filepath, "wb")
-        hierarchy.write(sknFile)
-
-        for box in boxes:
-            box.write(sknFile)
-
-        for mesh in meshes:
-            mesh.write(sknFile)
-
-        hlod.write(sknFile)
-
-        animation.write(sknFile)
-
-        sknFile.close()
-
-    elif export_mode == 'A':
-        aniFile = open(self.filepath, "wb")
-        animation.write(aniFile)
-        aniFile.close()
-
-    elif export_mode == 'H':
+    if export_mode == 'H':
         if len(hierarchy.pivots) < 2:
             self.report({'ERROR'}, "Scene does not contain any hierarchy/skeleton data, aborting export!")
             return {'CANCELLED'}
 
-        filename = os.path.splitext(os.path.basename(self.filepath))[0]
-        sklFilePath = self.filepath.replace(
-            filename, hierarchy.header.name.lower())
+    file = open(self.filepath, "wb")
 
-        sklFile = open(sklFilePath, "wb")
-        hierarchy.header.name = filename
-        hierarchy.write(sklFile)
-        sklFile.close()
+    if export_mode == 'M':
+        if len(meshes) > 1:
+            self.report({'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
+        meshes[0].header.container_name = ''
+        meshes[0].header.mesh_name = container_name
+        meshes[0].write(file)
 
-    else:
-        message = "WARNING: unsupported export mode: %s" % export_mode
-        print(message)
-        self.report({'ERROR'}, message)
-        return {'CANCELLED'}
+    elif export_mode == 'HM' or export_mode == 'HAM':
+        if export_mode == 'HAM' \
+            or not export_settings['use_existing_skeleton']:
+            hierarchy.write(file)
 
+        for box in boxes:
+            box.write(file)
+
+        for mesh in meshes:
+            mesh.write(file)
+
+        hlod.write(file)
+
+    elif export_mode == 'A' or export_mode == 'HAM':
+        animation.write(file)
+
+    elif export_mode == 'H':
+        hierarchy.header.name = container_name
+        hierarchy.write(file)
+
+    file.close()
     return {'FINISHED'}
