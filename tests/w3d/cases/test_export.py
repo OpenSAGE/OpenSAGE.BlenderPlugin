@@ -98,6 +98,72 @@ class TestExport(TestCase):
 
         file.close()
 
+    def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
+        export_settings = {}
+        export_settings['mode'] = "HM"
+        export_settings['compression'] = "U"
+        export_settings['use_existing_skeleton'] = False
+
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword", skin=True),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="TRUNK")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        file_path = self.outpath() + "output_skn.w3d"
+        context = ImportWrapper(file_path)
+
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
+
+        file = open(file_path, "rb")
+        filesize = os.path.getsize(file_path)
+
+        hierarchy_found = False
+        while file.tell() < filesize:
+            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
+
+            if chunk_type == W3D_CHUNK_HIERARCHY:
+                hierarchy_found = True
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+
+        file.close()
+        self.assertTrue(hierarchy_found)
+
+    def test_no_hierarchy_is_written_if_mode_HM_and_use_existing_skeleton(self):
+        export_settings = {}
+        export_settings['mode'] = "HM"
+        export_settings['compression'] = "U"
+        export_settings['use_existing_skeleton'] = True
+
+        hierarchy_name = "TestHiera_SKL"
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name="sword", skin=True),
+            get_mesh(name="soldier", skin=True),
+            get_mesh(name="TRUNK")]
+        hlod = get_hlod("TestModelName", hierarchy_name)
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        file_path = self.outpath() + "output_skn.w3d"
+        context = ImportWrapper(file_path)
+
+        self.assertEqual({'FINISHED'}, save(context, export_settings))
+
+        file = open(file_path, "rb")
+        filesize = os.path.getsize(file_path)
+        while file.tell() < filesize:
+            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
+
+            self.assertNotEqual(W3D_CHUNK_HIERARCHY, chunk_type)
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+
+        file.close()
+
     def test_no_file_created_if_MODE_is_H_and_less_than_2_pivots(self):
         export_settings = {}
         export_settings['mode'] = "H"

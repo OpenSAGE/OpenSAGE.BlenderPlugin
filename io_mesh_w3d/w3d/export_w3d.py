@@ -56,6 +56,8 @@ def save(self, export_settings):
     elif export_mode == 'HM' or export_mode == 'HAM':
         if export_mode == 'HAM' \
             or not export_settings['use_existing_skeleton']:
+            hierarchy.header.name = container_name
+            hlod.header.hierarchy_name = container_name
             hierarchy.write(file)
 
         for box in boxes:
@@ -65,8 +67,11 @@ def save(self, export_settings):
             mesh.write(file)
 
         hlod.write(file)
+        if export_mode == 'HAM':
+            animation.header.hierarchy_name = container_name
+            animation.write(file)
 
-    elif export_mode == 'A' or export_mode == 'HAM':
+    elif export_mode == 'A':
         animation.write(file)
 
     elif export_mode == 'H':

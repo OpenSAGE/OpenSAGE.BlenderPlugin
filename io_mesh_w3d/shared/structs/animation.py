@@ -142,7 +142,7 @@ class AnimationChannel(Struct):
             elif self.type == 2:
                 channel.setAttribute('Type', 'ZTranslation')
         else:
-            channel = doc.createElement('Orientation')
+            channel = doc.createElement('ChannelQuaternion')
             channel.setAttribute('Type', 'Orientation')
 
         channel.setAttribute('Pivot', str(self.pivot))
