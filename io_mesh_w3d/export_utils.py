@@ -19,8 +19,10 @@ from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
 pick_plane_names = ['PICK']
 
-def get_objects(type):  # MESH, ARMATURE
-    return [object for object in bpy.context.scene.objects if object.type == type]
+def get_objects(type, object_list=None):  # MESH, ARMATURE
+    if object_list is None:
+        object_list = bpy.context.scene.objects
+    return [object for object in object_list if object.type == type]
 
 
 def switch_to_pose(rig, pose):
@@ -281,6 +283,39 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 # hlod
 ##########################################################################
 
+#hardcoded for now, provide export options?
+screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03]
+
+def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
+    if not meshes:
+        return lod_arrays
+
+    index = min(len(lod_arrays), len(screen_sizes) - 1)
+
+    lod_array = HLodArray(
+            header=HLodArrayHeader(
+                model_count=len(meshes),
+                max_screen_size=screen_sizes[index]),
+            sub_objects=[])
+
+    for mesh in meshes:
+        subObject = HLodSubObject(
+            name=mesh.name,
+            identifier=container_name + "." + mesh.name,
+            bone_index=0,
+            is_box=mesh.object_type == 'BOX')
+
+        if not mesh.vertex_groups:
+            for index, pivot in enumerate(hierarchy.pivots):
+                if pivot.name == mesh.name or pivot.name == mesh.parent_bone:
+                    subObject.bone_index = index
+
+        lod_array.sub_objects.append(subObject)
+
+    lod_arrays.append(lod_array)
+    return lod_arrays
+
+
 def create_hlod(hierarchy, container_name):
     hlod = HLod(
         header=HLodHeader(
@@ -288,46 +323,17 @@ def create_hlod(hierarchy, container_name):
             hierarchy_name=hierarchy.name()),
         lod_arrays=[])
 
-    #hardcoded for now, provide export options?
-    screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03] 
+    meshes = get_objects('MESH', bpy.context.scene.collection.objects)
+    lod_arrays = create_lod_array(meshes, hierarchy, container_name, [])
 
-    lod_arrays = []
-    i = 0
     for coll in bpy.data.collections:
-        meshes = [object for object in coll.objects if object.type == 'MESH']
-        if not meshes:
-            continue
-
-        if i > len(screen_sizes) - 1:
-            i = -1
-
-        lod_array = HLodArray(
-            header=HLodArrayHeader(
-                model_count=len(meshes),
-                max_screen_size=screen_sizes[i]),
-            sub_objects=[])
-
-        for mesh in meshes:
-            subObject = HLodSubObject(
-                name=mesh.name,
-                identifier=container_name + "." + mesh.name,
-                bone_index=0,
-                is_box=mesh.object_type == 'BOX')
-
-            if not mesh.vertex_groups:
-                for index, pivot in enumerate(hierarchy.pivots):
-                    if pivot.name == mesh.name or pivot.name == mesh.parent_bone:
-                        subObject.bone_index = index
-
-            lod_array.sub_objects.append(subObject)
-        lod_arrays.append(lod_array)
-        i += 1
+        meshes = get_objects('MESH', coll.objects)
+        lod_arrays = create_lod_array(meshes, hierarchy, container_name, lod_arrays)
 
     for lod_array in reversed(lod_arrays):
         hlod.lod_arrays.append(lod_array)
     hlod.header.lod_count = len(hlod.lod_arrays)
     return hlod
-
 
 ##########################################################################
 # material data
@@ -547,9 +553,11 @@ def retrieve_hierarchy(context, container_name):
     if rig is not None:
         for coll in bpy.data.collections:
             if rig.name in coll.objects:
-                meshes = [object for object in coll.objects if object.type == 'MESH']
+                meshes = get_objects('MESH', coll.objects)
+                print("rig coll meshes")
     else:
         meshes = get_objects('MESH')
+        print("all meshes")
 
     for mesh in meshes:
         if mesh.vertex_groups \

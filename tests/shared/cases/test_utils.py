@@ -166,6 +166,21 @@ class TestUtils(TestCase):
 
         self.compare_data([], hlod, hierarchy)
 
+    def test_mesh_only_hlod_roundtrip(self):
+        hlod = get_hlod()
+        hlod.header.hierarchy_name = 'containerName'
+        hlod.lod_arrays[0].header.model_count = 1
+        hlod.lod_arrays[0].sub_objects = [get_hlod_sub_object(bone=1, name='containerName.tree')]
+    
+        meshes = [get_mesh(name="tree")]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_data(self, meshes)
+
+        self.compare_data([], hlod)
+
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()
         hlod.header.hierarchy_name = "containerName"
@@ -199,7 +214,13 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        self.compare_data(meshes, hlod, hierarchy)
+        print("#########################")
+        (actual_hiera, rig) = retrieve_hierarchy(self, "containerName")
+        print(actual_hiera.header.num_pivots)
+        for piv in actual_hiera.pivots:
+            print(piv.name)
+        #self.compare_data(meshes, hlod, hierarchy)
+        print("##########   end    ###############")
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()
