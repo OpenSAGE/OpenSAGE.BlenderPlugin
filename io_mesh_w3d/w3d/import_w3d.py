@@ -17,6 +17,7 @@ from io_mesh_w3d.import_utils import *
 
 
 def load_file(self, path, data_context):
+    path = insensitive_path(path)
     print('Loading file', path)
 
     if not os.path.exists(path):
