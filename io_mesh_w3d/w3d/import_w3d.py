@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.collision_box import *
@@ -14,63 +15,34 @@ from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.import_utils import *
 
 
-##########################################################################
-# hierarchy
-##########################################################################
 
+def load_file(self, path, data_context):
+    print('Loading file', path)
 
-def load_hierarchy_file(self, sklpath):
-    hierarchy = None
-    path = insensitive_path(sklpath)
+    if not os.path.exists(path):
+        print("!!! file not found: " + path)
+        self.report({'ERROR'}, "file not found: " + path)
+        return data_context
+
     file = open(path, "rb")
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
         (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
-        if chunk_type == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy.read(self, file, chunk_end)
-        else:
-            skip_unknown_chunk(self, file, chunk_type, chunk_size)
-
-    file.close()
-
-    return hierarchy
-
-##########################################################################
-# Load
-##########################################################################
-
-
-def load(self, import_settings):
-    print('Loading file', self.filepath)
-
-    file = open(self.filepath, "rb")
-    filesize = os.path.getsize(self.filepath)
-
-    meshes = []
-    hlod = None
-    hierarchy = None
-    boxes = []
-    animation = None
-    compressed_animation = None
-
-    while file.tell() < filesize:
-        (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
-
         if chunk_type == W3D_CHUNK_MESH:
-            meshes.append(Mesh.read(self, file, chunk_end))
+            data_context.meshes.append(Mesh.read(self, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
-            hierarchy = Hierarchy.read(self, file, chunk_end)
+            data_context.hierarchy = Hierarchy.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_ANIMATION:
-            animation = Animation.read(self, file, chunk_end)
+            data_context.animation = Animation.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
-            compressed_animation = CompressedAnimation.read(
+            data_context.compressed_animation = CompressedAnimation.read(
                 self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_HLOD:
-            hlod = HLod.read(self, file, chunk_end)
+            data_context.hlod = HLod.read(self, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
-            boxes.append(CollisionBox.read(file))
+            data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)
@@ -112,6 +84,31 @@ def load(self, import_settings):
 
     file.close()
 
+    return data_context
+
+
+##########################################################################
+# Load
+##########################################################################
+
+
+def load(self, import_settings):
+    data_context = DataContext(
+        meshes=[],
+        textures=[],
+        collision_boxes=[],
+        hierarchy=None,
+        hlod=None, 
+        animation=None,
+        compressed_animation=None)
+
+    data_context = load_file(self, self.filepath, data_context)
+
+    hierarchy = data_context.hierarchy
+    hlod = data_context.hlod
+    animation = data_context.animation
+    compressed_animation = data_context.compressed_animation
+
     if hierarchy is None:
         sklpath = None
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
@@ -127,13 +124,18 @@ def load(self, import_settings):
                 compressed_animation.header.hierarchy_name.lower() + ".w3d"
 
         if sklpath is not None:
-            try:
-                hierarchy = load_hierarchy_file(self, sklpath)
-            except FileNotFoundError:
+            data_context = load_file(self, sklpath, data_context)
+            if data_context.hierarchy is None:
                 print("!!! hierarchy file not found: " + sklpath)
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
-    create_data(self, meshes, hlod, hierarchy, boxes, animation, compressed_animation)
+    create_data(self, \
+            data_context.meshes, \
+            data_context.hlod, \
+            data_context.hierarchy, \
+            data_context.collision_boxes, \
+            data_context.animation, \
+            data_context.compressed_animation)
     return {'FINISHED'}
 
 
