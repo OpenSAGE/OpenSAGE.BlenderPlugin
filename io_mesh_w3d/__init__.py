@@ -27,7 +27,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     bl_options = {'UNDO', 'PRESET'}
 
     filename_ext = '.w3d'
-    filename = 'teeest'
 
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
@@ -45,11 +44,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
              "This will export the animation without any geometry or hierarchy/skeleton data"),
             ('H',
              "Hierarchy",
-             "This will export the hierarchy/skeleton without any geometry or animation data \
-              the filename is retrieved from the armature if any exists"),
+             "This will export the hierarchy/skeleton without any geometry or animation data"),
             ('M',
              "Mesh",
-             "This will export a simple mesh (only the first of the scene if there are multiple) \
+             "This will export a simple mesh (only the first of the scene if there are multiple), \
                 without any hierarchy/skeleton and animation data")),
         description="Select the export mode",
         default='HM')

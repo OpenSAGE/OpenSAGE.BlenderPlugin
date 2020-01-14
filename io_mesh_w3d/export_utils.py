@@ -554,10 +554,8 @@ def retrieve_hierarchy(context, container_name):
         for coll in bpy.data.collections:
             if rig.name in coll.objects:
                 meshes = get_objects('MESH', coll.objects)
-                print("rig coll meshes")
     else:
         meshes = get_objects('MESH')
-        print("all meshes")
 
     for mesh in meshes:
         if mesh.vertex_groups \
