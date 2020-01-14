@@ -170,7 +170,7 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'containerName'
         hlod.lod_arrays[0].header.model_count = 1
-        hlod.lod_arrays[0].sub_objects = [get_hlod_sub_object(bone=1, name='containerName.tree')]
+        hlod.lod_arrays[0].sub_objects = [get_hlod_sub_object(bone=0, name='containerName.tree')]
     
         meshes = [get_mesh(name="tree")]
 
@@ -214,13 +214,8 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        print("#########################")
         (actual_hiera, rig) = retrieve_hierarchy(self, "containerName")
-        print(actual_hiera.header.num_pivots)
-        for piv in actual_hiera.pivots:
-            print(piv.name)
         self.compare_data(meshes, hlod, hierarchy)
-        print("##########   end    ###############")
 
     def test_PICK_mesh_roundtrip(self):
         hlod = get_hlod()
