@@ -219,7 +219,7 @@ class TestUtils(TestCase):
         print(actual_hiera.header.num_pivots)
         for piv in actual_hiera.pivots:
             print(piv.name)
-        #self.compare_data(meshes, hlod, hierarchy)
+        self.compare_data(meshes, hlod, hierarchy)
         print("##########   end    ###############")
 
     def test_PICK_mesh_roundtrip(self):
