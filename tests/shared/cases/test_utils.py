@@ -214,7 +214,6 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, "containerName")
         self.compare_data(meshes, hlod, hierarchy)
 
     def test_PICK_mesh_roundtrip(self):
