@@ -76,21 +76,21 @@ class TestRoundtrip(TestCase):
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
-        export_settings['w3d_mode'] = "HM"
+        export_settings['mode'] = "HM"
         save(context, export_settings)
 
         context = ImportWrapper(self.outpath() + "output_skl.w3d")
-        export_settings['w3d_mode'] = "H"
+        export_settings['mode'] = "H"
         save(context, export_settings)
 
         context = ImportWrapper(self.outpath() + "output_ani.w3d")
-        export_settings['w3d_mode'] = "A"
-        export_settings['w3d_compression'] = "U"
+        export_settings['mode'] = "A"
+        export_settings['compression'] = "U"
         save(context, export_settings)
 
         context = ImportWrapper(self.outpath() + "output_comp_ani.w3d")
-        export_settings['w3d_mode'] = "A"
-        export_settings['w3d_compression'] = "TC"
+        export_settings['mode'] = "A"
+        export_settings['compression'] = "TC"
         save(context, export_settings)
 
     def test_roundtrip_HAM(self):
@@ -131,8 +131,8 @@ class TestRoundtrip(TestCase):
 
         # export
         export_settings = {}
-        export_settings['w3d_mode'] = "HAM"
-        export_settings['w3d_compression'] = "U"
+        export_settings['mode'] = "HAM"
+        export_settings['compression'] = "U"
         context = ImportWrapper(self.outpath() + "output.w3d")
         save(context, export_settings)
 
@@ -175,5 +175,5 @@ class TestRoundtrip(TestCase):
         # export
         context = ImportWrapper(self.outpath() + "output_skn.w3d")
         export_settings = {}
-        export_settings['w3d_mode'] = "HM"
+        export_settings['mode'] = "HM"
         save(context, export_settings)

@@ -15,13 +15,13 @@ from io_mesh_w3d.import_utils import *
 class TestExport(TestCase):
     def test_unsupported_export_mode(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "NON_EXISTING"
+        export_settings['mode'] = "NON_EXISTING"
 
         self.assertEqual({'CANCELLED'}, save(self, export_settings))
 
     def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "M"
+        export_settings['mode'] = "M"
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
@@ -32,7 +32,7 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "HM"
+        export_settings['mode'] = "HM"
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
@@ -43,7 +43,7 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_HAM_and_no_meshes(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "HAM"
+        export_settings['mode'] = "HAM"
 
         file_path = self.outpath() + "output_skn.w3d"
         context = ImportWrapper(file_path)
@@ -54,8 +54,8 @@ class TestExport(TestCase):
 
     def test_no_hlod_is_written_if_mode_M(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "M"
-        export_settings['w3d_compression'] = "U"
+        export_settings['mode'] = "M"
+        export_settings['compression'] = "U"
 
         meshes = [get_mesh()]
         create_data(self, meshes)
@@ -77,8 +77,8 @@ class TestExport(TestCase):
 
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "M"
-        export_settings['w3d_compression'] = "U"
+        export_settings['mode'] = "M"
+        export_settings['compression'] = "U"
 
         meshes = [get_mesh()]
         create_data(self, meshes)
@@ -100,7 +100,7 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_H_and_less_than_2_pivots(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "H"
+        export_settings['mode'] = "H"
 
         file_path = self.outpath() + "output_skl.w3d"
         context = ImportWrapper(file_path)
@@ -111,8 +111,8 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "A"
-        export_settings['w3d_compression'] = "U"
+        export_settings['mode'] = "A"
+        export_settings['compression'] = "U"
 
         file_path = self.outpath() + "output_ani.w3d"
         context = ImportWrapper(file_path)
@@ -123,8 +123,8 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_A_and_TC_no_animation_channels(self):
         export_settings = {}
-        export_settings['w3d_mode'] = "A"
-        export_settings['w3d_compression'] = "TC"
+        export_settings['mode'] = "A"
+        export_settings['compression'] = "TC"
 
         file_path = self.outpath() + "output_ani.w3d"
         context = ImportWrapper(file_path)

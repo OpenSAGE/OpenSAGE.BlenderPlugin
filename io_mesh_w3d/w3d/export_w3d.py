@@ -8,15 +8,10 @@ from io_mesh_w3d.export_utils import *
 
 
 def save(self, export_settings):
-    print('Saving file', self.filepath)
+    print('Saving file :' + self.filepath)
 
-    export_mode = export_settings['w3d_mode']
+    export_mode = export_settings['mode']
     print("export mode: " + str(export_mode))
-
-    try:
-        bpy.ops.object.mode_set(mode='OBJECT')
-    except BaseException:
-        print("could not set mode to OBJECT")
 
     container_name = os.path.basename(self.filepath).split('.')[0]
 
@@ -31,12 +26,13 @@ def save(self, export_settings):
             return {'CANCELLED'}
 
     if 'A' in export_mode:
-        timecoded = export_settings['w3d_compression'] == "TC"
+        timecoded = export_settings['compression'] == "TC"
         animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
         channels = animation.time_coded_channels if timecoded else animation.channels
         if not channels:
             self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
             return {'CANCELLED'}
+
 
     if export_mode == 'M':
         sknFile = open(self.filepath, "wb")
@@ -50,7 +46,8 @@ def save(self, export_settings):
 
     elif export_mode == 'HM':
         sknFile = open(self.filepath, "wb")
-        hierarchy.write(sknFile)
+        if not export_settings['use_existing_skeleton']:
+            hierarchy.write(sknFile)
 
         for box in boxes:
             box.write(sknFile)

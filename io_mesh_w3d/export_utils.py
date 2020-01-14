@@ -17,8 +17,7 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
 
-pick_plane_names = ["PICK"]
-
+pick_plane_names = ['PICK']
 
 def get_objects(type):  # MESH, ARMATURE
     return [object for object in bpy.context.scene.objects if object.type == type]
@@ -28,6 +27,18 @@ def switch_to_pose(rig, pose):
     if rig is not None:
         rig.data.pose_position = pose
         bpy.context.view_layer.update()
+
+
+def retrieve_data(timecoded):
+    container_name = 'untitled'
+
+    (hierarchy, rig) = retrieve_hierarchy(self, container_name)
+    hlod = create_hlod(hierarchy, container_name)
+    boxes = retrieve_boxes(hierarchy, container_name)
+    meshes = retrieve_meshes(self, hierarchy, rig, container_name)
+    animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
+
+    return (hierarchy, hlod, boxes, meshes, animation)
 
 
 ##########################################################################
@@ -66,6 +77,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.object_type != 'NORMAL':
             continue
+
+        if mesh_object.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         mesh_struct = Mesh(
             header=MeshHeader(

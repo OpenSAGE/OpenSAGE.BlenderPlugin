@@ -36,14 +36,11 @@ def link_object_to_active_scene(obj, coll):
 
 
 def smooth_mesh(mesh_ob, mesh):
-    try:
-        if mesh_ob.mode != 'OBJECT':
-            bpy.ops.object.mode_set(mode='OBJECT')
+    if mesh_ob.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
 
-        for polygon in mesh.polygons:
-            polygon.use_smooth = True
-    except RuntimeError:
-        print("incorrect context for mesh smoothing")
+    for polygon in mesh.polygons:
+        polygon.use_smooth = True
 
 
 def get_collection(hlod=None):
