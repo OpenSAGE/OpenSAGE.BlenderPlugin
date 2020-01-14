@@ -29,18 +29,6 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
-def retrieve_data(timecoded):
-    container_name = 'untitled'
-
-    (hierarchy, rig) = retrieve_hierarchy(self, container_name)
-    hlod = create_hlod(hierarchy, container_name)
-    boxes = retrieve_boxes(hierarchy, container_name)
-    meshes = retrieve_meshes(self, hierarchy, rig, container_name)
-    animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
-
-    return (hierarchy, hlod, boxes, meshes, animation)
-
-
 ##########################################################################
 # Mesh data
 ##########################################################################
@@ -304,7 +292,8 @@ def create_hlod(hierarchy, container_name):
     screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03] 
 
     lod_arrays = []
-    for i, coll in enumerate(bpy.data.collections):
+    i = 0
+    for coll in bpy.data.collections:
         meshes = [object for object in coll.objects if object.type == 'MESH']
         if not meshes:
             continue
@@ -332,6 +321,7 @@ def create_hlod(hierarchy, container_name):
 
             lod_array.sub_objects.append(subObject)
         lod_arrays.append(lod_array)
+        i += 1
 
     for lod_array in reversed(lod_arrays):
         hlod.lod_arrays.append(lod_array)
