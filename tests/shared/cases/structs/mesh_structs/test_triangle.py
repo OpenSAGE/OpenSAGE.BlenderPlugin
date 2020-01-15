@@ -1,12 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
-from xml.dom import minidom
-from tests.utils import *
 
 from tests.shared.helpers.mesh_structs.triangle import *
+from tests.utils import *
 
 
 class TestTriangle(TestCase):

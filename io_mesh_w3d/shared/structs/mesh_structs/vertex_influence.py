@@ -3,7 +3,6 @@
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3d.structs.version import Version
 
 
 class VertexInfluence(Struct):
@@ -39,8 +38,10 @@ class VertexInfluence(Struct):
             xtra_inf=0.0)
 
         if xml_vertex_influence2 is not None:
-            result.xtra_idx = int(xml_vertex_influence2.attributes['Bone'].value)
-            result.xtra_inf = float(xml_vertex_influence2.attributes['Weight'].value)
+            result.xtra_idx = int(
+                xml_vertex_influence2.attributes['Bone'].value)
+            result.xtra_inf = float(
+                xml_vertex_influence2.attributes['Weight'].value)
         return result
 
     def create(self, doc):

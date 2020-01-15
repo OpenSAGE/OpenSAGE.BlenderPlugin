@@ -2,11 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3x.io_xml import *
-from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3d.utils import *
 from io_mesh_w3d.w3d.structs.version import Version
-
+from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
@@ -128,7 +126,7 @@ class AnimationChannel(Struct):
         elif xml_channel.tagName == 'ChannelQuaternion':
             for value in xml_channel.childs():
                 result.data.append(parse_quaternion(value))
-   
+
         result.last_frame = result.first_frame + len(result.data) - 1
         return result
 
@@ -223,7 +221,7 @@ class AnimationBitChannel(Struct):
         if xml_bit_channel.tagName == 'ChannelScalar':
             for value in xml_bit_channel.childs():
                 result.data.append(parse_value(value, float))
-   
+
         result.last_frame = result.first_frame + len(result.data) - 1
         return result
 
@@ -285,8 +283,10 @@ class Animation(Struct):
 
         result.header.name = xml_animation.attributes['id'].value
         result.header.hierarchy_name = xml_animation.attributes['Hierarchy'].value
-        result.header.num_frames = int(xml_animation.attributes['NumFrames'].value)
-        result.header.frame_rate = int(xml_animation.attributes['FrameRate'].value)
+        result.header.num_frames = int(
+            xml_animation.attributes['NumFrames'].value)
+        result.header.frame_rate = int(
+            xml_animation.attributes['FrameRate'].value)
 
         xml_channels_list = xml_animation.getElementsByTagName('Channels')[0]
         for xml_channel in xml_channels_list.childs():

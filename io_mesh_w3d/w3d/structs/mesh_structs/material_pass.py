@@ -1,9 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.shared.structs.rgba import RGBA
-from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
 
 W3D_CHUNK_TEXTURE_STAGE = 0x00000048

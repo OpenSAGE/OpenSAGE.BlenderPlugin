@@ -3,8 +3,9 @@
 
 import io
 from xml.dom import minidom
-from tests.utils import TestCase
+
 from tests.shared.helpers.mesh_structs.vertex_influence import *
+from tests.utils import TestCase
 
 
 class TestVertexInfluence(TestCase):
@@ -43,14 +44,18 @@ class TestVertexInfluence(TestCase):
         dom = minidom.parse(io_stream)
         xml_meshes = dom.getElementsByTagName('W3DMesh')
         self.assertEqual(1, len(xml_meshes))
-        xml_bone_influences_lists = xml_meshes[0].getElementsByTagName('BoneInfluences')
+        xml_bone_influences_lists = xml_meshes[0].getElementsByTagName(
+            'BoneInfluences')
         self.assertEqual(2, len(xml_bone_influences_lists))
 
-        xml_bone_influences = xml_bone_influences_lists[0].getElementsByTagName('I')
+        xml_bone_influences = xml_bone_influences_lists[0].getElementsByTagName(
+            'I')
         self.assertEqual(1, len(xml_bone_influences))
 
-        xml_bone2_influences = xml_bone_influences_lists[1].getElementsByTagName('I')
+        xml_bone2_influences = xml_bone_influences_lists[1].getElementsByTagName(
+            'I')
         self.assertEqual(1, len(xml_bone2_influences))
 
-        actual = VertexInfluence.parse(xml_bone_influences[0], xml_bone2_influences[0])
+        actual = VertexInfluence.parse(
+            xml_bone_influences[0], xml_bone2_influences[0])
         compare_vertex_influences(self, expected, actual)

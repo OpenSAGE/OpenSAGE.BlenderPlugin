@@ -2,11 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests.utils import TestCase
-from io_mesh_w3d.w3d.utils import *
-from io_mesh_w3d.w3d.io_binary import *
 
 from tests.shared.helpers.mesh import *
+from tests.utils import TestCase
 
 
 class TestMesh(TestCase):

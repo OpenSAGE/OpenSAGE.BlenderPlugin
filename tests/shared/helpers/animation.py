@@ -1,12 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-from tests.mathutils import *
 from io_mesh_w3d.shared.structs.animation import *
-
+from tests.mathutils import *
 from tests.w3d.helpers.version import *
-from tests.utils import almost_equal
 
 
 def get_animation_header(hierarchy_name="hierarchy"):
@@ -77,6 +74,7 @@ def get_animation_bit_channel(pivot=0, xml=False):
         default=1.0,
         data=data)
 
+
 def get_animation_bit_channel_no_pad(pivot=0):
     return AnimationBitChannel(
         first_frame=0,
@@ -119,9 +117,9 @@ def get_animation(hierarchy_name="TestHierarchy", xml=False):
 
                   get_animation_bit_channel(pivot=6, xml=xml)])
 
-                   # this does not work at the moment 
-                   # due to an issue in blender
-                  #get_animation_bit_channel(pivot=7)])
+    # this does not work at the moment
+    # due to an issue in blender
+    # get_animation_bit_channel(pivot=7)])
 
 
 def get_animation_minimal():

@@ -1,22 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-
 from io_mesh_w3d.shared.structs.mesh import *
-
-from tests.shared.helpers.mesh_structs.triangle import *
-from tests.shared.helpers.mesh_structs.shader_material import *
 from tests.shared.helpers.mesh_structs.aabbtree import *
-from tests.shared.helpers.mesh_structs.texture import *
+from tests.shared.helpers.mesh_structs.shader_material import *
+from tests.shared.helpers.mesh_structs.triangle import *
 from tests.shared.helpers.mesh_structs.vertex_influence import *
-
-from tests.w3d.helpers.version import *
-from tests.w3d.helpers.mesh_structs.material_pass import *
-from tests.w3d.helpers.mesh_structs.material_info import *
-from tests.w3d.helpers.mesh_structs.vertex_material import *
-from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.prelit import *
+from tests.w3d.helpers.version import *
 
 
 def get_mesh_header(name="mesh_name", skin=False, shader_mats=False, hidden=False):
@@ -62,10 +53,10 @@ def compare_mesh_headers(self, expected, actual):
     self.assertEqual(expected.future_count, actual.future_count)
     self.assertEqual(expected.vert_channel_flags, actual.vert_channel_flags)
     self.assertEqual(expected.face_channel_flags, actual.face_channel_flags)
-    #compare_vectors(self, expected.min_corner, actual.min_corner)
-    #compare_vectors(self, expected.max_corner, actual.max_corner)
-    #compare_vectors(self, expected.sph_center, actual.sph_center)
-    #self.assertAlmostEqual(expected.sph_radius, actual.sph_radius, 2)
+    # compare_vectors(self, expected.min_corner, actual.min_corner)
+    # compare_vectors(self, expected.max_corner, actual.max_corner)
+    # compare_vectors(self, expected.sph_center, actual.sph_center)
+    # self.assertAlmostEqual(expected.sph_radius, actual.sph_radius, 2)
 
 
 def get_vertex_influences():
@@ -233,7 +224,7 @@ def get_mesh_two_textures(name="meshName"):
     return mesh
 
 
-def get_mesh_minimal(xml = False):
+def get_mesh_minimal(xml=False):
     mesh = Mesh(
         header=get_mesh_header(),
         user_text="text",
@@ -283,7 +274,6 @@ def get_mesh_minimal(xml = False):
     mesh.header.face_count = 1
     mesh.header.vert_count = 1
     return mesh
-
 
 
 def get_mesh_empty():

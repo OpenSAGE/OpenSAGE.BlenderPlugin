@@ -2,11 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
 
-from tests.utils import TestCase
-from tests.mathutils import *
 from tests.shared.helpers.mesh_structs.aabbtree import *
+from tests.utils import TestCase
 
 
 class TestAABBTree(TestCase):

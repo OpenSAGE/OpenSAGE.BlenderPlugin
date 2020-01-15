@@ -1,13 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-from tests.mathutils import *
-from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.shared.structs.collision_box import *
-
-from tests.w3d.helpers.version import get_version, compare_versions
+from tests.mathutils import *
 from tests.shared.helpers.rgba import get_rgba, compare_rgbas
+from tests.w3d.helpers.version import get_version, compare_versions
 
 
 def get_collision_box(name="containerName.BOUNDINGBOX", xml=False):

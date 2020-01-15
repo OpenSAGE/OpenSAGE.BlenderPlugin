@@ -1,26 +1,20 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
-from tests.utils import *
 from shutil import copyfile
-import os
 
-from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.export_utils import *
-
-from tests.shared.helpers.mesh import *
+from io_mesh_w3d.import_utils import *
+from tests.shared.helpers.animation import *
+from tests.shared.helpers.collision_box import *
 from tests.shared.helpers.hierarchy import *
 from tests.shared.helpers.hlod import *
-from tests.shared.helpers.collision_box import *
+from tests.shared.helpers.mesh import *
 from tests.shared.helpers.mesh_structs.shader_material import *
-from tests.shared.helpers.animation import *
-
-from tests.w3d.helpers.mesh_structs.material_pass import *
-from tests.w3d.helpers.mesh_structs.material_info import *
-from tests.w3d.helpers.mesh_structs.vertex_material import *
-from tests.w3d.helpers.mesh_structs.shader import *
+from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
+from tests.w3d.helpers.mesh_structs.shader import *
+from tests.w3d.helpers.mesh_structs.vertex_material import *
 
 
 class TestUtils(TestCase):
@@ -97,7 +91,8 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=1, name="containerName.WORLDBOX"))
         hierarchy = get_hierarchy()
         meshes = []
-        boxes = [get_collision_box(), get_collision_box("containerName.WORLDBOX")]
+        boxes = [get_collision_box(), get_collision_box(
+            "containerName.WORLDBOX")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -137,7 +132,6 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-
         create_data(self, meshes, hlod, hierarchy, boxes)
         coll = get_collection(hlod)
         rig2 = get_or_create_skeleton(hlod, hierarchy2, coll)
@@ -170,8 +164,9 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'containerName'
         hlod.lod_arrays[0].header.model_count = 1
-        hlod.lod_arrays[0].sub_objects = [get_hlod_sub_object(bone=0, name='containerName.tree')]
-    
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=0, name='containerName.tree')]
+
         meshes = [get_mesh(name="tree")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
@@ -229,7 +224,6 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
@@ -240,7 +234,8 @@ class TestUtils(TestCase):
         hlod.lod_arrays[0].sub_objects = [
             get_hlod_sub_object(bone=1, name="containerName.parent"),
             get_hlod_sub_object(bone=2, name="containerName.child")]
-        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+        hlod.lod_arrays[0].header.model_count = len(
+            hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
         hierarchy.header.name = "containerName"
@@ -355,8 +350,8 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        #export not supported yet
-        #self.compare_data(meshes, hlod, hierarchy)
+        # export not supported yet
+        # self.compare_data(meshes, hlod, hierarchy)
 
     def test_animation_roundtrip(self):
         animation = get_animation()
@@ -399,7 +394,8 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
 
-        create_data(self, meshes, hlod, hierarchy, boxes, None, compressed_animation)
+        create_data(self, meshes, hlod, hierarchy,
+                    boxes, None, compressed_animation)
 
         self.compare_data([], None, None, [], None, compressed_animation)
 
@@ -410,10 +406,14 @@ class TestUtils(TestCase):
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [get_roottransform()]
 
-        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot", parent=0))
-        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot2", parent=1))
-        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot4", parent=2))
-        hierarchy.pivots.append(get_hierarchy_pivot(name="bone_pivot3", parent=1))
+        hierarchy.pivots.append(
+            get_hierarchy_pivot(name="bone_pivot", parent=0))
+        hierarchy.pivots.append(
+            get_hierarchy_pivot(name="bone_pivot2", parent=1))
+        hierarchy.pivots.append(
+            get_hierarchy_pivot(name="bone_pivot4", parent=2))
+        hierarchy.pivots.append(
+            get_hierarchy_pivot(name="bone_pivot3", parent=1))
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
@@ -443,7 +443,6 @@ class TestUtils(TestCase):
 
         self.assertTrue("bone_pivot2" in rig.pose.bones)
 
-
     def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
         container_name = "containerName"
         rig = None
@@ -452,7 +451,7 @@ class TestUtils(TestCase):
 
         (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:
-            hierarchy.pivot_fixups = [] # roundtrip not supported
+            hierarchy.pivot_fixups = []  # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
 
         actual_hlod = create_hlod(actual_hiera, container_name)
@@ -460,7 +459,8 @@ class TestUtils(TestCase):
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
-            actual_meshes = retrieve_meshes(self, actual_hiera, rig, container_name)
+            actual_meshes = retrieve_meshes(
+                self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):
                 compare_meshes(self, mesh, actual_meshes[i])
@@ -473,11 +473,12 @@ class TestUtils(TestCase):
                 compare_collision_boxes(self, box, actual_boxes[i])
 
         if animation is not None:
-            actual_animation = retrieve_animation(animation.header.name, actual_hiera, rig, timecoded=False)
+            actual_animation = retrieve_animation(
+                animation.header.name, actual_hiera, rig, timecoded=False)
             compare_animations(self, animation, actual_animation)
 
         if compressed_animation is not None:
-            actual_compressed_animation = retrieve_animation(compressed_animation.header.name, actual_hiera, rig, timecoded=True)
-            compare_compressed_animations(self, compressed_animation, actual_compressed_animation)
-
-
+            actual_compressed_animation = retrieve_animation(
+                compressed_animation.header.name, actual_hiera, rig, timecoded=True)
+            compare_compressed_animations(
+                self, compressed_animation, actual_compressed_animation)

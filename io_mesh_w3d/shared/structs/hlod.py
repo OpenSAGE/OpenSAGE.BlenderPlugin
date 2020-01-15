@@ -2,11 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3x.io_xml import *
-from io_mesh_w3d.w3d.utils import *
 from io_mesh_w3d.w3d.structs.version import Version
-
+from io_mesh_w3d.w3d.utils import *
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 
@@ -106,7 +103,8 @@ class HLodSubObject(Struct):
         if xml_meshes:
             sub_object.identifier = xml_meshes[0].childNodes[0].nodeValue
 
-        xml_collision_boxes = xml_render_object.getElementsByTagName('CollisionBox')
+        xml_collision_boxes = xml_render_object.getElementsByTagName(
+            'CollisionBox')
         if xml_collision_boxes:
             sub_object.identifier = xml_collision_boxes[0].childNodes[0].nodeValue
         return sub_object
@@ -166,7 +164,6 @@ class HLodArray(Struct):
         write_list(self.sub_objects, io_stream, HLodSubObject.write)
 
 
-
 W3D_CHUNK_HLOD = 0x00000700
 
 
@@ -216,8 +213,10 @@ class HLod(Struct):
 
         xml_sub_objects = xml_container.getElementsByTagName('SubObject')
         for xml_sub_object in xml_sub_objects:
-            result.lod_arrays[0].sub_objects.append(HLodSubObject.parse(xml_sub_object))
-        result.lod_arrays[0].header.model_count = len(result.lod_arrays[0].sub_objects)
+            result.lod_arrays[0].sub_objects.append(
+                HLodSubObject.parse(xml_sub_object))
+        result.lod_arrays[0].header.model_count = len(
+            result.lod_arrays[0].sub_objects)
         return result
 
     def create(self, doc):

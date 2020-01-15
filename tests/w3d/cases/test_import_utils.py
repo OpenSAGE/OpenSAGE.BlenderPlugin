@@ -2,18 +2,15 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests.utils import *
 from shutil import copyfile
 
 from io_mesh_w3d.import_utils import *
-
-from tests.shared.helpers.mesh import *
 from tests.shared.helpers.hierarchy import *
 from tests.shared.helpers.hlod import *
-from tests.shared.helpers.animation import *
-
-from tests.w3d.helpers.mesh_structs.material_pass import *
+from tests.shared.helpers.mesh import *
+from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
+from tests.w3d.helpers.mesh_structs.material_pass import *
 
 
 class TestImportUtils(TestCase):
@@ -168,10 +165,9 @@ class TestImportUtils(TestCase):
 
         create_animation(rig, animation, hierarchy, compressed=True)
 
-
-        #currently disabled because of timecoded animation export issue -> see create keyframe functions
+        # currently disabled because of timecoded animation export issue -> see create keyframe functions
         obj = bpy.data.objects['MESH']
-        #for fcu in obj.animation_data.action.fcurves:
+        # for fcu in obj.animation_data.action.fcurves:
         #    self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
         #    for i, keyframe in enumerate(fcu.keyframe_points):
         #        frame = int(keyframe.co.x)

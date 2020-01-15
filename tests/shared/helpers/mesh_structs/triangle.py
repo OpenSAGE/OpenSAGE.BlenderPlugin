@@ -1,9 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-from tests.mathutils import *
 from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
+from tests.mathutils import *
 
 
 def get_triangle(vert_ids=[1, 2, 3],

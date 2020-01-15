@@ -1,15 +1,14 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
 import os.path
-from tests.utils import *
-from tests.shared.helpers.mesh import *
-from tests.shared.helpers.hlod import *
-from tests.shared.helpers.hierarchy import *
 
-from io_mesh_w3d.w3d.export_w3d import save
 from io_mesh_w3d.import_utils import *
+from io_mesh_w3d.w3d.export_w3d import save
+from tests.shared.helpers.hierarchy import *
+from tests.shared.helpers.hlod import *
+from tests.shared.helpers.mesh import *
+from tests.utils import *
 
 
 class TestExport(TestCase):

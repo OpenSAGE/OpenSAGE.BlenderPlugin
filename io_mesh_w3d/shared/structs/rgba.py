@@ -74,4 +74,4 @@ class RGBA(Struct):
 
     def __str__(self):
         return "RGBA(r:" + str(self.r) + ", g:" + str(self.g) + \
-            ", b:" + str(self.b) + ", a:" + str(self.a) + ")"
+               ", b:" + str(self.b) + ", a:" + str(self.a) + ")"

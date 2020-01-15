@@ -2,9 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests.utils import TestCase
+
 from tests.shared.helpers.collision_box import *
-from io_mesh_w3d.w3d.io_binary import *
+from tests.utils import TestCase
 
 
 class TestCollisionBox(TestCase):
@@ -49,4 +49,3 @@ class TestCollisionBox(TestCase):
 
         actual = CollisionBox.parse(xml_collision_boxes[0])
         compare_collision_boxes(self, expected, actual)
-

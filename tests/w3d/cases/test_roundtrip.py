@@ -1,21 +1,18 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
-from tests.utils import *
 from shutil import copyfile
-from tests.utils import TestCase, ImportWrapper
-
-from tests.shared.helpers.mesh import get_mesh
-from tests.shared.helpers.hierarchy import get_hierarchy
-from tests.shared.helpers.hlod import get_hlod
-from tests.shared.helpers.collision_box import get_collision_box
-from tests.shared.helpers.animation import get_animation
-
-from tests.w3d.helpers.compressed_animation import get_compressed_animation
 
 from io_mesh_w3d.w3d.export_w3d import save
 from io_mesh_w3d.w3d.import_w3d import load
+from tests.shared.helpers.animation import get_animation
+from tests.shared.helpers.collision_box import get_collision_box
+from tests.shared.helpers.hierarchy import get_hierarchy
+from tests.shared.helpers.hlod import get_hlod
+from tests.shared.helpers.mesh import get_mesh
+from tests.utils import *
+from tests.utils import TestCase, ImportWrapper
+from tests.w3d.helpers.compressed_animation import get_compressed_animation
 
 
 class TestRoundtrip(TestCase):

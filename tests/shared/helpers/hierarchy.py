@@ -1,11 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-from tests.mathutils import *
 from io_mesh_w3d.shared.structs.hierarchy import *
+from tests.mathutils import *
 from tests.w3d.helpers.version import get_version, compare_versions
-from tests.utils import almost_equal
 
 
 def get_hierarchy_header(name="TestHierarchy"):
@@ -53,8 +51,8 @@ def compare_hierarchy_pivots(self, expected, actual):
 
     compare_vectors(self, expected.translation, actual.translation)
     # dont care for those
-    #if expected.euler_angles is not None:
-    #compare_vectors(self, expected.euler_angles, actual.euler_angles)
+    # if expected.euler_angles is not None:
+    # compare_vectors(self, expected.euler_angles, actual.euler_angles)
     compare_quats(self, expected.rotation, actual.rotation)
     compare_mats(self, expected.fixup_matrix, actual.fixup_matrix)
 
@@ -74,7 +72,6 @@ def get_hierarchy(name="TestHierarchy", xml=False):
         get_hierarchy_pivot(name="armr", parent=3),
         get_hierarchy_pivot(name="TRUNK", parent=5),
         get_hierarchy_pivot(name="sword", parent=0)]
-
 
     if xml:
         hierarchy.pivots.append(
@@ -101,7 +98,7 @@ def get_hierarchy_minimal(xml=False):
         pivot_fixups=[])
 
     if not xml:
-        hierarchy.pivot_fixups=[get_vec()]
+        hierarchy.pivot_fixups = [get_vec()]
     return hierarchy
 
 
@@ -122,4 +119,5 @@ def compare_hierarchies(self, expected, actual):
     if expected.pivot_fixups:
         self.assertEqual(len(expected.pivot_fixups), len(actual.pivot_fixups))
         for i in range(len(expected.pivot_fixups)):
-            compare_vectors(self, expected.pivot_fixups[i], actual.pivot_fixups[i])
+            compare_vectors(
+                self, expected.pivot_fixups[i], actual.pivot_fixups[i])

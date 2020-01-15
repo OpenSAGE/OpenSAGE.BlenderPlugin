@@ -1,14 +1,11 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.shared.structs.mesh_structs.texture import *
-
-from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
+from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 W3D_CHUNK_PRELIT_UNLIT = 0x00000023
 W3D_CHUNK_PRELIT_VERTEX = 0x00000024

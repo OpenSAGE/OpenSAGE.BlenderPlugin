@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from tests.utils import TestCase
 import io_mesh_w3d
+from tests.utils import TestCase
 
 
 class TestAddon(TestCase):

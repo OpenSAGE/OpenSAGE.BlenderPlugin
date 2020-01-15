@@ -3,8 +3,9 @@
 
 import io
 from xml.dom import minidom
-from tests.utils import TestCase
+
 from tests.shared.helpers.mesh_structs.shader_material import *
+from tests.utils import TestCase
 
 
 class TestShaderMaterial(TestCase):

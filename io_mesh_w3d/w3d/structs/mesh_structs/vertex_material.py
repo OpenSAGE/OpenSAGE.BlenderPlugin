@@ -1,12 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.shared.structs.rgba import RGBA
-from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
-
-
 
 W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D

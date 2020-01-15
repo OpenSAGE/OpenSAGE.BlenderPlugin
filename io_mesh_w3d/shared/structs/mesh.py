@@ -1,26 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.structs.version import Version
-from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3d.utils import *
-
-from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
 from io_mesh_w3d.shared.structs.mesh_structs.aabbtree import *
 from io_mesh_w3d.shared.structs.mesh_structs.shader_material import *
-from io_mesh_w3d.shared.structs.mesh_structs.texture import *
+from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
 from io_mesh_w3d.shared.structs.mesh_structs.vertex_influence import *
-
-from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
-from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
-from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
-
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
-
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
 
@@ -30,7 +17,6 @@ GEOMETRY_TYPE_HIDDEN = 0x00001000
 GEOMETRY_TYPE_TWO_SIDED = 0x00002000
 GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
-
 
 # Prelit types
 PRELIT_MASK = 0x0F000000
@@ -149,7 +135,6 @@ class Mesh(Struct):
     prelit_lightmap_multi_pass = None
     prelit_lightmap_multi_texture = None
 
-
     multi_bone_skinned = False
 
     def is_hidden(self):
@@ -193,13 +178,13 @@ class Mesh(Struct):
             if chunk_type == W3D_CHUNK_VERTICES:
                 result.verts = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_VERTICES_2:
-                #print("-> vertices 2 chunk is not supported")
+                # print("-> vertices 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_list(
                     io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
-                #print("-> normals 2 chunk is not supported")
+                # print("-> normals 2 chunk is not supported")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.user_text = read_string(io_stream)
@@ -236,10 +221,10 @@ class Mesh(Struct):
                 result.shader_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                #print("-> tangents are computed in blender")
+                # print("-> tangents are computed in blender")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                #print("-> bitangents are computed in blender")
+                # print("-> bitangents are computed in blender")
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = AABBTree.read(
@@ -405,7 +390,6 @@ class Mesh(Struct):
         if self.prelit_lightmap_multi_texture is not None:
             self.prelit_lightmap_multi_texture.write(io_stream)
 
-
     @staticmethod
     def parse(xml_mesh):
         result = Mesh(
@@ -436,21 +420,22 @@ class Mesh(Struct):
             result.header.container_name = container_name
         else:
             result.header.mesh_name = id
-            
+
         geometry_type = xml_mesh.attributes['GeometryType'].value
         result.header.attrs = GEOMETRY_TYPE_NORMAL
         if geometry_type == "Skin":
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
-                    | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+            | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
         xml_bounding_box = xml_mesh.getElementsByTagName('BoundingBox')[0]
         bounding_box = BoundingBox.parse(xml_bounding_box)
         result.header.min_corner = bounding_box.min
         result.header.max_corner = bounding_box.max
 
-        xml_bounding_sphere = xml_mesh.getElementsByTagName('BoundingSphere')[0]
+        xml_bounding_sphere = xml_mesh.getElementsByTagName('BoundingSphere')[
+            0]
         bounding_sphere = BoundingSphere.parse(xml_bounding_sphere)
         result.header.sph_center = bounding_sphere.center
         result.header.sph_radius = bounding_sphere.radius
@@ -482,23 +467,28 @@ class Mesh(Struct):
         result.shade_ids = parse_object_list(
             xml_mesh, 'ShadeIndices', 'I', parse_value, int)
 
-        xml_vertex_influence_lists = xml_mesh.getElementsByTagName('BoneInfluences')
+        xml_vertex_influence_lists = xml_mesh.getElementsByTagName(
+            'BoneInfluences')
         if xml_vertex_influence_lists:
-            xml_vertex_influences = xml_vertex_influence_lists[0].getElementsByTagName('I')
+            xml_vertex_influences = xml_vertex_influence_lists[0].getElementsByTagName(
+                'I')
             xml_vertex_influences2 = None
             if len(xml_vertex_influence_lists) > 1:
                 second_influences = xml_vertex_influence_lists[1]
-                xml_vertex_influences2 = second_influences.getElementsByTagName('I')
-            
+                xml_vertex_influences2 = second_influences.getElementsByTagName(
+                    'I')
+
             for i, inf in enumerate(xml_vertex_influences):
                 if xml_vertex_influences2 is not None:
-                    result.vert_infs.append(VertexInfluence.parse(inf, xml_vertex_influences2[i]))
+                    result.vert_infs.append(VertexInfluence.parse(
+                        inf, xml_vertex_influences2[i]))
                 else:
                     result.vert_infs.append(VertexInfluence.parse(inf, None))
 
         xml_shader_materials = xml_mesh.getElementsByTagName('FXShader')
         for xml_shader_material in xml_shader_materials:
-            result.shader_materials.append(ShaderMaterial.parse(xml_shader_material))
+            result.shader_materials.append(
+                ShaderMaterial.parse(xml_shader_material))
         result.header.matl_count = len(result.shader_materials)
 
         xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
@@ -571,7 +561,7 @@ class Mesh(Struct):
 
         for shader_material in self.shader_materials:
             xml_mesh.appendChild(shader_material.create(doc))
-        
+
         if self.aabbtree is not None:
             xml_mesh.appendChild(self.aabbtree.create(doc))
 

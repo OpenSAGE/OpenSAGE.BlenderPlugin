@@ -1,9 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import os
-import bpy
-
 from io_mesh_w3d.export_utils import *
 
 
@@ -28,34 +25,39 @@ def save(self, export_settings):
     if 'M' in export_mode:
         meshes = retrieve_meshes(self, hierarchy, rig, container_name)
         if not meshes:
-            self.report({'ERROR'}, "Scene does not contain any meshes, aborting export!")
+            self.report(
+                {'ERROR'}, "Scene does not contain any meshes, aborting export!")
             return {'CANCELLED'}
 
     if 'A' in export_mode:
         timecoded = export_settings['compression'] == "TC"
-        animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
+        animation = retrieve_animation(
+            container_name, hierarchy, rig, timecoded)
         channels = animation.time_coded_channels if timecoded else animation.channels
         if not channels:
-            self.report({'ERROR'}, "Scene does not contain any animation data, aborting export!")
+            self.report(
+                {'ERROR'}, "Scene does not contain any animation data, aborting export!")
             return {'CANCELLED'}
 
     if export_mode == 'H':
         if len(hierarchy.pivots) < 2:
-            self.report({'ERROR'}, "Scene does not contain any hierarchy/skeleton data, aborting export!")
+            self.report(
+                {'ERROR'}, "Scene does not contain any hierarchy/skeleton data, aborting export!")
             return {'CANCELLED'}
 
     file = open(self.filepath, "wb")
 
     if export_mode == 'M':
         if len(meshes) > 1:
-            self.report({'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
+            self.report(
+                {'WARNING'}, "Scene does contain multiple meshes, exporting only the first with export mode M!")
         meshes[0].header.container_name = ''
         meshes[0].header.mesh_name = container_name
         meshes[0].write(file)
 
     elif export_mode == 'HM' or export_mode == 'HAM':
         if export_mode == 'HAM' \
-            or not export_settings['use_existing_skeleton']:
+                or not export_settings['use_existing_skeleton']:
             hierarchy.header.name = container_name
             hlod.header.hierarchy_name = container_name
             hierarchy.write(file)
