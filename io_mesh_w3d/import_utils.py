@@ -355,10 +355,10 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
 
 def create_material_from_shader_material(context, mesh, shader_mat):
     material = bpy.data.materials.new(
-        mesh.name() + ".ShaderMaterial")
+        mesh.name() + '.ShaderMaterial')
     material.use_nodes = True
-    diffuse = None
-    normal = None
+    diffuse_texture = None
+    normal_texture = None
     bump_scale = 0
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -366,36 +366,100 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     material.technique = shader_mat.header.technique_index
 
     for prop in shader_mat.properties:
-        if prop.name == "DiffuseTexture":
-            diffuse = prop.value
-        elif prop.name == "NormalMap":
-            normal = prop.value
-        elif prop.name == "BumpScale":
+        if prop.name == 'DiffuseTexture':
+            diffuse_texture = prop.value
+        elif prop.name == 'NormalMap':
+            normal_texture = prop.value
+        elif prop.name == 'BumpScale':
             bump_scale = prop.value
-        elif prop.name == "SpecularExponent":
+        elif prop.name == 'SpecularExponent':
             material.specular_intensity = prop.value
-        elif prop.name == "AmbientColor":
+        elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
             material.ambient = prop.value.to_vector_rgba()
-        elif prop.name == "DiffuseColor":
+        elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.value.to_vector_rgba()
-        elif prop.name == "SpecularColor":
+        elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
-        elif prop.name == "AlphaTestEnable":
+        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
+            material.emission = prop.value.to_vector_rgba()
+        elif prop.name == 'Opacity':
+            material.opacity = prop.value
+        elif prop.name == 'AlphaTestEnable':
             material.alpha_test = bool(prop.value)
-        elif prop.name == "BlendMode":
+        elif prop.name == 'BlendMode':
             material.blend_mode = prop.value
-        elif prop.name == "BumpUVScale":
+        elif prop.name == 'BumpUVScale':
             material.bump_uv_scale = prop.value.xy
-        elif prop.name == "Sampler_ClampU_ClampV_NoMip_0":
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_0':
             material.sampler_clamp_uv_no_mip = prop.value
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1':
+            print(prop.value)
+        elif prop.name == 'Shininess':
+            print(prop.value)
+        elif prop.name == 'NumTextures':
+            print(prop.value)
+        elif prop.name == 'Texture_0':
+            print(prop.value)
+        elif prop.name == 'Texture_1':
+            print(prop.value)
+        elif prop.name == 'DepthWriteEnable':
+            print(prop.value)
+        elif prop.name == 'CullingEnable':
+            print(prop.value)
+        elif prop.name == 'SecondaryTextureBlendMode':
+            print(prop.value)
+        elif prop.name == 'TexCoordMapper_0':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransform_0':
+            print(prop.value)
+        elif prop.name == 'TexCoordMapper_1':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransform_1':
+            print(prop.value)
+        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
+            print(prop.value)
+        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
+            print(prop.value)
+        elif prop.name == 'SpecMap':
+            print(prop.value)
+        elif prop.name == 'RecolorTexture':
+            print(prop.value)
+        elif prop.name == 'EnvMult':
+            print(prop.value)
+        elif prop.name == 'ScrollingMaskTexture':
+            print(prop.value)
+        elif prop.name == 'RecolorMultiplier':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformAngle_0':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformU_0':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformV_0':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformU_1':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformV_1':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformU_2':
+            print(prop.value)
+        elif prop.name == 'TexCoordTransformV_2':
+            print(prop.value)
+        elif prop.name == 'EdgeFadeOut':
+            print(prop.value)
+        elif prop.name == 'UseRecolorColors':
+            print(prop.value)
+        elif prop.name == 'HouseColorPulse':
+            print(prop.value)
+        elif prop.name == 'EnvironmentTexture':
+            print(prop.value)
         else:
             context.error('shader property not implemented: ' + prop.name)
 
     principled = create_principled_bsdf(
         context,
         material=material,
-        diffuse_tex=diffuse,
-        normal_tex=normal,
+        diffuse_tex=diffuse_texture,
+        normal_tex=normal_texture,
         bump_scale=bump_scale)
     return (material, principled)
 
