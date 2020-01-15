@@ -65,9 +65,7 @@ class ShaderMaterialProperty(Struct):
         elif result.type == 7:
             result.value = read_ubyte(io_stream)
         else:
-            message = "WARNING: unknown property type in shader material: %s" % result.type
-            print(message)
-            context.report({'ERROR'}, message)
+            context.warning('unknown property type in shader material: ' + str(result.type))
         return result
 
     def size(self, include_head=True):
@@ -87,9 +85,6 @@ class ShaderMaterialProperty(Struct):
             size += 4
         elif self.type == 7:
             size += 1
-        else:
-            message = "WARNING: invalid property type in shader material: %s" % self.type
-            print(message)
         return size
 
     def write(self, io_stream):
@@ -115,9 +110,6 @@ class ShaderMaterialProperty(Struct):
             write_long(self.value, io_stream)
         elif self.type == 7:
             write_ubyte(self.value, io_stream)
-        else:
-            message = "WARNING: invalid property type in shader material: %s" % self.type
-            print(message)
 
     @staticmethod
     def parse(xml_constant):

@@ -4,10 +4,8 @@
 from io_mesh_w3d.w3d.io_binary import *
 
 
-def skip_unknown_chunk(self, io_stream, chunk_type, chunk_size):
-    message = "WARNING: unknown chunk_type in io_stream: %s" % hex(chunk_type)
-    print(message)
-    self.report({'ERROR'}, message)
+def skip_unknown_chunk(context, io_stream, chunk_type, chunk_size):
+    context.warning('unknown chunk_type in io_stream: ' + str(hex(chunk_type)))
     io_stream.seek(chunk_size, 1)
 
 

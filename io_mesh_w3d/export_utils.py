@@ -30,16 +30,15 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
-def check_hlod_sub_object_names(self, hlod):
+def check_hlod_sub_objects_names(context, hlod):
     for array in hlod.lod_arrays:
         for sub_object in array.sub_objects:
             print(sub_object.identifier)
-            if len(sub_object.identifier) > LARGE_STRING_LENGTH:
-                msg = 'Error: combined name of container and mesh is too long (> 32 char): ' \
-                    + sub_object.identifier
-                print(msg)
-                self.report({'ERROR'}, msg)
-                return False
+            if len(sub_object.identifier) <= LARGE_STRING_LENGTH:
+                continue
+            context.error('Error: combined name of container and mesh is too long (> 32 char): ' \
+                + sub_object.identifier)
+            return False
     return True
 
 
@@ -148,9 +147,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                     vertInf.xtra_inf = vertex.groups[1].weight
 
                 if len(vertex.groups) > 2:
-                    message = "WARNING: max 2 bone influences per vertex supported!"
-                    print(message)
-                    context.report({'ERROR'}, message)
+                    context.warning('max 2 bone influences per vertex supported!')
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
@@ -402,7 +399,7 @@ def retrieve_vertex_material(material):
         info.attributes |= DEPTH_CUE_TO_ALPHA
 
     vert_material = VertexMaterial(
-        vm_name=material.name.split('.')[-1],
+        vm_name=material.name.split('.', 1)[-1],
         vm_info=info,
         vm_args_0=material.vm_args_0,
         vm_args_1=material.vm_args_1)
@@ -552,9 +549,7 @@ def retrieve_hierarchy(context, container_name):
 
         switch_to_pose(rig, 'POSE')
     else:
-        message = "ERROR: only one armature per scene allowed!"
-        print(message)
-        context.report({'ERROR'}, message)
+        context.error('only one armature per scene allowed!')
         return (None, None)
 
     meshes = []

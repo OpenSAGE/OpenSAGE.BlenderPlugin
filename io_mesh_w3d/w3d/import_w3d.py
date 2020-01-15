@@ -10,13 +10,12 @@ from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 
-def load_file(self, path, data_context):
+def load_file(context, path, data_context):
     path = insensitive_path(path)
     print('Loading file', path)
 
     if not os.path.exists(path):
-        print("!!! file not found: " + path)
-        self.report({'ERROR'}, "file not found: " + path)
+        context.error('file not found: ' + path)
         return data_context
 
     file = open(path, "rb")
@@ -26,16 +25,16 @@ def load_file(self, path, data_context):
         (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
         if chunk_type == W3D_CHUNK_MESH:
-            data_context.meshes.append(Mesh.read(self, file, chunk_end))
+            data_context.meshes.append(Mesh.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
-            data_context.hierarchy = Hierarchy.read(self, file, chunk_end)
+            data_context.hierarchy = Hierarchy.read(context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_ANIMATION:
-            data_context.animation = Animation.read(self, file, chunk_end)
+            data_context.animation = Animation.read(context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
             data_context.compressed_animation = CompressedAnimation.read(
-                self, file, chunk_end)
+                context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_HLOD:
-            data_context.hlod = HLod.read(self, file, chunk_end)
+            data_context.hlod = HLod.read(context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
@@ -75,7 +74,7 @@ def load_file(self, path, data_context):
             print("-> soundobj chunk is not supported")
             file.seek(chunk_size, 1)
         else:
-            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+            skip_unknown_chunk(context, file, chunk_type, chunk_size)
 
     file.close()
 
@@ -87,7 +86,7 @@ def load_file(self, path, data_context):
 ##########################################################################
 
 
-def load(self, import_settings):
+def load(context, import_settings):
     data_context = DataContext(
         meshes=[],
         textures=[],
@@ -97,7 +96,7 @@ def load(self, import_settings):
         animation=None,
         compressed_animation=None)
 
-    data_context = load_file(self, self.filepath, data_context)
+    data_context = load_file(context, context.filepath, data_context)
 
     hierarchy = data_context.hierarchy
     hlod = data_context.hlod
@@ -107,24 +106,23 @@ def load(self, import_settings):
     if hierarchy is None:
         sklpath = None
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
-            sklpath = os.path.dirname(self.filepath) + "/" + \
+            sklpath = os.path.dirname(context.filepath) + "/" + \
                 hlod.header.hierarchy_name.lower() + ".w3d"
 
         # if we load a animation file afterwards and need the hierarchy again
         elif animation is not None and animation.header.name != "":
-            sklpath = os.path.dirname(self.filepath) + "/" + \
+            sklpath = os.path.dirname(context.filepath) + "/" + \
                 animation.header.hierarchy_name.lower() + ".w3d"
         elif compressed_animation is not None and compressed_animation.header.name != "":
-            sklpath = os.path.dirname(self.filepath) + "/" + \
+            sklpath = os.path.dirname(context.filepath) + "/" + \
                 compressed_animation.header.hierarchy_name.lower() + ".w3d"
 
         if sklpath is not None:
-            data_context = load_file(self, sklpath, data_context)
+            data_context = load_file(context, sklpath, data_context)
             if data_context.hierarchy is None:
-                print("!!! hierarchy file not found: " + sklpath)
-                self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
+                context.error('hierarchy file not found: ' + sklpath)
 
-    create_data(self,
+    create_data(context,
                 data_context.meshes,
                 data_context.hlod,
                 data_context.hierarchy,
