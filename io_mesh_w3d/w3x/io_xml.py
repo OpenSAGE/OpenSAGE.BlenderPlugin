@@ -1,8 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from mathutils import Vector, Quaternion, Matrix
 from xml.dom import minidom
+
+from mathutils import Vector, Quaternion, Matrix
 
 
 def childs(self):

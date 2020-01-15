@@ -2,9 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
-from tests.utils import TestCase
+
 from tests.shared.helpers.animation import *
+from tests.utils import TestCase
 
 
 class TestAnimation(TestCase):

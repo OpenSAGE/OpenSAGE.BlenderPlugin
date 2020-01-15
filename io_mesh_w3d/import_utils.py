@@ -2,24 +2,19 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import os
-import bpy
+
 import bmesh
-import sys
-
-from mathutils import Vector, Matrix, Quaternion
-
+import bpy
 from bpy_extras import node_shader_utils
 from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.shared.structs.animation import *
-
-from io_mesh_w3d.w3d.io_binary import read_chunk_head
 from io_mesh_w3d.w3d.adaptive_delta import decode
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
 def insensitive_path(path):
-     # find the io_stream on unix
+    # find the io_stream on unix
     directory = os.path.dirname(path)
     name = os.path.basename(path)
 
@@ -158,7 +153,7 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
         set_shader_properties(mesh.materials[i], shader)
 
 
-def rig_mesh(mesh_struct, hierarchy, rig, sub_object = None):
+def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
     mesh_ob = bpy.data.objects[mesh_struct.name()]
 
     if hierarchy is None or not hierarchy.pivots:
@@ -425,7 +420,7 @@ def create_principled_bsdf(
         tex = load_texture(self, diffuse_tex)
         if tex is not None:
             principled.base_color_texture.image = tex
-            #principled.alpha_texture.image = tex
+            # principled.alpha_texture.image = tex
     if normal_tex is not None:
         tex = load_texture(self, normal_tex)
         if tex is not None:
@@ -556,23 +551,24 @@ def setup_animation(animation):
 # this causes issues on timecoded animation export (if quat.w has less keyframes as x,y,z of that quat)
 creation_options = {'INSERTKEY_NEEDED'}
 
+
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
     bone.keyframe_insert(data_path='location', index=index,
-                         frame=frame) #, options=creation_options)
+                         frame=frame)  # , options=creation_options)
 
 
 def set_rotation(bone, frame, value):
     bone.rotation_quaternion = value
     bone.keyframe_insert(data_path='rotation_quaternion',
-                         frame=frame) #, options=creation_options)
+                         frame=frame)  # , options=creation_options)
 
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
         bone.bone.hide = True
         bone.bone.keyframe_insert(
-            data_path='hide', frame=frame) #, options=creation_options)
+            data_path='hide', frame=frame)  # , options=creation_options)
     else:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',

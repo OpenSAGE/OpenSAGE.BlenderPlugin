@@ -1,17 +1,15 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-import sys
-import os
-import bpy
-import shutil
 import inspect
+import os
+import shutil
+import sys
 import tempfile
+import unittest
 
 import addon_utils
-from os.path import dirname as up
-
+import bpy
 
 def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)

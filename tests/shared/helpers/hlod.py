@@ -1,9 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 from io_mesh_w3d.shared.structs.hlod import *
-from tests.w3d.helpers.version import *
 from tests.w3d.helpers.version import get_version, compare_versions
 
 
@@ -52,11 +50,11 @@ def get_hlod_array():
         sub_objects=[])
 
     array.sub_objects = [
-                        get_hlod_sub_object(bone=0, name="containerName.sword"),
-                        get_hlod_sub_object(bone=0, name="containerName.soldier"),
-                        get_hlod_sub_object(bone=6, name="containerName.TRUNK"),
-                        get_hlod_sub_object(bone=0, name="containerName.PICK"),
-                        get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX")]
+        get_hlod_sub_object(bone=0, name="containerName.sword"),
+        get_hlod_sub_object(bone=0, name="containerName.soldier"),
+        get_hlod_sub_object(bone=6, name="containerName.TRUNK"),
+        get_hlod_sub_object(bone=0, name="containerName.PICK"),
+        get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX")]
 
     array.header.model_count = len(array.sub_objects)
     return array
@@ -102,32 +100,36 @@ def get_hlod_4_levels(model_name="containerName", hierarchy_name="TestHierarchy"
         sub_objects=[])
 
     array0.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh2"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh3")]
+                          get_hlod_sub_object(
+                              bone=1, name="containerName.mesh2"),
+                          get_hlod_sub_object(bone=1, name="containerName.mesh3")]
 
     array1 = HLodArray(
         header=get_hlod_array_header(count=3, size=1.0),
         sub_objects=[])
 
     array1.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_1"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh2_1"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh3_1")]
+                          get_hlod_sub_object(
+                              bone=1, name="containerName.mesh2_1"),
+                          get_hlod_sub_object(bone=1, name="containerName.mesh3_1")]
 
     array2 = HLodArray(
         header=get_hlod_array_header(count=3, size=0.3),
         sub_objects=[])
 
     array2.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_2"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh2_2"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh3_2")]
+                          get_hlod_sub_object(
+                              bone=1, name="containerName.mesh2_2"),
+                          get_hlod_sub_object(bone=1, name="containerName.mesh3_2")]
 
     array3 = HLodArray(
         header=get_hlod_array_header(count=3, size=0.03),
         sub_objects=[])
 
     array3.sub_objects = [get_hlod_sub_object(bone=1, name="containerName.mesh1_3"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh2_3"),
-                            get_hlod_sub_object(bone=1, name="containerName.mesh3_3")]
+                          get_hlod_sub_object(
+                              bone=1, name="containerName.mesh2_3"),
+                          get_hlod_sub_object(bone=1, name="containerName.mesh3_3")]
 
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name, lod_count=4),

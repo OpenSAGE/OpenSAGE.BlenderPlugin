@@ -1,10 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 from random import random
-from tests.mathutils import *
+
 from io_mesh_w3d.w3d.structs.compressed_animation import *
+from tests.mathutils import *
 from tests.w3d.helpers.version import get_version, compare_versions
 
 
@@ -340,7 +340,6 @@ def get_compressed_animation(
         motion_ad4=True,
         motion_ad8=True,
         random_interpolation=True):
-
     animation = CompressedAnimation(
         header=get_compressed_animation_header(hierarchy_name, flavor),
         time_coded_channels=[],

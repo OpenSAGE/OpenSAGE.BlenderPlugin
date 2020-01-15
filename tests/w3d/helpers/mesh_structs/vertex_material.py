@@ -1,8 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 from tests.shared.helpers.rgba import get_rgba, compare_rgbas

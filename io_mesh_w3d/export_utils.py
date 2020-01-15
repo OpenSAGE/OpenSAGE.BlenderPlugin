@@ -2,22 +2,21 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import os
-import bpy
+
 import bmesh
-from mathutils import Vector
+import bpy
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.shared.structs.mesh import *
-from io_mesh_w3d.shared.structs.hierarchy import *
-from io_mesh_w3d.shared.structs.collision_box import *
-from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.animation import *
-
+from io_mesh_w3d.shared.structs.collision_box import *
+from io_mesh_w3d.shared.structs.hierarchy import *
+from io_mesh_w3d.shared.structs.hlod import *
+from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
-
 pick_plane_names = ['PICK']
+
 
 def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
@@ -50,8 +49,8 @@ def retrieve_boxes(hierarchy, container_name):
             preserve_all_data_layers=False, depsgraph=None)
         box.extend = Vector(
             (box_mesh.vertices[0].co.x * 2,
-                box_mesh.vertices[0].co.y * 2,
-                box_mesh.vertices[0].co.z))
+             box_mesh.vertices[0].co.y * 2,
+             box_mesh.vertices[0].co.z))
 
         for material in box_mesh.materials:
             box.color = RGBA(material.diffuse_color)
@@ -122,7 +121,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 matrix = None
                 if vertInf.bone_idx > 0:
                     matrix = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name].matrix
-                else: 
+                else:
                     matrix = rig.matrix_local
 
                 mesh_struct.verts.append(
@@ -223,7 +222,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
             principled = retrieve_principled_bsdf(material)
 
-            if principled.normalmap_tex is not None: # TODO: or W3X export
+            if principled.normalmap_tex is not None:  # TODO: or W3X export
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
@@ -283,8 +282,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 # hlod
 ##########################################################################
 
-#hardcoded for now, provide export options?
+# hardcoded for now, provide export options?
 screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03]
+
 
 def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
     if not meshes:
@@ -293,10 +293,10 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
     index = min(len(lod_arrays), len(screen_sizes) - 1)
 
     lod_array = HLodArray(
-            header=HLodArrayHeader(
-                model_count=len(meshes),
-                max_screen_size=screen_sizes[index]),
-            sub_objects=[])
+        header=HLodArrayHeader(
+            model_count=len(meshes),
+            max_screen_size=screen_sizes[index]),
+        sub_objects=[])
 
     for mesh in meshes:
         subObject = HLodSubObject(
@@ -328,12 +328,14 @@ def create_hlod(hierarchy, container_name):
 
     for coll in bpy.data.collections:
         meshes = get_objects('MESH', coll.objects)
-        lod_arrays = create_lod_array(meshes, hierarchy, container_name, lod_arrays)
+        lod_arrays = create_lod_array(
+            meshes, hierarchy, container_name, lod_arrays)
 
     for lod_array in reversed(lod_arrays):
         hlod.lod_arrays.append(lod_array)
     hlod.header.lod_count = len(hlod.lod_arrays)
     return hlod
+
 
 ##########################################################################
 # material data
@@ -751,10 +753,10 @@ def vertices_to_vectors(vertices):
 
 
 def distance(vec1, vec2):
-    x = (vec1.x - vec2.x)**2
-    y = (vec1.y - vec2.y)**2
-    z = (vec1.z - vec2.z)**2
-    return (x + y + z)**(1 / 2)
+    x = (vec1.x - vec2.x) ** 2
+    y = (vec1.y - vec2.y) ** 2
+    z = (vec1.z - vec2.z) ** 2
+    return (x + y + z) ** (1 / 2)
 
 
 def find_most_distant_point(vertex, vertices):

@@ -1,9 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-from tests.mathutils import *
 from io_mesh_w3d.shared.structs.mesh_structs.aabbtree import *
+from tests.mathutils import *
 
 
 def get_aabbtree_header(num_nodes=33, num_polys=41):

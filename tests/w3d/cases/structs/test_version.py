@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
+
 from tests.utils import TestCase
 from tests.w3d.helpers.version import *
 

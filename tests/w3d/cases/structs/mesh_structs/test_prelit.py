@@ -1,10 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
 import io
+
 from tests.utils import TestCase
-from io_mesh_w3d.w3d.io_binary import read_chunk_head
 from tests.w3d.helpers.mesh_structs.prelit import *
 
 

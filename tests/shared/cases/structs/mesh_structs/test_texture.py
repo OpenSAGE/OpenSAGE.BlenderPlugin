@@ -3,8 +3,9 @@
 
 import io
 from xml.dom import minidom
-from tests.utils import TestCase
+
 from tests.shared.helpers.mesh_structs.texture import *
+from tests.utils import TestCase
 
 
 class TestTexture(TestCase):
@@ -64,5 +65,3 @@ class TestTexture(TestCase):
 
         actual = Texture.parse(xml_textures[0])
         compare_textures(self, expected, actual)
-
-

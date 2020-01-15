@@ -129,7 +129,7 @@ def encode(channel, num_bits):
         delta /= (scaleFactor * scale * DELTA_TABLE[block_index])
 
         delta = int(delta)
-        #print("delta: " + str(delta) + " index: " + str(block_index))
+        # print("delta: " + str(delta) + " index: " + str(block_index))
         deltas[i - 1] = delta
 
     deltas = set_deltas(deltas, num_bits)

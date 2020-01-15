@@ -1,10 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from io_mesh_w3d.custom_properties import *
 
+from io_mesh_w3d.custom_properties import *
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
@@ -52,7 +51,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         description="Select the export mode",
         default='HM')
 
-    use_existing_skeleton: BoolProperty(name="Use existing skeleton", description="Todo", default=False)
+    use_existing_skeleton: BoolProperty(
+        name="Use existing skeleton", description="Todo", default=False)
 
     animation_compression: EnumProperty(
         name="Compression",
@@ -67,7 +67,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     will_save_settings: BoolProperty(default=False)
 
     scene_key = "w3dExportSettings"
-
 
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)

@@ -2,8 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from tests.utils import TestCase
+from xml.dom import minidom
+
 from tests.shared.helpers.hlod import *
+from tests.utils import TestCase
 
 
 class TestHLod(TestCase):
@@ -25,7 +27,7 @@ class TestHLod(TestCase):
         compare_hlods(self, expected, actual)
 
     def test_write_read_4_levels(self):
-        expected =  get_hlod_4_levels()
+        expected = get_hlod_4_levels()
 
         self.assertEqual(48, expected.header.size())
         self.assertEqual(672, expected.size())

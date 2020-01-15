@@ -2,9 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import Panel, Object, Material, Operator, AddonPreferences, PropertyGroup
 from bpy.props import *
-
+from bpy.types import Panel, Object, Material, PropertyGroup
 
 ##########################################################################
 # Object
@@ -14,7 +13,6 @@ Object.userText = StringProperty(
     name="User Text",
     description="This is a text defined by the user",
     default="")
-
 
 Object.object_type = EnumProperty(
     name="Type",

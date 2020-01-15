@@ -1,9 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import unittest
-import coverage
 import sys
+import unittest
+
+import coverage
 
 if '--coverage' in sys.argv:
     # Start collecting coverage

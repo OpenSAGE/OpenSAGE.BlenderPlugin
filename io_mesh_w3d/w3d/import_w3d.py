@@ -1,19 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
+from io_mesh_w3d.import_utils import *
+from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
-from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.mesh import *
-from io_mesh_w3d.shared.structs.animation import *
-
 from io_mesh_w3d.w3d.structs.compressed_animation import *
-
-from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.import_utils import *
-
 
 
 def load_file(self, path, data_context):
@@ -99,7 +93,7 @@ def load(self, import_settings):
         textures=[],
         collision_boxes=[],
         hierarchy=None,
-        hlod=None, 
+        hlod=None,
         animation=None,
         compressed_animation=None)
 
@@ -130,13 +124,13 @@ def load(self, import_settings):
                 print("!!! hierarchy file not found: " + sklpath)
                 self.report({'ERROR'}, "hierarchy file not found: " + sklpath)
 
-    create_data(self, \
-            data_context.meshes, \
-            data_context.hlod, \
-            data_context.hierarchy, \
-            data_context.collision_boxes, \
-            data_context.animation, \
-            data_context.compressed_animation)
+    create_data(self,
+                data_context.meshes,
+                data_context.hlod,
+                data_context.hierarchy,
+                data_context.collision_boxes,
+                data_context.animation,
+                data_context.compressed_animation)
     return {'FINISHED'}
 
 

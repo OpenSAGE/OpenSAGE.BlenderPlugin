@@ -1,13 +1,13 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
+import unittest
 
 from io_mesh_w3d.w3d.adaptive_delta import *
-from tests.utils import *
 from tests.shared.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *
 
 
-class TestAdaptiveDelta(TestCase):
+class TestAdaptiveDelta(unittest.TestCase):
     def test_get_deltas_4bit(self):
         deltaBytes = [-3, 17, -32, -101, 120, 88, -20, -1]
         deltas = get_deltas(deltaBytes, 4)
@@ -62,5 +62,5 @@ class TestAdaptiveDelta(TestCase):
 
         actual = encode(channel, num_bits=8)
 
-        #self.assertEqual(len(expected), len(actual))
-        #self.assertEqual(expected, actual)
+        # self.assertEqual(len(expected), len(actual))
+        # self.assertEqual(expected, actual)

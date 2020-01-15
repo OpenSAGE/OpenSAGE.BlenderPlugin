@@ -2,9 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
-from tests.utils import TestCase
+
 from tests.shared.helpers.hierarchy import *
+from tests.utils import TestCase
 
 
 class TestHierarchy(TestCase):
@@ -118,4 +118,3 @@ class TestHierarchy(TestCase):
 
         actual = Hierarchy.parse(xml_hierarchies[0])
         compare_hierarchies(self, expected, actual)
-

@@ -1,13 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.shared.structs.rgba import RGBA
-
-from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
-from io_mesh_w3d.w3d.structs.version import Version
-
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
@@ -139,21 +135,21 @@ class ShaderMaterialProperty(Struct):
             if len(values) == 2:
                 constant.type = 3
                 constant.value = Vector((
-                        float(values[0]),
-                        float(values[1])))
+                    float(values[0]),
+                    float(values[1])))
             elif len(values) == 3:
                 constant.type = 4
                 constant.value = Vector((
-                        float(values[0]),
-                        float(values[1]),
-                        float(values[2])))
+                    float(values[0]),
+                    float(values[1]),
+                    float(values[2])))
             elif len(values) == 4:
                 constant.type = 5
                 constant.value = RGBA(
-                        r=float(values[0]) * 255,
-                        g=float(values[1]) * 255,
-                        b=float(values[2]) * 255,
-                        a=float(values[3]) * 255)
+                    r=float(values[0]) * 255,
+                    g=float(values[1]) * 255,
+                    b=float(values[2]) * 255,
+                    a=float(values[3]) * 255)
             else:
                 constant.type = 2
                 constant.value = float(values[0])
@@ -206,16 +202,20 @@ class ShaderMaterialProperty(Struct):
         elif self.type == 5:
             xml_constant = doc.createElement('Float')
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(float(self.value.r) / 255)))
+            xml_value.appendChild(doc.createTextNode(
+                str(float(self.value.r) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(float(self.value.g) / 255)))
+            xml_value.appendChild(doc.createTextNode(
+                str(float(self.value.g) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(float(self.value.b) / 255)))
+            xml_value.appendChild(doc.createTextNode(
+                str(float(self.value.b) / 255)))
             xml_constant.appendChild(xml_value)
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(float(self.value.a) / 255)))
+            xml_value.appendChild(doc.createTextNode(
+                str(float(self.value.a) / 255)))
             xml_constant.appendChild(xml_value)
 
         elif self.type == 6:
@@ -275,20 +275,22 @@ class ShaderMaterial(Struct):
     @staticmethod
     def parse(xml_fx_shader):
         result = ShaderMaterial(
-                header=ShaderMaterialHeader(
-                    type_name=xml_fx_shader.attributes['ShaderName'].value,
-                    technique_index=int(xml_fx_shader.attributes['TechniqueIndex'].value)),
-                properties=[])
+            header=ShaderMaterialHeader(
+                type_name=xml_fx_shader.attributes['ShaderName'].value,
+                technique_index=int(xml_fx_shader.attributes['TechniqueIndex'].value)),
+            properties=[])
 
         xml_constants = xml_fx_shader.getElementsByTagName('Constants')[0]
         for xml_constant in xml_constants.childs():
-            result.properties.append(ShaderMaterialProperty.parse(xml_constant))
+            result.properties.append(
+                ShaderMaterialProperty.parse(xml_constant))
         return result
 
     def create(self, doc):
         fx_shader = doc.createElement('FXShader')
         fx_shader.setAttribute('ShaderName', self.header.type_name)
-        fx_shader.setAttribute('TechniqueIndex', str(self.header.technique_index))
+        fx_shader.setAttribute(
+            'TechniqueIndex', str(self.header.technique_index))
 
         constants = doc.createElement('Constants')
         fx_shader.appendChild(constants)

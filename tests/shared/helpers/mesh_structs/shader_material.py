@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.shared.structs.mesh_structs.shader_material import *
-from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 from tests.mathutils import *
+from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 
 
 def get_shader_material_header():
@@ -47,7 +47,8 @@ def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
 
     if expected.type == 1:
-        self.assertEqual(expected.value.split(".")[0], actual.value.split(".")[0])
+        self.assertEqual(expected.value.split(
+            ".")[0], actual.value.split(".")[0])
     elif expected.type == 2:
         self.assertAlmostEqual(expected.value, actual.value, 5)
     elif expected.type == 3:
@@ -74,6 +75,7 @@ def get_shader_material_properties():
         get_shader_material_property(6, "BlendMode"),
         get_shader_material_property(7, "AlphaTestEnable")
     ]
+
 
 def get_shader_material_properties_minimal():
     return [

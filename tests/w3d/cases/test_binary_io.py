@@ -2,13 +2,13 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-import struct
+import unittest
+
 from io_mesh_w3d.w3d.io_binary import *
 from tests.mathutils import *
-from tests.utils import TestCase
 
 
-class TestIOBinary(TestCase):
+class TestIOBinary(unittest.TestCase):
     def test_read_string(self):
         expecteds = [
             "Teststring",
