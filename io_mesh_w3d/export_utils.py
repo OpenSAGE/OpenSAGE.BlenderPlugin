@@ -30,13 +30,25 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
+def check_hierarchy_names(context, hierarchy):
+    if len(hierarchy.header.name) > STRING_LENGTH:
+        context.error('hierarchy name is too long (> 16 chars): ' + hierarchy.header.name)
+        return False
+    
+    for pivot in hierarchy.pivots:
+        if len(pivot.name) > STRING_LENGTH:
+            context.error('pivot name is too long (> 16 chars): ' + pivot.name)
+            return False
+    return True
+
+
 def check_hlod_sub_objects_names(context, hlod):
     for array in hlod.lod_arrays:
         for sub_object in array.sub_objects:
             print(sub_object.identifier)
             if len(sub_object.identifier) <= LARGE_STRING_LENGTH:
                 continue
-            context.error('Error: combined name of container and mesh is too long (> 32 char): ' \
+            context.error('combined name of container and mesh is too long (> 32 char): ' \
                 + sub_object.identifier)
             return False
     return True

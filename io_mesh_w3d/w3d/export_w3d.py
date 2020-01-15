@@ -40,6 +40,9 @@ def save(context, export_settings):
             context.error('Scene does not contain any animation data, aborting export!')
             return {'CANCELLED'}
 
+    if 'H' in export_mode and not check_hierarchy_names(context, hierarchy):
+        return {'CANCELLED'}
+
     if export_mode == 'H':
         if len(hierarchy.pivots) < 2:
             context.error('Scene does not contain any hierarchy/skeleton data, aborting export!')
