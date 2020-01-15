@@ -6,6 +6,7 @@ from io_mesh_w3d.shared.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.shared.structs.mesh_structs.triangle import *
 from io_mesh_w3d.shared.structs.mesh_structs.vertex_influence import *
 from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
+from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
 

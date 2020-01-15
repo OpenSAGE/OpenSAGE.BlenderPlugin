@@ -15,7 +15,7 @@ from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
-
+from os.path import dirname as up
 
 class TestUtils(TestCase):
     def test_vertex_material_roundtrip(self):

@@ -10,7 +10,7 @@ from tests.shared.helpers.hierarchy import get_hierarchy
 from tests.shared.helpers.hlod import get_hlod
 from tests.shared.helpers.mesh import get_mesh
 from tests.utils import *
-
+from os.path import dirname as up
 
 class TestObjectImport(TestCase):
     def test_import_no_skeleton_file(self):

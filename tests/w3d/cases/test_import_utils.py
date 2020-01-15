@@ -11,7 +11,7 @@ from tests.shared.helpers.mesh import *
 from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
-
+from os.path import dirname as up
 
 class TestImportUtils(TestCase):
     def test_material_pass_with_2_texture_stages(self):

@@ -13,7 +13,7 @@ from tests.shared.helpers.mesh import get_mesh
 from tests.utils import *
 from tests.utils import TestCase, ImportWrapper
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
-
+from os.path import dirname as up
 
 class TestRoundtrip(TestCase):
     def test_roundtrip(self):
