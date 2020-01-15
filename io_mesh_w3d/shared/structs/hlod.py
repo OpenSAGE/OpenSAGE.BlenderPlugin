@@ -77,7 +77,7 @@ class HLodSubObject(Struct):
             bone_index=read_ulong(io_stream),
             identifier=read_long_fixed_string(io_stream))
 
-        sub_obj.name = sub_obj.identifier.split('.')[-1]
+        sub_obj.name = sub_obj.identifier.split('.', 1)[-1]
         return sub_obj
 
     @staticmethod

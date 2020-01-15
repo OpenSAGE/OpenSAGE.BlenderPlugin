@@ -416,7 +416,7 @@ class Mesh(Struct):
 
         id = xml_mesh.attributes['id'].value
         if "." in id:
-            (container_name, name) = id.split(".")
+            (container_name, name) = id.split('.', 1)
             result.header.mesh_name = name
             result.header.container_name = container_name
         else:

@@ -16,8 +16,9 @@ def load_file(self, path, data_context):
     print('Loading file', path)
 
     if not os.path.exists(path):
-        print("!!! file not found: " + path)
-        self.report({'ERROR'}, "file not found: " + path)
+        msg = "!!! file not found: " + path
+        print(msg)
+        self.report({'ERROR'}, msg)
         return data_context
 
     doc = minidom.parse(path)
@@ -46,9 +47,9 @@ def load_file(self, path, data_context):
         elif node.tagName == "Texture":
             data_context.textures.append(Texture.parse(node))
         else:
-            print("!!! unsupported node " + node.tagName + " in file: " + path)
-            self.report({'WARNING'}, "!!! unsupported node " +
-                        node.tagName + " in file: " + path)
+            msg = "!!! unsupported node " + node.tagName + " in file: " + path
+            print(msg)
+            self.report({'WARNING'}, msg)
 
     return data_context
 

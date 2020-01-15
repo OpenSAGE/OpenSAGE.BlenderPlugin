@@ -20,7 +20,7 @@ class CollisionBox(Struct):
     extend = Vector((0.0, 0.0, 0.0))
 
     def name(self):
-        return self.name_.split('.')[-1]
+        return self.name_.split('.', 1)[-1]
 
     @staticmethod
     def read(io_stream):

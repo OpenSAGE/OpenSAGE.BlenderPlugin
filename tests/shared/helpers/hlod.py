@@ -35,7 +35,7 @@ def get_hlod_sub_object(bone=0, name="containerName.default"):
     return HLodSubObject(
         bone_index=bone,
         identifier=name,
-        name=name.split(".")[-1])
+        name=name.split(".", 1)[-1])
 
 
 def compare_hlod_sub_objects(self, expected, actual):

@@ -39,6 +39,10 @@ def save(self, export_settings):
                 {'ERROR'}, "Scene does not contain any animation data, aborting export!")
             return {'CANCELLED'}
 
+    if export_mode == 'HM' or export_mode == 'HAM':
+        if not check_hlod_sub_object_names(self, hlod):
+            return {'CANCELLED'}
+
     if export_mode == 'H':
         if len(hierarchy.pivots) < 2:
             self.report(
