@@ -198,12 +198,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 per_face_tx_coords=[],
                 tx_coords=[(0.0, 0.0)] * len(mesh_struct.verts))
 
-            # TODO: find a cleaner way for doing that
-            for face in b_mesh.faces:
+            for i, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
-                    face_index = int(loop.index / 3)
-                    face_vert_index = loop.index % 3
-                    vert_index = mesh_struct.triangles[face_index].vert_ids[face_vert_index]
+                    vert_index = mesh_struct.triangles[i].vert_ids[loop.index % 3]
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
