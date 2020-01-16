@@ -12,13 +12,13 @@ def save(context, export_settings):
     print("export mode: " + str(export_mode))
 
     if not export_mode in ['M', 'HM', 'HAM', 'H', 'A']:
-        context.error('unsupported export mode: ' + export_mode)
+        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 
     container_name = os.path.basename(context.filepath).split('.')[0]
 
     if len(container_name) > STRING_LENGTH:
-        context.error('Filename is longer than ' + STRING_LENGTH + ' characters!')
+        context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
         return {'CANCELLED'}
 
     (hierarchy, rig) = retrieve_hierarchy(context, container_name)
@@ -31,21 +31,31 @@ def save(context, export_settings):
             context.error('Scene does not contain any meshes, aborting export!')
             return {'CANCELLED'}
 
+        for mesh in meshes:
+            if not mesh.validate(context):
+                context.error('aborting export!')
+                return {'CANCELLED'}
+
+    if 'H' in export_mode and not hierarchy.validate(context):
+        context.error('aborting export!')
+        return {'CANCELLED'}
+
+    if export_mode in ['HM', 'HAM']:
+        if not hlod.validate(context):
+            context.error('aborting export!')
+            return {'CANCELLED'}
+
+        for box in boxes:
+            if not box.validate(context):
+                context.error('aborting export!')
+                return {'CANCELLED'}
+
     if 'A' in export_mode:
         timecoded = export_settings['compression'] == "TC"
         animation = retrieve_animation(
             container_name, hierarchy, rig, timecoded)
-        channels = animation.time_coded_channels if timecoded else animation.channels
-        if not channels:
-            context.error('Scene does not contain any animation data, aborting export!')
-            return {'CANCELLED'}
-
-    if 'H' in export_mode and not check_hierarchy_names(context, hierarchy):
-        return {'CANCELLED'}
-
-    if export_mode == 'H':
-        if len(hierarchy.pivots) < 2:
-            context.error('Scene does not contain any hierarchy/skeleton data, aborting export!')
+        if not animation.validate(context):
+            context.error('aborting export!')
             return {'CANCELLED'}
 
     file = open(context.filepath, "wb")

@@ -171,6 +171,14 @@ class HLod(Struct):
     header = HLodHeader()
     lod_arrays = []
 
+    def validate(self, context):
+        for lod_array in self.lod_arrays:
+            for sub_obj in lod_array.sub_objects:
+                if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:
+                    context.error('identifier ' + sub_obj.identifier + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+                    return False
+        return True
+
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = HLod(

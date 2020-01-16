@@ -244,6 +244,18 @@ class Animation(Struct):
     header = AnimationHeader()
     channels = []
 
+    def validate(self, context):
+        if len(self.header.name) >= STRING_LENGTH:
+            context.error('animation name ' + self.header.name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            return False
+        if len(self.header.hierarchy_name) >= STRING_LENGTH:
+            context.error('animation hierarchy name ' + self.header.hierarchy_name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            return False
+        if not self.channels:
+            context.error('Scene does not contain any animation data')
+            return False
+        return True
+
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = Animation(channels=[])

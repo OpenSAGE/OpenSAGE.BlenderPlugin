@@ -138,6 +138,12 @@ class Mesh(Struct):
 
     multi_bone_skinned = False
 
+    def validate(self, context):
+        if len(self.header.mesh_name) >= STRING_LENGTH:
+            context.error('mesh name ' + self.header.mesh_name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            return False
+        return True
+
     def is_hidden(self):
         return self.header.attrs & GEOMETRY_TYPE_HIDDEN
 

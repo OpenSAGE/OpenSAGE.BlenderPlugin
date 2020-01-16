@@ -56,6 +56,21 @@ class TestAnimation(TestCase):
 
         Animation.read(self, io_stream, subchunk_end)
 
+    def test_validate(self):
+        ani = get_animation()
+        self.assertTrue(ani.validate(self))
+
+        ani.header.name = 'tooooolonganiname'
+        self.assertFalse(ani.validate(self))
+
+        ani = get_animation()
+        ani.header.hierarchy_name = 'tooooolonganiname'
+        self.assertFalse(ani.validate(self))
+
+        ani = get_animation()
+        ani.channels = []
+        self.assertFalse(ani.validate(self))
+
     def test_chunk_sizes(self):
         ani = get_animation_minimal()
 

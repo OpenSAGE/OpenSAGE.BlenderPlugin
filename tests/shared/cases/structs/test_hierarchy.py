@@ -59,6 +59,17 @@ class TestHierarchy(TestCase):
         actual = Hierarchy.read(self, io_stream, chunkEnd)
         compare_hierarchies(self, expected, actual)
 
+    def test_validate(self):
+        hierarchy = get_hierarchy()
+        self.assertTrue(hierarchy.validate(self))
+
+        hierarchy.header.name = 'tooolonghieraname'
+        self.assertFalse(hierarchy.validate(self))
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivots[1].name = 'tooolongpivotname'
+        self.assertFalse(hierarchy.validate(self))
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HIERARCHY, output, 9, has_sub_chunks=True)

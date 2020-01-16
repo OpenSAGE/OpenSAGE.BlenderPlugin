@@ -24,6 +24,13 @@ class TestCollisionBox(TestCase):
         actual = CollisionBox.read(io_stream)
         compare_collision_boxes(self, expected, actual)
 
+    def test_validate(self):
+        box = get_collision_box()
+        self.assertTrue(box.validate(self))
+
+        box.name_ = 'containerNameeee.BOUNDINGBOX00000'
+        self.assertFalse(box.validate(self))
+
     def test_name(self):
         box = get_collision_box()
 

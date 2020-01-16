@@ -78,6 +78,13 @@ class TestMesh(TestCase):
         actual = Mesh.read(self, io_stream, subchunk_end)
         compare_meshes(self, expected, actual)
 
+    def test_validate(self):
+        mesh = get_mesh()
+        self.assertTrue(mesh.validate(self))
+
+        mesh.header.mesh_name = 'toooolongmeshname'
+        self.assertFalse(mesh.validate(self))
+
     def test_chunk_order(self):
         expected_chunks = [
             W3D_CHUNK_MESH_HEADER,
