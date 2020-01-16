@@ -496,7 +496,7 @@ def load_texture(context, file, name=None):
     if img is None:
         img = load_image(dds_path)
     if img is None:
-        context.warning('texture not found: ' + dds_path + '|.tga')
+        context.warning('texture not found: ' + filepath + ' (.dds or .tga)')
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
