@@ -192,6 +192,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         b_mesh.from_mesh(mesh)
 
         tx_stages = []
+        multiple_uvs_per_vertex = False
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
                 tx_ids=[i],
@@ -201,10 +202,14 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    if stage.tx_coords[vert_index] != None:
-                        context.warning('w3d file format does not support multiple uv coords per vertex, try another unwrapping method')
+                    if stage.tx_coords[vert_index] != None \
+                            and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
+                        multiple_uvs_per_vertex = True
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
+
+        if multiple_uvs_per_vertex:
+            context.warning('w3d file format does not support multiple uv coords per vertex, try another unwrapping method')
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(

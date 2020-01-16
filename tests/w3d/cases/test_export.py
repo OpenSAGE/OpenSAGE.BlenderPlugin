@@ -163,17 +163,6 @@ class TestExport(TestCase):
 
         file.close()
 
-    def test_no_file_created_if_MODE_is_H_and_less_than_2_pivots(self):
-        export_settings = {}
-        export_settings['mode'] = "H"
-
-        file_path = self.outpath() + "output_skl.w3d"
-        context = ImportWrapper(file_path)
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path))
-
     def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
         export_settings = {}
         export_settings['mode'] = "A"
