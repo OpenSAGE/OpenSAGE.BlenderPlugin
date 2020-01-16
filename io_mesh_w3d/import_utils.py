@@ -360,10 +360,13 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     diffuse_texture = None
     normal_texture = None
     bump_scale = 0
+    specular_texture = None
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     material.technique = shader_mat.header.technique_index
+
+    #TODO: sort, create custom props, show in gui, export
 
     for prop in shader_mat.properties:
         if prop.name == 'DiffuseTexture':
@@ -372,6 +375,8 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             normal_texture = prop.value
         elif prop.name == 'BumpScale':
             bump_scale = prop.value
+        elif prop.name == 'SpecMap':
+            specular_texture = prop.value
         elif prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'SpecularExponent':
@@ -382,7 +387,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             material.diffuse_color = prop.value.to_vector_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
-        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
+        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive': # has material/principled prop
             material.emission = prop.value.to_vector_rgba()
         elif prop.name == 'Opacity':
             material.opacity = prop.value
@@ -418,8 +423,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             print(prop.value)
         elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0': # vec4
             print(prop.value)
-        elif prop.name == 'SpecMap': #texture 
-            print(prop.value)
+        
         elif prop.name == 'RecolorTexture': # texture
             print(prop.value)
         elif prop.name == 'EnvMult': # float
@@ -458,7 +462,8 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         material=material,
         diffuse_tex=diffuse_texture,
         normal_tex=normal_texture,
-        bump_scale=bump_scale)
+        bump_scale=bump_scale,
+        specular_tex=specular_texture)
     return (material, principled)
 
 
@@ -469,7 +474,8 @@ def create_principled_bsdf(
         alpha=0,
         diffuse_tex=None,
         normal_tex=None,
-        bump_scale=0):
+        bump_scale=0,
+        specular_tex=None):
     principled = node_shader_utils.PrincipledBSDFWrapper(
         material, is_readonly=False)
     if base_color is not None:
@@ -486,6 +492,10 @@ def create_principled_bsdf(
         if tex is not None:
             principled.normalmap_texture.image = tex
             principled.normalmap_strength = bump_scale
+    if specular_tex is not None:
+        tex = load_texture(context, specular_tex)
+        if tex is not None:
+            principled.specular_texture.image = tex
     return principled
 
 
