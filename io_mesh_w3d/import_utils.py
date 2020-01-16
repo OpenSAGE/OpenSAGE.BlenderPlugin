@@ -372,6 +372,8 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             normal_texture = prop.value
         elif prop.name == 'BumpScale':
             bump_scale = prop.value
+        elif prop.name == 'Shininess':
+            material.specular_intensity = prop.value
         elif prop.name == 'SpecularExponent':
             material.specular_intensity = prop.value
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
@@ -390,67 +392,63 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             material.blend_mode = prop.value
         elif prop.name == 'BumpUVScale':
             material.bump_uv_scale = prop.value.xy
-        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_0':
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_0': # float
             material.sampler_clamp_uv_no_mip = prop.value
-        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1':
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1': # float 
             print(prop.value)
-        elif prop.name == 'Shininess':
-            print(prop.value)
-        elif prop.name == 'NumTextures':
-            print(prop.value)
-        elif prop.name == 'Texture_0':
-            print(prop.value)
+        elif prop.name == 'NumTextures': # discard
+            num = prop.value
+        elif prop.name == 'Texture_0': 
+            diffuse_texture = prop.value
         elif prop.name == 'Texture_1':
             print(prop.value)
-        elif prop.name == 'DepthWriteEnable':
+        elif prop.name == 'DepthWriteEnable': #bool
             print(prop.value)
-        elif prop.name == 'CullingEnable':
+        elif prop.name == 'CullingEnable': # bool --> has mat prop
             print(prop.value)
-        elif prop.name == 'SecondaryTextureBlendMode':
+        elif prop.name == 'SecondaryTextureBlendMode': # int
             print(prop.value)
-        elif prop.name == 'TexCoordMapper_0':
+        elif prop.name == 'TexCoordMapper_0': # int
             print(prop.value)
-        elif prop.name == 'TexCoordTransform_0':
+        elif prop.name == 'TexCoordTransform_0': # vec4
             print(prop.value)
-        elif prop.name == 'TexCoordMapper_1':
+        elif prop.name == 'TexCoordMapper_1': # int
             print(prop.value)
-        elif prop.name == 'TexCoordTransform_1':
+        elif prop.name == 'TexCoordTransform_1': # vec 4
             print(prop.value)
-        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
+        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0': # vec4
             print(prop.value)
-        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
+        elif prop.name == 'SpecMap': #texture 
             print(prop.value)
-        elif prop.name == 'SpecMap':
+        elif prop.name == 'RecolorTexture': # texture
             print(prop.value)
-        elif prop.name == 'RecolorTexture':
+        elif prop.name == 'EnvMult': # float
             print(prop.value)
-        elif prop.name == 'EnvMult':
+        elif prop.name == 'ScrollingMaskTexture': # texture
             print(prop.value)
-        elif prop.name == 'ScrollingMaskTexture':
+        elif prop.name == 'RecolorMultiplier': # float
             print(prop.value)
-        elif prop.name == 'RecolorMultiplier':
+        elif prop.name == 'TexCoordTransformAngle_0': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformAngle_0':
+        elif prop.name == 'TexCoordTransformU_0': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformU_0':
+        elif prop.name == 'TexCoordTransformV_0': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformV_0':
+        elif prop.name == 'TexCoordTransformU_1': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformU_1':
+        elif prop.name == 'TexCoordTransformV_1': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformV_1':
+        elif prop.name == 'TexCoordTransformU_2': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformU_2':
+        elif prop.name == 'TexCoordTransformV_2': # float
             print(prop.value)
-        elif prop.name == 'TexCoordTransformV_2':
+        elif prop.name == 'EdgeFadeOut': # int
             print(prop.value)
-        elif prop.name == 'EdgeFadeOut':
+        elif prop.name == 'UseRecolorColors': # bool
             print(prop.value)
-        elif prop.name == 'UseRecolorColors':
+        elif prop.name == 'HouseColorPulse': # bool
             print(prop.value)
-        elif prop.name == 'HouseColorPulse':
-            print(prop.value)
-        elif prop.name == 'EnvironmentTexture':
+        elif prop.name == 'EnvironmentTexture': # texture
             print(prop.value)
         else:
             context.error('shader property not implemented: ' + prop.name)
