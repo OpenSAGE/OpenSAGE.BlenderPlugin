@@ -138,6 +138,12 @@ class Mesh(Struct):
 
     multi_bone_skinned = False
 
+    def validate(self, context):
+        if len(self.header.mesh_name) >= STRING_LENGTH:
+            context.error('mesh name ' + self.header.mesh_name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            return False
+        return True
+
     def is_hidden(self):
         return self.header.attrs & GEOMETRY_TYPE_HIDDEN
 
@@ -392,7 +398,7 @@ class Mesh(Struct):
             self.prelit_lightmap_multi_texture.write(io_stream)
 
     @staticmethod
-    def parse(xml_mesh):
+    def parse(context, xml_mesh):
         result = Mesh(
             header=MeshHeader(),
             verts=[],
@@ -416,7 +422,7 @@ class Mesh(Struct):
 
         id = xml_mesh.attributes['id'].value
         if "." in id:
-            (container_name, name) = id.split(".")
+            (container_name, name) = id.split('.', 1)
             result.header.mesh_name = name
             result.header.container_name = container_name
         else:
@@ -441,31 +447,31 @@ class Mesh(Struct):
         result.header.sph_center = bounding_sphere.center
         result.header.sph_radius = bounding_sphere.radius
 
-        result.verts = parse_object_list(
+        result.verts = parse_object_list(context,
             xml_mesh, 'Vertices', 'V', parse_vector)
         result.header.vert_count = len(result.verts)
 
-        result.normals = parse_object_list(
+        result.normals = parse_object_list(context,
             xml_mesh, 'Normals', 'N', parse_vector)
 
-        result.tangents = parse_object_list(
+        result.tangents = parse_object_list(context,
             xml_mesh, 'Tangents', 'T', parse_vector)
 
-        result.bitangents = parse_object_list(
+        result.bitangents = parse_object_list(context,
             xml_mesh, 'Bitangents', 'B', parse_vector)
 
-        result.triangles = parse_object_list(
+        result.triangles = parse_object_list(context,
             xml_mesh, 'Triangles', 'T', Triangle.parse)
         result.header.face_count = len(result.triangles)
 
         result.material_passes = [MaterialPass(
             shader_material_ids=[0])]
-        tex_coords = parse_object_list(
+        tex_coords = parse_object_list(context,
             xml_mesh, 'TexCoords', 'T', parse_vector2)
         if tex_coords:
             result.material_passes[0].tx_coords = tex_coords
 
-        result.shade_ids = parse_object_list(
+        result.shade_ids = parse_object_list(context,
             xml_mesh, 'ShadeIndices', 'I', parse_value, int)
 
         xml_vertex_influence_lists = xml_mesh.getElementsByTagName(

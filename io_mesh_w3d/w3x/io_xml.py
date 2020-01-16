@@ -118,13 +118,13 @@ def parse_objects(parent, name, parse_func, par1=None):
     return result
 
 
-def parse_object_list(parent, name, identifier, parse_func, par1=None):
+def parse_object_list(context, parent, name, identifier, parse_func, par1=None):
     result = []
     list_objects = parent.getElementsByTagName(name)
     if not list_objects:
         return result
     if len(list_objects) > 1:
-        print("Error")  # TODO: concrete error with report
+        context.warning('node: ' + parent + ' contains multiple objects of type: ' + name)
 
     return parse_objects(list_objects[0], identifier, parse_func, par1)
 

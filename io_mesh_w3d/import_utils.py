@@ -51,7 +51,7 @@ def get_collection(hlod=None):
 ##########################################################################
 
 
-def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
     rig = None
     coll = get_collection(hlod)
 
@@ -64,7 +64,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
-                        create_mesh(self, mesh, hierarchy, current_coll)
+                        create_mesh(context, mesh, hierarchy, current_coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         for box in boxes:
@@ -78,7 +78,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
 
     else:
         for mesh in meshes:
-            create_mesh(self, mesh, hierarchy, coll)
+            create_mesh(context, mesh, hierarchy, coll)
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressed_animation, hierarchy, compressed=True)
@@ -88,7 +88,7 @@ def create_data(self, meshes, hlod=None, hierarchy=None, boxes=[], animation=Non
 # mesh
 ##########################################################################
 
-def create_mesh(self, mesh_struct, hierarchy, coll):
+def create_mesh(context, mesh_struct, hierarchy, coll):
     triangles = []
     for triangle in mesh_struct.triangles:
         triangles.append(tuple(triangle.vert_ids))
@@ -122,13 +122,13 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
 
     for vertMat in vert_materials:
         (material, principled) = create_material_from_vertex_material(
-            self, mesh_struct, vertMat)
+            context, mesh_struct, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
     for shaderMat in mesh_struct.shader_materials:
         (material, principled) = create_material_from_shader_material(
-            self, mesh_struct, shaderMat)
+            context, mesh_struct, shaderMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
@@ -137,14 +137,14 @@ def create_mesh(self, mesh_struct, hierarchy, coll):
         b_mesh.from_mesh(mesh)
 
     for mat_pass in material_passes:
-        create_uvlayer(mesh, b_mesh, triangles, mat_pass)
+        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            tex = load_texture(self, texture.file, texture.id)
+            tex = load_texture(context, texture.file, texture.id)
             if tex is not None:
                 principleds[mat_id].base_color_texture.image = tex
                 # principleds[mat_id].alpha_texture.image = tex
@@ -314,7 +314,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 ##########################################################################
 
 
-def create_material_from_vertex_material(self, mesh, vert_mat):
+def create_material_from_vertex_material(context, mesh, vert_mat):
     material = bpy.data.materials.new(
         mesh.name() + "." + vert_mat.vm_name)
     material.use_nodes = True
@@ -346,14 +346,14 @@ def create_material_from_vertex_material(self, mesh, vert_mat):
     material.vm_args_1 = vert_mat.vm_args_1
 
     principled = create_principled_bsdf(
-        self,
+        context,
         material=material,
         base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
         alpha=vert_mat.vm_info.opacity)
     return (material, principled)
 
 
-def create_material_from_shader_material(self, mesh, shader_mat):
+def create_material_from_shader_material(context, mesh, shader_mat):
     material = bpy.data.materials.new(
         mesh.name() + ".ShaderMaterial")
     material.use_nodes = True
@@ -389,12 +389,10 @@ def create_material_from_shader_material(self, mesh, shader_mat):
         elif prop.name == "Sampler_ClampU_ClampV_NoMip_0":
             material.sampler_clamp_uv_no_mip = prop.value
         else:
-            print("!!! shader property not implemented: " + prop.name)
-            self.report(
-                {'ERROR'}, "shader property not implemented: " + prop.name)
+            context.error('shader property not implemented: ' + prop.name)
 
     principled = create_principled_bsdf(
-        self,
+        context,
         material=material,
         diffuse_tex=diffuse,
         normal_tex=normal,
@@ -403,7 +401,7 @@ def create_material_from_shader_material(self, mesh, shader_mat):
 
 
 def create_principled_bsdf(
-        self,
+        context,
         material,
         base_color=None,
         alpha=0,
@@ -417,12 +415,12 @@ def create_principled_bsdf(
     if alpha > 0:
         principled.alpha = alpha
     if diffuse_tex is not None:
-        tex = load_texture(self, diffuse_tex)
+        tex = load_texture(context, diffuse_tex)
         if tex is not None:
             principled.base_color_texture.image = tex
             # principled.alpha_texture.image = tex
     if normal_tex is not None:
-        tex = load_texture(self, normal_tex)
+        tex = load_texture(context, normal_tex)
         if tex is not None:
             principled.normalmap_texture.image = tex
             principled.normalmap_strength = bump_scale
@@ -457,7 +455,7 @@ def set_shader_properties(material, shader):
 ##########################################################################
 
 
-def create_uvlayer(mesh, b_mesh, tris, mat_pass):
+def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
     tx_coords = None
     if mat_pass.tx_coords:
         tx_coords = mat_pass.tx_coords
@@ -465,8 +463,7 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
         if len(mat_pass.tx_stages) > 0:
             tx_coords = mat_pass.tx_stages[0].tx_coords
         if len(mat_pass.tx_stages) > 1:
-            print(
-                "Warning!: only one texture stage per material pass supported on export")
+            context.warning('only one texture stage per material pass supported on export')
 
     if not tx_coords:
         return
@@ -483,7 +480,7 @@ def create_uvlayer(mesh, b_mesh, tris, mat_pass):
 ##########################################################################
 
 
-def load_texture(self, file, name=None):
+def load_texture(context, file, name=None):
     if name is None:
         name = file
 
@@ -491,7 +488,7 @@ def load_texture(self, file, name=None):
     if name in bpy.data.images:
         return bpy.data.images[name]
 
-    filepath = str(os.path.dirname(self.filepath) + "/" + file)
+    filepath = str(os.path.dirname(context.filepath) + "/" + file)
     tga_path = filepath + '.tga'
     dds_path = filepath + '.dds'
 
@@ -499,9 +496,7 @@ def load_texture(self, file, name=None):
     if img is None:
         img = load_image(dds_path)
     if img is None:
-        msg = "texture not found: " + dds_path + "|.tga"
-        print("WARNING: " + msg)
-        self.report({'WARNING'}, msg)
+        context.warning('texture not found: ' + filepath + ' (.dds or .tga)')
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'

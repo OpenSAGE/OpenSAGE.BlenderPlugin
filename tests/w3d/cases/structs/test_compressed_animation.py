@@ -56,6 +56,21 @@ class TestCompressedAnimation(TestCase):
         actual = CompressedAnimation.read(self, io_stream, chunkEnd)
         compare_compressed_animations(self, expected, actual)
 
+    def test_validate(self):
+        ani = get_compressed_animation()
+        self.assertTrue(ani.validate(self))
+
+        ani.header.name = 'tooooolonganiname'
+        self.assertFalse(ani.validate(self))
+
+        ani = get_compressed_animation()
+        ani.header.hierarchy_name = 'tooooolonganiname'
+        self.assertFalse(ani.validate(self))
+
+        ani = get_compressed_animation()
+        ani.time_coded_channels = []
+        self.assertFalse(ani.validate(self))
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION,

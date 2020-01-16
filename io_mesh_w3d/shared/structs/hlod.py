@@ -77,7 +77,7 @@ class HLodSubObject(Struct):
             bone_index=read_ulong(io_stream),
             identifier=read_long_fixed_string(io_stream))
 
-        sub_obj.name = sub_obj.identifier.split('.')[-1]
+        sub_obj.name = sub_obj.identifier.split('.', 1)[-1]
         return sub_obj
 
     @staticmethod
@@ -170,6 +170,14 @@ W3D_CHUNK_HLOD = 0x00000700
 class HLod(Struct):
     header = HLodHeader()
     lod_arrays = []
+
+    def validate(self, context):
+        for lod_array in self.lod_arrays:
+            for sub_obj in lod_array.sub_objects:
+                if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:
+                    context.error('identifier ' + sub_obj.identifier + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+                    return False
+        return True
 
     @staticmethod
     def read(context, io_stream, chunk_end):

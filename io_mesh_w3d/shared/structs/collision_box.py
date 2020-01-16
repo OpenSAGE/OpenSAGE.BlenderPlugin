@@ -19,8 +19,14 @@ class CollisionBox(Struct):
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
 
+    def validate(self, context):
+        if len(self.name_) >= LARGE_STRING_LENGTH:
+            context.error('box name ' + self.name_ + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+            return False
+        return True
+
     def name(self):
-        return self.name_.split('.')[-1]
+        return self.name_.split('.', 1)[-1]
 
     @staticmethod
     def read(io_stream):

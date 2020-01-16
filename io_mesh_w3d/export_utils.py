@@ -135,9 +135,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                     vertInf.xtra_inf = vertex.groups[1].weight
 
                 if len(vertex.groups) > 2:
-                    message = "WARNING: max 2 bone influences per vertex supported!"
-                    print(message)
-                    context.report({'ERROR'}, message)
+                    context.warning('max 2 bone influences per vertex supported!')
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
@@ -368,13 +366,6 @@ def retrieve_principled_bsdf(material):
     return result
 
 
-def get_material_name(material):
-    name = material.name
-    if "." in name:
-        return name.split('.')[1]
-    return name
-
-
 def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
         attributes=0,
@@ -396,7 +387,7 @@ def retrieve_vertex_material(material):
         info.attributes |= DEPTH_CUE_TO_ALPHA
 
     vert_material = VertexMaterial(
-        vm_name=get_material_name(material),
+        vm_name=material.name.split('.', 1)[-1],
         vm_info=info,
         vm_args_0=material.vm_args_0,
         vm_args_1=material.vm_args_1)
@@ -546,9 +537,7 @@ def retrieve_hierarchy(context, container_name):
 
         switch_to_pose(rig, 'POSE')
     else:
-        message = "ERROR: only one armature per scene allowed!"
-        print(message)
-        context.report({'ERROR'}, message)
+        context.error('only one armature per scene allowed!')
         return (None, None)
 
     meshes = []

@@ -43,6 +43,13 @@ class TestHLod(TestCase):
         actual = HLod.read(self, io_stream, chunkEnd)
         compare_hlods(self, expected, actual)
 
+    def test_validate(self):
+        hlod = get_hlod()
+        self.assertTrue(hlod.validate(self))
+
+        hlod.lod_arrays[0].sub_objects[0].identifier = 'containerName.tooooolongsuObjname'
+        self.assertFalse(hlod.validate(self))
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_HLOD, output, 26, has_sub_chunks=True)

@@ -68,6 +68,14 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     scene_key = "w3dExportSettings"
 
+    def warning(self, msg):
+        print('WARNING: ' + msg)
+        self.report({'WARNING'}, msg)
+
+    def error(self, msg):
+        print('ERROR: ' + msg)
+        self.report({'ERROR'}, msg)
+
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)
         self.will_save_settings = False
@@ -78,9 +86,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                 self.will_save_settings = True
 
             except (AttributeError, TypeError):
-                self.report(
-                    {"ERROR"},
-                    "Loading export settings failed. Removed corrupted settings")
+                self.error('Loading export settings failed. Removed corrupted settings')
                 del context.scene[self.scene_key]
 
         return ExportHelper.invoke(self, context, event)
@@ -133,8 +139,15 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
-    # default='*.w3d;*.w3x'
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
+
+    def warning(self, msg):
+        print('WARNING: ' + msg)
+        self.report({'WARNING'}, msg)
+
+    def error(self, msg):
+        print('ERROR: ' + msg)
+        self.report({'ERROR'}, msg)
 
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
