@@ -112,9 +112,6 @@ class Hierarchy(Struct):
         if len(self.header.name) >= STRING_LENGTH:
             context.error('hierarchy name exceeds max length of: ' + str(STRING_LENGTH))
             return False
-        if len(self.pivots) < 2:
-            context.error('Scene does not contain any hierarchy/skeleton data, aborting export!')
-            return False
         for pivot in self.pivots:
             if len(pivot.name) >= STRING_LENGTH:
                 context.error('name of object ' + pivot.name + ' exceeds max length of: ' + str(STRING_LENGTH))
