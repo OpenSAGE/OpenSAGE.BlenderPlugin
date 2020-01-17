@@ -56,6 +56,19 @@ class TestUtils(TestCase):
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
 
+    def test_shader_material_w3x_roundtrip(self):
+        mesh = get_mesh()
+        mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        for source in mesh.shader_materials:
+            (material, _) = create_material_from_shader_material(
+                self, mesh, source)
+            principled = retrieve_principled_bsdf(material)
+            actual = retrieve_shader_material(material, principled)
+            compare_shader_materials(self, source, actual)
+
     def test_shader_material_minimal_roundtrip(self):
         mesh = get_mesh()
 

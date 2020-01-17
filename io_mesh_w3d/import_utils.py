@@ -336,7 +336,7 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
     material.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
-
+    material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
     material.translucency = vert_mat.vm_info.translucency
     material.opacity = vert_mat.vm_info.opacity
@@ -347,7 +347,6 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     principled = create_principled_bsdf(
         context,
         material=material,
-        emission_color=vert_mat.vm_info.emissive.to_vector_rgb(),
         base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
         alpha=vert_mat.vm_info.opacity)
     return (material, principled)
@@ -361,7 +360,6 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     normal_texture = None
     bump_scale = 0
     specular_texture = None
-    emission_color = None
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
@@ -378,22 +376,20 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             bump_scale = prop.value
         elif prop.name == 'SpecMap':
             specular_texture = prop.value
-        elif prop.name == 'Shininess':
-            material.specular_intensity = prop.value
-        elif prop.name == 'SpecularExponent':
+        elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.value.to_vector_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
-        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
-            emission_color = prop.value.to_vector_rgb()
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = bool(prop.value)
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
             material.ambient = prop.value.to_vector_rgba()
+        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
+            material.emission = prop.value.to_vector_rgba()
         elif prop.name == 'Opacity':
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':
@@ -464,7 +460,6 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     principled = create_principled_bsdf(
         context,
         material=material,
-        emission_color=emission_color,
         diffuse_tex=diffuse_texture,
         normal_tex=normal_texture,
         bump_scale=bump_scale,
@@ -476,7 +471,6 @@ def create_principled_bsdf(
         context,
         material,
         base_color=None,
-        emission_color=None,
         alpha=0,
         diffuse_tex=None,
         normal_tex=None,
@@ -486,8 +480,6 @@ def create_principled_bsdf(
         material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
-    if emission_color is not None:
-        principled.emission_color = emission_color
     if alpha > 0:
         principled.alpha = alpha
     if diffuse_tex is not None:

@@ -61,21 +61,63 @@ def compare_shader_material_properties(self, expected, actual):
         self.assertEqual(expected.value, actual.value)
 
 
-def get_shader_material_properties():
-    return [
-        get_shader_material_property(1, "DiffuseTexture"),
-        get_shader_material_property(1, "NormalMap", "texture_nrm.dds"),
-        get_shader_material_property(2, "BumpScale"),
-        get_shader_material_property(2, "SpecularExponent"),
+def get_shader_material_properties(w3x=False, two_tex=False):
+    props = [
         get_shader_material_property(3, "BumpUVScale"),
         get_shader_material_property(4, "Sampler_ClampU_ClampV_NoMip_0"),
-        get_shader_material_property(5, "AmbientColor"),
-        get_shader_material_property(5, "DiffuseColor"),
-        get_shader_material_property(5, "SpecularColor"),
         get_shader_material_property(6, "BlendMode"),
-        get_shader_material_property(7, "AlphaTestEnable")
-    ]
+        get_shader_material_property(7, "AlphaTestEnable"),
+        get_shader_material_property(7, 'CullingEnable'),
+        get_shader_material_property(2, 'Opacity'),
+        get_shader_material_property(6, 'BlendMode'),
+        get_shader_material_property(6, 'EdgeFadeOut'),
+        get_shader_material_property(7, 'DepthWriteEnable'),
+        get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_0'),
+        get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_1'),
+        get_shader_material_property(1, 'EnvironmentTexture', 'texture_env.tga'),
+        get_shader_material_property(2, 'EnvMult'),
+        get_shader_material_property(1, 'RecolorTexture'),
+        get_shader_material_property(2, 'RecolorMultiplier'),
+        get_shader_material_property(7, 'UseRecolorColors'),
+        get_shader_material_property(7, 'HouseColorPulse'),
+        get_shader_material_property(1, 'ScrollingMaskTexture', 'texture_scroll.dds'),
+        get_shader_material_property(2, 'TexCoordTransformAngle_0'),
+        get_shader_material_property(2, 'TexCoordTransformU_0'),
+        get_shader_material_property(2, 'TexCoordTransformV_0'),
+        get_shader_material_property(2, 'TexCoordTransformU_1'),
+        get_shader_material_property(2, 'TexCoordTransformV_1'),
+        get_shader_material_property(2, 'TexCoordTransformU_2'),
+        get_shader_material_property(2, 'TexCoordTransformV_2'),
+        get_shader_material_property(5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0')]
 
+    if w3x:
+        props.append(get_shader_material_property(2, "Shininess"))
+        props.append(get_shader_material_property(5, "ColorDiffuse"))
+        props.append(get_shader_material_property(5, "SpecularColor"))
+        props.append(get_shader_material_property(5, "AmbientColor"))
+        props.append(get_shader_material_property(5, "EmissiveColor"))
+    else:
+        props.append(get_shader_material_property(2, "SpecularExponent"))
+        props.append(get_shader_material_property(5, "DiffuseColor"))
+        props.append(get_shader_material_property(5, "ColorSpecular"))
+        props.append(get_shader_material_property(5, "ColorAmbient"))
+        props.append(get_shader_material_property(5, "ColorEmissive"))
+
+    if two_tex:
+        props.append(get_shader_material_property(6, 'NumTextures'))
+        props.append(get_shader_material_property(1, 'Texture_0', 'texture_0.dds'))
+        props.append(get_shader_material_property(1, 'Texture_1', 'texture_1.dds'))
+        props.append(get_shader_material_property(6, 'SecondaryTextureBlendMode'))
+        props.append(get_shader_material_property(6, 'TexCoordMapper_0'))
+        props.append(get_shader_material_property(6, 'TexCoordMapper_1'))
+        props.append(get_shader_material_property(5, 'TexCoordTransform_0'))
+        props.append(get_shader_material_property(5, 'TexCoordTransform_1'))
+    else:
+        props.append(get_shader_material_property(1, "DiffuseTexture"))
+        props.append(get_shader_material_property(1, "NormalMap", "texture_nrm.dds"))
+        props.append(get_shader_material_property(2, "BumpScale"))
+        props.append(get_shader_material_property(1, "SpecMap", "texture_spec.dds"))
+    return props
 
 def get_shader_material_properties_minimal():
     return [
@@ -90,10 +132,10 @@ def get_shader_material_properties_minimal():
     ]
 
 
-def get_shader_material():
+def get_shader_material(w3x=False, two_tex=False):
     return ShaderMaterial(
         header=get_shader_material_header(),
-        properties=get_shader_material_properties())
+        properties=get_shader_material_properties(w3x, two_tex))
 
 
 def get_shader_material_minimal():

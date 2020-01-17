@@ -399,55 +399,61 @@ def retrieve_vertex_material(material):
     return vert_material
 
 
-def append_property(properties, type, name, value):
-    properties.append(ShaderMaterialProperty(
+def append_property(shader_mat, type, name, value):
+    if value is None:
+        return
+    if type == 1 and value == '':
+        return
+    elif type == 2 and (-0.01 < value and value < 0.01):
+        return
+    elif type == 3 and value.length < 0.01:
+        return
+    elif type == 4 and value.length < 0.01:
+        return
+    elif type == 5 and value.is_black():
+        return
+    elif type == 6 and value == 0:
+        return
+    elif type == 7  and value == False:
+        return
+    shader_mat.properties.append(ShaderMaterialProperty(
         type=type, name=name, value=value))
 
 
 def retrieve_shader_material(material, principled):
     shader_material = ShaderMaterial(
         header=ShaderMaterialHeader(
-            type_name="NormalMapped.fx"),
+            type_name='NormalMapped.fx'),
         properties=[])
 
     shader_material.header.technique_index = material.technique
 
     principled = retrieve_principled_bsdf(material)
 
-    if principled.diffuse_tex is not None:
-        append_property(shader_material.properties, 1,
-                        "DiffuseTexture", principled.diffuse_tex)
-
-    if principled.normalmap_tex is not None:
-        append_property(shader_material.properties, 1,
-                        "NormalMap", principled.normalmap_tex)
-
-    if principled.bump_scale is not None:
-        append_property(shader_material.properties, 2,
-                        "BumpScale", principled.bump_scale)
-
-    append_property(shader_material.properties, 2,
-                    "SpecularExponent", material.specular_intensity)
-    append_property(shader_material.properties, 3,
-                    "BumpUVScale", material.bump_uv_scale)
-    append_property(
-        shader_material.properties,
-        4,
-        "Sampler_ClampU_ClampV_NoMip_0",
-        material.sampler_clamp_uv_no_mip)
-    append_property(shader_material.properties, 5,
-                    "AmbientColor", RGBA(material.ambient))
-    append_property(shader_material.properties, 5, "DiffuseColor",
+    append_property(shader_material, 1, 'DiffuseTexture',
+                    principled.diffuse_tex)
+    append_property(shader_material, 1, 'NormalMap',
+                    principled.normalmap_tex)
+    append_property(shader_material, 2, 'BumpScale',
+                    principled.bump_scale)
+    append_property(shader_material, 1, 'SpecMap',
+                    principled.specular_texture)
+    append_property(shader_material, 2, 'SpecularExponent',
+                    material.specular_intensity)
+    append_property(shader_material, 3, 'BumpUVScale',
+                    material.bump_uv_scale)
+    append_property(shader_material, 4, 'Sampler_ClampU_ClampV_NoMip_0',
+                    material.sampler_clamp_uv_no_mip_0)
+    append_property(shader_material, 5, 'AmbientColor',
+                    RGBA(material.ambient))
+    append_property(shader_material, 5, 'DiffuseColor',
                     RGBA(material.diffuse_color))
-    append_property(shader_material.properties, 5, "SpecularColor",
+    append_property(shader_material, 5, 'SpecularColor',
                     RGBA(material.specular_color, a=0.0))
-    append_property(
-        shader_material.properties,
-        6,
-        "BlendMode",
-        material.blend_mode)
-    append_property(shader_material.properties, 7,
-                    "AlphaTestEnable", int(material.alpha_test))
+    append_property(shader_material, 6, 'BlendMode',
+                    material.blend_mode)
+    append_property(shader_material, 7, 'AlphaTestEnable',
+                    material.alpha_test)
 
     return shader_material
 
