@@ -30,10 +30,10 @@ def load_file(context, path, data_context):
             for xml_include in node.childs():
                 include = Include.parse(xml_include)
                 source = include.source.replace('ART:', '')
-                load_file(self, os.path.join(dir, source), data_context)
+                load_file(context, os.path.join(dir, source), data_context)
 
         elif node.tagName == 'W3DMesh':
-            data_context.meshes.append(Mesh.parse(node))
+            data_context.meshes.append(Mesh.parse(context, node))
         elif node.tagName == 'W3DCollisionBox':
             data_context.collision_boxes.append(CollisionBox.parse(node))
         elif node.tagName == 'W3DContainer':

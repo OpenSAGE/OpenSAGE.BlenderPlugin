@@ -387,7 +387,8 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
         elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
-            emission_color = prop.value.to_vector_rgba()
+            emission_color = prop.value.to_vector_rgb()
+            print(prop.value.to_vector_rgba())
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = bool(prop.value)
 
@@ -413,8 +414,10 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'NumTextures': # discard
             num = prop.value
         elif prop.name == 'Texture_0': # diffuse texture ?
+            diffuse_texture = prop.value
             material.texture_0 = prop.value
         elif prop.name == 'Texture_1': # second diffuse texture ?
+            #diffuse_texture = prop.value
             material.texture_1 = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
             material.secondary_texture_blend_mode = prop.value
@@ -443,17 +446,17 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'TexCoordTransformAngle_0':
             material.tex_coord_transform_angle = prop.value
         elif prop.name == 'TexCoordTransformU_0':
-            material.tex_coord_transform_u_0 = prop.value
+            material.tex_coord_transform_u_0 = float(prop.value)
         elif prop.name == 'TexCoordTransformV_0':
-            material.tex_coord_transform_v_0 = prop.value
+            material.tex_coord_transform_v_0 = float(prop.value)
         elif prop.name == 'TexCoordTransformU_1':
-            material.tex_coord_transform_u_1 = prop.value
+            material.tex_coord_transform_u_1 = float(prop.value)
         elif prop.name == 'TexCoordTransformV_1':
-            material.tex_coord_transform_v_1 = prop.value
+            material.tex_coord_transform_v_1 = float(prop.value)
         elif prop.name == 'TexCoordTransformU_2':
-            material.tex_coord_transform_u_2 = prop.value
+            material.tex_coord_transform_u_2 = float(prop.value)
         elif prop.name == 'TexCoordTransformV_2':
-            material.tex_coord_transform_v_2 = prop.value
+            material.tex_coord_transform_v_2 = float(prop.value)
         elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
             material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = prop.value.to_vector_rgba()
         else:

@@ -275,7 +275,7 @@ Material.tex_coord_transform_u_0 = FloatProperty(
     min=0.0, max=1.0,
     description="Todo")
 
-Material.tex_coord_transform_u_0 = FloatProperty(
+Material.tex_coord_transform_v_0 = FloatProperty(
     name="Texture coord transform v 0",
     default=0.0,
     min=0.0, max=1.0,
@@ -287,7 +287,7 @@ Material.tex_coord_transform_u_1 = FloatProperty(
     min=0.0, max=1.0,
     description="Todo")
 
-Material.tex_coord_transform_u_1 = FloatProperty(
+Material.tex_coord_transform_v_1 = FloatProperty(
     name="Texture coord transform v 0",
     default=0.0,
     min=0.0, max=1.0,
@@ -299,7 +299,7 @@ Material.tex_coord_transform_u_2 = FloatProperty(
     min=0.0, max=1.0,
     description="Todo")
 
-Material.tex_coord_transform_u_2 = FloatProperty(
+Material.tex_coord_transform_v_2 = FloatProperty(
     name="Texture coord transform v 0",
     default=0.0,
     min=0.0, max=1.0,
