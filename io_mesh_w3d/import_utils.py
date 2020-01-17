@@ -144,10 +144,8 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            tex = load_texture(context, texture.file, texture.id)
-            if tex is not None:
-                principleds[mat_id].base_color_texture.image = tex
-                # principleds[mat_id].alpha_texture.image = tex
+            principleds[mat_id].base_color_texture.image = load_texture(context, texture.file, texture.id)
+            # principleds[mat_id].alpha_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -332,6 +330,10 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     if attributes & DEPTH_CUE_TO_ALPHA:
         atts.add('DEPTH_CUE_TO_ALPHA')
 
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+    principled.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
+    principled.alpha = vert_mat.vm_info.opacity
+
     material.attributes = atts
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
@@ -344,11 +346,6 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
 
-    principled = create_principled_bsdf(
-        context,
-        material=material,
-        base_color=vert_mat.vm_info.diffuse.to_vector_rgb(),
-        alpha=vert_mat.vm_info.opacity)
     return (material, principled)
 
 
@@ -356,26 +353,22 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     material = bpy.data.materials.new(
         mesh.name() + '.ShaderMaterial')
     material.use_nodes = True
-    diffuse_texture = None
-    normal_texture = None
-    bump_scale = 0
-    specular_texture = None
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     material.technique = shader_mat.header.technique_index
 
-    #TODO: sort, create custom props, show in gui, export
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
 
     for prop in shader_mat.properties:
         if prop.name == 'DiffuseTexture':
-            diffuse_texture = prop.value
+            principled.base_color_texture.image = load_texture(context, prop.value)
         elif prop.name == 'NormalMap':
-            normal_texture = prop.value
+            principled.normalmap_texture.image = load_texture(context, prop.value)
         elif prop.name == 'BumpScale':
-            bump_scale = prop.value
+            principled.normalmap_strength = prop.value
         elif prop.name == 'SpecMap':
-            specular_texture = prop.value
+            principled.specular_texture.image = load_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
@@ -383,7 +376,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
         elif prop.name == 'CullingEnable':
-            material.use_backface_culling = bool(prop.value)
+            material.use_backface_culling = prop.value
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
@@ -457,46 +450,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         else:
             context.error('shader property not implemented: ' + prop.name)
 
-    principled = create_principled_bsdf(
-        context,
-        material=material,
-        diffuse_tex=diffuse_texture,
-        normal_tex=normal_texture,
-        bump_scale=bump_scale,
-        specular_tex=specular_texture)
     return (material, principled)
-
-
-def create_principled_bsdf(
-        context,
-        material,
-        base_color=None,
-        alpha=0,
-        diffuse_tex=None,
-        normal_tex=None,
-        bump_scale=0,
-        specular_tex=None):
-    principled = node_shader_utils.PrincipledBSDFWrapper(
-        material, is_readonly=False)
-    if base_color is not None:
-        principled.base_color = base_color
-    if alpha > 0:
-        principled.alpha = alpha
-    if diffuse_tex is not None:
-        tex = load_texture(context, diffuse_tex)
-        if tex is not None:
-            principled.base_color_texture.image = tex
-            # principled.alpha_texture.image = tex
-    if normal_tex is not None:
-        tex = load_texture(context, normal_tex)
-        if tex is not None:
-            principled.normalmap_texture.image = tex
-            principled.normalmap_strength = bump_scale
-    if specular_tex is not None:
-        tex = load_texture(context, specular_tex)
-        if tex is not None:
-            principled.specular_texture.image = tex
-    return principled
 
 
 ##########################################################################

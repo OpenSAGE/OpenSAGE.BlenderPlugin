@@ -222,9 +222,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 tx_stages=[],
                 tx_coords=[])
 
-            principled = retrieve_principled_bsdf(material)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
-            if principled.normalmap_tex is not None:  # TODO: or W3X export
+            if principled.normalmap_texture is not None:  # TODO: or W3X export
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
@@ -239,13 +239,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 mesh_struct.vert_materials.append(
                     retrieve_vertex_material(material))
 
-                if principled.diffuse_tex is not None:
+                if principled.base_color_texture is not None:
                     info = TextureInfo(
                         attributes=0,
                         animation_type=0,
                         frame_count=0,
                         frame_rate=0.0)
-                    img = bpy.data.images[principled.diffuse_tex]
+                    img = principled.base_color_texture.image
                     filepath = os.path.basename(img.filepath)
                     if filepath == '':
                         filepath = img.name + '.dds'
@@ -344,32 +344,6 @@ def create_hlod(hierarchy, container_name):
 ##########################################################################
 
 
-class PrincipledBSDF(Struct):
-    base_color = None
-    alpha = None
-    diffuse_tex = None
-    normalmap_tex = None
-    bump_scale = None
-
-
-def retrieve_principled_bsdf(material):
-    result = PrincipledBSDF()
-
-    principled = node_shader_utils.PrincipledBSDFWrapper(
-        material, is_readonly=True)
-    result.base_color = principled.base_color
-    result.alpha = principled.alpha
-    diffuse_tex = principled.base_color_texture
-    if diffuse_tex and diffuse_tex.image:
-        result.diffuse_tex = diffuse_tex.image.name
-
-    normalmap_tex = principled.normalmap_texture
-    if normalmap_tex and normalmap_tex.image:
-        result.normalmap_tex = normalmap_tex.image.name
-        result.bump_scale = principled.normalmap_strength
-    return result
-
-
 def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
         attributes=0,
@@ -421,39 +395,96 @@ def append_property(shader_mat, type, name, value):
 
 
 def retrieve_shader_material(material, principled):
-    shader_material = ShaderMaterial(
+    shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
             type_name='NormalMapped.fx'),
         properties=[])
 
-    shader_material.header.technique_index = material.technique
+    shader_mat.header.technique_index = material.technique
 
-    principled = retrieve_principled_bsdf(material)
-
-    append_property(shader_material, 1, 'DiffuseTexture',
-                    principled.diffuse_tex)
-    append_property(shader_material, 1, 'NormalMap',
-                    principled.normalmap_tex)
-    append_property(shader_material, 2, 'BumpScale',
-                    principled.bump_scale)
-    append_property(shader_material, 1, 'SpecMap',
+    append_property(shader_mat, 1, 'DiffuseTexture',
+                    principled.base_color_texture.image.name)
+    append_property(shader_mat, 1, 'NormalMap',
+                    principled.normalmap_texture.image.name)
+    append_property(shader_mat, 2, 'BumpScale',
+                    principled.normalmap_strength)
+    append_property(shader_mat, 1, 'SpecMap',
                     principled.specular_texture)
-    append_property(shader_material, 2, 'SpecularExponent',
+    append_property(shader_mat, 2, 'SpecularExponent',
                     material.specular_intensity)
-    append_property(shader_material, 3, 'BumpUVScale',
-                    material.bump_uv_scale)
-    append_property(shader_material, 4, 'Sampler_ClampU_ClampV_NoMip_0',
-                    material.sampler_clamp_uv_no_mip_0)
-    append_property(shader_material, 5, 'AmbientColor',
-                    RGBA(material.ambient))
-    append_property(shader_material, 5, 'DiffuseColor',
+    append_property(shader_mat, 5, 'DiffuseColor',
                     RGBA(material.diffuse_color))
-    append_property(shader_material, 5, 'SpecularColor',
+    append_property(shader_mat, 5, 'SpecularColor',
                     RGBA(material.specular_color, a=0.0))
-    append_property(shader_material, 6, 'BlendMode',
-                    material.blend_mode)
-    append_property(shader_material, 7, 'AlphaTestEnable',
+    append_property(shader_mat, 7, 'CullingEnable',
+                    material.use_backface_culling)
+
+    append_property(shader_mat, 5, 'AmbientColor',
+                    RGBA(material.ambient))
+    append_property(shader_mat, 5, 'EmissiveColor',
+                    RGBA(material.emission))
+    append_property(shader_mat, 2, 'Opacity',
+                    material.opacity)
+    append_property(shader_mat, 7, 'AlphaTestEnable',
                     material.alpha_test)
+    append_property(shader_mat, 6, 'BlendMode',
+                    material.blend_mode)
+    append_property(shader_mat, 3, 'BumpUVScale',
+                    material.bump_uv_scale)
+    append_property(shader_mat, 6, 'EdgeFadeOut',
+                    material.edge_fade_out)
+    append_property(shader_mat, 7, 'DepthWriteEnable',
+                    material.depth_write)
+    append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_0',
+                    material.sampler_clamp_uv_no_mip_0)
+    append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
+                    material.sampler_clamp_uv_no_mip_1)
+
+    # how to handle this
+    append_property(shader_mat, 6, 'NumTextures', 1)
+    append_property(shader_mat, 1, 'Texture_0', material.texture_0)
+    append_property(shader_mat, 1, 'Texture_1', material.texture_1)
+
+    append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
+                    material.secondary_texture_blend_mode)
+    append_property(shader_mat, 6, 'TexCoordMapper_0', 
+                    material.tex_coord_mapper_0)
+    append_property(shader_mat, 6, 'TexCoordMapper_1', 
+                    material.tex_coord_mapper_1)
+    append_property(shader_mat, 4, 'TexCoordTransform_0',
+                    material.tex_coord_transform_0)
+    append_property(shader_mat, 4, 'TexCoordTransform_1',
+                    material.tex_coord_transform_1)
+    append_property(shader_mat, 1, 'EnvironmentTexture',
+                    material.environment_texture)
+    append_property(shader_mat, 2, 'EnvMult',
+                    material.environment_mult)
+    append_property(shader_mat, 1, 'RecolorTexture',
+                    material.recolor_texture)
+    append_property(shader_mat, 2, 'RecolorMultiplier',
+                    material.recolor_mult)
+    append_property(shader_mat, 7, 'UseRecolorColors',
+                    material.use_recolor)
+    append_property(shader_mat, 7, 'HouseColorPulse',
+                    material.house_color_pulse)
+    append_property(shader_mat, 1, 'ScrollingMaskTexture',
+                    material.scrolling_mask_texture)
+    append_property(shader_mat, 2, 'TexCoordTransformAngle_0',
+                    material.tex_coord_transform_angle)
+    append_property(shader_mat, 2, 'TexCoordTransformU_0',
+                    material.tex_coord_transform_u_0)
+    append_property(shader_mat, 2, 'TexCoordTransformV_0',
+                    material.tex_coord_transform_v_0)
+    append_property(shader_mat, 2, 'TexCoordTransformU_1',
+                    material.tex_coord_transform_u_1)
+    append_property(shader_mat, 2, 'TexCoordTransformV_1',
+                    material.tex_coord_transform_v_1)
+    append_property(shader_mat, 2, 'TexCoordTransformU_2',
+                    material.tex_coord_transform_u_2)
+    append_property(shader_mat, 2, 'TexCoordTransformV_2',
+                    material.tex_coord_transform_v_2)
+    append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
+                    material.tex_ani_fps_NPR_lastFrame_frameOffset_0)
 
     return shader_material
 
