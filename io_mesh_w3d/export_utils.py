@@ -376,8 +376,14 @@ def retrieve_vertex_material(material):
 def append_property(shader_mat, type, name, value):
     if value is None:
         return
-    if type == 1 and value == '':
-        return
+    if type == 1:
+        if isinstance(value, str):
+            if value == '':
+                return
+        elif value.image is None:
+            return
+        else:
+            value = value.image.name
     elif type == 2 and (-0.01 < value and value < 0.01):
         return
     elif type == 3 and value.length < 0.01:
@@ -402,54 +408,38 @@ def retrieve_shader_material(material, principled):
 
     shader_mat.header.technique_index = material.technique
 
-    append_property(shader_mat, 1, 'DiffuseTexture',
-                    principled.base_color_texture.image.name)
-    append_property(shader_mat, 1, 'NormalMap',
-                    principled.normalmap_texture.image.name)
-    append_property(shader_mat, 2, 'BumpScale',
-                    principled.normalmap_strength)
-    append_property(shader_mat, 1, 'SpecMap',
-                    principled.specular_texture)
-    append_property(shader_mat, 2, 'SpecularExponent',
-                    material.specular_intensity)
-    append_property(shader_mat, 5, 'DiffuseColor',
-                    RGBA(material.diffuse_color))
-    append_property(shader_mat, 5, 'SpecularColor',
-                    RGBA(material.specular_color, a=0.0))
-    append_property(shader_mat, 7, 'CullingEnable',
-                    material.use_backface_culling)
+    append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
+    append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
+    append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength)
+    append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
+    append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity)
+    append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color))
+    append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
+    append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
 
-    append_property(shader_mat, 5, 'AmbientColor',
-                    RGBA(material.ambient))
-    append_property(shader_mat, 5, 'EmissiveColor',
-                    RGBA(material.emission))
-    append_property(shader_mat, 2, 'Opacity',
-                    material.opacity)
-    append_property(shader_mat, 7, 'AlphaTestEnable',
-                    material.alpha_test)
-    append_property(shader_mat, 6, 'BlendMode',
-                    material.blend_mode)
-    append_property(shader_mat, 3, 'BumpUVScale',
-                    material.bump_uv_scale)
-    append_property(shader_mat, 6, 'EdgeFadeOut',
-                    material.edge_fade_out)
-    append_property(shader_mat, 7, 'DepthWriteEnable',
-                    material.depth_write)
+    append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
+    append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
+    append_property(shader_mat, 2, 'Opacity', material.opacity)
+    append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test)
+    append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
+    append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)
+    append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
+    append_property(shader_mat, 7, 'DepthWriteEnable', material.depth_write)
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_0',
-                    material.sampler_clamp_uv_no_mip_0)
+                   material.sampler_clamp_uv_no_mip_0)
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
-                    material.sampler_clamp_uv_no_mip_1)
+                   material.sampler_clamp_uv_no_mip_1)
 
     # how to handle this
-    append_property(shader_mat, 6, 'NumTextures', 1)
+    append_property(shader_mat, 6, 'NumTextures', 0)
     append_property(shader_mat, 1, 'Texture_0', material.texture_0)
     append_property(shader_mat, 1, 'Texture_1', material.texture_1)
 
     append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
                     material.secondary_texture_blend_mode)
-    append_property(shader_mat, 6, 'TexCoordMapper_0', 
+    append_property(shader_mat, 6, 'TexCoordMapper_0',
                     material.tex_coord_mapper_0)
-    append_property(shader_mat, 6, 'TexCoordMapper_1', 
+    append_property(shader_mat, 6, 'TexCoordMapper_1',
                     material.tex_coord_mapper_1)
     append_property(shader_mat, 4, 'TexCoordTransform_0',
                     material.tex_coord_transform_0)
@@ -484,9 +474,9 @@ def retrieve_shader_material(material, principled):
     append_property(shader_mat, 2, 'TexCoordTransformV_2',
                     material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
-                    material.tex_ani_fps_NPR_lastFrame_frameOffset_0)
+                    RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0))
 
-    return shader_material
+    return shader_mat
 
 
 ##########################################################################

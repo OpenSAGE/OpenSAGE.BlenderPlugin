@@ -65,9 +65,23 @@ class TestUtils(TestCase):
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
                 self, mesh, source)
-            principled = retrieve_principled_bsdf(material)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
+
+    def test_only_non_default_shader_material_properties_are_exported(self):
+        mesh = get_mesh(shader_mats=True)
+        mesh.shader_materials[0].properties = []
+
+        (material, principled) = create_material_from_shader_material(self, mesh, mesh.shader_materials[0])
+
+        print("################## default value return")
+        actual = retrieve_shader_material(material, principled)
+        for prop in actual.properties:
+            print(prop.name, ' -> ', prop.value)
+        print("#############################################")
+        self.assertEqual(0, len(actual.properties))
+        
 
     def test_shader_material_minimal_roundtrip(self):
         mesh = get_mesh()
