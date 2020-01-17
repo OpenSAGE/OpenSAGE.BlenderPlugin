@@ -361,6 +361,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
     normal_texture = None
     bump_scale = 0
     specular_texture = None
+    emission_color = None
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
@@ -381,85 +382,87 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             material.specular_intensity = prop.value
         elif prop.name == 'SpecularExponent':
             material.specular_intensity = prop.value
-        elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
-            material.ambient = prop.value.to_vector_rgba()
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.value.to_vector_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
-        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive': # has material/principled prop
-            material.emission = prop.value.to_vector_rgba()
+        elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
+            emission_color = prop.value.to_vector_rgba()
+        elif prop.name == 'CullingEnable':
+            material.use_backface_culling = bool(prop.value)
+
+        # all props below have no effect on shading -> custom properties for roundtrip purpose
+        elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
+            material.ambient = prop.value.to_vector_rgba()
         elif prop.name == 'Opacity':
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':
             material.alpha_test = bool(prop.value)
-        elif prop.name == 'BlendMode':
+        elif prop.name == 'BlendMode': # is blend_method ?
             material.blend_mode = prop.value
         elif prop.name == 'BumpUVScale':
             material.bump_uv_scale = prop.value.xy
-        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_0': # float
-            material.sampler_clamp_uv_no_mip = prop.value
-        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1': # float 
-            print(prop.value)
+        elif prop.name == 'EdgeFadeOut':
+            material.edge_fade_out = int(prop.value)
+        elif prop.name == 'DepthWriteEnable':
+            material.depth_write = bool(prop.value)
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_0':
+            material.sampler_clamp_uv_no_mip_0 = prop.value
+        elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1':
+            material.sampler_clamp_uv_no_mip_1 = prop.value
         elif prop.name == 'NumTextures': # discard
             num = prop.value
-        elif prop.name == 'Texture_0': 
-            diffuse_texture = prop.value
-        elif prop.name == 'Texture_1':
-            print(prop.value)
-        elif prop.name == 'DepthWriteEnable': #bool
-            print(prop.value)
-        elif prop.name == 'CullingEnable': # bool --> has mat prop
-            print(prop.value)
-        elif prop.name == 'SecondaryTextureBlendMode': # int
-            print(prop.value)
-        elif prop.name == 'TexCoordMapper_0': # int
-            print(prop.value)
-        elif prop.name == 'TexCoordTransform_0': # vec4
-            print(prop.value)
-        elif prop.name == 'TexCoordMapper_1': # int
-            print(prop.value)
-        elif prop.name == 'TexCoordTransform_1': # vec 4
-            print(prop.value)
-        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0': # vec4
-            print(prop.value)
-        
-        elif prop.name == 'RecolorTexture': # texture
-            print(prop.value)
-        elif prop.name == 'EnvMult': # float
-            print(prop.value)
-        elif prop.name == 'ScrollingMaskTexture': # texture
-            print(prop.value)
-        elif prop.name == 'RecolorMultiplier': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformAngle_0': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformU_0': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformV_0': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformU_1': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformV_1': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformU_2': # float
-            print(prop.value)
-        elif prop.name == 'TexCoordTransformV_2': # float
-            print(prop.value)
-        elif prop.name == 'EdgeFadeOut': # int
-            print(prop.value)
-        elif prop.name == 'UseRecolorColors': # bool
-            print(prop.value)
-        elif prop.name == 'HouseColorPulse': # bool
-            print(prop.value)
-        elif prop.name == 'EnvironmentTexture': # texture
-            print(prop.value)
+        elif prop.name == 'Texture_0': # diffuse texture ?
+            material.texture_0 = prop.value
+        elif prop.name == 'Texture_1': # second diffuse texture ?
+            material.texture_1 = prop.value
+        elif prop.name == 'SecondaryTextureBlendMode':
+            material.secondary_texture_blend_mode = prop.value
+        elif prop.name == 'TexCoordMapper_0':
+            material.tex_coord_mapper_0 = prop.value
+        elif prop.name == 'TexCoordMapper_1':
+            material.tex_coord_mapper_1 = prop.value
+        elif prop.name == 'TexCoordTransform_0':
+            material.tex_coord_transform_0 = prop.value.to_vector_rgba()
+        elif prop.name == 'TexCoordTransform_1':
+            material.tex_coord_transform_1 = prop.value.to_vector_rgba()
+        elif prop.name == 'EnvironmentTexture':
+            material.environment_texture = prop.value
+        elif prop.name == 'EnvMult':
+            material.environment_mult = prop.value
+        elif prop.name == 'RecolorTexture':
+            material.recolor_texture = prop.value
+        elif prop.name == 'RecolorMultiplier':
+            material.recolor_mult = prop.value
+        elif prop.name == 'UseRecolorColors':
+            material.use_recolor =  bool(prop.value)
+        elif prop.name == 'HouseColorPulse':
+            material.house_color_pulse = bool(prop.value)
+        elif prop.name == 'ScrollingMaskTexture':
+            material.scrolling_mask_texture = prop.value
+        elif prop.name == 'TexCoordTransformAngle_0':
+            material.tex_coord_transform_angle = prop.value
+        elif prop.name == 'TexCoordTransformU_0':
+            material.tex_coord_transform_u_0 = prop.value
+        elif prop.name == 'TexCoordTransformV_0':
+            material.tex_coord_transform_v_0 = prop.value
+        elif prop.name == 'TexCoordTransformU_1':
+            material.tex_coord_transform_u_1 = prop.value
+        elif prop.name == 'TexCoordTransformV_1':
+            material.tex_coord_transform_v_1 = prop.value
+        elif prop.name == 'TexCoordTransformU_2':
+            material.tex_coord_transform_u_2 = prop.value
+        elif prop.name == 'TexCoordTransformV_2':
+            material.tex_coord_transform_v_2 = prop.value
+        elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
+            material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = prop.value.to_vector_rgba()
         else:
             context.error('shader property not implemented: ' + prop.name)
 
     principled = create_principled_bsdf(
         context,
         material=material,
+        emission_color=emission_color,
         diffuse_tex=diffuse_texture,
         normal_tex=normal_texture,
         bump_scale=bump_scale,
@@ -471,6 +474,7 @@ def create_principled_bsdf(
         context,
         material,
         base_color=None,
+        emission_color=None,
         alpha=0,
         diffuse_tex=None,
         normal_tex=None,
@@ -480,6 +484,8 @@ def create_principled_bsdf(
         material, is_readonly=False)
     if base_color is not None:
         principled.base_color = base_color
+    if emission_color is not None:
+        principled.emission_color = emission_color
     if alpha > 0:
         principled.alpha = alpha
     if diffuse_tex is not None:

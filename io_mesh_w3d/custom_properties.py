@@ -55,49 +55,6 @@ Material.attributes = EnumProperty(
     default={'DEFAULT'},
     options={'ENUM_FLAG'})
 
-Material.emission = FloatVectorProperty(
-    name="Emission",
-    subtype='COLOR',
-    size=4,
-    default=(1.0, 1.0, 1.0, 0.0),
-    min=0.0, max=1.0,
-    description="Emission color")
-
-Material.ambient = FloatVectorProperty(
-    name="Ambient",
-    subtype='COLOR',
-    size=4,
-    default=(1.0, 1.0, 1.0, 0.0),
-    min=0.0, max=1.0,
-    description="Ambient color")
-
-Material.translucency = FloatProperty(
-    name="Translucency",
-    default=0.0,
-    min=0.0, max=1.0,
-    description="Translucency property")
-
-Material.opacity = FloatProperty(
-    name="Opacity",
-    default=0.0,
-    min=0.0, max=1.0,
-    description="Opacity property")
-
-Material.vm_args_0 = StringProperty(
-    name="vm_args_0",
-    description="Vertex Material Arguments 0",
-    default="")
-
-Material.vm_args_1 = StringProperty(
-    name="vm_args_1",
-    description="Vertex Material Arguments 1",
-    default="")
-
-Material.alpha_test = BoolProperty(
-    name="Alpha test",
-    description="Enable the alpha test",
-    default=False)
-
 Material.surface_type = EnumProperty(
     name='Surface type',
     description='Describes the surface type for this material',
@@ -136,7 +93,22 @@ Material.surface_type = EnumProperty(
         ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
     default='13')
 
-# not yet visible in gui
+
+Material.translucency = FloatProperty(
+    name="Translucency",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Translucency property")
+
+Material.vm_args_0 = StringProperty(
+    name="vm_args_0",
+    description="Vertex Material Arguments 0",
+    default="")
+
+Material.vm_args_1 = StringProperty(
+    name="vm_args_1",
+    description="Vertex Material Arguments 1",
+    default="")
 
 Material.technique = IntProperty(
     name="Technique",
@@ -144,6 +116,25 @@ Material.technique = IntProperty(
     default=0,
     min=0,
     max=1)
+
+Material.ambient = FloatVectorProperty(
+    name="Ambient",
+    subtype='COLOR',
+    size=4,
+    default=(1.0, 1.0, 1.0, 0.0),
+    min=0.0, max=1.0,
+    description="Ambient color")
+
+Material.opacity = FloatProperty(
+    name="Opacity",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Opacity property")
+
+Material.alpha_test = BoolProperty(
+    name="Alpha test",
+    description="Enable the alpha test",
+    default=False)
 
 Material.blend_mode = IntProperty(
     name="Blend mode",
@@ -160,14 +151,167 @@ Material.bump_uv_scale = FloatVectorProperty(
     min=0.0, max=1.0,
     description="Bump uv scale")
 
-Material.sampler_clamp_uv_no_mip = FloatVectorProperty(
-    name="Sampler clamp UV no MIP",
+Material.edge_fade_out = IntProperty(
+    name="Edge fade out",
+    description="TODO",
+    default=0,
+    min=0,
+    max=5)
+
+Material.depth_write = BoolProperty(
+    name="Depth write",
+    description="Todo",
+    default=False)
+
+Material.sampler_clamp_uv_no_mip_0 = FloatVectorProperty(
+    name="Sampler clamp UV no MIP 0",
     subtype='TRANSLATION',
     size=3,
     default=(0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="Sampler clampU clampV no mipmap")
+    description="Sampler clampU clampV no mipmap 0")
 
+Material.sampler_clamp_uv_no_mip_1 = FloatVectorProperty(
+    name="Sampler clamp UV no MIP 0",
+    subtype='TRANSLATION',
+    size=3,
+    default=(0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description="Sampler clampU clampV no mipmap 0")
+
+Material.texture_0 = StringProperty(
+    name="Texture 0",
+    description="TODO",
+    default="")
+
+Material.texture_1 = StringProperty(
+    name="Texture 1",
+    description="TODO",
+    default="")
+
+Material.secondary_texture_blend_mode = IntProperty(
+    name="Secondary texture blend mode",
+    description="TODO",
+    default=0,
+    min=0,
+    max=5)
+
+Material.tex_coord_mapper_0 = IntProperty(
+    name="TexCoord mapper 0",
+    description="TODO",
+    default=0,
+    min=0,
+    max=5)
+
+Material.tex_coord_mapper_1 = IntProperty(
+    name="TexCoord mapper 1",
+    description="TODO",
+    default=0,
+    min=0,
+    max=5)
+
+Material.tex_coord_transform_0 = FloatVectorProperty(
+    name="TexCoord transform 0",
+    subtype='TRANSLATION',
+    size=4,
+    default=(0.0, 0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description="TODO")
+
+Material.tex_coord_transform_1 = FloatVectorProperty(
+    name="TexCoord transform 1",
+    subtype='TRANSLATION',
+    size=4,
+    default=(0.0, 0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description="TODO")
+
+Material.environment_texture = StringProperty(
+    name="Environment texture",
+    description="TODO",
+    default="")
+
+Material.environment_mult = FloatProperty(
+    name="Environment mult",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.recolor_texture = StringProperty(
+    name="Recolor texture",
+    description="TODO",
+    default="")
+
+Material.recolor_mult = FloatProperty(
+    name="Recolor mult",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.use_recolor = BoolProperty(
+    name="Use recolor colors",
+    description="Todo",
+    default=False)
+
+Material.house_color_pulse = BoolProperty(
+    name="House color pulse",
+    description="Todo",
+    default=False)
+
+Material.scrolling_mask_texture = StringProperty(
+    name="Scrolling mask texture",
+    description="TODO",
+    default="")
+
+Material.tex_coord_transform_angle = FloatProperty(
+    name="Texture coord transform angle",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_0 = FloatProperty(
+    name="Texture coord transform u 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_0 = FloatProperty(
+    name="Texture coord transform v 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_1 = FloatProperty(
+    name="Texture coord transform u 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_1 = FloatProperty(
+    name="Texture coord transform v 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_2 = FloatProperty(
+    name="Texture coord transform u 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_coord_transform_u_2 = FloatProperty(
+    name="Texture coord transform v 0",
+    default=0.0,
+    min=0.0, max=1.0,
+    description="Todo")
+
+Material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = FloatVectorProperty(
+    name="TextureAnimation FPS NumPerRow LastFrame FrameOffset 0",
+    subtype='TRANSLATION',
+    size=4,
+    default=(0.0, 0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description="TODO")
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = "W3D Properties"
