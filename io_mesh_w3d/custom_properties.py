@@ -187,6 +187,13 @@ Material.sampler_clamp_uv_no_mip_1 = FloatVectorProperty(
     min=0.0, max=1.0,
     description="Sampler clampU clampV no mipmap 1")
 
+Material.num_textures = IntProperty(
+    name="NumTextures",
+    description="TODO",
+    default=0,
+    min=0,
+    max=5)
+
 Material.texture_0 = StringProperty(
     name="Texture 0",
     description="TODO",
@@ -359,6 +366,8 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(context.object.active_material, "sampler_clamp_uv_no_mip_0")
         col = layout.column()
         col.prop(context.object.active_material, "sampler_clamp_uv_no_mip_1")
+        col = layout.column()
+        col.prop(context.object.active_material, "num_textures")
         col = layout.column()
         col.prop(context.object.active_material, "texture_0")
         col = layout.column()

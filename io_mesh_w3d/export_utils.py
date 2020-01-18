@@ -373,28 +373,34 @@ def retrieve_vertex_material(material):
     return vert_material
 
 
-def append_property(shader_mat, type, name, value):
+def append_property(shader_mat, type, name, value, default=None):
     if value is None:
         return
     if type == 1:
         if isinstance(value, str):
-            if value == '':
+            if value == '': # default
                 return
         elif value.image is None:
             return
         else:
             value = value.image.name
-    elif type == 2 and (-0.01 < value and value < 0.01):
-        return
-    elif type == 3 and value.length < 0.01:
-        return
-    elif type == 4 and value.length < 0.01:
-        return
-    elif type == 5 and value.is_black():
-        return
-    elif type == 6 and value == 0:
-        return
-    elif type == 7  and value == False:
+    elif type == 2:
+        if default is None:
+            default = 0.0
+        if abs(value - default) < 0.01:
+            return
+    elif type == 3 and default is None:
+        default = Vector().xy
+    elif type == 4 and default is None:
+        default = Vector()
+    elif type == 5 and default is None:
+        default = RGBA(r=255, g=255, b=255)
+    elif type == 6 and default is None:
+        default = 0
+    elif type == 7 and default is None:
+        default = False
+
+    if value == default:
         return
     shader_mat.properties.append(ShaderMaterialProperty(
         type=type, name=name, value=value))
@@ -410,10 +416,11 @@ def retrieve_shader_material(material, principled):
 
     append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
-    append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength)
+    append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
-    append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity)
-    append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color))
+    append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
+    append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
+                   RGBA(r=204, g=204, b=204, a=255))
     append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
 
@@ -430,8 +437,7 @@ def retrieve_shader_material(material, principled):
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
                    material.sampler_clamp_uv_no_mip_1)
 
-    # how to handle this
-    append_property(shader_mat, 6, 'NumTextures', 0)
+    append_property(shader_mat, 6, 'NumTextures', material.num_textures)
     append_property(shader_mat, 1, 'Texture_0', material.texture_0)
     append_property(shader_mat, 1, 'Texture_1', material.texture_1)
 
@@ -442,9 +448,9 @@ def retrieve_shader_material(material, principled):
     append_property(shader_mat, 6, 'TexCoordMapper_1',
                     material.tex_coord_mapper_1)
     append_property(shader_mat, 4, 'TexCoordTransform_0',
-                    material.tex_coord_transform_0)
+                    RGBA(material.tex_coord_transform_0), RGBA())
     append_property(shader_mat, 4, 'TexCoordTransform_1',
-                    material.tex_coord_transform_1)
+                    RGBA(material.tex_coord_transform_1), RGBA())
     append_property(shader_mat, 1, 'EnvironmentTexture',
                     material.environment_texture)
     append_property(shader_mat, 2, 'EnvMult',
@@ -474,7 +480,7 @@ def retrieve_shader_material(material, principled):
     append_property(shader_mat, 2, 'TexCoordTransformV_2',
                     material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
-                    RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0))
+                    RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0), RGBA())
 
     return shader_mat
 

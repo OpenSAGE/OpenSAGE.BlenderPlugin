@@ -399,8 +399,8 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             material.sampler_clamp_uv_no_mip_0 = prop.value
         elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1':
             material.sampler_clamp_uv_no_mip_1 = prop.value
-        elif prop.name == 'NumTextures': # discard
-            num = prop.value # is 1 if texture_0 and texture_1 are set
+        elif prop.name == 'NumTextures':
+            material.num_textures = prop.value # is 1 if texture_0 and texture_1 are set
         elif prop.name == 'Texture_0': # diffuse texture
             material.texture_0 = prop.value
         elif prop.name == 'Texture_1': # second diffuse texture

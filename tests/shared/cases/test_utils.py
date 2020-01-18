@@ -75,13 +75,8 @@ class TestUtils(TestCase):
 
         (material, principled) = create_material_from_shader_material(self, mesh, mesh.shader_materials[0])
 
-        print("################## default value return")
         actual = retrieve_shader_material(material, principled)
-        for prop in actual.properties:
-            print(prop.name, ' -> ', prop.value)
-        print("#############################################")
         self.assertEqual(0, len(actual.properties))
-        
 
     def test_shader_material_minimal_roundtrip(self):
         mesh = get_mesh()
