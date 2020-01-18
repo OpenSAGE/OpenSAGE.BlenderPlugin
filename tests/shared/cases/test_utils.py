@@ -67,9 +67,16 @@ class TestUtils(TestCase):
                 self, mesh, source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled)
+            print('############################### start')
+            for i, exp in enumerate(source.properties):
+                act = 'None'
+                if len(actual.properties) > i + 1:
+                    act = actual.properties[i].name
+                print(exp.name + ' -> ' + act)
+            print('############################## end')
             compare_shader_materials(self, source, actual)
 
-    def test_only_non_default_shader_material_properties_are_exported(self):
+    def test_default_shader_material_properties_are_not_exported(self):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials[0].properties = []
 
