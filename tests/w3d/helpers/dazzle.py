@@ -2,13 +2,13 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import unittest
-from io_mesh_w3d.structs.w3d_dazzle import *
+from io_mesh_w3d.w3d.structs.dazzle import *
 
 
 def get_dazzle():
     return Dazzle(
-            name="Name",
-            type_name="TypeName")
+            name='Name',
+            type_name='TypeName')
 
 
 def compare_dazzles(self, expected, actual):

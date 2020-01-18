@@ -3,7 +3,7 @@
 
 import io
 from tests.utils import TestCase
-from tests.helpers.w3d_dazzle import *
+from tests.w3d.helpers.dazzle import *
 
 
 class TestDazzle(TestCase):

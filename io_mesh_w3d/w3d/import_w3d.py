@@ -7,6 +7,7 @@ from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.mesh import *
+from io_mesh_w3d.w3d.structs.dazzle import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 

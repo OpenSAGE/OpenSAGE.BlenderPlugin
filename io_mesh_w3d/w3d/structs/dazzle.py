@@ -9,6 +9,11 @@ W3D_CHUNK_DAZZLE = 0x00000900
 W3D_CHUNK_DAZZLE_NAME = 0x00000901
 W3D_CHUNK_DAZZLE_TYPENAME = 0x00000902
 
+# The dazzle is always assumed to be at the pivot point
+# of the bone it is attached to (you should enable Export_Transform) for 
+# dazzles. If the dazzle-type (from dazzle.ini) is directional, then the 
+# coordinate-system of the bone will define the direction.
+
 
 class DazzleType(Struct):
     name = 'DEFAULT'
@@ -31,8 +36,8 @@ class DazzleType(Struct):
     #SizeOptimizationLimit=0.05
     #HistoryWeight=0.975
     #UseCameraTranslation=1
-    HaloTextureName=SunHalo.tga
-    DazzleTextureName=SunDazzle.tga
+    HaloTextureName='SunHalo.tga'
+    DazzleTextureName='SunDazzle.tga'
     DazzleColor=1,1,1
     HaloColor=1,1,1
     DazzleTestColor=1,1,1
@@ -40,15 +45,15 @@ class DazzleType(Struct):
 
 
 class Dazzle(Struct):
-    name = ""
-    type_name = ""
+    name = ''
+    type_name = ''
 
     def name(self):
         return self.name_.split('.')[-1]
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = Dazzle(name="", type_name="")
+        result = Dazzle(name='', type_name='')
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
