@@ -147,8 +147,9 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            principleds[mat_id].base_color_texture.image = load_texture(context, texture.file, texture.id)
-            # principleds[mat_id].alpha_texture.image = tex
+            tex = load_texture(context, texture.file, texture.id)
+            principleds[mat_id].base_color_texture.image = tex
+            #principleds[mat_id].alpha_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -340,7 +341,6 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     material.attributes = atts
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
     material.translucency = vert_mat.vm_info.translucency

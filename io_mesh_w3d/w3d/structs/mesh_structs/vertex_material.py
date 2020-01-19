@@ -21,7 +21,7 @@ class VertexMaterialInfo(Struct):
     specular = RGBA()
     emissive = RGBA()
     shininess = 0.0
-    opacity = 0.0
+    opacity = 1.0
     translucency = 0.0
 
     @staticmethod
