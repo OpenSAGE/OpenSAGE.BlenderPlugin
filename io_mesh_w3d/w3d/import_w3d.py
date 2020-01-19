@@ -7,6 +7,7 @@ from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.mesh import *
+from io_mesh_w3d.w3d.structs.dazzle import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 
@@ -37,6 +38,8 @@ def load_file(context, path, data_context):
             data_context.hlod = HLod.read(context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
+        elif chunk_type == W3D_CHUNK_DAZZLE:
+            data_context.dazzles.append(Dazzle.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)
@@ -67,9 +70,6 @@ def load_file(context, path, data_context):
         elif chunk_type == W3D_CHUNK_LIGHTSCAPE:
             print("-> lightscape chunk is not supported")
             file.seek(chunk_size, 1)
-        elif chunk_type == W3D_CHUNK_DAZZLE:
-            print("-> dazzle chunk is not supported")
-            file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_SOUNDROBJ:
             print("-> soundobj chunk is not supported")
             file.seek(chunk_size, 1)
@@ -89,6 +89,7 @@ def load_file(context, path, data_context):
 def load(context, import_settings):
     data_context = DataContext(
         meshes=[],
+        dazzles=[],
         textures=[],
         collision_boxes=[],
         hierarchy=None,
@@ -128,7 +129,8 @@ def load(context, import_settings):
                 data_context.hierarchy,
                 data_context.collision_boxes,
                 data_context.animation,
-                data_context.compressed_animation)
+                data_context.compressed_animation,
+                data_context.dazzles)
     return {'FINISHED'}
 
 
@@ -146,5 +148,4 @@ W3D_CHUNK_EMITTER = 0x00000500
 W3D_CHUNK_AGGREGATE = 0x00000600
 W3D_CHUNK_NULL_OBJECT = 0x00000750
 W3D_CHUNK_LIGHTSCAPE = 0x00000800
-W3D_CHUNK_DAZZLE = 0x00000900
 W3D_CHUNK_SOUNDROBJ = 0x00000A00

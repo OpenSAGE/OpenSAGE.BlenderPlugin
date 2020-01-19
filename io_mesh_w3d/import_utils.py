@@ -51,7 +51,7 @@ def get_collection(hlod=None):
 ##########################################################################
 
 
-def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
     rig = None
     coll = get_collection(hlod)
 
@@ -69,6 +69,9 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         for box in boxes:
             create_box(box, hlod, hierarchy, rig, coll)
+
+        for dazzle in dazzles:
+            create_dazzle(context, dazzle, hlod, hierarchy, rig, coll)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
@@ -144,8 +147,9 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            principleds[mat_id].base_color_texture.image = load_texture(context, texture.file, texture.id)
-            # principleds[mat_id].alpha_texture.image = tex
+            tex = load_texture(context, texture.file, texture.id)
+            principleds[mat_id].base_color_texture.image = tex
+            #principleds[mat_id].alpha_texture.image = tex
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -337,7 +341,6 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     material.attributes = atts
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.diffuse_color = vert_mat.vm_info.diffuse.to_vector_rgba(alpha=1.0)
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
     material.translucency = vert_mat.vm_info.translucency
@@ -682,6 +685,52 @@ def create_sphere():
     b_mesh.free()
 
     return basic_sphere
+
+
+def create_cone(name):
+    mesh = bpy.data.meshes.new(name)
+    cone = bpy.data.objects.new(name, mesh)
+
+    b_mesh = bmesh.new()
+    bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
+                          segments=10, diameter1=0, diameter2=1.0, depth=2.0, calc_uvs=True)
+    b_mesh.to_mesh(mesh)
+    b_mesh.free()
+
+    return (mesh, cone)
+
+
+def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
+    #Todo: proper dimensions for cone
+    (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
+    dazzle_cone.object_type = 'DAZZLE'
+    dazzle_cone.dazzle_type = dazzle.type_name
+    link_object_to_active_scene(dazzle_cone, coll)
+
+    material = bpy.data.materials.new(dazzle.name())
+    material.use_nodes = True
+    material.blend_method = 'BLEND'
+    material.show_transparent_back = False
+
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+    principled.base_color = (255, 255, 255)
+    principled.base_color_texture.image = load_texture(context, 'SunDazzle.tga')
+    dazzle_mesh.materials.append(material)
+
+    if hierarchy is None or rig is None:
+        return
+
+    sub_objects = [
+        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == dazzle.name()]
+    if not sub_objects:
+        return
+    sub_object = sub_objects[0]
+    if sub_object.bone_index == 0:
+        return
+    pivot = hierarchy.pivots[sub_object.bone_index]
+    dazzle_cone.parent = rig
+    dazzle_cone.parent_bone = pivot.name
+    dazzle_cone.parent_type = 'BONE'
 
 
 def create_box(box, hlod, hierarchy, rig, coll):
