@@ -406,7 +406,7 @@ def append_property(shader_mat, type, name, value, default=None):
         type=type, name=name, value=value))
 
 
-def retrieve_shader_material(material, principled):
+def retrieve_shader_material(material, principled, w3x=False):
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
             type_name='NormalMapped.fx'),
@@ -414,18 +414,28 @@ def retrieve_shader_material(material, principled):
 
     shader_mat.header.technique_index = material.technique
 
+    if w3x:
+        append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
+        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(material.diffuse_color),
+                   RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'ColorSpecular', RGBA(material.specular_color, a=0.0))
+        append_property(shader_mat, 5, 'ColorAmbient', RGBA(material.ambient))
+        append_property(shader_mat, 5, 'ColorEmissive', RGBA(material.emission))
+
+    else:
+        append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
+        append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
+                   RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
+        append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
+        append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
+
     append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
-    append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
+    if principled.normalmap_texture is not None:
+        append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
-    append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
-    append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
-                   RGBA(r=204, g=204, b=204, a=255))
-    append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
-
-    append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
-    append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
     append_property(shader_mat, 2, 'Opacity', material.opacity)
     append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test)
     append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
@@ -447,9 +457,9 @@ def retrieve_shader_material(material, principled):
                     material.tex_coord_mapper_0)
     append_property(shader_mat, 6, 'TexCoordMapper_1',
                     material.tex_coord_mapper_1)
-    append_property(shader_mat, 4, 'TexCoordTransform_0',
+    append_property(shader_mat, 5, 'TexCoordTransform_0',
                     RGBA(material.tex_coord_transform_0), RGBA())
-    append_property(shader_mat, 4, 'TexCoordTransform_1',
+    append_property(shader_mat, 5, 'TexCoordTransform_1',
                     RGBA(material.tex_coord_transform_1), RGBA())
     append_property(shader_mat, 1, 'EnvironmentTexture',
                     material.environment_texture)

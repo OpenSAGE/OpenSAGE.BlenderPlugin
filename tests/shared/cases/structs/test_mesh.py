@@ -28,7 +28,7 @@ class TestMesh(TestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(5863, expected.size())
+        self.assertEqual(5687, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

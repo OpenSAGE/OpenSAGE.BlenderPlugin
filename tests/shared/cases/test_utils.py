@@ -58,6 +58,19 @@ class TestUtils(TestCase):
 
     def test_shader_material_w3x_roundtrip(self):
         mesh = get_mesh()
+        mesh.shader_materials = [get_shader_material(w3x=True)]
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        for source in mesh.shader_materials:
+            (material, _) = create_material_from_shader_material(
+                self, mesh, source)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_shader_material(material, principled, w3x=True)
+            compare_shader_materials(self, source, actual)
+
+    def test_shader_material_w3x_two_tex_roundtrip(self):
+        mesh = get_mesh()
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -66,14 +79,7 @@ class TestUtils(TestCase):
             (material, _) = create_material_from_shader_material(
                 self, mesh, source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled)
-            print('############################### start')
-            for i, exp in enumerate(source.properties):
-                act = 'None'
-                if len(actual.properties) > i + 1:
-                    act = actual.properties[i].name
-                print(exp.name + ' -> ' + act)
-            print('############################## end')
+            actual = retrieve_shader_material(material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
 
     def test_default_shader_material_properties_are_not_exported(self):
@@ -82,7 +88,10 @@ class TestUtils(TestCase):
 
         (material, principled) = create_material_from_shader_material(self, mesh, mesh.shader_materials[0])
 
-        actual = retrieve_shader_material(material, principled)
+        actual = retrieve_shader_material(material, principled, w3x=False)
+        self.assertEqual(0, len(actual.properties))
+
+        actual = retrieve_shader_material(material, principled, w3x=True)
         self.assertEqual(0, len(actual.properties))
 
     def test_shader_material_minimal_roundtrip(self):

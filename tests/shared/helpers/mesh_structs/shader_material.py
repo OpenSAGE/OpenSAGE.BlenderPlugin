@@ -43,8 +43,8 @@ def get_shader_material_property(
 
 
 def compare_shader_material_properties(self, expected, actual):
-    self.assertEqual(expected.type, actual.type)
     self.assertEqual(expected.name, actual.name)
+    self.assertEqual(expected.type, actual.type, 'Incorrect type: ' + str(actual.type) + ' for property: ' + actual.name)
 
     if expected.type == 1:
         self.assertEqual(expected.value.split(
@@ -64,12 +64,10 @@ def compare_shader_material_properties(self, expected, actual):
 def get_shader_material_properties(w3x=False, two_tex=False):
     props = [
         get_shader_material_property(3, "BumpUVScale"),
-        get_shader_material_property(4, "Sampler_ClampU_ClampV_NoMip_0"),
         get_shader_material_property(6, "BlendMode"),
         get_shader_material_property(7, "AlphaTestEnable"),
         get_shader_material_property(7, 'CullingEnable'),
         get_shader_material_property(2, 'Opacity'),
-        get_shader_material_property(6, 'BlendMode'),
         get_shader_material_property(6, 'EdgeFadeOut'),
         get_shader_material_property(7, 'DepthWriteEnable'),
         get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_0'),
@@ -93,15 +91,15 @@ def get_shader_material_properties(w3x=False, two_tex=False):
     if w3x:
         props.append(get_shader_material_property(2, "Shininess"))
         props.append(get_shader_material_property(5, "ColorDiffuse"))
-        props.append(get_shader_material_property(5, "SpecularColor"))
-        props.append(get_shader_material_property(5, "AmbientColor"))
-        props.append(get_shader_material_property(5, "EmissiveColor"))
-    else:
-        props.append(get_shader_material_property(2, "SpecularExponent"))
-        props.append(get_shader_material_property(5, "DiffuseColor"))
         props.append(get_shader_material_property(5, "ColorSpecular"))
         props.append(get_shader_material_property(5, "ColorAmbient"))
         props.append(get_shader_material_property(5, "ColorEmissive"))
+    else:
+        props.append(get_shader_material_property(2, "SpecularExponent"))
+        props.append(get_shader_material_property(5, "DiffuseColor"))
+        props.append(get_shader_material_property(5, "SpecularColor"))
+        props.append(get_shader_material_property(5, "AmbientColor"))
+        props.append(get_shader_material_property(5, "EmissiveColor"))
 
     if two_tex:
         props.append(get_shader_material_property(6, 'NumTextures'))
@@ -145,12 +143,12 @@ def get_shader_material_minimal():
 
     shader_mat.properties = [
         get_shader_material_property(1, "a"),
-        get_shader_material_property(2, "a"),
-        get_shader_material_property(3, "a"),
-        get_shader_material_property(4, "a"),
-        get_shader_material_property(5, "a"),
-        get_shader_material_property(6, "a"),
-        get_shader_material_property(7, "a")]
+        get_shader_material_property(2, "b"),
+        get_shader_material_property(3, "c"),
+        get_shader_material_property(4, "d"),
+        get_shader_material_property(5, "e"),
+        get_shader_material_property(6, "f"),
+        get_shader_material_property(7, "g")]
     return shader_mat
 
 
@@ -162,7 +160,23 @@ def get_shader_material_empty():
 
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)
+    
+    for expected_prop in expected.properties:
+        match_found = False
+        for actual_prop in actual.properties:
+            if actual_prop.name == expected_prop.name:
+                compare_shader_material_properties(
+                    self, expected_prop, actual_prop)
+                match_found = True
+
+        self.assertTrue(match_found, 'No matching property ' + expected_prop.name + ' found!')
+
+    for actual_prop in actual.properties:
+        match_found = False
+        for expected_prop in expected.properties:
+            if actual_prop.name == expected_prop.name:
+                match_found = True
+
+        self.assertTrue(match_found, 'Unexpected property ' + actual_prop.name + ' in result!' + str(actual_prop.value))
+
     self.assertEqual(len(expected.properties), len(actual.properties))
-    for i in range(len(expected.properties)):
-        compare_shader_material_properties(
-            self, expected.properties[i], actual.properties[i])

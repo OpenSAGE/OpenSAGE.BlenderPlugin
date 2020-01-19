@@ -13,7 +13,7 @@ class TestShaderMaterial(TestCase):
         expected = get_shader_material()
 
         self.assertEqual(45, expected.header.size())
-        self.assertEqual(1541, expected.size())
+        self.assertEqual(1453, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
