@@ -13,7 +13,7 @@ class TestShaderMaterial(TestCase):
         expected = get_shader_material()
 
         self.assertEqual(45, expected.header.size())
-        self.assertEqual(506, expected.size())
+        self.assertEqual(1453, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -134,7 +134,24 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(240, material.size())
 
     def test_write_read_xml(self):
-        expected = get_shader_material()
+        expected = get_shader_material(w3x=True)
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_shader_materials = dom.getElementsByTagName('FXShader')
+        self.assertEqual(1, len(xml_shader_materials))
+
+        actual = ShaderMaterial.parse(xml_shader_materials[0])
+        compare_shader_materials(self, expected, actual)
+
+    def test_write_read_xml_two_texture(self):
+        expected = get_shader_material(two_tex=True)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))

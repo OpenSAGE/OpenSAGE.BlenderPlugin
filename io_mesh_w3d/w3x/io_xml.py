@@ -124,7 +124,7 @@ def parse_object_list(context, parent, name, identifier, parse_func, par1=None):
     if not list_objects:
         return result
     if len(list_objects) > 1:
-        context.warning('node: ' + parent + ' contains multiple objects of type: ' + name)
+        context.warning('node: ' + str(parent) + ' contains multiple objects of type: ' + name)
 
     return parse_objects(list_objects[0], identifier, parse_func, par1)
 

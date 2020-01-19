@@ -30,6 +30,9 @@ class RGBA(Struct):
         else:
             self.a = int(vec[3] * scale)
 
+    def is_black(self):
+        return self.r == 0 and self.g == 0 and self.b == 0
+
     @staticmethod
     def read(io_stream):
         return RGBA(r=read_ubyte(io_stream),
