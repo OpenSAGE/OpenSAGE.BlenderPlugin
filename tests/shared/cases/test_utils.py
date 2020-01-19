@@ -13,6 +13,7 @@ from tests.shared.helpers.mesh import *
 from tests.shared.helpers.mesh_structs.shader_material import *
 from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
+from tests.w3d.helpers.dazzle import *
 from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from os.path import dirname as up
@@ -138,6 +139,29 @@ class TestUtils(TestCase):
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data([], None, None, boxes)
+
+    def test_dazzles_roundtrip(self):
+        hlod = get_hlod()
+        hlod.lod_arrays[0].header.model_count = 2
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=1, name="containerName.Backlight"),
+            get_hlod_sub_object(bone=2, name="containerName.Headlight")]
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='BacklightPivot', parent=0),
+            get_hierarchy_pivot(name='HeadlightPivot', parent=1)]
+        meshes = []
+        dazzles = [get_dazzle(name='containerName.Backlight', type='REN_BRAKELIGHT'),
+                   get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT')]
+
+        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
+                 self.outpath() + "texture.dds")
+
+        create_data(self, [], hlod, hierarchy, [], None, None, dazzles)
+
+        self.compare_data([], hlod, None, [], None, None, dazzles)
 
     def test_hierarchy_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -481,7 +505,7 @@ class TestUtils(TestCase):
 
         self.assertTrue("bone_pivot2" in rig.pose.bones)
 
-    def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+    def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
         container_name = "containerName"
         rig = None
         actual_hiera = None
@@ -509,6 +533,13 @@ class TestUtils(TestCase):
             self.assertEqual(len(boxes), len(actual_boxes))
             for i, box in enumerate(boxes):
                 compare_collision_boxes(self, box, actual_boxes[i])
+
+        if dazzles:
+            actual_dazzles = retrieve_dazzles(actual_hiera, container_name)
+
+            self.assertEqual(len(dazzles), len(actual_dazzles))
+            for i, dazzle in enumerate(dazzles):
+                compare_dazzles(self, dazzle, actual_dazzles[i])
 
         if animation is not None:
             actual_animation = retrieve_animation(

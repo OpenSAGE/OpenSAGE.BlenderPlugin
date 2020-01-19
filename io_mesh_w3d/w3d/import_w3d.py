@@ -39,7 +39,7 @@ def load_file(context, path, data_context):
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_DAZZLE:
-            dazzles.append(Dazzle.read(self, file, chunk_end))
+            data_context.dazzles.append(Dazzle.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
             print("-> morph animation chunk is not supported")
             file.seek(chunk_size, 1)
@@ -89,6 +89,7 @@ def load_file(context, path, data_context):
 def load(context, import_settings):
     data_context = DataContext(
         meshes=[],
+        dazzles=[],
         textures=[],
         collision_boxes=[],
         hierarchy=None,
@@ -128,7 +129,8 @@ def load(context, import_settings):
                 data_context.hierarchy,
                 data_context.collision_boxes,
                 data_context.animation,
-                data_context.compressed_animation)
+                data_context.compressed_animation,
+                data_context.dazzles)
     return {'FINISHED'}
 
 

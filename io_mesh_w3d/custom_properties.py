@@ -10,32 +10,51 @@ from bpy.types import Panel, Object, Material, PropertyGroup
 ##########################################################################
 
 Object.userText = StringProperty(
-    name="User Text",
-    description="This is a text defined by the user",
-    default="")
+    name='User Text',
+    description='This is a text defined by the user',
+    default='')
 
 Object.object_type = EnumProperty(
-    name="Type",
-    description="Attributes that define the type of this object",
+    name='Type',
+    description='Attributes that define the type of this object',
     items=[
         ('NORMAL', 'Normal', 'desc: just a normal mesh'),
         ('BOX', 'Box', 'desc: this object defines a boundingbox'),
         ('DAZZLE', 'Dazzle', 'desc: todo')],
     default='NORMAL')
 
+Object.dazzle_type = EnumProperty(
+    name='Dazzle Type',
+    description='defines the dazzle type',
+    items=[
+        ('DEFAULT', 'default', 'desc: todo'),
+        ('SUN', 'sun', 'desc: todo'),
+        ('REN_L5_STREETLIGHT', 'Ren L5 streetlight', 'desc: todo'),
+        ('REN_BRAKELIGHT', 'Ren brakelight', 'desc: todo'),
+        ('REN_HEADLIGHT', 'Ren headlight', 'desc: todo'),
+        ('REN_L5_REDLIGHT', 'Ren L5 redlight', 'desc: todo'),
+        ('REN_NUKE', 'Ren nuke', 'desc: todo'),
+        ('REN_BLINKLIGHT_RED', 'Ren blinklight red', 'desc: todo'),
+        ('REN_BLINKLIGHT_WHITE', 'Ren blinklight white', 'desc: todo'),
+        ('REN_VEHICLELIGHT_RED', 'Ren vehicle light red', 'desc: todo'),
+        ('REN_VEHICLELIGHT_WHITE', 'Ren vehicle light white', 'desc: todo')],
+    default='DEFAULT')
 
 class OBJECT_PANEL_PT_w3d(Panel):
-    bl_label = "W3D Properties"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "object"
+    bl_label = 'W3D Properties'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'object'
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.active_object, "object_type")
+        col.prop(context.active_object, 'object_type')
+        if context.active_object.object_type == 'DAZZLE':
+            col = layout.column()
+            col.prop(context.active_object, 'dazzle_type')
         col = layout.column()
-        col.prop(context.active_object, "userText")
+        col.prop(context.active_object, 'userText')
 
 
 ##########################################################################
@@ -44,8 +63,8 @@ class OBJECT_PANEL_PT_w3d(Panel):
 
 
 Material.attributes = EnumProperty(
-    name="attributes",
-    description="Attributes that define the behaviour of this material",
+    name='attributes',
+    description='Attributes that define the behaviour of this material',
     items=[
         ('DEFAULT', 'Default', 'desc: todo', 0),
         ('USE_DEPTH_CUE', 'UseDepthCue', 'desc: todo', 1),
@@ -95,323 +114,323 @@ Material.surface_type = EnumProperty(
 
 
 Material.translucency = FloatProperty(
-    name="Translucency",
+    name='Translucency',
     default=0.0,
     min=0.0, max=1.0,
-    description="Translucency property")
+    description='Translucency property')
 
 Material.vm_args_0 = StringProperty(
-    name="vm_args_0",
-    description="Vertex Material Arguments 0",
-    default="")
+    name='vm_args_0',
+    description='Vertex Material Arguments 0',
+    default='')
 
 Material.vm_args_1 = StringProperty(
-    name="vm_args_1",
-    description="Vertex Material Arguments 1",
-    default="")
+    name='vm_args_1',
+    description='Vertex Material Arguments 1',
+    default='')
 
 Material.technique = IntProperty(
-    name="Technique",
-    description="Dont know yet",
+    name='Technique',
+    description='Dont know yet',
     default=0,
     min=0,
     max=1)
 
 Material.ambient = FloatVectorProperty(
-    name="Ambient",
+    name='Ambient',
     subtype='COLOR',
     size=4,
     default=(1.0, 1.0, 1.0, 0.0),
     min=0.0, max=1.0,
-    description="Ambient color")
+    description='Ambient color')
 
 Material.emission = FloatVectorProperty(
-    name="Emission",
+    name='Emission',
     subtype='COLOR',
     size=4,
     default=(1.0, 1.0, 1.0, 0.0),
     min=0.0, max=1.0,
-    description="Emission color")
+    description='Emission color')
 
 Material.opacity = FloatProperty(
-    name="Opacity",
+    name='Opacity',
     default=0.0,
     min=0.0, max=1.0,
-    description="Opacity property")
+    description='Opacity property')
 
 Material.alpha_test = BoolProperty(
-    name="Alpha test",
-    description="Enable the alpha test",
+    name='Alpha test',
+    description='Enable the alpha test',
     default=False)
 
 Material.blend_mode = IntProperty(
-    name="Blend mode",
-    description="Which blend mode should be used",
+    name='Blend mode',
+    description='Which blend mode should be used',
     default=0,
     min=0,
     max=5)
 
 Material.bump_uv_scale = FloatVectorProperty(
-    name="Bump UV Scale",
+    name='Bump UV Scale',
     subtype='TRANSLATION',
     size=2,
     default=(0.0, 0.0),
     min=0.0, max=1.0,
-    description="Bump uv scale")
+    description='Bump uv scale')
 
 Material.edge_fade_out = IntProperty(
-    name="Edge fade out",
-    description="TODO",
+    name='Edge fade out',
+    description='TODO',
     default=0,
     min=0,
     max=5)
 
 Material.depth_write = BoolProperty(
-    name="Depth write",
-    description="Todo",
+    name='Depth write',
+    description='Todo',
     default=False)
 
 Material.sampler_clamp_uv_no_mip_0 = FloatVectorProperty(
-    name="Sampler clamp UV no MIP 0",
+    name='Sampler clamp UV no MIP 0',
     subtype='TRANSLATION',
     size=3,
     default=(0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="Sampler clampU clampV no mipmap 0")
+    description='Sampler clampU clampV no mipmap 0')
 
 Material.sampler_clamp_uv_no_mip_1 = FloatVectorProperty(
-    name="Sampler clamp UV no MIP 1",
+    name='Sampler clamp UV no MIP 1',
     subtype='TRANSLATION',
     size=3,
     default=(0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="Sampler clampU clampV no mipmap 1")
+    description='Sampler clampU clampV no mipmap 1')
 
 Material.num_textures = IntProperty(
-    name="NumTextures",
-    description="TODO",
+    name='NumTextures',
+    description='TODO',
     default=0,
     min=0,
     max=5)
 
 Material.texture_0 = StringProperty(
-    name="Texture 0",
-    description="TODO",
-    default="")
+    name='Texture 0',
+    description='TODO',
+    default='')
 
 Material.texture_1 = StringProperty(
-    name="Texture 1",
-    description="TODO",
-    default="")
+    name='Texture 1',
+    description='TODO',
+    default='')
 
 Material.secondary_texture_blend_mode = IntProperty(
-    name="Secondary texture blend mode",
-    description="TODO",
+    name='Secondary texture blend mode',
+    description='TODO',
     default=0,
     min=0,
     max=5)
 
 Material.tex_coord_mapper_0 = IntProperty(
-    name="TexCoord mapper 0",
-    description="TODO",
+    name='TexCoord mapper 0',
+    description='TODO',
     default=0,
     min=0,
     max=5)
 
 Material.tex_coord_mapper_1 = IntProperty(
-    name="TexCoord mapper 1",
-    description="TODO",
+    name='TexCoord mapper 1',
+    description='TODO',
     default=0,
     min=0,
     max=5)
 
 Material.tex_coord_transform_0 = FloatVectorProperty(
-    name="TexCoord transform 0",
+    name='TexCoord transform 0',
     subtype='TRANSLATION',
     size=4,
     default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="TODO")
+    description='TODO')
 
 Material.tex_coord_transform_1 = FloatVectorProperty(
-    name="TexCoord transform 1",
+    name='TexCoord transform 1',
     subtype='TRANSLATION',
     size=4,
     default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="TODO")
+    description='TODO')
 
 Material.environment_texture = StringProperty(
-    name="Environment texture",
-    description="TODO",
-    default="")
+    name='Environment texture',
+    description='TODO',
+    default='')
 
 Material.environment_mult = FloatProperty(
-    name="Environment mult",
+    name='Environment mult',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.recolor_texture = StringProperty(
-    name="Recolor texture",
-    description="TODO",
-    default="")
+    name='Recolor texture',
+    description='TODO',
+    default='')
 
 Material.recolor_mult = FloatProperty(
-    name="Recolor mult",
+    name='Recolor mult',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.use_recolor = BoolProperty(
-    name="Use recolor colors",
-    description="Todo",
+    name='Use recolor colors',
+    description='Todo',
     default=False)
 
 Material.house_color_pulse = BoolProperty(
-    name="House color pulse",
-    description="Todo",
+    name='House color pulse',
+    description='Todo',
     default=False)
 
 Material.scrolling_mask_texture = StringProperty(
-    name="Scrolling mask texture",
-    description="TODO",
-    default="")
+    name='Scrolling mask texture',
+    description='TODO',
+    default='')
 
 Material.tex_coord_transform_angle = FloatProperty(
-    name="Texture coord transform angle",
+    name='Texture coord transform angle',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_u_0 = FloatProperty(
-    name="Texture coord transform u 0",
+    name='Texture coord transform u 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_v_0 = FloatProperty(
-    name="Texture coord transform v 0",
+    name='Texture coord transform v 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_u_1 = FloatProperty(
-    name="Texture coord transform u 0",
+    name='Texture coord transform u 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_v_1 = FloatProperty(
-    name="Texture coord transform v 0",
+    name='Texture coord transform v 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_u_2 = FloatProperty(
-    name="Texture coord transform u 0",
+    name='Texture coord transform u 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_coord_transform_v_2 = FloatProperty(
-    name="Texture coord transform v 0",
+    name='Texture coord transform v 0',
     default=0.0,
     min=0.0, max=1.0,
-    description="Todo")
+    description='Todo')
 
 Material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = FloatVectorProperty(
-    name="TextureAnimation FPS NumPerRow LastFrame FrameOffset 0",
+    name='TextureAnimation FPS NumPerRow LastFrame FrameOffset 0',
     subtype='TRANSLATION',
     size=4,
     default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
-    description="TODO")
+    description='TODO')
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
-    bl_label = "W3D Properties"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "material"
+    bl_label = 'W3D Properties'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'material'
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.object.active_material, "attributes")
+        col.prop(context.object.active_material, 'attributes')
         col = layout.column()
-        col.prop(context.object.active_material, "surface_type")
+        col.prop(context.object.active_material, 'surface_type')
         col = layout.column()
-        col.prop(context.object.active_material, "translucency")
+        col.prop(context.object.active_material, 'translucency')
         col = layout.column()
-        col.prop(context.object.active_material, "vm_args_0")
+        col.prop(context.object.active_material, 'vm_args_0')
         col = layout.column()
-        col.prop(context.object.active_material, "vm_args_1")
+        col.prop(context.object.active_material, 'vm_args_1')
         col = layout.column()
-        col.prop(context.object.active_material, "technique")
+        col.prop(context.object.active_material, 'technique')
         col = layout.column()
-        col.prop(context.object.active_material, "ambient")
+        col.prop(context.object.active_material, 'ambient')
         col = layout.column()
-        col.prop(context.object.active_material, "opacity")
+        col.prop(context.object.active_material, 'opacity')
         col = layout.column()
-        col.prop(context.object.active_material, "alpha_test")
+        col.prop(context.object.active_material, 'alpha_test')
         col = layout.column()
-        col.prop(context.object.active_material, "blend_mode")
+        col.prop(context.object.active_material, 'blend_mode')
         col = layout.column()
-        col.prop(context.object.active_material, "bump_uv_scale")
+        col.prop(context.object.active_material, 'bump_uv_scale')
         col = layout.column()
-        col.prop(context.object.active_material, "edge_fade_out")
+        col.prop(context.object.active_material, 'edge_fade_out')
         col = layout.column()
-        col.prop(context.object.active_material, "depth_write")
+        col.prop(context.object.active_material, 'depth_write')
         col = layout.column()
-        col.prop(context.object.active_material, "sampler_clamp_uv_no_mip_0")
+        col.prop(context.object.active_material, 'sampler_clamp_uv_no_mip_0')
         col = layout.column()
-        col.prop(context.object.active_material, "sampler_clamp_uv_no_mip_1")
+        col.prop(context.object.active_material, 'sampler_clamp_uv_no_mip_1')
         col = layout.column()
-        col.prop(context.object.active_material, "num_textures")
+        col.prop(context.object.active_material, 'num_textures')
         col = layout.column()
-        col.prop(context.object.active_material, "texture_0")
+        col.prop(context.object.active_material, 'texture_0')
         col = layout.column()
-        col.prop(context.object.active_material, "texture_1")
+        col.prop(context.object.active_material, 'texture_1')
         col = layout.column()
-        col.prop(context.object.active_material, "secondary_texture_blend_mode")
+        col.prop(context.object.active_material, 'secondary_texture_blend_mode')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_mapper_0")
+        col.prop(context.object.active_material, 'tex_coord_mapper_0')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_mapper_1")
+        col.prop(context.object.active_material, 'tex_coord_mapper_1')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_0")
+        col.prop(context.object.active_material, 'tex_coord_transform_0')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_1")
+        col.prop(context.object.active_material, 'tex_coord_transform_1')
         col = layout.column()
-        col.prop(context.object.active_material, "environment_texture")
+        col.prop(context.object.active_material, 'environment_texture')
         col = layout.column()
-        col.prop(context.object.active_material, "environment_mult")
+        col.prop(context.object.active_material, 'environment_mult')
         col = layout.column()
-        col.prop(context.object.active_material, "recolor_texture")
+        col.prop(context.object.active_material, 'recolor_texture')
         col = layout.column()
-        col.prop(context.object.active_material, "recolor_mult")
+        col.prop(context.object.active_material, 'recolor_mult')
         col = layout.column()
-        col.prop(context.object.active_material, "use_recolor")
+        col.prop(context.object.active_material, 'use_recolor')
         col = layout.column()
-        col.prop(context.object.active_material, "house_color_pulse")
+        col.prop(context.object.active_material, 'house_color_pulse')
         col = layout.column()
-        col.prop(context.object.active_material, "scrolling_mask_texture")
+        col.prop(context.object.active_material, 'scrolling_mask_texture')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_angle")
+        col.prop(context.object.active_material, 'tex_coord_transform_angle')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_u_0")
+        col.prop(context.object.active_material, 'tex_coord_transform_u_0')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_v_0")
+        col.prop(context.object.active_material, 'tex_coord_transform_v_0')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_u_1")
+        col.prop(context.object.active_material, 'tex_coord_transform_u_1')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_v_1")
+        col.prop(context.object.active_material, 'tex_coord_transform_v_1')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_u_2")
+        col.prop(context.object.active_material, 'tex_coord_transform_u_2')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_coord_transform_v_2")
+        col.prop(context.object.active_material, 'tex_coord_transform_v_2')
         col = layout.column()
-        col.prop(context.object.active_material, "tex_ani_fps_NPR_lastFrame_frameOffset_0")
+        col.prop(context.object.active_material, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
 
 
 ##########################################################################
@@ -442,42 +461,42 @@ Material.shader = PointerProperty(type=ShaderProperties)
 
 
 class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
-    bl_label = "W3D Shader Properties"
-    bl_space_type = "PROPERTIES"
-    bl_region_type = "WINDOW"
-    bl_context = "material"
+    bl_label = 'W3D Shader Properties'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'material'
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.object.active_material.shader, "depth_compare")
+        col.prop(context.object.active_material.shader, 'depth_compare')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "depth_mask")
+        col.prop(context.object.active_material.shader, 'depth_mask')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "color_mask")
+        col.prop(context.object.active_material.shader, 'color_mask')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "dest_blend")
+        col.prop(context.object.active_material.shader, 'dest_blend')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "fog_func")
+        col.prop(context.object.active_material.shader, 'fog_func')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "pri_gradient")
+        col.prop(context.object.active_material.shader, 'pri_gradient')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "sec_gradient")
+        col.prop(context.object.active_material.shader, 'sec_gradient')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "src_blend")
+        col.prop(context.object.active_material.shader, 'src_blend')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "texturing")
+        col.prop(context.object.active_material.shader, 'texturing')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "detail_color_func")
+        col.prop(context.object.active_material.shader, 'detail_color_func')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "detail_alpha_func")
+        col.prop(context.object.active_material.shader, 'detail_alpha_func')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "shader_preset")
+        col.prop(context.object.active_material.shader, 'shader_preset')
         col = layout.column()
-        col.prop(context.object.active_material.shader, "alpha_test")
-        col = layout.column()
-        col.prop(context.object.active_material.shader,
-                 "post_detail_color_func")
+        col.prop(context.object.active_material.shader, 'alpha_test')
         col = layout.column()
         col.prop(context.object.active_material.shader,
-                 "post_detail_alpha_func")
+                 'post_detail_color_func')
+        col = layout.column()
+        col.prop(context.object.active_material.shader,
+                 'post_detail_alpha_func')

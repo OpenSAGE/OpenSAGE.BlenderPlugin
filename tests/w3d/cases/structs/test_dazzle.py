@@ -10,7 +10,7 @@ class TestDazzle(TestCase):
     def test_write_read(self):
         expected = get_dazzle()
 
-        self.assertEqual(38, expected.size())
+        self.assertEqual(64, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -43,5 +43,5 @@ class TestDazzle(TestCase):
     def test_chunk_sizes(self):
         dazzle = get_dazzle()
 
-        self.assertEqual(38, dazzle.size())
-        self.assertEqual(30, dazzle.size(False))
+        self.assertEqual(64, dazzle.size())
+        self.assertEqual(56, dazzle.size(False))

@@ -7,6 +7,7 @@ from io_mesh_w3d.struct import Struct
 class DataContext(Struct):
     hierarchy = None
     meshes = []
+    dazzles = []
     hlod = None
     textures = []
     collision_boxes = []

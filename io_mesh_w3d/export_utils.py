@@ -12,6 +12,7 @@ from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.mesh import *
+from io_mesh_w3d.w3d.structs.dazzle import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
@@ -56,6 +57,20 @@ def retrieve_boxes(hierarchy, container_name):
             box.color = RGBA(material.diffuse_color)
         boxes.append(box)
     return boxes
+
+def retrieve_dazzles(hierarchy, container_name):
+    dazzles = []
+
+    for mesh_object in get_objects('MESH'):
+        if mesh_object.object_type != 'DAZZLE':
+            continue
+        name = container_name + "." + mesh_object.name
+        dazzle = Dazzle(
+            name_=name,
+            type_name=mesh_object.dazzle_type)
+
+        dazzles.append(dazzle)
+    return dazzles
 
 
 def retrieve_meshes(context, hierarchy, rig, container_name):

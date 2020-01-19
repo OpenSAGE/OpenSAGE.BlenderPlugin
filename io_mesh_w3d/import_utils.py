@@ -51,7 +51,7 @@ def get_collection(hlod=None):
 ##########################################################################
 
 
-def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None):
+def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
     rig = None
     coll = get_collection(hlod)
 
@@ -69,6 +69,9 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
         for box in boxes:
             create_box(box, hlod, hierarchy, rig, coll)
+
+        for dazzle in dazzles:
+            create_dazzle(dazzle, hlod, hierarchy, rig, coll)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
@@ -682,6 +685,41 @@ def create_sphere():
     b_mesh.free()
 
     return basic_sphere
+
+
+def create_cone(name):
+    mesh = bpy.data.meshes.new(name)
+    cone = bpy.data.objects.new(name, mesh)
+
+    b_mesh = bmesh.new()
+    bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
+                          segments=10, diameter1=0, diameter2=1.0, depth=2.0, calc_uvs=True)
+    b_mesh.to_mesh(mesh)
+    b_mesh.free()
+
+    return cone
+
+
+def create_dazzle(dazzle, hlod, hierarchy, rig, coll):
+    dazzle_cone = create_cone(dazzle.name())
+    dazzle_cone.object_type = 'DAZZLE'
+    dazzle_cone.dazzle_type = dazzle.type_name
+    link_object_to_active_scene(dazzle_cone, coll)
+
+    if hierarchy is None or rig is None:
+        return
+
+    sub_objects = [
+        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == dazzle.name()]
+    if not sub_objects:
+        return
+    sub_object = sub_objects[0]
+    if sub_object.bone_index == 0:
+        return
+    pivot = hierarchy.pivots[sub_object.bone_index]
+    dazzle_cone.parent = rig
+    dazzle_cone.parent_bone = pivot.name
+    dazzle_cone.parent_type = 'BONE'
 
 
 def create_box(box, hlod, hierarchy, rig, coll):
