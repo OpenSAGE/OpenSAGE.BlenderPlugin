@@ -22,12 +22,24 @@ bl_info = {
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export to Westwood 3D file format (.w3d)'''
     bl_idname = 'export_mesh.westwood_w3d'
-    bl_label = 'Export W3D'
+    bl_label = 'Export W3D/W3X'
     bl_options = {'UNDO', 'PRESET'}
 
     filename_ext = '.w3d'
 
-    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
+
+    file_format: EnumProperty(
+        name="Format",
+        items=(
+            ('W3D',
+             'W3D',
+             'Binary W3D format'),
+            ('W3X',
+             'W3X',
+             'XML based W3D format')),
+        description="Select the export file format",
+        default='W3D')
 
     export_mode: EnumProperty(
         name='Mode',
@@ -99,8 +111,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
-        from .w3d.export_w3d import save
-
         if self.will_save_settings:
             self.save_settings(context)
 
@@ -109,7 +119,12 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['compression'] = self.animation_compression
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
 
-        return save(self, export_settings)
+        if self.file_format == 'W3X':
+            from .w3x.export_w3x import save
+            return save(self, export_settings)
+        else:
+            from .w3d.export_w3d import save
+            return save(self, export_settings)
 
     def draw(self, _context):
         self.draw_general_settings()
@@ -121,6 +136,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
             self.draw_animation_settings()
 
     def draw_general_settings(self):
+        col = self.layout.box().column()
+        col.prop(self, 'file_format')
         col = self.layout.box().column()
         col.prop(self, 'export_mode')
 

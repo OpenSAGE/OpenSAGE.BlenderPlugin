@@ -12,6 +12,11 @@ def childs(self):
 
 minidom.Node.childs = childs
 
+def create_asset_declaration(doc):
+    asset_decl = doc.createElement('AssetDeclaration')
+    asset_decl.setAttribute('xmlns', 'uri:ea.com:eala:asset')
+    asset_decl.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    return asset_decl
 
 def parse_value(xml_obj, cast_func=str):
     return cast_func(xml_obj.childNodes[0].nodeValue)
