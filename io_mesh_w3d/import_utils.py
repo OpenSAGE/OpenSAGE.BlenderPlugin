@@ -71,7 +71,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
             create_box(box, hlod, hierarchy, rig, coll)
 
         for dazzle in dazzles:
-            create_dazzle(dazzle, hlod, hierarchy, rig, coll)
+            create_dazzle(context, dazzle, hlod, hierarchy, rig, coll)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
@@ -697,14 +697,25 @@ def create_cone(name):
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
-    return cone
+    return (mesh, cone)
 
 
-def create_dazzle(dazzle, hlod, hierarchy, rig, coll):
-    dazzle_cone = create_cone(dazzle.name())
+def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
+    #Todo: proper dimensions for cone
+    (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
     dazzle_cone.object_type = 'DAZZLE'
     dazzle_cone.dazzle_type = dazzle.type_name
     link_object_to_active_scene(dazzle_cone, coll)
+
+    material = bpy.data.materials.new(dazzle.name())
+    material.use_nodes = True
+    material.blend_method = 'BLEND'
+    material.show_transparent_back = False
+
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+    principled.base_color = (255, 255, 255)
+    principled.base_color_texture.image = load_texture(context, 'SunDazzle.tga')
+    dazzle_mesh.materials.append(material)
 
     if hierarchy is None or rig is None:
         return
