@@ -263,18 +263,18 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
     root = hierarchy.pivots[0]
     rig = None
 
-    for pivot in hierarchy.pivots:
-        pivot.is_bone = True
-
-    for obj in sub_objects:
-        pivot = hierarchy.pivots[obj.bone_index]
-        if pivot.name == obj.name:
-            pivot.is_bone = False
-
     for i, pivot in enumerate(hierarchy.pivots):
+        pivot.is_bone = True
+        for obj in sub_objects:
+            if obj.bone_index == i:
+                pivot.is_bone = False
+
+    for i, pivot in reversed(list(enumerate(hierarchy.pivots))):
         childs = [child for child in hierarchy.pivots if child.parent_id == i]
+        print(pivot.name + " -> " + str(len(childs)))
         for child in childs:
             if child.is_bone:
+                print("set as bone")
                 pivot.is_bone = True
 
     armature = None
@@ -286,6 +286,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
             (rig, armature) = create_rig(
                 hierarchy.name(), root.translation, coll)
 
+        print("create bone: " + pivot.name)
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
@@ -301,13 +302,16 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         bone.matrix = matrix
 
     if rig is not None:
-        bpy.ops.object.mode_set(mode='POSE')
+        if rig.mode != 'POSE':
+            bpy.ops.object.mode_set(mode='POSE')
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
             bone.custom_shape = basic_sphere
 
-    bpy.ops.object.mode_set(mode='OBJECT')
+        if rig.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
+
     return rig
 
 
