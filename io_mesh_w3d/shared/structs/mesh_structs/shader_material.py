@@ -10,7 +10,7 @@ W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 class ShaderMaterialHeader(Struct):
     technique_index = 0
-    type_name = ""
+    type_name = ''
     reserved = 0  # what is this?
 
     @staticmethod
@@ -37,7 +37,7 @@ W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 
 class ShaderMaterialProperty(Struct):
     type = 0
-    name = ""
+    name = ''
     value = None
 
     @staticmethod

@@ -40,8 +40,8 @@ W3D_CHUNK_TEXTURE_NAME = 0x00000032
 
 
 class Texture(Struct):
-    id = ""
-    file = ""
+    id = ''
+    file = ''
     texture_info = None
 
     @staticmethod

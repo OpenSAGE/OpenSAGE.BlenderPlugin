@@ -13,8 +13,8 @@ ADAPTIVE_DELTA_FLAVOR = 1
 
 class CompressedAnimationHeader(Struct):
     version = Version()
-    name = ""
-    hierarchy_name = ""
+    name = ''
+    hierarchy_name = ''
     num_frames = 0
     frame_rate = 0
     flavor = 0

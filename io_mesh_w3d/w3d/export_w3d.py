@@ -9,7 +9,7 @@ def save(context, export_settings):
     print('Saving file :' + context.filepath)
 
     export_mode = export_settings['mode']
-    print("export mode: " + str(export_mode))
+    print('export mode: ' + str(export_mode))
 
     if not export_mode in ['M', 'HM', 'HAM', 'H', 'A']:
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
@@ -51,14 +51,14 @@ def save(context, export_settings):
                 return {'CANCELLED'}
 
     if 'A' in export_mode:
-        timecoded = export_settings['compression'] == "TC"
+        timecoded = export_settings['compression'] == 'TC'
         animation = retrieve_animation(
             container_name, hierarchy, rig, timecoded)
         if not animation.validate(context):
             context.error('aborting export!')
             return {'CANCELLED'}
 
-    file = open(context.filepath, "wb")
+    file = open(context.filepath, 'wb')
 
     if export_mode == 'M':
         if len(meshes) > 1:

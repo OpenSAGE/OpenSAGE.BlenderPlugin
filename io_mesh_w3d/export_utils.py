@@ -42,7 +42,7 @@ def retrieve_boxes(hierarchy, container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.object_type != 'BOX':
             continue
-        name = container_name + "." + mesh_object.name
+        name = container_name + '.' + mesh_object.name
         box = CollisionBox(
             name_=name,
             center=mesh_object.location)
@@ -64,7 +64,7 @@ def retrieve_dazzles(hierarchy, container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.object_type != 'DAZZLE':
             continue
-        name = container_name + "." + mesh_object.name
+        name = container_name + '.' + mesh_object.name
         dazzle = Dazzle(
             name_=name,
             type_name=mesh_object.dazzle_type)
@@ -318,7 +318,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
     for mesh in meshes:
         subObject = HLodSubObject(
             name=mesh.name,
-            identifier=container_name + "." + mesh.name,
+            identifier=container_name + '.' + mesh.name,
             bone_index=0,
             is_box=mesh.object_type == 'BOX')
 
@@ -556,7 +556,7 @@ def retrieve_hierarchy(context, container_name):
         pivot_fixups=[])
 
     root = HierarchyPivot(
-        name="ROOTTRANSFORM",
+        name='ROOTTRANSFORM',
         parentID=-1,
         translation=Vector())
     hierarchy.pivots.append(root)
@@ -628,7 +628,7 @@ def retrieve_hierarchy(context, container_name):
             rotation=mesh.delta_rotation_quaternion,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
-        if mesh.parent_bone != "":
+        if mesh.parent_bone != '':
             pivot.parent_id = mesh.parent_bone
         elif mesh.parent is not None:
             pivot.parent_id = mesh.parent.name
@@ -652,11 +652,11 @@ def retrieve_hierarchy(context, container_name):
 
 
 def is_rotation(fcu):
-    return "rotation_quaternion" in fcu.data_path
+    return 'rotation_quaternion' in fcu.data_path
 
 
 def is_visibility(fcu):
-    return "hide" in fcu.data_path
+    return 'hide' in fcu.data_path
 
 
 def retrieve_channels(obj, hierarchy, timecoded, name=None):
@@ -670,7 +670,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
-                pivot_name = "ROOTTRANSFORM"
+                pivot_name = 'ROOTTRANSFORM'
             else:
                 pivot_name = values[1]
         else:

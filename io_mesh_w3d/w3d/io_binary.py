@@ -17,7 +17,7 @@ def read_string(io_stream):
     while ord(byte) != 0:
         str_buf.append(byte)
         byte = io_stream.read(1)
-    return (b"".join(str_buf)).decode("utf-8")
+    return (b''.join(str_buf)).decode('utf-8')
 
 
 def write_string(string, io_stream):
@@ -26,93 +26,93 @@ def write_string(string, io_stream):
 
 
 def read_fixed_string(io_stream):
-    return ((str(io_stream.read(STRING_LENGTH)))[2:18]).split("\\")[0]
+    return ((str(io_stream.read(STRING_LENGTH)))[2:18]).split('\\')[0]
 
 
 def write_fixed_string(string, io_stream):
     # truncate the string to 16
     nullbytes = STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print("Warning: Fixed string is too long!")
+        print('Warning: Fixed string is too long!')
 
     io_stream.write(bytes(string, 'UTF-8')[0:STRING_LENGTH])
     i = 0
     while i < nullbytes:
-        io_stream.write(struct.pack("B", 0b0))
+        io_stream.write(struct.pack('B', 0b0))
         i += 1
 
 
 def read_long_fixed_string(io_stream):
-    return ((str(io_stream.read(LARGE_STRING_LENGTH)))[2:34]).split("\\")[0]
+    return ((str(io_stream.read(LARGE_STRING_LENGTH)))[2:34]).split('\\')[0]
 
 
 def write_long_fixed_string(string, io_stream):
     # truncate the string to 32
     nullbytes = LARGE_STRING_LENGTH - len(string)
     if nullbytes < 0:
-        print("Warning: Fixed string was too long!")
+        print('Warning: Fixed string was too long!')
 
     io_stream.write(bytes(string, 'UTF-8')[0:LARGE_STRING_LENGTH])
     i = 0
     while i < nullbytes:
-        io_stream.write(struct.pack("B", 0b0))
+        io_stream.write(struct.pack('B', 0b0))
         i += 1
 
 
 def read_long(io_stream):
-    return struct.unpack("<l", io_stream.read(4))[0]
+    return struct.unpack('<l', io_stream.read(4))[0]
 
 
 def write_long(num, io_stream):
-    io_stream.write(struct.pack("<l", num))
+    io_stream.write(struct.pack('<l', num))
 
 
 def read_ulong(io_stream):
-    return struct.unpack("<L", io_stream.read(4))[0]
+    return struct.unpack('<L', io_stream.read(4))[0]
 
 
 def write_ulong(num, io_stream):
-    io_stream.write(struct.pack("<L", num))
+    io_stream.write(struct.pack('<L', num))
 
 
 def read_short(io_stream):
-    return struct.unpack("<h", io_stream.read(2))[0]
+    return struct.unpack('<h', io_stream.read(2))[0]
 
 
 def write_short(num, io_stream):
-    io_stream.write(struct.pack("<h", num))
+    io_stream.write(struct.pack('<h', num))
 
 
 def read_ushort(io_stream):
-    return struct.unpack("<H", io_stream.read(2))[0]
+    return struct.unpack('<H', io_stream.read(2))[0]
 
 
 def write_ushort(num, io_stream):
-    io_stream.write(struct.pack("<H", num))
+    io_stream.write(struct.pack('<H', num))
 
 
 def read_float(io_stream):
-    return struct.unpack("<f", io_stream.read(4))[0]
+    return struct.unpack('<f', io_stream.read(4))[0]
 
 
 def write_float(num, io_stream):
-    io_stream.write(struct.pack("<f", num))
+    io_stream.write(struct.pack('<f', num))
 
 
 def read_byte(io_stream):
-    return struct.unpack("<b", io_stream.read(1))[0]
+    return struct.unpack('<b', io_stream.read(1))[0]
 
 
 def write_byte(byte, io_stream):
-    io_stream.write(struct.pack("<b", byte))
+    io_stream.write(struct.pack('<b', byte))
 
 
 def read_ubyte(io_stream):
-    return struct.unpack("<B", io_stream.read(1))[0]
+    return struct.unpack('<B', io_stream.read(1))[0]
 
 
 def write_ubyte(byte, io_stream):
-    io_stream.write(struct.pack("<B", byte))
+    io_stream.write(struct.pack('<B', byte))
 
 
 def read_vector(io_stream):

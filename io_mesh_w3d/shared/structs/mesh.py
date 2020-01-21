@@ -36,8 +36,8 @@ VERTEX_CHANNEL_BITANGENT = 0x40
 class MeshHeader(Struct):
     version = Version()
     attrs = GEOMETRY_TYPE_NORMAL
-    mesh_name = ""
-    container_name = ""
+    mesh_name = ''
+    container_name = ''
     face_count = 0
     vert_count = 0
     matl_count = 0
@@ -253,10 +253,10 @@ class Mesh(Struct):
                     context, io_stream, subchunk_end,
                     chunk_type)
             elif chunk_type == W3D_CHUNK_DEFORM:
-                print("-> deform chunk is not supported")
+                print('-> deform chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_PS2_SHADERS:
-                print("-> ps2 shaders chunk is not supported")
+                print('-> ps2 shaders chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
@@ -421,7 +421,7 @@ class Mesh(Struct):
             prelit_lightmap_multi_texture=None)
 
         id = xml_mesh.attributes['id'].value
-        if "." in id:
+        if '.' in id:
             (container_name, name) = id.split('.', 1)
             result.header.mesh_name = name
             result.header.container_name = container_name
@@ -430,7 +430,7 @@ class Mesh(Struct):
 
         geometry_type = xml_mesh.attributes['GeometryType'].value
         result.header.attrs = GEOMETRY_TYPE_NORMAL
-        if geometry_type == "Skin":
+        if geometry_type == 'Skin':
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
@@ -515,9 +515,9 @@ class Mesh(Struct):
         id = self.header.container_name + "." + self.header.mesh_name
         xml_mesh.setAttribute('id', id)
 
-        xml_mesh.setAttribute('GeometryType', "Normal")
+        xml_mesh.setAttribute('GeometryType', 'Normal')
         if self.header.attrs & GEOMETRY_TYPE_SKIN:
-            xml_mesh.setAttribute('GeometryType', "Skin")
+            xml_mesh.setAttribute('GeometryType', 'Skin')
 
         box = BoundingBox(
             min=self.header.min_corner,
