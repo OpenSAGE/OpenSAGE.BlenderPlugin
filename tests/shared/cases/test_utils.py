@@ -167,7 +167,7 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         hlod = get_hlod()
         boxes = [get_collision_box()]
-        meshes = [
+        meshes = [ 
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
