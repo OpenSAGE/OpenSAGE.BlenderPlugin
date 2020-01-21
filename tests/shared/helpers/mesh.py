@@ -10,12 +10,12 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 from tests.w3d.helpers.version import *
 
 
-def get_mesh_header(name="mesh_name", skin=False, shader_mats=False, hidden=False):
+def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False):
     header = MeshHeader(
         version=get_version(),
         attrs=0,
         mesh_name=name,
-        container_name="containerName",
+        container_name='containerName',
         face_count=12,
         vert_count=8,
         matl_count=2,
@@ -70,10 +70,10 @@ def get_vertex_influences():
             get_vertex_influence(3, 4, 0.25, 0.75)]
 
 
-def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidden=False, mat_count=2):
+def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidden=False, mat_count=2):
     mesh = Mesh(
         header=get_mesh_header(name, skin, shader_mats, hidden),
-        user_text="",
+        user_text='',
         verts=[],
         normals=[],
         tangents=[],
@@ -93,7 +93,7 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidde
         prelit_lightmap_multi_pass=None,
         prelit_lightmap_multi_texture=None)
 
-    mesh.user_text = "TestUserText"
+    mesh.user_text = 'TestUserText'
 
     mesh.verts = [get_vec(1.0, 1.0, 1.0),
                   get_vec(1.0, 1.0, -1.0),
@@ -204,12 +204,12 @@ def get_mesh(name="meshName", skin=False, shader_mats=False, prelit=False, hidde
     return mesh
 
 
-def get_mesh_two_textures(name="meshName"):
+def get_mesh_two_textures(name='meshName'):
     mesh = get_mesh(name=name)
 
     mesh.shaders = [get_shader()]
     mesh.vert_materials = [get_vertex_material()]
-    mesh.textures = [get_texture("texture.dds"), get_texture("texture2.dds")]
+    mesh.textures = [get_texture('texture.dds'), get_texture('texture2.dds')]
     mesh.material_passes = [get_material_pass(num_stages=2)]
 
     mesh.mat_info = get_material_info()
@@ -227,7 +227,7 @@ def get_mesh_two_textures(name="meshName"):
 def get_mesh_minimal(xml=False):
     mesh = Mesh(
         header=get_mesh_header(),
-        user_text="text",
+        user_text='text',
         verts=[get_vec()],
         normals=[get_vec()],
         tangents=[get_vec()],
@@ -279,7 +279,7 @@ def get_mesh_minimal(xml=False):
 def get_mesh_empty():
     return Mesh(
         header=get_mesh_header(),
-        user_text="",
+        user_text='',
         verts=[get_vec()],
         normals=[get_vec()],
         tangents=[],

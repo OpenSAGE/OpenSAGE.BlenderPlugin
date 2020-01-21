@@ -6,7 +6,7 @@ from tests.mathutils import *
 from tests.w3d.helpers.version import get_version, compare_versions
 
 
-def get_hierarchy_header(name="TestHierarchy"):
+def get_hierarchy_header(name='TestHierarchy'):
     return HierarchyHeader(
         version=get_version(),
         name=name,
@@ -21,7 +21,7 @@ def compare_hierarchy_headers(self, expected, actual):
     compare_vectors(self, expected.center_pos, actual.center_pos)
 
 
-def get_hierarchy_pivot(name="", name_id=None, parent=-1):
+def get_hierarchy_pivot(name='', name_id=None, parent=-1):
     return HierarchyPivot(
         name=name,
         name_id=name_id,
@@ -34,7 +34,7 @@ def get_hierarchy_pivot(name="", name_id=None, parent=-1):
 
 def get_roottransform():
     return HierarchyPivot(
-        name="ROOTTRANSFORM",
+        name='ROOTTRANSFORM',
         name_id=None,
         parent_id=-1,
         translation=get_vec(),
@@ -57,7 +57,7 @@ def compare_hierarchy_pivots(self, expected, actual):
     compare_mats(self, expected.fixup_matrix, actual.fixup_matrix)
 
 
-def get_hierarchy(name="TestHierarchy", xml=False):
+def get_hierarchy(name='TestHierarchy', xml=False):
     hierarchy = Hierarchy(
         header=get_hierarchy_header(name),
         pivots=[],
@@ -65,13 +65,13 @@ def get_hierarchy(name="TestHierarchy", xml=False):
 
     hierarchy.pivots = [
         get_roottransform(),
-        get_hierarchy_pivot(name="b_waist", parent=0),
-        get_hierarchy_pivot(name="b_hip", parent=1),
-        get_hierarchy_pivot(name="shoulderl", parent=2),
-        get_hierarchy_pivot(name="arml", parent=3),
-        get_hierarchy_pivot(name="armr", parent=3),
-        get_hierarchy_pivot(name="TRUNK", parent=5),
-        get_hierarchy_pivot(name="sword", parent=0)]
+        get_hierarchy_pivot(name='b_waist', parent=0),
+        get_hierarchy_pivot(name='b_hip', parent=1),
+        get_hierarchy_pivot(name='shoulderl', parent=2),
+        get_hierarchy_pivot(name='arml', parent=3),
+        get_hierarchy_pivot(name='armr', parent=3),
+        get_hierarchy_pivot(name='TRUNK', parent=5),
+        get_hierarchy_pivot(name='sword', parent=0)]
 
     if xml:
         hierarchy.pivots.append(

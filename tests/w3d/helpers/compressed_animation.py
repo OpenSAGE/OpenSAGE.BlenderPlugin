@@ -9,10 +9,10 @@ from tests.w3d.helpers.version import get_version, compare_versions
 
 
 def get_compressed_animation_header(
-        hierarchy_name="hierarchy", flavor=ADAPTIVE_DELTA_FLAVOR):
+        hierarchy_name='hierarchy', flavor=ADAPTIVE_DELTA_FLAVOR):
     return CompressedAnimationHeader(
         version=get_version(),
-        name="containerName",
+        name='containerName',
         hierarchy_name=hierarchy_name,
         num_frames=155,
         frame_rate=300,
@@ -333,7 +333,7 @@ def compare_motion_channels(self, expected, actual):
 
 
 def get_compressed_animation(
-        hierarchy_name="TestHierarchy",
+        hierarchy_name='TestHierarchy',
         flavor=TIME_CODED_FLAVOR,
         bit_channels=True,
         motion_tc=True,
@@ -408,7 +408,7 @@ def get_compressed_animation(
     return animation
 
 
-def get_compressed_animation_minimal(hierarchy_name="TestHierarchy"):
+def get_compressed_animation_minimal(hierarchy_name='TestHierarchy'):
     return CompressedAnimation(
         header=get_compressed_animation_header(hierarchy_name),
         time_coded_channels=[get_time_coded_animation_channel_minimal()],
@@ -418,7 +418,7 @@ def get_compressed_animation_minimal(hierarchy_name="TestHierarchy"):
         motion_channels=[get_motion_channel_minimal()])
 
 
-def get_compressed_animation_empty(hierarchy_name="TestHierarchy"):
+def get_compressed_animation_empty(hierarchy_name='TestHierarchy'):
     return CompressedAnimation(
         header=get_compressed_animation_header(hierarchy_name),
         time_coded_channels=[],

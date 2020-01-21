@@ -34,11 +34,11 @@ class TestCollisionBox(TestCase):
     def test_name(self):
         box = get_collision_box()
 
-        self.assertEqual("containerName.BOUNDINGBOX", box.name_)
-        self.assertEqual("BOUNDINGBOX", box.name())
+        self.assertEqual('containerName.BOUNDINGBOX', box.name_)
+        self.assertEqual('BOUNDINGBOX', box.name())
 
-        box.name_ = "BOUNDINGBOX"
-        self.assertEqual("BOUNDINGBOX", box.name())
+        box.name_ = 'BOUNDINGBOX'
+        self.assertEqual('BOUNDINGBOX', box.name())
 
     def test_write_read_xml(self):
         expected = get_collision_box(xml=True)
