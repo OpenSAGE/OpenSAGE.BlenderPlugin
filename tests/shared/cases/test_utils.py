@@ -470,22 +470,21 @@ class TestUtils(TestCase):
             get_roottransform(),
             get_hierarchy_pivot(name="bone_pivot", parent=0),
             get_hierarchy_pivot(name="bone_pivot2", parent=1),
-            get_hierarchy_pivot(name="bone_pivot3", parent=2),
-            get_hierarchy_pivot(name="bone_pivot4", parent=3)]
+            get_hierarchy_pivot(name="bone_pivot3", parent=2)]
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodArray(
             header=get_hlod_array_header(),
             sub_objects=[get_hlod_sub_object(bone=0, name="containerName.BOUNDINGBOX"),
-                        get_hlod_sub_object(bone=1, name="containerName.bone_pivot2"),
-                        get_hlod_sub_object(bone=2, name="containerName.bone_pivot3")])
+                        get_hlod_sub_object(bone=1, name="containerName.bone_pivot"),
+                        get_hlod_sub_object(bone=2, name="containerName.bone_pivot2")])
 
         array.header.model_count = len(array.sub_objects)
         hlod.lod_arrays = [array]
         meshes = [
-            get_mesh(name="bone_pivot2"),
-            get_mesh(name="bone_pivot3")]
+            get_mesh(name="bone_pivot"),
+            get_mesh(name="bone_pivot2")]
 
         copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
                  self.outpath() + "texture.dds")
@@ -494,9 +493,9 @@ class TestUtils(TestCase):
 
         (_, rig) = retrieve_hierarchy(self, "containerName")
 
+        self.assertTrue("bone_pivot" in rig.pose.bones)
         self.assertTrue("bone_pivot2" in rig.pose.bones)
         self.assertTrue("bone_pivot3" in rig.pose.bones)
-        self.assertTrue("bone_pivot4" in rig.pose.bones)
 
     def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
         container_name = "containerName"
