@@ -7,7 +7,7 @@ from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 from tests.w3d.helpers.version import get_version, compare_versions
 
 
-def get_collision_box(name="containerName.BOUNDINGBOX", xml=False):
+def get_collision_box(name='containerName.BOUNDINGBOX', xml=False):
     box = CollisionBox(
         version=get_version(),
         box_type=0,

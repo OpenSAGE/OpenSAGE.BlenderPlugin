@@ -12,7 +12,7 @@ def get_texture_info():
         frame_rate=0.0)
 
 
-def get_texture(name="texture.dds"):
+def get_texture(name='texture.dds'):
     return Texture(
         id=name,
         file=name,

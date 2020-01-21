@@ -6,10 +6,10 @@ from tests.mathutils import *
 from tests.w3d.helpers.version import *
 
 
-def get_animation_header(hierarchy_name="hierarchy"):
+def get_animation_header(hierarchy_name='hierarchy'):
     return AnimationHeader(
         version=get_version(),
-        name="containerName",
+        name='containerName',
         hierarchy_name=hierarchy_name,
         num_frames=5,
         frame_rate=30)
@@ -98,7 +98,7 @@ def compare_animation_bit_channels(self, expected, actual):
         self.assertEqual(datum, actual.data[i])
 
 
-def get_animation(hierarchy_name="TestHierarchy", xml=False):
+def get_animation(hierarchy_name='TestHierarchy', xml=False):
     return Animation(
         header=get_animation_header(hierarchy_name),
         channels=[get_animation_channel(type=0, pivot=0),

@@ -27,4 +27,4 @@ class TestVersion(TestCase):
 
         self.assertNotEqual(ver, other)
         self.assertNotEqual(ver, 1)
-        self.assertNotEqual(ver, "test")
+        self.assertNotEqual(ver, 'test')

@@ -29,7 +29,7 @@ class TestShaderMaterial(TestCase):
     def test_read_invalid_property(self):
         io_stream = io.BytesIO()
 
-        name = "InvalidProp"
+        name = 'InvalidProp'
         size = 8 + len(name) + 1 + 1
         type = 0
 
@@ -53,7 +53,7 @@ class TestShaderMaterial(TestCase):
 
         prop = ShaderMaterialProperty(
             type=0,
-            name="InvalidProp",
+            name='InvalidProp',
             value=0x00)
 
         prop.write(io_stream)

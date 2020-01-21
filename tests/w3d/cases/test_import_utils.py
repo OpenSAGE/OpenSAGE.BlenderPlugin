@@ -37,18 +37,18 @@ class TestImportUtils(TestCase):
     def test_mesh_import_2_textures_1_vertex_material(self):
         mesh = get_mesh_two_textures()
 
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture2.dds")
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture2.dds')
 
         create_mesh(self, mesh, None, bpy.context.collection)
 
     def test_prelit_mesh_import(self):
         mesh = get_mesh(prelit=True)
 
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
 
         create_mesh(self, mesh, None, bpy.context.collection)
 
@@ -56,14 +56,14 @@ class TestImportUtils(TestCase):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
 
-        root = get_hierarchy_pivot("ROOTTRANSFORM", -1)
+        root = get_hierarchy_pivot('ROOTTRANSFORM', -1)
         root.translation = Vector()
         root.rotation = Quaternion()
         root.euler_angles = Vector((0.0, 0.0, 0.0))
 
         hierarchy.pivots = [get_roottransform(),
-                            get_hierarchy_pivot(name="first", parent=0),
-                            get_hierarchy_pivot(name="second", parent=-1)]
+                            get_hierarchy_pivot(name='first', parent=0),
+                            get_hierarchy_pivot(name='second', parent=-1)]
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
@@ -72,20 +72,20 @@ class TestImportUtils(TestCase):
             sub_objects=[])
 
         array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name="containerName.first"))
+            bone=1, name='containerName.first'))
         array.sub_objects.append(get_hlod_sub_object(
-            bone=2, name="containerName.second"))
+            bone=2, name='containerName.second'))
 
         array.header.model_count = len(array.sub_objects)
 
         hlod.lod_arrays = [array]
 
         mesh_structs = [
-            get_mesh(name="first"),
-            get_mesh(name="second")]
+            get_mesh(name='first'),
+            get_mesh(name='second')]
 
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
 
         coll = get_collection(hlod)
 
@@ -97,12 +97,12 @@ class TestImportUtils(TestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, hierarchy, hlod, rig)
 
-        self.assertTrue("first" in bpy.data.objects)
-        first = bpy.data.objects["first"]
+        self.assertTrue('first' in bpy.data.objects)
+        first = bpy.data.objects['first']
         self.assertIsNone(first.parent)
 
-        self.assertTrue("second" in bpy.data.objects)
-        second = bpy.data.objects["second"]
+        self.assertTrue('second' in bpy.data.objects)
+        second = bpy.data.objects['second']
         self.assertIsNone(second.parent)
 
     def test_read_chunk_array(self):
@@ -136,19 +136,19 @@ class TestImportUtils(TestCase):
 
         hlod = get_hlod()
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name="containerName.MESH")]
+            get_hlod_sub_object(bone=1, name='containerName.MESH')]
 
         hierarchy = get_hierarchy()
         pivot = HierarchyPivot(
-            name="MESH",
+            name='MESH',
             parent_id=0)
 
         hierarchy.pivots = [get_roottransform(), pivot]
 
-        mesh_structs = [get_mesh(name="MESH")]
+        mesh_structs = [get_mesh(name='MESH')]
 
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
 
         expected_frames = [0, 4]
         expected = [3.0, 3.0]

@@ -14,15 +14,15 @@ from tests.utils import *
 class TestExport(TestCase):
     def test_unsupported_export_mode(self):
         export_settings = {}
-        export_settings['mode'] = "NON_EXISTING"
+        export_settings['mode'] = 'NON_EXISTING'
 
         self.assertEqual({'CANCELLED'}, save(self, export_settings))
 
     def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
         export_settings = {}
-        export_settings['mode'] = "M"
+        export_settings['mode'] = 'M'
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
@@ -31,9 +31,9 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
         export_settings = {}
-        export_settings['mode'] = "HM"
+        export_settings['mode'] = 'HM'
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
@@ -42,9 +42,9 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_HAM_and_no_meshes(self):
         export_settings = {}
-        export_settings['mode'] = "HAM"
+        export_settings['mode'] = 'HAM'
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
@@ -53,18 +53,18 @@ class TestExport(TestCase):
 
     def test_no_hlod_is_written_if_mode_M(self):
         export_settings = {}
-        export_settings['mode'] = "M"
-        export_settings['compression'] = "U"
+        export_settings['mode'] = 'M'
+        export_settings['compression'] = 'U'
 
         meshes = [get_mesh()]
         create_data(self, meshes)
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, "rb")
+        file = open(file_path, 'rb')
         filesize = os.path.getsize(file_path)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
@@ -76,18 +76,18 @@ class TestExport(TestCase):
 
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}
-        export_settings['mode'] = "M"
-        export_settings['compression'] = "U"
+        export_settings['mode'] = 'M'
+        export_settings['compression'] = 'U'
 
         meshes = [get_mesh()]
         create_data(self, meshes)
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, "rb")
+        file = open(file_path, 'rb')
         filesize = os.path.getsize(file_path)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
@@ -99,26 +99,26 @@ class TestExport(TestCase):
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {}
-        export_settings['mode'] = "HM"
-        export_settings['compression'] = "U"
+        export_settings['mode'] = 'HM'
+        export_settings['compression'] = 'U'
         export_settings['use_existing_skeleton'] = False
 
-        hierarchy_name = "TestHiera_SKL"
+        hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name="sword", skin=True),
-            get_mesh(name="soldier", skin=True),
-            get_mesh(name="TRUNK")]
-        hlod = get_hlod("TestModelName", hierarchy_name)
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod('TestModelName', hierarchy_name)
 
         create_data(self, meshes, hlod, hierarchy)
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, "rb")
+        file = open(file_path, 'rb')
         filesize = os.path.getsize(file_path)
 
         hierarchy_found = False
@@ -134,26 +134,26 @@ class TestExport(TestCase):
 
     def test_no_hierarchy_is_written_if_mode_HM_and_use_existing_skeleton(self):
         export_settings = {}
-        export_settings['mode'] = "HM"
-        export_settings['compression'] = "U"
+        export_settings['mode'] = 'HM'
+        export_settings['compression'] = 'U'
         export_settings['use_existing_skeleton'] = True
 
-        hierarchy_name = "TestHiera_SKL"
+        hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name="sword", skin=True),
-            get_mesh(name="soldier", skin=True),
-            get_mesh(name="TRUNK")]
-        hlod = get_hlod("TestModelName", hierarchy_name)
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod('TestModelName', hierarchy_name)
 
         create_data(self, meshes, hlod, hierarchy)
 
-        file_path = self.outpath() + "output_skn.w3d"
+        file_path = self.outpath() + 'output_skn.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, "rb")
+        file = open(file_path, 'rb')
         filesize = os.path.getsize(file_path)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
@@ -165,10 +165,10 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
         export_settings = {}
-        export_settings['mode'] = "A"
-        export_settings['compression'] = "U"
+        export_settings['mode'] = 'A'
+        export_settings['compression'] = 'U'
 
-        file_path = self.outpath() + "output_ani.w3d"
+        file_path = self.outpath() + 'output_ani.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
@@ -177,10 +177,10 @@ class TestExport(TestCase):
 
     def test_no_file_created_if_MODE_is_A_and_TC_no_animation_channels(self):
         export_settings = {}
-        export_settings['mode'] = "A"
-        export_settings['compression'] = "TC"
+        export_settings['mode'] = 'A'
+        export_settings['compression'] = 'TC'
 
-        file_path = self.outpath() + "output_ani.w3d"
+        file_path = self.outpath() + 'output_ani.w3d'
         context = ImportWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
