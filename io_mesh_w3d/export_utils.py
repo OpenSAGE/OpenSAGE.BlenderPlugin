@@ -612,7 +612,7 @@ def retrieve_hierarchy(context, container_name):
 
     for mesh in meshes:
         if mesh.vertex_groups \
-                or mesh.object_type != 'NORMAL' \
+                or mesh.object_type == 'BOX' \
                 or mesh.name in pick_plane_names:
             continue
 
