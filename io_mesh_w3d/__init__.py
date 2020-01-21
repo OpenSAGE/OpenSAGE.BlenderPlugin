@@ -30,43 +30,43 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
 
     export_mode: EnumProperty(
-        name="Mode",
+        name='Mode',
         items=(
             ('HM',
-             "Hierarchical Model",
-             "This will export all the meshes of the scene with hierarchy/skeleton data"),
+             'Hierarchical Model',
+             'This will export all the meshes of the scene with hierarchy/skeleton data'),
             ('HAM',
-             "Hierarchical Animated Model",
-             "This will export all the meshes of the scene with hierarchy/skeleton and animation data"),
+             'Hierarchical Animated Model',
+             'This will export all the meshes of the scene with hierarchy/skeleton and animation data'),
             ('A',
-             "Animation",
-             "This will export the animation without any geometry or hierarchy/skeleton data"),
+             'Animation',
+             'This will export the animation without any geometry or hierarchy/skeleton data'),
             ('H',
-             "Hierarchy",
-             "This will export the hierarchy/skeleton without any geometry or animation data"),
+             'Hierarchy',
+             'This will export the hierarchy/skeleton without any geometry or animation data'),
             ('M',
-             "Mesh",
-             "This will export a simple mesh (only the first of the scene if there are multiple), \
-                without any hierarchy/skeleton and animation data")),
-        description="Select the export mode",
+             'Mesh',
+             'This will export a simple mesh (only the first of the scene if there are multiple), \
+                without any hierarchy/skeleton and animation data')),
+        description='Select the export mode',
         default='HM')
 
     use_existing_skeleton: BoolProperty(
-        name="Use existing skeleton", description="Todo", default=False)
+        name='Use existing skeleton', description='Todo', default=False)
 
     animation_compression: EnumProperty(
-        name="Compression",
-        items=(('U', "Uncompressed", "This will not compress the animations"),
-               ('TC', "TimeCoded", "This will export the animation with keyframes"),
-               # ('AD', "AdaptiveDelta",
-               # "This will use adaptive delta compression to reduce size"),
+        name='Compression',
+        items=(('U', 'Uncompressed', 'This will not compress the animations'),
+               ('TC', 'TimeCoded', 'This will export the animation with keyframes'),
+               # ('AD', 'AdaptiveDelta',
+               # 'This will use adaptive delta compression to reduce size'),
                ),
-        description="The method used for compressing the animation data",
+        description='The method used for compressing the animation data',
         default='U')
 
     will_save_settings: BoolProperty(default=False)
 
-    scene_key = "w3dExportSettings"
+    scene_key = 'w3dExportSettings'
 
     def warning(self, msg):
         print('WARNING: ' + msg)
@@ -94,7 +94,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def save_settings(self, context):
         all_props = self.properties
         export_props = {x: getattr(self, x) for x in dir(
-            all_props) if x.startswith("export_") and all_props.get(x) is not None}
+            all_props) if x.startswith('export_') and all_props.get(x) is not None}
 
         context.scene[self.scene_key] = export_props
 
@@ -192,5 +192,5 @@ def unregister():
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     register()

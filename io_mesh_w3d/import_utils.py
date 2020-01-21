@@ -256,7 +256,7 @@ def create_rig(name, location, coll):
     rig = bpy.data.objects.new(name, armature)
     rig.location = location
     rig.rotation_mode = 'QUATERNION'
-    rig.track_axis = "POS_X"
+    rig.track_axis = 'POS_X'
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
     return (rig, armature)

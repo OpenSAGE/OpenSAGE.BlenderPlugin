@@ -11,8 +11,8 @@ W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
 class AnimationHeader(Struct):
     version = Version()
-    name = ""
-    hierarchy_name = ""
+    name = ''
+    hierarchy_name = ''
     num_frames = 0
     frame_rate = 0
 

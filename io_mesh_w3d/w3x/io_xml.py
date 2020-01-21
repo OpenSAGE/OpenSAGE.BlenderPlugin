@@ -7,7 +7,7 @@ from mathutils import Vector, Quaternion, Matrix
 
 
 def childs(self):
-    return [node for node in self.childNodes if node.nodeName != "#text"]
+    return [node for node in self.childNodes if node.nodeName != '#text']
 
 
 minidom.Node.childs = childs

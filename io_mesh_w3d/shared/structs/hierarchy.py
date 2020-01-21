@@ -11,7 +11,7 @@ W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 
 class HierarchyHeader(Struct):
     version = Version()
-    name = ""
+    name = ''
     num_pivots = 0
     center_pos = Vector((0.0, 0.0, 0.0))
 
@@ -37,7 +37,7 @@ class HierarchyHeader(Struct):
 
 
 class HierarchyPivot(Struct):
-    name = ""
+    name = ''
     name_id = None
     parent_id = -1
     translation = Vector()

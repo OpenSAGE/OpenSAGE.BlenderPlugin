@@ -14,7 +14,7 @@ class CollisionBox(Struct):
     version = Version()
     box_type = 0
     collision_types = 0
-    name_ = "containerName.BOUNDINGBOX"
+    name_ = 'containerName.BOUNDINGBOX'
     color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))

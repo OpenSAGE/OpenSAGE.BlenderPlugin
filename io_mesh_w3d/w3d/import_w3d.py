@@ -19,7 +19,7 @@ def load_file(context, path, data_context):
         context.error('file not found: ' + path)
         return data_context
 
-    file = open(path, "rb")
+    file = open(path, 'rb')
     filesize = os.path.getsize(path)
 
     while file.tell() < filesize:
@@ -41,37 +41,37 @@ def load_file(context, path, data_context):
         elif chunk_type == W3D_CHUNK_DAZZLE:
             data_context.dazzles.append(Dazzle.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
-            print("-> morph animation chunk is not supported")
+            print('-> morph animation chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_HMODEL:
-            print("-> hmodel chnuk is not supported")
+            print('-> hmodel chnuk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LODMODEL:
-            print("-> lodmodel chunk is not supported")
+            print('-> lodmodel chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_COLLECTION:
-            print("-> collection chunk not supported")
+            print('-> collection chunk not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_POINTS:
-            print("-> points chunk is not supported")
+            print('-> points chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LIGHT:
-            print("-> light chunk is not supported")
+            print('-> light chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_EMITTER:
-            print("-> emitter chunk is not supported")
+            print('-> emitter chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_AGGREGATE:
-            print("-> aggregate chunk is not supported")
+            print('-> aggregate chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_NULL_OBJECT:
-            print("-> null object chunkt is not supported")
+            print('-> null object chunkt is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LIGHTSCAPE:
-            print("-> lightscape chunk is not supported")
+            print('-> lightscape chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_SOUNDROBJ:
-            print("-> soundobj chunk is not supported")
+            print('-> soundobj chunk is not supported')
             file.seek(chunk_size, 1)
         else:
             skip_unknown_chunk(context, file, chunk_type, chunk_size)
@@ -107,16 +107,16 @@ def load(context, import_settings):
     if hierarchy is None:
         sklpath = None
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
-            sklpath = os.path.dirname(context.filepath) + "/" + \
-                hlod.header.hierarchy_name.lower() + ".w3d"
+            sklpath = os.path.dirname(context.filepath) + '/' + \
+                hlod.header.hierarchy_name.lower() + '.w3d'
 
         # if we load a animation file afterwards and need the hierarchy again
-        elif animation is not None and animation.header.name != "":
-            sklpath = os.path.dirname(context.filepath) + "/" + \
-                animation.header.hierarchy_name.lower() + ".w3d"
-        elif compressed_animation is not None and compressed_animation.header.name != "":
-            sklpath = os.path.dirname(context.filepath) + "/" + \
-                compressed_animation.header.hierarchy_name.lower() + ".w3d"
+        elif animation is not None and animation.header.name != '':
+            sklpath = os.path.dirname(context.filepath) + '/' + \
+                animation.header.hierarchy_name.lower() + '.w3d'
+        elif compressed_animation is not None and compressed_animation.header.name != '':
+            sklpath = os.path.dirname(context.filepath) + '/' + \
+                compressed_animation.header.hierarchy_name.lower() + '.w3d'
 
         if sklpath is not None:
             data_context = load_file(context, sklpath, data_context)

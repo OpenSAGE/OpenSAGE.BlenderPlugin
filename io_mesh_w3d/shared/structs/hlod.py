@@ -11,8 +11,8 @@ W3D_CHUNK_HLOD_HEADER = 0x00000701
 class HLodHeader(Struct):
     version = Version()
     lod_count = 1
-    model_name = ""
-    hierarchy_name = ""
+    model_name = ''
+    hierarchy_name = ''
 
     @staticmethod
     def read(io_stream):
@@ -66,8 +66,8 @@ W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
 
 class HLodSubObject(Struct):
     bone_index = 0
-    identifier = ""
-    name = ""
+    identifier = ''
+    name = ''
 
     is_box = False
 
