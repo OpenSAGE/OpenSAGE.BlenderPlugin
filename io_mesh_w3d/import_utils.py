@@ -61,17 +61,20 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
             if i > 0:
                 current_coll = get_collection(hlod)
 
+            rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
                         create_mesh(context, mesh, hierarchy, current_coll)
 
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-        for box in boxes:
-            create_box(box, hlod, hierarchy, rig, coll)
+                for box in boxes:
+                    if box.name() == sub_object.name:
+                        create_box(box, hlod, hierarchy, rig, coll)
 
-        for dazzle in dazzles:
-            create_dazzle(context, dazzle, hlod, hierarchy, rig, coll)
+                for dazzle in dazzles:
+                    if dazzle.name() == sub_object.name:
+                        create_dazzle(context, dazzle, hlod, hierarchy, rig, coll)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
@@ -271,10 +274,8 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
     for i, pivot in reversed(list(enumerate(hierarchy.pivots))):
         childs = [child for child in hierarchy.pivots if child.parent_id == i]
-        print(pivot.name + " -> " + str(len(childs)))
         for child in childs:
             if child.is_bone:
-                print("set as bone")
                 pivot.is_bone = True
 
     armature = None
@@ -286,7 +287,6 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
             (rig, armature) = create_rig(
                 hierarchy.name(), root.translation, coll)
 
-        print("create bone: " + pivot.name)
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
