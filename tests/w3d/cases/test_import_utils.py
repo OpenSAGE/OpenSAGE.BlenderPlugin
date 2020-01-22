@@ -13,8 +13,7 @@ from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
 from os.path import dirname as up
 
-
-class TestImportUtils(TestCase):
+class TestImportUtilsW3D(TestCase):
     def test_material_pass_with_2_texture_stages(self):
         mesh_struct = get_mesh()
         triangles = []
@@ -52,74 +51,6 @@ class TestImportUtils(TestCase):
                  self.outpath() + 'texture.dds')
 
         create_mesh(self, mesh, None, bpy.context.collection)
-
-    def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
-        hlod = get_hlod()
-        hierarchy = get_hierarchy()
-
-        root = get_hierarchy_pivot('ROOTTRANSFORM', -1)
-        root.translation = Vector()
-        root.rotation = Quaternion()
-        root.euler_angles = Vector((0.0, 0.0, 0.0))
-
-        hierarchy.pivots = [get_roottransform(),
-                            get_hierarchy_pivot(name='first', parent=0),
-                            get_hierarchy_pivot(name='second', parent=-1)]
-
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        array = HLodLodArray(
-            header=get_hlod_array_header(),
-            sub_objects=[])
-
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=1, name='containerName.first'))
-        array.sub_objects.append(get_hlod_sub_object(
-            bone=2, name='containerName.second'))
-
-        array.header.model_count = len(array.sub_objects)
-
-        hlod.lod_arrays = [array]
-
-        mesh_structs = [
-            get_mesh(name='first'),
-            get_mesh(name='second')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
-        coll = get_collection(hlod)
-
-        for mesh_struct in mesh_structs:
-            create_mesh(self, mesh_struct, hierarchy, coll)
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, hierarchy, hlod, rig)
-
-        self.assertTrue('first' in bpy.data.objects)
-        first = bpy.data.objects['first']
-        self.assertIsNone(first.parent)
-
-        self.assertTrue('second' in bpy.data.objects)
-        second = bpy.data.objects['second']
-        self.assertIsNone(second.parent)
-
-    def test_read_chunk_array(self):
-        output = io.BytesIO()
-
-        mat_pass = get_material_pass()
-        mat_pass.write(output)
-        mat_pass.write(output)
-        mat_pass.write(output)
-
-        write_chunk_head(0x00, output, 9, has_sub_chunks=False)
-        write_ubyte(0x00, output)
-
-        io_stream = io.BytesIO(output.getvalue())
-        read_chunk_array(self, io_stream, mat_pass.size()
-                         * 3 + 9, W3D_CHUNK_MATERIAL_PASS, MaterialPass.read)
 
     def test_only_needed_keyframe_creation(self):
         animation = get_compressed_animation_empty()
