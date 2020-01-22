@@ -497,6 +497,32 @@ class TestUtils(TestCase):
         self.assertTrue('bone_pivot2' in rig.pose.bones)
         self.assertTrue('bone_pivot3' in rig.pose.bones)
 
+    def test_bone_is_created_if_referenced_by_subObject_but_names_dont_match(
+            self):
+        hlod = get_hlod()
+        hlod.lod_arrays[0].sub_objects = [get_hlod_sub_object(bone=1, name='containerName.object')]
+        hlod.lod_arrays[0].header.model_count = 1
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivot_fixups = []
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='object_bone', parent=0),
+            get_hierarchy_pivot(name='bone2', parent=0)]
+
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        meshes = [get_mesh(name='object')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        (_, rig) = retrieve_hierarchy(self, 'containerName')
+
+        self.assertTrue('object_bone' in rig.pose.bones)
+
     def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
         container_name = 'containerName'
         rig = None
