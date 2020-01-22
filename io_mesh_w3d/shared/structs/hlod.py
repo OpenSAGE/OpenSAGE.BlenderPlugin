@@ -281,7 +281,7 @@ class HLod(Struct):
         return result
 
     def create(self, doc):
-        container = doc.createElement('Container')
+        container = doc.createElement('W3DContainer')
         container.setAttribute('id', self.header.model_name)
         container.setAttribute('Hierarchy', self.header.hierarchy_name)
 
