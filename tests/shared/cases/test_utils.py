@@ -142,26 +142,30 @@ class TestUtils(TestCase):
 
     def test_dazzles_roundtrip(self):
         hlod = get_hlod(hierarchy_name='containerName')
-        hlod.lod_arrays[0].header.model_count = 2
+        hlod.lod_arrays[0].header.model_count = 3
         hlod.lod_arrays[0].sub_objects = [
             get_hlod_sub_object(bone=1, name='containerName.Backlight'),
-            get_hlod_sub_object(bone=2, name='containerName.Headlight')]
+            get_hlod_sub_object(bone=2, name='containerName.Headlight'),
+            get_hlod_sub_object(bone=3, name='containerName.Blinklight')]
 
         hierarchy = get_hierarchy(name='containerName')
+        hierarchy.header.num_pivots = 4
         hierarchy.pivots = [
             get_roottransform(),
             get_hierarchy_pivot(name='BacklightPivot', parent=0),
-            get_hierarchy_pivot(name='HeadlightPivot', parent=1)]
+            get_hierarchy_pivot(name='HeadlightPivot', parent=1),
+            get_hierarchy_pivot(name='Blinklight', parent=1)]
         meshes = []
         dazzles = [get_dazzle(name='containerName.Backlight', type='REN_BRAKELIGHT'),
-                   get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT')]
+                   get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT'),
+                   get_dazzle(name='containerName.Blinklight', type='REN_HEADLIGHT')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
         create_data(self, [], hlod, hierarchy, [], None, None, dazzles)
 
-        self.compare_data([], hlod, None, [], None, None, dazzles)
+        self.compare_data([], hlod, hierarchy, [], None, None, dazzles)
 
     def test_hierarchy_roundtrip(self):
         hierarchy = get_hierarchy()

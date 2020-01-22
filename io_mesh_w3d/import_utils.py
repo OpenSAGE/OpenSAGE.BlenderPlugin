@@ -60,6 +60,8 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
             if i > 0:
                 current_coll = get_collection(hlod)
+                # collection has no hide_set()
+                current_coll.hide_viewport = True
 
             rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
@@ -81,6 +83,10 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
                         rig_mesh(mesh, hierarchy, rig, sub_object)
+                for dazzle in dazzles:
+                    if dazzle.name() == sub_object.name:
+                        dazzle_object = bpy.data.objects[dazzle.name()]
+                        rig_object(dazzle_object, hierarchy, rig, sub_object)
 
     else:
         for mesh in meshes:
@@ -88,6 +94,35 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=
 
     create_animation(rig, animation, hierarchy)
     create_animation(rig, compressed_animation, hierarchy, compressed=True)
+
+
+def rig_object(object, hierarchy, rig, sub_object):
+    if hierarchy is None or not sub_object or sub_object.bone_index <= 0:
+        return
+
+    pivot = hierarchy.pivots[sub_object.bone_index]
+
+    if rig is not None and pivot.name in rig.pose.bones:
+        object.parent = rig
+        object.parent_bone = pivot.name
+        object.parent_type = 'BONE'
+        return
+
+    object.rotation_mode = 'QUATERNION'
+    object.delta_location = pivot.translation
+    object.delta_rotation_quaternion = pivot.rotation
+
+    if pivot.parent_id <= 0:
+        return
+
+    parent_pivot = hierarchy.pivots[pivot.parent_id]
+
+    if parent_pivot.name in bpy.data.objects:
+        object.parent = bpy.data.objects[parent_pivot.name]
+    elif rig is not None and parent_pivot.name in rig.pose.bones:
+        object.parent = rig
+        object.parent_bone = parent_pivot.name
+        object.parent_type = 'BONE'
 
 
 ##########################################################################
@@ -196,32 +231,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
         modifier.use_vertex_groups = True
 
     else:
-        if not sub_object or sub_object.bone_index <= 0:
-            return
-
-        pivot = hierarchy.pivots[sub_object.bone_index]
-
-        if rig is not None and pivot.name in rig.pose.bones:
-            mesh_ob.parent = rig
-            mesh_ob.parent_bone = pivot.name
-            mesh_ob.parent_type = 'BONE'
-            return
-
-        mesh_ob.rotation_mode = 'QUATERNION'
-        mesh_ob.delta_location = pivot.translation
-        mesh_ob.delta_rotation_quaternion = pivot.rotation
-
-        if pivot.parent_id <= 0:
-            return
-
-        parent_pivot = hierarchy.pivots[pivot.parent_id]
-
-        if parent_pivot.name in bpy.data.objects:
-            mesh_ob.parent = bpy.data.objects[parent_pivot.name]
-        elif rig is not None and parent_pivot.name in rig.pose.bones:
-            mesh_ob.parent = rig
-            mesh_ob.parent_bone = parent_pivot.name
-            mesh_ob.parent_type = 'BONE'
+        rig_object(mesh_ob, hierarchy, rig, sub_object)
 
 
 ##########################################################################
@@ -721,21 +731,6 @@ def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
     principled.base_color = (255, 255, 255)
     principled.base_color_texture.image = load_texture(context, 'SunDazzle.tga')
     dazzle_mesh.materials.append(material)
-
-    if hierarchy is None or rig is None:
-        return
-
-    sub_objects = [
-        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == dazzle.name()]
-    if not sub_objects:
-        return
-    sub_object = sub_objects[0]
-    if sub_object.bone_index == 0:
-        return
-    pivot = hierarchy.pivots[sub_object.bone_index]
-    dazzle_cone.parent = rig
-    dazzle_cone.parent_bone = pivot.name
-    dazzle_cone.parent_type = 'BONE'
 
 
 def create_box(box, hlod, hierarchy, rig, coll):
