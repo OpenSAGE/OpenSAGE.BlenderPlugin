@@ -269,7 +269,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
     for i, pivot in enumerate(hierarchy.pivots):
         pivot.is_bone = True
         for obj in sub_objects:
-            if obj.bone_index == i:
+            if obj.bone_index == i and obj.name == pivot.name:
                 pivot.is_bone = False
 
     for i, pivot in reversed(list(enumerate(hierarchy.pivots))):
@@ -286,6 +286,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         if rig is None:
             (rig, armature) = create_rig(
                 hierarchy.name(), root.translation, coll)
+        # todo also rotate armature/rig
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
