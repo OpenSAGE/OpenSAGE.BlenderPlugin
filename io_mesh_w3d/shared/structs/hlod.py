@@ -128,6 +128,8 @@ class HLodSubObject(Struct):
 
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
+W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
+W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
 
 
 class HLodArray(Struct):
@@ -170,6 +172,8 @@ W3D_CHUNK_HLOD = 0x00000700
 class HLod(Struct):
     header = HLodHeader()
     lod_arrays = []
+    aggregate_array = None
+    proxy_array = None
 
     def validate(self, context):
         for lod_array in self.lod_arrays:
@@ -193,6 +197,12 @@ class HLod(Struct):
             elif chunk_type == W3D_CHUNK_HLOD_LOD_ARRAY:
                 result.lod_arrays.append(HLodArray.read(
                     context, io_stream, subchunk_end))
+            elif chunk_type == W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
+                result.aggregate_array = HLodArray.read(
+                    context, io_stream, subchunk_end)
+            elif chunk_type == W3D_CHUNK_HLOD_PROXY_ARRAY:
+                result.proxy_array = HLodArray.read(
+                    context, io_stream, subchunk_end)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result

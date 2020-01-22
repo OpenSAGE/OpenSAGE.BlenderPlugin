@@ -85,13 +85,17 @@ def compare_hlod_arrays(self, expected, actual, xml=False):
 def get_hlod(model_name='containerName', hierarchy_name='TestHierarchy'):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
-        lod_arrays=[get_hlod_array()])
+        lod_arrays=[get_hlod_array()],
+        aggregate_array=get_hlod_array(),
+        proxy_array=get_hlod_array())
 
 
 def get_hlod_minimal(model_name='containerName', hierarchy_name='TestHierarchy'):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
-        lod_arrays=[get_hlod_array_minimal()])
+        lod_arrays=[get_hlod_array_minimal()],
+        aggregate_array=None,
+        proxy_array=None)
 
 
 def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'):
@@ -143,3 +147,11 @@ def compare_hlods(self, expected, actual, xml=False):
 
     for i, expected_array in enumerate(expected.lod_arrays):
         compare_hlod_arrays(self, expected_array, actual.lod_arrays[i], xml)
+
+    # roundtrip not supported
+    if expected.aggregate_array is not None and actual.aggregate_array is not None:
+        compare_hlod_arrays(self, expected.aggregate_array, actual.aggregate_array)
+
+    # roundtrip not supported
+    if actual.proxy_array is not None and actual.proxy_array is not None:
+        compare_hlod_arrays(self, expected.proxy_array, actual.proxy_array)
