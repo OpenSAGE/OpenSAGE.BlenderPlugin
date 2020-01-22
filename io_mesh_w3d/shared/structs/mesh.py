@@ -447,32 +447,28 @@ class Mesh(Struct):
         result.header.sph_center = bounding_sphere.center
         result.header.sph_radius = bounding_sphere.radius
 
-        result.verts = parse_object_list(context,
-                                         xml_mesh, 'Vertices', 'V', parse_vector)
+        result.verts = parse_object_lists(xml_mesh, 'Vertices', 'V', parse_vector)[0]
         result.header.vert_count = len(result.verts)
 
-        result.normals = parse_object_list(context,
-                                           xml_mesh, 'Normals', 'N', parse_vector)
+        result.normals = parse_object_lists(xml_mesh, 'Normals', 'N', parse_vector)[0]
 
-        result.tangents = parse_object_list(context,
-                                            xml_mesh, 'Tangents', 'T', parse_vector)
+        result.tangents = parse_object_lists(xml_mesh, 'Tangents', 'T', parse_vector)[0]
 
-        result.bitangents = parse_object_list(context,
-                                              xml_mesh, 'Bitangents', 'B', parse_vector)
+        result.bitangents = parse_object_lists(xml_mesh, 'Bitangents', 'B', parse_vector)[0]
 
-        result.triangles = parse_object_list(context,
-                                             xml_mesh, 'Triangles', 'T', Triangle.parse)
+        result.triangles = parse_object_lists(xml_mesh, 'Triangles', 'T', Triangle.parse)[0]
         result.header.face_count = len(result.triangles)
 
         result.material_passes = [MaterialPass(
             shader_material_ids=[0])]
-        tex_coords = parse_object_list(context,
-                                       xml_mesh, 'TexCoords', 'T', parse_vector2)
-        if tex_coords:
-            result.material_passes[0].tx_coords = tex_coords
 
-        result.shade_ids = parse_object_list(context,
-                                             xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+        tex_coords = parse_object_lists(xml_mesh, 'TexCoords', 'T', parse_vector2)
+        if len(tex_coords) > 1:
+            context.warning('multiple uv coords not yet supported!')
+        if tex_coords:
+            result.material_passes[0].tx_coords = tex_coords[0]
+
+        result.shade_ids = parse_object_lists(xml_mesh, 'ShadeIndices', 'I', parse_value, int)[0]
 
         xml_vertex_influence_lists = xml_mesh.getElementsByTagName(
             'BoneInfluences')

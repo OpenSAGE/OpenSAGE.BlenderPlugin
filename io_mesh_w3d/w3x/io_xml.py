@@ -123,15 +123,15 @@ def parse_objects(parent, name, parse_func, par1=None):
     return result
 
 
-def parse_object_list(context, parent, name, identifier, parse_func, par1=None):
-    result = []
+def parse_object_lists(parent, name, identifier, parse_func, par1=None):
     list_objects = parent.getElementsByTagName(name)
     if not list_objects:
-        return result
-    if len(list_objects) > 1:
-        context.warning('node: ' + str(parent) + ' contains multiple objects of type: ' + name)
+        return [[]]
 
-    return parse_objects(list_objects[0], identifier, parse_func, par1)
+    result = []
+    for list_object in list_objects:
+        result.append(parse_objects(list_object, identifier, parse_func, par1))
+    return result
 
 
 def create_object_list(doc, name, objects, write_func, par1=None):
