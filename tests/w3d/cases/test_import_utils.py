@@ -67,7 +67,7 @@ class TestImportUtils(TestCase):
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        array = HLodArray(
+        array = HLodLodArray(
             header=get_hlod_array_header(),
             sub_objects=[])
 

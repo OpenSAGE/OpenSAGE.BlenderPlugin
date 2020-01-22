@@ -44,10 +44,8 @@ def compare_hlod_sub_objects(self, expected, actual):
     self.assertEqual(expected.bone_index, actual.bone_index)
 
 
-def get_hlod_array():
-    array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+def get_hlod_array(array):
+    array.header = get_hlod_array_header()
 
     array.sub_objects = [
         get_hlod_sub_object(bone=0, name='containerName.sword'),
@@ -60,16 +58,36 @@ def get_hlod_array():
     return array
 
 
-def get_hlod_array_minimal():
-    array = HLodArray(
-        header=get_hlod_array_header(),
-        sub_objects=[])
+def get_hlod_lod_array():
+    return get_hlod_array(HLodLodArray())
 
-    array.sub_objects.append(get_hlod_sub_object(
-        bone=0, name='containerName.BOUNDINGBOX'))
 
+def get_hlod_aggregate_array():
+    return get_hlod_array(HLodAggregateArray())
+
+
+def get_hlod_proxy_array():
+    return get_hlod_array(HLodProxyArray())
+
+
+def get_hlod_array_minimal(array):
+    array.header = get_hlod_array_header()
+    array.sub_objects = [get_hlod_sub_object(
+        bone=0, name='containerName.BOUNDINGBOX')]
     array.header.model_count = len(array.sub_objects)
     return array
+
+
+def get_hlod_lod_array_minimal():
+    return get_hlod_array_minimal(HLodLodArray())
+
+
+def get_hlod_aggregate_array_minimal():
+    return get_hlod_array_minimal(HLodAggregateArray())
+
+
+def get_hlod_proxy_array_minimal():
+    return get_hlod_array_minimal(HLodProxyArray())
 
 
 def compare_hlod_arrays(self, expected, actual, xml=False):
@@ -85,21 +103,21 @@ def compare_hlod_arrays(self, expected, actual, xml=False):
 def get_hlod(model_name='containerName', hierarchy_name='TestHierarchy'):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
-        lod_arrays=[get_hlod_array()],
-        aggregate_array=get_hlod_array(),
-        proxy_array=get_hlod_array())
+        lod_arrays=[get_hlod_lod_array()],
+        aggregate_array=get_hlod_aggregate_array(),
+        proxy_array=get_hlod_proxy_array())
 
 
 def get_hlod_minimal(model_name='containerName', hierarchy_name='TestHierarchy'):
     return HLod(
         header=get_hlod_header(model_name, hierarchy_name),
-        lod_arrays=[get_hlod_array_minimal()],
-        aggregate_array=None,
-        proxy_array=None)
+        lod_arrays=[get_hlod_lod_array_minimal()],
+        aggregate_array=get_hlod_aggregate_array_minimal(),
+        proxy_array=get_hlod_proxy_array_minimal())
 
 
 def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'):
-    array0 = HLodArray(
+    array0 = HLodLodArray(
         header=get_hlod_array_header(count=3, size=MAX_SCREEN_SIZE),
         sub_objects=[])
 
@@ -108,7 +126,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
                               bone=1, name='containerName.mesh2'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3')]
 
-    array1 = HLodArray(
+    array1 = HLodLodArray(
         header=get_hlod_array_header(count=3, size=1.0),
         sub_objects=[])
 
@@ -117,7 +135,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
                               bone=1, name='containerName.mesh2_1'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3_1')]
 
-    array2 = HLodArray(
+    array2 = HLodLodArray(
         header=get_hlod_array_header(count=3, size=0.3),
         sub_objects=[])
 
@@ -126,7 +144,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
                               bone=1, name='containerName.mesh2_2'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3_2')]
 
-    array3 = HLodArray(
+    array3 = HLodLodArray(
         header=get_hlod_array_header(count=3, size=0.03),
         sub_objects=[])
 

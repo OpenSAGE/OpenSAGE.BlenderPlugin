@@ -127,31 +127,25 @@ class HLodSubObject(Struct):
         return sub_object
 
 
-W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
-W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
-W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
-
-
-class HLodArray(Struct):
+class HLodBaseArray(Struct):
     header = HLodArrayHeader()
     sub_objects = []
 
     @staticmethod
-    def read(context, io_stream, chunk_end):
-        result = HLodArray(
-            header=None,
-            sub_objects=[])
+    def read(context, io_stream, chunk_end, array):
+        array.header = None
+        array.sub_objects = []
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
 
             if chunk_type == W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER:
-                result.header = HLodArrayHeader.read(io_stream)
+                array.header = HLodArrayHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_HLOD_SUB_OBJECT:
-                result.sub_objects.append(HLodSubObject.read(io_stream))
+                array.sub_objects.append(HLodSubObject.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
-        return result
+        return array
 
     def size(self, include_head=True):
         size = const_size(0, include_head)
@@ -159,11 +153,44 @@ class HLodArray(Struct):
         size += list_size(self.sub_objects, False)
         return size
 
-    def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_HLOD_LOD_ARRAY, io_stream,
+    def write(self, io_stream, chunk_id):
+        write_chunk_head(chunk_id, io_stream,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
         write_list(self.sub_objects, io_stream, HLodSubObject.write)
+
+
+W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
+
+class HLodLodArray(HLodBaseArray):
+    @staticmethod
+    def read(context, io_stream, chunk_end):
+        return HLodBaseArray.read(context, io_stream, chunk_end, HLodLodArray())
+
+    def write(self, io_stream):
+        super().write(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY)
+
+
+W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
+
+class HLodAggregateArray(HLodBaseArray):
+    @staticmethod
+    def read(context, io_stream, chunk_end):
+        return HLodBaseArray.read(context, io_stream, chunk_end, HLodAggregateArray())
+
+    def write(self, io_stream):
+        super().write(io_stream, W3D_CHUNK_HLOD_AGGREGATE_ARRAY)
+
+
+W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
+
+class HLodProxyArray(HLodBaseArray):
+    @staticmethod
+    def read(context, io_stream, chunk_end):
+        return HLodBaseArray.read(context, io_stream, chunk_end, HLodProxyArray())
+
+    def write(self, io_stream):
+        super().write(io_stream, W3D_CHUNK_HLOD_PROXY_ARRAY)
 
 
 W3D_CHUNK_HLOD = 0x00000700
@@ -195,13 +222,13 @@ class HLod(Struct):
             if chunk_type == W3D_CHUNK_HLOD_HEADER:
                 result.header = HLodHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_HLOD_LOD_ARRAY:
-                result.lod_arrays.append(HLodArray.read(
+                result.lod_arrays.append(HLodLodArray.read(
                     context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
-                result.aggregate_array = HLodArray.read(
+                result.aggregate_array = HLodAggregateArray.read(
                     context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_HLOD_PROXY_ARRAY:
-                result.proxy_array = HLodArray.read(
+                result.proxy_array = HLodProxyArray.read(
                     context, io_stream, subchunk_end)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
@@ -212,6 +239,10 @@ class HLod(Struct):
         size += self.header.size()
         for lod_array in self.lod_arrays:
             size += lod_array.size()
+        if self.aggregate_array is not None:
+            size += self.aggregate_array.size()
+        if self.proxy_array is not None:
+            size += self.proxy_array.size()
         return size
 
     def write(self, io_stream):
@@ -221,13 +252,18 @@ class HLod(Struct):
         for lod_array in self.lod_arrays:
             lod_array.write(io_stream)
 
+        if self.aggregate_array is not None:
+            self.aggregate_array.write(io_stream)
+        if self.proxy_array is not None:
+            self.proxy_array.write(io_stream)
+
     @staticmethod
     def parse(xml_container):
         result = HLod(
             header=HLodHeader(
                 model_name=xml_container.attributes['id'].value,
                 hierarchy_name=xml_container.attributes['Hierarchy'].value),
-            lod_arrays=[HLodArray(sub_objects=[])])
+            lod_arrays=[HLodLodArray(sub_objects=[])])
 
         xml_sub_objects = xml_container.getElementsByTagName('SubObject')
         for xml_sub_object in xml_sub_objects:

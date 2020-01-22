@@ -13,7 +13,7 @@ class TestHLod(TestCase):
         expected = get_hlod()
 
         self.assertEqual(48, expected.header.size())
-        self.assertEqual(292, expected.size())
+        self.assertEqual(780, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -90,7 +90,13 @@ class TestHLod(TestCase):
         self.assertEqual(60, hlod.lod_arrays[0].size(False))
         self.assertEqual(68, hlod.lod_arrays[0].size())
 
-        self.assertEqual(116, hlod.size())
+        self.assertEqual(60, hlod.aggregate_array.size(False))
+        self.assertEqual(68, hlod.aggregate_array.size())
+
+        self.assertEqual(60, hlod.proxy_array.size(False))
+        self.assertEqual(68, hlod.proxy_array.size())
+
+        self.assertEqual(252, hlod.size())
 
     def test_write_read_xml(self):
         expected = get_hlod()
