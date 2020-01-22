@@ -18,16 +18,6 @@ bl_info = {
     'support': 'OFFICIAL',
     'category': 'Import-Export'}
 
-def update_extension(self, context):
-    if self.file_format == 'W3D':
-        #self.filename_ext = '.w3d'
-        self.filepath.replace('.w3x', '.w3d', -1)
-    else:
-        #self.filename_ext = '.w3x'
-        self.filepath.replace('.w3d', '.w3x', -1)
-    
-    # issues: can not update filename ext, and redraw gui....
-
 
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export to Westwood 3D file format (.w3d)'''
@@ -35,7 +25,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     bl_label = 'Export W3D/W3X'
     bl_options = {'UNDO', 'PRESET'}
 
-    filename_ext = '.w3d'
+    filename_ext = ''
 
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
 
@@ -49,8 +39,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
              'W3X',
              'XML based W3D format')),
         description="Select the export file format",
-        default='W3D',
-        update=update_extension)
+        default='W3D')
 
     export_mode: EnumProperty(
         name='Mode',
@@ -131,9 +120,13 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
 
         if self.file_format == 'W3X':
+            self.filename_ext = '.w3x'
+            self.filepath += '.w3x'
             from .w3x.export_w3x import save
             return save(self, export_settings)
         else:
+            self.filename_ext = '.w3d'
+            self.filepath += '.w3d'
             from .w3d.export_w3d import save
             return save(self, export_settings)
 
