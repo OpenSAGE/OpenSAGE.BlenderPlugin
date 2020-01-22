@@ -478,7 +478,7 @@ class TestUtils(TestCase):
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        array = HLodArray(
+        array = HLodLodArray(
             header=get_hlod_array_header(),
             sub_objects=[get_hlod_sub_object(bone=0, name='containerName.BOUNDINGBOX'),
                         get_hlod_sub_object(bone=1, name='containerName.bone_pivot'),

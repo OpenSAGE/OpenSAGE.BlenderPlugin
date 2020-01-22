@@ -309,7 +309,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
 
     index = min(len(lod_arrays), len(screen_sizes) - 1)
 
-    lod_array = HLodArray(
+    lod_array = HLodLodArray(
         header=HLodArrayHeader(
             model_count=len(meshes),
             max_screen_size=screen_sizes[index]),
