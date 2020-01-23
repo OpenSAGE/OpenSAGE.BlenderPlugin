@@ -212,7 +212,7 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
-
+        dazzles = [get_dazzle()]
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
@@ -222,7 +222,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        create_data(self, meshes, hlod, hierarchy, boxes)
+        create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
         self.compare_data([], hlod, hierarchy)
 
@@ -286,11 +286,12 @@ class TestUtils(TestCase):
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
+        dazzles = [get_dazzle()]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        create_data(self, meshes, hlod, hierarchy, boxes)
+        create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
 

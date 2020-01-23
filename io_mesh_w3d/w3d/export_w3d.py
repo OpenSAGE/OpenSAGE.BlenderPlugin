@@ -24,6 +24,7 @@ def save(context, export_settings):
     (hierarchy, rig) = retrieve_hierarchy(context, container_name)
     hlod = create_hlod(hierarchy, container_name)
     boxes = retrieve_boxes(hierarchy, container_name)
+    dazzles = retrieve_dazzles(hierarchy, container_name)
 
     if 'M' in export_mode:
         meshes = retrieve_meshes(context, hierarchy, rig, container_name)
@@ -76,6 +77,9 @@ def save(context, export_settings):
 
         for box in boxes:
             box.write(file)
+
+        for dazzle in dazzles:
+            dazzle.write(file)
 
         for mesh in meshes:
             mesh.write(file)

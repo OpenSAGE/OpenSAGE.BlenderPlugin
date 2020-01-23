@@ -58,6 +58,7 @@ def retrieve_boxes(hierarchy, container_name):
         boxes.append(box)
     return boxes
 
+
 def retrieve_dazzles(hierarchy, container_name):
     dazzles = []
 
@@ -254,7 +255,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
                 mesh_struct.vert_materials.append(
                     retrieve_vertex_material(material))
 
-                if principled.base_color_texture is not None:
+                if principled.base_color_texture.image is not None:
                     info = TextureInfo(
                         attributes=0,
                         animation_type=0,
