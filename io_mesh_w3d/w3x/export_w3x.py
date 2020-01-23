@@ -17,10 +17,6 @@ def save(context, export_settings):
 
     container_name = os.path.basename(context.filepath).split('.')[0]
 
-    if len(container_name) > STRING_LENGTH:
-        context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
-        return {'CANCELLED'}
-
     (hierarchy, rig) = retrieve_hierarchy(context, container_name)
     hlod = create_hlod(hierarchy, container_name)
     boxes = retrieve_boxes(hierarchy, container_name)
