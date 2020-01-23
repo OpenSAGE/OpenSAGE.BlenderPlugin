@@ -135,8 +135,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         if self.export_mode == 'HM':
             self.draw_use_existing_skeleton()
 
-        if self.export_mode == 'A' \
-                or self.export_mode == 'HAM':
+        if (self.export_mode == 'A' or self.export_mode == 'HAM') \
+                and not self.file_format == 'W3X':
             self.draw_animation_settings()
 
     def draw_general_settings(self):

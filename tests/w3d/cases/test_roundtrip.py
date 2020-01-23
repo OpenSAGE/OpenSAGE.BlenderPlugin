@@ -34,21 +34,24 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = ImportWrapper(self.outpath() + 'output_skn')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = ImportWrapper(self.outpath() + 'output_skn')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'testhiera_skl.w3d')
+        context = ImportWrapper(self.outpath() + 'testhiera_skl')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'output_ani.w3d')
+        context = ImportWrapper(self.outpath() + 'output_ani')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
@@ -86,21 +89,24 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = ImportWrapper(self.outpath() + 'output_skn')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = ImportWrapper(self.outpath() + 'output_skn')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'testhiera_skl.w3d')
+        context = ImportWrapper(self.outpath() + 'testhiera_skl')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'output_comp_ani.w3d')
+        context = ImportWrapper(self.outpath() + 'output_comp_ani')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
@@ -133,14 +139,14 @@ class TestRoundtrip(TestCase):
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
-        #comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         save(context, export_settings)
@@ -171,12 +177,13 @@ class TestRoundtrip(TestCase):
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
@@ -206,18 +213,19 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, [], None, None, [])
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = ImportWrapper(self.outpath() + 'output')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = False
         save(context, export_settings)
 
         # import
-        model = ImportWrapper(self.outpath() + 'base_skn.w3d')
+        model = ImportWrapper(self.outpath() + 'output.w3d')
         load(model, import_settings={})
 
         # check created objects
