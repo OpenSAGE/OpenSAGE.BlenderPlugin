@@ -742,9 +742,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
 
-                if is_visibility(fcu):
-                    channel.data[i] = bool(val)
-                elif channel_type < 6:
+                if is_visibility(fcu) or channel_type < 6:
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:

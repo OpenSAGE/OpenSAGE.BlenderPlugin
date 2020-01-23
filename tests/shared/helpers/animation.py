@@ -81,9 +81,9 @@ def get_animation_bit_channel_no_pad(pivot=0):
         last_frame=7,
         type=0,
         pivot=pivot,
-        default=False,
-        data=[True, True, True, True,
-              True, True, True, False])
+        default=0.0,
+        data=[1.0, 1.0, 1.0, 1.0,
+              1.0, 1.0, 1.0, 0.0])
 
 
 def compare_animation_bit_channels(self, expected, actual):

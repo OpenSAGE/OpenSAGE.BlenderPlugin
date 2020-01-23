@@ -233,6 +233,8 @@ class AnimationBitChannel(Struct):
         channel.setAttribute('FirstFrame', str(self.first_frame))
 
         for value in self.data:
+            print(value)
+            print(str(value))
             channel.appendChild(create_value(value, doc, 'Frame'))
         return channel
 

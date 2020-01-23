@@ -20,13 +20,13 @@ from os.path import dirname as up
 
 class TestRoundtripW3D(TestCase):
     def test_roundtrip(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod('testmodelname', hierarchy_name)
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
@@ -57,7 +57,7 @@ class TestRoundtripW3D(TestCase):
         save(context, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        bpy.ops.wm.read_homefile(use_empty=True)
 
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3d')
@@ -66,9 +66,9 @@ class TestRoundtripW3D(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -77,13 +77,13 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_compressed_animation(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod('testmodelname', hierarchy_name)
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
@@ -123,9 +123,9 @@ class TestRoundtripW3D(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -164,8 +164,8 @@ class TestRoundtripW3D(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestName' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestName']
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -204,8 +204,8 @@ class TestRoundtripW3D(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestName' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestName']
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -214,7 +214,7 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_prelit(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [get_mesh(name='sword', skin=True, prelit=True),
                   get_mesh(name='soldier', skin=True),
@@ -243,9 +243,9 @@ class TestRoundtripW3D(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue('output' in bpy.data.objects)
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)

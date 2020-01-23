@@ -18,7 +18,7 @@ from os.path import dirname as up
 
 class TestRoundtripW3X(TestCase):
     def test_roundtrip(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
@@ -26,7 +26,7 @@ class TestRoundtripW3X(TestCase):
             get_mesh(name='TRUNK')]
         hlod = get_hlod('TestModelName', hierarchy_name)
         boxes = [get_collision_box()]
-        animation = get_animation(hierarchy_name)
+        animation = get_animation(hierarchy_name, xml=True)
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
@@ -56,6 +56,8 @@ class TestRoundtripW3X(TestCase):
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
 
+        print('################################')
+
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3x')
         load(context, import_settings={})
@@ -63,9 +65,9 @@ class TestRoundtripW3X(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -76,7 +78,7 @@ class TestRoundtripW3X(TestCase):
 
 
     def test_roundtrip_HAM(self):
-        hierarchy_name = 'TestName'
+        hierarchy_name = 'testname'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
@@ -84,7 +86,7 @@ class TestRoundtripW3X(TestCase):
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         boxes = [get_collision_box()]
-        animation = get_animation(hierarchy_name)
+        animation = get_animation(hierarchy_name, xml=True)
 
         context = IOWrapper(self.outpath() + 'output.w3x')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
@@ -105,8 +107,9 @@ class TestRoundtripW3X(TestCase):
         load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestName' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestName']
+        self.assertTrue('output' in bpy.data.objects)
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
