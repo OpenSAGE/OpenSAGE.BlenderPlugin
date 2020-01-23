@@ -23,7 +23,7 @@ class TestExport(TestCase):
         export_settings['mode'] = 'M'
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -34,7 +34,7 @@ class TestExport(TestCase):
         export_settings['mode'] = 'HM'
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -45,7 +45,7 @@ class TestExport(TestCase):
         export_settings['mode'] = 'HAM'
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -60,7 +60,7 @@ class TestExport(TestCase):
         create_data(self, meshes)
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -83,7 +83,7 @@ class TestExport(TestCase):
         create_data(self, meshes)
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -114,7 +114,7 @@ class TestExport(TestCase):
         create_data(self, meshes, hlod, hierarchy)
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -149,7 +149,7 @@ class TestExport(TestCase):
         create_data(self, meshes, hlod, hierarchy)
 
         file_path = self.outpath() + 'output_skn.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -169,7 +169,7 @@ class TestExport(TestCase):
         export_settings['compression'] = 'U'
 
         file_path = self.outpath() + 'output_ani.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -181,7 +181,7 @@ class TestExport(TestCase):
         export_settings['compression'] = 'TC'
 
         file_path = self.outpath() + 'output_ani.w3d'
-        context = ImportWrapper(file_path)
+        context = IOWrapper(file_path)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 

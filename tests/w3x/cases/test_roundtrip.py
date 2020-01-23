@@ -12,7 +12,7 @@ from tests.shared.helpers.hierarchy import get_hierarchy
 from tests.shared.helpers.hlod import get_hlod
 from tests.shared.helpers.mesh import get_mesh
 from tests.utils import *
-from tests.utils import TestCase, ImportWrapper
+from tests.utils import TestCase, IOWrapper
 from os.path import dirname as up
 
 
@@ -26,29 +26,28 @@ class TestRoundtrip(TestCase):
             get_mesh(name='TRUNK')]
         hlod = get_hlod('TestModelName', hierarchy_name)
         boxes = [get_collision_box()]
-        dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output_skn')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
+        context = IOWrapper(self.outpath() + 'output_skn')
+        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'testhiera_skl')
+        context = IOWrapper(self.outpath() + 'testhiera_skl')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'output_ani')
+        context = IOWrapper(self.outpath() + 'output_ani')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
@@ -56,10 +55,10 @@ class TestRoundtrip(TestCase):
 
 
         # import
-        model = ImportWrapper(self.outpath() + 'output_skn.w3x')
-        load(model, import_settings={})
-        anim = ImportWrapper(self.outpath() + 'output_ani.w3x')
-        load(anim, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        load(context, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_ani.w3x')
+        load(context, import_settings={})
 
 
         # check created objects
@@ -83,15 +82,13 @@ class TestRoundtrip(TestCase):
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         boxes = [get_collision_box()]
-        dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
-        #comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = ImportWrapper(self.outpath() + 'output')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
+        context = IOWrapper(self.outpath() + 'output')
+        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HAM'
@@ -99,8 +96,8 @@ class TestRoundtrip(TestCase):
         save(context, export_settings)
 
         # import
-        model = ImportWrapper(self.outpath() + 'output.w3x')
-        load(model, import_settings={})
+        context = IOWrapper(self.outpath() + 'output.w3x')
+        load(context, import_settings={})
 
         # check created objects
         self.assertTrue('TestName' in bpy.data.armatures)
