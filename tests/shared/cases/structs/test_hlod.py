@@ -109,7 +109,7 @@ class TestHLod(TestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_hlods = dom.getElementsByTagName('Container')
+        xml_hlods = dom.getElementsByTagName('W3DContainer')
         self.assertEqual(1, len(xml_hlods))
 
         actual = HLod.parse(xml_hlods[0])
@@ -126,7 +126,7 @@ class TestHLod(TestCase):
         io_stream = io.BytesIO(io_stream.getvalue())
 
         dom = minidom.parse(io_stream)
-        xml_hlods = dom.getElementsByTagName('Container')
+        xml_hlods = dom.getElementsByTagName('W3DContainer')
         self.assertEqual(1, len(xml_hlods))
 
         actual = HLod.parse(xml_hlods[0])

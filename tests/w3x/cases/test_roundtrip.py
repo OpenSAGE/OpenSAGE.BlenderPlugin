@@ -16,7 +16,7 @@ from tests.utils import TestCase, IOWrapper
 from os.path import dirname as up
 
 
-class TestRoundtrip(TestCase):
+class TestRoundtripW3X(TestCase):
     def test_roundtrip(self):
         hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
@@ -31,35 +31,36 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn.w3x')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn.w3x')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl')
+        context = IOWrapper(self.outpath() + 'testhiera_skl.w3x')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_ani')
+        context = IOWrapper(self.outpath() + 'output_ani.w3x')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3x')
         load(context, import_settings={})
         context = IOWrapper(self.outpath() + 'output_ani.w3x')
         load(context, import_settings={})
-
 
         # check created objects
         self.assertTrue('TestHiera_SKL' in bpy.data.objects)
@@ -70,7 +71,8 @@ class TestRoundtrip(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
-        self.assertTrue('Brakelight' in bpy.data.objects)
+
+        print("########### test finished")
 
 
     def test_roundtrip_HAM(self):
@@ -84,16 +86,19 @@ class TestRoundtrip(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name)
 
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3x')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3x')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         save(context, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output.w3x')
@@ -107,4 +112,3 @@ class TestRoundtrip(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
-        self.assertTrue('Brakelight' in bpy.data.objects)

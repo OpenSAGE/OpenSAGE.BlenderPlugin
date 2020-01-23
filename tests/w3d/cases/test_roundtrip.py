@@ -18,7 +18,7 @@ from tests.w3d.helpers.compressed_animation import get_compressed_animation
 from os.path import dirname as up
 
 
-class TestRoundtrip(TestCase):
+class TestRoundtripW3D(TestCase):
     def test_roundtrip(self):
         hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
@@ -38,24 +38,26 @@ class TestRoundtrip(TestCase):
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         export_settings = {}
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl')
+        context = IOWrapper(self.outpath() + 'testhiera_skl.w3d')
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_ani')
+        context = IOWrapper(self.outpath() + 'output_ani.w3d')
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3d')
@@ -89,27 +91,30 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         export_settings = {}
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl')
+        context = IOWrapper(self.outpath() + 'testhiera_skl.w3d')
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_comp_ani')
+        context = IOWrapper(self.outpath() + 'output_comp_ani.w3d')
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3d')
@@ -140,16 +145,19 @@ class TestRoundtrip(TestCase):
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
 
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         save(context, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output.w3d')
@@ -177,16 +185,19 @@ class TestRoundtrip(TestCase):
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output.w3d')
@@ -213,16 +224,19 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, [], None, None, [])
 
         # export
-        context = IOWrapper(self.outpath() + 'output')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
         export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = False
         save(context, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
 
         # import
         context = IOWrapper(self.outpath() + 'output.w3d')
