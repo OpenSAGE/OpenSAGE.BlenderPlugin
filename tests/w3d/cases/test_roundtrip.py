@@ -53,6 +53,7 @@ class TestRoundtrip(TestCase):
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
+
         # import
         model = ImportWrapper(self.outpath() + 'output_skn.w3d')
         load(model, import_settings={})
