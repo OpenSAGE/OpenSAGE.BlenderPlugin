@@ -18,6 +18,7 @@ from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from os.path import dirname as up
 
+
 class TestUtils(TestCase):
     def test_vertex_material_roundtrip(self):
         mesh = get_mesh()
@@ -171,7 +172,7 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         hlod = get_hlod()
         boxes = [get_collision_box()]
-        meshes = [ 
+        meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
@@ -481,8 +482,8 @@ class TestUtils(TestCase):
         array = HLodLodArray(
             header=get_hlod_array_header(),
             sub_objects=[get_hlod_sub_object(bone=0, name='containerName.BOUNDINGBOX'),
-                        get_hlod_sub_object(bone=1, name='containerName.bone_pivot'),
-                        get_hlod_sub_object(bone=2, name='containerName.bone_pivot2')])
+                         get_hlod_sub_object(bone=1, name='containerName.bone_pivot'),
+                         get_hlod_sub_object(bone=2, name='containerName.bone_pivot2')])
 
         array.header.model_count = len(array.sub_objects)
         hlod.lod_arrays = [array]
@@ -527,7 +528,15 @@ class TestUtils(TestCase):
 
         self.assertTrue('object_bone' in rig.pose.bones)
 
-    def compare_data(self, meshes=[], hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
+    def compare_data(
+            self,
+            meshes=[],
+            hlod=None,
+            hierarchy=None,
+            boxes=[],
+            animation=None,
+            compressed_animation=None,
+            dazzles=[]):
         container_name = 'containerName'
         rig = None
         actual_hiera = None
