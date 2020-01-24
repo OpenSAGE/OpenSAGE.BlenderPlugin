@@ -3,6 +3,7 @@
 
 from io_mesh_w3d.export_utils import *
 from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.w3x.structs.include import *
 
 
 def save(context, export_settings):
@@ -56,6 +57,8 @@ def save(context, export_settings):
 
     doc = minidom.Document()
     asset = create_asset_declaration(doc)
+    includes = doc.createElement('Includes')
+    asset.appendChild(includes)
 
     if export_mode == 'M':
         if len(meshes) > 1:
@@ -70,6 +73,9 @@ def save(context, export_settings):
             hierarchy.header.name = container_name
             hlod.header.hierarchy_name = container_name
             asset.appendChild(hierarchy.create(doc))
+        else:
+            hierarchy_include = Include(type='all', source='ART:' + hierarchy.header.name + '.w3x')
+            includes.appendChild(hierarchy_include.create(doc))
 
         for box in boxes:
             asset.appendChild(box.create(doc))
@@ -83,6 +89,8 @@ def save(context, export_settings):
            asset.appendChild(animation.create(doc))
 
     elif export_mode == 'A':
+        hierarchy_include = Include(type='all', source='ART:' + hierarchy.header.name + '.w3x')
+        includes.appendChild(hierarchy_include.create(doc))
         asset.appendChild(animation.create(doc))
 
     elif export_mode == 'H':
@@ -94,4 +102,5 @@ def save(context, export_settings):
     file = open(context.filepath, "wb")
     file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
     file.close()
+    print('finished')
     return {'FINISHED'}

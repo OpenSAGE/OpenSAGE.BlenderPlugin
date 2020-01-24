@@ -185,6 +185,48 @@ class TestUtils(TestCase):
 
         self.compare_data([], None, hierarchy)
 
+    def test_hierarchy_roundtrip_pivot_order_is_correct(self):
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='bone_1', parent=0),
+            get_hierarchy_pivot(name='bone_2', parent=1),
+            get_hierarchy_pivot(name='bone_3', parent=2),
+            get_hierarchy_pivot(name='mesh1', parent=2),
+            get_hierarchy_pivot(name='mesh2', parent=2),
+            get_hierarchy_pivot(name='mesh3', parent=2),
+            get_hierarchy_pivot(name='bone_4', parent=1),
+            get_hierarchy_pivot(name='bone_5', parent=7),
+            get_hierarchy_pivot(name='mesh4', parent=7)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod()
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=4, name='containerName.mesh1'),
+            get_hlod_sub_object(bone=5, name='containerName.mesh2'),
+            get_hlod_sub_object(bone=6, name='containerName.mesh3'),
+            get_hlod_sub_object(bone=9, name='containerName.mesh4')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        meshes = [ 
+            get_mesh(name='mesh1'),
+            get_mesh(name='mesh2'),
+            get_mesh(name='mesh3'),
+            get_mesh(name='mesh4')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        create_data(self, meshes, hlod, hierarchy, [])
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+
+        for i, pivot in enumerate(hierarchy.pivots):
+            print(pivot.name + ' -> ' + actual_hiera.pivots[i].name)
+
+        self.compare_data([], None, hierarchy)
+        self.assertTrue(False)
+
     def test_too_many_hierarchies_roundtrip(self):
         hierarchy = get_hierarchy()
         hierarchy2 = get_hierarchy(name='TestHierarchy2')

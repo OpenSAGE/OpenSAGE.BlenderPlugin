@@ -56,8 +56,6 @@ class TestRoundtripW3X(TestCase):
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
 
-        print('################################')
-
         # import
         context = IOWrapper(self.outpath() + 'output_skn.w3x')
         load(context, import_settings={})
@@ -73,8 +71,6 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
-
-        print("########### test finished")
 
 
     def test_roundtrip_HAM(self):
