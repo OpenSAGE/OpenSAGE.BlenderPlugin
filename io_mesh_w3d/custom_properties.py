@@ -40,6 +40,7 @@ Object.dazzle_type = EnumProperty(
         ('REN_VEHICLELIGHT_WHITE', 'Ren vehicle light white', 'desc: todo')],
     default='DEFAULT')
 
+
 class OBJECT_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
@@ -346,6 +347,7 @@ Material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = FloatVectorProperty(
     default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
     description='TODO')
+
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'

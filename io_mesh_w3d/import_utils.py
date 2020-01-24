@@ -51,7 +51,15 @@ def get_collection(hlod=None):
 ##########################################################################
 
 
-def create_data(context, meshes, hlod=None, hierarchy=None, boxes=[], animation=None, compressed_animation=None, dazzles=[]):
+def create_data(
+        context,
+        meshes,
+        hlod=None,
+        hierarchy=None,
+        boxes=[],
+        animation=None,
+        compressed_animation=None,
+        dazzles=[]):
     rig = None
     coll = get_collection(hlod)
 
@@ -405,7 +413,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':
             material.alpha_test = prop.value
-        elif prop.name == 'BlendMode': # is blend_method ?
+        elif prop.name == 'BlendMode':  # is blend_method ?
             material.blend_mode = prop.value
         elif prop.name == 'BumpUVScale':
             material.bump_uv_scale = prop.value.xy
@@ -418,10 +426,10 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'Sampler_ClampU_ClampV_NoMip_1':
             material.sampler_clamp_uv_no_mip_1 = prop.value
         elif prop.name == 'NumTextures':
-            material.num_textures = prop.value # is 1 if texture_0 and texture_1 are set
-        elif prop.name == 'Texture_0': # diffuse texture
+            material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
+        elif prop.name == 'Texture_0':  # diffuse texture
             material.texture_0 = prop.value
-        elif prop.name == 'Texture_1': # second diffuse texture
+        elif prop.name == 'Texture_1':  # second diffuse texture
             material.texture_1 = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
             material.secondary_texture_blend_mode = prop.value
@@ -442,7 +450,7 @@ def create_material_from_shader_material(context, mesh, shader_mat):
         elif prop.name == 'RecolorMultiplier':
             material.recolor_mult = prop.value
         elif prop.name == 'UseRecolorColors':
-            material.use_recolor =  prop.value
+            material.use_recolor = prop.value
         elif prop.name == 'HouseColorPulse':
             material.house_color_pulse = prop.value
         elif prop.name == 'ScrollingMaskTexture':
@@ -716,7 +724,7 @@ def create_cone(name):
 
 
 def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
-    #Todo: proper dimensions for cone
+    # Todo: proper dimensions for cone
     (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
     dazzle_cone.object_type = 'DAZZLE'
     dazzle_cone.dazzle_type = dazzle.type_name

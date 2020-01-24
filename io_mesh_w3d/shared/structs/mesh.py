@@ -448,31 +448,31 @@ class Mesh(Struct):
         result.header.sph_radius = bounding_sphere.radius
 
         result.verts = parse_object_list(context,
-            xml_mesh, 'Vertices', 'V', parse_vector)
+                                         xml_mesh, 'Vertices', 'V', parse_vector)
         result.header.vert_count = len(result.verts)
 
         result.normals = parse_object_list(context,
-            xml_mesh, 'Normals', 'N', parse_vector)
+                                           xml_mesh, 'Normals', 'N', parse_vector)
 
         result.tangents = parse_object_list(context,
-            xml_mesh, 'Tangents', 'T', parse_vector)
+                                            xml_mesh, 'Tangents', 'T', parse_vector)
 
         result.bitangents = parse_object_list(context,
-            xml_mesh, 'Bitangents', 'B', parse_vector)
+                                              xml_mesh, 'Bitangents', 'B', parse_vector)
 
         result.triangles = parse_object_list(context,
-            xml_mesh, 'Triangles', 'T', Triangle.parse)
+                                             xml_mesh, 'Triangles', 'T', Triangle.parse)
         result.header.face_count = len(result.triangles)
 
         result.material_passes = [MaterialPass(
             shader_material_ids=[0])]
         tex_coords = parse_object_list(context,
-            xml_mesh, 'TexCoords', 'T', parse_vector2)
+                                       xml_mesh, 'TexCoords', 'T', parse_vector2)
         if tex_coords:
             result.material_passes[0].tx_coords = tex_coords
 
         result.shade_ids = parse_object_list(context,
-            xml_mesh, 'ShadeIndices', 'I', parse_value, int)
+                                             xml_mesh, 'ShadeIndices', 'I', parse_value, int)
 
         xml_vertex_influence_lists = xml_mesh.getElementsByTagName(
             'BoneInfluences')

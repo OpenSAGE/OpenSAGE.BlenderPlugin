@@ -249,7 +249,11 @@ class Animation(Struct):
             context.error('animation name ' + self.header.name + ' exceeds max length of: ' + str(STRING_LENGTH))
             return False
         if len(self.header.hierarchy_name) >= STRING_LENGTH:
-            context.error('animation hierarchy name ' + self.header.hierarchy_name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            context.error(
+                'animation hierarchy name ' +
+                self.header.hierarchy_name +
+                ' exceeds max length of: ' +
+                str(STRING_LENGTH))
             return False
         if not self.channels:
             context.error('Scene does not contain any animation data')

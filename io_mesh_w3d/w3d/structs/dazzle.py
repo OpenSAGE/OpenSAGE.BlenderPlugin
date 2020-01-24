@@ -10,8 +10,8 @@ W3D_CHUNK_DAZZLE_NAME = 0x00000901
 W3D_CHUNK_DAZZLE_TYPENAME = 0x00000902
 
 # The dazzle is always assumed to be at the pivot point
-# of the bone it is attached to (you should enable Export_Transform) for 
-# dazzles. If the dazzle-type (from dazzle.ini) is directional, then the 
+# of the bone it is attached to (you should enable Export_Transform) for
+# dazzles. If the dazzle-type (from dazzle.ini) is directional, then the
 # coordinate-system of the bone will define the direction.
 
 
