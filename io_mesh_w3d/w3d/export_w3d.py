@@ -11,7 +11,7 @@ def save(context, export_settings):
     export_mode = export_settings['mode']
     print('export mode: ' + str(export_mode))
 
-    if not export_mode in ['M', 'HM', 'HAM', 'H', 'A']:
+    if export_mode not in ['M', 'HM', 'HAM', 'H', 'A']:
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 

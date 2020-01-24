@@ -162,6 +162,7 @@ class HLodBaseArray(Struct):
 
 W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
 
+
 class HLodLodArray(HLodBaseArray):
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -173,6 +174,7 @@ class HLodLodArray(HLodBaseArray):
 
 W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
 
+
 class HLodAggregateArray(HLodBaseArray):
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -183,6 +185,7 @@ class HLodAggregateArray(HLodBaseArray):
 
 
 W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
+
 
 class HLodProxyArray(HLodBaseArray):
     @staticmethod
@@ -206,7 +209,11 @@ class HLod(Struct):
         for lod_array in self.lod_arrays:
             for sub_obj in lod_array.sub_objects:
                 if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:
-                    context.error('identifier ' + sub_obj.identifier + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+                    context.error(
+                        'identifier ' +
+                        sub_obj.identifier +
+                        ' exceeds max length of: ' +
+                        str(LARGE_STRING_LENGTH))
                     return False
         return True
 

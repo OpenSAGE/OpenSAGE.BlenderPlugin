@@ -24,7 +24,6 @@ class TestDazzle(TestCase):
 
         compare_dazzles(self, expected, actual)
 
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_DAZZLE, output, 9, has_sub_chunks=True)
@@ -38,7 +37,6 @@ class TestDazzle(TestCase):
         self.assertEqual(W3D_CHUNK_DAZZLE, chunk_type)
 
         Dazzle.read(self, io_stream, subchunk_end)
-
 
     def test_chunk_sizes(self):
         dazzle = get_dazzle()

@@ -7,8 +7,8 @@ from io_mesh_w3d.w3d.structs.dazzle import *
 
 def get_dazzle(name='containerName.Brakelight', type='REN_BRAKELIGHT'):
     return Dazzle(
-            name_=name,
-            type_name=type)
+        name_=name,
+        type_name=type)
 
 
 def compare_dazzles(self, expected, actual):

@@ -218,7 +218,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    if stage.tx_coords[vert_index] != None \
+                    if stage.tx_coords[vert_index] is not None \
                             and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                         multiple_uvs_per_vertex = True
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
@@ -394,7 +394,7 @@ def append_property(shader_mat, type, name, value, default=None):
         return
     if type == 1:
         if isinstance(value, str):
-            if value == '': # default
+            if value == '':  # default
                 return
         elif value.image is None:
             return
@@ -433,7 +433,7 @@ def retrieve_shader_material(material, principled, w3x=False):
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
         append_property(shader_mat, 5, 'ColorDiffuse', RGBA(material.diffuse_color),
-                   RGBA(r=204, g=204, b=204, a=255))
+                        RGBA(r=204, g=204, b=204, a=255))
         append_property(shader_mat, 5, 'ColorSpecular', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'ColorAmbient', RGBA(material.ambient))
         append_property(shader_mat, 5, 'ColorEmissive', RGBA(material.emission))
@@ -441,7 +441,7 @@ def retrieve_shader_material(material, principled, w3x=False):
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
         append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
-                   RGBA(r=204, g=204, b=204, a=255))
+                        RGBA(r=204, g=204, b=204, a=255))
         append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
         append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
@@ -459,9 +459,9 @@ def retrieve_shader_material(material, principled, w3x=False):
     append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
     append_property(shader_mat, 7, 'DepthWriteEnable', material.depth_write)
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_0',
-                   material.sampler_clamp_uv_no_mip_0)
+                    material.sampler_clamp_uv_no_mip_0)
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
-                   material.sampler_clamp_uv_no_mip_1)
+                    material.sampler_clamp_uv_no_mip_1)
 
     append_property(shader_mat, 6, 'NumTextures', material.num_textures)
     append_property(shader_mat, 1, 'Texture_0', material.texture_0)
