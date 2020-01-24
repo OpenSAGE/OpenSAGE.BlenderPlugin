@@ -53,13 +53,11 @@ class TestRoundtrip(TestCase):
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
-
         # import
         model = ImportWrapper(self.outpath() + 'output_skn.w3d')
         load(model, import_settings={})
         anim = ImportWrapper(self.outpath() + 'output_ani.w3d')
         load(anim, import_settings={})
-
 
         # check created objects
         self.assertTrue('TestHiera_SKL' in bpy.data.objects)
@@ -71,7 +69,6 @@ class TestRoundtrip(TestCase):
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
         self.assertTrue('Brakelight' in bpy.data.objects)
-
 
     def test_roundtrip_compressed_animation(self):
         hierarchy_name = 'TestHiera_SKL'
@@ -107,7 +104,6 @@ class TestRoundtrip(TestCase):
         export_settings['compression'] = 'TC'
         save(context, export_settings)
 
-
         # import
         model = ImportWrapper(self.outpath() + 'output_skn.w3d')
         load(model, import_settings={})
@@ -124,7 +120,6 @@ class TestRoundtrip(TestCase):
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
         self.assertTrue('Brakelight' in bpy.data.objects)
-
 
     def test_roundtrip_HAM(self):
         hierarchy_name = 'TestName'
@@ -163,7 +158,6 @@ class TestRoundtrip(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
         self.assertTrue('Brakelight' in bpy.data.objects)
 
-
     def test_roundtrip_HAM_tc_animation(self):
         hierarchy_name = 'TestName'
         hierarchy = get_hierarchy(hierarchy_name)
@@ -199,7 +193,6 @@ class TestRoundtrip(TestCase):
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
         self.assertTrue('Brakelight' in bpy.data.objects)
-
 
     def test_roundtrip_prelit(self):
         hierarchy_name = 'TestHiera_SKL'
