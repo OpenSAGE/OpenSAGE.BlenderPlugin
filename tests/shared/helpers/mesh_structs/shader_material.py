@@ -44,7 +44,8 @@ def get_shader_material_property(
 
 def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
-    self.assertEqual(expected.type, actual.type, 'Incorrect type: ' + str(actual.type) + ' for property: ' + actual.name)
+    self.assertEqual(expected.type, actual.type, 'Incorrect type: ' +
+                     str(actual.type) + ' for property: ' + actual.name)
 
     if expected.type == 1:
         self.assertEqual(expected.value.split(
@@ -117,6 +118,7 @@ def get_shader_material_properties(w3x=False, two_tex=False):
         props.append(get_shader_material_property(1, 'SpecMap', 'texture_spec.dds'))
     return props
 
+
 def get_shader_material_properties_minimal():
     return [
         get_shader_material_property(2, 'SpecularExponent'),
@@ -160,7 +162,7 @@ def get_shader_material_empty():
 
 def compare_shader_materials(self, expected, actual):
     compare_shader_material_headers(self, expected.header, actual.header)
-    
+
     for expected_prop in expected.properties:
         match_found = False
         for actual_prop in actual.properties:
