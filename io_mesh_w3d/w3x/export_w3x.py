@@ -23,27 +23,27 @@ def save(context, export_settings):
     boxes = retrieve_boxes(hierarchy, container_name)
 
     if 'M' in export_mode:
-        meshes = retrieve_meshes(context, hierarchy, rig, container_name)
+        meshes = retrieve_meshes(context, hierarchy, rig, container_name, w3x=True)
         if not meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return {'CANCELLED'}
 
         for mesh in meshes:
-            if not mesh.validate(context):
+            if not mesh.validate(context, w3x=True):
                 context.error('aborting export!')
                 return {'CANCELLED'}
 
-    if 'H' in export_mode and not hierarchy.validate(context):
+    if 'H' in export_mode and not hierarchy.validate(context, w3x=True):
         context.error('aborting export!')
         return {'CANCELLED'}
 
     if export_mode in ['HM', 'HAM']:
-        if not hlod.validate(context):
+        if not hlod.validate(context, w3x=True):
             context.error('aborting export!')
             return {'CANCELLED'}
 
         for box in boxes:
-            if not box.validate(context):
+            if not box.validate(context, w3x=True):
                 context.error('aborting export!')
                 return {'CANCELLED'}
 
@@ -51,7 +51,7 @@ def save(context, export_settings):
         timecoded = export_settings['compression'] == "TC"
         animation = retrieve_animation(
             container_name, hierarchy, rig, timecoded)
-        if not animation.validate(context):
+        if not animation.validate(context, w3x=True):
             context.error('aborting export!')
             return {'CANCELLED'}
 

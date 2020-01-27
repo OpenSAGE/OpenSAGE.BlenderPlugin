@@ -424,6 +424,29 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes)
 
+    def test_meshes_roundtrip_has_only_shader_materials_on_w3x_export(self):
+        meshes = [
+            get_mesh(name='wall'),
+            get_mesh(name='tower'),
+            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='stone')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_nrm.dds')
+
+        create_data(self, meshes)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        actual_meshes = retrieve_meshes(self, actual_hiera, rig, 'containerName', w3x=True)
+        self.assertEqual(len(meshes), len(actual_meshes))
+        for mesh in actual_meshes:
+            self.assertEqual(0, len(mesh.vert_materials))
+            self.assertEqual(0, len(mesh.shaders))
+            self.assertTrue(mesh.shader_materials)
+
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [
             get_mesh(name='wall'),

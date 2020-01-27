@@ -74,8 +74,9 @@ def retrieve_dazzles(hierarchy, container_name):
     return dazzles
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name):
+def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
     mesh_structs = []
+    used_textures = []
 
     switch_to_pose(rig, 'REST')
 
@@ -240,7 +241,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
-            if principled.normalmap_texture is not None:  # TODO: or W3X export
+            if w3x or principled.normalmap_texture is not None:
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
