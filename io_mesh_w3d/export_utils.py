@@ -241,6 +241,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
+            print(mesh_object.name)
+            used_textures = get_used_textures(material, principled, used_textures)
+            print(used_textures)
+
             if w3x or principled.normalmap_texture is not None:
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
@@ -294,6 +298,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
 
     switch_to_pose(rig, 'POSE')
 
+    if w3x:
+        return (mesh_structs, used_textures)
     return mesh_structs
 
 
@@ -360,6 +366,25 @@ def create_hlod(hierarchy, container_name):
 # material data
 ##########################################################################
 
+def append_texture_if_valid(texture, used_textures):
+    if isinstance(texture, str):
+        if texture != '' and texture not in used_textures:
+            used_textures.append(texture)
+    elif texture is not None and texture.image is not None and texture.image.name not in used_textures:
+        used_textures.append(texture.image.name)
+    return used_textures
+
+def get_used_textures(material, principled, used_textures):
+    used_textures = append_texture_if_valid(principled.base_color_texture, used_textures)
+    used_textures = append_texture_if_valid(principled.normalmap_texture, used_textures)
+    used_textures = append_texture_if_valid(principled.specular_texture, used_textures)
+
+    used_textures = append_texture_if_valid(material.texture_0, used_textures)
+    used_textures = append_texture_if_valid(material.texture_1, used_textures)
+    used_textures = append_texture_if_valid(material.environment_texture, used_textures)
+    used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
+    used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
+    return used_textures
 
 def retrieve_vertex_material(material):
     info = VertexMaterialInfo(
@@ -547,8 +572,8 @@ def process_pivot(pivot, pivots, hierarchy, processed):
     parent_index = len(hierarchy.pivots) - 1
     for child in children:
         child.parent_id = parent_index
-        processed = process_pivot(child, pivots, hierarchy, processed)
-        #process_pivot(child, pivots, hierarchy, processed)
+        #processed = process_pivot(child, pivots, hierarchy, processed)
+        process_pivot(child, pivots, hierarchy, processed)
     return processed
 
 

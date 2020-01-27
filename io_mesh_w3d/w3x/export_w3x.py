@@ -23,7 +23,7 @@ def save(context, export_settings):
     boxes = retrieve_boxes(hierarchy, container_name)
 
     if 'M' in export_mode:
-        meshes = retrieve_meshes(context, hierarchy, rig, container_name, w3x=True)
+        (meshes, textures) = retrieve_meshes(context, hierarchy, rig, container_name, w3x=True)
         if not meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return {'CANCELLED'}
@@ -76,6 +76,10 @@ def save(context, export_settings):
         else:
             hierarchy_include = Include(type='all', source='ART:' + hierarchy.header.name + '.w3x')
             includes.appendChild(hierarchy_include.create(doc))
+
+        for texture in textures:
+            texture_include = Include(type='all', source='ART:' + texture.split('.')[0] + '.xml')
+            includes.appendChild(texture_include.create(doc))
 
         for box in boxes:
             asset.appendChild(box.create(doc))

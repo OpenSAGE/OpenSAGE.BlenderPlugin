@@ -192,27 +192,27 @@ class TestUtils(TestCase):
             get_hierarchy_pivot(name='bone_1', parent=0),
             get_hierarchy_pivot(name='bone_2', parent=1),
             get_hierarchy_pivot(name='bone_3', parent=2),
-            get_hierarchy_pivot(name='mesh1', parent=2),
-            get_hierarchy_pivot(name='mesh2', parent=2),
-            get_hierarchy_pivot(name='mesh3', parent=2),
+            get_hierarchy_pivot(name='a_mesh1', parent=2),
+            get_hierarchy_pivot(name='a_mesh2', parent=2),
+            get_hierarchy_pivot(name='a_mesh3', parent=2),
             get_hierarchy_pivot(name='bone_4', parent=1),
             get_hierarchy_pivot(name='bone_5', parent=7),
-            get_hierarchy_pivot(name='mesh4', parent=7)]
+            get_hierarchy_pivot(name='a_mesh4', parent=7)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         hlod = get_hlod()
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=4, name='containerName.mesh1'),
-            get_hlod_sub_object(bone=5, name='containerName.mesh2'),
-            get_hlod_sub_object(bone=6, name='containerName.mesh3'),
-            get_hlod_sub_object(bone=9, name='containerName.mesh4')]
+            get_hlod_sub_object(bone=4, name='containerName.a_mesh1'),
+            get_hlod_sub_object(bone=5, name='containerName.a_mesh2'),
+            get_hlod_sub_object(bone=6, name='containerName.a_mesh3'),
+            get_hlod_sub_object(bone=9, name='containerName.a_mesh4')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         meshes = [ 
-            get_mesh(name='mesh1'),
-            get_mesh(name='mesh2'),
-            get_mesh(name='mesh3'),
-            get_mesh(name='mesh4')]
+            get_mesh(name='a_mesh1'),
+            get_mesh(name='a_mesh2'),
+            get_mesh(name='a_mesh3'),
+            get_mesh(name='a_mesh4')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
@@ -440,12 +440,38 @@ class TestUtils(TestCase):
         create_data(self, meshes)
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        actual_meshes = retrieve_meshes(self, actual_hiera, rig, 'containerName', w3x=True)
+        (actual_meshes, _) = retrieve_meshes(self, actual_hiera, rig, 'containerName', w3x=True)
         self.assertEqual(len(meshes), len(actual_meshes))
         for mesh in actual_meshes:
             self.assertEqual(0, len(mesh.vert_materials))
             self.assertEqual(0, len(mesh.shaders))
             self.assertTrue(mesh.shader_materials)
+
+    def test_meshes_roundtrip_used_textures_are_correct(self):
+        expected = ['texture.dds', 'texture_nrm.dds', 'texture_spec.dds', 'texture_scroll.dds', 'texture_env.tga']
+        meshes = [
+            get_mesh(name='wall'),
+            get_mesh(name='tower'),
+            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='stone')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_nrm.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_spec.dds')
+
+        create_data(self, meshes)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        (_, used_textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName', w3x=True)
+        print(used_textures)
+        self.assertEqual(len(expected), len(used_textures))
+        for i, tex in enumerate(expected):
+            self.assertEqual(tex, used_textures[i])
 
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [

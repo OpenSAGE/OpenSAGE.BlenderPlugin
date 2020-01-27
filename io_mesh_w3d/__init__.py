@@ -78,6 +78,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         description='The method used for compressing the animation data',
         default='U')
 
+    create_texture_xmls: BoolProperty(
+        name='Create texture xml files', description='Creates an .xml file for each used texture', default=False)
+
     will_save_settings: BoolProperty(default=False)
 
     scene_key = 'w3dExportSettings'
@@ -137,6 +140,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         if self.export_mode == 'HM':
             self.draw_use_existing_skeleton()
 
+        if self.file_format == 'W3X' and (self.export_mode == 'HM' or self.export_mode == 'HAM'):
+            self.draw_create_texture_xmls()
+
         if (self.export_mode == 'A' or self.export_mode == 'HAM') \
                 and not self.file_format == 'W3X':
             self.draw_animation_settings()
@@ -155,6 +161,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
 
+    def draw_create_texture_xmls(self):
+        col = self.layout.box().column()
+        col.prop(self, 'create_texture_xmls')
 
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
