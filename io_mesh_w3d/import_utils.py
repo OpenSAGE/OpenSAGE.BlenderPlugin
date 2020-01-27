@@ -581,7 +581,6 @@ def get_bone(rig, hierarchy, channel):
         return rig.pose.bones[pivot.name]
     if pivot.name in bpy.data.objects:
         return bpy.data.objects[pivot.name]
-    print('object not found: ' + pivot.name)
 
 
 def setup_animation(animation):
