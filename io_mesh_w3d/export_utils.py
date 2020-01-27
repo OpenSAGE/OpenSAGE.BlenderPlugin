@@ -74,7 +74,7 @@ def retrieve_dazzles(hierarchy, container_name):
     return dazzles
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
+def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=False):
     mesh_structs = []
     used_textures = []
 
@@ -241,11 +241,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
-            print(mesh_object.name)
             used_textures = get_used_textures(material, principled, used_textures)
-            print(used_textures)
 
-            if w3x or principled.normalmap_texture is not None:
+            if shader_materials or principled.normalmap_texture is not None:
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
@@ -280,7 +278,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
-        if mesh_struct.shader_materials and mesh.uv_layers:
+        if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
         else:
             mesh_struct.tangents = []
@@ -298,7 +296,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, w3x=False):
 
     switch_to_pose(rig, 'POSE')
 
-    if w3x:
+    if shader_materials:
         return (mesh_structs, used_textures)
     return mesh_structs
 

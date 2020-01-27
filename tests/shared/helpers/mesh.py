@@ -167,21 +167,11 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
 
     mesh.aabbtree = get_aabbtree()
 
-    # TODO: find a cleaner way for creating the material stuff
-    # vertex / shader / prelit
-    for i in range(mat_count):
-        if shader_mats:
-            mesh.shader_materials.append(get_shader_material())
-        elif not prelit:
-            mesh.shaders.append(get_shader())
-            mesh.vert_materials.append(get_vertex_material())
-            mesh.textures.append(get_texture())
-
-        if not prelit:
-            mesh.material_passes.append(
-                get_material_pass(index=i, shader_mat=shader_mats))
-
-    if prelit:
+    if shader_mats:
+        mesh.shader_materials.append(get_shader_material())
+        mesh.material_passes.append(
+                get_material_pass(index=0, shader_mat=shader_mats))
+    elif prelit:
         mesh.header.attrs |= PRELIT_VERTEX
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
         mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
@@ -189,6 +179,14 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
             type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
         mesh.prelit_lightmap_multi_texture = get_prelit(
             type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
+    else:
+        for i in range(mat_count):
+            mesh.shaders.append(get_shader())
+            mesh.vert_materials.append(get_vertex_material())
+            mesh.textures.append(get_texture())
+
+            mesh.material_passes.append(
+                get_material_pass(index=i, shader_mat=shader_mats))
 
     if not prelit:
         mesh.mat_info = get_material_info()

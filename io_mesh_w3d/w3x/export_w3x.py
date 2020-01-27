@@ -23,7 +23,7 @@ def save(context, export_settings):
     boxes = retrieve_boxes(hierarchy, container_name)
 
     if 'M' in export_mode:
-        (meshes, textures) = retrieve_meshes(context, hierarchy, rig, container_name, w3x=True)
+        (meshes, textures) = retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=True)
         if not meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return {'CANCELLED'}
@@ -110,9 +110,8 @@ def save(context, export_settings):
 
     # create texture xml files
     if export_mode == 'HM' or export_mode == 'HAM' and export_settings['create_texture_xmls']:
-        print('creating files')
         directory = os.path.dirname(context.filepath)
-        print(directory)
+
         for texture in textures:
             id = texture.split('.')[0]
             doc = minidom.Document()

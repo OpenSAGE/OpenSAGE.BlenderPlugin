@@ -175,9 +175,9 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
         mesh.materials.append(material)
         principleds.append(principled)
 
-    for shaderMat in mesh_struct.shader_materials:
+    for i, shaderMat in enumerate(mesh_struct.shader_materials):
         (material, principled) = create_material_from_shader_material(
-            context, mesh_struct, shaderMat)
+            context, mesh_struct, shaderMat, str(i))
         mesh.materials.append(material)
         principleds.append(principled)
 
@@ -375,9 +375,8 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     return (material, principled)
 
 
-def create_material_from_shader_material(context, mesh, shader_mat):
-    material = bpy.data.materials.new(
-        mesh.name() + '.ShaderMaterial')
+def create_material_from_shader_material(context, mesh, shader_mat, index=''):
+    material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -395,7 +394,6 @@ def create_material_from_shader_material(context, mesh, shader_mat):
             principled.normalmap_strength = prop.value
         elif prop.name == 'SpecMap':
             principled.specular_texture.image = get_texture(context, prop.value)
-            print(principled.specular_texture.image.name)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
@@ -533,12 +531,10 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
 def get_texture(context, file, name=None):
     if name is None:
         name = file
-    print('processing: ' + name)
+
     file = file.split('.')[0]
     if name in bpy.data.images:
         return bpy.data.images[name]
-    else:
-        print('false')
 
     filepath = str(os.path.dirname(context.filepath) + "/" + file)
     img = load_image(filepath + '.tga')
@@ -547,7 +543,6 @@ def get_texture(context, file, name=None):
     if img is None:
         context.warning('texture not found: ' + filepath + ' (.dds or .tga)')
         img = bpy.data.images.new(name, width=2048, height=2048)
-        print('##################  created: ' + name)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
 
