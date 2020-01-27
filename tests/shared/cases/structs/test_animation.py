@@ -59,17 +59,21 @@ class TestAnimation(TestCase):
     def test_validate(self):
         ani = get_animation()
         self.assertTrue(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani.header.name = 'tooooolonganiname'
         self.assertFalse(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani = get_animation()
         ani.header.hierarchy_name = 'tooooolonganiname'
         self.assertFalse(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani = get_animation()
         ani.channels = []
         self.assertFalse(ani.validate(self))
+        self.assertFalse(ani.validate(self, w3x=True))
 
     def test_chunk_sizes(self):
         ani = get_animation_minimal()

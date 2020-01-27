@@ -59,17 +59,21 @@ class TestCompressedAnimation(TestCase):
     def test_validate(self):
         ani = get_compressed_animation()
         self.assertTrue(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani.header.name = 'tooooolonganiname'
         self.assertFalse(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani = get_compressed_animation()
         ani.header.hierarchy_name = 'tooooolonganiname'
         self.assertFalse(ani.validate(self))
+        self.assertTrue(ani.validate(self, w3x=True))
 
         ani = get_compressed_animation()
         ani.time_coded_channels = []
         self.assertFalse(ani.validate(self))
+        self.assertFalse(ani.validate(self, w3x=True))
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

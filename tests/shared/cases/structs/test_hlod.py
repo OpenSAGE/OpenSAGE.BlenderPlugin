@@ -46,9 +46,11 @@ class TestHLod(TestCase):
     def test_validate(self):
         hlod = get_hlod()
         self.assertTrue(hlod.validate(self))
+        self.assertTrue(hlod.validate(self, w3x=True))
 
         hlod.lod_arrays[0].sub_objects[0].identifier = 'containerName.tooooolongsuObjname'
         self.assertFalse(hlod.validate(self))
+        self.assertTrue(hlod.validate(self, w3x=True))
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

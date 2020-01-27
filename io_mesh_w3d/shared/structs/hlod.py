@@ -205,7 +205,9 @@ class HLod(Struct):
     aggregate_array = None
     proxy_array = None
 
-    def validate(self, context):
+    def validate(self, context, w3x=False):
+        if w3x:
+            return True
         for lod_array in self.lod_arrays:
             for sub_obj in lod_array.sub_objects:
                 if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:

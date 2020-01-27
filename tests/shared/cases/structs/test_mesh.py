@@ -81,9 +81,11 @@ class TestMesh(TestCase):
     def test_validate(self):
         mesh = get_mesh()
         self.assertTrue(mesh.validate(self))
+        self.assertTrue(mesh.validate(self, w3x=True))
 
         mesh.header.mesh_name = 'toooolongmeshname'
         self.assertFalse(mesh.validate(self))
+        self.assertTrue(mesh.validate(self, w3x=True))
 
     def test_chunk_order(self):
         expected_chunks = [

@@ -27,9 +27,11 @@ class TestCollisionBox(TestCase):
     def test_validate(self):
         box = get_collision_box()
         self.assertTrue(box.validate(self))
+        self.assertTrue(box.validate(self, w3x=True))
 
         box.name_ = 'containerNameeee.BOUNDINGBOX00000'
         self.assertFalse(box.validate(self))
+        self.assertTrue(box.validate(self, w3x=True))
 
     def test_name(self):
         box = get_collision_box()

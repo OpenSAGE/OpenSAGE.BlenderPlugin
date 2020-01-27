@@ -138,7 +138,9 @@ class Mesh(Struct):
 
     multi_bone_skinned = False
 
-    def validate(self, context):
+    def validate(self, context, w3x=False):
+        if w3x:
+            return True
         if len(self.header.mesh_name) >= STRING_LENGTH:
             context.error('mesh name ' + self.header.mesh_name + ' exceeds max length of: ' + str(STRING_LENGTH))
             return False
