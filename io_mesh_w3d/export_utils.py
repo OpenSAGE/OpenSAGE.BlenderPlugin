@@ -374,6 +374,7 @@ def append_texture_if_valid(texture, used_textures):
         used_textures.append(texture.image.name)
     return used_textures
 
+
 def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(principled.base_color_texture, used_textures)
     used_textures = append_texture_if_valid(principled.normalmap_texture, used_textures)
@@ -385,6 +386,7 @@ def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
     used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
     return used_textures
+
 
 def retrieve_vertex_material(material):
     info = VertexMaterialInfo(

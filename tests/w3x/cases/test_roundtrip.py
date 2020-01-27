@@ -73,7 +73,6 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
-
     def test_roundtrip_HAM(self):
         hierarchy_name = 'testname'
         hierarchy = get_hierarchy(hierarchy_name)

@@ -39,7 +39,7 @@ class TestCase(unittest.TestCase):
 
     def warning(self, msg):
         pass
-        #if self.firstError:
+        # if self.firstError:
         #    print('\n >>>' + self.id() + '<<<')
         #    self.firstError = False
         #print({'WARNING'}, msg)

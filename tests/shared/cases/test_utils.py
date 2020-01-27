@@ -208,7 +208,7 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=9, name='containerName.a_mesh4')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
-        meshes = [ 
+        meshes = [
             get_mesh(name='a_mesh1'),
             get_mesh(name='a_mesh2'),
             get_mesh(name='a_mesh3'),
