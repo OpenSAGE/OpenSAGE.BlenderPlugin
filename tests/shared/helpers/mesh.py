@@ -170,7 +170,7 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
     if shader_mats:
         mesh.shader_materials.append(get_shader_material())
         mesh.material_passes.append(
-                get_material_pass(index=0, shader_mat=shader_mats))
+            get_material_pass(index=0, shader_mat=shader_mats))
     elif prelit:
         mesh.header.attrs |= PRELIT_VERTEX
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
