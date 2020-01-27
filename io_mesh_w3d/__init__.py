@@ -166,6 +166,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         col = self.layout.box().column()
         col.prop(self, 'create_texture_xmls')
 
+
 class ImportW3D(bpy.types.Operator, ImportHelper):
     '''Import from Westwood 3D file format (.w3d)'''
     bl_idname = 'import_mesh.westwood_w3d'

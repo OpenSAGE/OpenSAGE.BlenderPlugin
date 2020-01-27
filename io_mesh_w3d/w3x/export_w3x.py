@@ -12,7 +12,7 @@ def save(context, export_settings):
     export_mode = export_settings['mode']
     print("export mode: " + str(export_mode))
 
-    if not export_mode in ['M', 'HM', 'HAM', 'H', 'A']:
+    if export_mode not in ['M', 'HM', 'HAM', 'H', 'A']:
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 
@@ -90,8 +90,8 @@ def save(context, export_settings):
 
         asset.appendChild(hlod.create(doc))
         if export_mode == 'HAM':
-           animation.header.hierarchy_name = container_name
-           asset.appendChild(animation.create(doc))
+            animation.header.hierarchy_name = container_name
+            asset.appendChild(animation.create(doc))
 
     elif export_mode == 'A':
         hierarchy_include = Include(type='all', source='ART:' + hierarchy.header.name + '.w3x')
@@ -109,7 +109,7 @@ def save(context, export_settings):
     file.close()
 
     # create texture xml files
-    if export_mode == 'HM' or export_mode == 'HAM' and export_settings['create_texture_xmls'] == True:
+    if export_mode == 'HM' or export_mode == 'HAM' and export_settings['create_texture_xmls']:
         print('creating files')
         directory = os.path.dirname(context.filepath)
         print(directory)
