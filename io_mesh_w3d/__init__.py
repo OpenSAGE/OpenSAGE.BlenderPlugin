@@ -33,11 +33,13 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         name="Format",
         items=(
             ('W3D',
-             'W3D',
-             'Binary W3D format'),
+             'Westwood 3D Binary (.w3d)',
+             'Exports to W3D format, which was used in earlier SAGE games.'
+             'Namely Command and Conquer Generals and the Battle for Middleearth series'),
             ('W3X',
-             'W3X',
-             'XML based W3D format')),
+             'Westwood 3D XML (.w3x)',
+             'Exports to W3X format, which was used in later SAGE games.'
+             'Namely everything starting from Command and Conquer 3')),
         description="Select the export file format",
         default='W3D')
 
@@ -64,7 +66,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         default='HM')
 
     use_existing_skeleton: BoolProperty(
-        name='Use existing skeleton', description='Todo', default=False)
+        name='Use existing skeleton', description='Use an already existing skeleton (.skn)', default=False)
 
     animation_compression: EnumProperty(
         name='Compression',
