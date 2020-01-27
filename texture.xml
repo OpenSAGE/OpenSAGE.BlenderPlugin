@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <Texture File="texture.dds" id="texture"/>
+</AssetDeclaration>

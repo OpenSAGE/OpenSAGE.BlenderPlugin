@@ -40,6 +40,7 @@ class TestRoundtripW3X(TestCase):
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
+        export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
         context = IOWrapper(self.outpath() + 'testhiera_skl.w3x')
@@ -93,6 +94,7 @@ class TestRoundtripW3X(TestCase):
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
+        export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
         # reset scene

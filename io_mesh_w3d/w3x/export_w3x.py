@@ -78,7 +78,8 @@ def save(context, export_settings):
             includes.appendChild(hierarchy_include.create(doc))
 
         for texture in textures:
-            texture_include = Include(type='all', source='ART:' + texture.split('.')[0] + '.xml')
+            id = texture.split('.')[0]
+            texture_include = Include(type='all', source='ART:' + id + '.xml')
             includes.appendChild(texture_include.create(doc))
 
         for box in boxes:
@@ -106,5 +107,22 @@ def save(context, export_settings):
     file = open(context.filepath, "wb")
     file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
     file.close()
+
+    # create texture xml files
+    if export_mode == 'HM' or export_mode == 'HAM' and export_settings['create_texture_xmls'] == True:
+        print('creating files')
+        directory = os.path.dirname(context.filepath)
+        print(directory)
+        for texture in textures:
+            id = texture.split('.')[0]
+            doc = minidom.Document()
+            asset = create_asset_declaration(doc)
+            asset.appendChild(Texture(id=id, file=texture).create(doc))
+            doc.appendChild(asset)
+
+            file = open(directory + '/' + id + '.xml', "wb")
+            file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+            file.close()
+
     print('finished')
     return {'FINISHED'}

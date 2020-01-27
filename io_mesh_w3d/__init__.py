@@ -123,6 +123,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['mode'] = self.export_mode
         export_settings['compression'] = self.animation_compression
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
+        export_settings['create_texture_xmls'] = self.create_texture_xmls
 
         if self.file_format == 'W3X':
             self.filename_ext = '.w3x'
