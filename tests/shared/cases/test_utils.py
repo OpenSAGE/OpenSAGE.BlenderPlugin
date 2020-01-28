@@ -389,11 +389,6 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'container_name')
-
-        for pivot in actual_hiera.pivots:
-            print(pivot.name)
-
         self.compare_data(meshes, hlod, hierarchy)
 
     def test_meshes_roundtrip(self):
