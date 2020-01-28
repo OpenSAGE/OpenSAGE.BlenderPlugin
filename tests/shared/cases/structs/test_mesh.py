@@ -28,7 +28,7 @@ class TestMesh(TestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(5687, expected.size())
+        self.assertEqual(4022, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -81,9 +81,11 @@ class TestMesh(TestCase):
     def test_validate(self):
         mesh = get_mesh()
         self.assertTrue(mesh.validate(self))
+        self.assertTrue(mesh.validate(self, w3x=True))
 
         mesh.header.mesh_name = 'toooolongmeshname'
         self.assertFalse(mesh.validate(self))
+        self.assertTrue(mesh.validate(self, w3x=True))
 
     def test_chunk_order(self):
         expected_chunks = [
@@ -202,7 +204,7 @@ class TestMesh(TestCase):
         self.assertEqual(1081, mesh.size())
 
     def test_write_read_xml(self):
-        expected = get_mesh(shader_mats=True, mat_count=1)
+        expected = get_mesh(shader_mats=True)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))

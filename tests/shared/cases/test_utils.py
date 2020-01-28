@@ -185,6 +185,77 @@ class TestUtils(TestCase):
 
         self.compare_data([], None, hierarchy)
 
+    def test_hierarchy_roundtrip_pivot_order_is_correct(self):
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='bone_chassis01', parent=0),
+            get_hierarchy_pivot(name='bone_treadlf', parent=1),
+            get_hierarchy_pivot(name='bone_treadlr', parent=1),
+            get_hierarchy_pivot(name='bone_treadrf', parent=1),
+            get_hierarchy_pivot(name='bone_treadrr', parent=1),
+            get_hierarchy_pivot(name='bone_turret', parent=1),
+            get_hierarchy_pivot(name='bone_rocketpod', parent=6),
+            get_hierarchy_pivot(name='turret01', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch01', parent=8),
+            get_hierarchy_pivot(name='turret02', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch02', parent=10),
+            get_hierarchy_pivot(name='bone_rails', parent=6),
+            get_hierarchy_pivot(name='bone_barrel_01', parent=12),
+            get_hierarchy_pivot(name='muzzlefx01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_02', parent=13),
+            get_hierarchy_pivot(name='ugrail_01', parent=13),
+            get_hierarchy_pivot(name='bone_barrel_02', parent=12),
+            get_hierarchy_pivot(name='muzzlefx02', parent=18),
+            get_hierarchy_pivot(name='ugrail_02', parent=18),
+            get_hierarchy_pivot(name='fxtrackslf', parent=1),
+            get_hierarchy_pivot(name='fxtrackslr', parent=1),
+            get_hierarchy_pivot(name='fxtracksrf', parent=1),
+            get_hierarchy_pivot(name='fxtracksrr', parent=1)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod()
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=0, name='containerName.treadsback'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsleft'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsmove'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsright'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsstop'),
+            get_hlod_sub_object(bone=0, name='containerName.mammothtank'),
+            get_hlod_sub_object(bone=20, name='containerName.ugrail_02'),
+            get_hlod_sub_object(bone=17, name='containerName.ugrail_01'),
+            get_hlod_sub_object(bone=16, name='containerName.muzzleflash_02'),
+            get_hlod_sub_object(bone=15, name='containerName.muzzleflash_01'),
+            get_hlod_sub_object(bone=0, name='containerName.rocketpods'), ]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        meshes = [
+            get_mesh(name='treadsbaack', skin=True),
+            get_mesh(name='treadsleft', skin=True),
+            get_mesh(name='treadsmove', skin=True),
+            get_mesh(name='treadsright', skin=True),
+            get_mesh(name='treadsstop', skin=True),
+            get_mesh(name='mammothtank', skin=True),
+            get_mesh(name='ugrail_02'),
+            get_mesh(name='ugrail_01'),
+            get_mesh(name='muzzleflash_02'),
+            get_mesh(name='muzzleflash_01'),
+            get_mesh(name='rocketpods', skin=True)]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        create_data(self, meshes, hlod, hierarchy, [])
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+
+        for i, pivot in enumerate(hierarchy.pivots):
+            print(pivot.name + ' -> ' + actual_hiera.pivots[i].name)
+
+        #self.compare_data([], None, hierarchy)
+        # self.assertTrue(False)
+
     def test_too_many_hierarchies_roundtrip(self):
         hierarchy = get_hierarchy()
         hierarchy2 = get_hierarchy(name='TestHierarchy2')
@@ -381,6 +452,55 @@ class TestUtils(TestCase):
         create_data(self, meshes)
 
         self.compare_data(meshes)
+
+    def test_meshes_roundtrip_has_only_shader_materials_on_w3x_export(self):
+        meshes = [
+            get_mesh(name='wall'),
+            get_mesh(name='tower'),
+            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='stone')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_nrm.dds')
+
+        create_data(self, meshes)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        (actual_meshes, _) = retrieve_meshes(self, actual_hiera, rig, 'containerName', shader_materials=True)
+        self.assertEqual(len(meshes), len(actual_meshes))
+        for mesh in actual_meshes:
+            self.assertEqual(0, len(mesh.vert_materials))
+            self.assertEqual(0, len(mesh.shaders))
+            self.assertTrue(mesh.shader_materials)
+
+    def test_meshes_roundtrip_used_textures_are_correct(self):
+        expected = ['texture.dds', 'texture_nrm.dds', 'texture_spec.dds', 'texture_env.tga', 'texture_scroll.dds']
+        meshes = [
+            get_mesh(name='wall'),
+            get_mesh(name='tower'),
+            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='stone')]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_nrm.dds')
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture_spec.dds')
+
+        create_data(self, meshes)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        (_, used_textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName', shader_materials=True)
+
+        self.assertEqual(len(expected), len(used_textures))
+        for i, tex in enumerate(expected):
+            self.assertEqual(tex, used_textures[i])
 
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [

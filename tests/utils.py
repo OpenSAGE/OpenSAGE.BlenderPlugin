@@ -16,33 +16,39 @@ def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
 
 
-class ImportWrapper:
+class IOWrapper:
     def __init__(self, filepath):
         self.filepath = filepath
         self.report = print
 
     def warning(self, msg):
-        print('WARNING: ' + msg)
-        self.report({'WARNING'}, msg)
+        pass
+        #self.report({'WARNING'}, msg)
 
     def error(self, msg):
-        print('ERROR: ' + msg)
-        self.report({'ERROR'}, msg)
+        pass
+        #self.report({'ERROR'}, msg)
 
 
 class TestCase(unittest.TestCase):
     __save_test_data = '--save-test-data' in sys.argv
     __tmp_base = os.path.join(tempfile.gettempdir(), 'io_mesh_w3d-tests')
     filepath = os.path.join(__tmp_base, 'out/')
-    report = print
+
+    firstError = True
 
     def warning(self, msg):
-        print('WARNING: ' + msg)
-        self.report({'WARNING'}, msg)
+        pass
+        # if self.firstError:
+        #    print('\n >>>' + self.id() + '<<<')
+        #    self.firstError = False
+        #print({'WARNING'}, msg)
 
     def error(self, msg):
-        print('ERROR: ' + msg)
-        self.report({'ERROR'}, msg)
+        if self.firstError:
+            print('\n' + self.id())
+            self.firstError = False
+        print({'ERROR'}, msg)
 
     @classmethod
     def relpath(cls, path=None):

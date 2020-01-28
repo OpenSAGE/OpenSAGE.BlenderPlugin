@@ -175,9 +175,9 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
         mesh.materials.append(material)
         principleds.append(principled)
 
-    for shaderMat in mesh_struct.shader_materials:
+    for i, shaderMat in enumerate(mesh_struct.shader_materials):
         (material, principled) = create_material_from_shader_material(
-            context, mesh_struct, shaderMat)
+            context, mesh_struct, shaderMat, str(i))
         mesh.materials.append(material)
         principleds.append(principled)
 
@@ -193,7 +193,7 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = textures[tex_id]
-            tex = load_texture(context, texture.file, texture.id)
+            tex = get_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
             #principleds[mat_id].alpha_texture.image = tex
 
@@ -375,9 +375,8 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     return (material, principled)
 
 
-def create_material_from_shader_material(context, mesh, shader_mat):
-    material = bpy.data.materials.new(
-        mesh.name() + '.ShaderMaterial')
+def create_material_from_shader_material(context, mesh, shader_mat, index=''):
+    material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -388,13 +387,13 @@ def create_material_from_shader_material(context, mesh, shader_mat):
 
     for prop in shader_mat.properties:
         if prop.name == 'DiffuseTexture':
-            principled.base_color_texture.image = load_texture(context, prop.value)
+            principled.base_color_texture.image = get_texture(context, prop.value)
         elif prop.name == 'NormalMap':
-            principled.normalmap_texture.image = load_texture(context, prop.value)
+            principled.normalmap_texture.image = get_texture(context, prop.value)
         elif prop.name == 'BumpScale':
             principled.normalmap_strength = prop.value
         elif prop.name == 'SpecMap':
-            principled.specular_texture.image = load_texture(context, prop.value)
+            principled.specular_texture.image = get_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
@@ -529,8 +528,7 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
 # load texture
 ##########################################################################
 
-
-def load_texture(context, file, name=None):
+def get_texture(context, file, name=None):
     if name is None:
         name = file
 
@@ -539,12 +537,9 @@ def load_texture(context, file, name=None):
         return bpy.data.images[name]
 
     filepath = str(os.path.dirname(context.filepath) + "/" + file)
-    tga_path = filepath + '.tga'
-    dds_path = filepath + '.dds'
-
-    img = load_image(tga_path)
+    img = load_image(filepath + '.tga')
     if img is None:
-        img = load_image(dds_path)
+        img = load_image(filepath + '.dds')
     if img is None:
         context.warning('texture not found: ' + filepath + ' (.dds or .tga)')
         img = bpy.data.images.new(name, width=2048, height=2048)
@@ -584,7 +579,8 @@ def get_bone(rig, hierarchy, channel):
     pivot = hierarchy.pivots[channel.pivot]
     if rig is not None and pivot.name in rig.pose.bones:
         return rig.pose.bones[pivot.name]
-    return bpy.data.objects[pivot.name]
+    if pivot.name in bpy.data.objects:
+        return bpy.data.objects[pivot.name]
 
 
 def setup_animation(animation):
@@ -737,7 +733,7 @@ def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
 
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     principled.base_color = (255, 255, 255)
-    principled.base_color_texture.image = load_texture(context, 'SunDazzle.tga')
+    principled.base_color_texture.image = get_texture(context, 'SunDazzle.tga')
     dazzle_mesh.materials.append(material)
 
 

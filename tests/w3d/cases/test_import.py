@@ -35,7 +35,7 @@ class TestObjectImport(TestCase):
         skn.close()
 
         # import
-        model = ImportWrapper(self.outpath() + 'base_skn.w3d')
+        model = IOWrapper(self.outpath() + 'base_skn.w3d')
         load(model, import_settings={})
 
     def test_unsupported_chunk_skip(self):
@@ -54,7 +54,7 @@ class TestObjectImport(TestCase):
         write_chunk_head(W3D_CHUNK_SOUNDROBJ, output, 0)
         output.close()
 
-        sut = ImportWrapper(self.outpath() + 'output.w3d')
+        sut = IOWrapper(self.outpath() + 'output.w3d')
         load(sut, import_settings={})
 
     def test_unkown_chunk_skip(self):
@@ -82,5 +82,5 @@ class TestObjectImport(TestCase):
         skl.close()
 
         # import
-        model = ImportWrapper(self.outpath() + 'base_skn.w3d')
+        model = IOWrapper(self.outpath() + 'base_skn.w3d')
         load(model, import_settings={})

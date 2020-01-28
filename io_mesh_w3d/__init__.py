@@ -22,12 +22,26 @@ bl_info = {
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export to Westwood 3D file format (.w3d)'''
     bl_idname = 'export_mesh.westwood_w3d'
-    bl_label = 'Export W3D'
+    bl_label = 'Export W3D/W3X'
     bl_options = {'UNDO', 'PRESET'}
 
-    filename_ext = '.w3d'
+    filename_ext = ''
 
-    filter_glob: StringProperty(default='*.w3d', options={'HIDDEN'})
+    filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
+
+    file_format: bpy.props.EnumProperty(
+        name="Format",
+        items=(
+            ('W3D',
+             'Westwood 3D Binary (.w3d)',
+             'Exports to W3D format, which was used in earlier SAGE games.'
+             'Namely Command and Conquer Generals and the Battle for Middleearth series'),
+            ('W3X',
+             'Westwood 3D XML (.w3x)',
+             'Exports to W3X format, which was used in later SAGE games.'
+             'Namely everything starting from Command and Conquer 3')),
+        description="Select the export file format",
+        default='W3D')
 
     export_mode: EnumProperty(
         name='Mode',
@@ -52,7 +66,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         default='HM')
 
     use_existing_skeleton: BoolProperty(
-        name='Use existing skeleton', description='Todo', default=False)
+        name='Use existing skeleton', description='Use an already existing skeleton (.skn)', default=False)
 
     animation_compression: EnumProperty(
         name='Compression',
@@ -63,6 +77,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                ),
         description='The method used for compressing the animation data',
         default='U')
+
+    create_texture_xmls: BoolProperty(
+        name='Create texture xml files', description='Creates an .xml file for each used texture', default=False)
 
     will_save_settings: BoolProperty(default=False)
 
@@ -99,8 +116,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
-        from .w3d.export_w3d import save
-
         if self.will_save_settings:
             self.save_settings(context)
 
@@ -108,19 +123,34 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['mode'] = self.export_mode
         export_settings['compression'] = self.animation_compression
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
+        export_settings['create_texture_xmls'] = self.create_texture_xmls
 
-        return save(self, export_settings)
+        if self.file_format == 'W3X':
+            self.filename_ext = '.w3x'
+            self.filepath += '.w3x'
+            from .w3x.export_w3x import save
+            return save(self, export_settings)
+        else:
+            self.filename_ext = '.w3d'
+            self.filepath += '.w3d'
+            from .w3d.export_w3d import save
+            return save(self, export_settings)
 
     def draw(self, _context):
         self.draw_general_settings()
         if self.export_mode == 'HM':
             self.draw_use_existing_skeleton()
 
-        if self.export_mode == 'A' \
-                or self.export_mode == 'HAM':
+        if self.file_format == 'W3X' and (self.export_mode == 'HM' or self.export_mode == 'HAM'):
+            self.draw_create_texture_xmls()
+
+        if (self.export_mode == 'A' or self.export_mode == 'HAM') \
+                and not self.file_format == 'W3X':
             self.draw_animation_settings()
 
     def draw_general_settings(self):
+        col = self.layout.box().column()
+        col.prop(self, 'file_format')
         col = self.layout.box().column()
         col.prop(self, 'export_mode')
 
@@ -131,6 +161,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
+
+    def draw_create_texture_xmls(self):
+        col = self.layout.box().column()
+        col.prop(self, 'create_texture_xmls')
 
 
 class ImportW3D(bpy.types.Operator, ImportHelper):

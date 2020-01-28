@@ -74,8 +74,9 @@ def retrieve_dazzles(hierarchy, container_name):
     return dazzles
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name):
+def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=False):
     mesh_structs = []
+    used_textures = []
 
     switch_to_pose(rig, 'REST')
 
@@ -240,7 +241,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
-            if principled.normalmap_texture is not None:  # TODO: or W3X export
+            used_textures = get_used_textures(material, principled, used_textures)
+
+            if shader_materials or principled.normalmap_texture is not None:
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
@@ -275,7 +278,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
-        if mesh_struct.shader_materials and mesh.uv_layers:
+        if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
         else:
             mesh_struct.tangents = []
@@ -293,6 +296,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
 
     switch_to_pose(rig, 'POSE')
 
+    if shader_materials:
+        return (mesh_structs, used_textures)
     return mesh_structs
 
 
@@ -358,6 +363,27 @@ def create_hlod(hierarchy, container_name):
 ##########################################################################
 # material data
 ##########################################################################
+
+def append_texture_if_valid(texture, used_textures):
+    if isinstance(texture, str):
+        if texture != '' and texture not in used_textures:
+            used_textures.append(texture)
+    elif texture is not None and texture.image is not None and texture.image.name not in used_textures:
+        used_textures.append(texture.image.name)
+    return used_textures
+
+
+def get_used_textures(material, principled, used_textures):
+    used_textures = append_texture_if_valid(principled.base_color_texture, used_textures)
+    used_textures = append_texture_if_valid(principled.normalmap_texture, used_textures)
+    used_textures = append_texture_if_valid(principled.specular_texture, used_textures)
+
+    used_textures = append_texture_if_valid(material.texture_0, used_textures)
+    used_textures = append_texture_if_valid(material.texture_1, used_textures)
+    used_textures = append_texture_if_valid(material.environment_texture, used_textures)
+    used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
+    used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
+    return used_textures
 
 
 def retrieve_vertex_material(material):
@@ -546,7 +572,8 @@ def process_pivot(pivot, pivots, hierarchy, processed):
     parent_index = len(hierarchy.pivots) - 1
     for child in children:
         child.parent_id = parent_index
-        process_pivot(child, pivots, hierarchy, processed)
+        processed = process_pivot(child, pivots, hierarchy, processed)
+        #process_pivot(child, pivots, hierarchy, processed)
     return processed
 
 
@@ -742,9 +769,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
 
-                if is_visibility(fcu):
-                    channel.data[i] = bool(val)
-                elif channel_type < 6:
+                if is_visibility(fcu) or channel_type < 6:
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:

@@ -12,21 +12,21 @@ from tests.shared.helpers.hierarchy import get_hierarchy
 from tests.shared.helpers.hlod import get_hlod
 from tests.shared.helpers.mesh import get_mesh
 from tests.utils import *
-from tests.utils import TestCase, ImportWrapper
+from tests.utils import TestCase, IOWrapper
 from tests.w3d.helpers.dazzle import get_dazzle
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
 from os.path import dirname as up
 
 
-class TestRoundtrip(TestCase):
+class TestRoundtripW3D(TestCase):
     def test_roundtrip(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod('testmodelname', hierarchy_name)
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
@@ -34,35 +34,41 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'testhiera_skl.w3d')
+        context = IOWrapper(self.outpath() + 'testhiera_skl.w3d')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'output_ani.w3d')
+        context = IOWrapper(self.outpath() + 'output_ani.w3d')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(use_empty=True)
+
         # import
-        model = ImportWrapper(self.outpath() + 'output_skn.w3d')
-        load(model, import_settings={})
-        anim = ImportWrapper(self.outpath() + 'output_ani.w3d')
-        load(anim, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
+        load(context, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_ani.w3d')
+        load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -71,13 +77,13 @@ class TestRoundtrip(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_compressed_animation(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod('testmodelname', hierarchy_name)
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
@@ -85,35 +91,41 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output_skn.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'testhiera_skl.w3d')
+        context = IOWrapper(self.outpath() + 'testhiera_skl.w3d')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = ImportWrapper(self.outpath() + 'output_comp_ani.w3d')
+        context = IOWrapper(self.outpath() + 'output_comp_ani.w3d')
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
         # import
-        model = ImportWrapper(self.outpath() + 'output_skn.w3d')
-        load(model, import_settings={})
-        comp_anim = ImportWrapper(self.outpath() + 'output_comp_ani.w3d')
-        load(comp_anim, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
+        load(context, import_settings={})
+        context = IOWrapper(self.outpath() + 'output_comp_ani.w3d')
+        load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -132,25 +144,28 @@ class TestRoundtrip(TestCase):
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
-        #comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
         # import
-        model = ImportWrapper(self.outpath() + 'output.w3d')
-        load(model, import_settings={})
+        context = IOWrapper(self.outpath() + 'output.w3d')
+        load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestName' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestName']
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -170,23 +185,27 @@ class TestRoundtrip(TestCase):
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
         # import
-        model = ImportWrapper(self.outpath() + 'output.w3d')
-        load(model, import_settings={})
+        context = IOWrapper(self.outpath() + 'output.w3d')
+        load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestName' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestName']
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -195,7 +214,7 @@ class TestRoundtrip(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_prelit(self):
-        hierarchy_name = 'TestHiera_SKL'
+        hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [get_mesh(name='sword', skin=True, prelit=True),
                   get_mesh(name='soldier', skin=True),
@@ -205,24 +224,28 @@ class TestRoundtrip(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         create_data(context, meshes, hlod, hierarchy, [], None, None, [])
 
         # export
-        context = ImportWrapper(self.outpath() + 'output.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         export_settings = {}
+        export_settings['file_format'] = 'W3D'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = False
         save(context, export_settings)
 
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
         # import
-        model = ImportWrapper(self.outpath() + 'base_skn.w3d')
-        load(model, import_settings={})
+        context = IOWrapper(self.outpath() + 'output.w3d')
+        load(context, import_settings={})
 
         # check created objects
-        self.assertTrue('TestHiera_SKL' in bpy.data.objects)
-        self.assertTrue('TestHiera_SKL' in bpy.data.armatures)
-        amt = bpy.data.armatures['TestHiera_SKL']
+        self.assertTrue('output' in bpy.data.objects)
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)

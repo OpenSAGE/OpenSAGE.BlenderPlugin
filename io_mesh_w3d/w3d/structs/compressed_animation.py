@@ -391,15 +391,19 @@ class CompressedAnimation(Struct):
     time_coded_bit_channels = []
     motion_channels = []
 
-    def validate(self, context):
+    def validate(self, context, w3x=False):
+        if not self.time_coded_channels:
+            context.error('Scene does not contain any animation data')
+            return False
+
+        if w3x:
+            return True
+
         if len(self.header.name) > STRING_LENGTH:
             context.error('animation name exceeds max length of: ' + str(STRING_LENGTH))
             return False
         if len(self.header.hierarchy_name) > STRING_LENGTH:
             context.error('animation hierarchy name exceeds max length of: ' + str(STRING_LENGTH))
-            return False
-        if not self.time_coded_channels:
-            context.error('Scene does not contain any animation data')
             return False
         return True
 
