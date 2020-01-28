@@ -7,7 +7,7 @@ from io_mesh_w3d.w3x.structs.include import *
 
 
 def save(context, export_settings):
-    print('Saving file :' + context.filepath)
+    print('Saving file :' + context.filepath + context.filename_ext)
 
     export_mode = export_settings['mode']
     print("export mode: " + str(export_mode))
@@ -104,7 +104,7 @@ def save(context, export_settings):
 
     doc.appendChild(asset)
 
-    file = open(context.filepath, "wb")
+    file = open(context.filepath + context.filename_ext, "wb")
     file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
     file.close()
 

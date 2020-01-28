@@ -22,34 +22,37 @@ class TestExport(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-        self.assertFalse(os.path.exists(file_path))
+        self.assertFalse(os.path.exists(file_path + extension))
 
     def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
         export_settings = {}
         export_settings['mode'] = 'HM'
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-        self.assertFalse(os.path.exists(file_path))
+        self.assertFalse(os.path.exists(file_path + extension))
 
     def test_no_file_created_if_MODE_is_HAM_and_no_meshes(self):
         export_settings = {}
         export_settings['mode'] = 'HAM'
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-        self.assertFalse(os.path.exists(file_path))
+        self.assertFalse(os.path.exists(file_path + extension))
 
     def test_no_hlod_is_written_if_mode_M(self):
         export_settings = {}
@@ -59,13 +62,14 @@ class TestExport(TestCase):
         meshes = [get_mesh()]
         create_data(self, meshes)
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        file = open(file_path + extension, 'rb')
+        filesize = os.path.getsize(file_path + extension)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
@@ -82,13 +86,14 @@ class TestExport(TestCase):
         meshes = [get_mesh()]
         create_data(self, meshes)
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        file = open(file_path + extension, 'rb')
+        filesize = os.path.getsize(file_path + extension)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
@@ -113,13 +118,14 @@ class TestExport(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        file = open(file_path + extension, 'rb')
+        filesize = os.path.getsize(file_path + extension)
 
         hierarchy_found = False
         while file.tell() < filesize:
@@ -148,13 +154,14 @@ class TestExport(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        file_path = self.outpath() + 'output_skn.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_skn'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        file = open(file_path + extension, 'rb')
+        filesize = os.path.getsize(file_path + extension)
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
@@ -168,21 +175,23 @@ class TestExport(TestCase):
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
 
-        file_path = self.outpath() + 'output_ani.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_ani'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-        self.assertFalse(os.path.exists(file_path))
+        self.assertFalse(os.path.exists(file_path + extension))
 
     def test_no_file_created_if_MODE_is_A_and_TC_no_animation_channels(self):
         export_settings = {}
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
 
-        file_path = self.outpath() + 'output_ani.w3d'
-        context = IOWrapper(file_path)
+        extension = '.w3d'
+        file_path = self.outpath() + 'output_ani'
+        context = IOWrapper(file_path, extension)
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-        self.assertFalse(os.path.exists(file_path))
+        self.assertFalse(os.path.exists(file_path + extension))
