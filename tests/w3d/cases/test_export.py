@@ -16,7 +16,9 @@ class TestExport(TestCase):
         export_settings = {}
         export_settings['mode'] = 'NON_EXISTING'
 
-        self.assertEqual({'CANCELLED'}, save(self, export_settings))
+        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
+
+        self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
     def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
         export_settings = {}

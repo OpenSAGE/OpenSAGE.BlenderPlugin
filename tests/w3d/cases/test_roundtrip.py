@@ -34,7 +34,7 @@ class TestRoundtripW3D(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
@@ -60,11 +60,9 @@ class TestRoundtripW3D(TestCase):
         bpy.ops.wm.read_homefile(use_empty=True)
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
-        print('###################################')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         load(context, import_settings={})
-        print('###################################')
-        context = IOWrapper(self.outpath() + 'output_ani', '.w3d')
+        context = IOWrapper(self.outpath() + 'output_ani.w3d')
         load(context, import_settings={})
 
         # check created objects
@@ -93,7 +91,7 @@ class TestRoundtripW3D(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
@@ -119,9 +117,9 @@ class TestRoundtripW3D(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
+        context = IOWrapper(self.outpath() + 'output_skn.w3d')
         load(context, import_settings={})
-        context = IOWrapper(self.outpath() + 'output_comp_ani', '.w3d')
+        context = IOWrapper(self.outpath() + 'output_comp_ani.w3d')
         load(context, import_settings={})
 
         # check created objects
@@ -147,7 +145,7 @@ class TestRoundtripW3D(TestCase):
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
 
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
@@ -162,7 +160,7 @@ class TestRoundtripW3D(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         load(context, import_settings={})
 
         # check created objects
@@ -187,7 +185,7 @@ class TestRoundtripW3D(TestCase):
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
 
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
@@ -202,7 +200,7 @@ class TestRoundtripW3D(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         load(context, import_settings={})
 
         # check created objects
@@ -226,7 +224,7 @@ class TestRoundtripW3D(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output')
         create_data(context, meshes, hlod, hierarchy, [], None, None, [])
 
         # export
@@ -241,7 +239,7 @@ class TestRoundtripW3D(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
+        context = IOWrapper(self.outpath() + 'output.w3d')
         load(context, import_settings={})
 
         # check created objects

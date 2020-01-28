@@ -58,9 +58,9 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3x')
+        context = IOWrapper(self.outpath() + 'output_skn.w3x')
         load(context, import_settings={})
-        context = IOWrapper(self.outpath() + 'output_ani', '.w3x')
+        context = IOWrapper(self.outpath() + 'output_ani.w3x')
         load(context, import_settings={})
 
         # check created objects
@@ -100,7 +100,7 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output', '.w3x')
+        context = IOWrapper(self.outpath() + 'output.w3x')
         load(context, import_settings={})
 
         # check created objects

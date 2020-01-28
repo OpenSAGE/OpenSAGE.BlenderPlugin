@@ -17,7 +17,7 @@ def almost_equal(self, x, y, threshold=0.0001):
 
 
 class IOWrapper:
-    def __init__(self, filepath, extension):
+    def __init__(self, filepath, extension='.invalid'):
         self.filepath = filepath
         self.report = print
         self.filename_ext = extension

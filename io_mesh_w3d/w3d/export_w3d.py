@@ -16,6 +16,7 @@ def save(context, export_settings):
         return {'CANCELLED'}
 
     container_name = os.path.basename(context.filepath)
+    print(container_name)
 
     if len(container_name) > STRING_LENGTH:
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
@@ -85,6 +86,7 @@ def save(context, export_settings):
             mesh.write(file)
 
         hlod.write(file)
+
         if export_mode == 'HAM':
             animation.header.hierarchy_name = container_name
             animation.write(file)

@@ -16,7 +16,7 @@ def save(context, export_settings):
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 
-    container_name = os.path.basename(context.filepath).split('.')[0]
+    container_name = os.path.basename(context.filepath)
 
     (hierarchy, rig) = retrieve_hierarchy(context, container_name)
     hlod = create_hlod(hierarchy, container_name)
