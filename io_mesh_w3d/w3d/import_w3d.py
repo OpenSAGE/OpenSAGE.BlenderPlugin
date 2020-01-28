@@ -105,10 +105,14 @@ def load(context, import_settings):
     compressed_animation = data_context.compressed_animation
 
     if hierarchy is None:
+        print('is none')
         sklpath = None
+        print(hlod.header.model_name)
+        print(hlod.header.hierarchy_name)
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(context.filepath) + '/' + \
                 hlod.header.hierarchy_name.lower() + '.w3d'
+            print(sklpath)
 
         # if we load a animation file afterwards and need the hierarchy again
         elif animation is not None and animation.header.name != '':

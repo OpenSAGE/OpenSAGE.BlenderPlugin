@@ -127,12 +127,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
         if self.file_format == 'W3X':
             self.filename_ext = '.w3x'
-            self.filepath += '.w3x'
             from .w3x.export_w3x import save
             return save(self, export_settings)
         else:
             self.filename_ext = '.w3d'
-            self.filepath += '.w3d'
             from .w3d.export_w3d import save
             return save(self, export_settings)
 

@@ -6,7 +6,7 @@ from io_mesh_w3d.w3d.io_binary import STRING_LENGTH
 
 
 def save(context, export_settings):
-    print('Saving file :' + context.filepath)
+    print('Saving file :' + context.filepath + context.filename_ext)
 
     export_mode = export_settings['mode']
     print('export mode: ' + str(export_mode))
@@ -15,7 +15,7 @@ def save(context, export_settings):
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 
-    container_name = os.path.basename(context.filepath).split('.')[0]
+    container_name = os.path.basename(context.filepath)
 
     if len(container_name) > STRING_LENGTH:
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
@@ -59,7 +59,7 @@ def save(context, export_settings):
             context.error('aborting export!')
             return {'CANCELLED'}
 
-    file = open(context.filepath, 'wb')
+    file = open(context.filepath + context.filename_ext, 'wb')
 
     if export_mode == 'M':
         if len(meshes) > 1:

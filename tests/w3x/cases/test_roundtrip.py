@@ -31,11 +31,11 @@ class TestRoundtripW3X(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        context = IOWrapper(self.outpath() + 'output_skn', '.w3x')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        context = IOWrapper(self.outpath() + 'output_skn', '.w3x')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HM'
@@ -43,12 +43,12 @@ class TestRoundtripW3X(TestCase):
         export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl.w3x')
+        context = IOWrapper(self.outpath() + 'testhiera_skl', '.w3x')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_ani.w3x')
+        context = IOWrapper(self.outpath() + 'output_ani', '.w3x')
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
@@ -58,9 +58,9 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        context = IOWrapper(self.outpath() + 'output_skn', '.w3x')
         load(context, import_settings={})
-        context = IOWrapper(self.outpath() + 'output_ani.w3x')
+        context = IOWrapper(self.outpath() + 'output_ani', '.w3x')
         load(context, import_settings={})
 
         # check created objects
@@ -84,11 +84,11 @@ class TestRoundtripW3X(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
-        context = IOWrapper(self.outpath() + 'output.w3x')
+        context = IOWrapper(self.outpath() + 'output', '.w3x')
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output.w3x')
+        context = IOWrapper(self.outpath() + 'output', '.w3x')
         export_settings = {}
         export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HAM'
@@ -100,7 +100,7 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output.w3x')
+        context = IOWrapper(self.outpath() + 'output', '.w3x')
         load(context, import_settings={})
 
         # check created objects
