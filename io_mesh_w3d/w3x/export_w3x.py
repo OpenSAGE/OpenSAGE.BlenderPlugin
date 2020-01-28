@@ -109,7 +109,7 @@ def save(context, export_settings):
     file.close()
 
     # create texture xml files
-    if (export_mode == 'HM' or export_mode == 'HAM') and export_settings['create_texture_xmls'] == True:
+    if (export_mode == 'HM' or export_mode == 'HAM') and export_settings['create_texture_xmls']:
         directory = os.path.dirname(context.filepath)
 
         for texture in textures:
