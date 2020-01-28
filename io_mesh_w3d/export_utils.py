@@ -565,16 +565,15 @@ def retrieve_shader(material):
 # hierarchy data
 ##########################################################################
 
-def process_pivot(pivot, pivots, hierarchy, processed):
-    processed.append(pivot.name)
+def process_pivot(pivot, pivots, hierarchy):
     hierarchy.pivots.append(pivot)
     children = [child for child in pivots if child.parent_id == pivot.name]
     parent_index = len(hierarchy.pivots) - 1
 
     for child in children:
         child.parent_id = parent_index
-        processed = process_pivot(child, pivots, hierarchy, processed)
-    return processed
+        process_pivot(child, pivots, hierarchy)
+    pivot.processed = True
 
 
 def retrieve_hierarchy(context, container_name):
@@ -663,11 +662,14 @@ def retrieve_hierarchy(context, container_name):
 
         pivots.append(pivot)
 
-    processed = []
+    
     for pivot in pivots:
-        if pivot.name in processed or pivot.parent_id != 0:
+        pivot.processed = False
+
+    for pivot in pivots:
+        if pivot.processed or pivot.parent_id != 0:
             continue
-        processed = process_pivot(pivot, pivots, hierarchy, processed)
+        process_pivot(pivot, pivots, hierarchy)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
 
