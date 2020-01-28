@@ -96,6 +96,10 @@ class TestRoundtripW3X(TestCase):
         export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
+        # check created files
+        self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
+
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
 
