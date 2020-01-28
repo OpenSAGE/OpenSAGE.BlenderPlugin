@@ -6,6 +6,14 @@ from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.custom_properties import *
 from tests.utils import *
 
+def to_vec4(color):
+    return (color[0], color[1], color[2], color[3])
+
+def to_vec3(vec):
+    return (vec[0], vec[1], vec[2])
+
+def to_vec2(vec):
+    return (vec[0], vec[1])
 
 class TestCustomProperties(TestCase):
     def test_object_properties(self):
@@ -92,5 +100,49 @@ class TestCustomProperties(TestCase):
         self.assertEqual(0, mat.technique)
         mat.technique = 2
         self.assertEqual(1, mat.technique)
+
+        self.assertEqual((1.0, 1.0, 1.0, 0.0), to_vec4(mat.ambient))
+        mat.ambient = (-1.0, -1.0, -1.0, -1.0)
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.ambient))
+        mat.ambient = (2.0, 2.0, 2.0, 2.0)
+        self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.ambient))
+
+        self.assertEqual((1.0, 1.0, 1.0, 0.0), to_vec4(mat.emission))
+        mat.emission = (-1.0, -1.0, -1.0, -1.0)
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.emission))
+        mat.emission = (2.0, 2.0, 2.0, 2.0)
+        self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.emission))
+
+        self.assertEqual(0.0, mat.opacity)
+        mat.opacity = -1.0
+        self.assertEqual(0.0, mat.opacity)
+        mat.opacity = 2.0
+        self.assertEqual(1.0, mat.opacity)
+
+        self.assertEqual(False, mat.alpha_test)
+
+        self.assertEqual(0, mat.blend_mode)
+
+        self.assertEqual((0.0, 0.0), to_vec2(mat.bump_uv_scale))
+
+        self.assertEqual(0, mat.edge_fade_out)
+
+        self.assertEqual(False, mat.depth_write)
+
+        self.assertEqual((0.0, 0.0, 0.0), to_vec3(mat.sampler_clamp_uv_no_mip_0))
+
+        self.assertEqual((0.0, 0.0, 0.0), to_vec3(mat.sampler_clamp_uv_no_mip_1))
+
+        self.assertEqual(0, mat.num_textures)
+
+        self.assertEqual('', mat.texture_0)
+
+        self.assertEqual('', mat.texture_1)
+
+        self.assertEqual(0, mat.secondary_texture_blend_mode)
+
+        self.assertEqual(0, mat.tex_coord_mapper_0)
+
+        self.assertEqual(0, mat.tex_coord_mapper_1)
 
         # TODO other props
