@@ -125,14 +125,27 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
         export_settings['create_texture_xmls'] = self.create_texture_xmls
 
+        data_context = DataContext(
+            container_name='',
+            rig=None,
+            meshes=[],
+            textures=[],
+            collision_boxes=[],
+            dazzles=[],
+            hierarchy=None,
+            hlod=None)
+
+        if not retrieve_data(self, export_settings, data_context):
+            return {'CANCELLED'}
+
         if self.file_format == 'W3X':
             self.filename_ext = '.w3x'
             from .w3x.export_w3x import save
-            return save(self, export_settings)
+            return save(self, export_settings, data_context)
         else:
             self.filename_ext = '.w3d'
             from .w3d.export_w3d import save
-            return save(self, export_settings)
+            return save(self, export_settings, data_context)
 
     def draw(self, _context):
         self.draw_general_settings()

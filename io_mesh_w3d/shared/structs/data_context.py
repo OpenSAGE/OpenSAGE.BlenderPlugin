@@ -5,6 +5,8 @@ from io_mesh_w3d.struct import Struct
 
 
 class DataContext(Struct):
+    container_name = ''
+    rig = None
     hierarchy = None
     meshes = []
     dazzles = []
