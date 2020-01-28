@@ -36,20 +36,20 @@ class TestRoundtripW3X(TestCase):
 
         # export
         context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        context.file_format = 'W3X'
         export_settings = {}
-        export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
         context = IOWrapper(self.outpath() + 'testhiera_skl.w3x')
-        export_settings['file_format'] = 'W3X'
+        context.file_format = 'W3X'
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
         context = IOWrapper(self.outpath() + 'output_ani.w3x')
-        export_settings['file_format'] = 'W3X'
+        context.file_format = 'W3X'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
@@ -89,8 +89,8 @@ class TestRoundtripW3X(TestCase):
 
         # export
         context = IOWrapper(self.outpath() + 'output.w3x')
+        context.file_format = 'W3X'
         export_settings = {}
-        export_settings['file_format'] = 'W3X'
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         export_settings['create_texture_xmls'] = True

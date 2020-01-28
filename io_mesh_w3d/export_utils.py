@@ -31,6 +31,61 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
+def retrive_data(context, export_settings, data_context):
+    export_mode = export_settings['mode']
+
+    if export_mode not in ['M', 'HM', 'HAM', 'H', 'A']:
+        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        return False
+
+    data_context.container_name = os.path.basename(context.filepath).split('.')[0]
+
+    if context.file_format == 'W3X' and len(container_name) > STRING_LENGTH:
+        context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
+        return False
+
+    (hierarchy, rig) = retrieve_hierarchy(context, container_name)
+    data_context.hierarchy = hierarchy
+    data_context.rig = rig
+    data_context.hlod = create_hlod(hierarchy, container_name)
+    data_context.boxes = retrieve_boxes(hierarchy, container_name)
+    data_context.dazzles = retrieve_dazzles(hierarchy, container_name)
+
+    if 'M' in export_mode:
+        data_context.meshes = retrieve_meshes(context, hierarchy, rig, container_name)
+        if not meshes:
+            context.error('Scene does not contain any meshes, aborting export!')
+            return False
+
+        for mesh in meshes:
+            if not mesh.validate(context):
+                context.error('aborting export!')
+                return False
+
+    if 'H' in export_mode and not hierarchy.validate(context):
+        context.error('aborting export!')
+        return False
+
+    if export_mode in ['HM', 'HAM']:
+        if not hlod.validate(context):
+            context.error('aborting export!')
+            return False
+
+        for box in boxes:
+            if not box.validate(context):
+                context.error('aborting export!')
+                return False
+
+    if 'A' in export_mode:
+        timecoded = export_settings['compression'] == 'TC'
+        animation = retrieve_animation(
+            container_name, hierarchy, rig, timecoded)
+        if not animation.validate(context):
+            context.error('aborting export!')
+            return False
+    return True
+
+
 ##########################################################################
 # Mesh data
 ##########################################################################
