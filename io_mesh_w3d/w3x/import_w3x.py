@@ -12,7 +12,10 @@ from io_mesh_w3d.shared.structs.mesh_structs.texture import *
 from io_mesh_w3d.w3x.structs.include import *
 
 
-def load_file(context, path, data_context):
+def load_file(context, data_context, path=None):
+    if path is None:
+        path = context.filepath
+
     print('Loading file', path)
 
     if not os.path.exists(path):
@@ -30,7 +33,7 @@ def load_file(context, path, data_context):
             for xml_include in node.childs():
                 include = Include.parse(xml_include)
                 source = include.source.replace('ART:', '')
-                load_file(context, os.path.join(dir, source), data_context)
+                load_file(context, data_context, os.path.join(dir, source))
 
         elif node.tagName == 'W3DMesh':
             data_context.meshes.append(Mesh.parse(context, node))
@@ -63,7 +66,7 @@ def load(self, import_settings):
         hierarchy=None,
         hlod=None)
 
-    data_context = load_file(self, self.filepath, data_context)
+    data_context = load_file(self, data_context)
 
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy

@@ -11,7 +11,10 @@ from io_mesh_w3d.w3d.structs.dazzle import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 
-def load_file(context, path, data_context):
+def load_file(context, data_context, path=None):
+    if path is None:
+        path = context.filepath
+
     path = insensitive_path(path)
     print('Loading file', path)
 
@@ -97,7 +100,7 @@ def load(context, import_settings):
         animation=None,
         compressed_animation=None)
 
-    data_context = load_file(context, context.filepath, data_context)
+    data_context = load_file(context, data_context)
 
     hierarchy = data_context.hierarchy
     hlod = data_context.hlod
@@ -105,14 +108,11 @@ def load(context, import_settings):
     compressed_animation = data_context.compressed_animation
 
     if hierarchy is None:
-        print('is none')
         sklpath = None
-        print(hlod.header.model_name)
-        print(hlod.header.hierarchy_name)
+
         if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(context.filepath) + '/' + \
                 hlod.header.hierarchy_name.lower() + '.w3d'
-            print(sklpath)
 
         # if we load a animation file afterwards and need the hierarchy again
         elif animation is not None and animation.header.name != '':
@@ -123,7 +123,7 @@ def load(context, import_settings):
                 compressed_animation.header.hierarchy_name.lower() + '.w3d'
 
         if sklpath is not None:
-            data_context = load_file(context, sklpath, data_context)
+            data_context = load_file(context, data_context, sklpath)
             if data_context.hierarchy is None:
                 context.error('hierarchy file not found: ' + sklpath)
 
