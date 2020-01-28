@@ -2,10 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from tests.utils import *
+from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.custom_properties import *
+from tests.utils import *
 
-#material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
 
 class TestCustomProperties(TestCase):
     def test_object_properties(self):
@@ -24,7 +24,7 @@ class TestCustomProperties(TestCase):
             self.assertEqual(object_type, obj.object_type)
 
         with self.assertRaises(TypeError):
-            obj.object_type = 'UNSUPPORTED'
+            obj.object_type = 'INVALID'
 
         dazzle_types = ['DEFAULT', 'SUN', 'REN_L5_STREETLIGHT', 'REN_BRAKELIGHT', \
                 'REN_HEADLIGHT', 'REN_L5_REDLIGHT', 'REN_NUKE', 'REN_BLINKLIGHT_RED', \
@@ -36,10 +36,61 @@ class TestCustomProperties(TestCase):
             self.assertEqual(dazzle_type, obj.dazzle_type)
 
         with self.assertRaises(TypeError):
-            obj.dazzle_type = 'UNSUPPORTED'
+            obj.dazzle_type = 'INVALID'
 
-    def test_object_panel_draw(self):
-        bpy.utils.register_class(OBJECT_PANEL_PT_w3d)
-        #OBJECT_PANEL_PT_w3d(None).draw(context)
-        #panel.draw(context)
-     
+    def test_material_properties(self):
+        mat = bpy.data.materials.new('material')
+
+        attributes = ['USE_DEPTH_CUE', 'ARGB_EMISSIVE_ONLY', \
+                'COPY_SPECULAR_TO_DIFFUSE', 'DEPTH_CUE_TO_ALPHA']
+
+        # attributes
+        self.assertEqual(0, len(mat.attributes))
+
+        # TODO: get to work
+        #for attr in attributes:
+            #atts = { 'DEFAULT' }
+        #    mat.attributes.add(attr)
+        #    self.assertEqual({ attr }, mat.attributes)
+
+        #for attr in attributes:
+        #    mat.attributes |= attr
+
+        #self.assertEqual(16, mat.attributes)
+
+        #with self.assertRaises(TypeError):
+        #    mat.attributes = 'INVALID'
+
+        # surface types
+        self.assertEqual('13', mat.surface_type)
+
+        for i in range(32):
+            mat.surface_type = str(i)
+            self.assertEqual(str(i), mat.surface_type)
+
+        with self.assertRaises(TypeError):
+            mat.surface_type = '32'
+
+        # other props
+
+        self.assertEqual(0.0, mat.translucency)
+        mat.translucency = -1.0
+        self.assertEqual(0.0, mat.translucency)
+        mat.translucency = 2.0
+        self.assertEqual(1.0, mat.translucency)
+
+        self.assertEqual('', mat.vm_args_0)
+        mat.vm_args_0 = 'lorem ipsum'
+        self.assertEqual('lorem ipsum', mat.vm_args_0)
+
+        self.assertEqual('', mat.vm_args_1)
+        mat.vm_args_1 = 'lorem ipsum'
+        self.assertEqual('lorem ipsum', mat.vm_args_1)
+
+        self.assertEqual(0, mat.technique)
+        mat.technique = -1
+        self.assertEqual(0, mat.technique)
+        mat.technique = 2
+        self.assertEqual(1, mat.technique)
+
+        # TODO other props
