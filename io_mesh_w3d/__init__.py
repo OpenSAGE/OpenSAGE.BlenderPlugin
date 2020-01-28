@@ -306,7 +306,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(context.object.active_material, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
 
 
-
 class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Shader Properties'
     bl_space_type = 'PROPERTIES'
