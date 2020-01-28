@@ -189,30 +189,59 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='bone_1', parent=0),
-            get_hierarchy_pivot(name='bone_2', parent=1),
-            get_hierarchy_pivot(name='bone_3', parent=2),
-            get_hierarchy_pivot(name='a_mesh1', parent=2),
-            get_hierarchy_pivot(name='a_mesh2', parent=2),
-            get_hierarchy_pivot(name='a_mesh3', parent=2),
-            get_hierarchy_pivot(name='bone_4', parent=1),
-            get_hierarchy_pivot(name='bone_5', parent=7),
-            get_hierarchy_pivot(name='a_mesh4', parent=7)]
+            get_hierarchy_pivot(name='bone_chassis01', parent=0),
+            get_hierarchy_pivot(name='bone_treadlf', parent=1),
+            get_hierarchy_pivot(name='bone_treadlr', parent=1),
+            get_hierarchy_pivot(name='bone_treadrf', parent=1),
+            get_hierarchy_pivot(name='bone_treadrr', parent=1),
+            get_hierarchy_pivot(name='bone_turret', parent=1),
+            get_hierarchy_pivot(name='bone_rocketpod', parent=6),
+            get_hierarchy_pivot(name='turret01', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch01', parent=8),
+            get_hierarchy_pivot(name='turret02', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch02', parent=10),
+            get_hierarchy_pivot(name='bone_rails', parent=6),
+            get_hierarchy_pivot(name='bone_barrel_01', parent=12),
+            get_hierarchy_pivot(name='muzzlefx01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_02', parent=13),
+            get_hierarchy_pivot(name='ugrail_01', parent=13),
+            get_hierarchy_pivot(name='bone_barrel_02', parent=12),
+            get_hierarchy_pivot(name='muzzlefx02', parent=18),
+            get_hierarchy_pivot(name='ugrail_02', parent=18),
+            get_hierarchy_pivot(name='fxtrackslf', parent=1),
+            get_hierarchy_pivot(name='fxtrackslr', parent=1),
+            get_hierarchy_pivot(name='fxtracksrf', parent=1),
+            get_hierarchy_pivot(name='fxtracksrr', parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         hlod = get_hlod()
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=4, name='containerName.a_mesh1'),
-            get_hlod_sub_object(bone=5, name='containerName.a_mesh2'),
-            get_hlod_sub_object(bone=6, name='containerName.a_mesh3'),
-            get_hlod_sub_object(bone=9, name='containerName.a_mesh4')]
+            get_hlod_sub_object(bone=0, name='containerName.treadsback'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsleft'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsmove'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsright'),
+            get_hlod_sub_object(bone=0, name='containerName.treadsstop'),
+            get_hlod_sub_object(bone=0, name='containerName.mammothtank'),
+            get_hlod_sub_object(bone=20, name='containerName.ugrail_02'),
+            get_hlod_sub_object(bone=17, name='containerName.ugrail_01'),
+            get_hlod_sub_object(bone=16, name='containerName.muzzleflash_02'),
+            get_hlod_sub_object(bone=15, name='containerName.muzzleflash_01'),
+            get_hlod_sub_object(bone=0, name='containerName.rocketpods'),]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         meshes = [
-            get_mesh(name='a_mesh1'),
-            get_mesh(name='a_mesh2'),
-            get_mesh(name='a_mesh3'),
-            get_mesh(name='a_mesh4')]
+            get_mesh(name='treadsbaack', skin=True),
+            get_mesh(name='treadsleft', skin=True),
+            get_mesh(name='treadsmove', skin=True),
+            get_mesh(name='treadsright', skin=True),
+            get_mesh(name='treadsstop', skin=True),
+            get_mesh(name='mammothtank', skin=True),
+            get_mesh(name='ugrail_02'),
+            get_mesh(name='ugrail_01'),
+            get_mesh(name='muzzleflash_02'),
+            get_mesh(name='muzzleflash_01'),
+            get_mesh(name='rocketpods', skin=True)]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')

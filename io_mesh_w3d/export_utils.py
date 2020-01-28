@@ -572,8 +572,8 @@ def process_pivot(pivot, pivots, hierarchy, processed):
     parent_index = len(hierarchy.pivots) - 1
     for child in children:
         child.parent_id = parent_index
-        #processed = process_pivot(child, pivots, hierarchy, processed)
-        process_pivot(child, pivots, hierarchy, processed)
+        processed = process_pivot(child, pivots, hierarchy, processed)
+        #process_pivot(child, pivots, hierarchy, processed)
     return processed
 
 
