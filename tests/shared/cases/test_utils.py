@@ -227,7 +227,7 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=17, name='containerName.ugrail_01'),
             get_hlod_sub_object(bone=16, name='containerName.muzzleflash_02'),
             get_hlod_sub_object(bone=15, name='containerName.muzzleflash_01'),
-            get_hlod_sub_object(bone=0, name='containerName.rocketpods'),]
+            get_hlod_sub_object(bone=0, name='containerName.rocketpods'), ]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         meshes = [
@@ -254,7 +254,7 @@ class TestUtils(TestCase):
             print(pivot.name + ' -> ' + actual_hiera.pivots[i].name)
 
         #self.compare_data([], None, hierarchy)
-        #self.assertTrue(False)
+        # self.assertTrue(False)
 
     def test_too_many_hierarchies_roundtrip(self):
         hierarchy = get_hierarchy()
