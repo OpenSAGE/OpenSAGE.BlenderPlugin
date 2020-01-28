@@ -570,10 +570,10 @@ def process_pivot(pivot, pivots, hierarchy, processed):
     hierarchy.pivots.append(pivot)
     children = [child for child in pivots if child.parent_id == pivot.name]
     parent_index = len(hierarchy.pivots) - 1
+
     for child in children:
         child.parent_id = parent_index
         processed = process_pivot(child, pivots, hierarchy, processed)
-        #process_pivot(child, pivots, hierarchy, processed)
     return processed
 
 
@@ -638,7 +638,7 @@ def retrieve_hierarchy(context, container_name):
     else:
         meshes = get_objects('MESH')
 
-    for mesh in meshes:
+    for mesh in list(reversed(meshes)):
         if mesh.vertex_groups \
                 or mesh.object_type == 'BOX' \
                 or mesh.name in pick_plane_names:
@@ -665,7 +665,7 @@ def retrieve_hierarchy(context, container_name):
 
     processed = []
     for pivot in pivots:
-        if pivot.name in processed:
+        if pivot.name in processed or pivot.parent_id != 0:
             continue
         processed = process_pivot(pivot, pivots, hierarchy, processed)
 
