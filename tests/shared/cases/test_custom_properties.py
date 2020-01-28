@@ -26,9 +26,9 @@ class TestCustomProperties(TestCase):
         with self.assertRaises(TypeError):
             obj.object_type = 'INVALID'
 
-        dazzle_types = ['DEFAULT', 'SUN', 'REN_L5_STREETLIGHT', 'REN_BRAKELIGHT', \
-                'REN_HEADLIGHT', 'REN_L5_REDLIGHT', 'REN_NUKE', 'REN_BLINKLIGHT_RED', \
-                'REN_BLINKLIGHT_WHITE', 'REN_VEHICLELIGHT_RED', 'REN_VEHICLELIGHT_WHITE']
+        dazzle_types = ['DEFAULT', 'SUN', 'REN_L5_STREETLIGHT', 'REN_BRAKELIGHT',
+                        'REN_HEADLIGHT', 'REN_L5_REDLIGHT', 'REN_NUKE', 'REN_BLINKLIGHT_RED',
+                        'REN_BLINKLIGHT_WHITE', 'REN_VEHICLELIGHT_RED', 'REN_VEHICLELIGHT_WHITE']
 
         self.assertEqual('DEFAULT', obj.dazzle_type)
         for dazzle_type in dazzle_types:
@@ -41,24 +41,24 @@ class TestCustomProperties(TestCase):
     def test_material_properties(self):
         mat = bpy.data.materials.new('material')
 
-        attributes = ['USE_DEPTH_CUE', 'ARGB_EMISSIVE_ONLY', \
-                'COPY_SPECULAR_TO_DIFFUSE', 'DEPTH_CUE_TO_ALPHA']
+        attributes = ['USE_DEPTH_CUE', 'ARGB_EMISSIVE_ONLY',
+                      'COPY_SPECULAR_TO_DIFFUSE', 'DEPTH_CUE_TO_ALPHA']
 
         # attributes
         self.assertEqual(0, len(mat.attributes))
 
         # TODO: get to work
-        #for attr in attributes:
-            #atts = { 'DEFAULT' }
+        # for attr in attributes:
+        #atts = { 'DEFAULT' }
         #    mat.attributes.add(attr)
         #    self.assertEqual({ attr }, mat.attributes)
 
-        #for attr in attributes:
+        # for attr in attributes:
         #    mat.attributes |= attr
 
         #self.assertEqual(16, mat.attributes)
 
-        #with self.assertRaises(TypeError):
+        # with self.assertRaises(TypeError):
         #    mat.attributes = 'INVALID'
 
         # surface types
