@@ -662,7 +662,6 @@ def retrieve_hierarchy(context, container_name):
 
         pivots.append(pivot)
 
-    
     for pivot in pivots:
         pivot.processed = False
 
