@@ -16,7 +16,7 @@ def load_file(context, data_context, path=None):
     if path is None:
         path = context.filepath
 
-    print('Loading file', path)
+    context.info('Loading file: ' + path)
 
     if not os.path.exists(path):
         context.error('file not found: ' + path)
@@ -58,7 +58,7 @@ def load_file(context, data_context, path=None):
 ##########################################################################
 
 
-def load(self, import_settings):
+def load(context, import_settings):
     data_context = DataContext(
         meshes=[],
         textures=[],
@@ -66,7 +66,7 @@ def load(self, import_settings):
         hierarchy=None,
         hlod=None)
 
-    data_context = load_file(self, data_context)
+    data_context = load_file(context, data_context)
 
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy
@@ -74,5 +74,6 @@ def load(self, import_settings):
     hlod = data_context.hlod
     animation = data_context.animation
 
-    create_data(self, meshes, hlod, hierarchy, boxes, animation)
+    create_data(context, meshes, hlod, hierarchy, boxes, animation)
+    context.info('finished')
     return {'FINISHED'}

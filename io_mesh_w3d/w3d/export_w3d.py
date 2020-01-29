@@ -6,10 +6,10 @@ from io_mesh_w3d.w3d.io_binary import STRING_LENGTH
 
 
 def save(context, export_settings, data_context):
-    print('Saving file :' + context.filepath)
+    context.info('Saving file :' + context.filepath)
 
     export_mode = export_settings['mode']
-    print('export mode: ' + str(export_mode))
+    context.info('export mode: ' + str(export_mode))
 
     file = open(context.filepath + context.filename_ext, 'wb')
 
@@ -49,4 +49,5 @@ def save(context, export_settings, data_context):
         data_context.hierarchy.write(file)
 
     file.close()
+    context.info('finished')
     return {'FINISHED'}

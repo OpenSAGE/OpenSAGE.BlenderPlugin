@@ -85,6 +85,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
     scene_key = 'w3dExportSettings'
 
+    def info(self, msg):
+        print('INFO: ' + msg)
+        self.report({'INFO'}, msg)
+
     def warning(self, msg):
         print('WARNING: ' + msg)
         self.report({'WARNING'}, msg)
@@ -165,6 +169,10 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_options = {'UNDO'}
 
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
+
+    def info(self, msg):
+        print('INFO: ' + msg)
+        self.report({'INFO'}, msg)
 
     def warning(self, msg):
         print('WARNING: ' + msg)

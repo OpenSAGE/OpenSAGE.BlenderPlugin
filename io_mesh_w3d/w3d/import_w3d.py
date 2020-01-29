@@ -16,7 +16,7 @@ def load_file(context, data_context, path=None):
         path = context.filepath
 
     path = insensitive_path(path)
-    print('Loading file', path)
+    context.info('Loading file: ' + path)
 
     if not os.path.exists(path):
         context.error('file not found: ' + path)
@@ -44,37 +44,37 @@ def load_file(context, data_context, path=None):
         elif chunk_type == W3D_CHUNK_DAZZLE:
             data_context.dazzles.append(Dazzle.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
-            print('-> morph animation chunk is not supported')
+            context.info('-> morph animation chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_HMODEL:
-            print('-> hmodel chnuk is not supported')
+            context.info('-> hmodel chnuk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LODMODEL:
-            print('-> lodmodel chunk is not supported')
+            context.info('-> lodmodel chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_COLLECTION:
-            print('-> collection chunk not supported')
+            context.info('-> collection chunk not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_POINTS:
-            print('-> points chunk is not supported')
+            context.info('-> points chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LIGHT:
-            print('-> light chunk is not supported')
+            context.info('-> light chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_EMITTER:
-            print('-> emitter chunk is not supported')
+            context.info('-> emitter chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_AGGREGATE:
-            print('-> aggregate chunk is not supported')
+            context.info('-> aggregate chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_NULL_OBJECT:
-            print('-> null object chunkt is not supported')
+            context.info('-> null object chunkt is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_LIGHTSCAPE:
-            print('-> lightscape chunk is not supported')
+            context.info('-> lightscape chunk is not supported')
             file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_SOUNDROBJ:
-            print('-> soundobj chunk is not supported')
+            context.info('-> soundobj chunk is not supported')
             file.seek(chunk_size, 1)
         else:
             skip_unknown_chunk(context, file, chunk_type, chunk_size)
@@ -135,6 +135,7 @@ def load(context, import_settings):
                 data_context.animation,
                 data_context.compressed_animation,
                 data_context.dazzles)
+    context.info('finished')
     return {'FINISHED'}
 
 
