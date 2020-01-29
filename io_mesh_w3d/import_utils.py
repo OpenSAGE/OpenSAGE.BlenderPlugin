@@ -342,6 +342,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 def create_material_from_vertex_material(context, mesh, vert_mat):
     material = bpy.data.materials.new(
         mesh.name() + "." + vert_mat.vm_name)
+    material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -377,6 +378,7 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
 
 def create_material_from_shader_material(context, mesh, shader_mat, index=''):
     material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
+    material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False

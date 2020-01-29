@@ -156,7 +156,7 @@ def retrieve_dazzles(hierarchy, container_name):
     return dazzles
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=False):
+def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
     mesh_structs = []
     used_textures = []
 
@@ -325,12 +325,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=Fa
 
             used_textures = get_used_textures(material, principled, used_textures)
 
-            if shader_materials or principled.normalmap_texture is not None:
+            if context.file_format == 'W3X' or (material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(material, principled))
+
             else:
                 mesh_struct.shaders.append(retrieve_shader(material))
                 mat_pass.shader_ids = [i]

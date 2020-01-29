@@ -78,6 +78,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         description='The method used for compressing the animation data',
         default='U')
 
+    force_vertex_materials: BoolProperty(
+        name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
+
     create_texture_xmls: BoolProperty(
         name='Create texture xml files', description='Creates an .xml file for each used texture', default=False)
 
@@ -136,8 +139,11 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         if self.export_mode == 'HM':
             self.draw_use_existing_skeleton()
 
-        if self.file_format == 'W3X' and (self.export_mode == 'HM' or self.export_mode == 'HAM'):
+        if self.file_format == 'W3X' and 'M' in self.export_mode:
             self.draw_create_texture_xmls()
+
+        if self.file_format == 'W3D' and 'M' in self.export_mode:
+            self.draw_force_vertex_materials()
 
         if (self.export_mode == 'A' or self.export_mode == 'HAM') \
                 and not self.file_format == 'W3X':
@@ -156,6 +162,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
+
+    def draw_force_vertex_materials(self):
+        col = self.layout.box().column()
+        col.prop(self, 'force_vertex_materials')
 
     def draw_create_texture_xmls(self):
         col = self.layout.box().column()
@@ -227,124 +237,125 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
 
     def draw(self, context):
         layout = self.layout
+        mat = context.object.active_material
         col = layout.column()
-        col.prop(context.object.active_material, 'attributes')
-        col = layout.column()
-        col.prop(context.object.active_material, 'surface_type')
-        col = layout.column()
-        col.prop(context.object.active_material, 'translucency')
-        col = layout.column()
-        col.prop(context.object.active_material, 'vm_args_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'vm_args_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'technique')
-        col = layout.column()
-        col.prop(context.object.active_material, 'ambient')
-        col = layout.column()
-        col.prop(context.object.active_material, 'opacity')
-        col = layout.column()
-        col.prop(context.object.active_material, 'alpha_test')
-        col = layout.column()
-        col.prop(context.object.active_material, 'blend_mode')
-        col = layout.column()
-        col.prop(context.object.active_material, 'bump_uv_scale')
-        col = layout.column()
-        col.prop(context.object.active_material, 'edge_fade_out')
-        col = layout.column()
-        col.prop(context.object.active_material, 'depth_write')
-        col = layout.column()
-        col.prop(context.object.active_material, 'sampler_clamp_uv_no_mip_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'sampler_clamp_uv_no_mip_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'num_textures')
-        col = layout.column()
-        col.prop(context.object.active_material, 'texture_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'texture_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'secondary_texture_blend_mode')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_mapper_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_mapper_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'environment_texture')
-        col = layout.column()
-        col.prop(context.object.active_material, 'environment_mult')
-        col = layout.column()
-        col.prop(context.object.active_material, 'recolor_texture')
-        col = layout.column()
-        col.prop(context.object.active_material, 'recolor_mult')
-        col = layout.column()
-        col.prop(context.object.active_material, 'use_recolor')
-        col = layout.column()
-        col.prop(context.object.active_material, 'house_color_pulse')
-        col = layout.column()
-        col.prop(context.object.active_material, 'scrolling_mask_texture')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_angle')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_u_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_v_0')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_u_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_v_1')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_u_2')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_coord_transform_v_2')
-        col = layout.column()
-        col.prop(context.object.active_material, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
+        col.prop(mat, 'material_type')
 
 
-class MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d(Panel):
-    bl_label = 'W3D Shader Properties'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'material'
+        col = layout.column()
+        col.prop(mat, 'surface_type')
+        col = layout.column()
+        col.prop(mat, 'blend_mode')
+        col = layout.column()
+        col.prop(mat, 'ambient')
+        col = layout.column()
+        col.prop(mat, 'opacity')
 
-    def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'depth_compare')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'depth_mask')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'color_mask')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'dest_blend')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'fog_func')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'pri_gradient')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'sec_gradient')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'src_blend')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'texturing')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'detail_color_func')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'detail_alpha_func')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'shader_preset')
-        col = layout.column()
-        col.prop(context.object.active_material.shader, 'alpha_test')
-        col = layout.column()
-        col.prop(context.object.active_material.shader,
-                 'post_detail_color_func')
-        col = layout.column()
-        col.prop(context.object.active_material.shader,
-                 'post_detail_alpha_func')
+        if mat.material_type == 'VERTEX_MATERIAL':
+            col = layout.column()
+            col.prop(mat, 'attributes')
+            col = layout.column()
+            col.prop(mat, 'translucency')
+            col = layout.column()
+            col.prop(mat, 'vm_args_0')
+            col = layout.column()
+            col.prop(mat, 'vm_args_1')
+
+            col = layout.column()
+            layout.label(text="Shader Properties")
+            col = layout.column()
+            col.prop(mat.shader, 'depth_compare')
+            col = layout.column()
+            col.prop(mat.shader, 'depth_mask')
+            col = layout.column()
+            col.prop(mat.shader, 'color_mask')
+            col = layout.column()
+            col.prop(mat.shader, 'dest_blend')
+            col = layout.column()
+            col.prop(mat.shader, 'fog_func')
+            col = layout.column()
+            col.prop(mat.shader, 'pri_gradient')
+            col = layout.column()
+            col.prop(mat.shader, 'sec_gradient')
+            col = layout.column()
+            col.prop(mat.shader, 'src_blend')
+            col = layout.column()
+            col.prop(mat.shader, 'texturing')
+            col = layout.column()
+            col.prop(mat.shader, 'detail_color_func')
+            col = layout.column()
+            col.prop(mat.shader, 'detail_alpha_func')
+            col = layout.column()
+            col.prop(mat.shader, 'shader_preset')
+            col = layout.column()
+            col.prop(mat.shader, 'alpha_test')
+            col = layout.column()
+            col.prop(mat.shader,
+                     'post_detail_color_func')
+            col = layout.column()
+            col.prop(mat.shader,
+                     'post_detail_alpha_func')
+
+        else:
+            col = layout.column()
+            col.prop(mat, 'technique')
+            col.prop(mat, 'alpha_test')
+            col = layout.column()
+            col.prop(mat, 'bump_uv_scale')
+            col = layout.column()
+            col.prop(mat, 'edge_fade_out')
+            col = layout.column()
+            col.prop(mat, 'depth_write')
+            col = layout.column()
+            col.prop(mat, 'sampler_clamp_uv_no_mip_0')
+            col = layout.column()
+            col.prop(mat, 'sampler_clamp_uv_no_mip_1')
+            col = layout.column()
+            col.prop(mat, 'num_textures')
+            col = layout.column()
+            col.prop(mat, 'texture_0')
+            col = layout.column()
+            col.prop(mat, 'texture_1')
+            col = layout.column()
+            col.prop(mat, 'secondary_texture_blend_mode')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_mapper_0')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_mapper_1')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_0')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_1')
+            col = layout.column()
+            col.prop(mat, 'environment_texture')
+            col = layout.column()
+            col.prop(mat, 'environment_mult')
+            col = layout.column()
+            col.prop(mat, 'recolor_texture')
+            col = layout.column()
+            col.prop(mat, 'recolor_mult')
+            col = layout.column()
+            col.prop(mat, 'use_recolor')
+            col = layout.column()
+            col.prop(mat, 'house_color_pulse')
+            col = layout.column()
+            col.prop(mat, 'scrolling_mask_texture')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_angle')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_u_0')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_v_0')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_u_1')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_v_1')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_u_2')
+            col = layout.column()
+            col.prop(mat, 'tex_coord_transform_v_2')
+            col = layout.column()
+            col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
 
 
 CLASSES = (
@@ -352,8 +363,7 @@ CLASSES = (
     ImportW3D,
     ShaderProperties,
     OBJECT_PANEL_PT_w3d,
-    MATERIAL_PROPERTIES_PANEL_PT_w3d,
-    MATERIAL_SHADER_PROPERTIES_PANEL_PT_w3d
+    MATERIAL_PROPERTIES_PANEL_PT_w3d
 )
 
 
