@@ -65,7 +65,7 @@ class RGBA(Struct):
     def to_vector_rgba(self, alpha=None, scale=255.0):
         if alpha is None:
             alpha = self.a / scale
-        return (self.r / scale, self.g / scale, self.b / scale, self.a / scale)
+        return (self.r / scale, self.g / scale, self.b / scale, alpha)
 
     def to_vector_rgb(self, scale=255.0):
         return (self.r / scale, self.g / scale, self.b / scale)
