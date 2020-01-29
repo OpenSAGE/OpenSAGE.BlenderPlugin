@@ -135,7 +135,6 @@ def load(context, import_settings):
                 data_context.animation,
                 data_context.compressed_animation,
                 data_context.dazzles)
-    context.info('finished')
     return {'FINISHED'}
 
 

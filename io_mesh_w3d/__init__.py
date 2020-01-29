@@ -190,7 +190,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
             from .w3x.import_w3x import load
             load(self, import_settings={})
 
-        print('finished')
+        self.info('finished')
         return {'FINISHED'}
 
 
