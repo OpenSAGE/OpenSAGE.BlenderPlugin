@@ -6,14 +6,18 @@ from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.custom_properties import *
 from tests.utils import *
 
+
 def to_vec4(color):
     return (color[0], color[1], color[2], color[3])
+
 
 def to_vec3(vec):
     return (vec[0], vec[1], vec[2])
 
+
 def to_vec2(vec):
     return (vec[0], vec[1])
+
 
 class TestCustomProperties(TestCase):
     def test_object_properties(self):
@@ -178,7 +182,6 @@ class TestCustomProperties(TestCase):
         self.assertEqual(0.0, mat.tex_coord_transform_v_2)
 
         self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_ani_fps_NPR_lastFrame_frameOffset_0))
-
 
         # shader properties
         shader = mat.shader
