@@ -390,8 +390,8 @@ def create_material_from_vertex_material(context, name, vert_mat):
     material.attributes = atts
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
-    material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
+    material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
+    material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
     material.opacity = vert_mat.vm_info.opacity
 
@@ -413,18 +413,18 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
 
     for prop in shader_mat.properties:
-        if prop.name == 'DiffuseTexture':
+        if prop.name == 'DiffuseTexture' and prop.value != '':
             principled.base_color_texture.image = get_texture(context, prop.value)
-        elif prop.name == 'NormalMap':
+        elif prop.name == 'NormalMap' and prop.value != '':
             principled.normalmap_texture.image = get_texture(context, prop.value)
         elif prop.name == 'BumpScale':
             principled.normalmap_strength = prop.value
-        elif prop.name == 'SpecMap':
+        elif prop.name == 'SpecMap' and prop.value != '':
             principled.specular_texture.image = get_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
-            material.diffuse_color = prop.value.to_vector_rgba()
+            material.diffuse_color = prop.value.to_vector_rgba(alpha=1.0)
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
         elif prop.name == 'CullingEnable':

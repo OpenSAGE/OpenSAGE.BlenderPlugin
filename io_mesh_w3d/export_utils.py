@@ -542,16 +542,16 @@ def retrieve_shader_material(material, principled, w3x=False):
 
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(material.diffuse_color),
-                        RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(vec=material.diffuse_color, a=0),
+                        RGBA(r=204, g=204, b=204, a=0))
         append_property(shader_mat, 5, 'ColorSpecular', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'ColorAmbient', RGBA(material.ambient))
         append_property(shader_mat, 5, 'ColorEmissive', RGBA(material.emission))
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
-                        RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'DiffuseColor', RGBA(vec=material.diffuse_color, a=0),
+                        RGBA(r=204, g=204, b=204, a=0))
         append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
         append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
