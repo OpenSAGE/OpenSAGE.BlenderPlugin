@@ -46,6 +46,8 @@ class TestCase(unittest.TestCase):
 
     firstError = True
 
+    file_format = 'W3D'
+
     def info(self, msg):
         pass
         #print({'INFO'}, msg)
