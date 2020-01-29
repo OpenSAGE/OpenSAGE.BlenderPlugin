@@ -4,7 +4,7 @@
 import os.path
 
 from io_mesh_w3d.import_utils import *
-from io_mesh_w3d.w3d.export_w3d import save
+from io_mesh_w3d.export_utils import save
 from tests.shared.helpers.hierarchy import *
 from tests.shared.helpers.hlod import *
 from tests.shared.helpers.mesh import *
@@ -17,6 +17,7 @@ class TestExportW3D(TestCase):
         export_settings['mode'] = 'NON_EXISTING'
 
         context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -27,6 +28,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -39,6 +41,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -51,6 +54,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -67,6 +71,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -91,6 +96,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -123,6 +129,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -159,6 +166,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -180,6 +188,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_ani'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -193,6 +202,7 @@ class TestExportW3D(TestCase):
         extension = '.w3d'
         file_path = self.outpath() + 'output_ani'
         context = IOWrapper(file_path, extension)
+        context.file_format = 'W3D'
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
