@@ -3,7 +3,7 @@
 
 from shutil import copyfile
 
-from io_mesh_w3d.w3x.export_w3x import save
+from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.w3x.import_w3x import load
 from io_mesh_w3d.import_utils import create_data
 from tests.shared.helpers.animation import get_animation

@@ -7,6 +7,7 @@ import bmesh
 import bpy
 from bpy_extras import node_shader_utils
 
+from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.animation import *
 from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.hierarchy import *
@@ -31,7 +32,31 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
-def retrive_data(context, export_settings, data_context):
+def save(context, export_settings):
+    data_context = DataContext(
+        container_name='',
+        rig=None,
+        meshes=[],
+        textures=[],
+        collision_boxes=[],
+        dazzles=[],
+        hierarchy=None,
+        hlod=None)
+
+    if not retrieve_data(context, export_settings, data_context):
+        return {'CANCELLED'}
+
+    if context.file_format == 'W3X':
+        context.filename_ext = '.w3x'
+        from .w3x.export_w3x import save
+        return save(context, export_settings, data_context)
+
+    context.filename_ext = '.w3d'
+    from .w3d.export_w3d import save
+    return save(context, export_settings, data_context)
+
+
+def retrieve_data(context, export_settings, data_context):
     export_mode = export_settings['mode']
 
     if export_mode not in ['M', 'HM', 'HAM', 'H', 'A']:
@@ -40,24 +65,24 @@ def retrive_data(context, export_settings, data_context):
 
     data_context.container_name = os.path.basename(context.filepath).split('.')[0]
 
-    if context.file_format == 'W3X' and len(container_name) > STRING_LENGTH:
+    if context.file_format == 'W3X' and len(data_context.container_name) > STRING_LENGTH:
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
         return False
 
-    (hierarchy, rig) = retrieve_hierarchy(context, container_name)
+    (hierarchy, rig) = retrieve_hierarchy(context, data_context.container_name)
     data_context.hierarchy = hierarchy
     data_context.rig = rig
-    data_context.hlod = create_hlod(hierarchy, container_name)
-    data_context.boxes = retrieve_boxes(hierarchy, container_name)
-    data_context.dazzles = retrieve_dazzles(hierarchy, container_name)
+    data_context.hlod = create_hlod(hierarchy, data_context.container_name)
+    data_context.boxes = retrieve_boxes(hierarchy, data_context.container_name)
+    data_context.dazzles = retrieve_dazzles(hierarchy, data_context.container_name)
 
     if 'M' in export_mode:
-        data_context.meshes = retrieve_meshes(context, hierarchy, rig, container_name)
-        if not meshes:
+        data_context.meshes = retrieve_meshes(context, hierarchy, rig, data_context.container_name)
+        if not data_context.meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return False
 
-        for mesh in meshes:
+        for mesh in data_context.meshes:
             if not mesh.validate(context):
                 context.error('aborting export!')
                 return False
@@ -67,20 +92,20 @@ def retrive_data(context, export_settings, data_context):
         return False
 
     if export_mode in ['HM', 'HAM']:
-        if not hlod.validate(context):
+        if not data_context.hlod.validate(context):
             context.error('aborting export!')
             return False
 
-        for box in boxes:
+        for box in data_context.boxes:
             if not box.validate(context):
                 context.error('aborting export!')
                 return False
 
     if 'A' in export_mode:
         timecoded = export_settings['compression'] == 'TC'
-        animation = retrieve_animation(
-            container_name, hierarchy, rig, timecoded)
-        if not animation.validate(context):
+        data_context.animation = retrieve_animation(
+            data_context.container_name, hierarchy, rig, timecoded)
+        if not data_context.animation.validate(context):
             context.error('aborting export!')
             return False
     return True

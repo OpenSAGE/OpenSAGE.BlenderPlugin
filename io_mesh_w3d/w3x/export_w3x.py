@@ -6,7 +6,7 @@ from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3x.structs.include import *
 
 
-def save(context, export_settings):
+def save(context, export_settings, data_context):
     print('Saving file :' + context.filepath + context.filename_ext)
 
     export_mode = export_settings['mode']
@@ -21,7 +21,7 @@ def save(context, export_settings):
         if len(data_context.meshes) > 1:
             context.warning('Scene does contain multiple meshes, exporting only the first with export mode M!')
         data_context.meshes[0].header.container_name = ''
-        data_context.meshes[0].header.mesh_name = container_name
+        data_context.meshes[0].header.mesh_name = data_context.container_name
         asset.appendChild(data_context.meshes[0].create(doc))
 
     elif export_mode == 'HM' or export_mode == 'HAM':
