@@ -17,10 +17,18 @@ def almost_equal(self, x, y, threshold=0.0001):
 
 
 class IOWrapper:
-    def __init__(self, filepath, extension='.invalid'):
+    def __init__(self, filepath, file_format='INVALID'):
         self.filepath = filepath
         self.report = print
-        self.filename_ext = extension
+        self.file_format = file_format
+        if file_format == 'W3D':
+            self.filename_ext = '.w3d'
+        elif file_format == 'W3X':
+            self.filename_ext = '.w3x'
+
+    def info(self, msg):
+        pass
+        #self.report({'INFO'}, msg)
 
     def warning(self, msg):
         pass
@@ -38,6 +46,10 @@ class TestCase(unittest.TestCase):
 
     firstError = True
 
+    def info(self, msg):
+        pass
+        #print({'INFO'}, msg)
+
     def warning(self, msg):
         pass
         # if self.firstError:
@@ -46,10 +58,11 @@ class TestCase(unittest.TestCase):
         #print({'WARNING'}, msg)
 
     def error(self, msg):
-        if self.firstError:
-            print('\n' + self.id())
-            self.firstError = False
-        print({'ERROR'}, msg)
+        pass
+        #if self.firstError:
+        #    print('\n' + self.id())
+        #    self.firstError = False
+        #print({'ERROR'}, msg)
 
     @classmethod
     def relpath(cls, path=None):

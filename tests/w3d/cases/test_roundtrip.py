@@ -38,20 +38,17 @@ class TestRoundtripW3D(TestCase):
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output_skn', 'W3D')
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'testhiera_skl', 'W3D')
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_ani', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output_ani', 'W3D')
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
         save(context, export_settings)
@@ -95,20 +92,17 @@ class TestRoundtripW3D(TestCase):
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output_skn', 'W3D')
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = True
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'testhiera_skl', 'W3D')
         export_settings['mode'] = 'H'
         save(context, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_comp_ani', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output_comp_ani', 'W3D')
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
         save(context, export_settings)
@@ -149,8 +143,7 @@ class TestRoundtripW3D(TestCase):
         create_data(context, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output', 'W3D')
         export_settings = {}
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
@@ -189,8 +182,7 @@ class TestRoundtripW3D(TestCase):
         create_data(context, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
 
         # export
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output', 'W3D')
         export_settings = {}
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'TC'
@@ -228,8 +220,7 @@ class TestRoundtripW3D(TestCase):
         create_data(context, meshes, hlod, hierarchy, [], None, None, [])
 
         # export
-        context = IOWrapper(self.outpath() + 'output', '.w3d')
-        context.file_format = 'W3D'
+        context = IOWrapper(self.outpath() + 'output', 'W3D')
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['use_existing_skeleton'] = False

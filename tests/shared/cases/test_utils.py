@@ -669,7 +669,7 @@ class TestUtils(TestCase):
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
-            actual_meshes = retrieve_meshes(
+            (actual_meshes, textures) = retrieve_meshes(
                 self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):

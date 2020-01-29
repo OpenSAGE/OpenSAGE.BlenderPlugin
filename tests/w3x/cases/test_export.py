@@ -16,8 +16,7 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'NON_EXISTING'
 
-        context = IOWrapper(self.outpath() + 'output_skn', '.w3x')
-        context.file_format = 'W3X'
+        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -27,8 +26,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -40,8 +38,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -53,8 +50,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -64,14 +60,14 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
         export_settings['compression'] = 'U'
+        export_settings['create_texture_xmls'] = False
 
         meshes = [get_mesh()]
         create_data(self, meshes)
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -84,6 +80,7 @@ class TestExportW3X(TestCase):
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}
         export_settings['mode'] = 'M'
+        export_settings['create_texture_xmls'] = False
         export_settings['compression'] = 'U'
 
         meshes = [get_mesh()]
@@ -91,8 +88,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -121,8 +117,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -155,8 +150,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -173,8 +167,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -187,8 +180,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
@@ -212,8 +204,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
@@ -238,8 +229,7 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, extension)
-        context.file_format = 'W3X'
+        context = IOWrapper(file_path, 'W3X')
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 

@@ -7,10 +7,10 @@ from io_mesh_w3d.w3x.structs.include import *
 
 
 def save(context, export_settings, data_context):
-    print('Saving file :' + context.filepath + context.filename_ext)
+    context.info('Saving file :' + context.filepath + context.filename_ext)
 
     export_mode = export_settings['mode']
-    print("export mode: " + str(export_mode))
+    context.info("export mode: " + str(export_mode))
 
     doc = minidom.Document()
     asset = create_asset_declaration(doc)
@@ -80,5 +80,5 @@ def save(context, export_settings, data_context):
             file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
             file.close()
 
-    print('finished')
+    context.info('finished')
     return {'FINISHED'}

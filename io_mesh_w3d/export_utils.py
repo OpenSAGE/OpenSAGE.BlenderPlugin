@@ -77,7 +77,9 @@ def retrieve_data(context, export_settings, data_context):
     data_context.dazzles = retrieve_dazzles(hierarchy, data_context.container_name)
 
     if 'M' in export_mode:
-        data_context.meshes = retrieve_meshes(context, hierarchy, rig, data_context.container_name)
+        (meshes, textures) = retrieve_meshes(context, hierarchy, rig, data_context.container_name)
+        data_context.meshes = meshes
+        data_context.textures = textures
         if not data_context.meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return False
@@ -376,9 +378,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=Fa
 
     switch_to_pose(rig, 'POSE')
 
-    if shader_materials:
-        return (mesh_structs, used_textures)
-    return mesh_structs
+    return (mesh_structs, used_textures)
 
 
 ##########################################################################
