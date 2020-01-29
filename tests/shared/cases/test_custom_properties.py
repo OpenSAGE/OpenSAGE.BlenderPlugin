@@ -7,6 +7,18 @@ from io_mesh_w3d.custom_properties import *
 from tests.utils import *
 
 
+def to_vec4(color):
+    return (color[0], color[1], color[2], color[3])
+
+
+def to_vec3(vec):
+    return (vec[0], vec[1], vec[2])
+
+
+def to_vec2(vec):
+    return (vec[0], vec[1])
+
+
 class TestCustomProperties(TestCase):
     def test_object_properties(self):
         mesh = bpy.data.meshes.new('mesh')
@@ -93,4 +105,113 @@ class TestCustomProperties(TestCase):
         mat.technique = 2
         self.assertEqual(1, mat.technique)
 
-        # TODO other props
+        self.assertEqual((1.0, 1.0, 1.0, 0.0), to_vec4(mat.ambient))
+        mat.ambient = (-1.0, -1.0, -1.0, -1.0)
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.ambient))
+        mat.ambient = (2.0, 2.0, 2.0, 2.0)
+        self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.ambient))
+
+        self.assertEqual((1.0, 1.0, 1.0, 0.0), to_vec4(mat.emission))
+        mat.emission = (-1.0, -1.0, -1.0, -1.0)
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.emission))
+        mat.emission = (2.0, 2.0, 2.0, 2.0)
+        self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.emission))
+
+        self.assertEqual(0.0, mat.opacity)
+        mat.opacity = -1.0
+        self.assertEqual(0.0, mat.opacity)
+        mat.opacity = 2.0
+        self.assertEqual(1.0, mat.opacity)
+
+        self.assertEqual(False, mat.alpha_test)
+
+        self.assertEqual(0, mat.blend_mode)
+
+        self.assertEqual((0.0, 0.0), to_vec2(mat.bump_uv_scale))
+
+        self.assertEqual(0, mat.edge_fade_out)
+
+        self.assertEqual(False, mat.depth_write)
+
+        self.assertEqual((0.0, 0.0, 0.0), to_vec3(mat.sampler_clamp_uv_no_mip_0))
+
+        self.assertEqual((0.0, 0.0, 0.0), to_vec3(mat.sampler_clamp_uv_no_mip_1))
+
+        self.assertEqual(0, mat.num_textures)
+
+        self.assertEqual('', mat.texture_0)
+
+        self.assertEqual('', mat.texture_1)
+
+        self.assertEqual(0, mat.secondary_texture_blend_mode)
+
+        self.assertEqual(0, mat.tex_coord_mapper_0)
+
+        self.assertEqual(0, mat.tex_coord_mapper_1)
+
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_coord_transform_0))
+
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_coord_transform_1))
+
+        self.assertEqual('', mat.environment_texture)
+
+        self.assertEqual(0.0, mat.environment_mult)
+
+        self.assertEqual('', mat.recolor_texture)
+
+        self.assertEqual(0.0, mat.recolor_mult)
+
+        self.assertEqual(False, mat.use_recolor)
+
+        self.assertEqual(False, mat.house_color_pulse)
+
+        self.assertEqual('', mat.scrolling_mask_texture)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_angle)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_0)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_0)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_1)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_1)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_2)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_2)
+
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_ani_fps_NPR_lastFrame_frameOffset_0))
+
+        # shader properties
+        shader = mat.shader
+
+        self.assertEqual(0, shader.depth_compare)
+
+        self.assertEqual(0, shader.depth_mask)
+
+        self.assertEqual(0, shader.color_mask)
+
+        self.assertEqual(0, shader.dest_blend)
+
+        self.assertEqual(0, shader.fog_func)
+
+        self.assertEqual(0, shader.pri_gradient)
+
+        self.assertEqual(0, shader.sec_gradient)
+
+        self.assertEqual(0, shader.src_blend)
+
+        self.assertEqual(0, shader.texturing)
+
+        self.assertEqual(0, shader.detail_color_func)
+
+        self.assertEqual(0, shader.detail_alpha_func)
+
+        self.assertEqual(0, shader.shader_preset)
+
+        self.assertEqual(0, shader.alpha_test)
+
+        self.assertEqual(0, shader.post_detail_color_func)
+
+        self.assertEqual(0, shader.post_detail_alpha_func)
