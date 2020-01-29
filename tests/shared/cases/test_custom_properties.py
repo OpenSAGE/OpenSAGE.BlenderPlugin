@@ -145,4 +145,70 @@ class TestCustomProperties(TestCase):
 
         self.assertEqual(0, mat.tex_coord_mapper_1)
 
-        # TODO other props
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_coord_transform_0))
+
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_coord_transform_1))
+
+        self.assertEqual('', mat.environment_texture)
+
+        self.assertEqual(0.0, mat.environment_mult)
+
+        self.assertEqual('', mat.recolor_texture)
+
+        self.assertEqual(0.0, mat.recolor_mult)
+
+        self.assertEqual(False, mat.use_recolor)
+
+        self.assertEqual(False, mat.house_color_pulse)
+
+        self.assertEqual('', mat.scrolling_mask_texture)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_angle)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_0)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_0)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_1)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_1)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_u_2)
+
+        self.assertEqual(0.0, mat.tex_coord_transform_v_2)
+
+        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.tex_ani_fps_NPR_lastFrame_frameOffset_0))
+
+
+        # shader properties
+        shader = mat.shader
+
+        self.assertEqual(0, shader.depth_compare)
+
+        self.assertEqual(0, shader.depth_mask)
+
+        self.assertEqual(0, shader.color_mask)
+
+        self.assertEqual(0, shader.dest_blend)
+
+        self.assertEqual(0, shader.fog_func)
+
+        self.assertEqual(0, shader.pri_gradient)
+
+        self.assertEqual(0, shader.sec_gradient)
+
+        self.assertEqual(0, shader.src_blend)
+
+        self.assertEqual(0, shader.texturing)
+
+        self.assertEqual(0, shader.detail_color_func)
+
+        self.assertEqual(0, shader.detail_alpha_func)
+
+        self.assertEqual(0, shader.shader_preset)
+
+        self.assertEqual(0, shader.alpha_test)
+
+        self.assertEqual(0, shader.post_detail_color_func)
+
+        self.assertEqual(0, shader.post_detail_alpha_func)
