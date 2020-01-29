@@ -152,9 +152,6 @@ class Mesh(Struct):
     def is_skin(self):
         return self.header.attrs & GEOMETRY_TYPE_SKIN
 
-    def has_prelit_vertex(self):
-        return self.header.attrs & PRELIT_VERTEX
-
     def name(self):
         return self.header.mesh_name
 

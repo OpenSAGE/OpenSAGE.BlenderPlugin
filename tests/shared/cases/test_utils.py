@@ -28,7 +28,7 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             (material, _) = create_material_from_vertex_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -41,7 +41,7 @@ class TestUtils(TestCase):
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
             (material, _) = create_material_from_vertex_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -119,7 +119,7 @@ class TestUtils(TestCase):
                  self.outpath() + 'texture.dds')
 
         (material, _) = create_material_from_vertex_material(
-            self, mesh, mesh.vert_materials[0])
+            self, mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -535,8 +535,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        # export not supported yet
-        # self.compare_data(meshes, hlod, hierarchy)
+        self.compare_data(meshes, None, None)
 
     def test_animation_roundtrip(self):
         animation = get_animation()
