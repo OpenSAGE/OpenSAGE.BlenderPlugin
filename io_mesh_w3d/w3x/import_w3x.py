@@ -75,5 +75,4 @@ def load(context, import_settings):
     animation = data_context.animation
 
     create_data(context, meshes, hlod, hierarchy, boxes, animation)
-    context.info('finished')
     return {'FINISHED'}
