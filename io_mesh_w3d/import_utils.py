@@ -160,45 +160,45 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
         mesh_ob.hide_set(True)
 
     principleds = []
-    vert_materials = mesh_struct.vert_materials
-    material_passes = mesh_struct.material_passes
-    textures = mesh_struct.textures
 
-    if mesh_struct.has_prelit_vertex():
-        vert_materials = mesh_struct.prelit_vertex.vert_materials
-        material_passes = mesh_struct.prelit_vertex.material_passes
-        textures = mesh_struct.prelit_vertex.textures
+    # vertex material stuff
+    name = mesh_struct.name()
+    if mesh_struct.vert_materials:
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
 
-    for vertMat in vert_materials:
-        (material, principled) = create_material_from_vertex_material(
-            context, mesh_struct, vertMat)
-        mesh.materials.append(material)
-        principleds.append(principled)
+    if mesh_struct.prelit_unlit is not None:
+        prelit = mesh_struct.prelit_unlit
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
+   
+    if mesh_struct.prelit_vertex is not None:
+        prelit = mesh_struct.prelit_vertex
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
 
-    for i, shaderMat in enumerate(mesh_struct.shader_materials):
-        (material, principled) = create_material_from_shader_material(
-            context, mesh_struct, shaderMat, str(i))
-        mesh.materials.append(material)
-        principleds.append(principled)
+    if mesh_struct.prelit_lightmap_multi_pass is not None:
+        prelit = mesh_struct.prelit_lightmap_multi_pass
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
 
-    if material_passes:
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-
-    for mat_pass in material_passes:
-        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
-
-        if mat_pass.tx_stages:
-            tx_stage = mat_pass.tx_stages[0]
-            mat_id = mat_pass.vertex_material_ids[0]
-            tex_id = tx_stage.tx_ids[0]
-            texture = textures[tex_id]
-            tex = get_texture(context, texture.file, texture.id)
-            principleds[mat_id].base_color_texture.image = tex
-            #principleds[mat_id].alpha_texture.image = tex
+    if mesh_struct.prelit_lightmap_multi_texture is not None:
+        prelit = mesh_struct.prelit_lightmap_multi_texture
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
+
+    # shader material stuff
+    if mesh_struct.shader_materials:
+        for i, shaderMat in enumerate(mesh_struct.shader_materials):
+            (material, principled) = create_material_from_shader_material(
+                context, mesh_struct, shaderMat, str(i))
+            mesh.materials.append(material)
+            principleds.append(principled)
+
+        if mesh_struct.material_passes:
+            b_mesh = bmesh.new()
+            b_mesh.from_mesh(mesh)
+
+        for mat_pass in mesh_struct.material_passes:
+            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
@@ -338,10 +338,35 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 # create material
 ##########################################################################
 
+def create_vertex_material(context, principleds, struct, mesh, name, triangles, prelit_type=None):
+    for vertMat in struct.vert_materials:
+        (material, principled) = create_material_from_vertex_material(
+            context, name, vertMat)
+        mesh.materials.append(material)
+        principleds.append(principled)
 
-def create_material_from_vertex_material(context, mesh, vert_mat):
-    material = bpy.data.materials.new(
-        mesh.name() + "." + vert_mat.vm_name)
+        if prelit_type is not None:
+            material.material_type = 'PRELIT_MATERIAL'
+            material.prelit_type = prelit_type
+
+    if struct.material_passes:
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
+    for mat_pass in struct.material_passes:
+        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+
+        if mat_pass.tx_stages:
+            tx_stage = mat_pass.tx_stages[0]
+            mat_id = mat_pass.vertex_material_ids[0]
+            tex_id = tx_stage.tx_ids[0]
+            texture = struct.textures[tex_id]
+            tex = get_texture(context, texture.file, texture.id)
+            principleds[mat_id].base_color_texture.image = tex
+            #principleds[mat_id].alpha_texture.image = tex
+
+def create_material_from_vertex_material(context, name, vert_mat):
+    material = bpy.data.materials.new(name + "." + vert_mat.vm_name)
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'

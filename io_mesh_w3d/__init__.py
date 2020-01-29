@@ -241,6 +241,9 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(mat, 'material_type')
 
+        if mat.material_type == 'PRELIT_MATERIAL':
+            col = layout.column()
+            col.prop(mat, 'prelit_type')
 
         col = layout.column()
         col.prop(mat, 'surface_type')
@@ -251,7 +254,7 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(mat, 'opacity')
 
-        if mat.material_type == 'VERTEX_MATERIAL':
+        if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
             col = layout.column()
             col.prop(mat, 'attributes')
             col = layout.column()
