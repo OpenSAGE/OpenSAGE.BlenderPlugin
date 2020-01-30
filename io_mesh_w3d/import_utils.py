@@ -380,6 +380,7 @@ def create_vertex_material(context, principleds, materials, struct, mesh, name, 
             principleds[mat_id].base_color_texture.image = tex
             #principleds[mat_id].alpha_texture.image = tex
 
+
 def create_material_from_vertex_material(context, name, vert_mat):
     material = bpy.data.materials.new(name + "." + vert_mat.vm_name)
     material.material_type = 'VERTEX_MATERIAL'

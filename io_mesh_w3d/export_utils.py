@@ -329,7 +329,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
             used_textures = get_used_textures(material, principled, used_textures)
 
-            if context.file_format == 'W3X' or (material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
+            if context.file_format == 'W3X' or (
+                    material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
