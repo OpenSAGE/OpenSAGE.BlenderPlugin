@@ -273,7 +273,7 @@ class HLod(Struct):
         for child in xml_container.childs():
             if child.tagName == 'SubObject':
                 result.lod_arrays[0].sub_objects.append(
-                        HLodSubObject.parse(child))
+                    HLodSubObject.parse(child))
             else:
                 context.warning('unhandled node: ' + child.tagName + ' in W3DContainer!')
 
