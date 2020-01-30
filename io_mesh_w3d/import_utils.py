@@ -536,7 +536,8 @@ def get_texture(context, file, name=None):
     if name in bpy.data.images:
         return bpy.data.images[name]
 
-    filepath = str(os.path.dirname(context.filepath) + "/" + file)
+    path = insensitive_path(os.path.dirname(context.filepath))
+    filepath = path + os.path.sep + file
     img = load_image(filepath + '.tga')
     if img is None:
         img = load_image(filepath + '.dds')
