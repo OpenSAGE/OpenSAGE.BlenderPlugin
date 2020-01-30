@@ -160,45 +160,29 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
         mesh_ob.hide_set(True)
 
     principleds = []
-    vert_materials = mesh_struct.vert_materials
-    material_passes = mesh_struct.material_passes
-    textures = mesh_struct.textures
 
-    if mesh_struct.has_prelit_vertex():
-        vert_materials = mesh_struct.prelit_vertex.vert_materials
-        material_passes = mesh_struct.prelit_vertex.material_passes
-        textures = mesh_struct.prelit_vertex.textures
-
-    for vertMat in vert_materials:
-        (material, principled) = create_material_from_vertex_material(
-            context, mesh_struct, vertMat)
-        mesh.materials.append(material)
-        principleds.append(principled)
-
-    for i, shaderMat in enumerate(mesh_struct.shader_materials):
-        (material, principled) = create_material_from_shader_material(
-            context, mesh_struct, shaderMat, str(i))
-        mesh.materials.append(material)
-        principleds.append(principled)
-
-    if material_passes:
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-
-    for mat_pass in material_passes:
-        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
-
-        if mat_pass.tx_stages:
-            tx_stage = mat_pass.tx_stages[0]
-            mat_id = mat_pass.vertex_material_ids[0]
-            tex_id = tx_stage.tx_ids[0]
-            texture = textures[tex_id]
-            tex = get_texture(context, texture.file, texture.id)
-            principleds[mat_id].base_color_texture.image = tex
-            #principleds[mat_id].alpha_texture.image = tex
+    # vertex material stuff
+    name = mesh_struct.name()
+    if mesh_struct.vert_materials:
+        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
+
+    # shader material stuff
+    if mesh_struct.shader_materials:
+        for i, shaderMat in enumerate(mesh_struct.shader_materials):
+            (material, principled) = create_material_from_shader_material(
+                context, mesh_struct, shaderMat, str(i))
+            mesh.materials.append(material)
+            principleds.append(principled)
+
+        if mesh_struct.material_passes:
+            b_mesh = bmesh.new()
+            b_mesh.from_mesh(mesh)
+
+        for mat_pass in mesh_struct.material_passes:
+            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
@@ -342,10 +326,33 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 # create material
 ##########################################################################
 
+def create_vertex_material(context, principleds, struct, mesh, name, triangles):
+    for vertMat in struct.vert_materials:
+        (material, principled) = create_material_from_vertex_material(
+            context, name, vertMat)
+        mesh.materials.append(material)
+        principleds.append(principled)
 
-def create_material_from_vertex_material(context, mesh, vert_mat):
-    material = bpy.data.materials.new(
-        mesh.name() + "." + vert_mat.vm_name)
+    if struct.material_passes:
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
+    for mat_pass in struct.material_passes:
+        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+
+        if mat_pass.tx_stages:
+            tx_stage = mat_pass.tx_stages[0]
+            mat_id = mat_pass.vertex_material_ids[0]
+            tex_id = tx_stage.tx_ids[0]
+            texture = struct.textures[tex_id]
+            tex = get_texture(context, texture.file, texture.id)
+            principleds[mat_id].base_color_texture.image = tex
+            #principleds[mat_id].alpha_texture.image = tex
+
+
+def create_material_from_vertex_material(context, name, vert_mat):
+    material = bpy.data.materials.new(name + "." + vert_mat.vm_name)
+    material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -368,8 +375,8 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
     material.attributes = atts
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.emission = vert_mat.vm_info.emissive.to_vector_rgba(alpha=1.0)
-    material.ambient = vert_mat.vm_info.ambient.to_vector_rgba(alpha=1.0)
+    material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
+    material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
     material.opacity = vert_mat.vm_info.opacity
 
@@ -381,6 +388,7 @@ def create_material_from_vertex_material(context, mesh, vert_mat):
 
 def create_material_from_shader_material(context, mesh, shader_mat, index=''):
     material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
+    material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
@@ -390,18 +398,18 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
 
     for prop in shader_mat.properties:
-        if prop.name == 'DiffuseTexture':
+        if prop.name == 'DiffuseTexture' and prop.value != '':
             principled.base_color_texture.image = get_texture(context, prop.value)
-        elif prop.name == 'NormalMap':
+        elif prop.name == 'NormalMap' and prop.value != '':
             principled.normalmap_texture.image = get_texture(context, prop.value)
         elif prop.name == 'BumpScale':
             principled.normalmap_strength = prop.value
-        elif prop.name == 'SpecMap':
+        elif prop.name == 'SpecMap' and prop.value != '':
             principled.specular_texture.image = get_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
-            material.diffuse_color = prop.value.to_vector_rgba()
+            material.diffuse_color = prop.value.to_vector_rgba(alpha=1.0)
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.value.to_vector_rgb()
         elif prop.name == 'CullingEnable':

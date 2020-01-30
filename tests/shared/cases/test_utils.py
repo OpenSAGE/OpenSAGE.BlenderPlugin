@@ -28,7 +28,7 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             (material, _) = create_material_from_vertex_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -41,7 +41,7 @@ class TestUtils(TestCase):
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
             (material, _) = create_material_from_vertex_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -119,7 +119,7 @@ class TestUtils(TestCase):
                  self.outpath() + 'texture.dds')
 
         (material, _) = create_material_from_vertex_material(
-            self, mesh, mesh.vert_materials[0])
+            self, mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -472,7 +472,8 @@ class TestUtils(TestCase):
         create_data(self, meshes)
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        (actual_meshes, _) = retrieve_meshes(self, actual_hiera, rig, 'containerName', shader_materials=True)
+        self.file_format = 'W3X'
+        (actual_meshes, _) = retrieve_meshes(self, actual_hiera, rig, 'containerName')
         self.assertEqual(len(meshes), len(actual_meshes))
         for mesh in actual_meshes:
             self.assertEqual(0, len(mesh.vert_materials))
@@ -499,7 +500,7 @@ class TestUtils(TestCase):
         create_data(self, meshes)
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        (_, used_textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName', shader_materials=True)
+        (_, used_textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName')
 
         self.assertEqual(len(expected), len(used_textures))
         for i, tex in enumerate(expected):
@@ -541,8 +542,8 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        # export not supported yet
-        # self.compare_data(meshes, hlod, hierarchy)
+        # not yet supported
+        # self.compare_data(meshes, None, None)
 
     def test_animation_roundtrip(self):
         animation = get_animation()

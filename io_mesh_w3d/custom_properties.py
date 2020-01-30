@@ -46,6 +46,25 @@ Object.dazzle_type = EnumProperty(
 ##########################################################################
 
 
+Material.material_type = EnumProperty(
+    name='Material Type',
+    description='defines the type of the material',
+    items=[
+        ('SHADER_MATERIAL', 'Shader Material', 'desc: todo'),
+        ('VERTEX_MATERIAL', 'Vertex Material', 'desc: todo'),
+        ('PRELIT_MATERIAL', 'Prelit Material', 'desc: todo')],
+    default='SHADER_MATERIAL')
+
+Material.prelit_type = EnumProperty(
+    name='Prelit Type',
+    description='defines the prelit type of the vertex material',
+    items=[
+        ('PRELIT_UNLIT', 'Prelit Unlit', 'desc: todo'),
+        ('PRELIT_VERTEX', 'Prelit Vertex', 'desc: todo'),
+        ('PRELIT_LIGHTMAP_MULTI_PASS', 'Prelit Lightmap multi Pass', 'desc: todo'),
+        ('PRELIT_LIGHTMAP_MULTI_TEXTURE', 'Prelit Lightmap multi Texture', 'desc: todo')],
+    default='PRELIT_UNLIT')
+
 Material.attributes = EnumProperty(
     name='attributes',
     description='Attributes that define the behaviour of this material',

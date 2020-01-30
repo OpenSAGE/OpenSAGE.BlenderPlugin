@@ -156,7 +156,7 @@ def retrieve_dazzles(hierarchy, container_name):
     return dazzles
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=False):
+def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
     mesh_structs = []
     used_textures = []
 
@@ -325,13 +325,18 @@ def retrieve_meshes(context, hierarchy, rig, container_name, shader_materials=Fa
 
             used_textures = get_used_textures(material, principled, used_textures)
 
-            if shader_materials or principled.normalmap_texture is not None:
+            if context.file_format == 'W3X' or (
+                    material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(material, principled))
+
             else:
+                # TODO: create prelit material structs if material is prelit
+                # set mesh_struct.header.attributes accordingly
+
                 mesh_struct.shaders.append(retrieve_shader(material))
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
@@ -538,16 +543,16 @@ def retrieve_shader_material(material, principled, w3x=False):
 
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(material.diffuse_color),
-                        RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(vec=material.diffuse_color, a=0),
+                        RGBA(r=204, g=204, b=204, a=0))
         append_property(shader_mat, 5, 'ColorSpecular', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'ColorAmbient', RGBA(material.ambient))
         append_property(shader_mat, 5, 'ColorEmissive', RGBA(material.emission))
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'DiffuseColor', RGBA(material.diffuse_color),
-                        RGBA(r=204, g=204, b=204, a=255))
+        append_property(shader_mat, 5, 'DiffuseColor', RGBA(vec=material.diffuse_color, a=0),
+                        RGBA(r=204, g=204, b=204, a=0))
         append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
         append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
         append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
