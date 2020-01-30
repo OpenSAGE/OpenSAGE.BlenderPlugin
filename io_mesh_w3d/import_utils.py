@@ -166,22 +166,6 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
     if mesh_struct.vert_materials:
         create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
 
-    if mesh_struct.prelit_unlit is not None:
-        prelit = mesh_struct.prelit_unlit
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
-   
-    if mesh_struct.prelit_vertex is not None:
-        prelit = mesh_struct.prelit_vertex
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
-
-    if mesh_struct.prelit_lightmap_multi_pass is not None:
-        prelit = mesh_struct.prelit_lightmap_multi_pass
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
-
-    if mesh_struct.prelit_lightmap_multi_texture is not None:
-        prelit = mesh_struct.prelit_lightmap_multi_texture
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
-
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
 
@@ -338,16 +322,12 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 # create material
 ##########################################################################
 
-def create_vertex_material(context, principleds, struct, mesh, name, triangles, prelit_type=None):
+def create_vertex_material(context, principleds, struct, mesh, name, triangles):
     for vertMat in struct.vert_materials:
         (material, principled) = create_material_from_vertex_material(
             context, name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
-
-        if prelit_type is not None:
-            material.material_type = 'PRELIT_MATERIAL'
-            material.prelit_type = prelit_type
 
     if struct.material_passes:
         b_mesh = bmesh.new()
