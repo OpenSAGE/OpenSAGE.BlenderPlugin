@@ -466,7 +466,7 @@ class Mesh(Struct):
                     context.info('secondary normals are not supported')
             elif child.tagName == 'Tangents':
                 result.tangents = parse_objects(child, 'T', parse_vector)
-            elif child.tagName == 'Bitangents':
+            elif child.tagName == 'Binormals':
                 result.bitangents = parse_objects(child, 'B', parse_vector)
             elif child.tagName == 'Triangles':
                 result.triangles = parse_objects(child, 'T', Triangle.parse)
@@ -481,6 +481,9 @@ class Mesh(Struct):
                 context.info('shade indices are not supported')
             elif child.tagName == 'BoneInfluences':
                 bone_influences.append(child.getElementsByTagName('I'))
+            elif child.tagName == 'VertexColors':
+                context.info('vertex colors are not yet supported')
+                #<C R="0.258824" G="0.223529" B="1.000000" A="0.020000"/>
             elif child.tagName == 'FXShader':
                 result.shader_materials.append(ShaderMaterial.parse(child))
                 result.header.matl_count = len(result.shader_materials)
@@ -532,7 +535,7 @@ class Mesh(Struct):
 
         if self.bitangents:
             xml_mesh.appendChild(create_object_list(
-                doc, 'Bitangents', self.bitangents, create_vector, 'B'))
+                doc, 'Binormals', self.bitangents, create_vector, 'B'))
 
         if self.material_passes:
             xml_mesh.appendChild(create_object_list(

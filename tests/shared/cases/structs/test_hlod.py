@@ -114,7 +114,7 @@ class TestHLod(TestCase):
         xml_hlods = dom.getElementsByTagName('W3DContainer')
         self.assertEqual(1, len(xml_hlods))
 
-        actual = HLod.parse(xml_hlods[0])
+        actual = HLod.parse(self, xml_hlods[0])
         compare_hlods(self, expected, actual, xml=True)
 
     def test_write_read_minimal_xml(self):
@@ -131,5 +131,5 @@ class TestHLod(TestCase):
         xml_hlods = dom.getElementsByTagName('W3DContainer')
         self.assertEqual(1, len(xml_hlods))
 
-        actual = HLod.parse(xml_hlods[0])
+        actual = HLod.parse(self, xml_hlods[0])
         compare_hlods(self, expected, actual, xml=True)

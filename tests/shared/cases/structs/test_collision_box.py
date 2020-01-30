@@ -56,5 +56,5 @@ class TestCollisionBox(TestCase):
         xml_collision_boxes = dom.getElementsByTagName('W3DCollisionBox')
         self.assertEqual(1, len(xml_collision_boxes))
 
-        actual = CollisionBox.parse(xml_collision_boxes[0])
+        actual = CollisionBox.parse(self, xml_collision_boxes[0])
         compare_collision_boxes(self, expected, actual)

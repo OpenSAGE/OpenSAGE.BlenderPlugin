@@ -96,17 +96,13 @@ class HLodSubObject(Struct):
             name=xml_sub_object.attributes['SubObjectID'].value,
             bone_index=int(xml_sub_object.attributes['BoneIndex'].value))
 
-        xml_render_object = xml_sub_object.getElementsByTagName(
-            'RenderObject')[0]
+        for child in xml_sub_object.childs():
+            if child.tagName != 'RenderObject':
+                continue
+            for o_child in child.childs():
+                if o_child.tagName in ['Mesh', 'CollisionBox']:
+                    sub_object.identifier = o_child.childNodes[0].nodeValue
 
-        xml_meshes = xml_render_object.getElementsByTagName('Mesh')
-        if xml_meshes:
-            sub_object.identifier = xml_meshes[0].childNodes[0].nodeValue
-
-        xml_collision_boxes = xml_render_object.getElementsByTagName(
-            'CollisionBox')
-        if xml_collision_boxes:
-            sub_object.identifier = xml_collision_boxes[0].childNodes[0].nodeValue
         return sub_object
 
     def create(self, doc):
@@ -267,17 +263,20 @@ class HLod(Struct):
             self.proxy_array.write(io_stream)
 
     @staticmethod
-    def parse(xml_container):
+    def parse(context, xml_container):
         result = HLod(
             header=HLodHeader(
                 model_name=xml_container.attributes['id'].value,
                 hierarchy_name=xml_container.attributes['Hierarchy'].value),
             lod_arrays=[HLodLodArray(sub_objects=[])])
 
-        xml_sub_objects = xml_container.getElementsByTagName('SubObject')
-        for xml_sub_object in xml_sub_objects:
-            result.lod_arrays[0].sub_objects.append(
-                HLodSubObject.parse(xml_sub_object))
+        for child in xml_container.childs():
+            if child.tagName == 'SubObject':
+                result.lod_arrays[0].sub_objects.append(
+                        HLodSubObject.parse(child))
+            else:
+                context.warning('unhandled node: ' + child.tagName + ' in W3DContainer!')
+
         result.lod_arrays[0].header.model_count = len(
             result.lod_arrays[0].sub_objects)
         return result

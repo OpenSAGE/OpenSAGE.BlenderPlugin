@@ -59,14 +59,16 @@ class CollisionBox(Struct):
         write_vector(self.extend, io_stream)
 
     @staticmethod
-    def parse(xml_collision_box):
+    def parse(context, xml_collision_box):
         result = CollisionBox()
 
-        xml_center = xml_collision_box.getElementsByTagName('Center')[0]
-        result.center = parse_vector(xml_center)
-
-        xml_extend = xml_collision_box.getElementsByTagName('Extent')[0]
-        result.extend = parse_vector(xml_extend)
+        for child in xml_collision_box.childs():
+            if child.tagName == 'Center':
+                result.center = parse_vector(child)
+            elif child.tagName == 'Extent':
+                result.extend = parse_vector(child)
+            else:
+                context.warning('unhandled node: ' + child.tagName + ' in W3DCollisionBox!')
         return result
 
     def create(self, doc):
