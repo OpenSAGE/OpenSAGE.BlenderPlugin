@@ -96,7 +96,7 @@ class TestImportUtilsW3D(TestCase):
         for i, mesh_struct in enumerate(mesh_structs):
             rig_mesh(mesh_struct, hierarchy, hlod, rig)
 
-        create_animation(rig, animation, hierarchy, compressed=True)
+        create_animation(self, rig, animation, hierarchy, compressed=True)
 
         # currently disabled because of timecoded animation export issue -> see create keyframe functions
         obj = bpy.data.objects['MESH']

@@ -115,11 +115,12 @@ def get_animation(hierarchy_name='TestHierarchy', xml=False):
                   get_animation_channel(type=2, pivot=3),
                   get_animation_channel(type=6, pivot=3),
 
-                  get_animation_bit_channel(pivot=6, xml=xml)])
+                  get_animation_bit_channel(pivot=6, xml=xml),
+                  get_animation_bit_channel(pivot=7)])
 
-    # this does not work at the moment
-    # due to an issue in blender
-    # get_animation_bit_channel(pivot=7)])
+                    # this does not work at the moment
+                    # due to an issue in blender
+                    # get_animation_bit_channel(pivot=7)])
 
 
 def get_animation_minimal():

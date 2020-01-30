@@ -63,6 +63,8 @@ def create_data(
     rig = None
     coll = get_collection(hlod)
 
+    rig = get_or_create_skeleton(hlod, hierarchy, coll)
+
     if hlod is not None:
         current_coll = coll
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
@@ -70,8 +72,6 @@ def create_data(
                 current_coll = get_collection(hlod)
                 # collection has no hide_set()
                 current_coll.hide_viewport = True
-
-            rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
@@ -100,8 +100,8 @@ def create_data(
         for mesh in meshes:
             create_mesh(context, mesh, hierarchy, coll)
 
-    create_animation(rig, animation, hierarchy)
-    create_animation(rig, compressed_animation, hierarchy, compressed=True)
+    create_animation(context, rig, animation, hierarchy)
+    create_animation(context, rig, compressed_animation, hierarchy, compressed=True)
 
 
 def rig_object(object, hierarchy, rig, sub_object):
@@ -232,7 +232,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
 
 def get_or_create_skeleton(hlod, hierarchy, coll):
-    if hlod is None or hierarchy is None:
+    if hierarchy is None:
         return None
 
     if hierarchy.header.name in bpy.data.objects:
@@ -241,7 +241,11 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
             return obj
         return None
 
-    return create_bone_hierarchy(hierarchy, hlod.lod_arrays[-1].sub_objects, coll)
+    sub_objects = []
+    if hlod is not None:
+        sub_objects = hlod.lod_arrays[-1].sub_objects
+
+    return create_bone_hierarchy(hierarchy, sub_objects, coll)
 
 
 def make_transform_matrix(loc, rot):
@@ -310,6 +314,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
+            bone.bone.hide = True
             bone.custom_shape = basic_sphere
 
         if rig.mode != 'OBJECT':
@@ -581,7 +586,7 @@ def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel)
 
 
-def get_bone(rig, hierarchy, channel):
+def get_bone(context, rig, hierarchy, channel):
     if is_roottransform(channel):
         return rig
 
@@ -590,6 +595,7 @@ def get_bone(rig, hierarchy, channel):
         return rig.pose.bones[pivot.name]
     if pivot.name in bpy.data.objects:
         return bpy.data.objects[pivot.name]
+    context.error('no object named: ' + pivot.name + ' found!')
 
 
 def setup_animation(animation):
@@ -598,7 +604,7 @@ def setup_animation(animation):
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
-# this causes issues on timecoded animation export (if quat.w has less keyframes as x,y,z of that quat)
+# this causes issues on timecoded animation export (if e.g. quat.w has less keyframes as x,y,z of that quat)
 creation_options = {'INSERTKEY_NEEDED'}
 
 
@@ -616,9 +622,9 @@ def set_rotation(bone, frame, value):
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
-        bone.bone.hide = True
-        bone.bone.keyframe_insert(
-            data_path='hide', frame=frame)  # , options=creation_options)
+        bone.bone.hide = value
+        bone.keyframe_insert(
+            data_path='bone', frame=frame)  # , options=creation_options)
     else:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
@@ -657,16 +663,16 @@ def apply_uncompressed(bone, channel, hierarchy):
         set_keyframe(bone, channel, frame, data)
 
 
-def process_channels(hierarchy, channels, rig, apply_func):
+def process_channels(context, hierarchy, channels, rig, apply_func):
     for channel in channels:
-        obj = get_bone(rig, hierarchy, channel)
+        obj = get_bone(context, rig, hierarchy, channel)
 
         apply_func(obj, channel, hierarchy)
 
 
-def process_motion_channels(hierarchy, channels, rig):
+def process_motion_channels(context, hierarchy, channels, rig):
     for channel in channels:
-        obj = get_bone(rig, hierarchy, channel)
+        obj = get_bone(context, rig, hierarchy, channel)
 
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
@@ -674,7 +680,7 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(rig, animation, hierarchy, compressed=False):
+def create_animation(context, rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
@@ -686,14 +692,14 @@ def create_animation(rig, animation, hierarchy, compressed=False):
     setup_animation(animation)
 
     if not compressed:
-        process_channels(hierarchy, animation.channels,
+        process_channels(context, hierarchy, animation.channels,
                          rig, apply_uncompressed)
     else:
-        process_channels(hierarchy, animation.time_coded_channels,
+        process_channels(context, hierarchy, animation.time_coded_channels,
                          rig, apply_timecoded)
-        process_channels(hierarchy, animation.adaptive_delta_channels,
+        process_channels(context, hierarchy, animation.adaptive_delta_channels,
                          rig, apply_adaptive_delta)
-        process_motion_channels(hierarchy, animation.motion_channels, rig)
+        process_motion_channels(context, hierarchy, animation.motion_channels, rig)
 
     bpy.context.scene.frame_set(0)
 
