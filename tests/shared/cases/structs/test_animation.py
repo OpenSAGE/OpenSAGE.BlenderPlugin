@@ -98,7 +98,7 @@ class TestAnimation(TestCase):
         xml_animations = dom.getElementsByTagName('W3DAnimation')
         self.assertEqual(1, len(xml_animations))
 
-        actual = Animation.parse(xml_animations[0])
+        actual = Animation.parse(self, xml_animations[0])
         compare_animations(self, expected, actual)
 
     def test_write_read_minimal_xml(self):
@@ -115,5 +115,5 @@ class TestAnimation(TestCase):
         xml_animations = dom.getElementsByTagName('W3DAnimation')
         self.assertEqual(1, len(xml_animations))
 
-        actual = Animation.parse(xml_animations[0])
+        actual = Animation.parse(self, xml_animations[0])
         compare_animations(self, expected, actual)

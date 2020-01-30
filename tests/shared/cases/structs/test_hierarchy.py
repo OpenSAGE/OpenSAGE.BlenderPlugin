@@ -113,7 +113,7 @@ class TestHierarchy(TestCase):
         xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
         self.assertEqual(1, len(xml_hierarchies))
 
-        actual = Hierarchy.parse(xml_hierarchies[0])
+        actual = Hierarchy.parse(self, xml_hierarchies[0])
         compare_hierarchies(self, expected, actual)
 
     def test_write_read_minimal_xml(self):
@@ -130,5 +130,5 @@ class TestHierarchy(TestCase):
         xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
         self.assertEqual(1, len(xml_hierarchies))
 
-        actual = Hierarchy.parse(xml_hierarchies[0])
+        actual = Hierarchy.parse(self, xml_hierarchies[0])
         compare_hierarchies(self, expected, actual)

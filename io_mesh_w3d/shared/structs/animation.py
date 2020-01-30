@@ -296,7 +296,7 @@ class Animation(Struct):
             channel.write(io_stream)
 
     @staticmethod
-    def parse(xml_animation):
+    def parse(context, xml_animation):
         result = Animation(
             header=AnimationHeader(),
             channels=[])
@@ -308,12 +308,18 @@ class Animation(Struct):
         result.header.frame_rate = int(
             xml_animation.attributes['FrameRate'].value)
 
-        xml_channels_list = xml_animation.getElementsByTagName('Channels')[0]
-        for xml_channel in xml_channels_list.childs():
-            if xml_channel.attributes['Type'].value == 'Visibility':
-                result.channels.append(AnimationBitChannel.parse(xml_channel))
+        for child in xml_animation.childs():
+            if child.tagName == 'Channels':
+                for channel_child in child.childs():
+                    if channel_child.tagName in ['ChannelScalar', 'ChannelQuaternion']:
+                        if channel_child.attributes['Type'].value == 'Visibility':
+                            result.channels.append(AnimationBitChannel.parse(channel_child))
+                        else:
+                            result.channels.append(AnimationChannel.parse(channel_child))
+                    else:
+                        context.warning('unhandled node: ' + child.tagName + ' in Channels!')
             else:
-                result.channels.append(AnimationChannel.parse(xml_channel))
+                context.warning('unhandled node: ' + child.tagName + ' in W3DAnimation!')
         return result
 
     def create(self, doc):

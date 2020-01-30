@@ -28,8 +28,7 @@ class HierarchyHeader(Struct):
         return const_size(36, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_HIERARCHY_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_HIERARCHY_HEADER, io_stream, self.size(False))
         self.version.write(io_stream)
         write_fixed_string(self.name, io_stream)
         write_ulong(self.num_pivots, io_stream)
@@ -74,12 +73,13 @@ class HierarchyPivot(Struct):
         if 'NameID' in xml_pivot.attributes:
             pivot.name_id = int(xml_pivot.attributes['NameID'].value)
 
-        xml_translation = xml_pivot.getElementsByTagName('Translation')[0]
-        pivot.translation = parse_vector(xml_translation)
-        xml_rotation = xml_pivot.getElementsByTagName('Rotation')[0]
-        pivot.rotation = parse_quaternion(xml_rotation)
-        xml_fixup_matrix = xml_pivot.getElementsByTagName('FixupMatrix')[0]
-        pivot.fixup_matrix = parse_matrix(xml_fixup_matrix)
+        for child in xml_pivot.childs():
+            if child.tagName == 'Translation':
+                pivot.translation = parse_vector(child)
+            elif child.tagName == 'Rotation':
+                pivot.rotation = parse_quaternion(child)
+            elif child.tagName == 'FixupMatrix':
+                pivot.fixup_matrix = parse_matrix(child)
         return pivot
 
     def create(self, doc):
@@ -132,11 +132,9 @@ class Hierarchy(Struct):
             if chunk_type == W3D_CHUNK_HIERARCHY_HEADER:
                 result.header = HierarchyHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_PIVOTS:
-                result.pivots = read_list(
-                    io_stream, subchunk_end, HierarchyPivot.read)
+                result.pivots = read_list(io_stream, subchunk_end, HierarchyPivot.read)
             elif chunk_type == W3D_CHUNK_PIVOT_FIXUPS:
-                result.pivot_fixups = read_list(
-                    io_stream, subchunk_end, read_vector)
+                result.pivot_fixups = read_list(io_stream, subchunk_end, read_vector)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -151,25 +149,25 @@ class Hierarchy(Struct):
         write_chunk_head(W3D_CHUNK_HIERARCHY, io_stream, self.size())
         self.header.write(io_stream)
 
-        write_chunk_head(W3D_CHUNK_PIVOTS, io_stream,
-                         list_size(self.pivots, False))
+        write_chunk_head(W3D_CHUNK_PIVOTS, io_stream, list_size(self.pivots, False))
         write_list(self.pivots, io_stream, HierarchyPivot.write)
 
         if self.pivot_fixups:
-            write_chunk_head(W3D_CHUNK_PIVOT_FIXUPS, io_stream,
-                             vec_list_size(self.pivot_fixups, False))
+            write_chunk_head(W3D_CHUNK_PIVOT_FIXUPS, io_stream, vec_list_size(self.pivot_fixups, False))
             write_list(self.pivot_fixups, io_stream, write_vector)
 
     @staticmethod
-    def parse(xml_hierarchy):
+    def parse(context, xml_hierarchy):
         result = Hierarchy(
-            header=HierarchyHeader(),
+            header=HierarchyHeader(
+                name=xml_hierarchy.attributes['id'].value),
             pivots=[])
 
-        result.header.name = xml_hierarchy.attributes['id'].value
-        xml_pivots = xml_hierarchy.getElementsByTagName('Pivot')
-        for xml_pivot in xml_pivots:
-            result.pivots.append(HierarchyPivot.parse(xml_pivot))
+        for child in xml_hierarchy.childs():
+            if child.tagName == 'Pivot':
+                result.pivots.append(HierarchyPivot.parse(child))
+            else:
+                context.warning('unhandled node: ' + child.tagName + ' in W3DHierarchy!')
         return result
 
     def create(self, doc):

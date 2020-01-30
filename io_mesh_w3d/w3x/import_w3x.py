@@ -38,13 +38,13 @@ def load_file(context, data_context, path=None):
         elif node.tagName == 'W3DMesh':
             data_context.meshes.append(Mesh.parse(context, node))
         elif node.tagName == 'W3DCollisionBox':
-            data_context.collision_boxes.append(CollisionBox.parse(node))
+            data_context.collision_boxes.append(CollisionBox.parse(context, node))
         elif node.tagName == 'W3DContainer':
-            data_context.hlod = HLod.parse(node)
+            data_context.hlod = HLod.parse(context, node)
         elif node.tagName == 'W3DHierarchy':
-            data_context.hierarchy = Hierarchy.parse(node)
+            data_context.hierarchy = Hierarchy.parse(context, node)
         elif node.tagName == 'W3DAnimation':
-            data_context.animation = Animation.parse(node)
+            data_context.animation = Animation.parse(context, node)
         elif node.tagName == 'Texture':
             data_context.textures.append(Texture.parse(node))
         else:
