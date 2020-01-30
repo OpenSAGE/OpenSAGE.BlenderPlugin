@@ -483,7 +483,7 @@ class Mesh(Struct):
                 bone_influences.append(child.getElementsByTagName('I'))
             elif child.tagName == 'VertexColors':
                 context.info('vertex colors are not yet supported')
-                #<C R="0.258824" G="0.223529" B="1.000000" A="0.020000"/>
+                # <C R="0.258824" G="0.223529" B="1.000000" A="0.020000"/>
             elif child.tagName == 'FXShader':
                 result.shader_materials.append(ShaderMaterial.parse(child))
                 result.header.matl_count = len(result.shader_materials)
@@ -501,7 +501,7 @@ class Mesh(Struct):
 
             for i, inf in enumerate(bone_infs):
                 result.vert_infs.append(VertexInfluence.parse(
-                        inf, xtra_infs[i]))
+                    inf, xtra_infs[i]))
         return result
 
     def create(self, doc):
