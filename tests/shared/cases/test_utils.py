@@ -185,6 +185,13 @@ class TestUtils(TestCase):
 
         self.compare_data([], None, hierarchy)
 
+    def test_hierarchy_only_roundtrip(self):
+        hierarchy = get_hierarchy()
+
+        create_data(self, [], None, hierarchy)
+
+        self.compare_data([], None, hierarchy)
+
     def test_hierarchy_roundtrip_pivot_order_is_correct(self):
         hierarchy = get_hierarchy()
         hierarchy.pivots = [
@@ -555,6 +562,15 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes, animation)
 
+        self.compare_data([], None, None, [], animation)
+
+    def test_animation_only_roundtrip(self):
+        animation = get_animation()
+        hierarchy = get_hierarchy()
+
+        create_data(self, [], None, hierarchy, [], animation)
+
+        animation.channels.remove(animation.channels[-1])
         self.compare_data([], None, None, [], animation)
 
     def test_compressed_animation_roundtrip(self):
