@@ -169,18 +169,20 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
     if mesh_struct.prelit_unlit is not None:
         prelit = mesh_struct.prelit_unlit
         create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
-   
+
     if mesh_struct.prelit_vertex is not None:
         prelit = mesh_struct.prelit_vertex
         create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
 
     if mesh_struct.prelit_lightmap_multi_pass is not None:
         prelit = mesh_struct.prelit_lightmap_multi_pass
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
+        create_vertex_material(context, principleds, mesh_struct, mesh, name,
+                               triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
 
     if mesh_struct.prelit_lightmap_multi_texture is not None:
         prelit = mesh_struct.prelit_lightmap_multi_texture
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
+        create_vertex_material(context, principleds, mesh_struct, mesh, name,
+                               triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
 
     for i, shader in enumerate(mesh_struct.shaders):
         set_shader_properties(mesh.materials[i], shader)
@@ -364,6 +366,7 @@ def create_vertex_material(context, principleds, struct, mesh, name, triangles, 
             tex = get_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
             #principleds[mat_id].alpha_texture.image = tex
+
 
 def create_material_from_vertex_material(context, name, vert_mat):
     material = bpy.data.materials.new(name + "." + vert_mat.vm_name)
