@@ -184,13 +184,13 @@ class Mesh(Struct):
             if chunk_type == W3D_CHUNK_VERTICES:
                 result.verts = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_VERTICES_2:
-                context.info("-> vertices 2 chunk is not supported")
+                context.info('-> vertices 2 chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_list(
                     io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
-                context.info("-> normals 2 chunk is not supported")
+                context.info('-> normals 2 chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.user_text = read_string(io_stream)
@@ -227,10 +227,10 @@ class Mesh(Struct):
                 result.shader_materials = read_chunk_array(
                     context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                context.info("-> tangents are computed in blender")
+                context.info('-> tangents are computed in blender')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                context.info("-> bitangents are computed in blender")
+                context.info('-> bitangents are computed in blender')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = AABBTree.read(
@@ -435,74 +435,70 @@ class Mesh(Struct):
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
             | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
-        xml_bounding_box = xml_mesh.getElementsByTagName('BoundingBox')[0]
-        bounding_box = BoundingBox.parse(xml_bounding_box)
-        result.header.min_corner = bounding_box.min
-        result.header.max_corner = bounding_box.max
-
-        xml_bounding_sphere = xml_mesh.getElementsByTagName('BoundingSphere')[
-            0]
-        bounding_sphere = BoundingSphere.parse(xml_bounding_sphere)
-        result.header.sph_center = bounding_sphere.center
-        result.header.sph_radius = bounding_sphere.radius
-
-        result.verts = parse_object_lists(xml_mesh, 'Vertices', 'V', parse_vector)[0]
-        result.header.vert_count = len(result.verts)
-
-        result.normals = parse_object_lists(xml_mesh, 'Normals', 'N', parse_vector)[0]
-
-        result.tangents = parse_object_lists(xml_mesh, 'Tangents', 'T', parse_vector)[0]
-
-        result.bitangents = parse_object_lists(xml_mesh, 'Bitangents', 'B', parse_vector)[0]
-
-        result.triangles = parse_object_lists(xml_mesh, 'Triangles', 'T', Triangle.parse)[0]
-        result.header.face_count = len(result.triangles)
-
-        result.material_passes = [MaterialPass(
-            shader_material_ids=[0])]
-
-        tex_coords = parse_object_lists(xml_mesh, 'TexCoords', 'T', parse_vector2)
-        if len(tex_coords) > 1:
-            context.warning('multiple uv coords not yet supported!')
-        if tex_coords:
-            result.material_passes[0].tx_coords = tex_coords[0]
-
-        result.shade_ids = parse_object_lists(xml_mesh, 'ShadeIndices', 'I', parse_value, int)[0]
-
-        xml_vertex_influence_lists = xml_mesh.getElementsByTagName(
-            'BoneInfluences')
-        if xml_vertex_influence_lists:
-            xml_vertex_influences = xml_vertex_influence_lists[0].getElementsByTagName(
-                'I')
-            xml_vertex_influences2 = None
-            if len(xml_vertex_influence_lists) > 1:
-                second_influences = xml_vertex_influence_lists[1]
-                xml_vertex_influences2 = second_influences.getElementsByTagName(
-                    'I')
-
-            for i, inf in enumerate(xml_vertex_influences):
-                if xml_vertex_influences2 is not None:
-                    result.vert_infs.append(VertexInfluence.parse(
-                        inf, xml_vertex_influences2[i]))
-                else:
-                    result.vert_infs.append(VertexInfluence.parse(inf, None))
-
-        xml_shader_materials = xml_mesh.getElementsByTagName('FXShader')
-        for xml_shader_material in xml_shader_materials:
-            result.shader_materials.append(
-                ShaderMaterial.parse(xml_shader_material))
-        result.header.matl_count = len(result.shader_materials)
-
-        xml_aabbtrees = xml_mesh.getElementsByTagName('AABTree')
-        if xml_aabbtrees:
-            result.aabbtree = AABBTree.parse(xml_aabbtrees[0])
-
+        result.material_passes = [MaterialPass(shader_material_ids=[0])]
         result.mat_info = MaterialInfo(
             pass_count=len(result.material_passes),
             vert_mat_count=0,
             shader_count=0,
             texture_count=0)
 
+        bone_influences = []
+
+        for child in xml_mesh.childs():
+            if child.tagName == 'BoundingBox':
+                bounding_box = BoundingBox.parse(child)
+                result.header.min_corner = bounding_box.min
+                result.header.max_corner = bounding_box.max
+            elif child.tagName == 'BoundingSphere':
+                bounding_sphere = BoundingSphere.parse(child)
+                result.header.sph_center = bounding_sphere.center
+                result.header.sph_radius = bounding_sphere.radius
+            elif child.tagName == 'Vertices':
+                if not result.verts:
+                    result.verts = parse_objects(child, 'V', parse_vector)
+                    result.header.vert_count = len(result.verts)
+                else:
+                    context.info('secondary vertices are not supported')
+            elif child.tagName == 'Normals':
+                if not result.normals:
+                    result.normals = parse_objects(child, 'N', parse_vector)
+                else:
+                    context.info('secondary normals are not supported')
+            elif child.tagName == 'Tangents':
+                result.tangents = parse_objects(child, 'T', parse_vector)
+            elif child.tagName == 'Bitangents':
+                result.bitangents = parse_objects(child, 'B', parse_vector)
+            elif child.tagName == 'Triangles':
+                result.triangles = parse_objects(child, 'T', Triangle.parse)
+                result.header.face_count = len(result.triangles)
+            elif child.tagName == 'TexCoords':
+                if not result.material_passes[0].tx_coords:
+                    result.material_passes[0].tx_coords = parse_objects(child, 'T', parse_vector2)
+                else:
+                    context.warning('multiple uv coords not yet supported!')
+            elif child.tagName == 'ShadeIndices':
+                result.shade_ids = parse_objects(child, 'I', parse_value, int)
+                context.info('shade indices are not supported')
+            elif child.tagName == 'BoneInfluences':
+                bone_influences.append(child.getElementsByTagName('I'))
+            elif child.tagName == 'FXShader':
+                result.shader_materials.append(ShaderMaterial.parse(child))
+                result.header.matl_count = len(result.shader_materials)
+            elif child.tagName == 'AABTree':
+                result.aabbtree = AABBTree.parse(child)
+            else:
+                context.warning('unhandled node: ' + child.tagName + ' in W3DMesh!')
+
+        if bone_influences:
+            bone_infs = bone_influences[0]
+            xtra_infs = [None] * len(bone_influences[0])
+
+            if len(bone_influences) > 1:
+                xtra_infs = bone_influences[1]
+
+            for i, inf in enumerate(bone_infs):
+                result.vert_infs.append(VertexInfluence.parse(
+                        inf, xtra_infs[i]))
         return result
 
     def create(self, doc):
