@@ -187,7 +187,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             textures=[],
             material_passes=[],
             shader_materials=[],
-            multi_bone_skinned=False)
+            multi_bone_skinned=False,
+            prelit_unlit=None,
+            prelit_vertex=None,
+            prelit_lightmap_multi_pass=None,
+            prelit_lightmap_multi_texture=None)
 
         header = mesh_struct.header
         header.mesh_name = mesh_object.name
@@ -331,19 +335,17 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(material, principled))
+                mesh_struct.material_passes.append(mat_pass)
 
             else:
-                # TODO: create prelit material structs if material is prelit
-                # set mesh_struct.header.attributes accordingly
+                shader = retrieve_shader(material)
 
-                mesh_struct.shaders.append(retrieve_shader(material))
-                mat_pass.shader_ids = [i]
-                mat_pass.vertex_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_stages.append(tx_stages[i])
-                mesh_struct.vert_materials.append(
-                    retrieve_vertex_material(material))
 
+                vert_material = retrieve_vertex_material(material)
+
+                tex = None
                 if principled.base_color_texture.image is not None:
                     info = TextureInfo(
                         attributes=0,
@@ -358,9 +360,81 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         id=img.name,
                         file=filepath,
                         texture_info=info)
-                    mesh_struct.textures.append(tex)
 
-            mesh_struct.material_passes.append(mat_pass)
+                if material.material_type == 'VERTEX_MATERIAL':
+                    mat_pass.shader_ids = [i]
+                    mat_pass.vertex_material_ids = [i]
+                    mesh_struct.shaders.append(shader)
+                    mesh_struct.vert_materials.append(vert_material)
+                    mesh_struct.material_passes.append(mat_pass)
+                    if tex is not None:
+                        mesh_struct.textures.append(tex)
+                else:
+                    if material.prelit_type == 'PRELIT_UNLIT':
+                        if  mesh_struct.prelit_unlit is None:
+                            mesh_struct.prelit_unlit = PrelitBase(
+                                    type=W3D_CHUNK_PRELIT_UNLIT,
+                                    shaders=[],
+                                    vert_materials=[],
+                                    material_passes=[],
+                                    textures=[])
+
+                        mat_pass.shader_ids = [len(mesh_struct.prelit_unlit.shaders)]
+                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_unlit.vert_materials)]
+                        mesh_struct.prelit_unlit.shaders.append(shader)
+                        mesh_struct.prelit_unlit.vert_materials.append(vert_material)
+                        mesh_struct.prelit_unlit.material_passes.append(mat_pass)
+                        if tex is not None:
+                            mesh_struct.prelit_unlit.textures.append(tex)
+
+                    elif material.prelit_type == 'PRELIT_VERTEX':
+                        if mesh_struct.prelit_vertex is None:
+                            mesh_struct.prelit_vertex = PrelitBase(type=W3D_CHUNK_PRELIT_VERTEX,
+                                    shaders=[],
+                                    vert_materials=[],
+                                    material_passes=[],
+                                    textures=[])
+
+                        mat_pass.shader_ids = [len(mesh_struct.prelit_vertex.shaders)]
+                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_vertex.vert_materials)]
+                        mesh_struct.prelit_vertex.shaders.append(shader)
+                        mesh_struct.prelit_vertex.vert_materials.append(vert_material)
+                        mesh_struct.prelit_vertex.material_passes.append(mat_pass)
+                        if tex is not None:
+                            mesh_struct.prelit_vertex.textures.append(tex)
+
+                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_PASS':
+                        if mesh_struct.prelit_lightmap_multi_pass is None:
+                            mesh_struct.prelit_lightmap_multi_pass = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS,
+                                    shaders=[],
+                                    vert_materials=[],
+                                    material_passes=[],
+                                    textures=[])
+
+                        mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_pass.shaders)]
+                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_pass.vert_materials)]
+                        mesh_struct.prelit_lightmap_multi_pass.shaders.append(shader)
+                        mesh_struct.prelit_lightmap_multi_pass.vert_materials.append(vert_material)
+                        mesh_struct.prelit_lightmap_multi_pass.material_passes.append(mat_pass)
+                        if tex is not None:
+                            mesh_struct.prelit_lightmap_multi_pass.textures.append(tex)
+
+                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_TEXTURE':     
+                        if mesh_struct.prelit_lightmap_multi_texture is None:
+                            mesh_struct.prelit_lightmap_multi_texture = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
+                                    shaders=[],
+                                    vert_materials=[],
+                                    material_passes=[],
+                                    textures=[])
+
+                        mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_texture.shaders)]
+                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_texture.vert_materials)]
+                        mesh_struct.prelit_lightmap_multi_texture.shaders.append(shader)
+                        mesh_struct.prelit_lightmap_multi_texture.vert_materials.append(vert_material)
+                        mesh_struct.prelit_lightmap_multi_texture.material_passes.append(mat_pass)
+                        if tex is not None:
+                            mesh_struct.prelit_lightmap_multi_texture.textures.append(tex)
+            
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
@@ -370,11 +444,50 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh_struct.tangents = []
             mesh_struct.bitangents = []
 
-        mesh_struct.mat_info = MaterialInfo(
-            pass_count=len(mesh_struct.material_passes),
-            vert_matl_count=len(mesh_struct.vert_materials),
-            shader_count=len(mesh_struct.shaders),
-            texture_count=len(mesh_struct.textures))
+        if mesh_struct.prelit_unlit is not None:
+            mesh_struct.header.attrs |= PRELIT_UNLIT
+            prelit = mesh_struct.prelit_unlit
+            prelit.mat_info = MaterialInfo(
+                pass_count=len(prelit.material_passes),
+                vert_matl_count=len(prelit.vert_materials),
+                shader_count=len(prelit.shaders),
+                texture_count=len(prelit.textures))
+
+        if mesh_struct.prelit_vertex is not None:
+            mesh_struct.header.attrs |= PRELIT_VERTEX
+            prelit = mesh_struct.prelit_vertex
+            prelit.mat_info = MaterialInfo(
+                pass_count=len(prelit.material_passes),
+                vert_matl_count=len(prelit.vert_materials),
+                shader_count=len(prelit.shaders),
+                texture_count=len(prelit.textures))
+
+        if mesh_struct.prelit_lightmap_multi_pass is not None:
+            mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_PASS
+            prelit = mesh_struct.prelit_lightmap_multi_pass
+            prelit.mat_info = MaterialInfo(
+                pass_count=len(prelit.material_passes),
+                vert_matl_count=len(prelit.vert_materials),
+                shader_count=len(prelit.shaders),
+                texture_count=len(prelit.textures))
+
+        if mesh_struct.prelit_lightmap_multi_texture is not None:
+            mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_TEXTURE
+            prelit = mesh_struct.prelit_lightmap_multi_texture
+            prelit.mat_info = MaterialInfo(
+                pass_count=len(prelit.material_passes),
+                vert_matl_count=len(prelit.vert_materials),
+                shader_count=len(prelit.shaders),
+                texture_count=len(prelit.textures))
+
+
+        if mesh_struct.prelit_unlit is None and mesh_struct.prelit_vertex is None \
+                and mesh_struct.prelit_lightmap_multi_pass is None and mesh_struct.prelit_lightmap_multi_texture is None:
+            mesh_struct.mat_info = MaterialInfo(
+                pass_count=len(mesh_struct.material_passes),
+                vert_matl_count=len(mesh_struct.vert_materials),
+                shader_count=len(mesh_struct.shaders),
+                texture_count=len(mesh_struct.textures))
 
         mesh_struct.header.matl_count = max(
             len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
@@ -577,44 +690,25 @@ def retrieve_shader_material(material, principled, w3x=False):
     append_property(shader_mat, 1, 'Texture_0', material.texture_0)
     append_property(shader_mat, 1, 'Texture_1', material.texture_1)
 
-    append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
-                    material.secondary_texture_blend_mode)
-    append_property(shader_mat, 6, 'TexCoordMapper_0',
-                    material.tex_coord_mapper_0)
-    append_property(shader_mat, 6, 'TexCoordMapper_1',
-                    material.tex_coord_mapper_1)
-    append_property(shader_mat, 5, 'TexCoordTransform_0',
-                    RGBA(material.tex_coord_transform_0), RGBA())
-    append_property(shader_mat, 5, 'TexCoordTransform_1',
-                    RGBA(material.tex_coord_transform_1), RGBA())
-    append_property(shader_mat, 1, 'EnvironmentTexture',
-                    material.environment_texture)
-    append_property(shader_mat, 2, 'EnvMult',
-                    material.environment_mult)
-    append_property(shader_mat, 1, 'RecolorTexture',
-                    material.recolor_texture)
-    append_property(shader_mat, 2, 'RecolorMultiplier',
-                    material.recolor_mult)
-    append_property(shader_mat, 7, 'UseRecolorColors',
-                    material.use_recolor)
-    append_property(shader_mat, 7, 'HouseColorPulse',
-                    material.house_color_pulse)
-    append_property(shader_mat, 1, 'ScrollingMaskTexture',
-                    material.scrolling_mask_texture)
-    append_property(shader_mat, 2, 'TexCoordTransformAngle_0',
-                    material.tex_coord_transform_angle)
-    append_property(shader_mat, 2, 'TexCoordTransformU_0',
-                    material.tex_coord_transform_u_0)
-    append_property(shader_mat, 2, 'TexCoordTransformV_0',
-                    material.tex_coord_transform_v_0)
-    append_property(shader_mat, 2, 'TexCoordTransformU_1',
-                    material.tex_coord_transform_u_1)
-    append_property(shader_mat, 2, 'TexCoordTransformV_1',
-                    material.tex_coord_transform_v_1)
-    append_property(shader_mat, 2, 'TexCoordTransformU_2',
-                    material.tex_coord_transform_u_2)
-    append_property(shader_mat, 2, 'TexCoordTransformV_2',
-                    material.tex_coord_transform_v_2)
+    append_property(shader_mat, 6, 'SecondaryTextureBlendMode', material.secondary_texture_blend_mode)
+    append_property(shader_mat, 6, 'TexCoordMapper_0', material.tex_coord_mapper_0)
+    append_property(shader_mat, 6, 'TexCoordMapper_1', material.tex_coord_mapper_1)
+    append_property(shader_mat, 5, 'TexCoordTransform_0', RGBA(material.tex_coord_transform_0), RGBA())
+    append_property(shader_mat, 5, 'TexCoordTransform_1', RGBA(material.tex_coord_transform_1), RGBA())
+    append_property(shader_mat, 1, 'EnvironmentTexture', material.environment_texture)
+    append_property(shader_mat, 2, 'EnvMult', material.environment_mult)
+    append_property(shader_mat, 1, 'RecolorTexture', material.recolor_texture)
+    append_property(shader_mat, 2, 'RecolorMultiplier', material.recolor_mult)
+    append_property(shader_mat, 7, 'UseRecolorColors', material.use_recolor)
+    append_property(shader_mat, 7, 'HouseColorPulse', material.house_color_pulse)
+    append_property(shader_mat, 1, 'ScrollingMaskTexture', material.scrolling_mask_texture)
+    append_property(shader_mat, 2, 'TexCoordTransformAngle_0', material.tex_coord_transform_angle)
+    append_property(shader_mat, 2, 'TexCoordTransformU_0', material.tex_coord_transform_u_0)
+    append_property(shader_mat, 2, 'TexCoordTransformV_0', material.tex_coord_transform_v_0)
+    append_property(shader_mat, 2, 'TexCoordTransformU_1', material.tex_coord_transform_u_1)
+    append_property(shader_mat, 2, 'TexCoordTransformV_1', material.tex_coord_transform_v_1)
+    append_property(shader_mat, 2, 'TexCoordTransformU_2', material.tex_coord_transform_u_2)
+    append_property(shader_mat, 2, 'TexCoordTransformV_2', material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
                     RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0), RGBA())
 

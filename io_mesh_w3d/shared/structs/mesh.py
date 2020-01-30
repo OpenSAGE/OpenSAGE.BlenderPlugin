@@ -165,7 +165,7 @@ class Mesh(Struct):
             bitangents=[],
             vert_infs=[],
             triangles=[],
-            shade_ids=[],
+            shade_ids=[], # what are they for?
             mat_info=None,
             shaders=[],
             vert_materials=[],

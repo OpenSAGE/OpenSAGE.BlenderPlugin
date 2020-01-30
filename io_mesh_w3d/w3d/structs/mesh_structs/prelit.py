@@ -16,7 +16,7 @@ W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 class PrelitBase(Struct):
     type = W3D_CHUNK_PRELIT_UNLIT
 
-    mat_info = MaterialInfo()
+    mat_info = None
     material_passes = []
     vert_materials = []
     textures = []
@@ -26,7 +26,6 @@ class PrelitBase(Struct):
     def read(context, io_stream, chunk_end, type):
         result = PrelitBase(
             type=type,
-            version=None,
             material_passes=[],
             vert_materials=[],
             textures=[],

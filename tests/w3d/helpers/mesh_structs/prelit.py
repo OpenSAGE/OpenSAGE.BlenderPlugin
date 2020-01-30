@@ -35,11 +35,12 @@ def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
         vm_name = 'W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE'
 
     for i in range(count):
-        result.material_passes.append(get_material_pass())
+        result.material_passes.append(get_material_pass(index=i))
         name = vm_name + str(i)
         result.vert_materials.append(get_vertex_material(vm_name=name))
         result.textures.append(get_texture())
         result.shaders.append(get_shader())
+    print(len(result.material_passes))
     return result
 
 
