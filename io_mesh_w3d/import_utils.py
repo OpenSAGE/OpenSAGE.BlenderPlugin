@@ -330,7 +330,6 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
-            bone.bone.hide = True
             bone.custom_shape = basic_sphere
 
         if rig.mode != 'OBJECT':
@@ -615,12 +614,12 @@ def set_rotation(bone, frame, value):
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.PoseBone):
         bone.bone.hide = value
-        bone.keyframe_insert(
-            data_path='bone', frame=frame)  # , options=creation_options)
+        bone.bone.keyframe_insert(
+            data_path='hide', frame=frame)  # , options=creation_options)
     else:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
-                             frame=frame)
+                             frame=frame)  # , options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):
