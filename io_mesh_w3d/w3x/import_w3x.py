@@ -33,7 +33,7 @@ def load_file(context, data_context, path=None):
             for xml_include in node.childs():
                 include = Include.parse(xml_include)
                 source = include.source.replace('ART:', '')
-                load_file(context, data_context, os.path.join(dir, source))
+                data_context = load_file(context, data_context, os.path.join(dir, source))
 
         elif node.tagName == 'W3DMesh':
             data_context.meshes.append(Mesh.parse(context, node))
@@ -67,6 +67,14 @@ def load(context, import_settings):
         hlod=None)
 
     data_context = load_file(context, data_context)
+
+    dir = os.path.dirname(context.filepath)
+    if not data_context.meshes:
+        for array in data_context.hlod.lod_arrays:
+            for obj in array.sub_objects:
+                path = dir + os.path.sep + obj.identifier + '.w3x'
+                data_context = load_file(context, data_context, path)
+
 
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy
