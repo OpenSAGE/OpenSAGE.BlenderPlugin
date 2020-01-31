@@ -38,6 +38,7 @@ class TestRoundtripW3X(TestCase):
         context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
         export_settings = {}
         export_settings['mode'] = 'HM'
+        export_settings['individual_files'] = False
         export_settings['use_existing_skeleton'] = True
         export_settings['create_texture_xmls'] = True
         save(context, export_settings)
@@ -89,6 +90,7 @@ class TestRoundtripW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = True
         save(context, export_settings)
 
@@ -107,6 +109,56 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('output' in bpy.data.objects)
         self.assertTrue('output' in bpy.data.armatures)
         amt = bpy.data.armatures['output']
+        self.assertEqual(6, len(amt.bones))
+
+        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('TRUNK' in bpy.data.objects)
+
+    def test_roundtrip_splitted(self):
+        hierarchy_name = 'testname_skl'
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
+        boxes = [get_collision_box()]
+        animation = get_animation(hierarchy_name, xml=True)
+
+        context = IOWrapper(self.outpath() + 'output_skn')
+        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
+
+        # export
+        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
+        export_settings = {}
+        export_settings['mode'] = 'HM'
+        export_settings['compression'] = 'U'
+        export_settings['individual_files'] = True
+        export_settings['create_texture_xmls'] = True
+        export_settings['use_existing_skeleton'] = True
+        save(context, export_settings)
+
+        # check created files
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.soldier.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.TRUNK.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.BOUNDINGBOX.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        context = IOWrapper(self.outpath() + 'output_skn.w3x')
+        load(context, import_settings={})
+
+        # check created objects
+        self.assertTrue('testname_skl' in bpy.data.objects)
+        self.assertTrue('testname_skl' in bpy.data.armatures)
+        amt = bpy.data.armatures['testname_skl']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)

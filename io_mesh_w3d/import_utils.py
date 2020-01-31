@@ -292,7 +292,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         if rig is None:
             (rig, armature) = create_rig(
                 hierarchy.name(), root.translation, coll)
-        # todo also rotate armature/rig
+        # TODO: also rotate armature/rig
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
@@ -483,6 +483,10 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
             material.tex_coord_transform_v_2 = prop.value
         elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
             material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = prop.value.to_vector_rgba()
+        elif prop.name == 'IonHullTexture':
+            material.ion_hull_texture = prop.value
+        elif prop.name == 'MultiTextureEnable':
+            material.multi_texture_enable = prop.value
         else:
             context.error('shader property not implemented: ' + prop.name)
 

@@ -28,7 +28,7 @@ class TestMesh(TestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(4022, expected.size())
+        self.assertEqual(4105, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -80,12 +80,16 @@ class TestMesh(TestCase):
 
     def test_validate(self):
         mesh = get_mesh()
+        self.file_format = 'W3D'
         self.assertTrue(mesh.validate(self))
-        self.assertTrue(mesh.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(mesh.validate(self))
 
         mesh.header.mesh_name = 'toooolongmeshname'
+        self.file_format = 'W3D'
         self.assertFalse(mesh.validate(self))
-        self.assertTrue(mesh.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(mesh.validate(self))
 
     def test_chunk_order(self):
         expected_chunks = [

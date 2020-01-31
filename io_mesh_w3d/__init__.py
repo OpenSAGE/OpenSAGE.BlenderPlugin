@@ -81,6 +81,11 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     force_vertex_materials: BoolProperty(
         name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
 
+    individual_files: BoolProperty(
+        name='Individual files',
+        description='Creates an individual file for each mesh, boundingbox and the hierarchy',
+        default=False)
+
     create_texture_xmls: BoolProperty(
         name='Create texture xml files', description='Creates an .xml file for each used texture', default=False)
 
@@ -130,6 +135,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         export_settings['mode'] = self.export_mode
         export_settings['compression'] = self.animation_compression
         export_settings['use_existing_skeleton'] = self.use_existing_skeleton
+        export_settings['individual_files'] = self.individual_files
         export_settings['create_texture_xmls'] = self.create_texture_xmls
 
         return save(self, export_settings)
@@ -138,6 +144,8 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         self.draw_general_settings()
         if self.export_mode == 'HM':
             self.draw_use_existing_skeleton()
+            if self.file_format == 'W3X':
+                self.draw_individual_files()
 
         if self.file_format == 'W3X' and 'M' in self.export_mode:
             self.draw_create_texture_xmls()
@@ -166,6 +174,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def draw_force_vertex_materials(self):
         col = self.layout.box().column()
         col.prop(self, 'force_vertex_materials')
+
+    def draw_individual_files(self):
+        col = self.layout.box().column()
+        col.prop(self, 'individual_files')
 
     def draw_create_texture_xmls(self):
         col = self.layout.box().column()
@@ -359,6 +371,10 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'tex_coord_transform_v_2')
             col = layout.column()
             col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
+            col = layout.column()
+            col.prop(mat, 'ion_hull_texture')
+            col = layout.column()
+            col.prop(mat, 'multi_texture_enable')
 
 
 CLASSES = (

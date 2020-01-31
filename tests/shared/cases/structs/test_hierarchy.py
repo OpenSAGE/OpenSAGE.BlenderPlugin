@@ -61,17 +61,23 @@ class TestHierarchy(TestCase):
 
     def test_validate(self):
         hierarchy = get_hierarchy()
+        self.file_format = 'W3D'
         self.assertTrue(hierarchy.validate(self))
-        self.assertTrue(hierarchy.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(hierarchy.validate(self))
 
         hierarchy.header.name = 'tooolonghieraname'
+        self.file_format = 'W3D'
         self.assertFalse(hierarchy.validate(self))
-        self.assertTrue(hierarchy.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(hierarchy.validate(self))
 
         hierarchy = get_hierarchy()
         hierarchy.pivots[1].name = 'tooolongpivotname'
+        self.file_format = 'W3D'
         self.assertFalse(hierarchy.validate(self))
-        self.assertTrue(hierarchy.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(hierarchy.validate(self))
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

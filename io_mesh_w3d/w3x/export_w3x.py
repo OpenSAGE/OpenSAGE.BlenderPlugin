@@ -30,22 +30,41 @@ def save(context, export_settings, data_context):
             data_context.hierarchy.header.name = data_context.container_name
             data_context.hlod.header.hierarchy_name = data_context.container_name
             asset.appendChild(data_context.hierarchy.create(doc))
-        else:
+
+        elif not export_settings['individual_files']:
             hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.header.name + '.w3x')
             includes.appendChild(hierarchy_include.create(doc))
 
-        for texture in data_context.textures:
-            id = texture.split('.')[0]
-            texture_include = Include(type='all', source='ART:' + id + '.xml')
-            includes.appendChild(texture_include.create(doc))
+        if export_settings['individual_files']:
+            dir = os.path.dirname(context.filepath)
 
-        for box in data_context.boxes:
-            asset.appendChild(box.create(doc))
+            write_struct_to_file(
+                data_context.hierarchy,
+                dir +
+                os.path.sep +
+                data_context.hierarchy.name() +
+                context.filename_ext)
 
-        for mesh in data_context.meshes:
-            asset.appendChild(mesh.create(doc))
+            for box in data_context.boxes:
+                write_struct_to_file(box, dir + os.path.sep + box.name_ + context.filename_ext)
+
+            for mesh in data_context.meshes:
+                write_struct_to_file(mesh, dir + os.path.sep + mesh.identifier() + context.filename_ext)
+
+        else:
+            for texture in data_context.textures:
+                id = texture.split('.')[0]
+                texture_include = Include(type='all', source='ART:' + id + '.xml')
+                includes.appendChild(texture_include.create(doc))
+
+            for box in data_context.boxes:
+                asset.appendChild(box.create(doc))
+
+            for mesh in data_context.meshes:
+                asset.appendChild(mesh.create(doc))
 
         asset.appendChild(data_context.hlod.create(doc))
+
         if export_mode == 'HAM':
             data_context.animation.header.hierarchy_name = data_context.container_name
             asset.appendChild(data_context.animation.create(doc))
@@ -67,18 +86,11 @@ def save(context, export_settings, data_context):
 
     # create texture xml files
     if (export_mode == 'HM' or export_mode == 'HAM') and export_settings['create_texture_xmls']:
-        directory = os.path.dirname(context.filepath)
+        dir = os.path.dirname(context.filepath)
 
         for texture in data_context.textures:
             id = texture.split('.')[0]
-            doc = minidom.Document()
-            asset = create_asset_declaration(doc)
-            asset.appendChild(Texture(id=id, file=texture).create(doc))
-            doc.appendChild(asset)
-
-            file = open(directory + '/' + id + '.xml', "wb")
-            file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-            file.close()
+            write_struct_to_file(Texture(id=id, file=texture), dir + os.path.sep + id + '.xml')
 
     context.info('finished')
     return {'FINISHED'}
