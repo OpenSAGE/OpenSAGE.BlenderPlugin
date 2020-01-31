@@ -201,8 +201,8 @@ class HLod(Struct):
     aggregate_array = None
     proxy_array = None
 
-    def validate(self, context, w3x=False):
-        if w3x:
+    def validate(self, context):
+        if context.file_format == 'W3X':
             return True
         for lod_array in self.lod_arrays:
             for sub_obj in lod_array.sub_objects:

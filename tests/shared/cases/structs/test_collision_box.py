@@ -26,12 +26,16 @@ class TestCollisionBox(TestCase):
 
     def test_validate(self):
         box = get_collision_box()
+        self.file_format = 'W3D'
         self.assertTrue(box.validate(self))
-        self.assertTrue(box.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(box.validate(self))
 
         box.name_ = 'containerNameeee.BOUNDINGBOX00000'
+        self.file_format = 'W3D'
         self.assertFalse(box.validate(self))
-        self.assertTrue(box.validate(self, w3x=True))
+        self.file_format = 'W3X'
+        self.assertTrue(box.validate(self))
 
     def test_name(self):
         box = get_collision_box()

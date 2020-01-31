@@ -244,12 +244,12 @@ class Animation(Struct):
     header = AnimationHeader()
     channels = []
 
-    def validate(self, context, w3x=False):
+    def validate(self, context):
         if not self.channels:
             context.error('Scene does not contain any animation data')
             return False
 
-        if w3x:
+        if context.file_format == 'W3X':
             return True
 
         if len(self.header.name) >= STRING_LENGTH:
