@@ -38,7 +38,12 @@ def save(context, export_settings, data_context):
         if export_settings['individual_files']:
             dir = os.path.dirname(context.filepath)
 
-            write_struct_to_file(data_context.hierarchy, dir + os.path.sep + data_context.hierarchy.name() + context.filename_ext)
+            write_struct_to_file(
+                data_context.hierarchy,
+                dir +
+                os.path.sep +
+                data_context.hierarchy.name() +
+                context.filename_ext)
 
             for box in data_context.boxes:
                 write_struct_to_file(box, dir + os.path.sep + box.name_ + context.filename_ext)
