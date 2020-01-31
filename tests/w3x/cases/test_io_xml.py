@@ -17,7 +17,7 @@ class TestIOXML(unittest.TestCase):
         parent.appendChild(doc.createElement('Valid'))
         parent.appendChild(doc.createComment('Invalid'))
         parent.appendChild(doc.createTextNode('hello, world!'))
-        
+
         childs = parent.childs()
         self.assertEqual(1, len(childs))
         self.assertEqual('Valid', childs[0].tagName)
