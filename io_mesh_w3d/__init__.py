@@ -82,9 +82,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
 
     individual_files: BoolProperty(
-        name='Individual files',
-        description='Creates an individual file for each mesh, boundingbox and the hierarchy',
-        default=False)
+        name='Individual files', description='Creates an individual file for each mesh, boundingbox and the hierarchy', default=False)
 
     create_texture_xmls: BoolProperty(
         name='Create texture xml files', description='Creates an .xml file for each used texture', default=False)
