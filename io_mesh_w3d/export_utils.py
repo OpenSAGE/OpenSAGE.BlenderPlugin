@@ -618,6 +618,8 @@ def retrieve_shader_material(material, principled, w3x=False):
                     material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
                     RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0), RGBA())
+    append_property(shader_mat, 1, 'IonHullTexture', material.ion_hull_texture)
+    append_property(shader_mat, 7, 'MultiTextureEnable', material.multi_texture_enable)
 
     return shader_mat
 

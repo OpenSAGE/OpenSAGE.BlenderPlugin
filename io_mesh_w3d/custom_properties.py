@@ -350,6 +350,15 @@ Material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = FloatVectorProperty(
     min=0.0, max=1.0,
     description='TODO')
 
+Material.ion_hull_texture = StringProperty(
+    name='Ion hull texture',
+    description='TODO',
+    default='')
+
+Material.multi_texture_enable = BoolProperty(
+    name='Multi texture enable',
+    description='Todo',
+    default=False)
 
 ##########################################################################
 # Material.Shader

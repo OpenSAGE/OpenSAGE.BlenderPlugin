@@ -87,7 +87,10 @@ def get_shader_material_properties(w3x=False, two_tex=False):
         get_shader_material_property(2, 'TexCoordTransformV_1'),
         get_shader_material_property(2, 'TexCoordTransformU_2'),
         get_shader_material_property(2, 'TexCoordTransformV_2'),
-        get_shader_material_property(5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0')]
+        get_shader_material_property(5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0'),
+        get_shader_material_property(1, 'IonHullTexture'),
+        get_shader_material_property(7, 'MultiTextureEnable')]
+
 
     if w3x:
         props.append(get_shader_material_property(2, 'Shininess'))

@@ -371,6 +371,10 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'tex_coord_transform_v_2')
             col = layout.column()
             col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
+            col = layout.column()
+            col.prop(mat, 'ion_hull_texture')
+            col = layout.column()
+            col.prop(mat, 'multi_texture_enable')
 
 
 CLASSES = (

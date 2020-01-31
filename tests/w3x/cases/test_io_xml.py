@@ -5,10 +5,12 @@ import io
 import unittest
 
 from io_mesh_w3d.w3x.io_xml import *
+
+from tests.utils import *
 from tests.mathutils import *
 
 
-class TestIOXML(unittest.TestCase):
+class TestIOXML(TestCase):
     def test_childs(self):
         doc = minidom.Document()
         parent = doc.createElement('PARENT')
@@ -21,3 +23,5 @@ class TestIOXML(unittest.TestCase):
         childs = parent.childs()
         self.assertEqual(1, len(childs))
         self.assertEqual('Valid', childs[0].tagName)
+
+# TODO: write tests for other methods
