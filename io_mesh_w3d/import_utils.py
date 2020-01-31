@@ -393,7 +393,8 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
-    material.technique = shader_mat.header.technique_index
+    if shader_mat.header.technique_index is not None:
+        material.technique = shader_mat.header.technique_index
 
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
 
