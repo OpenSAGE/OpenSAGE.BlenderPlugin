@@ -65,7 +65,7 @@ def retrieve_data(context, export_settings, data_context):
 
     data_context.container_name = os.path.basename(context.filepath).split('.')[0]
 
-    if context.file_format == 'W3X' and len(data_context.container_name) > STRING_LENGTH:
+    if context.file_format == 'W3D' and len(data_context.container_name) > STRING_LENGTH:
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
         return False
 
