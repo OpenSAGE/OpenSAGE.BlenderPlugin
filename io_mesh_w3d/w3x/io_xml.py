@@ -12,6 +12,7 @@ def childs(self):
 
 minidom.Node.childs = childs
 
+
 def write_struct_to_file(struct, path):
     doc = minidom.Document()
     asset = create_asset_declaration(doc)
