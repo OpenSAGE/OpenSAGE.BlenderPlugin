@@ -268,21 +268,28 @@ class ShaderMaterial(Struct):
     def parse(xml_fx_shader):
         result = ShaderMaterial(
             header=ShaderMaterialHeader(
-                type_name=xml_fx_shader.attributes['ShaderName'].value,
-                technique_index=int(xml_fx_shader.attributes['TechniqueIndex'].value)),
+                type_name=xml_fx_shader.attributes['ShaderName'].value),
             properties=[])
 
-        xml_constants = xml_fx_shader.getElementsByTagName('Constants')[0]
-        for xml_constant in xml_constants.childs():
-            result.properties.append(
-                ShaderMaterialProperty.parse(xml_constant))
+        if 'TechniqueIndex' in xml_fx_shader.attributes:
+            result.header.technique_index = int(xml_fx_shader.attributes['TechniqueIndex'].value)
+
+        for child in xml_fx_shader.childs():
+            if child.tagName != 'Constants':
+                continue
+            for property in child.childs():
+                result.properties.append(
+                    ShaderMaterialProperty.parse(property))
+
         return result
 
     def create(self, doc):
         fx_shader = doc.createElement('FXShader')
         fx_shader.setAttribute('ShaderName', self.header.type_name)
-        fx_shader.setAttribute(
-            'TechniqueIndex', str(self.header.technique_index))
+
+        if self.header.technique_index > 0:
+            fx_shader.setAttribute(
+                'TechniqueIndex', str(self.header.technique_index))
 
         constants = doc.createElement('Constants')
         fx_shader.appendChild(constants)

@@ -7,7 +7,7 @@ from mathutils import Vector, Quaternion, Matrix
 
 
 def childs(self):
-    return [node for node in self.childNodes if node.nodeName != '#text']
+    return [node for node in self.childNodes if node.nodeType == minidom.Node.ELEMENT_NODE]
 
 
 minidom.Node.childs = childs
@@ -122,17 +122,6 @@ def parse_objects(parent, name, parse_func, par1=None):
             result.append(parse_func(obj, par1))
         else:
             result.append(parse_func(obj))
-    return result
-
-
-def parse_object_lists(parent, name, identifier, parse_func, par1=None):
-    list_objects = parent.getElementsByTagName(name)
-    if not list_objects:
-        return [[]]
-
-    result = []
-    for list_object in list_objects:
-        result.append(parse_objects(list_object, identifier, parse_func, par1))
     return result
 
 

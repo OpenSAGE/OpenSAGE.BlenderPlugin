@@ -183,3 +183,21 @@ class TestShaderMaterial(TestCase):
 
         actual = ShaderMaterial.parse(xml_shader_materials[0])
         compare_shader_materials(self, expected, actual)
+
+    def test_write_read_minimal_xml_no_technique_index(self):
+        expected = get_shader_material_minimal()
+        expected.header.technique_index = 0
+
+        doc = minidom.Document()
+        doc.appendChild(expected.create(doc))
+
+        io_stream = io.BytesIO()
+        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        dom = minidom.parse(io_stream)
+        xml_shader_materials = dom.getElementsByTagName('FXShader')
+        self.assertEqual(1, len(xml_shader_materials))
+
+        actual = ShaderMaterial.parse(xml_shader_materials[0])
+        compare_shader_materials(self, expected, actual)
