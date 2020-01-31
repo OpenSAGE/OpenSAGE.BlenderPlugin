@@ -76,7 +76,7 @@ def save(context, export_settings, data_context):
             asset.appendChild(Texture(id=id, file=texture).create(doc))
             doc.appendChild(asset)
 
-            file = open(directory + '/' + id + '.xml', "wb")
+            file = open(directory + os.path.sep + id + '.xml', "wb")
             file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
             file.close()
 

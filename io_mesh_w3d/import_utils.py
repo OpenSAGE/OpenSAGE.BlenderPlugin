@@ -292,7 +292,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         if rig is None:
             (rig, armature) = create_rig(
                 hierarchy.name(), root.translation, coll)
-        # todo also rotate armature/rig
+        # TODO: also rotate armature/rig
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
