@@ -91,7 +91,6 @@ def get_shader_material_properties(w3x=False, two_tex=False):
         get_shader_material_property(1, 'IonHullTexture'),
         get_shader_material_property(7, 'MultiTextureEnable')]
 
-
     if w3x:
         props.append(get_shader_material_property(2, 'Shininess'))
         props.append(get_shader_material_property(5, 'ColorDiffuse'))
