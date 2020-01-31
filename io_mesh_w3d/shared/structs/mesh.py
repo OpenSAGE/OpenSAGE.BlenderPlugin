@@ -138,8 +138,8 @@ class Mesh(Struct):
 
     multi_bone_skinned = False
 
-    def validate(self, context, w3x=False):
-        if w3x:
+    def validate(self, context):
+        if context.file_format == 'W3X':
             return True
         if len(self.header.mesh_name) >= STRING_LENGTH:
             context.error('mesh name ' + self.header.mesh_name + ' exceeds max length of: ' + str(STRING_LENGTH))
@@ -154,6 +154,9 @@ class Mesh(Struct):
 
     def name(self):
         return self.header.mesh_name
+
+    def identifier(self):
+        return self.header.container_name + '.' + self.name()
 
     @staticmethod
     def read(context, io_stream, chunk_end):

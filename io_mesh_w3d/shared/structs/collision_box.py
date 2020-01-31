@@ -19,8 +19,8 @@ class CollisionBox(Struct):
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
 
-    def validate(self, context, w3x=False):
-        if w3x:
+    def validate(self, context):
+        if context.file_format == 'W3X':
             return True
         if len(self.name_) >= LARGE_STRING_LENGTH:
             context.error('box name ' + self.name_ + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))

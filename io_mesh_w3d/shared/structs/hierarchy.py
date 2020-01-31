@@ -108,8 +108,8 @@ class Hierarchy(Struct):
     def name(self):
         return self.header.name
 
-    def validate(self, context, w3x=False):
-        if w3x:
+    def validate(self, context):
+        if context.file_format == 'W3X':
             return True
         if len(self.header.name) >= STRING_LENGTH:
             context.error('hierarchy name exceeds max length of: ' + str(STRING_LENGTH))

@@ -69,12 +69,14 @@ def load(context, import_settings):
     data_context = load_file(context, data_context)
 
     dir = os.path.dirname(context.filepath)
-    if not data_context.meshes:
+    if data_context.hlod is not None and not data_context.meshes:
+        path = dir + os.path.sep + data_context.hlod.header.hierarchy_name + '.w3x'
+        data_context = load_file(context, data_context, path)
+
         for array in data_context.hlod.lod_arrays:
             for obj in array.sub_objects:
                 path = dir + os.path.sep + obj.identifier + '.w3x'
                 data_context = load_file(context, data_context, path)
-
 
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy

@@ -60,6 +60,7 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
         export_settings['compression'] = 'U'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = False
 
         meshes = [get_mesh()]
@@ -80,8 +81,9 @@ class TestExportW3X(TestCase):
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}
         export_settings['mode'] = 'M'
-        export_settings['create_texture_xmls'] = False
         export_settings['compression'] = 'U'
+        export_settings['individual_files'] = False
+        export_settings['create_texture_xmls'] = False
 
         meshes = [get_mesh()]
         create_data(self, meshes)
@@ -102,6 +104,7 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['compression'] = 'U'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = False
         export_settings['use_existing_skeleton'] = False
 
@@ -135,6 +138,7 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['compression'] = 'U'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = False
         export_settings['use_existing_skeleton'] = True
 
@@ -188,9 +192,10 @@ class TestExportW3X(TestCase):
 
     def test_no_texture_xml_files_are_created_if_not_create_texture_xmls(self):
         export_settings = {}
+        export_settings['mode'] = 'HM'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = False
         export_settings['use_existing_skeleton'] = False
-        export_settings['mode'] = 'HM'
 
         hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
@@ -213,9 +218,10 @@ class TestExportW3X(TestCase):
 
     def test_texture_xml_files_are_created_if_create_texture_xmls(self):
         export_settings = {}
+        export_settings['mode'] = 'HM'
+        export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = True
         export_settings['use_existing_skeleton'] = False
-        export_settings['mode'] = 'HM'
 
         hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
