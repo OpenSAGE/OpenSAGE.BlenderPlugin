@@ -10,39 +10,75 @@ from tests.utils import *
 from tests.mathutils import *
 
 
+class FakeStruct():
+    def create(self, parent):
+        obj = create_node(parent, 'obj')
+
+
 class TestIOXML(TestCase):
-    def test_get_asset_root(self):
+    def test_create_node(self):
+        root = ET.Element('root')
+        create_node(root, 'child')
+
+        self.assertIsNotNone(root.find('child'))
+
+
+    def test_write_struct(self):
+        expected = [
+            '<?xml version="1.0" ?>\n',
+            '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n',
+            '   <obj/>\n',
+            '</AssetDeclaration>\n']
+
+        write_struct(FakeStruct(), self.outpath() + 'test.xml')
+
+        file = open(self.outpath() + 'test.xml', mode='r')
+        actual = file.readlines()
+        file.close()
+
+        self.assertEqual(len(expected), len(actual))
+        for i, exp in enumerate(expected):
+            self.assertEqual(exp, actual[i])
+
+
+    def test_write(self):
+        expected = '<?xml version="1.0" ?>\n<root/>\n'
+        root = ET.Element('root')
+
+        write(root, self.outpath() + 'test.xml')
+
+        file = open(self.outpath() + 'test.xml', mode='r')
+        actual = file.read()
+        file.close()
+
+        self.assertEqual(expected, actual)
+
+    def test_find_root(self):
         data = '<?xml version="1.0"?><AssetDeclaration></AssetDeclaration>'
-        root = ET.fromstring(data)
-
         file = open(self.outpath() + 'test.xml', 'w')
-        print(ET.tostring(root))
-        file.write(bytes(ET.tostring(root), 'UTF-8'))
+        file.write(data)
         file.close()
 
-        asset = get_asset_root(self.outpath() + 'test.xml')
-        self.assertNotNone(asset)
+        root = find_root(self, self.outpath() + 'test.xml')
+        self.assertIsNotNone(root)
 
 
-    def test_get_asset_root_none_found(self):
-        data = '<?xml version="1.0"?><Invalid></Invalid>'
-        root = ET.fromstring(data)
-
-        print(ET.tostring(root))
+    def test_find_root_none_found(self):
+        data = '<?xml version="1.0"?><root></root>'
         file = open(self.outpath() + 'test.xml', 'w')
-        file.write(bytes(ET.tostring(root), 'UTF-8'))
+        file.write(data)
         file.close()
 
-        asset = get_asset_root(self.outpath() + 'test.xml')
-        self.assertNone(asset)
+        root = find_root(self, self.outpath() + 'test.xml')
+        self.assertIsNone(root)
 
 
-    def test_get_asset_declaration(self):
-        asset = get_asset_declaration()
+    def test_create_root(self):
+        root = create_root()
 
-        self.assertEqual('AssetDeclaration', asset.tag)
-        self.assertEqual('uri:ea.com:eala:asset', asset.get('xmlns'))
-        self.assertEqual('http://www.w3.org/2001/XMLSchema-instance', asset.get('xmlns:xsi'))
+        self.assertEqual('AssetDeclaration', root.tag)
+        self.assertEqual('uri:ea.com:eala:asset', root.get('xmlns'))
+        self.assertEqual('http://www.w3.org/2001/XMLSchema-instance', root.get('xmlns:xsi'))
 
 
     def test_parse_value(self):
