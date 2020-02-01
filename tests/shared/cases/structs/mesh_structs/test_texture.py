@@ -52,16 +52,16 @@ class TestTexture(TestCase):
     def test_write_read_xml(self):
         expected = get_texture()
 
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
+        root = create_root()
+        expected.create(root)
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        write(root, io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        dom = minidom.parse(io_stream)
-        xml_textures = dom.getElementsByTagName('Texture')
+        root = find_root(self, io_stream)
+        xml_textures = root.findall('Texture')
         self.assertEqual(1, len(xml_textures))
 
-        actual = Texture.parse(xml_textures[0])
+        actual = Texture.parse(self, xml_textures[0])
         compare_textures(self, expected, actual)

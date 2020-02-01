@@ -9,6 +9,7 @@ from io_mesh_w3d.shared.structs.hierarchy import *
 from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.shared.structs.mesh_structs.texture import *
+from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3x.structs.include import *
 
 
@@ -22,33 +23,32 @@ def load_file(context, data_context, path=None):
         context.error('file not found: ' + path)
         return data_context
 
-    doc = minidom.parse(path)
-    assets = doc.getElementsByTagName('AssetDeclaration')
-    if not assets:
+    root = find_root(context, path)
+    if root is None:
         return data_context
 
     dir = os.path.dirname(path)
-    for node in assets[0].childs():
-        if node.tagName == 'Includes':
-            for xml_include in node.childs():
+    for node in root:
+        if node.tag == 'Includes':
+            for xml_include in node:
                 include = Include.parse(xml_include)
                 source = include.source.replace('ART:', '')
                 data_context = load_file(context, data_context, os.path.join(dir, source))
 
-        elif node.tagName == 'W3DMesh':
+        elif node.tag == 'W3DMesh':
             data_context.meshes.append(Mesh.parse(context, node))
-        elif node.tagName == 'W3DCollisionBox':
+        elif node.tag == 'W3DCollisionBox':
             data_context.collision_boxes.append(CollisionBox.parse(context, node))
-        elif node.tagName == 'W3DContainer':
+        elif node.tag == 'W3DContainer':
             data_context.hlod = HLod.parse(context, node)
-        elif node.tagName == 'W3DHierarchy':
+        elif node.tag == 'W3DHierarchy':
             data_context.hierarchy = Hierarchy.parse(context, node)
-        elif node.tagName == 'W3DAnimation':
+        elif node.tag == 'W3DAnimation':
             data_context.animation = Animation.parse(context, node)
-        elif node.tagName == 'Texture':
+        elif node.tag == 'Texture':
             data_context.textures.append(Texture.parse(node))
         else:
-            context.warning('unsupported node ' + node.tagName + ' in file: ' + path)
+            context.warning('unsupported node ' + node.tag + ' in file: ' + path)
 
     return data_context
 
