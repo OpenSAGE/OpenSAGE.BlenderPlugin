@@ -1,9 +1,11 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import xml.etree.ElementTree as ET
+from mathutils import Vector, Quaternion, Matrix
+
 from xml.dom import minidom
 
-from mathutils import Vector, Quaternion, Matrix
 
 
 def childs(self):
@@ -137,6 +139,119 @@ def parse_objects(parent, name, parse_func, par1=None):
 
 
 def create_object_list(doc, name, objects, write_func, par1=None):
+    xml_objects_list = doc.createElement(name)
+    for obj in objects:
+        if par1 is not None:
+            xml_objects_list.appendChild(write_func(obj, doc, par1))
+        else:
+            xml_objects_list.appendChild(write_func(obj, doc))
+    return xml_objects_list
+
+#####################################################
+#### new stuff
+
+def parse_file(path):
+    tree = ET.parse(path)
+    root = tree.getroot()
+
+    for child in root:
+        if child.tag == 'AssetDeclaration':
+            return child
+    return None
+
+
+def parse_vector2_(xml_vector2):
+    return Vector((
+        float(xml_vector2.get('X', 0.0)),
+        float(xml_vector2.get('Y', 0.0))))
+
+
+def create_vector2_(vec2, parent, name):
+    vector = ET.SubElement(parent, name)
+    vector.set('X', vec2.x)
+    vector.set('Y', vec2.y)
+
+
+def parse_vector_(xml_vector):
+    return Vector((
+        float(xml_vector.get('X', 0.0)),
+        float(xml_vector.get('Y', 0.0)),
+        float(xml_vector.get('Z', 0.0))))
+
+
+def create_vector_(vec, parent, name):
+    vector = ET.SubElement(parent, name)
+    vector.set('X', vec.x)
+    vector.set('Y', vec.y)
+    vector.set('Z', vec.z)
+
+
+def parse_quaternion_(xml_quaternion):
+    return Quaternion((
+        float(xml_quaternion.get('W', 1.0)),
+        float(xml_quaternion.get('X', 0.0)),
+        float(xml_quaternion.get('Y', 0.0)),
+        float(xml_quaternion.get('Z', 0.0))))
+
+
+def create_quaternion_(quat, parent, identifier='Rotation'):
+    quaternion = ET.SubElement(parent, identifier)
+    quaternion.set('W', quat[0])
+    quaternion.set('X', quat[1])
+    quaternion.set('Y', quat[2])
+    quaternion.set('Z', quat[3])
+
+
+def parse_matrix_(xml_matrix):
+    return Matrix((
+        [float(xml_matrix.get('M00', 1.0)),
+         float(xml_matrix.get('M01', 0.0)),
+         float(xml_matrix.get('M02', 0.0)),
+         float(xml_matrix.get('M03', 0.0))],
+
+        [float(xml_matrix.get('M10', 0.0)),
+         float(xml_matrix.get('M11', 1.0)),
+         float(xml_matrix.get('M12', 0.0)),
+         float(xml_matrix.get('M13', 0.0))],
+
+        [float(xml_matrix.get('M20', 0.0)),
+         float(xml_matrix.get('M21', 0.0)),
+         float(xml_matrix.get('M22', 1.0)),
+         float(xml_matrix.get('M23', 0.0))]))
+
+
+def create_matrix_(mat, parent, identifier='FixupMatrix'):
+    matrix = ET.SubElement(parent, identifier)
+    matrix.set('M00', mat[0][0])
+    matrix.set('M01', mat[0][1])
+    matrix.set('M02', mat[0][2])
+    matrix.set('M03', mat[0][3])
+
+    matrix.set('M10', mat[1][0])
+    matrix.set('M11', mat[1][1])
+    matrix.set('M12', mat[1][2])
+    matrix.set('M13', mat[1][3])
+
+    matrix.set('M20', mat[2][0])
+    matrix.set('M21', mat[2][1])
+    matrix.set('M22', mat[2][2])
+    matrix.set('M23', mat[2][3])
+
+
+def parse_objects_(parent, name, parse_func, par1=None):
+    result = []
+    objects = parent.getElementsByTagName(name)
+    if not objects:
+        return result
+    for obj in objects:
+        if par1 is not None:
+            result.append(parse_func(obj, par1))
+        else:
+            result.append(parse_func(obj))
+    return result
+
+
+def create_object_list_(doc, name, objects, write_func, par1=None):
     xml_objects_list = doc.createElement(name)
     for obj in objects:
         if par1 is not None:
