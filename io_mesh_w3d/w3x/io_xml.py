@@ -151,31 +151,38 @@ def create_object_list(doc, name, objects, write_func, par1=None):
 #####################################################
 #### new stuff
 
-def write_struct_to_file_(struct, path):
-    asset = get_asset_declaration()
-    struct.create(asset)
+def create_node(self, identifier):
+    return ET.SubElement(self, identifier)
 
-    file = open(path, 'wb')
+
+def write_struct(struct, path):
+    root = create_root()
+    struct.create(root)
+    write(root, path)
+
+
+def write(root, path):
+    file = open(path, 'w')
     # TODO: find a ElementTree only variant
-    data = minidom.parseString(ET.tostring(asset)).toprettyxml(indent="   ")
-    file.write(bytes(data, 'UTF-8'))
+    data = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ")
+    file.write(data)
     file.close()
 
 
-def get_asset_root(path):
+def find_root(context, path):
     root = ET.parse(path).getroot()
 
-    for child in root:
-        if child.tag == 'AssetDeclaration':
-            return child
-    return None
+    if root.tag != 'AssetDeclaration':
+        context.error('file: ' + path  + ' does not contain a AssetDeclaration node!')
+        return None
+    return root
 
 
-def get_asset_declaration():
-    asset = ET.Element('AssetDeclaration')
-    asset.set('xmlns', 'uri:ea.com:eala:asset')
-    asset.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-    return asset
+def create_root():
+    root = ET.Element('AssetDeclaration')
+    root.set('xmlns', 'uri:ea.com:eala:asset')
+    root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    return root
 
 
 def parse_value_(xml_obj, cast_func=str):
