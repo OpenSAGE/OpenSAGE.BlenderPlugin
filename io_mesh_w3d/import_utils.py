@@ -38,9 +38,12 @@ def smooth_mesh(mesh_ob, mesh):
         polygon.use_smooth = True
 
 
-def get_collection(hlod=None):
+def get_collection(hlod=None, index=''):
     if hlod is not None:
-        coll = bpy.data.collections.new(hlod.header.model_name)
+        name = hlod.model_name() + index
+        if name in bpy.data.collections:
+            return bpy.data.collections[name]
+        coll = bpy.data.collections.new(name)
         bpy.context.scene.collection.children.link(coll)
         return coll
     return bpy.context.scene.collection
@@ -69,7 +72,7 @@ def create_data(
         current_coll = coll
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
             if i > 0:
-                current_coll = get_collection(hlod)
+                current_coll = get_collection(hlod, '.' + str(i))
                 # collection has no hide_set()
                 current_coll.hide_viewport = True
 

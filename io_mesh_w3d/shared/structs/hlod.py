@@ -201,6 +201,12 @@ class HLod(Struct):
     aggregate_array = None
     proxy_array = None
 
+    def model_name(self):
+        return self.header.model_name
+
+    def hierarchy_name(self):
+        return self.header.hierarchy_name
+
     def validate(self, context):
         if context.file_format == 'W3X':
             return True

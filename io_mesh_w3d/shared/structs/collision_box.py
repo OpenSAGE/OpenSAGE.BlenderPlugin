@@ -18,6 +18,7 @@ class CollisionBox(Struct):
     color = RGBA()
     center = Vector((0.0, 0.0, 0.0))
     extend = Vector((0.0, 0.0, 0.0))
+    joypad_picking_only = False
 
     def validate(self, context):
         if context.file_format == 'W3X':
@@ -26,6 +27,9 @@ class CollisionBox(Struct):
             context.error('box name ' + self.name_ + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
             return False
         return True
+
+    def container_name(self):
+        return self.name_.split('.', 1)[0]
 
     def name(self):
         return self.name_.split('.', 1)[-1]
@@ -60,7 +64,11 @@ class CollisionBox(Struct):
 
     @staticmethod
     def parse(context, xml_collision_box):
-        result = CollisionBox()
+        result = CollisionBox(
+            name_=xml_collision_box.attributes['id'].value)
+
+        if 'JoypadPickingOnly' in xml_collision_box.attributes:
+            result.joypad_picking_only = bool(xml_collision_box.attributes['JoypadPickingOnly'].value)
 
         for child in xml_collision_box.childs():
             if child.tagName == 'Center':
@@ -73,6 +81,7 @@ class CollisionBox(Struct):
 
     def create(self, doc):
         result = doc.createElement('W3DCollisionBox')
+        result.setAttribute('id', self.name_)
         result.appendChild(create_vector(self.center, doc, 'Center'))
         result.appendChild(create_vector(self.extend, doc, 'Extent'))
         return result
