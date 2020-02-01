@@ -232,7 +232,6 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
 
         # import
-        print('### round test')
         context = IOWrapper(self.outpath() + 'output_skn.BOUNDINGBOX.w3x')
         load(context, import_settings={})
 
