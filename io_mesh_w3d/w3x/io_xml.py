@@ -160,6 +160,38 @@ def parse_file(path):
     return None
 
 
+def parse_value_(xml_obj, cast_func=str):
+    return cast_func(xml_obj.text)
+
+
+def create_value_(value, parent, identifier):
+    xml_obj = ET.SubElement(parent, identifier)
+    xml_obj.text = str(value)
+
+
+def parse_objects_list_(parent, name, parse_func, par1=None):
+    result = []
+    objects = parent.findall(name)
+    if not objects:
+        return result
+    for obj in objects:
+        if par1 is not None:
+            result.append(parse_func(obj, par1))
+        else:
+            result.append(parse_func(obj))
+    return result
+
+
+def create_object_list_(doc, name, objects, write_func, par1=None):
+    xml_objects_list = doc.createElement(name)
+    for obj in objects:
+        if par1 is not None:
+            xml_objects_list.appendChild(write_func(obj, doc, par1))
+        else:
+            xml_objects_list.appendChild(write_func(obj, doc))
+    return xml_objects_list
+
+
 def parse_vector2_(xml_vector2):
     return Vector((
         float(xml_vector2.get('X', 0.0)),
@@ -238,24 +270,3 @@ def create_matrix_(mat, parent, identifier='FixupMatrix'):
     matrix.set('M23', mat[2][3])
 
 
-def parse_objects_(parent, name, parse_func, par1=None):
-    result = []
-    objects = parent.getElementsByTagName(name)
-    if not objects:
-        return result
-    for obj in objects:
-        if par1 is not None:
-            result.append(parse_func(obj, par1))
-        else:
-            result.append(parse_func(obj))
-    return result
-
-
-def create_object_list_(doc, name, objects, write_func, par1=None):
-    xml_objects_list = doc.createElement(name)
-    for obj in objects:
-        if par1 is not None:
-            xml_objects_list.appendChild(write_func(obj, doc, par1))
-        else:
-            xml_objects_list.appendChild(write_func(obj, doc))
-    return xml_objects_list
