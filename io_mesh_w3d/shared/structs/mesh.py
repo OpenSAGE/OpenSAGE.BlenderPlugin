@@ -152,6 +152,9 @@ class Mesh(Struct):
     def is_skin(self):
         return self.header.attrs & GEOMETRY_TYPE_SKIN
 
+    def container_name(self):
+        return self.header.container_name
+
     def name(self):
         return self.header.mesh_name
 
