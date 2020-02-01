@@ -23,16 +23,16 @@ class TestTriangle(TestCase):
     def test_write_read_xml(self):
         expected = get_triangle()
 
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
+        root = create_root()
+        expected.create(root)
 
         io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
+        write(root, io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        dom = minidom.parse(io_stream)
-        xml_triangles = dom.getElementsByTagName('T')
+        root = find_root(self, io_stream)
+        xml_triangles = root.findAll('T')
         self.assertEqual(1, len(xml_triangles))
 
-        actual = Triangle.parse(xml_triangles[0])
+        actual = Triangle.parse(self, xml_triangles[0])
         compare_triangles(self, expected, actual)

@@ -37,25 +37,20 @@ class Triangle(Struct):
     def parse(xml_triangle):
         result = Triangle(vert_ids=[])
 
-        xml_verts = xml_triangle.getElementsByTagName('V')
+        xml_verts = xml_triangle.findAll('V')
         for i, xml_vert in enumerate(xml_verts):
-            result.vert_ids.append(int(xml_vert.childNodes[0].nodeValue))
+            result.vert_ids.append(int(xml_vert.text))
 
-        result.normal = parse_vector(
-            xml_triangle.getElementsByTagName('Nrm')[0])
-        result.distance = float(xml_triangle.getElementsByTagName('Dist')[
-            0].childNodes[0].nodeValue)
+        result.normal = parse_vector(xml_triangle.find('Nrm'))
+        result.distance = float(xml_triangle.find('Dist').text)
         return result
 
-    def create(self, doc):
-        result = doc.createElement('T')
+    def create(self, parent):
+        triangle = create_node(parent, 'T')
         for vert_id in self.vert_ids:
-            xml_vert = doc.createElement('V')
-            xml_vert.appendChild(doc.createTextNode(str(vert_id)))
-            result.appendChild(xml_vert)
+            xml_vert = create_node(triangle, 'V')
+            xml_vert.text = str(vert_id)
 
-        result.appendChild(create_vector(self.normal, doc, 'Nrm'))
-        xml_distance = doc.createElement('Dist')
-        xml_distance.appendChild(doc.createTextNode(str(self.distance)))
-        result.appendChild(xml_distance)
-        return result
+        create_vector(self.normal, triangle, 'Nrm')
+        xml_distance = create_node(triangle, 'Dist')
+        xml_distance.text = str(self.distance)
