@@ -147,17 +147,35 @@ def create_object_list(doc, name, objects, write_func, par1=None):
             xml_objects_list.appendChild(write_func(obj, doc))
     return xml_objects_list
 
+
 #####################################################
 #### new stuff
 
-def parse_file(path):
-    tree = ET.parse(path)
-    root = tree.getroot()
+def write_struct_to_file_(struct, path):
+    asset = get_asset_declaration()
+    struct.create(asset)
+
+    file = open(path, 'wb')
+    # TODO: find a ElementTree only variant
+    data = minidom.parseString(ET.tostring(asset)).toprettyxml(indent="   ")
+    file.write(bytes(data, 'UTF-8'))
+    file.close()
+
+
+def get_asset_root(path):
+    root = ET.parse(path).getroot()
 
     for child in root:
         if child.tag == 'AssetDeclaration':
             return child
     return None
+
+
+def get_asset_declaration():
+    asset = ET.Element('AssetDeclaration')
+    asset.set('xmlns', 'uri:ea.com:eala:asset')
+    asset.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    return asset
 
 
 def parse_value_(xml_obj, cast_func=str):
@@ -169,7 +187,7 @@ def create_value_(value, parent, identifier):
     xml_obj.text = str(value)
 
 
-def parse_objects_list_(parent, name, parse_func, par1=None):
+def parse_objects_(parent, name, parse_func, par1=None):
     result = []
     objects = parent.findall(name)
     if not objects:
@@ -182,14 +200,13 @@ def parse_objects_list_(parent, name, parse_func, par1=None):
     return result
 
 
-def create_object_list_(doc, name, objects, write_func, par1=None):
-    xml_objects_list = doc.createElement(name)
+def create_object_list_(parent, name, objects, write_func, par1=None):
+    xml_objects_list = ET.SubElement(parent, name)
     for obj in objects:
         if par1 is not None:
-            xml_objects_list.appendChild(write_func(obj, doc, par1))
+            write_func(obj, xml_objects_list, par1)
         else:
-            xml_objects_list.appendChild(write_func(obj, doc))
-    return xml_objects_list
+            write_func(obj, xml_objects_list)
 
 
 def parse_vector2_(xml_vector2):
