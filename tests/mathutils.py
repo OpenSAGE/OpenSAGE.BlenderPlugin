@@ -5,11 +5,7 @@ from mathutils import Vector, Quaternion, Matrix
 
 
 def get_vec(x=0.0, y=0.0, z=0.0):
-    vec = Vector((0, 0, 0))
-    vec.x = x
-    vec.y = y
-    vec.z = z
-    return vec
+    return Vector((x, y, z))
 
 
 def compare_vectors(self, expected, actual):
@@ -19,10 +15,7 @@ def compare_vectors(self, expected, actual):
 
 
 def get_vec2(x=0.0, y=0.0):
-    vec = Vector((0, 0, 0))
-    vec.x = x
-    vec.y = y
-    return vec
+    return Vector((x, y))
 
 
 def compare_vectors2(self, expected, actual):
@@ -31,12 +24,7 @@ def compare_vectors2(self, expected, actual):
 
 
 def get_quat(w=1.0, x=0.0, y=0.0, z=0.0):
-    quat = Quaternion((0, 0, 0, 0))
-    quat.w = w
-    quat.x = x
-    quat.y = y
-    quat.z = z
-    return quat
+    return Quaternion((w, x, y, z))
 
 
 def compare_quats(self, expected, actual):
