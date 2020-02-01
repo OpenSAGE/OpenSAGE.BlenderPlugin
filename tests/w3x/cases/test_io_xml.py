@@ -26,6 +26,34 @@ class TestIOXML(TestCase):
 
 ######################### new stuff
 
+    def test_parse_value(self):
+        expected = 3.14
+        data = '<?xml version="1.0"?><root><object>3.14</object></root>'
+        root = ET.fromstring(data)
+
+        obj = root.find('object')
+        actual = parse_value_(obj, float)
+        self.assertEqual(expected, actual)
+
+
+    def test_create_value_(self):
+        expected = '3.14'
+        root = ET.Element('root')
+        create_value_(expected, root, 'object')
+
+        actual = root.find('object')
+        self.assertEqual(expected, actual.text)
+
+
+    def test_parse_objects_list_(self):
+        expected = [3.14, 2.14, 1.14, 0.14]
+        data = '<?xml version="1.0"?><root><o>3.14</o><o>2.14</o><o>1.14</o><o>0.14</o></root>'
+        root = ET.fromstring(data)
+
+        actual = parse_objects_list_(root, 'o', parse_value_, float)
+        self.assertEqual(expected, actual)
+
+
     def test_parse_vector2_(self):
         expected = get_vec2(x=2.01, y=3.14)
         data = '<?xml version="1.0"?><root><Vector X="2.01" Y="3.14"/></root>'
@@ -159,4 +187,5 @@ class TestIOXML(TestCase):
         self.assertEqual(expected[2][1], actual.get('M21'))
         self.assertEqual(expected[2][2], actual.get('M22'))
         self.assertEqual(expected[2][3], actual.get('M23'))
+
 
