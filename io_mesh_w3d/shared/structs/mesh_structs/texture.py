@@ -3,6 +3,7 @@
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_TEXTURE_INFO = 0x00000033
@@ -80,12 +81,11 @@ class Texture(Struct):
     @staticmethod
     def parse(xml_texture):
         return Texture(
-            id=xml_texture.attributes['id'].value,
-            file=xml_texture.attributes['File'].value,
+            id=xml_texture.get('id'),
+            file=xml_texture.get('File'),
             texture_info=TextureInfo())
 
-    def create(self, doc):
-        texture = doc.createElement('Texture')
-        texture.setAttribute('id', self.id)
-        texture.setAttribute('File', self.file)
-        return texture
+    def create(self, parent):
+        texture = create_node(parent, 'Texture')
+        texture.set('id', self.id)
+        texture.set('File', self.file)
