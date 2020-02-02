@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-
 from tests.shared.helpers.hierarchy import *
 from tests.utils import TestCase
 
@@ -106,35 +105,7 @@ class TestHierarchy(TestCase):
         self.assertEqual(132, hierarchy.size())
 
     def test_write_read_xml(self):
-        expected = get_hierarchy(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
-        self.assertEqual(1, len(xml_hierarchies))
-
-        actual = Hierarchy.parse(self, xml_hierarchies[0])
-        compare_hierarchies(self, expected, actual)
+        self.write_read_xml_test(get_hierarchy(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)
 
     def test_write_read_minimal_xml(self):
-        expected = get_hierarchy_minimal(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_hierarchies = dom.getElementsByTagName('W3DHierarchy')
-        self.assertEqual(1, len(xml_hierarchies))
-
-        actual = Hierarchy.parse(self, xml_hierarchies[0])
-        compare_hierarchies(self, expected, actual)
+        self.write_read_xml_test(get_hierarchy_minimal(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)

@@ -102,13 +102,13 @@ class AnimationChannel(Struct):
     @staticmethod
     def parse(xml_channel):
         result = AnimationChannel(
-            pivot=int(xml_channel.attributes['Pivot'].value),
-            first_frame=int(xml_channel.attributes['FirstFrame'].value),
+            pivot=int(xml_channel.get('Pivot')),
+            first_frame=int(xml_channel.get('FirstFrame')),
             vector_len=1,
             type=0,
             data=[])
 
-        type_name = xml_channel.attributes['Type'].value
+        type_name = xml_channel.get('Type')
 
         if type_name == 'XTranslation':
             result.type = 0
@@ -120,39 +120,38 @@ class AnimationChannel(Struct):
             result.vector_len = 4
             result.type = 6
 
-        if xml_channel.tagName == 'ChannelScalar':
-            for value in xml_channel.childs():
+        if xml_channel.tag == 'ChannelScalar':
+            for value in xml_channel:
                 result.data.append(parse_value(value, float))
-        elif xml_channel.tagName == 'ChannelQuaternion':
-            for value in xml_channel.childs():
+        elif xml_channel.tag == 'ChannelQuaternion':
+            for value in xml_channel:
                 result.data.append(parse_quaternion(value))
 
         result.last_frame = result.first_frame + len(result.data) - 1
         return result
 
-    def create(self, doc):
+    def create(self, parent):
         if self.type < 6:
-            channel = doc.createElement('ChannelScalar')
+            channel = create_node(parent, 'ChannelScalar')
             if self.type == 0:
-                channel.setAttribute('Type', 'XTranslation')
+                channel.set('Type', 'XTranslation')
             elif self.type == 1:
-                channel.setAttribute('Type', 'YTranslation')
+                channel.set('Type', 'YTranslation')
             elif self.type == 2:
-                channel.setAttribute('Type', 'ZTranslation')
+                channel.set('Type', 'ZTranslation')
         else:
-            channel = doc.createElement('ChannelQuaternion')
-            channel.setAttribute('Type', 'Orientation')
+            channel = create_node(parent, 'ChannelQuaternion')
+            channel.set('Type', 'Orientation')
 
-        channel.setAttribute('Pivot', str(self.pivot))
-        channel.setAttribute('FirstFrame', str(self.first_frame))
+        channel.set('Pivot', str(self.pivot))
+        channel.set('FirstFrame', str(self.first_frame))
 
         if self.type < 6:
             for value in self.data:
-                channel.appendChild(create_value(value, doc, 'Frame'))
+                create_value(value, channel, 'Frame')
         else:
             for value in self.data:
-                channel.appendChild(create_quaternion(value, doc, 'Frame'))
-        return channel
+                create_quaternion(value, channel, 'Frame')
 
 
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
@@ -212,29 +211,28 @@ class AnimationBitChannel(Struct):
     @staticmethod
     def parse(xml_bit_channel):
         result = AnimationBitChannel(
-            pivot=int(xml_bit_channel.attributes['Pivot'].value),
-            first_frame=int(xml_bit_channel.attributes['FirstFrame'].value),
+            pivot=int(xml_bit_channel.get('Pivot')),
+            first_frame=int(xml_bit_channel.get('FirstFrame')),
             type=0,
             default=True,
             data=[])
 
-        if xml_bit_channel.tagName == 'ChannelScalar':
-            for value in xml_bit_channel.childs():
+        if xml_bit_channel.tag == 'ChannelScalar':
+            for value in xml_bit_channel:
                 result.data.append(parse_value(value, float))
 
         result.last_frame = result.first_frame + len(result.data) - 1
         return result
 
-    def create(self, doc):
-        channel = doc.createElement('ChannelScalar')
-        channel.setAttribute('Type', 'Visibility')
+    def create(self, parent):
+        channel = create_node(parent, 'ChannelScalar')
+        channel.set('Type', 'Visibility')
 
-        channel.setAttribute('Pivot', str(self.pivot))
-        channel.setAttribute('FirstFrame', str(self.first_frame))
+        channel.set('Pivot', str(self.pivot))
+        channel.set('FirstFrame', str(self.first_frame))
 
         for value in self.data:
-            channel.appendChild(create_value(value, doc, 'Frame'))
-        return channel
+            create_value(value, channel, 'Frame')
 
 
 W3D_CHUNK_ANIMATION = 0x00000200
@@ -301,37 +299,32 @@ class Animation(Struct):
             header=AnimationHeader(),
             channels=[])
 
-        result.header.name = xml_animation.attributes['id'].value
-        result.header.hierarchy_name = xml_animation.attributes['Hierarchy'].value
-        result.header.num_frames = int(
-            xml_animation.attributes['NumFrames'].value)
-        result.header.frame_rate = int(
-            xml_animation.attributes['FrameRate'].value)
+        result.header.name = xml_animation.get('id')
+        result.header.hierarchy_name = xml_animation.get('Hierarchy')
+        result.header.num_frames = int(xml_animation.get('NumFrames'))
+        result.header.frame_rate = int(xml_animation.get('FrameRate'))
 
-        for child in xml_animation.childs():
-            if child.tagName == 'Channels':
-                for channel_child in child.childs():
-                    if channel_child.tagName in ['ChannelScalar', 'ChannelQuaternion']:
-                        if channel_child.attributes['Type'].value == 'Visibility':
+        for child in xml_animation:
+            if child.tag == 'Channels':
+                for channel_child in child:
+                    if channel_child.tag in ['ChannelScalar', 'ChannelQuaternion']:
+                        if channel_child.get('Type') == 'Visibility':
                             result.channels.append(AnimationBitChannel.parse(channel_child))
                         else:
                             result.channels.append(AnimationChannel.parse(channel_child))
                     else:
-                        context.warning('unhandled node: ' + child.tagName + ' in Channels!')
+                        context.warning('unhandled node: ' + channel_child.tag + ' in Channels!')
             else:
-                context.warning('unhandled node: ' + child.tagName + ' in W3DAnimation!')
+                context.warning('unhandled node: ' + child.tag + ' in W3DAnimation!')
         return result
 
-    def create(self, doc):
-        animation = doc.createElement('W3DAnimation')
-        animation.setAttribute('id', self.header.name)
-        animation.setAttribute('Hierarchy', self.header.hierarchy_name)
-        animation.setAttribute('NumFrames', str(self.header.num_frames))
-        animation.setAttribute('FrameRate', str(self.header.frame_rate))
+    def create(self, parent):
+        animation = create_node(parent, 'W3DAnimation')
+        animation.set('id', self.header.name)
+        animation.set('Hierarchy', self.header.hierarchy_name)
+        animation.set('NumFrames', str(self.header.num_frames))
+        animation.set('FrameRate', str(self.header.frame_rate))
 
-        channels = doc.createElement('Channels')
-        animation.appendChild(channels)
+        channels = create_node(animation, 'Channels')
         for channel in self.channels:
-            channels.appendChild(channel.create(doc))
-
-        return animation
+            channel.create(channels)

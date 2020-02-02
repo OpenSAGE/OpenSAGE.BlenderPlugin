@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-
 from tests.shared.helpers.mesh import *
 from tests.utils import TestCase
 
@@ -208,35 +207,7 @@ class TestMesh(TestCase):
         self.assertEqual(1081, mesh.size())
 
     def test_write_read_xml(self):
-        expected = get_mesh(shader_mats=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_meshes = dom.getElementsByTagName('W3DMesh')
-        self.assertEqual(1, len(xml_meshes))
-
-        actual = Mesh.parse(self, xml_meshes[0])
-        compare_meshes(self, expected, actual)
+        self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_write_read_minimal_xml(self):
-        expected = get_mesh_minimal(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_meshes = dom.getElementsByTagName('W3DMesh')
-        self.assertEqual(1, len(xml_meshes))
-
-        actual = Mesh.parse(self, xml_meshes[0])
-        compare_meshes(self, expected, actual)
+        self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)

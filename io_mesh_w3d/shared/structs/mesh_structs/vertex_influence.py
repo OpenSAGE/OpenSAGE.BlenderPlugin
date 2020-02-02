@@ -3,6 +3,7 @@
 
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3x.io_xml import *
 
 
 class VertexInfluence(Struct):
@@ -32,24 +33,22 @@ class VertexInfluence(Struct):
     @staticmethod
     def parse(xml_vertex_influence, xml_vertex_influence2=None):
         result = VertexInfluence(
-            bone_idx=int(xml_vertex_influence.attributes['Bone'].value),
+            bone_idx=int(xml_vertex_influence.get('Bone')),
             xtra_idx=0,
-            bone_inf=float(xml_vertex_influence.attributes['Weight'].value),
+            bone_inf=float(xml_vertex_influence.get('Weight')),
             xtra_inf=0.0)
 
         if xml_vertex_influence2 is not None:
-            result.xtra_idx = int(
-                xml_vertex_influence2.attributes['Bone'].value)
-            result.xtra_inf = float(
-                xml_vertex_influence2.attributes['Weight'].value)
+            result.xtra_idx = int(xml_vertex_influence2.get('Bone'))
+            result.xtra_inf = float(xml_vertex_influence2.get('Weight'))
         return result
 
-    def create(self, doc):
-        influence = doc.createElement('I')
-        influence.setAttribute('Bone', str(self.bone_idx))
-        influence.setAttribute('Weight', str(self.bone_inf))
+    def create(self, parent, parent2):
+        influence = create_node(parent, 'I')
+        influence.set('Bone', str(self.bone_idx))
+        influence.set('Weight', str(self.bone_inf))
 
-        influence2 = doc.createElement('I')
-        influence2.setAttribute('Bone', str(self.xtra_idx))
-        influence2.setAttribute('Weight', str(self.xtra_inf))
-        return (influence, influence2)
+        if parent2 is not None:
+            influence2 = create_node(parent2, 'I')
+            influence2.set('Bone', str(self.xtra_idx))
+            influence2.set('Weight', str(self.xtra_inf))

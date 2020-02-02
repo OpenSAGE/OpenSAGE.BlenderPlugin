@@ -102,7 +102,7 @@ class TestCase(unittest.TestCase):
                 shutil.rmtree(self.filepath)
         addon_utils.disable('io_mesh_w3d')
 
-    def write_read_xml_test(self, expected, identifier, parse, compare):
+    def write_read_xml_test(self, expected, identifier, parse, compare, context=None):
         root = create_root()
         expected.create(root)
 
@@ -111,5 +111,8 @@ class TestCase(unittest.TestCase):
         xml_objects = root.findall(identifier)
         self.assertEqual(1, len(xml_objects))
 
-        actual = parse(xml_objects[0])
+        if context is not None:
+            actual = parse(context, xml_objects[0])
+        else:
+            actual = parse(xml_objects[0])
         compare(self, expected, actual)

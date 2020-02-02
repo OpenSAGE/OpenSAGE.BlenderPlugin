@@ -4,6 +4,7 @@
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 
@@ -93,34 +94,29 @@ class HLodSubObject(Struct):
     @staticmethod
     def parse(xml_sub_object):
         sub_object = HLodSubObject(
-            name=xml_sub_object.attributes['SubObjectID'].value,
-            bone_index=int(xml_sub_object.attributes['BoneIndex'].value))
+            name=xml_sub_object.get('SubObjectID'),
+            bone_index=int(xml_sub_object.get('BoneIndex')))
 
-        for child in xml_sub_object.childs():
-            if child.tagName != 'RenderObject':
+        for child in xml_sub_object:
+            if child.tag != 'RenderObject':
                 continue
-            for o_child in child.childs():
-                if o_child.tagName in ['Mesh', 'CollisionBox']:
-                    sub_object.identifier = o_child.childNodes[0].nodeValue
-
+            for o_child in child:
+                if o_child.tag in ['Mesh', 'CollisionBox']:
+                    sub_object.identifier = o_child.text
         return sub_object
 
-    def create(self, doc):
-        sub_object = doc.createElement('SubObject')
-        sub_object.setAttribute('SubObjectID', self.name)
-        sub_object.setAttribute('BoneIndex', str(self.bone_index))
+    def create(self, parent):
+        sub_object = create_node(parent, 'SubObject')
+        sub_object.set('SubObjectID', self.name)
+        sub_object.set('BoneIndex', str(self.bone_index))
 
-        render_object = doc.createElement('RenderObject')
-        sub_object.appendChild(render_object)
+        render_object = create_node(sub_object, 'RenderObject')
         if self.is_box:
-            box = doc.createElement('CollisionBox')
-            box.appendChild(doc.createTextNode(self.identifier))
-            render_object.appendChild(box)
+            box = create_node(render_object, 'CollisionBox')
+            box.text = self.identifier
         else:
-            mesh = doc.createElement('Mesh')
-            mesh.appendChild(doc.createTextNode(self.identifier))
-            render_object.appendChild(mesh)
-        return sub_object
+            mesh = create_node(render_object, 'Mesh')
+            mesh.text = self.identifier
 
 
 class HLodBaseArray(Struct):
@@ -272,26 +268,24 @@ class HLod(Struct):
     def parse(context, xml_container):
         result = HLod(
             header=HLodHeader(
-                model_name=xml_container.attributes['id'].value,
-                hierarchy_name=xml_container.attributes['Hierarchy'].value),
+                model_name=xml_container.get('id'),
+                hierarchy_name=xml_container.get('Hierarchy')),
             lod_arrays=[HLodLodArray(sub_objects=[])])
 
-        for child in xml_container.childs():
-            if child.tagName == 'SubObject':
+        for child in xml_container:
+            if child.tag == 'SubObject':
                 result.lod_arrays[0].sub_objects.append(
                     HLodSubObject.parse(child))
             else:
-                context.warning('unhandled node: ' + child.tagName + ' in W3DContainer!')
+                context.warning('unhandled node: ' + child.tag + ' in W3DContainer!')
 
-        result.lod_arrays[0].header.model_count = len(
-            result.lod_arrays[0].sub_objects)
+        result.lod_arrays[0].header.model_count = len(result.lod_arrays[0].sub_objects)
         return result
 
-    def create(self, doc):
-        container = doc.createElement('W3DContainer')
-        container.setAttribute('id', self.header.model_name)
-        container.setAttribute('Hierarchy', self.header.hierarchy_name)
+    def create(self, parent):
+        container = create_node(parent, 'W3DContainer')
+        container.set('id', self.header.model_name)
+        container.set('Hierarchy', self.header.hierarchy_name)
 
         for sub_object in self.lod_arrays[0].sub_objects:
-            container.appendChild(sub_object.create(doc))
-        return container
+            sub_object.create(container)
