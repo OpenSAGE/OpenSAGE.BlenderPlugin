@@ -4,6 +4,7 @@
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3x.io_xml import *
 
+
 class Include(Struct):
     type = ''
     source = ''

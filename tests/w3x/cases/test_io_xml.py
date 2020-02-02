@@ -22,7 +22,6 @@ class TestIOXML(TestCase):
 
         self.assertIsNotNone(root.find('child'))
 
-
     def test_write_struct(self):
         expected = [
             '<?xml version="1.0" ?>\n',
@@ -39,7 +38,6 @@ class TestIOXML(TestCase):
         self.assertEqual(len(expected), len(actual))
         for i, exp in enumerate(expected):
             self.assertEqual(exp, actual[i])
-
 
     def test_write(self):
         expected = [
@@ -66,7 +64,6 @@ class TestIOXML(TestCase):
         root = find_root(self, self.outpath() + 'test.xml')
         self.assertIsNotNone(root)
 
-
     def test_find_root_none_found(self):
         data = '<?xml version="1.0"?><root></root>'
         file = open(self.outpath() + 'test.xml', 'w')
@@ -76,14 +73,12 @@ class TestIOXML(TestCase):
         root = find_root(self, self.outpath() + 'test.xml')
         self.assertIsNone(root)
 
-
     def test_create_root(self):
         root = create_root()
 
         self.assertEqual('AssetDeclaration', root.tag)
         self.assertEqual('uri:ea.com:eala:asset', root.get('xmlns'))
         self.assertEqual('http://www.w3.org/2001/XMLSchema-instance', root.get('xmlns:xsi'))
-
 
     def test_parse_value(self):
         expected = 3.14
@@ -94,7 +89,6 @@ class TestIOXML(TestCase):
         actual = parse_value(obj, float)
         self.assertEqual(expected, actual)
 
-
     def test_create_value_(self):
         expected = '3.14'
         root = ET.Element('root')
@@ -103,7 +97,6 @@ class TestIOXML(TestCase):
         actual = root.find('object')
         self.assertEqual(expected, actual.text)
 
-
     def test_parse_objects(self):
         expected = [3.14, 2.14, 1.14, 0.14]
         data = '<?xml version="1.0"?><root><o>3.14</o><o>2.14</o><o>1.14</o><o>0.14</o></root>'
@@ -111,7 +104,6 @@ class TestIOXML(TestCase):
 
         actual = parse_objects(root, 'o', parse_value, float)
         self.assertEqual(expected, actual)
-
 
     def test_create_object_list(self):
         values = [3.14, 2.14, 1.14, 0.14]
@@ -122,7 +114,6 @@ class TestIOXML(TestCase):
         for i, child in enumerate(root.findall('o')):
             self.assertEqual(values[i], float(child.text))
 
-
     def test_parse_vector2(self):
         expected = get_vec2(x=2.01, y=3.14)
         data = '<?xml version="1.0"?><root><Vector X="2.01" Y="3.14"/></root>'
@@ -131,7 +122,6 @@ class TestIOXML(TestCase):
         vec = root.find('Vector')
         actual = parse_vector2(vec)
         self.assertEqual(expected, actual)
-
 
     def test_parse_vector2_no_attributes(self):
         expected = get_vec2()
@@ -142,7 +132,6 @@ class TestIOXML(TestCase):
         actual = parse_vector2(vec)
         self.assertEqual(expected, actual)
 
-
     def test_create_vector2(self):
         expected = get_vec()
         root = ET.Element('root')
@@ -151,7 +140,6 @@ class TestIOXML(TestCase):
         actual = root.find('Vector')
         self.assertEqual(expected.x, float(actual.get('X')))
         self.assertEqual(expected.y, float(actual.get('Y')))
-
 
     def test_parse_vector(self):
         expected = get_vec(x=2.01, y=3.14, z=-0.33)
@@ -162,7 +150,6 @@ class TestIOXML(TestCase):
         actual = parse_vector(vec)
         self.assertEqual(expected, actual)
 
-
     def test_parse_vector_no_attributes(self):
         expected = get_vec()
         data = '<?xml version="1.0"?><root><Vector/></root>'
@@ -171,7 +158,6 @@ class TestIOXML(TestCase):
         vec = root.find('Vector')
         actual = parse_vector(vec)
         self.assertEqual(expected, actual)
-
 
     def test_create_vector(self):
         expected = get_vec()
@@ -183,7 +169,6 @@ class TestIOXML(TestCase):
         self.assertEqual(expected.y, float(actual.get('Y')))
         self.assertEqual(expected.z, float(actual.get('Z')))
 
-
     def test_parse_quaternion(self):
         expected = get_quat(w=67, x=2.01, y=3.14, z=-0.33)
         data = '<?xml version="1.0"?><root><Rotation W="67" X="2.01" Y="3.14" Z="-0.33"/></root>'
@@ -193,7 +178,6 @@ class TestIOXML(TestCase):
         actual = parse_quaternion(quat)
         self.assertEqual(expected, actual)
 
-
     def test_parse_quaternion_no_attributes(self):
         expected = get_quat()
         data = '<?xml version="1.0"?><root><Rotation/></root>'
@@ -202,7 +186,6 @@ class TestIOXML(TestCase):
         quat = root.find('Rotation')
         actual = parse_quaternion(quat)
         self.assertEqual(expected, actual)
-
 
     def test_create_vector(self):
         expected = get_quat()
@@ -215,7 +198,6 @@ class TestIOXML(TestCase):
         self.assertEqual(expected.y, float(actual.get('Y')))
         self.assertEqual(expected.z, float(actual.get('Z')))
 
-
     def test_parse_matrix(self):
         expected = get_mat()
         data = '<?xml version="1.0"?><root><FixupMatrix M00="1" M01="0" M02="0" M03="0" M10="0" M11="1" M12="0" M13="0" M20="0" M21="0" M22="1" M23="0"/></root>'
@@ -225,7 +207,6 @@ class TestIOXML(TestCase):
         actual = parse_matrix(mat)
         compare_mats(self, expected, actual)
 
-
     def test_parse_matrix_no_attributes(self):
         expected = get_mat()
         data = '<?xml version="1.0"?><root><FixupMatrix/></root>'
@@ -234,7 +215,6 @@ class TestIOXML(TestCase):
         mat = root.find('FixupMatrix')
         actual = parse_matrix(mat)
         compare_mats(self, expected, actual)
-
 
     def test_create_matrix(self):
         expected = get_mat()
@@ -256,5 +236,3 @@ class TestIOXML(TestCase):
         self.assertEqual(expected[2][1], float(actual.get('M21')))
         self.assertEqual(expected[2][2], float(actual.get('M22')))
         self.assertEqual(expected[2][3], float(actual.get('M23')))
-
-
