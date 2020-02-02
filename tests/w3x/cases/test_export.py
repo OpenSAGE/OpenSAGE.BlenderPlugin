@@ -121,8 +121,8 @@ class TestExportW3X(TestCase):
 
         #file = open(file_path + '.w3x')
         #lines = file.readlines()
-        #file.close()
-        #for line in lines:
+        # file.close()
+        # for line in lines:
         #    print(line)
 
         import xml.etree.ElementTree as ET

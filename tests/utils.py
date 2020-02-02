@@ -18,6 +18,7 @@ from io_mesh_w3d.w3x.io_xml import *
 def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
 
+
 class IOWrapper:
     def __init__(self, filepath, file_format='INVALID'):
         self.filepath = filepath

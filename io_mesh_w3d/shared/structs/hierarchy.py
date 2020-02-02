@@ -92,7 +92,6 @@ class HierarchyPivot(Struct):
         create_matrix(self.fixup_matrix, pivot)
 
 
-
 W3D_CHUNK_HIERARCHY = 0x00000100
 W3D_CHUNK_PIVOTS = 0x00000102
 W3D_CHUNK_PIVOT_FIXUPS = 0x00000103
