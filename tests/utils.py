@@ -16,6 +16,22 @@ def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
 
 
+def write_read_test(expected, identifier, parse, compare):
+    root = create_root()
+    expected.create(root)
+
+    io_stream = io.BytesIO()
+    write(root, io_stream)
+    io_stream = io.BytesIO(io_stream.getvalue())
+
+    root = find_root(self, io_stream)
+    xml_objects = root.findall(identifier)
+    self.assertEqual(1, len(xml_objects))
+
+    actual = parse(self, xml_objects[0])
+    compare_includes(self, expected, actual)
+
+
 class IOWrapper:
     def __init__(self, filepath, file_format='INVALID'):
         self.filepath = filepath
