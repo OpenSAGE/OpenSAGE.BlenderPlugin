@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import io
 import inspect
 import os
 import shutil
@@ -11,26 +12,11 @@ import unittest
 import addon_utils
 import bpy
 
+from io_mesh_w3d.w3x.io_xml import *
+
 
 def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
-
-
-def write_read_test(expected, identifier, parse, compare):
-    root = create_root()
-    expected.create(root)
-
-    io_stream = io.BytesIO()
-    write(root, io_stream)
-    io_stream = io.BytesIO(io_stream.getvalue())
-
-    root = find_root(self, io_stream)
-    xml_objects = root.findall(identifier)
-    self.assertEqual(1, len(xml_objects))
-
-    actual = parse(self, xml_objects[0])
-    compare_includes(self, expected, actual)
-
 
 class IOWrapper:
     def __init__(self, filepath, file_format='INVALID'):
@@ -115,3 +101,15 @@ class TestCase(unittest.TestCase):
             else:
                 shutil.rmtree(self.filepath)
         addon_utils.disable('io_mesh_w3d')
+
+    def write_read_xml_test(self, expected, identifier, parse, compare):
+        root = create_root()
+        expected.create(root)
+
+        # TODO: is this sufficient or should we write to an io.BytesIO ?
+
+        xml_objects = root.findall(identifier)
+        self.assertEqual(1, len(xml_objects))
+
+        actual = parse(xml_objects[0])
+        compare(self, expected, actual)

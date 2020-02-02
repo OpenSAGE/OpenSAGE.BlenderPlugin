@@ -16,24 +16,17 @@ def write_struct(struct, path):
     write(root, path)
 
 
-def write(root, destination):
+def write(root, path):
     # TODO: find a ElementTree only variant
     from xml.dom import minidom
     data = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ")
-    
-    if isinstance(destination, io.BytesIO):
-        destination.write(bytes(data, 'UTF-8'))
-        return
 
-    file = open(destination, 'w')
+    file = open(path, 'w')
     file.write(data)
     file.close()
 
 
 def find_root(context, source):
-    if isinstance(source, io.BytesIO):
-        return ET.fromstring(source.read())
-
     root = ET.parse(source).getroot()
 
     if root.tag != 'AssetDeclaration':
@@ -88,8 +81,8 @@ def parse_vector2(xml_vector2):
 
 def create_vector2(vec2, parent, name):
     vector = create_node(parent, name)
-    vector.set('X', vec2.x)
-    vector.set('Y', vec2.y)
+    vector.set('X', str(vec2.x))
+    vector.set('Y', str(vec2.y))
 
 
 def parse_vector(xml_vector):
@@ -101,9 +94,9 @@ def parse_vector(xml_vector):
 
 def create_vector(vec, parent, name):
     vector = create_node(parent, name)
-    vector.set('X', vec.x)
-    vector.set('Y', vec.y)
-    vector.set('Z', vec.z)
+    vector.set('X', str(vec.x))
+    vector.set('Y', str(vec.y))
+    vector.set('Z', str(vec.z))
 
 
 def parse_quaternion(xml_quaternion):
@@ -116,10 +109,10 @@ def parse_quaternion(xml_quaternion):
 
 def create_quaternion(quat, parent, identifier='Rotation'):
     quaternion = create_node(parent, identifier)
-    quaternion.set('W', quat[0])
-    quaternion.set('X', quat[1])
-    quaternion.set('Y', quat[2])
-    quaternion.set('Z', quat[3])
+    quaternion.set('W', str(quat[0]))
+    quaternion.set('X', str(quat[1]))
+    quaternion.set('Y', str(quat[2]))
+    quaternion.set('Z', str(quat[3]))
 
 
 def parse_matrix(xml_matrix):
@@ -142,17 +135,17 @@ def parse_matrix(xml_matrix):
 
 def create_matrix(mat, parent, identifier='FixupMatrix'):
     matrix = create_node(parent, identifier)
-    matrix.set('M00', mat[0][0])
-    matrix.set('M01', mat[0][1])
-    matrix.set('M02', mat[0][2])
-    matrix.set('M03', mat[0][3])
+    matrix.set('M00', str(mat[0][0]))
+    matrix.set('M01', str(mat[0][1]))
+    matrix.set('M02', str(mat[0][2]))
+    matrix.set('M03', str(mat[0][3]))
 
-    matrix.set('M10', mat[1][0])
-    matrix.set('M11', mat[1][1])
-    matrix.set('M12', mat[1][2])
-    matrix.set('M13', mat[1][3])
+    matrix.set('M10', str(mat[1][0]))
+    matrix.set('M11', str(mat[1][1]))
+    matrix.set('M12', str(mat[1][2]))
+    matrix.set('M13', str(mat[1][3]))
 
-    matrix.set('M20', mat[2][0])
-    matrix.set('M21', mat[2][1])
-    matrix.set('M22', mat[2][2])
-    matrix.set('M23', mat[2][3])
+    matrix.set('M20', str(mat[2][0]))
+    matrix.set('M21', str(mat[2][1]))
+    matrix.set('M22', str(mat[2][2]))
+    matrix.set('M23', str(mat[2][3]))
