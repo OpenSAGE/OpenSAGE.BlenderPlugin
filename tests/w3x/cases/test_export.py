@@ -116,20 +116,7 @@ class TestExportW3X(TestCase):
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, 'W3X')
 
-        print('### test')
         self.assertEqual({'FINISHED'}, save(context, export_settings))
-
-        #file = open(file_path + '.w3x')
-        #lines = file.readlines()
-        #file.close()
-        #for line in lines:
-        #    print(line)
-
-        import xml.etree.ElementTree as ET
-        root = ET.parse(file_path + '.w3x').find('AssetDeclaration')
-        print(root.tag)
-
-        print('##### done')
 
         root = find_root(self, file_path + extension)
         self.assertIsNotNone(root.find('W3DHierarchy'))

@@ -24,23 +24,8 @@ class TestObjectImport(TestCase):
                  self.outpath() + 'texture.dds')
 
         # write to file
-        doc = minidom.Document()
-        asset = create_asset_declaration(doc)
-        asset.appendChild(hierarchy.create(doc))
-        doc.appendChild(asset)
-
-        file = open(self.outpath() + hierarchy_name + '.w3x', "wb")
-        file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        file.close()
-
-        doc = minidom.Document()
-        asset = create_asset_declaration(doc)
-        asset.appendChild(animation.create(doc))
-        doc.appendChild(asset)
-
-        file = open(self.outpath() + 'animation.w3x', "wb")
-        file.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        file.close()
+        write_struct(hierarchy, self.outpath() + hierarchy_name + '.w3x')
+        write_struct(animation, self.outpath() + 'animation.w3x')
 
         # import
         ani = IOWrapper(self.outpath() + 'animation.w3x')
