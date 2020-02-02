@@ -2,8 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
-
 from tests.shared.helpers.hlod import *
 from tests.utils import TestCase
 
@@ -105,35 +103,7 @@ class TestHLod(TestCase):
         self.assertEqual(252, hlod.size())
 
     def test_write_read_xml(self):
-        expected = get_hlod()
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_hlods = dom.getElementsByTagName('W3DContainer')
-        self.assertEqual(1, len(xml_hlods))
-
-        actual = HLod.parse(self, xml_hlods[0])
-        compare_hlods(self, expected, actual, xml=True)
+        self.write_read_xml_test(get_hlod(), 'W3DContainer', HLod.parse, compare_hlods, self)
 
     def test_write_read_minimal_xml(self):
-        expected = get_hlod_minimal()
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_hlods = dom.getElementsByTagName('W3DContainer')
-        self.assertEqual(1, len(xml_hlods))
-
-        actual = HLod.parse(self, xml_hlods[0])
-        compare_hlods(self, expected, actual, xml=True)
+        self.write_read_xml_test(get_hlod_minimal(), 'W3DContainer', HLod.parse, compare_hlods, self)

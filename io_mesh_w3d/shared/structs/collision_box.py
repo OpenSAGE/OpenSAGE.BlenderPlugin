@@ -65,23 +65,20 @@ class CollisionBox(Struct):
     @staticmethod
     def parse(context, xml_collision_box):
         result = CollisionBox(
-            name_=xml_collision_box.attributes['id'].value)
+            name_=xml_collision_box.get('id'),
+            joypad_picking_only=bool(xml_collision_box.get('JoypadPickingOnly', False)))
 
-        if 'JoypadPickingOnly' in xml_collision_box.attributes:
-            result.joypad_picking_only = bool(xml_collision_box.attributes['JoypadPickingOnly'].value)
-
-        for child in xml_collision_box.childs():
-            if child.tagName == 'Center':
+        for child in xml_collision_box:
+            if child.tag == 'Center':
                 result.center = parse_vector(child)
-            elif child.tagName == 'Extent':
+            elif child.tag == 'Extent':
                 result.extend = parse_vector(child)
             else:
-                context.warning('unhandled node: ' + child.tagName + ' in W3DCollisionBox!')
+                context.warning('unhandled node: ' + child.tag + ' in W3DCollisionBox!')
         return result
 
-    def create(self, doc):
-        result = doc.createElement('W3DCollisionBox')
-        result.setAttribute('id', self.name_)
-        result.appendChild(create_vector(self.center, doc, 'Center'))
-        result.appendChild(create_vector(self.extend, doc, 'Extent'))
-        return result
+    def create(self, parent):
+        result = create_node(parent, 'W3DCollisionBox')
+        result.set('id', self.name_)
+        create_vector(self.center, result, 'Center')
+        create_vector(self.extend, result, 'Extent')

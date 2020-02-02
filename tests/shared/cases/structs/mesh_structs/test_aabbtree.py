@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-
 from tests.shared.helpers.mesh_structs.aabbtree import *
 from tests.utils import TestCase
 

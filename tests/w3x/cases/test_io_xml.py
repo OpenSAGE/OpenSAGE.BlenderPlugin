@@ -42,19 +42,23 @@ class TestIOXML(TestCase):
 
 
     def test_write(self):
-        expected = '<?xml version="1.0" ?>\n<root/>\n'
-        root = ET.Element('root')
+        expected = [
+            '<?xml version="1.0" ?>\n',
+            '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>\n']
 
-        write(root, self.outpath() + 'test.xml')
+        write(create_root(), self.outpath() + 'test.xml')
 
         file = open(self.outpath() + 'test.xml', mode='r')
-        actual = file.read()
+        actual = file.readlines()
         file.close()
 
         self.assertEqual(expected, actual)
+        self.assertEqual(len(expected), len(actual))
+        for i, exp in enumerate(expected):
+            self.assertEqual(exp, actual[i])
 
     def test_find_root(self):
-        data = '<?xml version="1.0"?><AssetDeclaration></AssetDeclaration>'
+        data = '<?xml version="1.0"?><AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></AssetDeclaration>'
         file = open(self.outpath() + 'test.xml', 'w')
         file.write(data)
         file.close()
