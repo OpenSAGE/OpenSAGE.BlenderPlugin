@@ -132,7 +132,12 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(240, material.size())
 
     def test_write_read_xml(self):
-        self.write_read_xml_test(get_shader_material(w3x=True), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
+        self.write_read_xml_test(
+            get_shader_material(
+                w3x=True),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
 
        
 
@@ -154,10 +159,19 @@ class TestShaderMaterial(TestCase):
         compare_shader_materials(self, expected, actual)
 
     def test_write_read_xml_two_texture(self):
-        self.write_read_xml_test(get_shader_material(two_tex=True), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
+        self.write_read_xml_test(
+            get_shader_material(
+                two_tex=True),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
 
     def test_write_read_minimal_xml(self):
-        self.write_read_xml_test(get_shader_material_minimal(), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
+        self.write_read_xml_test(
+            get_shader_material_minimal(),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
 
     def test_write_read_minimal_xml_no_technique_index(self):
         expected = get_shader_material_minimal()
