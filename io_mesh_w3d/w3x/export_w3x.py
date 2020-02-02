@@ -41,6 +41,7 @@ def save(context, export_settings, data_context):
                 write_struct(Texture(id=id, file=texture), dir + os.path.sep + id + '.xml')
 
         if export_settings['individual_files']:
+            pass
             write_struct(
                 data_context.hierarchy,
                 dir +

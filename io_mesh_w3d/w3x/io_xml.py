@@ -37,8 +37,8 @@ def find_root(context, source):
 
 def create_root():
     root = ET.Element('AssetDeclaration')
-    root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-    root.set('xmlns', 'uri:ea.com:eala:asset')
+    #root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    #root.set('xmlns', 'uri:ea.com:eala:asset')
     return root
 
 
