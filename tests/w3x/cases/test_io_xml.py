@@ -56,7 +56,7 @@ class TestIOXML(TestCase):
             self.assertEqual(exp, actual[i])
 
     def test_find_root(self):
-        data = '<?xml version="1.0"?><AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></AssetDeclaration>'
+        data = '<?xml version="1.0"?><AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><obj></obj></AssetDeclaration>'
         file = open(self.outpath() + 'test.xml', 'w')
         file.write(data)
         file.close()
@@ -75,6 +75,7 @@ class TestIOXML(TestCase):
 
     def test_create_root(self):
         root = create_root()
+        create_node(root, 'Test')
 
         self.assertEqual('AssetDeclaration', root.tag)
         self.assertEqual('uri:ea.com:eala:asset', root.get('xmlns'))

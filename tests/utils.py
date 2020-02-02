@@ -34,12 +34,12 @@ class IOWrapper:
         #self.report({'INFO'}, msg)
 
     def warning(self, msg):
-        #pass
-        self.report({'WARNING'}, msg)
+        pass
+        #self.report({'WARNING'}, msg)
 
     def error(self, msg):
-        #pass
-        self.report({'ERROR'}, msg)
+        pass
+        #self.report({'ERROR'}, msg)
 
 
 class TestCase(unittest.TestCase):
