@@ -12,14 +12,12 @@ class BoundingSphere(Struct):
     @staticmethod
     def parse(xml_bounding_sphere):
         result = BoundingSphere(
-            radius=float(xml_bounding_sphere.attributes['Radius'].value))
+            radius=float(xml_bounding_sphere.get('Radius')))
 
-        xml_center = xml_bounding_sphere.getElementsByTagName('Center')[0]
-        result.center = parse_vector(xml_center)
+        result.center = parse_vector(xml_bounding_sphere.find('Center'))
         return result
 
-    def create(self, doc):
-        result = doc.createElement('BoundingSphere')
-        result.setAttribute('Radius', str(self.radius))
-        result.appendChild(create_vector(self.center, doc, 'Center'))
-        return result
+    def create(self, parent):
+        result = create_node(parent, 'BoundingSphere')
+        result.set('Radius', str(self.radius))
+        create_vector(self.center, result, 'Center')

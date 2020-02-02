@@ -12,16 +12,11 @@ class BoundingBox(Struct):
     @staticmethod
     def parse(xml_bounding_box):
         result = BoundingBox()
-
-        xml_min = xml_bounding_box.getElementsByTagName('Min')[0]
-        result.min = parse_vector(xml_min)
-
-        xml_max = xml_bounding_box.getElementsByTagName('Max')[0]
-        result.max = parse_vector(xml_max)
+        result.min = parse_vector(xml_bounding_box.find('Min'))
+        result.max = parse_vector(xml_bounding_box.find('Max'))
         return result
 
-    def create(self, doc):
-        result = doc.createElement('BoundingBox')
-        result.appendChild(create_vector(self.min, doc, 'Min'))
-        result.appendChild(create_vector(self.max, doc, 'Max'))
-        return result
+    def create(self, parent):
+        result = create_node(parent, 'BoundingBox')
+        create_vector(self.min, result, 'Min')
+        create_vector(self.max, result, 'Max')

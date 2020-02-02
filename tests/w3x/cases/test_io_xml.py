@@ -145,8 +145,8 @@ class TestIOXML(TestCase):
         create_vector2(expected, root, 'Vector')
 
         actual = root.find('Vector')
-        self.assertEqual(expected.x, actual.get('X'))
-        self.assertEqual(expected.y, actual.get('Y'))
+        self.assertEqual(expected.x, float(actual.get('X')))
+        self.assertEqual(expected.y, float(actual.get('Y')))
 
 
     def test_parse_vector(self):
@@ -175,9 +175,9 @@ class TestIOXML(TestCase):
         create_vector(expected, root, 'Vector')
 
         actual = root.find('Vector')
-        self.assertEqual(expected.x, actual.get('X'))
-        self.assertEqual(expected.y, actual.get('Y'))
-        self.assertEqual(expected.z, actual.get('Z'))
+        self.assertEqual(expected.x, float(actual.get('X')))
+        self.assertEqual(expected.y, float(actual.get('Y')))
+        self.assertEqual(expected.z, float(actual.get('Z')))
 
 
     def test_parse_quaternion(self):
@@ -206,10 +206,10 @@ class TestIOXML(TestCase):
         create_quaternion(expected, root, 'Rotation')
 
         actual = root.find('Rotation')
-        self.assertEqual(expected.w, actual.get('W'))
-        self.assertEqual(expected.x, actual.get('X'))
-        self.assertEqual(expected.y, actual.get('Y'))
-        self.assertEqual(expected.z, actual.get('Z'))
+        self.assertEqual(expected.w, float(actual.get('W')))
+        self.assertEqual(expected.x, float(actual.get('X')))
+        self.assertEqual(expected.y, float(actual.get('Y')))
+        self.assertEqual(expected.z, float(actual.get('Z')))
 
 
     def test_parse_matrix(self):
@@ -238,19 +238,19 @@ class TestIOXML(TestCase):
         create_matrix(expected, root, 'FixupMatrix')
 
         actual = root.find('FixupMatrix')
-        self.assertEqual(expected[0][0], actual.get('M00'))
-        self.assertEqual(expected[0][1], actual.get('M01'))
-        self.assertEqual(expected[0][2], actual.get('M02'))
-        self.assertEqual(expected[0][3], actual.get('M03'))
+        self.assertEqual(expected[0][0], float(actual.get('M00')))
+        self.assertEqual(expected[0][1], float(actual.get('M01')))
+        self.assertEqual(expected[0][2], float(actual.get('M02')))
+        self.assertEqual(expected[0][3], float(actual.get('M03')))
 
-        self.assertEqual(expected[1][0], actual.get('M10'))
-        self.assertEqual(expected[1][1], actual.get('M11'))
-        self.assertEqual(expected[1][2], actual.get('M12'))
-        self.assertEqual(expected[1][3], actual.get('M13'))
+        self.assertEqual(expected[1][0], float(actual.get('M10')))
+        self.assertEqual(expected[1][1], float(actual.get('M11')))
+        self.assertEqual(expected[1][2], float(actual.get('M12')))
+        self.assertEqual(expected[1][3], float(actual.get('M13')))
 
-        self.assertEqual(expected[2][0], actual.get('M20'))
-        self.assertEqual(expected[2][1], actual.get('M21'))
-        self.assertEqual(expected[2][2], actual.get('M22'))
-        self.assertEqual(expected[2][3], actual.get('M23'))
+        self.assertEqual(expected[2][0], float(actual.get('M20')))
+        self.assertEqual(expected[2][1], float(actual.get('M21')))
+        self.assertEqual(expected[2][2], float(actual.get('M22')))
+        self.assertEqual(expected[2][3], float(actual.get('M23')))
 
 

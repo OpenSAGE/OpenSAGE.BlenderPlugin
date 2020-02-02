@@ -4,6 +4,7 @@
 from io_mesh_w3d.shared.structs.rgba import RGBA
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
@@ -113,15 +114,14 @@ class ShaderMaterialProperty(Struct):
 
     @staticmethod
     def parse(xml_constant):
-        type_name = xml_constant.tagName
+        type_name = xml_constant.tag
         constant = ShaderMaterialProperty(
-            name=xml_constant.attributes['Name'].value,
+            name=xml_constant.get('Name'),
             value=None)
 
         values = []
-        xml_values = xml_constant.getElementsByTagName('Value')
-        for xml_value in xml_values:
-            values.append(xml_value.childNodes[0].nodeValue)
+        for xml_value in xml_constant.findall('Value'):
+            values.append(xml_value.text)
 
         if type_name == 'Float':
             if len(values) == 2:
@@ -157,73 +157,50 @@ class ShaderMaterialProperty(Struct):
 
         return constant
 
-    def create(self, doc):
+    def create(self, parent):
         if self.type == 1:
-            xml_constant = doc.createElement('Texture')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(self.value))
-            xml_constant.appendChild(xml_value)
+            xml_constant = create_node(parent, 'Texture')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = self.value
 
         elif self.type == 2:
-            xml_constant = doc.createElement('Float')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value)))
-            xml_constant.appendChild(xml_value)
+            xml_constant = create_node(parent, 'Float')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(self.value)
 
-        elif self.type == 3:
-            xml_constant = doc.createElement('Float')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.x)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.y)))
-            xml_constant.appendChild(xml_value)
+        elif self.type == 3 or self.type == 4:
+            xml_constant = create_node(parent, 'Float')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(self.value.x)
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(self.value.y)
 
-        elif self.type == 4:
-            xml_constant = doc.createElement('Float')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.x)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.y)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value.z)))
-            xml_constant.appendChild(xml_value)
+            if self.type == 4:
+                xml_value = create_node(xml_constant, 'Value')
+                xml_value.text = str(self.value.z)
 
         elif self.type == 5:
-            xml_constant = doc.createElement('Float')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(
-                str(float(self.value.r) / 255)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(
-                str(float(self.value.g) / 255)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(
-                str(float(self.value.b) / 255)))
-            xml_constant.appendChild(xml_value)
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(
-                str(float(self.value.a) / 255)))
-            xml_constant.appendChild(xml_value)
+            xml_constant = create_node(parent, 'Float')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(float(self.value.r) / 255)
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(float(self.value.g) / 255)
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(float(self.value.b) / 255)
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(float(self.value.a) / 255)
 
         elif self.type == 6:
-            xml_constant = doc.createElement('Int')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value)))
-            xml_constant.appendChild(xml_value)
+            xml_constant = create_node(parent, 'Int')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(self.value)
 
         elif self.type == 7:
-            xml_constant = doc.createElement('Bool')
-            xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value)))
-            xml_constant.appendChild(xml_value)
+            xml_constant = create_node(parent, 'Bool')
+            xml_value = create_node(xml_constant, 'Value')
+            xml_value.text = str(self.value)
 
-        xml_constant.setAttribute('Name', self.name)
-        return xml_constant
+        xml_constant.set('Name', self.name)
 
 
 W3D_CHUNK_SHADER_MATERIAL = 0x51
@@ -268,31 +245,24 @@ class ShaderMaterial(Struct):
     def parse(xml_fx_shader):
         result = ShaderMaterial(
             header=ShaderMaterialHeader(
-                type_name=xml_fx_shader.attributes['ShaderName'].value),
+                type_name=xml_fx_shader.get('ShaderName'),
+                technique_index=int(xml_fx_shader.get('TechniqueIndex', 0))),
             properties=[])
 
-        if 'TechniqueIndex' in xml_fx_shader.attributes:
-            result.header.technique_index = int(xml_fx_shader.attributes['TechniqueIndex'].value)
-
-        for child in xml_fx_shader.childs():
-            if child.tagName != 'Constants':
+        for child in xml_fx_shader:
+            if child.tag != 'Constants':
                 continue
-            for property in child.childs():
-                result.properties.append(
-                    ShaderMaterialProperty.parse(property))
-
+            for property in child:
+                result.properties.append(ShaderMaterialProperty.parse(property))
         return result
 
-    def create(self, doc):
-        fx_shader = doc.createElement('FXShader')
-        fx_shader.setAttribute('ShaderName', self.header.type_name)
+    def create(self, parent):
+        fx_shader = create_node(parent, 'FXShader')
+        fx_shader.set('ShaderName', self.header.type_name)
 
         if self.header.technique_index > 0:
-            fx_shader.setAttribute(
-                'TechniqueIndex', str(self.header.technique_index))
+            fx_shader.set('TechniqueIndex', str(self.header.technique_index))
 
-        constants = doc.createElement('Constants')
-        fx_shader.appendChild(constants)
+        constants = create_node(fx_shader, 'Constants')
         for property in self.properties:
-            constants.appendChild(property.create(doc))
-        return fx_shader
+            property.create(constants)
