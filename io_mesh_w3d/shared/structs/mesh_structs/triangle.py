@@ -37,7 +37,7 @@ class Triangle(Struct):
     def parse(xml_triangle):
         result = Triangle(vert_ids=[])
 
-        xml_verts = xml_triangle.findAll('V')
+        xml_verts = xml_triangle.findall('V')
         for i, xml_vert in enumerate(xml_verts):
             result.vert_ids.append(int(xml_vert.text))
 
