@@ -1,5 +1,8 @@
 name: Format python code
-on: push
+on: 
+  push:
+    branches: 
+      - master
 jobs:
   autopep8:
     runs-on: ubuntu-latest
