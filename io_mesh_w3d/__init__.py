@@ -8,7 +8,7 @@ from io_mesh_w3d.custom_properties import *
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 4, 0),
+    'version': (0, 4, 2),
     "blender": (2, 81, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
