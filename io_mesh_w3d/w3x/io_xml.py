@@ -32,7 +32,7 @@ def find_root(context, source):
         el.tag = el.tag.split('}', 1)[-1]  # strip all namespaces
     root = it.root
 
-    if not 'AssetDeclaration' in root.tag: # workaround since tag seems to be corrupted if root has attributes
+    if root.tag != 'AssetDeclaration':
         context.error('file: ' + source + ' does not contain a AssetDeclaration node!')
         return None
     return root
