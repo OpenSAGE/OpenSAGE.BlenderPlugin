@@ -2,8 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
-
 from tests.shared.helpers.mesh_structs.shader_material import *
 from tests.utils import TestCase
 

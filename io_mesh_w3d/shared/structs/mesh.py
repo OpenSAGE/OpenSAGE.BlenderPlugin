@@ -425,7 +425,7 @@ class Mesh(Struct):
             prelit_lightmap_multi_pass=None,
             prelit_lightmap_multi_texture=None)
 
-        id = xml_mesh.attributes['id'].value
+        id = xml_mesh.get('id')
         if '.' in id:
             (container_name, name) = id.split('.', 1)
             result.header.mesh_name = name
@@ -433,7 +433,7 @@ class Mesh(Struct):
         else:
             result.header.mesh_name = id
 
-        geometry_type = xml_mesh.attributes['GeometryType'].value
+        geometry_type = xml_mesh.get('GeometryType')
         result.header.attrs = GEOMETRY_TYPE_NORMAL
         if geometry_type == 'Skin':
             result.header.attrs |= GEOMETRY_TYPE_SKIN
@@ -450,53 +450,53 @@ class Mesh(Struct):
 
         bone_influences = []
 
-        for child in xml_mesh.childs():
-            if child.tagName == 'BoundingBox':
+        for child in xml_mesh:
+            if child.tag == 'BoundingBox':
                 bounding_box = BoundingBox.parse(child)
                 result.header.min_corner = bounding_box.min
                 result.header.max_corner = bounding_box.max
-            elif child.tagName == 'BoundingSphere':
+            elif child.tag == 'BoundingSphere':
                 bounding_sphere = BoundingSphere.parse(child)
                 result.header.sph_center = bounding_sphere.center
                 result.header.sph_radius = bounding_sphere.radius
-            elif child.tagName == 'Vertices':
+            elif child.tag == 'Vertices':
                 if not result.verts:
                     result.verts = parse_objects(child, 'V', parse_vector)
                     result.header.vert_count = len(result.verts)
                 else:
                     context.info('secondary vertices are not supported')
-            elif child.tagName == 'Normals':
+            elif child.tag == 'Normals':
                 if not result.normals:
                     result.normals = parse_objects(child, 'N', parse_vector)
                 else:
                     context.info('secondary normals are not supported')
-            elif child.tagName == 'Tangents':
+            elif child.tag == 'Tangents':
                 result.tangents = parse_objects(child, 'T', parse_vector)
-            elif child.tagName == 'Binormals':
+            elif child.tag == 'Binormals':
                 result.bitangents = parse_objects(child, 'B', parse_vector)
-            elif child.tagName == 'Triangles':
+            elif child.tag == 'Triangles':
                 result.triangles = parse_objects(child, 'T', Triangle.parse)
                 result.header.face_count = len(result.triangles)
-            elif child.tagName == 'TexCoords':
+            elif child.tag == 'TexCoords':
                 if not result.material_passes[0].tx_coords:
                     result.material_passes[0].tx_coords = parse_objects(child, 'T', parse_vector2)
                 else:
                     context.warning('multiple uv coords not yet supported!')
-            elif child.tagName == 'ShadeIndices':
+            elif child.tag == 'ShadeIndices':
                 result.shade_ids = parse_objects(child, 'I', parse_value, int)
                 context.info('shade indices are not supported')
-            elif child.tagName == 'BoneInfluences':
-                bone_influences.append(child.getElementsByTagName('I'))
-            elif child.tagName == 'VertexColors':
+            elif child.tag == 'BoneInfluences':
+                bone_influences.append(child.findall('I'))
+            elif child.tag == 'VertexColors':
                 context.info('vertex colors are not yet supported')
                 # <C R="0.258824" G="0.223529" B="1.000000" A="0.020000"/>
-            elif child.tagName == 'FXShader':
+            elif child.tag == 'FXShader':
                 result.shader_materials.append(ShaderMaterial.parse(child))
                 result.header.matl_count = len(result.shader_materials)
-            elif child.tagName == 'AABTree':
+            elif child.tag == 'AABTree':
                 result.aabbtree = AABBTree.parse(child)
             else:
-                context.warning('unhandled node: ' + child.tagName + ' in W3DMesh!')
+                context.warning('unhandled node: ' + child.tag + ' in W3DMesh!')
 
         if bone_influences:
             bone_infs = bone_influences[0]
@@ -510,69 +510,55 @@ class Mesh(Struct):
                     inf, xtra_infs[i]))
         return result
 
-    def create(self, doc):
-        xml_mesh = doc.createElement('W3DMesh')
+    def create(self, parent):
+        xml_mesh = create_node(parent, 'W3DMesh')
         id = self.header.container_name + "." + self.header.mesh_name
-        xml_mesh.setAttribute('id', id)
+        xml_mesh.set('id', id)
 
-        xml_mesh.setAttribute('GeometryType', 'Normal')
+        xml_mesh.set('GeometryType', 'Normal')
         if self.header.attrs & GEOMETRY_TYPE_SKIN:
-            xml_mesh.setAttribute('GeometryType', 'Skin')
+            xml_mesh.set('GeometryType', 'Skin')
 
         box = BoundingBox(
             min=self.header.min_corner,
             max=self.header.max_corner)
-
-        xml_mesh.appendChild(box.create(doc))
+        box.create(xml_mesh)
 
         sphere = BoundingSphere(
             center=self.header.sph_center,
             radius=self.header.sph_radius)
-        xml_mesh.appendChild(sphere.create(doc))
+        sphere.create(xml_mesh)
 
-        xml_mesh.appendChild(create_object_list(
-            doc, 'Vertices', self.verts, create_vector, 'V'))
-        xml_mesh.appendChild(create_object_list(
-            doc, 'Normals', self.normals, create_vector, 'N'))
+        create_object_list(xml_mesh, 'Vertices', self.verts, create_vector, 'V')
+        create_object_list(xml_mesh, 'Normals', self.normals, create_vector, 'N')
 
         if self.tangents:
-            xml_mesh.appendChild(create_object_list(
-                doc, 'Tangents', self.tangents, create_vector, 'T'))
+            create_object_list(xml_mesh, 'Tangents', self.tangents, create_vector, 'T')
 
         if self.bitangents:
-            xml_mesh.appendChild(create_object_list(
-                doc, 'Binormals', self.bitangents, create_vector, 'B'))
+            create_object_list(xml_mesh, 'Binormals', self.bitangents, create_vector, 'B')
 
         if self.material_passes:
-            xml_mesh.appendChild(create_object_list(
-                doc, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T'))
+            create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T')
 
-        xml_mesh.appendChild(create_object_list(
-            doc, 'ShadeIndices', self.shade_ids, create_value, 'I'))
+        create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
 
-        xml_mesh.appendChild(create_object_list(
-            doc, 'Triangles', self.triangles, Triangle.create))
+        create_object_list(xml_mesh, 'Triangles', self.triangles, Triangle.create)
 
         if self.vert_infs:
-            vertex_influences = doc.createElement('BoneInfluences')
-            vertex_influences2 = doc.createElement('BoneInfluences')
+            vertex_influences = create_node(xml_mesh, 'BoneInfluences')
+            vertex_influences2 = None
+            if self.multi_bone_skinned:
+                vertex_influences2 = create_node(xml_mesh, 'BoneInfluences')
 
             for vert_inf in self.vert_infs:
-                (bone_inf, bone_inf2) = vert_inf.create(doc)
-                vertex_influences.appendChild(bone_inf)
-                vertex_influences2.appendChild(bone_inf2)
-
-            xml_mesh.appendChild(vertex_influences)
-            if self.multi_bone_skinned:
-                xml_mesh.appendChild(vertex_influences2)
+                vert_inf.create(vertex_influences, vertex_influences2)
 
         for shader_material in self.shader_materials:
-            xml_mesh.appendChild(shader_material.create(doc))
+            shader_material.create(xml_mesh)
 
         if self.aabbtree is not None:
-            xml_mesh.appendChild(self.aabbtree.create(doc))
-
-        return xml_mesh
+            self.aabbtree.create(xml_mesh)
 
 
 ##########################################################################

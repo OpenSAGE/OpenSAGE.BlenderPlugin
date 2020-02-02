@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-
 from tests.shared.helpers.collision_box import *
 from tests.utils import TestCase
 
@@ -47,18 +46,4 @@ class TestCollisionBox(TestCase):
         self.assertEqual('BOUNDINGBOX', box.name())
 
     def test_write_read_xml(self):
-        expected = get_collision_box(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_collision_boxes = dom.getElementsByTagName('W3DCollisionBox')
-        self.assertEqual(1, len(xml_collision_boxes))
-
-        actual = CollisionBox.parse(self, xml_collision_boxes[0])
-        compare_collision_boxes(self, expected, actual)
+        self.write_read_xml_test(get_collision_box(xml=True), 'W3DCollisionBox', CollisionBox.parse, compare_collision_boxes, self)

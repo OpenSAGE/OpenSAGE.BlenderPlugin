@@ -2,8 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-from xml.dom import minidom
-
 from tests.shared.helpers.mesh_structs.texture import *
 from tests.utils import TestCase
 
@@ -50,18 +48,4 @@ class TestTexture(TestCase):
         self.assertEqual(30 + HEAD, tex.size())
 
     def test_write_read_xml(self):
-        expected = get_texture()
-
-        root = create_root()
-        expected.create(root)
-
-        io_stream = io.BytesIO()
-        write(root, io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        root = find_root(self, io_stream)
-        xml_textures = root.findall('Texture')
-        self.assertEqual(1, len(xml_textures))
-
-        actual = Texture.parse(self, xml_textures[0])
-        compare_textures(self, expected, actual)
+        self.write_read_xml_test(get_texture(), 'Texture', Texture.parse, compare_textures)

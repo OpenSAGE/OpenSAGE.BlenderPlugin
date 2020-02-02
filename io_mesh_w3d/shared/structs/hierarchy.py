@@ -67,32 +67,30 @@ class HierarchyPivot(Struct):
     @staticmethod
     def parse(xml_pivot):
         pivot = HierarchyPivot(
-            name=xml_pivot.attributes['Name'].value,
-            parent_id=int(xml_pivot.attributes['Parent'].value))
+            name=xml_pivot.get('Name'),
+            parent_id=int(xml_pivot.get('Parent')),
+            name_id=int(xml_pivot.get('NameID', 0)))
 
-        if 'NameID' in xml_pivot.attributes:
-            pivot.name_id = int(xml_pivot.attributes['NameID'].value)
-
-        for child in xml_pivot.childs():
-            if child.tagName == 'Translation':
+        for child in xml_pivot:
+            if child.tag == 'Translation':
                 pivot.translation = parse_vector(child)
-            elif child.tagName == 'Rotation':
+            elif child.tag == 'Rotation':
                 pivot.rotation = parse_quaternion(child)
-            elif child.tagName == 'FixupMatrix':
+            elif child.tag == 'FixupMatrix':
                 pivot.fixup_matrix = parse_matrix(child)
         return pivot
 
-    def create(self, doc):
-        pivot = doc.createElement('Pivot')
+    def create(self, parent):
+        pivot = create_node(parent, 'Pivot')
         if self.name is not None:
-            pivot.setAttribute('Name', self.name)
+            pivot.set('Name', self.name)
         if self.name_id is not None:
-            pivot.setAttribute('NameID', str(self.name_id))
-        pivot.setAttribute('Parent', str(self.parent_id))
-        pivot.appendChild(create_vector(self.translation, doc, 'Translation'))
-        pivot.appendChild(create_quaternion(self.rotation, doc))
-        pivot.appendChild(create_matrix(self.fixup_matrix, doc))
-        return pivot
+            pivot.set('NameID', str(self.name_id))
+        pivot.set('Parent', str(self.parent_id))
+        create_vector(self.translation, pivot, 'Translation')
+        create_quaternion(self.rotation, pivot)
+        create_matrix(self.fixup_matrix, pivot)
+
 
 
 W3D_CHUNK_HIERARCHY = 0x00000100
@@ -160,20 +158,19 @@ class Hierarchy(Struct):
     def parse(context, xml_hierarchy):
         result = Hierarchy(
             header=HierarchyHeader(
-                name=xml_hierarchy.attributes['id'].value),
+                name=xml_hierarchy.get('id')),
             pivots=[])
 
-        for child in xml_hierarchy.childs():
-            if child.tagName == 'Pivot':
+        for child in xml_hierarchy:
+            if child.tag == 'Pivot':
                 result.pivots.append(HierarchyPivot.parse(child))
             else:
-                context.warning('unhandled node: ' + child.tagName + ' in W3DHierarchy!')
+                context.warning('unhandled node: ' + child.tag + ' in W3DHierarchy!')
         return result
 
-    def create(self, doc):
-        hierarchy = doc.createElement('W3DHierarchy')
-        hierarchy.setAttribute('id', self.header.name)
+    def create(self, parent):
+        hierarchy = create_node(parent, 'W3DHierarchy')
+        hierarchy.set('id', self.header.name)
 
         for pivot in self.pivots:
-            hierarchy.appendChild(pivot.create(doc))
-        return hierarchy
+            pivot.create(hierarchy)

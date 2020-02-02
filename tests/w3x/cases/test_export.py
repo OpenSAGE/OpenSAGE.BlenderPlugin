@@ -72,11 +72,8 @@ class TestExportW3X(TestCase):
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        doc = minidom.parse(file_path + extension)
-        assets = doc.getElementsByTagName('AssetDeclaration')
-
-        for node in assets[0].childs():
-            self.assertNotEqual('W3DContainer', node.tagName)
+        root = find_root(self, file_path + extension)
+        self.assertIsNone(root.find('W3DContainer'))
 
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}
@@ -94,11 +91,8 @@ class TestExportW3X(TestCase):
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        doc = minidom.parse(file_path + extension)
-        assets = doc.getElementsByTagName('AssetDeclaration')
-
-        for node in assets[0].childs():
-            self.assertNotEqual('W3DHierarchy', node.tagName)
+        root = find_root(self, file_path + extension)
+        self.assertIsNone(root.find('W3DHierarchy'))
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {}
@@ -122,17 +116,23 @@ class TestExportW3X(TestCase):
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, 'W3X')
 
+        print('### test')
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        doc = minidom.parse(file_path + extension)
-        assets = doc.getElementsByTagName('AssetDeclaration')
+        #file = open(file_path + '.w3x')
+        #lines = file.readlines()
+        #file.close()
+        #for line in lines:
+        #    print(line)
 
-        hierarchy_found = False
-        for node in assets[0].childs():
-            if node.tagName == 'W3DHierarchy':
-                hierarchy_found = True
+        import xml.etree.ElementTree as ET
+        root = ET.parse(file_path + '.w3x').find('AssetDeclaration')
+        print(root.tag)
 
-        self.assertTrue(hierarchy_found)
+        print('##### done')
+
+        root = find_root(self, file_path + extension)
+        self.assertIsNotNone(root.find('W3DHierarchy'))
 
     def test_no_hierarchy_is_written_if_mode_HM_and_use_existing_skeleton(self):
         export_settings = {}
@@ -158,11 +158,8 @@ class TestExportW3X(TestCase):
 
         self.assertEqual({'FINISHED'}, save(context, export_settings))
 
-        doc = minidom.parse(file_path + extension)
-        assets = doc.getElementsByTagName('AssetDeclaration')
-
-        for node in assets[0].childs():
-            self.assertNotEqual('W3DHierarchy', node.tagName)
+        root = find_root(self, file_path + extension)
+        self.assertIsNone(root.find('W3DHierarchy'))
 
     def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
         export_settings = {}

@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import io
-
 from tests.shared.helpers.animation import *
 from tests.utils import TestCase
 
@@ -93,35 +92,7 @@ class TestAnimation(TestCase):
         self.assertEqual(95, ani.size())
 
     def test_write_read_xml(self):
-        expected = get_animation(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_animations = dom.getElementsByTagName('W3DAnimation')
-        self.assertEqual(1, len(xml_animations))
-
-        actual = Animation.parse(self, xml_animations[0])
-        compare_animations(self, expected, actual)
+        self.write_read_xml_test(get_animation(xml=True), 'W3DAnimation', Animation.parse, compare_animations, self)
 
     def test_write_read_minimal_xml(self):
-        expected = get_animation_minimal()
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_animations = dom.getElementsByTagName('W3DAnimation')
-        self.assertEqual(1, len(xml_animations))
-
-        actual = Animation.parse(self, xml_animations[0])
-        compare_animations(self, expected, actual)
+        self.write_read_xml_test(get_animation_minimal(), 'W3DAnimation', Animation.parse, compare_animations, self)
