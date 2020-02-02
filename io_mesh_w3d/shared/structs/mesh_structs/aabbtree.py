@@ -42,14 +42,13 @@ class Children(Struct):
     @staticmethod
     def parse(xml_children):
         return Children(
-            front=int(xml_children.attributes['Front'].value),
-            back=int(xml_children.attributes['Back'].value))
+            front=int(xml_children.get('Front')),
+            back=int(xml_children.get('Back')))
 
-    def create(self, doc):
-        xml_children = doc.createElement('Children')
-        xml_children.setAttribute('Front', str(self.front))
-        xml_children.setAttribute('Back', str(self.back))
-        return xml_children
+    def create(self, parent):
+        xml_children = create_node(parent, 'Children')
+        xml_children.set('Front', str(self.front))
+        xml_children.set('Back', str(self.back))
 
 
 class Polys(Struct):
@@ -59,14 +58,13 @@ class Polys(Struct):
     @staticmethod
     def parse(xml_polys):
         return Polys(
-            begin=int(xml_polys.attributes['Begin'].value),
-            count=int(xml_polys.attributes['Count'].value))
+            begin=int(xml_polys.get('Begin')),
+            count=int(xml_polys.get('Count')))
 
-    def create(self, doc):
-        xml_polys = doc.createElement('Polys')
-        xml_polys.setAttribute('Begin', str(self.begin))
-        xml_polys.setAttribute('Count', str(self.count))
-        return xml_polys
+    def create(self, parent):
+        xml_polys = create_node(parent, 'Polys')
+        xml_polys.set('Begin', str(self.begin))
+        xml_polys.set('Count', str(self.count))
 
 
 class AABBTreeNode(Struct):
@@ -101,34 +99,29 @@ class AABBTreeNode(Struct):
             children=None,
             polys=None)
 
-        xml_min = xml_node.getElementsByTagName('Min')[0]
-        node.min = parse_vector(xml_min)
+        node.min = parse_vector(xml_node.find('Min'))
+        node.max = parse_vector(xml_node.find('Max'))
 
-        xml_max = xml_node.getElementsByTagName('Max')[0]
-        node.max = parse_vector(xml_max)
+        xml_polys = xml_node.find('Polys')
+        if xml_polys is not None:
+            node.polys = Polys.parse(xml_polys)
 
-        xml_polys = xml_node.getElementsByTagName('Polys')
-        if xml_polys:
-            node.polys = Polys.parse(xml_polys[0])
-
-        xml_children = xml_node.getElementsByTagName('Children')
-        if xml_children:
-            node.children = Children.parse(xml_children[0])
+        xml_children = xml_node.find('Children')
+        if xml_children is not None:
+            node.children = Children.parse(xml_children)
         return node
 
-    def create(self, doc):
-        xml_node = doc.createElement('Node')
+    def create(self, parent):
+        xml_node = create_node(parent, 'Node')
 
-        xml_node.appendChild(create_vector(self.min, doc, 'Min'))
-        xml_node.appendChild(create_vector(self.max, doc, 'Max'))
+        create_vector(self.min, xml_node, 'Min')
+        create_vector(self.max, xml_node, 'Max')
 
         if self.polys is not None:
-            xml_node.appendChild(self.polys.create(doc))
+            self.polys.create(xml_node)
 
         if self.children is not None:
-            xml_node.appendChild(self.children.create(doc))
-
-        return xml_node
+            self.children.create(xml_node)
 
 
 W3D_CHUNK_AABBTREE = 0x00000090
@@ -192,29 +185,25 @@ class AABBTree(Struct):
             poly_indices=[],
             nodes=[])
 
-        xml_polyindices = xml_aabbtree.getElementsByTagName('PolyIndices')[0]
-        for xml_poly_index in xml_polyindices.getElementsByTagName('P'):
-            result.poly_indices.append(
-                int(xml_poly_index.childNodes[0].nodeValue))
+        xml_polyindices = xml_aabbtree.find('PolyIndices')
+        if xml_polyindices is not None:
+            for xml_poly_index in xml_polyindices.findall('P'):
+                result.poly_indices.append(int(xml_poly_index.text))
 
-        xml_nodes = xml_aabbtree.getElementsByTagName('Node')
-        for xml_node in xml_nodes:
+        for xml_node in xml_aabbtree.findall('Node'):
             result.nodes.append(AABBTreeNode.parse(xml_node))
 
         result.header.poly_count = len(result.poly_indices)
         result.header.node_count = len(result.nodes)
         return result
 
-    def create(self, doc):
-        aabbtree = doc.createElement('AABTree')
+    def create(self, parent):
+        aabbtree = create_node(parent, 'AABTree')
 
-        poly_indices = doc.createElement('PolyIndices')
-        aabbtree.appendChild(poly_indices)
+        poly_indices = create_node(aabbtree, 'PolyIndices')
         for index in self.poly_indices:
-            xml_index = doc.createElement('P')
-            xml_index.appendChild(doc.createTextNode(str(index)))
-            poly_indices.appendChild(xml_index)
+            xml_index = create_node(poly_indices, 'P')
+            xml_index.text = str(index)
 
         for node in self.nodes:
-            aabbtree.appendChild(node.create(doc))
-        return aabbtree
+            node.create(aabbtree)

@@ -69,35 +69,7 @@ class TestAABBTree(TestCase):
         self.assertEqual(76, expected.size())
 
     def test_write_read_xml(self):
-        expected = get_aabbtree(xml=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_aabbtrees = dom.getElementsByTagName('AABTree')
-        self.assertEqual(1, len(xml_aabbtrees))
-
-        actual = AABBTree.parse(xml_aabbtrees[0])
-        compare_aabbtrees(self, expected, actual)
+        self.write_read_xml_test(get_aabbtree(xml=True), 'AABTree', AABBTree.parse, compare_aabbtrees)
 
     def test_write_read_minimal_xml(self):
-        expected = get_aabbtree_minimal()
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_aabbtrees = dom.getElementsByTagName('AABTree')
-        self.assertEqual(1, len(xml_aabbtrees))
-
-        actual = AABBTree.parse(xml_aabbtrees[0])
-        compare_aabbtrees(self, expected, actual)
+        self.write_read_xml_test(get_aabbtree_minimal(), 'AABTree', AABBTree.parse, compare_aabbtrees)

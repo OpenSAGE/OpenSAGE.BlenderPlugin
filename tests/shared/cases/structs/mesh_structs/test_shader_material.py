@@ -134,21 +134,9 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(240, material.size())
 
     def test_write_read_xml(self):
-        expected = get_shader_material(w3x=True)
+        self.write_read_xml_test(get_shader_material(w3x=True), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        actual = ShaderMaterial.parse(xml_shader_materials[0])
-        compare_shader_materials(self, expected, actual)
+       
 
     def test_write_read_rgb_colors_xml(self):
         expected = get_shader_material(w3x=True, rgb_colors=True)
@@ -168,42 +156,15 @@ class TestShaderMaterial(TestCase):
         compare_shader_materials(self, expected, actual)
 
     def test_write_read_xml_two_texture(self):
-        expected = get_shader_material(two_tex=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        actual = ShaderMaterial.parse(xml_shader_materials[0])
-        compare_shader_materials(self, expected, actual)
+        self.write_read_xml_test(get_shader_material(two_tex=True), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
     def test_write_read_minimal_xml(self):
-        expected = get_shader_material_minimal()
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        actual = ShaderMaterial.parse(xml_shader_materials[0])
-        compare_shader_materials(self, expected, actual)
+        self.write_read_xml_test(get_shader_material_minimal(), 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
     def test_write_read_minimal_xml_no_technique_index(self):
         expected = get_shader_material_minimal()
         expected.header.technique_index = 0
+        self.write_read_xml_test(expected, 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
         doc = minidom.Document()
         doc.appendChild(expected.create(doc))
