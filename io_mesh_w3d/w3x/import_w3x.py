@@ -95,6 +95,10 @@ def load(context, import_settings):
         path = dir + data_context.hlod.hierarchy_name() + '.w3x'
         data_context = load_file(context, data_context, path)
 
+    if data_context.animation is not None and data_context.hierarchy is None:
+        path = dir + data_context.animation.header.hierarchy_name + '.w3x'
+        data_context = load_file(context, data_context, path)
+
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy
     boxes = data_context.collision_boxes
