@@ -27,7 +27,10 @@ def write(root, path):
 
 
 def find_root(context, source):
-    root = ET.parse(source).getroot()
+    it = ET.iterparse(source)
+    for _, el in it:
+        el.tag = el.tag.split('}', 1)[-1]  # strip all namespaces
+    root = it.root
 
     if not 'AssetDeclaration' in root.tag: # workaround since tag seems to be corrupted if root has attributes
         context.error('file: ' + source + ' does not contain a AssetDeclaration node!')
@@ -37,8 +40,8 @@ def find_root(context, source):
 
 def create_root():
     root = ET.Element('AssetDeclaration')
-    #root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-    #root.set('xmlns', 'uri:ea.com:eala:asset')
+    root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+    root.set('xmlns', 'uri:ea.com:eala:asset')
     return root
 
 
