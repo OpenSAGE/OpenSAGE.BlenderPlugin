@@ -139,24 +139,13 @@ class TestShaderMaterial(TestCase):
             ShaderMaterial.parse,
             compare_shader_materials)
 
-       
-
     def test_write_read_rgb_colors_xml(self):
-        expected = get_shader_material(w3x=True, rgb_colors=True)
-
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        actual = ShaderMaterial.parse(xml_shader_materials[0])
-        compare_shader_materials(self, expected, actual)
+        self.write_read_xml_test(
+            get_shader_material(
+                two_tex=True, rgb_colors=True),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
 
     def test_write_read_xml_two_texture(self):
         self.write_read_xml_test(
@@ -178,38 +167,16 @@ class TestShaderMaterial(TestCase):
         expected.header.technique_index = 0
         self.write_read_xml_test(expected, 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
-
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        actual = ShaderMaterial.parse(xml_shader_materials[0])
-        compare_shader_materials(self, expected, actual)
-
     def test_write_read_minimal_xml_bool_is_written_lowercase(self):
         expected = get_shader_material_minimal()
 
-        doc = minidom.Document()
-        doc.appendChild(expected.create(doc))
+        root = create_root()
+        expected.create(root)
 
-        io_stream = io.BytesIO()
-        io_stream.write(bytes(doc.toprettyxml(indent='   '), 'UTF-8'))
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        dom = minidom.parse(io_stream)
-        xml_shader_materials = dom.getElementsByTagName('FXShader')
-        self.assertEqual(1, len(xml_shader_materials))
-
-        for child in xml_shader_materials[0].childs():
-            if child.tagName != 'Constants':
+        for child in root.find('FXShader'):
+            if child.tag != 'Constants':
                 continue
-            for property in child.childs():
-                if property.tagName == 'Bool':
-                    value = property.getElementsByTagName('Value')[0].childNodes[0].nodeValue
+            for property in child:
+                if property.tag == 'Bool':
+                    value = property.find('Value').text
                     self.assertTrue(value in ['true', 'false'])
