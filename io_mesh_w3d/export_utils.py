@@ -954,3 +954,47 @@ def calculate_mesh_sphere(mesh):
     radius = z.length
 
     return validate_all_points_inside_sphere(center, radius, vertices)
+
+
+def compute_aabbtree(verts):
+    # split by longest side
+    min = verts[0]
+    max = verts[0]
+
+    for vert in verts:
+        if vert.x < min.x:
+            min.x = vert.x
+        if vert.y < min.y:
+            min.y = vert.y
+        if vert.z < min.z:
+            min.z = vert.z
+
+        if vert.x > max.x:
+            max.x = vert.x
+        if vert.y > max.y:
+            max.y = vert.y
+        if vert.z > max.z:
+            max.z = vert.z
+
+    delta_x = max.x - min.x
+    delta_y = max.y - min.y
+    delta_z = max.z - min.z
+
+    if delta_x > delta_y:
+        if delta_x > delta_z:
+            x = min.x + delta_x * 0.5
+            left = [vert for v in verts if vert.x <= x]
+            right = [vert for v in verts if vert.x > x]
+        else:
+            z = min.z + delta_z * 0.5
+            bottom = [vert for v in verts if vert.z <= z]
+            top = [vert for v in verts if vert.z > z]
+    elif delta_y > delta_z:
+        y = min.y + delta_y * 0.5
+        front = [vert for v in verts if vert.y <= y]
+        back = [vert for v in verts if vert.y > y]
+    else:
+        z = min.z + delta_z * 0.5
+        bottom = [vert for v in verts if vert.z <= z]
+        top = [vert for v in verts if vert.z > z]
+    return None
