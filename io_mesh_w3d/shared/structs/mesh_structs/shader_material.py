@@ -219,7 +219,7 @@ class ShaderMaterialProperty(Struct):
         elif self.type == 7:
             xml_constant = doc.createElement('Bool')
             xml_value = doc.createElement('Value')
-            xml_value.appendChild(doc.createTextNode(str(self.value)))
+            xml_value.appendChild(doc.createTextNode(str(self.value).lower()))
             xml_constant.appendChild(xml_value)
 
         xml_constant.setAttribute('Name', self.name)

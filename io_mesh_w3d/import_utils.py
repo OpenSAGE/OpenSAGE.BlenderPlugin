@@ -413,17 +413,29 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
-            material.diffuse_color = prop.value.to_vector_rgba(alpha=1.0)
+            if isinstance(prop.value, RGBA):
+                material.diffuse_color = prop.value.to_vector_rgba(alpha=1.0)
+            else:
+                material.diffuse_color = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
-            material.specular_color = prop.value.to_vector_rgb()
+            if isinstance(prop.value, RGBA):
+                material.specular_color = prop.value.to_vector_rgb()
+            else:
+                material.specular_color = prop.value
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = prop.value
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
-            material.ambient = prop.value.to_vector_rgba()
+            if isinstance(prop.value, RGBA):
+                material.ambient = prop.value.to_vector_rgba()
+            else:
+                material.ambient = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
         elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
-            material.emission = prop.value.to_vector_rgba()
+            if isinstance(prop.value, RGBA):
+                material.emission = prop.value.to_vector_rgba()
+            else:
+                material.emission = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
         elif prop.name == 'Opacity':
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':

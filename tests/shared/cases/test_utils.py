@@ -71,6 +71,28 @@ class TestUtils(TestCase):
             actual = retrieve_shader_material(material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
 
+    def test_shader_material_w3x_rgb_colors_roundtrip(self):
+        mesh = get_mesh()
+        mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        for source in mesh.shader_materials:
+            (material, _) = create_material_from_shader_material(
+                self, mesh, source)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_shader_material(material, principled, w3x=True)
+
+            for prop in source.properties:
+                if prop.name in ['ColorAmbient', 'ColorEmissive']:
+                    prop.type = 5
+                    prop.value = RGBA(vec=prop.value, a=255)
+                elif prop.name in ['ColorDiffuse', 'ColorSpecular']:
+                    prop.type = 5
+                    prop.value = RGBA(vec=prop.value, a=0)
+
+            compare_shader_materials(self, source, actual)
+
     def test_shader_material_w3x_two_tex_roundtrip(self):
         mesh = get_mesh()
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]

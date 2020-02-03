@@ -20,12 +20,14 @@ def compare_shader_material_headers(self, expected, actual):
 
 
 def get_shader_material_property(
-        _type=1, name='property', tex_name='texture.dds'):
+        _type=1, name='property', tex_name='texture.dds', value=None):
     result = ShaderMaterialProperty(
         type=_type,
         name=name)
 
-    if _type == 1:
+    if value is not None:
+        result.value = value
+    elif _type == 1:
         result.value = tex_name
     elif _type == 2:
         result.value = 0.25
@@ -62,7 +64,7 @@ def compare_shader_material_properties(self, expected, actual):
         self.assertEqual(expected.value, actual.value)
 
 
-def get_shader_material_properties(w3x=False, two_tex=False):
+def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
     props = [
         get_shader_material_property(3, 'BumpUVScale'),
         get_shader_material_property(6, 'BlendMode'),
@@ -93,10 +95,17 @@ def get_shader_material_properties(w3x=False, two_tex=False):
 
     if w3x:
         props.append(get_shader_material_property(2, 'Shininess'))
-        props.append(get_shader_material_property(5, 'ColorDiffuse'))
-        props.append(get_shader_material_property(5, 'ColorSpecular'))
-        props.append(get_shader_material_property(5, 'ColorAmbient'))
-        props.append(get_shader_material_property(5, 'ColorEmissive'))
+
+        if rgb_colors:
+            props.append(get_shader_material_property(4, 'ColorDiffuse', value=get_vec(x=0.2, y=0.33, z=0.9)))
+            props.append(get_shader_material_property(4, 'ColorSpecular', value=get_vec(x=0.2, y=0.33, z=0.9)))
+            props.append(get_shader_material_property(4, 'ColorAmbient', value=get_vec(x=0.2, y=0.33, z=0.9)))
+            props.append(get_shader_material_property(4, 'ColorEmissive', value=get_vec(x=0.2, y=0.33, z=0.9)))
+        else:
+            props.append(get_shader_material_property(5, 'ColorDiffuse'))
+            props.append(get_shader_material_property(5, 'ColorSpecular'))
+            props.append(get_shader_material_property(5, 'ColorAmbient'))
+            props.append(get_shader_material_property(5, 'ColorEmissive'))
     else:
         props.append(get_shader_material_property(2, 'SpecularExponent'))
         props.append(get_shader_material_property(5, 'DiffuseColor'))
@@ -134,10 +143,10 @@ def get_shader_material_properties_minimal():
     ]
 
 
-def get_shader_material(w3x=False, two_tex=False):
+def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):
     return ShaderMaterial(
         header=get_shader_material_header(),
-        properties=get_shader_material_properties(w3x, two_tex))
+        properties=get_shader_material_properties(w3x, two_tex, rgb_colors))
 
 
 def get_shader_material_minimal():
