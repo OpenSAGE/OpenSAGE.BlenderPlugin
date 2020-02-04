@@ -66,7 +66,7 @@ class TestUtils(TestCase):
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
@@ -79,7 +79,7 @@ class TestUtils(TestCase):
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled, w3x=True)
 
@@ -101,7 +101,7 @@ class TestUtils(TestCase):
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
-                self, mesh, source)
+                self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
@@ -110,7 +110,7 @@ class TestUtils(TestCase):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials[0].properties = []
 
-        (material, principled) = create_material_from_shader_material(self, mesh, mesh.shader_materials[0])
+        (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
 
         actual = retrieve_shader_material(material, principled, w3x=False)
         self.assertEqual(0, len(actual.properties))

@@ -9,7 +9,7 @@ from tests.shared.helpers.rgba import get_rgba, compare_rgbas
 def get_shader_material_header():
     return ShaderMaterialHeader(
         technique_index=1,
-        type_name='NormalMapped.fx',
+        type_name='ShaderMaterial.fx',
         reserved=0)
 
 
