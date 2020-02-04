@@ -44,21 +44,19 @@ class TestExportUtils(TestCase):
                 children=None)]
 
         verts = [get_vec(0.124, 0.165, -0.296),
-                  get_vec(0.684, -0.241, 0.203),
-                  get_vec(-0.007, -0.743, 0.203),
-                  get_vec(-0.008, -0.241, -0.296),
+                 get_vec(0.684, -0.241, 0.203),
+                 get_vec(-0.007, -0.743, 0.203),
+                 get_vec(-0.008, -0.241, -0.296),
 
-                  get_vec(0.420, 0.571, 0.203),
-                  get_vec(0.206, -0.084, -0.296),
-                  get_vec(-0.434, 0.571, 0.203),
-                  get_vec(-0.139, 0.165, -0.296),
+                 get_vec(0.420, 0.571, 0.203),
+                 get_vec(0.206, -0.084, -0.296),
+                 get_vec(-0.434, 0.571, 0.203),
+                 get_vec(-0.139, 0.165, -0.296),
 
                  get_vec(-0.699, -0.241, 0.203),
 
                  get_vec(-0.221, -0.086, -0.296)]
 
-
         actual = retrieve_aabbtree(verts)
 
         # compare_aabbtrees(self, expected, actual)
-
