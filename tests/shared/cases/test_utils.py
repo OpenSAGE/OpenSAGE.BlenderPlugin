@@ -47,16 +47,34 @@ class TestUtils(TestCase):
 
     def test_shader_material_roundtrip(self):
         mesh = get_mesh()
+        mesh.shader_materials = [get_shader_material()]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
-                self, mesh, source)
-            principled = retrieve_principled_bsdf(material)
+                self, mesh.name(), source)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(material, principled)
             compare_shader_materials(self, source, actual)
+
+    def test_duplicate_shader_material_roundtrip(self):
+        mesh = get_mesh()
+        mesh.shader_materials = [get_shader_material(), get_shader_material()]
+
+        materials = []
+        for mat in mesh.shader_materials:
+            (material, _) = create_material_from_shader_material(self, 'meshName', mat)
+            materials.append(material)
+
+        self.assertEqual(1, len(bpy.data.materials))
+        self.assertTrue('meshName.ShaderMaterial.fx' in bpy.data.materials)
+
+        for expected in mesh.shader_materials:
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_shader_material(material, principled)
+            compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_roundtrip(self):
         mesh = get_mesh()
