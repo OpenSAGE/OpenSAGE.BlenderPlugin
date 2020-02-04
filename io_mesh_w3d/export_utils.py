@@ -783,7 +783,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
-        print(fcu.data_path)
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
@@ -878,10 +877,11 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
         channels.extend(retrieve_channels(
             mesh, hierarchy, timecoded, mesh.name))
 
-    for armature in get_objects('ARMATURE'):
+    for rig in get_objects('ARMATURE'):
+        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
+
+    for armature in bpy.data.armatures:
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
-        for bone in armature.data.bones:
-            channels.extend(retrieve_channels(bone, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(time_coded_channels=channels)

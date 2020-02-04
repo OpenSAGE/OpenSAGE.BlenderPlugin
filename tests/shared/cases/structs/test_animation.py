@@ -11,7 +11,7 @@ class TestAnimation(TestCase):
         expected = get_animation()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(664, expected.size())
+        self.assertEqual(683, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)

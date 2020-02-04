@@ -593,7 +593,6 @@ class TestUtils(TestCase):
 
         create_data(self, [], None, hierarchy, [], animation)
 
-        animation.channels.remove(animation.channels[-1])
         self.compare_data([], None, None, [], animation)
 
     def test_compressed_animation_roundtrip(self):
