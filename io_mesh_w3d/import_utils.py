@@ -642,10 +642,9 @@ def set_rotation(bone, frame, value):
 
 
 def set_visibility(bone, frame, value):
-    if isinstance(bone, bpy.types.PoseBone):
-        bone.bone.hide = value
-        bone.bone.keyframe_insert(
-            data_path='hide', frame=frame)  # , options=creation_options)
+    if isinstance(bone, bpy.types.Bone):
+        bone.hide = value
+        bone.keyframe_insert(data_path='hide', frame=frame)  # , options=creation_options)
     else:
         print("### is object")
         bone.hide_viewport = value
