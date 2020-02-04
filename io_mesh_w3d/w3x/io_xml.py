@@ -16,12 +16,27 @@ def write_struct(struct, path):
     write(root, path)
 
 
-def write(root, path):
-    # TODO: find a ElementTree only variant
-    from xml.dom import minidom
-    data = minidom.parseString(ET.tostring(root)).toprettyxml(indent="   ")
+def pretty_print(elem, level=0):
+    i = '\n' + level * '  '
+    if elem:
+        if not elem.text or not elem.text.strip():
+            elem.text = i + '  '
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+        for elem in elem:
+            pretty_print(elem, level + 1)
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
 
-    file = open(path, 'w')
+
+def write(root, path):
+    pretty_print(root)
+    data = ET.tostring(root, encoding='utf8', method='xml')
+
+    file = open(path, 'wb')
     file.write(data)
     file.close()
 
