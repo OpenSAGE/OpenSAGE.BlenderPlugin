@@ -706,9 +706,6 @@ def create_animation(context, rig, animation, hierarchy, compressed=False):
 
     setup_animation(animation)
 
-    if rig is not None and rig.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
-
     if not compressed:
         process_channels(context, hierarchy, animation.channels,
                          rig, apply_uncompressed)
