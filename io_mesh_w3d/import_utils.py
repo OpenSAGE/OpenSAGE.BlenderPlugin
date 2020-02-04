@@ -348,7 +348,7 @@ def create_vertex_material(context, principleds, struct, mesh, name, triangles):
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
             texture = struct.textures[tex_id]
-            tex = get_texture(context, texture.file, texture.id)
+            tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
             #principleds[mat_id].alpha_texture.image = tex
 
@@ -403,13 +403,13 @@ def create_material_from_shader_material(context, mesh, shader_mat, index=''):
 
     for prop in shader_mat.properties:
         if prop.name == 'DiffuseTexture' and prop.value != '':
-            principled.base_color_texture.image = get_texture(context, prop.value)
+            principled.base_color_texture.image = find_texture(context, prop.value)
         elif prop.name == 'NormalMap' and prop.value != '':
-            principled.normalmap_texture.image = get_texture(context, prop.value)
+            principled.normalmap_texture.image = find_texture(context, prop.value)
         elif prop.name == 'BumpScale':
             principled.normalmap_strength = prop.value
         elif prop.name == 'SpecMap' and prop.value != '':
-            principled.specular_texture.image = get_texture(context, prop.value)
+            principled.specular_texture.image = find_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
@@ -560,26 +560,28 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
 # load texture
 ##########################################################################
 
-def get_texture(context, file, name=None):
+def find_texture(context, file, name=None):
     if name is None:
         name = file
 
-    file = file.split('.')[0]
+    file = file.split('.', -1)[0]
     if name in bpy.data.images:
         return bpy.data.images[name]
 
     path = insensitive_path(os.path.dirname(context.filepath))
     filepath = path + os.path.sep + file
-    img = load_image(filepath + '.tga')
+    extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
+    for extension in extensions:
+        img = load_image(filepath + extension)
+        if img is not None:
+            context.info('loaded texture: ' + filepath + extension)
+            break
+
     if img is None:
-        img = load_image(filepath + '.dds')
-    if img is None:
-        context.warning('texture not found: ' + filepath + ' (.dds or .tga)')
+        context.warning('texture not found: ' + filepath + ' ' + str(extensions))
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
-    else:
-        context.info('loaded texture: ' + filepath + ' (.dds or .tga)')
 
     img.name = name
     img.alpha_mode = 'STRAIGHT'
@@ -765,7 +767,7 @@ def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
 
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     principled.base_color = (255, 255, 255)
-    principled.base_color_texture.image = get_texture(context, 'SunDazzle.tga')
+    principled.base_color_texture.image = find_texture(context, 'SunDazzle.tga')
     dazzle_mesh.materials.append(material)
 
 
