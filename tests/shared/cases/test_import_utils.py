@@ -44,16 +44,6 @@ class TestImportUtils(TestCase):
             bpy.ops.wm.read_homefile(use_empty=True)
             os.remove(self.outpath() + 'texture' + extension)
 
-    def test_duplicate_shader_material_creation(self):
-        shader_mats = [get_shader_material(), get_shader_material()]
-
-        print('################## test')
-        for mat in shader_mats:
-            create_material_from_shader_material(self, 'meshName', mat)
-
-        self.assertEqual(1, len(bpy.data.materials))
-        self.assertTrue('meshName.ShaderMaterial.fx' in bpy.data.materials)
-
     def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
