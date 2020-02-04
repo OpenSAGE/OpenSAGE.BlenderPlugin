@@ -646,7 +646,6 @@ def set_visibility(bone, frame, value):
         bone.hide = value
         bone.keyframe_insert(data_path='hide', frame=frame)  # , options=creation_options)
     else:
-        print("### is object")
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
                              frame=frame)  # , options=creation_options)
@@ -705,12 +704,10 @@ def create_animation(context, rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
-    if rig is None and animation.header.hierarchy_name in bpy.data.objects:
-        obj = bpy.data.objects[animation.header.hierarchy_name]
-        if obj.type == 'ARMATURE':
-            rig = obj
-
     setup_animation(animation)
+
+    if rig is not None and rig.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
 
     if not compressed:
         process_channels(context, hierarchy, animation.channels,
