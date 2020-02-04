@@ -956,12 +956,24 @@ def calculate_mesh_sphere(mesh):
     return validate_all_points_inside_sphere(center, radius, vertices)
 
 
-def compute_aabbtree(verts):
-    # split by longest side
-    min = verts[0]
-    max = verts[0]
+def retrieve_aabbtree(verts):
+    result = AABBTree(
+        header=AABBTreeHeader(),
+        poly_indices=[],
+        nodes=[])
 
-    for vert in verts:
+    compute_aabbtree(result, verts, verts)
+    result.header.node_count = len(result.nodes)
+    result.header.poly_count = len(result.poly_indices)
+    return result
+
+
+def compute_aabbtree(aabbtree, verts, sublist):
+    min = Vector((sublist[0].x, sublist[0].y, sublist[0].z))
+    max = Vector((sublist[0].x, sublist[0].y, sublist[0].z))
+
+    for vert in sublist:
+        # print('v: ' + str(vert))
         if vert.x < min.x:
             min.x = vert.x
         if vert.y < min.y:
@@ -976,25 +988,81 @@ def compute_aabbtree(verts):
         if vert.z > max.z:
             max.z = vert.z
 
+    # print('min: ' + str(min))
+    # print('max: ' + str(max))
+
     delta_x = max.x - min.x
     delta_y = max.y - min.y
     delta_z = max.z - min.z
 
+    # print('delta_x: ' + str(delta_x))
+    # print('delta_y: ' + str(delta_y))
+    # print('delta_z: ' + str(delta_z))
+
     if delta_x > delta_y:
         if delta_x > delta_z:
             x = min.x + delta_x * 0.5
-            left = [vert for v in verts if vert.x <= x]
-            right = [vert for v in verts if vert.x > x]
+            left = [v for v in sublist if v.x <= x]
+            right = [v for v in sublist if v.x > x]
+            if delta_x < 1.0:
+                left = sublist
+                right = []
+            # print('split x: ' + str(x))
+            process_childs(aabbtree, verts, min, max, left, right)
         else:
             z = min.z + delta_z * 0.5
-            bottom = [vert for v in verts if vert.z <= z]
-            top = [vert for v in verts if vert.z > z]
+            bottom = [v for v in sublist if v.z <= z]
+            top = [v for v in sublist if v.z > z]
+            if delta_z < 1.0:
+                top = sublist
+                bottom = []
+            # print('split z: ' + str(z))
+            process_childs(aabbtree, verts, min, max, bottom, top)
     elif delta_y > delta_z:
         y = min.y + delta_y * 0.5
-        front = [vert for v in verts if vert.y <= y]
-        back = [vert for v in verts if vert.y > y]
+        front = [v for v in sublist if v.y <= y]
+        back = [v for v in sublist if v.y > y]
+        if delta_y < 1.0:
+            front = sublist
+            back = []
+        # print('split y: ' + str(y))
+        process_childs(aabbtree, verts, min, max, front, back)
     else:
         z = min.z + delta_z * 0.5
-        bottom = [vert for v in verts if vert.z <= z]
-        top = [vert for v in verts if vert.z > z]
-    return None
+        bottom = [v for v in sublist if v.z <= z]
+        top = [v for v in sublist if v.z > z]
+        if delta_z < 1.0:
+            bottom = sublist
+            top = []
+        # print('split z: ' + str(z))
+        process_childs(aabbtree, verts, min, max, bottom, top)
+
+
+def process_childs(aabbtree, verts, min, max, first, second):
+    # print('sizes: ' + str(len(first)) + ' ' + str(len(second)))
+    if first and second:
+        node = AABBTreeNode(
+            min=min,
+            max=max,
+            polys=None,
+            children=Children(front=-1, back=-1))
+        aabbtree.nodes.append(node)
+
+        node.children.front = len(aabbtree.nodes) 
+        compute_aabbtree(aabbtree, verts, first)
+        node.children.back = len(aabbtree.nodes)
+        compute_aabbtree(aabbtree, verts, second)
+
+        # print('created node:  front ' + str(node.children.front) + ' back ' + str(node.children.back))
+        return
+
+    combined = first + second
+    node = AABBTreeNode(
+        min=min,
+        max=max,
+        polys=Polys(begin=len(aabbtree.poly_indices), count=len(combined)),
+        children=None)
+    # print('created node:  begin ' + str(node.polys.begin) + ' count ' + str(node.polys.count))
+    aabbtree.nodes.append(node)
+    for v in combined:
+        aabbtree.poly_indices.append(verts.index(v))
