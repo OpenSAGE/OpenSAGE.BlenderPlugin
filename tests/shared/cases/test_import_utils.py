@@ -21,7 +21,7 @@ class TestImportUtils(TestCase):
 
         for extension in extensions:
             copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture' + extension)
+                     self.outpath() + 'texture' + extension)
 
             find_texture(self, 'texture')
 
@@ -36,7 +36,7 @@ class TestImportUtils(TestCase):
 
         for extension in extensions:
             copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture' + extension)
+                     self.outpath() + 'texture' + extension)
 
             find_texture(self, 'texture')
 
