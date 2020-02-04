@@ -176,7 +176,7 @@ def create_mesh(context, mesh_struct, hierarchy, coll):
     if mesh_struct.shader_materials:
         for i, shaderMat in enumerate(mesh_struct.shader_materials):
             (material, principled) = create_material_from_shader_material(
-                context, mesh_struct, shaderMat, str(i))
+                context, mesh_struct.name(), shaderMat)
             mesh.materials.append(material)
             principleds.append(principled)
 
@@ -354,7 +354,13 @@ def create_vertex_material(context, principleds, struct, mesh, name, triangles):
 
 
 def create_material_from_vertex_material(context, name, vert_mat):
-    material = bpy.data.materials.new(name + "." + vert_mat.vm_name)
+    name = name + "." + vert_mat.vm_name
+    if name in bpy.data.materials:
+        material = bpy.data.materials[name]
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+        return (material, principled)
+
+    material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
@@ -389,8 +395,14 @@ def create_material_from_vertex_material(context, name, vert_mat):
     return (material, principled)
 
 
-def create_material_from_shader_material(context, mesh, shader_mat, index=''):
-    material = bpy.data.materials.new(mesh.name() + '.ShaderMaterial' + index)
+def create_material_from_shader_material(context, name, shader_mat):
+    name = name + '.' + shader_mat.header.type_name
+    if name in bpy.data.materials:
+        material = bpy.data.materials[name]
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+        return (material, principled)
+
+    material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'

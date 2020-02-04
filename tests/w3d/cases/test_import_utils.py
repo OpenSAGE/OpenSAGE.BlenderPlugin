@@ -53,6 +53,15 @@ class TestImportUtilsW3D(TestCase):
 
         create_mesh(self, mesh, None, bpy.context.collection)
 
+    def test_duplicate_vertex_material_creation(self):
+        vert_mats = [get_vertex_material(vm_name='VM_NAME'), get_vertex_material(vm_name='VM_NAME')]
+
+        for mat in vert_mats:
+            create_material_from_vertex_material(self, 'meshName', mat)
+
+        self.assertEqual(1, len(bpy.data.materials))
+        self.assertTrue('meshName.VM_NAME' in bpy.data.materials)
+
     def test_only_needed_keyframe_creation(self):
         animation = get_compressed_animation_empty()
 

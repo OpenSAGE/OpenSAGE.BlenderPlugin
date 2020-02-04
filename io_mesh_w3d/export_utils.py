@@ -536,7 +536,7 @@ def append_property(shader_mat, type, name, value, default=None):
 def retrieve_shader_material(material, principled, w3x=False):
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
-            type_name='NormalMapped.fx'),
+            type_name=material.name.split('.', 1)[-1]),
         properties=[])
 
     shader_mat.header.technique_index = material.technique
