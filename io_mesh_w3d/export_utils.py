@@ -1048,7 +1048,7 @@ def process_childs(aabbtree, verts, min, max, first, second):
             children=Children(front=-1, back=-1))
         aabbtree.nodes.append(node)
 
-        node.children.front = len(aabbtree.nodes) 
+        node.children.front = len(aabbtree.nodes)
         compute_aabbtree(aabbtree, verts, first)
         node.children.back = len(aabbtree.nodes)
         compute_aabbtree(aabbtree, verts, second)
