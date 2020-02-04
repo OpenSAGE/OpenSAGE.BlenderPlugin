@@ -18,6 +18,8 @@ def insensitive_path(path):
     directory = os.path.dirname(path)
     name = os.path.basename(path)
 
+    print(directory)
+    print(name)
     for io_streamname in os.listdir(directory):
         if io_streamname.lower() == name.lower():
             path = os.path.join(directory, io_streamname)

@@ -47,6 +47,7 @@ class TestImportUtils(TestCase):
     def test_duplicate_shader_material_creation(self):
         shader_mats = [get_shader_material(), get_shader_material()]
 
+        print('################## test')
         for mat in shader_mats:
             create_material_from_shader_material(self, 'meshName', mat)
 
