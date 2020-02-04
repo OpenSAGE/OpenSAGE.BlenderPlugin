@@ -578,6 +578,8 @@ def get_texture(context, file, name=None):
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
+    else:
+        context.info('loaded texture: ' + filepath + ' (.dds or .tga)')
 
     img.name = name
     img.alpha_mode = 'STRAIGHT'
