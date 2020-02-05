@@ -10,14 +10,13 @@ from bpy_extras import node_shader_utils
 from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.animation import *
 from io_mesh_w3d.shared.structs.collision_box import *
-from io_mesh_w3d.shared.structs.hierarchy import *
-from io_mesh_w3d.shared.structs.hlod import *
 from io_mesh_w3d.shared.structs.mesh import *
 from io_mesh_w3d.w3d.structs.dazzle import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 
 from io_mesh_w3d.shared.utils.hierarchy_export import *
 from io_mesh_w3d.shared.utils.animation_export import *
+from io_mesh_w3d.shared.utils.hlod_export import *
 
 
 def save(context, export_settings):
@@ -372,65 +371,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     switch_to_pose(rig, 'POSE')
 
     return (mesh_structs, used_textures)
-
-
-##########################################################################
-# hlod
-##########################################################################
-
-# hardcoded for now, provide export options?
-screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03]
-
-
-def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
-    if not meshes:
-        return lod_arrays
-
-    index = min(len(lod_arrays), len(screen_sizes) - 1)
-
-    lod_array = HLodLodArray(
-        header=HLodArrayHeader(
-            model_count=len(meshes),
-            max_screen_size=screen_sizes[index]),
-        sub_objects=[])
-
-    for mesh in meshes:
-        subObject = HLodSubObject(
-            name=mesh.name,
-            identifier=container_name + '.' + mesh.name,
-            bone_index=0,
-            is_box=mesh.object_type == 'BOX')
-
-        if not mesh.vertex_groups:
-            for index, pivot in enumerate(hierarchy.pivots):
-                if pivot.name == mesh.name or pivot.name == mesh.parent_bone:
-                    subObject.bone_index = index
-
-        lod_array.sub_objects.append(subObject)
-
-    lod_arrays.append(lod_array)
-    return lod_arrays
-
-
-def create_hlod(hierarchy, container_name):
-    hlod = HLod(
-        header=HLodHeader(
-            model_name=container_name,
-            hierarchy_name=hierarchy.name()),
-        lod_arrays=[])
-
-    meshes = get_objects('MESH', bpy.context.scene.collection.objects)
-    lod_arrays = create_lod_array(meshes, hierarchy, container_name, [])
-
-    for coll in bpy.data.collections:
-        meshes = get_objects('MESH', coll.objects)
-        lod_arrays = create_lod_array(
-            meshes, hierarchy, container_name, lod_arrays)
-
-    for lod_array in reversed(lod_arrays):
-        hlod.lod_arrays.append(lod_array)
-    hlod.header.lod_count = len(hlod.lod_arrays)
-    return hlod
 
 
 ##########################################################################
