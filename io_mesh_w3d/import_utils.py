@@ -641,30 +641,28 @@ def setup_animation(animation):
     bpy.context.scene.frame_end = animation.header.num_frames - 1
 
 
-# this causes issues on timecoded animation export (if e.g. quat.w has less keyframes as x,y,z of that quat)
 creation_options = {'INSERTKEY_NEEDED'}
-
 
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
     bone.keyframe_insert(data_path='location', index=index,
-                         frame=frame)  # , options=creation_options)
+                         frame=frame, options=creation_options)
 
 
 def set_rotation(bone, frame, value):
     bone.rotation_quaternion = value
     bone.keyframe_insert(data_path='rotation_quaternion',
-                         frame=frame)  # , options=creation_options)
+                         frame=frame)
 
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         bone.hide = value
-        bone.keyframe_insert(data_path='hide', frame=frame)  # , options=creation_options)
+        bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
     else:
         bone.hide_viewport = value
         bone.keyframe_insert(data_path='hide_viewport',
-                             frame=frame)  # , options=creation_options)
+                             frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

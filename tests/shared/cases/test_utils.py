@@ -639,6 +639,56 @@ class TestUtils(TestCase):
 
         self.compare_data([], None, None, [], None, compressed_animation)
 
+    def test_roundtrip_only_needed_keyframes(self):
+        animation = get_compressed_animation_empty()
+        animation.header.flavor = 0
+        channel = TimeCodedAnimationChannel(
+            num_time_codes=5,
+            vector_len=1,
+            pivot=1,
+            type=1,
+            time_codes=[TimeCodedDatum(time_code=0, value=3.0),
+                        TimeCodedDatum(time_code=1, value=3.0),
+                        TimeCodedDatum(time_code=2, value=3.0),
+                        TimeCodedDatum(time_code=3, value=3.0),
+                        TimeCodedDatum(time_code=4, value=3.0)])
+
+        channel_q = TimeCodedAnimationChannel(
+            num_time_codes=7,
+            vector_len=4,
+            pivot=1,
+            type=6,
+            time_codes=[TimeCodedDatum(time_code=0, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
+                        TimeCodedDatum(time_code=1, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
+                        TimeCodedDatum(time_code=2, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=3, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=4, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=5, value=Quaternion((0.2, 0.8, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=6, value=Quaternion((0.2, 0.8, 0.7, 0.1)))])
+
+        animation.time_coded_channels = [channel, channel_q]
+
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [get_roottransform(), HierarchyPivot(name='bone', parent_id=0)]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        context = IOWrapper(self.outpath() + 'output')
+        create_data(context, [], None, hierarchy, [], None, animation)
+
+        channel = TimeCodedAnimationChannel(
+            num_time_codes=2,
+            vector_len=1,
+            pivot=1,
+            type=1,
+            time_codes=[TimeCodedDatum(time_code=0, value=3.0),
+                        TimeCodedDatum(time_code=4, value=3.0)])
+
+        animation.time_coded_channels = [channel, channel_q]
+
+        self.compare_data([], None, None, [], None, animation)
+
     def test_bone_is_created_if_referenced_by_subObject_but_also_child_bones_roundtrip(
             self):
         hlod = get_hlod()
