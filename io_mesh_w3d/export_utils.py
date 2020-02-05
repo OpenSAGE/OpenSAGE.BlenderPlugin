@@ -463,7 +463,6 @@ def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(principled.normalmap_texture, used_textures)
     used_textures = append_texture_if_valid(principled.specular_texture, used_textures)
 
-    used_textures = append_texture_if_valid(material.texture_0, used_textures)
     used_textures = append_texture_if_valid(material.texture_1, used_textures)
     used_textures = append_texture_if_valid(material.environment_texture, used_textures)
     used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
@@ -557,7 +556,23 @@ def retrieve_shader_material(material, principled, w3x=False):
         append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
         append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
 
-    append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
+    if material.texture_1:
+        append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
+        append_property(shader_mat, 1, 'Texture_1', material.texture_1)
+        append_property(shader_mat, 6, 'NumTextures', 2)
+        append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
+                    material.secondary_texture_blend_mode)
+        append_property(shader_mat, 6, 'TexCoordMapper_0',
+                        material.tex_coord_mapper_0)
+        append_property(shader_mat, 6, 'TexCoordMapper_1',
+                        material.tex_coord_mapper_1)
+        append_property(shader_mat, 5, 'TexCoordTransform_0',
+                        RGBA(material.tex_coord_transform_0), RGBA())
+        append_property(shader_mat, 5, 'TexCoordTransform_1',
+                        RGBA(material.tex_coord_transform_1), RGBA())
+    else:
+        append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
+
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
     if principled.normalmap_texture is not None:
         append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
@@ -573,21 +588,6 @@ def retrieve_shader_material(material, principled, w3x=False):
                     material.sampler_clamp_uv_no_mip_0)
     append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
                     material.sampler_clamp_uv_no_mip_1)
-
-    append_property(shader_mat, 6, 'NumTextures', material.num_textures)
-    append_property(shader_mat, 1, 'Texture_0', material.texture_0)
-    append_property(shader_mat, 1, 'Texture_1', material.texture_1)
-
-    append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
-                    material.secondary_texture_blend_mode)
-    append_property(shader_mat, 6, 'TexCoordMapper_0',
-                    material.tex_coord_mapper_0)
-    append_property(shader_mat, 6, 'TexCoordMapper_1',
-                    material.tex_coord_mapper_1)
-    append_property(shader_mat, 5, 'TexCoordTransform_0',
-                    RGBA(material.tex_coord_transform_0), RGBA())
-    append_property(shader_mat, 5, 'TexCoordTransform_1',
-                    RGBA(material.tex_coord_transform_1), RGBA())
     append_property(shader_mat, 1, 'EnvironmentTexture',
                     material.environment_texture)
     append_property(shader_mat, 2, 'EnvMult',

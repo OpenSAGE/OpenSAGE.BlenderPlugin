@@ -328,8 +328,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat, 'num_textures')
             col = layout.column()
-            col.prop(mat, 'texture_0')
-            col = layout.column()
             col.prop(mat, 'texture_1')
             col = layout.column()
             col.prop(mat, 'secondary_texture_blend_mode')

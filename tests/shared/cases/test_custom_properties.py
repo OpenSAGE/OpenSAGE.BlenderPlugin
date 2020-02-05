@@ -139,8 +139,6 @@ class TestCustomProperties(TestCase):
 
         self.assertEqual(0, mat.num_textures)
 
-        self.assertEqual('', mat.texture_0)
-
         self.assertEqual('', mat.texture_1)
 
         self.assertEqual(0, mat.secondary_texture_blend_mode)
