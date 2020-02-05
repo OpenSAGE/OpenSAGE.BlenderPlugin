@@ -7,6 +7,7 @@ import bpy
 from io_mesh_w3d.shared.utils.hierarchy_import import *
 from io_mesh_w3d.shared.utils.animation_import import *
 from io_mesh_w3d.shared.utils.material_import import *
+from io_mesh_w3d.shared.utils.dazzle_import import *
 from io_mesh_w3d.shared.utils.primitives import *
 
 
@@ -202,24 +203,6 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 ##########################################################################
 # create basic meshes
 ##########################################################################
-
-
-def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
-    # Todo: proper dimensions for cone
-    (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
-    dazzle_cone.object_type = 'DAZZLE'
-    dazzle_cone.dazzle_type = dazzle.type_name
-    link_object_to_active_scene(dazzle_cone, coll)
-
-    material = bpy.data.materials.new(dazzle.name())
-    material.use_nodes = True
-    material.blend_method = 'BLEND'
-    material.show_transparent_back = False
-
-    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-    principled.base_color = (255, 255, 255)
-    principled.base_color_texture.image = find_texture(context, 'SunDazzle.tga')
-    dazzle_mesh.materials.append(material)
 
 
 def create_box(box, hlod, hierarchy, rig, coll):
