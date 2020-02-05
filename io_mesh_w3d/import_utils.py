@@ -1,34 +1,17 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import os
-
 import bmesh
 import bpy
 from bpy_extras import node_shader_utils
 from bpy_extras.image_utils import load_image
 
 from io_mesh_w3d.shared.structs.animation import *
-from io_mesh_w3d.w3d.adaptive_delta import decode
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.shared.utils.hierarchy_import import *
+from io_mesh_w3d.shared.utils.animation_import import *
+from io_mesh_w3d.shared.utils.primitives import *
 
-
-def insensitive_path(path):
-    # find the io_stream on unix
-    directory = os.path.dirname(path)
-    name = os.path.basename(path)
-
-    for io_streamname in os.listdir(directory):
-        if io_streamname.lower() == name.lower():
-            path = os.path.join(directory, io_streamname)
-    return path
-
-
-def link_object_to_active_scene(obj, coll):
-    coll.objects.link(obj)
-    bpy.context.view_layer.objects.active = obj
-    obj.select_set(True)
 
 
 def smooth_mesh(mesh_ob, mesh):
@@ -37,17 +20,6 @@ def smooth_mesh(mesh_ob, mesh):
 
     for polygon in mesh.polygons:
         polygon.use_smooth = True
-
-
-def get_collection(hlod=None, index=''):
-    if hlod is not None:
-        name = hlod.model_name() + index
-        if name in bpy.data.collections:
-            return bpy.data.collections[name]
-        coll = bpy.data.collections.new(name)
-        bpy.context.scene.collection.children.link(coll)
-        return coll
-    return bpy.context.scene.collection
 
 
 ##########################################################################
@@ -506,167 +478,8 @@ def find_texture(context, file, name=None):
 
 
 ##########################################################################
-# createAnimation
-##########################################################################
-
-
-def is_roottransform(channel):
-    return channel.pivot == 0
-
-
-def is_translation(channel):
-    return channel.type < 3
-
-
-def is_rotation(channel):
-    return channel.type == 6
-
-
-def is_visibility(channel):
-    return isinstance(channel, AnimationBitChannel)
-
-
-def get_bone(context, rig, hierarchy, channel):
-    if is_roottransform(channel):
-        return rig
-
-    pivot = hierarchy.pivots[channel.pivot]
-
-    if rig is not None:
-        if is_visibility(channel) and pivot.name in rig.data.bones:
-            return rig.data.bones[pivot.name]
-        elif pivot.name in rig.pose.bones:
-            return rig.pose.bones[pivot.name]
-    return bpy.data.objects[pivot.name]
-
-
-def setup_animation(animation):
-    bpy.context.scene.render.fps = animation.header.frame_rate
-    bpy.context.scene.frame_start = 0
-    bpy.context.scene.frame_end = animation.header.num_frames - 1
-
-
-creation_options = {'INSERTKEY_NEEDED'}
-
-
-def set_translation(bone, index, frame, value):
-    bone.location[index] = value
-    bone.keyframe_insert(data_path='location', index=index,
-                         frame=frame, options=creation_options)
-
-
-def set_rotation(bone, frame, value):
-    bone.rotation_quaternion = value
-    bone.keyframe_insert(data_path='rotation_quaternion',
-                         frame=frame)
-
-
-def set_visibility(bone, frame, value):
-    if isinstance(bone, bpy.types.Bone):
-        bone.hide = value
-        bone.keyframe_insert(data_path='hide', frame=frame, options=creation_options)
-    else:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport',
-                             frame=frame, options=creation_options)
-
-
-def set_keyframe(bone, channel, frame, value):
-    if is_visibility(channel):
-        set_visibility(bone, frame, value)
-    elif is_translation(channel):
-        set_translation(bone, channel.type, frame, value)
-    elif is_rotation(channel):
-        set_rotation(bone, frame, value)
-
-
-def apply_timecoded(bone, channel, _):
-    for key in channel.time_codes:
-        set_keyframe(bone, channel, key.time_code, key.value)
-
-
-def apply_motion_channel_time_coded(bone, channel):
-    for dat in channel.data:
-        set_keyframe(bone, channel, dat.time_code, dat.value)
-
-
-def apply_adaptive_delta(bone, channel):
-    data = decode(channel)
-    for i in range(channel.num_time_codes):
-        set_keyframe(bone, channel, i, data[i])
-
-
-def apply_uncompressed(bone, channel, hierarchy):
-    for index in range(channel.last_frame - channel.first_frame + 1):
-        data = channel.data[index]
-        frame = index + channel.first_frame
-        set_keyframe(bone, channel, frame, data)
-
-
-def process_channels(context, hierarchy, channels, rig, apply_func):
-    for channel in channels:
-        obj = get_bone(context, rig, hierarchy, channel)
-
-        apply_func(obj, channel, hierarchy)
-
-
-def process_motion_channels(context, hierarchy, channels, rig):
-    for channel in channels:
-        obj = get_bone(context, rig, hierarchy, channel)
-
-        if channel.delta_type == 0:
-            apply_motion_channel_time_coded(obj, channel)
-        else:
-            apply_adaptive_delta(obj, channel)
-
-
-def create_animation(context, rig, animation, hierarchy, compressed=False):
-    if animation is None:
-        return
-
-    setup_animation(animation)
-
-    if not compressed:
-        process_channels(context, hierarchy, animation.channels,
-                         rig, apply_uncompressed)
-    else:
-        process_channels(context, hierarchy, animation.time_coded_channels,
-                         rig, apply_timecoded)
-        process_channels(context, hierarchy, animation.adaptive_delta_channels,
-                         rig, apply_adaptive_delta)
-        process_motion_channels(context, hierarchy, animation.motion_channels, rig)
-
-    bpy.context.scene.frame_set(0)
-
-
-##########################################################################
 # create basic meshes
 ##########################################################################
-
-
-def create_sphere():
-    mesh = bpy.data.meshes.new('Basic_Sphere')
-    basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
-
-    b_mesh = bmesh.new()
-    bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
-    b_mesh.to_mesh(mesh)
-    b_mesh.free()
-
-    return basic_sphere
-
-
-def create_cone(name):
-    mesh = bpy.data.meshes.new(name)
-    cone = bpy.data.objects.new(name, mesh)
-
-    b_mesh = bmesh.new()
-    bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
-                          segments=10, diameter1=0, diameter2=1.0, depth=2.0, calc_uvs=True)
-    b_mesh.to_mesh(mesh)
-    b_mesh.free()
-
-    return (mesh, cone)
 
 
 def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
