@@ -2,16 +2,11 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.shared.utils.basics import *
+from io_mesh_w3d.shared.utils.export_basics import *
 from io_mesh_w3d.shared.structs.hierarchy import *
 
 
 pick_plane_names = ['PICK']
-
-def switch_to_pose(rig, pose):
-    if rig is not None:
-        rig.data.pose_position = pose
-        bpy.context.view_layer.update()
-
 
 def process_pivot(pivot, pivots, hierarchy):
     hierarchy.pivots.append(pivot)
