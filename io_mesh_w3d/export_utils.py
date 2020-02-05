@@ -561,7 +561,7 @@ def retrieve_shader_material(material, principled, w3x=False):
         append_property(shader_mat, 1, 'Texture_1', material.texture_1)
         append_property(shader_mat, 6, 'NumTextures', 2)
         append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
-                    material.secondary_texture_blend_mode)
+                        material.secondary_texture_blend_mode)
         append_property(shader_mat, 6, 'TexCoordMapper_0',
                         material.tex_coord_mapper_0)
         append_property(shader_mat, 6, 'TexCoordMapper_1',
