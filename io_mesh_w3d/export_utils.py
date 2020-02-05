@@ -10,12 +10,12 @@ from bpy_extras import node_shader_utils
 from io_mesh_w3d.shared.structs.data_context import *
 from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.mesh import *
-from io_mesh_w3d.w3d.structs.dazzle import *
 
 from io_mesh_w3d.shared.utils.hierarchy_export import *
 from io_mesh_w3d.shared.utils.animation_export import *
 from io_mesh_w3d.shared.utils.hlod_export import *
 from io_mesh_w3d.shared.utils.material_export import *
+from io_mesh_w3d.shared.utils.dazzle_export import *
 
 
 def save(context, export_settings):
@@ -125,21 +125,6 @@ def retrieve_boxes(hierarchy, container_name):
             box.color = RGBA(material.diffuse_color)
         boxes.append(box)
     return boxes
-
-
-def retrieve_dazzles(hierarchy, container_name):
-    dazzles = []
-
-    for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'DAZZLE':
-            continue
-        name = container_name + '.' + mesh_object.name
-        dazzle = Dazzle(
-            name_=name,
-            type_name=mesh_object.dazzle_type)
-
-        dazzles.append(dazzle)
-    return dazzles
 
 
 def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
