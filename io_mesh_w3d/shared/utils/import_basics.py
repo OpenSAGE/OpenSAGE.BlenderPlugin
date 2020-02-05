@@ -34,6 +34,35 @@ def link_object_to_active_scene(obj, coll):
     obj.select_set(True)
 
 
+def rig_object(object, hierarchy, rig, sub_object):
+    if hierarchy is None or not sub_object or sub_object.bone_index <= 0:
+        return
+
+    pivot = hierarchy.pivots[sub_object.bone_index]
+
+    if rig is not None and pivot.name in rig.pose.bones:
+        object.parent = rig
+        object.parent_bone = pivot.name
+        object.parent_type = 'BONE'
+        return
+
+    object.rotation_mode = 'QUATERNION'
+    object.delta_location = pivot.translation
+    object.delta_rotation_quaternion = pivot.rotation
+
+    if pivot.parent_id <= 0:
+        return
+
+    parent_pivot = hierarchy.pivots[pivot.parent_id]
+
+    if parent_pivot.name in bpy.data.objects:
+        object.parent = bpy.data.objects[parent_pivot.name]
+    elif rig is not None and parent_pivot.name in rig.pose.bones:
+        object.parent = rig
+        object.parent_bone = parent_pivot.name
+        object.parent_type = 'BONE'
+
+
 def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
     tx_coords = None
     if mat_pass.tx_coords:
