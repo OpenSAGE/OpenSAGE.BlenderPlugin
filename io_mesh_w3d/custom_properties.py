@@ -216,11 +216,6 @@ Material.num_textures = IntProperty(
     min=0,
     max=5)
 
-Material.texture_0 = StringProperty(
-    name='Texture 0',
-    description='TODO',
-    default='')
-
 Material.texture_1 = StringProperty(
     name='Texture 1',
     description='TODO',

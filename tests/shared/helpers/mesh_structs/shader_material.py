@@ -114,7 +114,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
         props.append(get_shader_material_property(5, 'EmissiveColor'))
 
     if two_tex:
-        props.append(get_shader_material_property(6, 'NumTextures'))
+        props.append(get_shader_material_property(6, 'NumTextures', value=2))
         props.append(get_shader_material_property(1, 'Texture_0', 'texture_0.dds'))
         props.append(get_shader_material_property(1, 'Texture_1', 'texture_1.dds'))
         props.append(get_shader_material_property(6, 'SecondaryTextureBlendMode'))
