@@ -87,7 +87,7 @@ class TestImportUtilsW3D(TestCase):
 
         hierarchy.pivots = [get_roottransform(), pivot]
 
-        mesh_structs = [get_mesh(name='MESH')]
+        meshes = [get_mesh(name='MESH')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
@@ -95,24 +95,14 @@ class TestImportUtilsW3D(TestCase):
         expected_frames = [0, 4]
         expected = [3.0, 3.0]
 
-        coll = get_collection(hlod)
+        context = IOWrapper(self.outpath() + 'output')
+        create_data(context, meshes, hlod, hierarchy, [], None, animation)
 
-        for mesh_struct in mesh_structs:
-            create_mesh(self, mesh_struct, hierarchy, coll)
-
-        rig = get_or_create_skeleton(hlod, hierarchy, coll)
-
-        for i, mesh_struct in enumerate(mesh_structs):
-            rig_mesh(mesh_struct, hierarchy, hlod, rig)
-
-        create_animation(self, rig, animation, hierarchy, compressed=True)
-
-        # currently disabled because of timecoded animation export issue -> see create keyframe functions
         obj = bpy.data.objects['MESH']
-        # for fcu in obj.animation_data.action.fcurves:
-        #    self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
-        #    for i, keyframe in enumerate(fcu.keyframe_points):
-        #        frame = int(keyframe.co.x)
-        #        self.assertEqual(expected_frames[i], frame)
-        #        val = keyframe.co.y
-        #        self.assertEqual(expected[i], val)
+        for fcu in obj.animation_data.action.fcurves:
+            self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
+            for i, keyframe in enumerate(fcu.keyframe_points):
+                frame = int(keyframe.co.x)
+                self.assertEqual(expected_frames[i], frame)
+                val = keyframe.co.y
+                self.assertEqual(expected[i], val)
