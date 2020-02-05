@@ -556,7 +556,7 @@ def retrieve_shader_material(material, principled, w3x=False):
         append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
         append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
 
-    if material.texture_1 != '':
+    if material.texture_1:
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
         append_property(shader_mat, 1, 'Texture_1', material.texture_1)
         append_property(shader_mat, 6, 'NumTextures', 2)
