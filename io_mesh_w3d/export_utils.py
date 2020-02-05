@@ -8,7 +8,6 @@ import bpy
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.shared.structs.data_context import *
-from io_mesh_w3d.shared.structs.collision_box import *
 from io_mesh_w3d.shared.structs.mesh import *
 
 from io_mesh_w3d.shared.utils.hierarchy_export import *
@@ -16,6 +15,7 @@ from io_mesh_w3d.shared.utils.animation_export import *
 from io_mesh_w3d.shared.utils.hlod_export import *
 from io_mesh_w3d.shared.utils.material_export import *
 from io_mesh_w3d.shared.utils.dazzle_export import *
+from io_mesh_w3d.shared.utils.box_export import *
 
 
 def save(context, export_settings):
@@ -102,29 +102,6 @@ def retrieve_data(context, export_settings, data_context):
 ##########################################################################
 # Mesh data
 ##########################################################################
-
-
-def retrieve_boxes(hierarchy, container_name):
-    boxes = []
-
-    for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'BOX':
-            continue
-        name = container_name + '.' + mesh_object.name
-        box = CollisionBox(
-            name_=name,
-            center=mesh_object.location)
-        box_mesh = mesh_object.to_mesh(
-            preserve_all_data_layers=False, depsgraph=None)
-        box.extend = Vector(
-            (box_mesh.vertices[0].co.x * 2,
-             box_mesh.vertices[0].co.y * 2,
-             box_mesh.vertices[0].co.z))
-
-        for material in box_mesh.materials:
-            box.color = RGBA(material.diffuse_color)
-        boxes.append(box)
-    return boxes
 
 
 def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
