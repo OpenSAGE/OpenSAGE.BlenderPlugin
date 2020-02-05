@@ -643,6 +643,7 @@ def setup_animation(animation):
 
 creation_options = {'INSERTKEY_NEEDED'}
 
+
 def set_translation(bone, index, frame, value):
     bone.location[index] = value
     bone.keyframe_insert(data_path='location', index=index,
