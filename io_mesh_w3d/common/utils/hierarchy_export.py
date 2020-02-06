@@ -7,6 +7,7 @@ from io_mesh_w3d.common.structs.hierarchy import *
 
 pick_plane_names = ['PICK']
 
+
 def process_pivot(pivot, pivots, hierarchy):
     hierarchy.pivots.append(pivot)
     children = [child for child in pivots if child.parent_id == pivot.name]
@@ -114,4 +115,3 @@ def retrieve_hierarchy(context, container_name):
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return (hierarchy, rig)
-
