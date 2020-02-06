@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.shared.structs.rgba import RGBA
+from io_mesh_w3d.common.structs.rgba import RGBA
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils import *
 

@@ -4,13 +4,13 @@
 import bmesh
 import bpy
 
-from io_mesh_w3d.shared.utils.mesh_import import *
-from io_mesh_w3d.shared.utils.hierarchy_import import *
-from io_mesh_w3d.shared.utils.animation_import import *
-from io_mesh_w3d.shared.utils.material_import import *
-from io_mesh_w3d.shared.utils.box_import import *
-from io_mesh_w3d.shared.utils.dazzle_import import *
-from io_mesh_w3d.shared.utils.primitives import *
+from io_mesh_w3d.common.utils.mesh_import import *
+from io_mesh_w3d.common.utils.hierarchy_import import *
+from io_mesh_w3d.common.utils.animation_import import *
+from io_mesh_w3d.common.utils.material_import import *
+from io_mesh_w3d.common.utils.box_import import *
+from io_mesh_w3d.common.utils.dazzle_import import *
+from io_mesh_w3d.common.utils.primitives import *
 
 
 def create_data(

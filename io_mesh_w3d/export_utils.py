@@ -7,15 +7,15 @@ import bmesh
 import bpy
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.shared.structs.data_context import *
+from io_mesh_w3d.common.structs.data_context import *
 
-from io_mesh_w3d.shared.utils.mesh_export import *
-from io_mesh_w3d.shared.utils.hierarchy_export import *
-from io_mesh_w3d.shared.utils.animation_export import *
-from io_mesh_w3d.shared.utils.hlod_export import *
-from io_mesh_w3d.shared.utils.material_export import *
-from io_mesh_w3d.shared.utils.dazzle_export import *
-from io_mesh_w3d.shared.utils.box_export import *
+from io_mesh_w3d.common.utils.mesh_export import *
+from io_mesh_w3d.common.utils.hierarchy_export import *
+from io_mesh_w3d.common.utils.animation_export import *
+from io_mesh_w3d.common.utils.hlod_export import *
+from io_mesh_w3d.common.utils.material_export import *
+from io_mesh_w3d.common.utils.dazzle_export import *
+from io_mesh_w3d.common.utils.box_export import *
 
 
 def save(context, export_settings):

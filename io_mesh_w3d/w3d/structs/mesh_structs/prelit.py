@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.shared.structs.mesh_structs.texture import *
+from io_mesh_w3d.common.structs.mesh_structs.texture import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_info import *
 from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *

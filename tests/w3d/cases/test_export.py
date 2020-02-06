@@ -5,9 +5,9 @@ import os.path
 
 from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.export_utils import save
-from tests.shared.helpers.hierarchy import *
-from tests.shared.helpers.hlod import *
-from tests.shared.helpers.mesh import *
+from tests.common.helpers.hierarchy import *
+from tests.common.helpers.hlod import *
+from tests.common.helpers.mesh import *
 from tests.utils import *
 
 

@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
-from tests.shared.helpers.mesh_structs.texture import *
+from tests.common.helpers.mesh_structs.texture import *
 from tests.w3d.helpers.mesh_structs.material_info import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
 from tests.w3d.helpers.mesh_structs.shader import *

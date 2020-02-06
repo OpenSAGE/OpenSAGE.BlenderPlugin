@@ -5,11 +5,11 @@ from shutil import copyfile
 
 from io_mesh_w3d.w3x.import_w3x import *
 from io_mesh_w3d.w3x.io_xml import *
-from tests.shared.helpers.collision_box import get_collision_box
-from tests.shared.helpers.hierarchy import get_hierarchy
-from tests.shared.helpers.hlod import get_hlod
-from tests.shared.helpers.mesh import get_mesh
-from tests.shared.helpers.animation import get_animation
+from tests.common.helpers.collision_box import get_collision_box
+from tests.common.helpers.hierarchy import get_hierarchy
+from tests.common.helpers.hlod import get_hlod
+from tests.common.helpers.mesh import get_mesh
+from tests.common.helpers.animation import get_animation
 from tests.utils import *
 from os.path import dirname as up
 

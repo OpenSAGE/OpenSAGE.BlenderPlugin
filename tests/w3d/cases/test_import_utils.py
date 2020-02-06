@@ -5,9 +5,9 @@ import io
 from shutil import copyfile
 
 from io_mesh_w3d.import_utils import *
-from tests.shared.helpers.hierarchy import *
-from tests.shared.helpers.hlod import *
-from tests.shared.helpers.mesh import *
+from tests.common.helpers.hierarchy import *
+from tests.common.helpers.hlod import *
+from tests.common.helpers.mesh import *
 from tests.utils import *
 from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.mesh_structs.material_pass import *
