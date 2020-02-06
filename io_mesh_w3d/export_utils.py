@@ -372,13 +372,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         mesh_struct.textures.append(tex)
                 else:
                     if material.prelit_type == 'PRELIT_UNLIT':
-                        if  mesh_struct.prelit_unlit is None:
+                        if mesh_struct.prelit_unlit is None:
                             mesh_struct.prelit_unlit = PrelitBase(
-                                    type=W3D_CHUNK_PRELIT_UNLIT,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
+                                type=W3D_CHUNK_PRELIT_UNLIT,
+                                shaders=[],
+                                vert_materials=[],
+                                material_passes=[],
+                                textures=[])
 
                         mat_pass.shader_ids = [len(mesh_struct.prelit_unlit.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_unlit.vert_materials)]
@@ -391,10 +391,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     elif material.prelit_type == 'PRELIT_VERTEX':
                         if mesh_struct.prelit_vertex is None:
                             mesh_struct.prelit_vertex = PrelitBase(type=W3D_CHUNK_PRELIT_VERTEX,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
+                                                                   shaders=[],
+                                                                   vert_materials=[],
+                                                                   material_passes=[],
+                                                                   textures=[])
 
                         mat_pass.shader_ids = [len(mesh_struct.prelit_vertex.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_vertex.vert_materials)]
@@ -406,11 +406,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                     elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_PASS':
                         if mesh_struct.prelit_lightmap_multi_pass is None:
-                            mesh_struct.prelit_lightmap_multi_pass = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
+                            mesh_struct.prelit_lightmap_multi_pass = PrelitBase(
+                                type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, shaders=[], vert_materials=[], material_passes=[], textures=[])
 
                         mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_pass.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_pass.vert_materials)]
@@ -420,13 +417,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         if tex is not None:
                             mesh_struct.prelit_lightmap_multi_pass.textures.append(tex)
 
-                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_TEXTURE':     
+                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_TEXTURE':
                         if mesh_struct.prelit_lightmap_multi_texture is None:
-                            mesh_struct.prelit_lightmap_multi_texture = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
+                            mesh_struct.prelit_lightmap_multi_texture = PrelitBase(
+                                type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, shaders=[], vert_materials=[], material_passes=[], textures=[])
 
                         mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_texture.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_texture.vert_materials)]
@@ -435,7 +429,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         mesh_struct.prelit_lightmap_multi_texture.material_passes.append(mat_pass)
                         if tex is not None:
                             mesh_struct.prelit_lightmap_multi_texture.textures.append(tex)
-            
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
@@ -480,7 +473,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 vert_matl_count=len(prelit.vert_materials),
                 shader_count=len(prelit.shaders),
                 texture_count=len(prelit.textures))
-
 
         if mesh_struct.prelit_unlit is None and mesh_struct.prelit_vertex is None \
                 and mesh_struct.prelit_lightmap_multi_pass is None and mesh_struct.prelit_lightmap_multi_texture is None:
