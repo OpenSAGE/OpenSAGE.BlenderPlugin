@@ -6,8 +6,7 @@ import bmesh
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.structs.mesh import *
-from io_mesh_w3d.common.utils.basics import *
-from io_mesh_w3d.common.utils.export_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.material_export import *
 
 

@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.common.utils.import_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 
 
 def create_box(box, hlod, hierarchy, rig, coll):

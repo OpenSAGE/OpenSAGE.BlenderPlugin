@@ -1,8 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.common.utils.basics import *
-from io_mesh_w3d.common.utils.export_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.structs.hierarchy import *
 
 

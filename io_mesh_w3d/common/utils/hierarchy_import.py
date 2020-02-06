@@ -3,7 +3,7 @@
 
 import bpy
 from mathutils import Vector, Quaternion, Matrix
-from io_mesh_w3d.common.utils.import_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.primitives import *
 
 

@@ -6,6 +6,18 @@ import os
 from bpy_extras.image_utils import load_image
 
 
+def get_objects(type, object_list=None):  # MESH, ARMATURE
+    if object_list is None:
+        object_list = bpy.context.scene.objects
+    return [object for object in object_list if object.type == type]
+
+
+def switch_to_pose(rig, pose):
+    if rig is not None:
+        rig.data.pose_position = pose
+        bpy.context.view_layer.update()
+
+
 def insensitive_path(path):
     # find the io_stream on unix
     directory = os.path.dirname(path)
