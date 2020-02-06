@@ -3,7 +3,7 @@
 
 from io_mesh_w3d.common.structs.rgba import RGBA
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52

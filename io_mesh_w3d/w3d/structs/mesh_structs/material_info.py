@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.w3d.utils import *
+from io_mesh_w3d.w3d.utils.helpers import *
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
 

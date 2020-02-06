@@ -9,8 +9,8 @@ from io_mesh_w3d.common.utils.hierarchy_import import *
 from io_mesh_w3d.common.utils.animation_import import *
 from io_mesh_w3d.common.utils.material_import import *
 from io_mesh_w3d.common.utils.box_import import *
-from io_mesh_w3d.common.utils.dazzle_import import *
 from io_mesh_w3d.common.utils.primitives import *
+from io_mesh_w3d.w3d.utils.dazzle_import import *
 
 
 def create_data(
