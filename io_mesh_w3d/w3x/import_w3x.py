@@ -2,13 +2,13 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.import_utils import *
-from io_mesh_w3d.shared.structs.animation import *
-from io_mesh_w3d.shared.structs.collision_box import *
-from io_mesh_w3d.shared.structs.data_context import *
-from io_mesh_w3d.shared.structs.hierarchy import *
-from io_mesh_w3d.shared.structs.hlod import *
-from io_mesh_w3d.shared.structs.mesh import *
-from io_mesh_w3d.shared.structs.mesh_structs.texture import *
+from io_mesh_w3d.common.structs.animation import *
+from io_mesh_w3d.common.structs.collision_box import *
+from io_mesh_w3d.common.structs.data_context import *
+from io_mesh_w3d.common.structs.hierarchy import *
+from io_mesh_w3d.common.structs.hlod import *
+from io_mesh_w3d.common.structs.mesh import *
+from io_mesh_w3d.common.structs.mesh_structs.texture import *
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3x.structs.include import *
 

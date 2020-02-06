@@ -6,11 +6,11 @@ from shutil import copyfile
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.w3d.import_w3d import load
 from io_mesh_w3d.import_utils import create_data
-from tests.shared.helpers.animation import get_animation
-from tests.shared.helpers.collision_box import get_collision_box
-from tests.shared.helpers.hierarchy import get_hierarchy
-from tests.shared.helpers.hlod import get_hlod
-from tests.shared.helpers.mesh import get_mesh
+from tests.common.helpers.animation import get_animation
+from tests.common.helpers.collision_box import get_collision_box
+from tests.common.helpers.hierarchy import get_hierarchy
+from tests.common.helpers.hlod import get_hlod
+from tests.common.helpers.mesh import get_mesh
 from tests.utils import *
 from tests.utils import TestCase, IOWrapper
 from tests.w3d.helpers.dazzle import get_dazzle
