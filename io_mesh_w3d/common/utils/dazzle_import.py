@@ -3,7 +3,7 @@
 
 from bpy_extras import node_shader_utils
 from io_mesh_w3d.common.utils.primitives import *
-from io_mesh_w3d.common.utils.import_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 
 
 def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):

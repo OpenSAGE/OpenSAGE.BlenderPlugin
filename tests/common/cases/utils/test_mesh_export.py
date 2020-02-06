@@ -4,7 +4,7 @@
 import io
 from shutil import copyfile
 
-from io_mesh_w3d.export_utils import *
+from io_mesh_w3d.common.utils.mesh_export import *
 from tests.common.helpers.mesh import *
 from tests.utils import *
 
@@ -60,3 +60,4 @@ class TestExportUtils(TestCase):
         actual = retrieve_aabbtree(verts)
 
         # compare_aabbtrees(self, expected, actual)
+    

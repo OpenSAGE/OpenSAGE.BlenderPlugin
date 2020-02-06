@@ -14,36 +14,6 @@ from os.path import dirname as up
 
 
 class TestImportUtils(TestCase):
-    def test_texture_file_extensions(self):
-        extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
-
-        self.warning = lambda text: self.fail(text)
-
-        for extension in extensions:
-            copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                     self.outpath() + 'texture' + extension)
-
-            find_texture(self, 'texture')
-
-            # reset scene
-            bpy.ops.wm.read_homefile(use_empty=True)
-            os.remove(self.outpath() + 'texture' + extension)
-
-    def test_invalid_texture_file_extension(self):
-        extensions = ['.invalid']
-
-        self.info = lambda text: self.fail(text)
-
-        for extension in extensions:
-            copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                     self.outpath() + 'texture' + extension)
-
-            find_texture(self, 'texture')
-
-            # reset scene
-            bpy.ops.wm.read_homefile(use_empty=True)
-            os.remove(self.outpath() + 'texture' + extension)
-
     def test_parent_is_none_if_parent_index_is_0_or_less_than_0(self):
         hlod = get_hlod()
         hierarchy = get_hierarchy()

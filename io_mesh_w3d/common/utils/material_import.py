@@ -5,7 +5,7 @@ import bpy
 import bmesh
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.common.utils.import_basics import *
+from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
