@@ -409,4 +409,3 @@ def process_childs(aabbtree, verts, min, max, first, second):
     aabbtree.nodes.append(node)
     for v in combined:
         aabbtree.poly_indices.append(verts.index(v))
-

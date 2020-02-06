@@ -60,4 +60,3 @@ class TestExportUtils(TestCase):
         actual = retrieve_aabbtree(verts)
 
         # compare_aabbtrees(self, expected, actual)
-    

@@ -13,7 +13,14 @@ class TestTexture(TestCase):
         self.assertEqual(20, expected.texture_info.size())
         self.assertEqual(48, expected.size())
 
-        self.write_read_test(expected, W3D_CHUNK_TEXTURE, Texture.read, compare_textures, self, True, include_head=False)
+        self.write_read_test(
+            expected,
+            W3D_CHUNK_TEXTURE,
+            Texture.read,
+            compare_textures,
+            self,
+            True,
+            include_head=False)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

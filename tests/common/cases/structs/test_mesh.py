@@ -5,8 +5,9 @@ import io
 from tests.common.helpers.mesh import *
 from tests.utils import TestCase
 
+
 def clear_tangents(mesh):
-    mesh.tangents =[]
+    mesh.tangents = []
     mesh.bitangents = []
 
 

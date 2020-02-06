@@ -104,8 +104,16 @@ class TestCase(unittest.TestCase):
                 shutil.rmtree(self.filepath)
         addon_utils.disable('io_mesh_w3d')
 
-
-    def write_read_test(self, expected, chunk_id, read, compare, context=None, pass_end=False, adapt=lambda x: x, include_head=True):
+    def write_read_test(
+            self,
+            expected,
+            chunk_id,
+            read,
+            compare,
+            context=None,
+            pass_end=False,
+            adapt=lambda x: x,
+            include_head=True):
         io_stream = io.BytesIO()
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
@@ -116,7 +124,6 @@ class TestCase(unittest.TestCase):
             self.assertEqual(expected.size(), chunkSize)
         else:
             self.assertEqual(expected.size(include_head), chunkSize)
-            
 
         actual = None
         if context is None:
@@ -133,7 +140,6 @@ class TestCase(unittest.TestCase):
         adapt(expected)
 
         compare(self, expected, actual)
-
 
     def write_read_xml_test(self, expected, identifier, parse, compare, context=None):
         root = create_root()
