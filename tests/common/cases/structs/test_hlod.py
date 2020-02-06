@@ -13,16 +13,7 @@ class TestHLod(TestCase):
         self.assertEqual(48, expected.header.size())
         self.assertEqual(912, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_HLOD, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = HLod.read(self, io_stream, chunkEnd)
-        compare_hlods(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_HLOD, HLod.read, compare_hlods, self, True)
 
     def test_write_read_4_levels(self):
         expected = get_hlod_4_levels()
@@ -30,16 +21,7 @@ class TestHLod(TestCase):
         self.assertEqual(48, expected.header.size())
         self.assertEqual(672, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_HLOD, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = HLod.read(self, io_stream, chunkEnd)
-        compare_hlods(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_HLOD, HLod.read, compare_hlods, self, True)
 
     def test_validate(self):
         hlod = get_hlod()

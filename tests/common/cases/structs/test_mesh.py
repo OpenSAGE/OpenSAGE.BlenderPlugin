@@ -5,6 +5,10 @@ import io
 from tests.common.helpers.mesh import *
 from tests.utils import TestCase
 
+def clear_tangents(mesh):
+    mesh.tangents =[]
+    mesh.bitangents = []
+
 
 class TestMesh(TestCase):
     def test_write_read(self):
@@ -12,70 +16,28 @@ class TestMesh(TestCase):
 
         self.assertEqual(3113, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
-        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size(), chunk_size)
-
-        actual = Mesh.read(self, io_stream, subchunk_end)
-        compare_meshes(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
         self.assertEqual(4105, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
-        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size(), chunk_size)
-
-        actual = Mesh.read(self, io_stream, subchunk_end)
-        expected.tangents = []  # import not supported -> are calculated in blender
-        expected.bitangents = []  # import not supported -> are calculated in blender
-        compare_meshes(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True, clear_tangents)
 
     def test_write_read_prelit(self):
         expected = get_mesh(prelit=True)
 
         self.assertEqual(5488, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
-        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size(), chunk_size)
-
-        actual = Mesh.read(self, io_stream, subchunk_end)
-        compare_meshes(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_write_read_empty(self):
         expected = get_mesh_empty()
 
         self.assertEqual(204, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
-
-        self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size(), chunk_size)
-
-        actual = Mesh.read(self, io_stream, subchunk_end)
-        compare_meshes(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_validate(self):
         mesh = get_mesh()

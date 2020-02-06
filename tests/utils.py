@@ -13,6 +13,7 @@ import addon_utils
 import bpy
 
 from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.w3d.io_binary import *
 
 
 def almost_equal(self, x, y, threshold=0.0001):
@@ -102,6 +103,37 @@ class TestCase(unittest.TestCase):
             else:
                 shutil.rmtree(self.filepath)
         addon_utils.disable('io_mesh_w3d')
+
+
+    def write_read_test(self, expected, chunk_id, read, compare, context=None, pass_end=False, adapt=lambda x: x, include_head=True):
+        io_stream = io.BytesIO()
+        expected.write(io_stream)
+        io_stream = io.BytesIO(io_stream.getvalue())
+
+        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        self.assertEqual(chunk_id, chunkType)
+        if include_head:
+            self.assertEqual(expected.size(), chunkSize)
+        else:
+            self.assertEqual(expected.size(include_head), chunkSize)
+            
+
+        actual = None
+        if context is None:
+            if not pass_end:
+                actual = read(io_stream)
+            else:
+                actual = read(io_stream, chunkEnd)
+        else:
+            if not pass_end:
+                actual = read(self, io_stream)
+            else:
+                actual = read(self, io_stream, chunkEnd)
+
+        adapt(expected)
+
+        compare(self, expected, actual)
+
 
     def write_read_xml_test(self, expected, identifier, parse, compare, context=None):
         root = create_root()

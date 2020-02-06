@@ -13,16 +13,7 @@ class TestAnimation(TestCase):
         self.assertEqual(52, expected.header.size())
         self.assertEqual(683, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_ANIMATION, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = Animation.read(self, io_stream, chunkEnd)
-        compare_animations(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_ANIMATION, Animation.read, compare_animations, self, True)
 
     def test_write_read_empty(self):
         expected = get_animation_empty()
@@ -30,16 +21,7 @@ class TestAnimation(TestCase):
         self.assertEqual(52, expected.header.size())
         self.assertEqual(52, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_ANIMATION, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = Animation.read(self, io_stream, chunkEnd)
-        compare_animations(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_ANIMATION, Animation.read, compare_animations, self, True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

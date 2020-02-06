@@ -13,16 +13,7 @@ class TestHierarchy(TestCase):
         self.assertEqual(44, expected.header.size())
         self.assertEqual(636, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = Hierarchy.read(self, io_stream, chunkEnd)
-        compare_hierarchies(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
     def test_write_read_minimal(self):
         expected = get_hierarchy_minimal()
@@ -30,16 +21,7 @@ class TestHierarchy(TestCase):
         self.assertEqual(44, expected.header.size())
         self.assertEqual(132, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = Hierarchy.read(self, io_stream, chunkEnd)
-        compare_hierarchies(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
     def test_write_read_empty(self):
         expected = get_hierarchy_empty()
@@ -47,16 +29,7 @@ class TestHierarchy(TestCase):
         self.assertEqual(44, expected.header.size())
         self.assertEqual(44, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_HIERARCHY, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = Hierarchy.read(self, io_stream, chunkEnd)
-        compare_hierarchies(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
     def test_validate(self):
         hierarchy = get_hierarchy()

@@ -12,16 +12,7 @@ class TestCollisionBox(TestCase):
 
         self.assertEqual(68, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, _) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_BOX, chunkType)
-        self.assertEqual(expected.size(), chunkSize)
-
-        actual = CollisionBox.read(io_stream)
-        compare_collision_boxes(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_BOX, CollisionBox.read, compare_collision_boxes)
 
     def test_validate(self):
         box = get_collision_box()
