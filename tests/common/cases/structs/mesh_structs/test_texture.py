@@ -13,16 +13,7 @@ class TestTexture(TestCase):
         self.assertEqual(20, expected.texture_info.size())
         self.assertEqual(48, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_TEXTURE, chunkType)
-        self.assertEqual(expected.size(False), chunkSize)
-
-        actual = Texture.read(self, io_stream, chunkEnd)
-        compare_textures(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_TEXTURE, Texture.read, compare_textures, self, True, include_head=False)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

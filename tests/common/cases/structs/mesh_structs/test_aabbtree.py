@@ -13,32 +13,14 @@ class TestAABBTree(TestCase):
         self.assertEqual(16, expected.header.size())
         self.assertEqual(1260, expected.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_AABBTREE, chunkType)
-        self.assertEqual(expected.size(False), chunkSize)
-
-        actual = AABBTree.read(self, io_stream, chunkEnd)
-        compare_aabbtrees(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_AABBTREE, AABBTree.read, compare_aabbtrees, self, True, include_head=False)
 
     def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
         self.assertEqual(16, expected.header.size())
 
-        io_stream = io.BytesIO()
-        expected.write(io_stream)
-        io_stream = io.BytesIO(io_stream.getvalue())
-
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
-        self.assertEqual(W3D_CHUNK_AABBTREE, chunkType)
-        self.assertEqual(expected.size(False), chunkSize)
-
-        actual = AABBTree.read(self, io_stream, chunkEnd)
-        compare_aabbtrees(self, expected, actual)
+        self.write_read_test(expected, W3D_CHUNK_AABBTREE, AABBTree.read, compare_aabbtrees, self, True, include_head=False)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
