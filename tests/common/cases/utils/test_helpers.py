@@ -3,6 +3,7 @@
 
 import io
 import os
+from tests.utils import TestCase
 from shutil import copyfile
 from os.path import dirname as up
 
@@ -16,7 +17,7 @@ class TestHelpers(TestCase):
         self.warning = lambda text: self.fail(text)
 
         for extension in extensions:
-            copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+            copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds',
                      self.outpath() + 'texture' + extension)
 
             find_texture(self, 'texture')
@@ -31,7 +32,7 @@ class TestHelpers(TestCase):
         self.info = lambda text: self.fail(text)
 
         for extension in extensions:
-            copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+            copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds',
                      self.outpath() + 'texture' + extension)
 
             find_texture(self, 'texture')
