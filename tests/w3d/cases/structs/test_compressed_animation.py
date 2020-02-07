@@ -78,7 +78,17 @@ class TestCompressedAnimation(TestCase):
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION,
-                         output, 9, has_sub_chunks=True)
+                         output, 79, has_sub_chunks=True)
+
+        header = get_compressed_animation_header(flavor=2)
+        header.write(output)
+
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
+                         output, 10, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
