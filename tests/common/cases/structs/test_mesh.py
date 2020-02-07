@@ -121,6 +121,7 @@ class TestMesh(TestCase):
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
+        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
         Mesh.read(self, io_stream, subchunk_end)
 
     def test_unknown_chunk_skip(self):

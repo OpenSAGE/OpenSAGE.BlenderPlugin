@@ -48,3 +48,18 @@ class TestPrelit(TestCase):
 
         self.assertEqual(575, expected.size(False))
         self.assertEqual(583, expected.size())
+
+    def test_unknown_chunk_skip(self):
+        output = io.BytesIO()
+        write_chunk_head(W3D_CHUNK_PRELIT_VERTEX, output, 9, has_sub_chunks=True)
+
+        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+        write_ubyte(0x00, output)
+
+        io_stream = io.BytesIO(output.getvalue())
+        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+
+        self.assertEqual(W3D_CHUNK_PRELIT_VERTEX, chunk_type)
+
+        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
+        PrelitBase.read(self, io_stream, subchunk_end, W3D_CHUNK_PRELIT_VERTEX)
