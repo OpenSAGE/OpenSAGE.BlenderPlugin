@@ -12,14 +12,6 @@ from tests.utils import *
 
 
 class TestExportW3D(TestCase):
-    def test_unsupported_export_mode(self):
-        export_settings = {}
-        export_settings['mode'] = 'NON_EXISTING'
-
-        context = IOWrapper(self.outpath() + 'output_skn', 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
     def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
         export_settings = {}
         export_settings['mode'] = 'M'

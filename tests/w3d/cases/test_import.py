@@ -58,29 +58,11 @@ class TestObjectImport(TestCase):
         load(sut, import_settings={})
 
     def test_unkown_chunk_skip(self):
-        hierarchy_name = 'TestHiera_SKL'
-        hierarchy = get_hierarchy(hierarchy_name)
-        meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
-        box = get_collision_box()
+        path = self.outpath() + 'output.w3d'
+        file = open(path, 'wb')
+        write_chunk_head(0x01, file, 1, has_sub_chunks=False)
+        write_ubyte(0x00, file)
+        file.close()
 
-        # write to file
-        skn = open(self.outpath() + 'base_skn.w3d', 'wb')
-        for mesh in meshes:
-            mesh.write(skn)
-        hlod.write(skn)
-        box.write(skn)
-        write_chunk_head(0xFFFF, skn, 0)
-        skn.close()
-
-        skl = open(self.outpath() + hierarchy_name + '.w3d', 'wb')
-        hierarchy.write(skl)
-        write_chunk_head(0x00, skl, 0)
-        skl.close()
-
-        # import
-        model = IOWrapper(self.outpath() + 'base_skn', '.w3d')
-        load(model, import_settings={})
+        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x1', text)
+        load_file(self, None, path)
