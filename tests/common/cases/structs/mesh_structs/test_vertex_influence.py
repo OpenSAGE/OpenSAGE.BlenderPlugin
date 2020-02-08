@@ -34,3 +34,17 @@ class TestVertexInfluence(TestCase):
 
         actual = VertexInfluence.parse(xml_objects[0].find('I'), xml_objects[1].find('I'))
         compare_vertex_influences(self, expected, actual)
+
+    def test_write_read_xml_only_one_bone(self):
+        expected = get_vertex_influence(bone=3, xtra=0, bone_inf=1.0, xtra_inf=0.0)
+        root = create_root()
+        bone_infs = create_node(root, 'BoneInfluences')
+        expected.create(bone_infs)
+
+        # TODO: is this sufficient or should we write to an io.BytesIO ?
+
+        xml_objects = root.findall('BoneInfluences')
+        self.assertEqual(1, len(xml_objects))
+
+        actual = VertexInfluence.parse(xml_objects[0].find('I'))
+        compare_vertex_influences(self, expected, actual)

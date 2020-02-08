@@ -105,6 +105,14 @@ class TestIOXML(TestCase):
         actual = parse_objects(root, 'o', parse_value, float)
         self.assertEqual(expected, actual)
 
+    def test_parse_objects_none_found(self):
+        expected = []
+        data = '<?xml version=\'1.0\' encoding=\'utf8\'?><root></root>'
+        root = ET.fromstring(data)
+
+        actual = parse_objects(root, 'o', parse_value, float)
+        self.assertEqual(expected, actual)
+
     def test_create_object_list(self):
         values = [3.14, 2.14, 1.14, 0.14]
 

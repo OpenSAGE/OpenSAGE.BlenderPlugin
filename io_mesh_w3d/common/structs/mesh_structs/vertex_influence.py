@@ -43,7 +43,7 @@ class VertexInfluence(Struct):
             result.xtra_inf = float(xml_vertex_influence2.get('Weight'))
         return result
 
-    def create(self, parent, parent2):
+    def create(self, parent, parent2=None):
         influence = create_node(parent, 'I')
         influence.set('Bone', str(self.bone_idx))
         influence.set('Weight', str(self.bone_inf))

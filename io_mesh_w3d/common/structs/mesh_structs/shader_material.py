@@ -84,7 +84,7 @@ class ShaderMaterialProperty(Struct):
             size += 16
         elif self.type == 6:
             size += 4
-        elif self.type == 7:
+        else:
             size += 1
         return size
 
@@ -109,7 +109,7 @@ class ShaderMaterialProperty(Struct):
             self.value.write_f(io_stream)
         elif self.type == 6:
             write_long(self.value, io_stream)
-        elif self.type == 7:
+        else:
             write_ubyte(self.value, io_stream)
 
     @staticmethod
@@ -195,7 +195,7 @@ class ShaderMaterialProperty(Struct):
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = str(self.value)
 
-        elif self.type == 7:
+        else:
             xml_constant = create_node(parent, 'Bool')
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = str(self.value).lower()
@@ -249,10 +249,8 @@ class ShaderMaterial(Struct):
                 technique_index=int(xml_fx_shader.get('TechniqueIndex', 0))),
             properties=[])
 
-        for child in xml_fx_shader:
-            if child.tag != 'Constants':
-                continue
-            for property in child:
+        for constants in xml_fx_shader.findall('Constants'):
+            for property in constants:
                 result.properties.append(ShaderMaterialProperty.parse(property))
         return result
 
