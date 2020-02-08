@@ -35,6 +35,7 @@ class TestAnimation(TestCase):
 
         self.assertEqual(W3D_CHUNK_ANIMATION, chunk_type)
 
+        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
         Animation.read(self, io_stream, subchunk_end)
 
     def test_validate(self):

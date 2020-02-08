@@ -22,6 +22,21 @@ class TestTexture(TestCase):
             True,
             include_head=False)
 
+    def test_write_read_no_texture_info(self):
+        expected = get_texture()
+        expected.texture_info = None
+
+        self.assertEqual(28, expected.size())
+
+        self.write_read_test(
+            expected,
+            W3D_CHUNK_TEXTURE,
+            Texture.read,
+            compare_textures,
+            self,
+            True,
+            include_head=False)
+
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_TEXTURE, output, 9, has_sub_chunks=True)

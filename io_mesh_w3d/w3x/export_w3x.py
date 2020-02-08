@@ -81,6 +81,10 @@ def save(context, export_settings, data_context):
         data_context.hierarchy.header.name = data_context.container_name
         data_context.hierarchy.create(root)
 
+    else:
+        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        return {'CANCELLED'}
+
     write(root, context.filepath + context.filename_ext)
 
     context.info('finished')

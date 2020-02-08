@@ -95,7 +95,12 @@ class TestCompressedAnimation(TestCase):
 
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunk_type)
 
+        warning_texts = []
+        self.warning = lambda text: warning_texts.append(text)
         CompressedAnimation.read(self, io_stream, subchunk_end)
+
+        self.assertEqual('unknown chunk_type in io_stream: 0x282', warning_texts[0])
+        self.assertEqual('unknown chunk_type in io_stream: 0x0', warning_texts[1])
 
     def test_chunk_sizes(self):
         ani = get_compressed_animation_minimal()

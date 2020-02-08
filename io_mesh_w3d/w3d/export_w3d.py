@@ -47,6 +47,9 @@ def save(context, export_settings, data_context):
     elif export_mode == 'H':
         data_context.hierarchy.header.name = data_context.container_name
         data_context.hierarchy.write(file)
+    else:
+        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        return {'CANCELLED'}
 
     file.close()
     context.info('finished')

@@ -53,6 +53,8 @@ class PrelitBase(Struct):
             elif chunk_type == W3D_CHUNK_MATERIAL_PASS:
                 result.material_passes.append(MaterialPass.read(
                     context, io_stream, subchunk_end))
+            else:
+                skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
     def size(self, include_head=True):

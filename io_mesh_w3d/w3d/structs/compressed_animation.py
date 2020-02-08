@@ -340,10 +340,7 @@ class MotionChannel(Struct):
 
         if result.delta_type == 0:
             result.data = result.read_time_coded_data(io_stream)
-        elif result.delta_type == 1:
-            result.data = AdaptiveDeltaMotionAnimationChannel.read(
-                io_stream, result, result.delta_type * 4)
-        elif result.delta_type == 2:
+        else:
             result.data = AdaptiveDeltaMotionAnimationChannel.read(
                 io_stream, result, result.delta_type * 4)
         return result
