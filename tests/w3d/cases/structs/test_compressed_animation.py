@@ -78,16 +78,13 @@ class TestCompressedAnimation(TestCase):
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION,
-                         output, 79, has_sub_chunks=True)
+                         output, 70, has_sub_chunks=True)
 
         header = get_compressed_animation_header(flavor=2)
         header.write(output)
 
         write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL,
-                         output, 10, has_sub_chunks=False)
-        write_ubyte(0x00, output)
-
-        write_chunk_head(0x00, output, 1, has_sub_chunks=False)
+                         output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
@@ -98,8 +95,12 @@ class TestCompressedAnimation(TestCase):
 
         self.assertEqual(W3D_CHUNK_COMPRESSED_ANIMATION, chunk_type)
 
-        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
+        warning_texts = []
+        self.warning = lambda text: warning_texts.append(text)
         CompressedAnimation.read(self, io_stream, subchunk_end)
+
+        self.assertEqual('unknown chunk_type in io_stream: 0x282', warning_texts[0])
+        self.assertEqual('unknown chunk_type in io_stream: 0x0', warning_texts[1])
 
     def test_chunk_sizes(self):
         ani = get_compressed_animation_minimal()
