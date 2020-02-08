@@ -180,3 +180,25 @@ class TestMesh(TestCase):
 
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+
+    def test_node_order(self):
+        expecteds = ['BoundingBox',
+                     'BoundingSphere',
+                     'Vertices',
+                     'Normals',
+                     'Tangents',
+                     'Binormals',
+                     'TexCoords',
+                     'BoneInfluences',
+                     'BoneInfluences',
+                     'ShadeIndices',
+                     'Triangles',
+                     'FXShader',
+                     'AABTree']
+
+        root = create_root()
+        mesh = get_mesh(shader_mats=True, skin=True)
+        mesh.create(root)
+
+        for i, child in enumerate(root.find('W3DMesh')):
+            self.assertEqual(expecteds[i], child.tag)

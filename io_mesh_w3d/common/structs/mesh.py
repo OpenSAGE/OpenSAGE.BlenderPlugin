@@ -542,10 +542,6 @@ class Mesh(Struct):
         if self.material_passes:
             create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T')
 
-        create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
-
-        create_object_list(xml_mesh, 'Triangles', self.triangles, Triangle.create)
-
         if self.vert_infs:
             vertex_influences = create_node(xml_mesh, 'BoneInfluences')
             vertex_influences2 = None
@@ -554,6 +550,10 @@ class Mesh(Struct):
 
             for vert_inf in self.vert_infs:
                 vert_inf.create(vertex_influences, vertex_influences2)
+
+        create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
+
+        create_object_list(xml_mesh, 'Triangles', self.triangles, Triangle.create)
 
         for shader_material in self.shader_materials:
             shader_material.create(xml_mesh)
