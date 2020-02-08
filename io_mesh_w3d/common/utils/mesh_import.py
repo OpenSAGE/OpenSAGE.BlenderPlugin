@@ -35,10 +35,38 @@ def create_mesh(context, mesh_struct, coll):
     # vertex material stuff
     name = mesh_struct.name()
     if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
+        materials = []
+        create_vertex_material(context, principleds, materials, mesh_struct, mesh, name, triangles)
+        for i, shader in enumerate(mesh_struct.shaders):
+            set_shader_properties(materials[i], shader)
 
-    for i, shader in enumerate(mesh_struct.shaders):
-        set_shader_properties(mesh.materials[i], shader)
+    if mesh_struct.prelit_unlit is not None:
+        materials = []
+        prelit = mesh_struct.prelit_unlit
+        create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
+        for i, shader in enumerate(prelit.shaders):
+            set_shader_properties(materials[i], shader)
+
+    if mesh_struct.prelit_vertex is not None:
+        materials = []
+        prelit = mesh_struct.prelit_vertex
+        create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
+        for i, shader in enumerate(prelit.shaders):
+            set_shader_properties(materials[i], shader)
+
+    if mesh_struct.prelit_lightmap_multi_pass is not None:
+        materials = []
+        prelit = mesh_struct.prelit_lightmap_multi_pass
+        create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
+        for i, shader in enumerate(prelit.shaders):
+            set_shader_properties(materials[i], shader)
+
+    if mesh_struct.prelit_lightmap_multi_texture is not None:
+        materials = []
+        prelit = mesh_struct.prelit_lightmap_multi_texture
+        create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
+        for i, shader in enumerate(prelit.shaders):
+            set_shader_properties(materials[i], shader)
 
     # shader material stuff
     if mesh_struct.shader_materials:

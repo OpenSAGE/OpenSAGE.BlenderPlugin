@@ -576,14 +576,16 @@ class TestUtils(TestCase):
         self.compare_data(meshes)
 
     def test_prelit_meshes_roundtrip(self):
-        hlod = get_hlod()
-        hierarchy = get_hierarchy()
-        meshes = [get_mesh(name='sword', skin=True, prelit=True)]
+        meshes = [get_mesh(name='prelit', prelit=True)]
 
-        create_data(self, meshes, hlod, hierarchy)
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
 
-        # not yet supported
-        # self.compare_data(meshes, None, None)
+
+        print('#################  Prelit test')
+        create_data(self, meshes)
+
+        self.compare_data(meshes)
 
     def test_animation_roundtrip(self):
         animation = get_animation()

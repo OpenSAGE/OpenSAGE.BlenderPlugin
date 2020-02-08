@@ -140,7 +140,7 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
         mesh.shader_materials.append(get_shader_material())
         mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mats))
     elif prelit:
-        mesh.header.attrs |= PRELIT_VERTEX
+        mesh.header.attrs |= PRELIT_UNLIT | PRELIT_VERTEX | PRELIT_LIGHTMAP_MULTI_PASS | PRELIT_LIGHTMAP_MULTI_TEXTURE
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
         mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
         mesh.prelit_lightmap_multi_pass = get_prelit(

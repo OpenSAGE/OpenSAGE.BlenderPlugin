@@ -18,6 +18,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
         (material, principled) = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
+        materials.append(material)
 
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
