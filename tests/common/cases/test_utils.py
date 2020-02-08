@@ -19,7 +19,6 @@ from tests.w3d.helpers.compressed_animation import *
 from tests.w3d.helpers.dazzle import *
 from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
-from os.path import dirname as up
 
 
 class TestUtils(TestCase):
@@ -585,6 +584,7 @@ class TestUtils(TestCase):
         print('#################  Prelit test')
         create_data(self, meshes)
 
+        print('#####  created data')
         self.compare_data(meshes)
 
     def test_animation_roundtrip(self):

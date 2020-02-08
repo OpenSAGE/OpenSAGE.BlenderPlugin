@@ -41,6 +41,7 @@ def create_mesh(context, mesh_struct, coll):
             set_shader_properties(materials[i], shader)
 
     if mesh_struct.prelit_unlit is not None:
+        print('create prelit unlit')
         materials = []
         prelit = mesh_struct.prelit_unlit
         create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
@@ -48,6 +49,7 @@ def create_mesh(context, mesh_struct, coll):
             set_shader_properties(materials[i], shader)
 
     if mesh_struct.prelit_vertex is not None:
+        print('create prelit vertex')
         materials = []
         prelit = mesh_struct.prelit_vertex
         create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
@@ -55,6 +57,7 @@ def create_mesh(context, mesh_struct, coll):
             set_shader_properties(materials[i], shader)
 
     if mesh_struct.prelit_lightmap_multi_pass is not None:
+        print('create prelit lightmap multi pass')
         materials = []
         prelit = mesh_struct.prelit_lightmap_multi_pass
         create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
@@ -62,6 +65,7 @@ def create_mesh(context, mesh_struct, coll):
             set_shader_properties(materials[i], shader)
 
     if mesh_struct.prelit_lightmap_multi_texture is not None:
+        print('create prelit lightmap multi texture')
         materials = []
         prelit = mesh_struct.prelit_lightmap_multi_texture
         create_vertex_material(context, principleds, materials, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')

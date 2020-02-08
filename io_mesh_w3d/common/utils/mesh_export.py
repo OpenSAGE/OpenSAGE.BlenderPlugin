@@ -181,6 +181,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         file=filepath,
                         texture_info=info)
 
+                #print('material type: ' + material.material_type)
                 if material.material_type == 'VERTEX_MATERIAL':
                     mat_pass.shader_ids = [i]
                     mat_pass.vertex_material_ids = [i]
@@ -190,6 +191,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     if tex is not None:
                         mesh_struct.textures.append(tex)
                 else:
+                    #print('prelit type: ' + material.prelit_type)
                     if material.prelit_type == 'PRELIT_UNLIT':
                         if  mesh_struct.prelit_unlit is None:
                             mesh_struct.prelit_unlit = PrelitBase(
@@ -265,6 +267,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh_struct.bitangents = []
 
         if mesh_struct.prelit_unlit is not None:
+            # print('prelit unlit')
             mesh_struct.header.attrs |= PRELIT_UNLIT
             prelit = mesh_struct.prelit_unlit
             prelit.mat_info = MaterialInfo(
@@ -274,6 +277,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 texture_count=len(prelit.textures))
 
         if mesh_struct.prelit_vertex is not None:
+            # print('prelit vertex')
             mesh_struct.header.attrs |= PRELIT_VERTEX
             prelit = mesh_struct.prelit_vertex
             prelit.mat_info = MaterialInfo(
@@ -283,6 +287,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 texture_count=len(prelit.textures))
 
         if mesh_struct.prelit_lightmap_multi_pass is not None:
+            # print('prelit lightmap multi pass')
             mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_PASS
             prelit = mesh_struct.prelit_lightmap_multi_pass
             prelit.mat_info = MaterialInfo(
@@ -292,6 +297,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 texture_count=len(prelit.textures))
 
         if mesh_struct.prelit_lightmap_multi_texture is not None:
+            # print('prelit lightmap multi texture')
             mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_TEXTURE
             prelit = mesh_struct.prelit_lightmap_multi_texture
             prelit.mat_info = MaterialInfo(
@@ -303,6 +309,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         if mesh_struct.prelit_unlit is None and mesh_struct.prelit_vertex is None \
                 and mesh_struct.prelit_lightmap_multi_pass is None and mesh_struct.prelit_lightmap_multi_texture is None:
+            # print('NO PRELIT')
             mesh_struct.mat_info = MaterialInfo(
                 pass_count=len(mesh_struct.material_passes),
                 vert_matl_count=len(mesh_struct.vert_materials),

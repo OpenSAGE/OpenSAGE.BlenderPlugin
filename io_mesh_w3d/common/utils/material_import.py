@@ -18,6 +18,11 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
         (material, principled) = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
+
+        if prelit_type is not None:
+            material.material_type = 'PRELIT_MATERIAL'
+            material.prelit_type = prelit_type
+
         materials.append(material)
 
     b_mesh = bmesh.new()
