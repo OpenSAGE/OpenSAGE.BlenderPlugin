@@ -66,6 +66,15 @@ class TestIOXML(TestCase):
         for i, exp in enumerate(expected):
             self.assertEqual(exp, actual[i])
 
+    def test_write_encoding_is_uppercase_with_dash(self):
+        write(create_root(), self.outpath() + 'test.xml')
+
+        file = open(self.outpath() + 'test.xml', mode='r')
+        actual = file.readlines()
+        file.close()
+
+        self.assertEqual('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n', actual[0])
+
     def test_find_root(self):
         data = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><obj></obj></AssetDeclaration>'
         file = open(self.outpath() + 'test.xml', 'w')
