@@ -25,7 +25,7 @@ class TestExportUtils(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
 
-        self.filepath = r'C:dir\dir.dir\toolongtestfilename'
+        self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'toolongtestfilename'
 
         self.assertFalse(retrieve_data(self, export_settings, data_context))
 
@@ -50,7 +50,7 @@ class TestExportUtils(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
 
-        self.filepath = r'C:dir\dir.dir\filename'
+        self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
         self.assertFalse(retrieve_data(self, export_settings, data_context))
 
@@ -76,6 +76,6 @@ class TestExportUtils(TestCase):
         export_settings = {}
         export_settings['mode'] = 'M'
 
-        self.filepath = r'C:dir\dir.dir\filename'
+        self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
         self.assertFalse(retrieve_data(self, export_settings, data_context))
