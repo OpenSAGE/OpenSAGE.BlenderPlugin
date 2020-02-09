@@ -65,7 +65,6 @@ def retrieve_data(context, export_settings, data_context):
         (meshes, textures) = retrieve_meshes(context, hierarchy, rig, data_context.container_name)
         data_context.meshes = meshes
         data_context.textures = textures
-        print(len(meshes))
         if not data_context.meshes:
             context.error('Scene does not contain any meshes, aborting export!')
             return False

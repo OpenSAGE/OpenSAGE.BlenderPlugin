@@ -11,7 +11,6 @@ from io_mesh_w3d.common.utils.material_export import *
 
 
 def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
-    print('implementation was called')
     mesh_structs = []
     used_textures = []
 
