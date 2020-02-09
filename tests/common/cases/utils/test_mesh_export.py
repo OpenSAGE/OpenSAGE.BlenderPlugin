@@ -9,6 +9,7 @@ from os.path import dirname as up
 from unittest.mock import patch
 from shutil import copyfile
 
+from io_mesh_w3d.common.utils.aabbtree_creator import *
 from io_mesh_w3d.common.utils.mesh_export import *
 from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
@@ -416,3 +417,67 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(0, len(meshes[0].material_passes[0].dcg))
         self.assertEqual(0, len(meshes[0].material_passes[0].dig))
         self.assertEqual(0, len(meshes[0].material_passes[0].scg))
+
+    def test_aabbtree_creation(self):
+        expected = AABBTree(
+            header=get_aabbtree_header(num_nodes=5, num_polys=10),
+            poly_indices=[3, 6, 7, 8, 9, 1, 2, 5, 0, 4],
+            nodes=[])
+
+        expected.nodes = [
+            AABBTreeNode(
+                min=get_vec(-0.699, -0.743, -0.296),
+                max=get_vec(0.684, 0.571, 0.203),
+                polys=None,
+                children=Children(front=1, back=2)),
+            AABBTreeNode(
+                min=get_vec(-0.699, -0.241, -0.296),
+                max=get_vec(0.684, 0.571, 0.203),
+                polys=Polys(begin=0, count=5),
+                children=None),
+            AABBTreeNode(
+                min=get_vec(-0.699, -0.743, -0.296),
+                max=get_vec(0.684, 0.165, 0.203),
+                polys=None,
+                children=Children(front=3, back=4)),
+            AABBTreeNode(
+                min=get_vec(-0.699, -0.743, -0.296),
+                max=get_vec(0.684, -0.086, 0.203),
+                polys=Polys(begin=5, count=4),
+                children=None),
+            AABBTreeNode(
+                min=get_vec(-0.699, -0.241, -0.296),
+                max=get_vec(-0.139, 0.165, 0.203),
+                polys=Polys(begin=9, count=1),
+                children=None)]
+
+        verts = [get_vec(0.124, 0.165, -0.296),
+                 get_vec(0.684, -0.241, 0.203),
+                 get_vec(-0.007, -0.743, 0.203),
+                 get_vec(-0.008, -0.241, -0.296),
+
+                 get_vec(0.420, 0.571, 0.203),
+                 get_vec(0.206, -0.084, -0.296),
+                 get_vec(-0.434, 0.571, 0.203),
+                 get_vec(-0.139, 0.165, -0.296),
+
+                 get_vec(-0.699, -0.241, 0.203),
+
+                 get_vec(-0.221, -0.086, -0.296)]
+
+        triangles = [
+            get_triangle([7, 6, 0], 13, get_vec(), 0.0),
+            get_triangle([0, 6, 4], 13, get_vec(), 0.0),
+            get_triangle([0, 4, 5], 13, get_vec(), 0.0),
+            get_triangle([5, 4, 1], 13, get_vec(), 0.0),
+            get_triangle([5, 1, 2], 13, get_vec(), 0.0),
+            get_triangle([5, 2, 3], 13, get_vec(), 0.0),
+            get_triangle([3, 2, 8], 13, get_vec(), 0.0),
+            get_triangle([3, 8, 9], 13, get_vec(), 0.0),
+            get_triangle([9, 8, 7], 13, get_vec(), 0.0),
+            get_triangle([8, 6, 7], 13, get_vec(), 0.0)]
+
+        creator = AABBTreeCreator()
+        creator.create(triangles, verts)
+
+        # compare_aabbtrees(self, expected, actual)

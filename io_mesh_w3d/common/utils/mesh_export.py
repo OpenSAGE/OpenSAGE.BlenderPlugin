@@ -1,9 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
+import os
 import bmesh
-from mathutils import Vector, Matrix
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.structs.mesh import *
