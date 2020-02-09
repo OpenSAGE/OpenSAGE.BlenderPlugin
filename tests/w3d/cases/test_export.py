@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import os.path
+from unittest.mock import patch
 
 from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.export_utils import save
@@ -12,42 +13,6 @@ from tests.utils import *
 
 
 class TestExportW3D(TestCase):
-    def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'M'
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_HAM_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'HAM'
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
     def test_no_hlod_is_written_if_mode_M(self):
         export_settings = {}
         export_settings['mode'] = 'M'

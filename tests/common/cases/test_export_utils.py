@@ -178,3 +178,33 @@ class TestExportUtils(TestCase):
         h_validate.assert_called()
         hlod_validate.assert_called()
         validate.assert_called()
+
+    @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(get_hierarchy(), None))
+    @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
+    @patch('io_mesh_w3d.export_utils.retrieve_boxes', return_value=[])
+    @patch('io_mesh_w3d.export_utils.retrieve_dazzles', return_value=[])
+    @patch('io_mesh_w3d.export_utils.retrieve_meshes', return_value = ([], None))
+    @patch.object(Animation, 'validate', return_value=False)
+    def test_retrieve_data_returns_false_if_A_in_mode_and_invalid_animation(self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
+        self.error = lambda text: self.assertEqual('aborting export!', text)
+
+        data_context = DataContext(
+            container_name='',
+            rig=None,
+            meshes=[],
+            textures=[],
+            collision_boxes=[],
+            dazzles=[],
+            hierarchy=None,
+            hlod=None)
+
+        export_settings = {}
+        export_settings['mode'] = 'A'
+        export_settings['compression'] = 'U'
+
+        self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
+
+        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        validate.assert_called()
+
+  
