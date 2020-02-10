@@ -20,42 +20,6 @@ class TestExportW3X(TestCase):
 
         self.assertEqual({'CANCELLED'}, save(context, export_settings))
 
-    def test_no_file_created_if_MODE_is_M_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'M'
-
-        extension = '.w3x'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_HM_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-
-        extension = '.w3x'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_HAM_and_no_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'HAM'
-
-        extension = '.w3x'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
     def test_no_hlod_is_written_if_mode_M(self):
         export_settings = {}
         export_settings['mode'] = 'M'
@@ -147,32 +111,6 @@ class TestExportW3X(TestCase):
 
         root = find_root(self, file_path + extension)
         self.assertIsNone(root.find('W3DHierarchy'))
-
-    def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
-        export_settings = {}
-        export_settings['mode'] = 'A'
-        export_settings['compression'] = 'U'
-
-        extension = '.w3x'
-        file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, 'W3X')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_A_and_TC_no_animation_channels(self):
-        export_settings = {}
-        export_settings['mode'] = 'A'
-        export_settings['compression'] = 'TC'
-
-        extension = '.w3x'
-        file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, 'W3X')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
 
     def test_no_texture_xml_files_are_created_if_not_create_texture_xmls(self):
         export_settings = {}

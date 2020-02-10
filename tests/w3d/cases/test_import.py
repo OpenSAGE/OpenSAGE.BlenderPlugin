@@ -13,7 +13,7 @@ from tests.utils import *
 from os.path import dirname as up
 
 
-class TestObjectImport(TestCase):
+class TestImport(TestCase):
     def test_import_no_skeleton_file(self):
         hierarchy_name = 'TestHiera_SKL'
         meshes = [
