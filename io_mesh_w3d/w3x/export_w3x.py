@@ -53,7 +53,7 @@ def save(context, export_settings, data_context):
                 write_struct(box, path)
 
             for mesh in data_context.meshes:
-                path =  dir + mesh.identifier() + context.filename_ext
+                path = dir + mesh.identifier() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(mesh, path)
 

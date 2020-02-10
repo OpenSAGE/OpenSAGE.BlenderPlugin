@@ -70,7 +70,8 @@ class TestExportW3X(TestCase):
         with (patch.object(IOWrapper, 'warning')) as warning_func:
             self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
 
-            warning_func.assert_called_with('Scene does contain multiple meshes, exporting only the first with export mode M!')
+            warning_func.assert_called_with(
+                'Scene does contain multiple meshes, exporting only the first with export mode M!')
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {}
