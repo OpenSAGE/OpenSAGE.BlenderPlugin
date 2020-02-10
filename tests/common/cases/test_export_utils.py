@@ -183,9 +183,10 @@ class TestExportUtils(TestCase):
     @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
     @patch('io_mesh_w3d.export_utils.retrieve_boxes', return_value=[])
     @patch('io_mesh_w3d.export_utils.retrieve_dazzles', return_value=[])
-    @patch('io_mesh_w3d.export_utils.retrieve_meshes', return_value = ([], None))
+    @patch('io_mesh_w3d.export_utils.retrieve_meshes', return_value=([], None))
     @patch.object(Animation, 'validate', return_value=False)
-    def test_retrieve_data_returns_false_if_A_in_mode_and_invalid_animation(self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
+    def test_retrieve_data_returns_false_if_A_in_mode_and_invalid_animation(
+            self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
         data_context = DataContext(
@@ -206,5 +207,3 @@ class TestExportUtils(TestCase):
 
         self.assertFalse(retrieve_data(self, export_settings, data_context))
         validate.assert_called()
-
-  

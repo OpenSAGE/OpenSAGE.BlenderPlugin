@@ -49,7 +49,6 @@ class TestExportW3D(TestCase):
         file.close()
         self.assertEqual(1, found_meshes)
 
-
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {}
         export_settings['mode'] = 'HM'
@@ -61,7 +60,7 @@ class TestExportW3D(TestCase):
         data_context = DataContext(
             container_name='containerName',
             rig=None,
-            meshes= [
+            meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
@@ -103,7 +102,7 @@ class TestExportW3D(TestCase):
         data_context = DataContext(
             container_name='containerName',
             rig=None,
-            meshes= [
+            meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
