@@ -42,12 +42,13 @@ def strip_namespaces(it):
     for _, el in it:
         el.tag = el.tag.split('}', 1)[-1]
 
+
 def find_root(context, source):
     try:
         it = ET.iterparse(source)
         strip_namespaces(it)
         root = it.root
-    except:
+    except BaseException:
         context.error('file: ' + source + ' does not contain valid XML data!')
         return None
 
