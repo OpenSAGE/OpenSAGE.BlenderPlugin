@@ -47,7 +47,7 @@ class TestIOXML(TestCase):
 
         pretty_print(root)
 
-        result = ET.tostring(root, encoding='utf8', method='xml').decode("utf-8") 
+        result = ET.tostring(root, encoding='utf8', method='xml').decode("utf-8")
 
         self.assertEqual(expected, result)
 
