@@ -19,14 +19,11 @@ def write_struct(struct, path):
 def pretty_print(elem, level=0):
     i = '\n' + level * '  '
     if elem:
-        if not elem.text or not elem.text.strip():
-            elem.text = i + '  '
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+        elem.text = i + '  '
+        elem.tail = i
         for elem in elem:
             pretty_print(elem, level + 1)
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+        elem.tail = i
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
@@ -41,11 +38,18 @@ def write(root, path):
     file.close()
 
 
-def find_root(context, source):
-    it = ET.iterparse(source)
+def strip_namespaces(it):
     for _, el in it:
-        el.tag = el.tag.split('}', 1)[-1]  # strip all namespaces
-    root = it.root
+        el.tag = el.tag.split('}', 1)[-1]
+
+def find_root(context, source):
+    try:
+        it = ET.iterparse(source)
+        strip_namespaces(it)
+        root = it.root
+    except:
+        context.error('file: ' + source + ' does not contain valid XML data!')
+        return None
 
     if root.tag != 'AssetDeclaration':
         context.error('file: ' + source + ' does not contain a AssetDeclaration node!')

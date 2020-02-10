@@ -39,6 +39,18 @@ class TestIOXML(TestCase):
         for i, exp in enumerate(expected):
             self.assertEqual(exp, actual[i])
 
+    def test_pretty_print(self):
+        expected = '<?xml version=\'1.0\' encoding=\'utf8\'?>\n<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 />\n</AssetDeclaration>\n'
+        root = create_root()
+        child1 = create_node(root, 'Child1')
+        child2 = create_node(root, 'Child2')
+
+        pretty_print(root)
+
+        result = ET.tostring(root, encoding='utf8', method='xml').decode("utf-8") 
+
+        self.assertEqual(expected, result)
+
     def test_write(self):
         expected = [
             '<?xml version=\'1.0\' encoding=\'utf8\'?>\n',
@@ -64,12 +76,27 @@ class TestIOXML(TestCase):
         self.assertIsNotNone(root)
 
     def test_find_root_none_found(self):
+        path = self.outpath() + 'test.xml'
+        self.error = lambda text: self.assertEqual('file: ' + path + ' does not contain a AssetDeclaration node!', text)
+
         data = '<?xml version=\'1.0\' encoding=\'utf8\'?><root></root>'
-        file = open(self.outpath() + 'test.xml', 'w')
+        file = open(path, 'w')
         file.write(data)
         file.close()
 
-        root = find_root(self, self.outpath() + 'test.xml')
+        root = find_root(self, path)
+        self.assertIsNone(root)
+
+    def test_find_root_parse_error(self):
+        path = self.outpath() + 'test.xml'
+        self.error = lambda text: self.assertEqual('file: ' + path + ' does not contain valid XML data!', text)
+
+        data = 'Invalid Data'
+        file = open(path, 'w')
+        file.write(data)
+        file.close()
+
+        root = find_root(self, path)
         self.assertIsNone(root)
 
     def test_create_root(self):
