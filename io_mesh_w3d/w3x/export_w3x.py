@@ -38,21 +38,24 @@ def save(context, export_settings, data_context):
         if export_settings['create_texture_xmls']:
             for texture in data_context.textures:
                 id = texture.split('.')[0]
-                write_struct(Texture(id=id, file=texture), dir + os.path.sep + id + '.xml')
+                path = dir + id + '.xml'
+                context.info('Saving file :' + path)
+                write_struct(Texture(id=id, file=texture), path)
 
         if export_settings['individual_files']:
-            pass
-            write_struct(
-                data_context.hierarchy,
-                dir +
-                data_context.hierarchy.name() +
-                context.filename_ext)
+            path = dir + data_context.hierarchy.name() + context.filename_ext
+            context.info('Saving file :' + path)
+            write_struct(data_context.hierarchy, path)
 
             for box in data_context.boxes:
-                write_struct(box, dir + box.name_ + context.filename_ext)
+                path = dir + box.name_ + context.filename_ext
+                context.info('Saving file :' + path)
+                write_struct(box, path)
 
             for mesh in data_context.meshes:
-                write_struct(mesh, dir + mesh.identifier() + context.filename_ext)
+                path =  dir + mesh.identifier() + context.filename_ext
+                context.info('Saving file :' + path)
+                write_struct(mesh, path)
 
         else:
             for texture in data_context.textures:

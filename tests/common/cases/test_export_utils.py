@@ -11,6 +11,18 @@ from tests.common.helpers.collision_box import *
 
 
 class TestExportUtils(TestCase):
+    @patch('io_mesh_w3d.export_utils.retrieve_data', return_value=False)
+    def test_cancells_if_not_retrieve_data(self, retrieve):
+        self.assertEqual({'CANCELLED'}, save(self, {}))
+
+    def test_retrieve_data_returns_false_if_invalid_mode(self):
+        self.error = lambda text: self.assertEqual('unsupported export mode: INVALID, aborting export!', text)
+
+        export_settings = {}
+        export_settings['mode'] = 'INVALID'
+
+        self.assertFalse(retrieve_data(self, export_settings, DataContext()))
+
     def test_retrieve_data_returns_false_if_w3d_and_container_name_too_long(self):
         self.error = lambda text: self.assertEqual('Filename is longer than 16 characters, aborting export!', text)
 
