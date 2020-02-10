@@ -24,7 +24,7 @@ class TestExportW3D(TestCase):
             rig=None,
             meshes=[get_mesh()],
             textures=[],
-            collision_boxes=[],
+            boxes=[],
             dazzles=[],
             hierarchy=None,
             hlod=None)
@@ -49,29 +49,6 @@ class TestExportW3D(TestCase):
         file.close()
         self.assertEqual(1, found_meshes)
 
-    def test_no_hierarchy_is_written_if_mode_M(self):
-        export_settings = {}
-        export_settings['mode'] = 'M'
-        export_settings['compression'] = 'U'
-
-        meshes = [get_mesh()]
-        create_data(self, meshes)
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'FINISHED'}, save(context, export_settings))
-
-        file = open(file_path + extension, 'rb')
-        filesize = os.path.getsize(file_path + extension)
-        while file.tell() < filesize:
-            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
-
-            self.assertNotEqual(W3D_CHUNK_HIERARCHY, chunk_type)
-            skip_unknown_chunk(self, file, chunk_type, chunk_size)
-
-        file.close()
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {}
@@ -80,23 +57,29 @@ class TestExportW3D(TestCase):
         export_settings['use_existing_skeleton'] = False
 
         hierarchy_name = 'TestHiera_SKL'
-        hierarchy = get_hierarchy(hierarchy_name)
-        meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
 
-        create_data(self, meshes, hlod, hierarchy)
+        data_context = DataContext(
+            container_name='containerName',
+            rig=None,
+            meshes= [
+                get_mesh(name='sword', skin=True),
+                get_mesh(name='soldier', skin=True),
+                get_mesh(name='TRUNK')],
+            textures=[],
+            boxes=[],
+            dazzles=[],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name))
 
-        extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, 'W3D')
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings))
+        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
 
-        file = open(file_path + extension, 'rb')
-        filesize = os.path.getsize(file_path + extension)
+        file_path += '.w3d'
+        self.assertTrue(os.path.exists(file_path))
+        file = open(file_path, 'rb')
+        filesize = os.path.getsize(file_path)
 
         hierarchy_found = False
         while file.tell() < filesize:
@@ -116,23 +99,30 @@ class TestExportW3D(TestCase):
         export_settings['use_existing_skeleton'] = True
 
         hierarchy_name = 'TestHiera_SKL'
-        hierarchy = get_hierarchy(hierarchy_name)
-        meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
 
-        create_data(self, meshes, hlod, hierarchy)
+        data_context = DataContext(
+            container_name='containerName',
+            rig=None,
+            meshes= [
+                get_mesh(name='sword', skin=True),
+                get_mesh(name='soldier', skin=True),
+                get_mesh(name='TRUNK')],
+            textures=[],
+            boxes=[],
+            dazzles=[],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name))
 
-        extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, 'W3D')
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings))
+        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
 
-        file = open(file_path + extension, 'rb')
-        filesize = os.path.getsize(file_path + extension)
+        file_path += '.w3d'
+        self.assertTrue(os.path.exists(file_path))
+        file = open(file_path, 'rb')
+        filesize = os.path.getsize(file_path)
+
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
 
@@ -140,29 +130,3 @@ class TestExportW3D(TestCase):
             skip_unknown_chunk(self, file, chunk_type, chunk_size)
 
         file.close()
-
-    def test_no_file_created_if_MODE_is_A_and_U_no_animation_channels(self):
-        export_settings = {}
-        export_settings['mode'] = 'A'
-        export_settings['compression'] = 'U'
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
-
-    def test_no_file_created_if_MODE_is_A_and_TC_no_animation_channels(self):
-        export_settings = {}
-        export_settings['mode'] = 'A'
-        export_settings['compression'] = 'TC'
-
-        extension = '.w3d'
-        file_path = self.outpath() + 'output_ani'
-        context = IOWrapper(file_path, 'W3D')
-
-        self.assertEqual({'CANCELLED'}, save(context, export_settings))
-
-        self.assertFalse(os.path.exists(file_path + extension))
