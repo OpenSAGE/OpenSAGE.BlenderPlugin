@@ -11,7 +11,8 @@ class TestHLod(TestCase):
         expected = get_hlod()
 
         self.assertEqual(48, expected.header.size())
-        self.assertEqual(912, expected.size())
+        self.assertEqual(912, expected.size(False))
+        self.assertEqual(920, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_HLOD, HLod.read, compare_hlods, self, True)
 
@@ -19,7 +20,8 @@ class TestHLod(TestCase):
         expected = get_hlod_4_levels()
 
         self.assertEqual(48, expected.header.size())
-        self.assertEqual(672, expected.size())
+        self.assertEqual(672, expected.size(False))
+        self.assertEqual(680, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_HLOD, HLod.read, compare_hlods, self, True)
 
@@ -83,7 +85,8 @@ class TestHLod(TestCase):
         self.assertEqual(60, hlod.proxy_array.size(False))
         self.assertEqual(68, hlod.proxy_array.size())
 
-        self.assertEqual(252, hlod.size())
+        self.assertEqual(252, hlod.size(False))
+        self.assertEqual(260, hlod.size())
 
     def test_write_read_xml(self):
         self.write_read_xml_test(get_hlod(), 'W3DContainer', HLod.parse, compare_hlods, self)

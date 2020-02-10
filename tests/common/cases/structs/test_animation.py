@@ -11,7 +11,8 @@ class TestAnimation(TestCase):
         expected = get_animation()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(683, expected.size())
+        self.assertEqual(683, expected.size(False))
+        self.assertEqual(691, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_ANIMATION, Animation.read, compare_animations, self, True)
 
@@ -19,7 +20,8 @@ class TestAnimation(TestCase):
         expected = get_animation_empty()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(52, expected.size())
+        self.assertEqual(52, expected.size(False))
+        self.assertEqual(60, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_ANIMATION, Animation.read, compare_animations, self, True)
 
@@ -72,7 +74,8 @@ class TestAnimation(TestCase):
 
         self.assertEqual(43, list_size(ani.channels, False))
 
-        self.assertEqual(95, ani.size())
+        self.assertEqual(95, ani.size(False))
+        self.assertEqual(103, ani.size())
 
     def test_write_read_xml(self):
         self.write_read_xml_test(get_animation(xml=True), 'W3DAnimation', Animation.parse, compare_animations, self)

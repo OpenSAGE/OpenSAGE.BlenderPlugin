@@ -23,7 +23,7 @@ class AABBTreeHeader(Struct):
 
     @staticmethod
     def size(include_head=True):
-        return const_size(8, include_head)
+        return const_size(32, include_head)
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_AABBTREE_HEADER, io_stream,
@@ -169,6 +169,7 @@ class AABBTree(Struct):
             write_chunk_head(W3D_CHUNK_AABBTREE_POLYINDICES, io_stream,
                              long_list_size(self.poly_indices, False))
             write_list(self.poly_indices, io_stream, write_long)
+
         if self.nodes:
             write_chunk_head(
                 W3D_CHUNK_AABBTREE_NODES,
