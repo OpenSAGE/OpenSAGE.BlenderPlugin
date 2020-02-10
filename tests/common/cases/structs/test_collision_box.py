@@ -10,7 +10,8 @@ class TestCollisionBox(TestCase):
     def test_write_read(self):
         expected = get_collision_box()
 
-        self.assertEqual(68, expected.size())
+        self.assertEqual(68, expected.size(False))
+        self.assertEqual(76, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_BOX, CollisionBox.read, compare_collision_boxes)
 

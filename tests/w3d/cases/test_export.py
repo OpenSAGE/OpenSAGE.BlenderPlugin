@@ -4,8 +4,9 @@
 import os.path
 from unittest.mock import patch
 
+from io_mesh_w3d.common.structs.data_context import *
 from io_mesh_w3d.import_utils import *
-from io_mesh_w3d.export_utils import save
+from io_mesh_w3d.w3d.export_w3d import save
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import *
@@ -13,29 +14,40 @@ from tests.utils import *
 
 
 class TestExportW3D(TestCase):
-    def test_no_hlod_is_written_if_mode_M(self):
+    def test_only_mesh_chunk_is_written_if_mode_M(self):
         export_settings = {}
         export_settings['mode'] = 'M'
         export_settings['compression'] = 'U'
 
-        meshes = [get_mesh()]
-        create_data(self, meshes)
+        data_context = DataContext(
+            container_name='containerName',
+            rig=None,
+            meshes=[get_mesh()],
+            textures=[],
+            collision_boxes=[],
+            dazzles=[],
+            hierarchy=None,
+            hlod=None)
 
-        extension = '.w3d'
         file_path = self.outpath() + 'output_skn'
         context = IOWrapper(file_path, 'W3D')
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings))
+        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
 
-        file = open(file_path + extension, 'rb')
-        filesize = os.path.getsize(file_path + extension)
+        file_path += '.w3d'
+        self.assertTrue(os.path.exists(file_path))
+        file = open(file_path, 'rb')
+        filesize = os.path.getsize(file_path)
+
+        found_meshes = 0
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
-
-            self.assertNotEqual(W3D_CHUNK_HLOD, chunk_type)
-            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+            self.assertEqual(W3D_CHUNK_MESH, chunk_type)
+            found_meshes += 1
+            file.seek(chunk_end, 1)
 
         file.close()
+        self.assertEqual(1, found_meshes)
 
     def test_no_hierarchy_is_written_if_mode_M(self):
         export_settings = {}

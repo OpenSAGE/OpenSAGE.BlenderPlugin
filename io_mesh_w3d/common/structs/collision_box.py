@@ -4,6 +4,7 @@
 from io_mesh_w3d.common.structs.rgba import RGBA
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
+from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3x.io_xml import *
 
@@ -48,11 +49,11 @@ class CollisionBox(Struct):
             extend=read_vector(io_stream))
 
     @staticmethod
-    def size():
-        return 68
+    def size(include_head=True):
+        return const_size(68, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size())
+        write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size(False))
 
         self.version.write(io_stream)
         write_ulong((self.collision_types & 0xFF)

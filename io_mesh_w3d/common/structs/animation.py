@@ -280,14 +280,15 @@ class Animation(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size(self):
-        size = self.header.size()
+    def size(self, include_head=True):
+        size = const_size(0, include_head)
+        size += self.header.size()
         size += list_size(self.channels, False)
         return size
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_ANIMATION, io_stream,
-                         self.size(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         for channel in self.channels:

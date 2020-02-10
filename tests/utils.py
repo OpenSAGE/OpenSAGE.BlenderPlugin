@@ -112,18 +112,17 @@ class TestCase(unittest.TestCase):
             compare,
             context=None,
             pass_end=False,
-            adapt=lambda x: x,
-            include_head=True):
+            adapt=lambda x: x):
         io_stream = io.BytesIO()
         expected.write(io_stream)
+
+        self.assertEqual(expected.size(), io_stream.tell())
+
         io_stream = io.BytesIO(io_stream.getvalue())
 
         (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
         self.assertEqual(chunk_id, chunkType)
-        if include_head:
-            self.assertEqual(expected.size(), chunkSize)
-        else:
-            self.assertEqual(expected.size(include_head), chunkSize)
+        self.assertEqual(expected.size(False), chunkSize)
 
         actual = None
         if context is None:

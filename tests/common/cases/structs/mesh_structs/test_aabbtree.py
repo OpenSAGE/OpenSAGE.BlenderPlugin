@@ -10,8 +10,8 @@ class TestAABBTree(TestCase):
     def test_write_read(self):
         expected = get_aabbtree()
 
-        self.assertEqual(16, expected.header.size())
-        self.assertEqual(1260, expected.size())
+        self.assertEqual(40, expected.header.size())
+        self.assertEqual(1284, expected.size())
 
         self.write_read_test(
             expected,
@@ -19,13 +19,12 @@ class TestAABBTree(TestCase):
             AABBTree.read,
             compare_aabbtrees,
             self,
-            True,
-            include_head=False)
+            True)
 
     def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
-        self.assertEqual(16, expected.header.size())
+        self.assertEqual(40, expected.header.size())
 
         self.write_read_test(
             expected,
@@ -33,8 +32,7 @@ class TestAABBTree(TestCase):
             AABBTree.read,
             compare_aabbtrees,
             self,
-            True,
-            include_head=False)
+            True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
@@ -54,15 +52,15 @@ class TestAABBTree(TestCase):
     def test_chunk_sizes(self):
         expected = get_aabbtree_minimal()
 
-        self.assertEqual(8, expected.header.size(False))
-        self.assertEqual(16, expected.header.size())
+        self.assertEqual(32, expected.header.size(False))
+        self.assertEqual(40, expected.header.size())
 
         self.assertEqual(4, long_list_size(expected.poly_indices, False))
 
         self.assertEqual(32, list_size(expected.nodes, False))
 
-        self.assertEqual(68, expected.size(False))
-        self.assertEqual(76, expected.size())
+        self.assertEqual(92, expected.size(False))
+        self.assertEqual(100, expected.size())
 
     def test_write_read_xml(self):
         self.write_read_xml_test(get_aabbtree(xml=True), 'AABTree', AABBTree.parse, compare_aabbtrees)

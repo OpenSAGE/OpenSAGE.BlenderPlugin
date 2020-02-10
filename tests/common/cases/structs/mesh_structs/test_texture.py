@@ -19,8 +19,7 @@ class TestTexture(TestCase):
             Texture.read,
             compare_textures,
             self,
-            True,
-            include_head=False)
+            True)
 
     def test_write_read_no_texture_info(self):
         expected = get_texture()
@@ -34,8 +33,7 @@ class TestTexture(TestCase):
             Texture.read,
             compare_textures,
             self,
-            True,
-            include_head=False)
+            True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

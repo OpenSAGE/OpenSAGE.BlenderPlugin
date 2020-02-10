@@ -11,7 +11,8 @@ class TestHierarchy(TestCase):
         expected = get_hierarchy()
 
         self.assertEqual(44, expected.header.size())
-        self.assertEqual(636, expected.size())
+        self.assertEqual(636, expected.size(False))
+        self.assertEqual(644, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
@@ -19,7 +20,8 @@ class TestHierarchy(TestCase):
         expected = get_hierarchy_minimal()
 
         self.assertEqual(44, expected.header.size())
-        self.assertEqual(132, expected.size())
+        self.assertEqual(132, expected.size(False))
+        self.assertEqual(140, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
@@ -27,7 +29,8 @@ class TestHierarchy(TestCase):
         expected = get_hierarchy_empty()
 
         self.assertEqual(44, expected.header.size())
-        self.assertEqual(44, expected.size())
+        self.assertEqual(44, expected.size(False))
+        self.assertEqual(52, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_HIERARCHY, Hierarchy.read, compare_hierarchies, self, True)
 
@@ -76,7 +79,8 @@ class TestHierarchy(TestCase):
 
         self.assertEqual(12, vec_list_size(hierarchy.pivot_fixups, False))
 
-        self.assertEqual(132, hierarchy.size())
+        self.assertEqual(132, hierarchy.size(False))
+        self.assertEqual(140, hierarchy.size())
 
     def test_write_read_xml(self):
         self.write_read_xml_test(get_hierarchy(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)

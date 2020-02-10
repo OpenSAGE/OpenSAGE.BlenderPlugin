@@ -267,8 +267,9 @@ class Mesh(Struct):
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
-    def size(self):
-        size = self.header.size()
+    def size(self, include_head=True):
+        size = const_size(0, include_head)
+        size += self.header.size()
         size += text_size(self.user_text)
         size += vec_list_size(self.verts)
         size += vec_list_size(self.normals)
@@ -298,7 +299,7 @@ class Mesh(Struct):
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_MESH, io_stream,
-                         self.size(), has_sub_chunks=True)
+                         self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if len(self.user_text) > 0:

@@ -15,28 +15,32 @@ class TestMesh(TestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(3113, expected.size())
+        self.assertEqual(3137, expected.size(False))
+        self.assertEqual(3145, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(4105, expected.size())
+        self.assertEqual(4129, expected.size(False))
+        self.assertEqual(4137, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True, clear_tangents)
 
     def test_write_read_prelit(self):
         expected = get_mesh(prelit=True)
 
-        self.assertEqual(5488, expected.size())
+        self.assertEqual(5512, expected.size(False))
+        self.assertEqual(5520, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_write_read_empty(self):
         expected = get_mesh_empty()
 
-        self.assertEqual(204, expected.size())
+        self.assertEqual(204, expected.size(False))
+        self.assertEqual(212, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
@@ -90,7 +94,7 @@ class TestMesh(TestCase):
         (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
-        self.assertEqual(expected.size(), chunk_size)
+        self.assertEqual(expected.size(False), chunk_size)
 
         for chunk in expected_chunks:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -168,7 +172,8 @@ class TestMesh(TestCase):
 
         self.assertEqual(78, list_size(mesh.vert_materials, False))
 
-        self.assertEqual(1081, mesh.size())
+        self.assertEqual(1105, mesh.size(False))
+        self.assertEqual(1113, mesh.size())
 
     def test_write_read_xml(self):
         self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', Mesh.parse, compare_meshes, self)

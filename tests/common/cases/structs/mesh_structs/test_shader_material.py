@@ -14,7 +14,7 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(1536, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read,
-                             compare_shader_materials, self, True, include_head=False)
+                             compare_shader_materials, self, True)
 
     def test_read_invalid_property(self):
         io_stream = io.BytesIO()
@@ -61,7 +61,7 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(53, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read,
-                             compare_shader_materials, self, True, include_head=False)
+                             compare_shader_materials, self, True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
