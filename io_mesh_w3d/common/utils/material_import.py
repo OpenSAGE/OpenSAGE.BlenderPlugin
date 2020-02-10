@@ -17,13 +17,13 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
     for vertMat in structure.vert_materials:
         (material, principled) = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
+        materials.append(material)
         principleds.append(principled)
 
         if prelit_type is not None:
             material.material_type = 'PRELIT_MATERIAL'
             material.prelit_type = prelit_type
 
-        materials.append(material)
 
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
@@ -88,6 +88,20 @@ def create_material_from_vertex_material(name, vert_mat):
 ##########################################################################
 # shader material
 ##########################################################################
+
+def create_shader_materials(context, struct, mesh, triangles):
+    for i, shaderMat in enumerate(struct.shader_materials):
+        (material, principled) = create_material_from_shader_material(
+            context, mesh.name, shaderMat)
+        mesh.materials.append(material)
+
+    if struct.material_passes:
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
+    for mat_pass in struct.material_passes:
+        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+
 
 def create_material_from_shader_material(context, name, shader_mat):
     name = name + '.' + shader_mat.header.type_name

@@ -30,49 +30,33 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
-    principleds = []
-
     # vertex material stuff
-    name = mesh_struct.name()
     if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds,  mesh_struct, mesh, name, triangles)
+        create_vertex_materials(context, mesh_struct, mesh, triangles)
 
     if mesh_struct.prelit_unlit is not None:
         print('create prelit unlit')
-        materials = []
         prelit = mesh_struct.prelit_unlit
-        create_vertex_material(context, principleds, prelit, mesh, name, triangles, prelit_type='PRELIT_UNLIT')
+        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_UNLIT')
 
     if mesh_struct.prelit_vertex is not None:
         print('create prelit vertex')
         prelit = mesh_struct.prelit_vertex
-        create_vertex_material(context, principleds, prelit, mesh, name, triangles, prelit_type='PRELIT_VERTEX')
+        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_VERTEX')
 
     if mesh_struct.prelit_lightmap_multi_pass is not None:
         print('create prelit lightmap multi pass')
         prelit = mesh_struct.prelit_lightmap_multi_pass
-        create_vertex_material(context, principleds, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
+        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
 
     if mesh_struct.prelit_lightmap_multi_texture is not None:
         print('create prelit lightmap multi texture')
-        materials = []
         prelit = mesh_struct.prelit_lightmap_multi_texture
-        create_vertex_material(context, principleds, prelit, mesh, name, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
+        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
 
     # shader material stuff
     if mesh_struct.shader_materials:
-        for i, shaderMat in enumerate(mesh_struct.shader_materials):
-            (material, principled) = create_material_from_shader_material(
-                context, mesh_struct.name(), shaderMat)
-            mesh.materials.append(material)
-            principleds.append(principled)
-
-        b_mesh = None
-        for mat_pass in mesh_struct.material_passes:
-            if b_mesh is None:
-                b_mesh = bmesh.new()
-                b_mesh.from_mesh(mesh)
-            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+        create_shader_materials(context, mesh_struct, mesh, triangles)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
