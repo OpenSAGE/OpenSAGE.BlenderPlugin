@@ -23,95 +23,94 @@ from tests.w3d.helpers.mesh_structs.vertex_material import *
 
 class TestUtils(TestCase):
     def test_vertex_material_roundtrip(self):
-        mesh = get_mesh()
+        expected = get_vertex_material()
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
-        for source in mesh.vert_materials:
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
-            actual = retrieve_vertex_material(material)
-            compare_vertex_materials(self, source, actual)
+        (material, _) = create_material_from_vertex_material(
+            self, 'meshName', expected)
+        actual = retrieve_vertex_material(material)
+        compare_vertex_materials(self, expected, actual)
 
     def test_vertex_material_no_attributes_roundtrip(self):
-        mesh = get_mesh()
+        expected = get_vertex_material()
 
-        for source in mesh.vert_materials:
-            source.vm_info.attributes = 0
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
-            actual = retrieve_vertex_material(material)
-            compare_vertex_materials(self, source, actual)
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
+
+        expected.vm_info.attributes = 0
+        (material, _) = create_material_from_vertex_material(
+            self, 'meshName', expected)
+        actual = retrieve_vertex_material(material)
+        compare_vertex_materials(self, expected, actual)
 
     def test_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material()]
+        expected = get_shader_material()
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled)
-            compare_shader_materials(self, source, actual)
+        (material, _) = create_material_from_shader_material(
+            self, 'meshName', expected)
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+        actual = retrieve_shader_material(material, principled)
+        compare_shader_materials(self, expected, actual)
 
     def test_duplicate_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(), get_shader_material()]
+        expecteds = [get_shader_material(), get_shader_material()]
 
         materials = []
-        for mat in mesh.shader_materials:
+        for mat in expecteds:
             (material, _) = create_material_from_shader_material(self, 'meshName', mat)
             materials.append(material)
 
         self.assertEqual(1, len(bpy.data.materials))
         self.assertTrue('meshName.NormalMapped.fx' in bpy.data.materials)
 
-        for i, expected in enumerate(mesh.shader_materials):
-            principled = node_shader_utils.PrincipledBSDFWrapper(materials[i], is_readonly=True)
-            actual = retrieve_shader_material(self, materials[i], principled)
+        for expected in expecteds:
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True)]
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
+        expected = get_shader_material(w3x=True)
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
+                 self.outpath() + 'texture.dds')
 
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
-            compare_shader_materials(self, source, actual)
+        (material, _) = create_material_from_shader_material(
+            self, 'meshName', expected)
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+        actual = retrieve_shader_material(material, principled, w3x=True)
+        compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
+        expected = get_shader_material(w3x=True, rgb_colors=True)
 
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
+        (material, _) = create_material_from_shader_material(
+            self, 'meshName', expected)
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+        actual = retrieve_shader_material(self, material, principled, w3x=True)
 
-            for prop in source.properties:
-                if prop.name in ['ColorAmbient', 'ColorEmissive', 'ColorDiffuse', 'ColorSpecular']:
-                    prop.type = 5
-                    prop.value = Vector((prop.value[0], prop.value[1], prop.value[2], 1.0))
+        for prop in expected.properties:
+            if prop.name in ['ColorAmbient', 'ColorEmissive', 'ColorDiffuse', 'ColorSpecular']:
+                prop.type = 5
+                prop.value = Vector((prop.value[0], prop.value[1], prop.value[2], 1.0))
 
-            compare_shader_materials(self, source, actual)
+        compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_two_tex_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
+        expected = get_shader_material(w3x=True, two_tex=True)
 
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
-            compare_shader_materials(self, source, actual)
+        (material, _) = create_material_from_shader_material(
+            self, 'meshName', expected)
+        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+        actual = retrieve_shader_material(self, material, principled, w3x=True)
+        compare_shader_materials(self, expected, actual)
 
     def test_default_shader_material_properties_are_not_exported(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials[0].properties = []
+        expected = get_shader_material()
+        expected.properties = []
 
-        (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
+        (material, principled) = create_material_from_shader_material(self, 'meshName', expected)
 
         actual = retrieve_shader_material(self, material, principled, w3x=False)
         self.assertEqual(0, len(actual.properties))
