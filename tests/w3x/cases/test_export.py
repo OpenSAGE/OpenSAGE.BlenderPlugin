@@ -152,7 +152,7 @@ class TestExportW3X(TestCase):
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
-            textures=[],
+            textures=['texture.xml'],
             boxes=[],
             dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
