@@ -39,6 +39,9 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
 
+    for i, shader in enumerate(struct.shaders):
+        set_shader_properties(materials[i], shader)
+
 
 def create_material_from_vertex_material(name, vert_mat):
     name = name + "." + vert_mat.vm_name
