@@ -30,33 +30,13 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
-    # vertex material stuff
-    if mesh_struct.vert_materials:
-        create_vertex_materials(context, mesh_struct, mesh, triangles)
+    create_shader_materials(context, mesh_struct, mesh, triangles)
 
-    if mesh_struct.prelit_unlit is not None:
-        print('create prelit unlit')
-        prelit = mesh_struct.prelit_unlit
-        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_UNLIT')
-
-    if mesh_struct.prelit_vertex is not None:
-        print('create prelit vertex')
-        prelit = mesh_struct.prelit_vertex
-        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_VERTEX')
-
-    if mesh_struct.prelit_lightmap_multi_pass is not None:
-        print('create prelit lightmap multi pass')
-        prelit = mesh_struct.prelit_lightmap_multi_pass
-        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
-
-    if mesh_struct.prelit_lightmap_multi_texture is not None:
-        print('create prelit lightmap multi texture')
-        prelit = mesh_struct.prelit_lightmap_multi_texture
-        create_vertex_materials(context, prelit, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
-
-    # shader material stuff
-    if mesh_struct.shader_materials:
-        create_shader_materials(context, mesh_struct, mesh, triangles)
+    create_vertex_materials(context, mesh_struct, mesh, triangles)
+    create_vertex_materials(context, mesh_struct.prelit_unlit, mesh, triangles, prelit_type='PRELIT_UNLIT')
+    create_vertex_materials(context, mesh_struct.prelit_vertex, mesh, triangles, prelit_type='PRELIT_VERTEX')
+    create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_pass, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
+    create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_texture, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
