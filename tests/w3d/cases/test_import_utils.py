@@ -95,8 +95,8 @@ class TestImportUtilsW3D(TestCase):
         expected_frames = [0, 4]
         expected = [3.0, 3.0]
 
-        context = IOWrapper(self.outpath() + 'output')
-        create_data(context, meshes, hlod, hierarchy, [], None, animation)
+        self.filepath = self.outpath() + 'output'
+        create_data(self, meshes, hlod, hierarchy, [], None, animation)
 
         obj = bpy.data.objects['MESH']
         for fcu in obj.animation_data.action.fcurves:

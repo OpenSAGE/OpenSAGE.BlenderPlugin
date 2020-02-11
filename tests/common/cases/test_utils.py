@@ -674,8 +674,8 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output')
-        create_data(context, [], None, hierarchy, [], None, animation)
+        self.filepath = self.outpath() + 'output'
+        create_data(self, [], None, hierarchy, [], None, animation)
 
         channel = TimeCodedAnimationChannel(
             num_time_codes=2,

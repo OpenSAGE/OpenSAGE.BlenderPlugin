@@ -12,7 +12,7 @@ from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
 from tests.utils import *
-from tests.utils import TestCase, IOWrapper
+from tests.utils import TestCase
 from os.path import dirname as up
 
 
@@ -31,35 +31,37 @@ class TestRoundtripW3X(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
 
-        context = IOWrapper(self.outpath() + 'output_skn')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
+        self.filepath = self.outpath() + 'output_skn'
+        create_data(self, meshes, hlod, hierarchy, boxes, animation, None)
+
+        self.set_format('W3X')
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
+        self.filepath = self.outpath() + 'output_skn'
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['individual_files'] = False
         export_settings['use_existing_skeleton'] = True
         export_settings['create_texture_xmls'] = True
-        save(context, export_settings)
+        save(self, export_settings)
 
-        context = IOWrapper(self.outpath() + 'testhiera_skl', 'W3X')
+        self.filepath = self.outpath() + 'testhiera_skl'
         export_settings['mode'] = 'H'
-        save(context, export_settings)
+        save(self, export_settings)
 
-        context = IOWrapper(self.outpath() + 'output_ani', 'W3X')
+        self.filepath = self.outpath() + 'output_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
-        save(context, export_settings)
+        save(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.w3x')
-        load(context, import_settings={})
-        context = IOWrapper(self.outpath() + 'output_ani.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output_skn.w3x'
+        load(self, import_settings={})
+        self.filepath = self.outpath() + 'output_ani.w3x'
+        load(self, import_settings={})
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -82,17 +84,18 @@ class TestRoundtripW3X(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
-        context = IOWrapper(self.outpath() + 'output')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output'
+        create_data(self, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output', 'W3X')
+        self.filepath = self.outpath() + 'output'
         export_settings = {}
         export_settings['mode'] = 'HAM'
         export_settings['compression'] = 'U'
         export_settings['individual_files'] = False
         export_settings['create_texture_xmls'] = True
-        save(context, export_settings)
+        save(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
@@ -102,8 +105,8 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self, import_settings={})
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)
@@ -126,18 +129,19 @@ class TestRoundtripW3X(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
-        context = IOWrapper(self.outpath() + 'output_skn')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output_skn'
+        create_data(self, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
+        self.filepath = self.outpath() + 'output_skn'
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['compression'] = 'U'
         export_settings['individual_files'] = True
         export_settings['create_texture_xmls'] = True
         export_settings['use_existing_skeleton'] = True
-        save(context, export_settings)
+        save(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
@@ -152,8 +156,8 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output_skn.w3x'
+        load(self, import_settings={})
 
         # check created objects
         self.assertTrue('testname_skl' in bpy.data.objects)
@@ -176,18 +180,19 @@ class TestRoundtripW3X(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
-        context = IOWrapper(self.outpath() + 'output_skn')
-        create_data(context, meshes, hlod, hierarchy, boxes, animation, None)
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output_skn'
+        create_data(self, meshes, hlod, hierarchy, boxes, animation, None)
 
         # export
-        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
+        self.filepath = self.outpath() + 'output_skn'
         export_settings = {}
         export_settings['mode'] = 'HM'
         export_settings['compression'] = 'U'
         export_settings['individual_files'] = True
         export_settings['create_texture_xmls'] = True
         export_settings['use_existing_skeleton'] = True
-        save(context, export_settings)
+        save(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
@@ -202,8 +207,8 @@ class TestRoundtripW3X(TestCase):
         bpy.ops.wm.read_homefile(app_template='')
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.TRUNK.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output_skn.TRUNK.w3x'
+        load(self, import_settings={})
 
         # check created objects
         self.assertEqual(2, len(bpy.data.collections))
@@ -220,8 +225,8 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.sword.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output_skn.sword.w3x'
+        load(self, import_settings={})
 
         self.assertEqual(2, len(bpy.data.collections))
 
@@ -232,8 +237,8 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
 
         # import
-        context = IOWrapper(self.outpath() + 'output_skn.BOUNDINGBOX.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output_skn.BOUNDINGBOX.w3x'
+        load(self, import_settings={})
 
         self.assertEqual(2, len(bpy.data.collections))
 
