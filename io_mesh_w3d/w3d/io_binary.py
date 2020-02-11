@@ -129,6 +129,23 @@ def write_vector(vec, io_stream):
     write_float(vec.z, io_stream)
 
 
+def read_vector4(io_stream):
+    vec = Vector((0, 0, 0, 0))
+    vec.x = read_float(io_stream)
+    vec.y = read_float(io_stream)
+    vec.z = read_float(io_stream)
+    vec.w = read_float(io_stream)
+    return vec
+
+
+def write_vector4(vec, io_stream):
+    write_float(vec.x, io_stream)
+    write_float(vec.y, io_stream)
+    write_float(vec.z, io_stream)
+    write_float(vec.w, io_stream)
+
+
+
 def read_quaternion(io_stream):
     quat = Quaternion((0, 0, 0, 0))
     quat.x = read_float(io_stream)

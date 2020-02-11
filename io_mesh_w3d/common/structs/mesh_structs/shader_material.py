@@ -39,7 +39,13 @@ W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 class ShaderMaterialProperty(Struct):
     type = 0
     name = ''
-    value = None
+    value = Vector((1.0, 1.0, 1.0, 1.0))
+
+    def to_rgb(self):
+        return (self.value.x * 255, self.value.y * 255, self.value.z * 255)
+
+    def to_rgba(self):
+        return (self.value.x * 255, self.value.y * 255, self.value.z * 255, self.value.w * 255)
 
     @staticmethod
     def read(context, io_stream):
@@ -48,19 +54,21 @@ class ShaderMaterialProperty(Struct):
         name = read_string(io_stream)
         result = ShaderMaterialProperty(
             type=type,
-            name=name)
+            name=name,
+            value=Vector((1.0, 1.0, 1.0, 1.0)))
 
         if result.type == 1:
             read_long(io_stream)  # num available chars
             result.value = read_string(io_stream)
         elif result.type == 2:
             result.value = read_float(io_stream)
-        elif result.type == 3:
-            result.value = read_vector2(io_stream)
-        elif result.type == 4:
-            result.value = read_vector(io_stream)
-        elif result.type == 5:
-            result.value = RGBA.read_f(io_stream)
+        elif result.type > 2 and result.type < 6:
+            result.value.x = read_float(io_stream)
+            result.value.y = read_float(io_stream)
+            if result.type == 4:
+                result.value.z = read_float(io_stream)
+            if result.type == 5:
+                result.value.w = read_float(io_stream)
         elif result.type == 6:
             result.value = read_long(io_stream)
         elif result.type == 7:
@@ -106,7 +114,7 @@ class ShaderMaterialProperty(Struct):
         elif self.type == 4:
             write_vector(self.value, io_stream)
         elif self.type == 5:
-            self.value.write_f(io_stream)
+            write_vector4(self.value, io_stream)
         elif self.type == 6:
             write_long(self.value, io_stream)
         else:
@@ -117,34 +125,29 @@ class ShaderMaterialProperty(Struct):
         type_name = xml_constant.tag
         constant = ShaderMaterialProperty(
             name=xml_constant.get('Name'),
-            value=None)
+            value=Vector((1.0, 1.0, 1.0, 1.0)))
 
         values = []
         for xml_value in xml_constant.findall('Value'):
             values.append(xml_value.text)
 
         if type_name == 'Float':
-            if len(values) == 2:
-                constant.type = 3
-                constant.value = Vector((
-                    float(values[0]),
-                    float(values[1])))
-            elif len(values) == 3:
-                constant.type = 4
-                constant.value = Vector((
-                    float(values[0]),
-                    float(values[1]),
-                    float(values[2])))
-            elif len(values) == 4:
-                constant.type = 5
-                constant.value = RGBA(
-                    r=float(values[0]) * 255,
-                    g=float(values[1]) * 255,
-                    b=float(values[2]) * 255,
-                    a=float(values[3]) * 255)
-            else:
+            if len(values) == 1:
                 constant.type = 2
                 constant.value = float(values[0])
+            if len(values) > 1:
+                constant.type = 3
+                constant.value.x = float(values[0])
+                constant.value.y = float(values[1])
+                constant.value.z = 1.0
+                constant.value.w = 1.0
+            if len(values) > 2:
+                constant.type = 4
+                constant.value.z = float(values[2])
+            if len(values) == 4:
+                constant.type = 5
+                constant.value.w = float(values[3])
+
         elif type_name == 'Int':
             constant.type = 6
             constant.value = int(values[0])
@@ -163,32 +166,25 @@ class ShaderMaterialProperty(Struct):
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = self.value
 
-        elif self.type == 2:
+        if self.type > 1 and self.type < 6:
             xml_constant = create_node(parent, 'Float')
             xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(self.value)
+            if self.type == 2:
+                xml_value.text = str(self.value)
+            else:
+                xml_value.text = str(self.value.x)
 
-        elif self.type == 3 or self.type == 4:
-            xml_constant = create_node(parent, 'Float')
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(self.value.x)
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(self.value.y)
+            if self.type > 2:
+                xml_value = create_node(xml_constant, 'Value')
+                xml_value.text = str(self.value.y)
 
-            if self.type == 4:
+            if self.type > 4:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.z)
 
-        elif self.type == 5:
-            xml_constant = create_node(parent, 'Float')
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(float(self.value.r) / 255)
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(float(self.value.g) / 255)
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(float(self.value.b) / 255)
-            xml_value = create_node(xml_constant, 'Value')
-            xml_value.text = str(float(self.value.a) / 255)
+            if self.type == 5:
+                xml_value = create_node(xml_constant, 'Value')
+                xml_value.text = str(self.value.w)
 
         elif self.type == 6:
             xml_constant = create_node(parent, 'Int')
