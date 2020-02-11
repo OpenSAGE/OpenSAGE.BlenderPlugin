@@ -196,16 +196,16 @@ Material.depth_write = BoolProperty(
 Material.sampler_clamp_uv_no_mip_0 = FloatVectorProperty(
     name='Sampler clamp UV no MIP 0',
     subtype='TRANSLATION',
-    size=3,
-    default=(0.0, 0.0, 0.0),
+    size=4,
+    default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
     description='Sampler clampU clampV no mipmap 0')
 
 Material.sampler_clamp_uv_no_mip_1 = FloatVectorProperty(
     name='Sampler clamp UV no MIP 1',
     subtype='TRANSLATION',
-    size=3,
-    default=(0.0, 0.0, 0.0),
+    size=4,
+    default=(0.0, 0.0, 0.0, 0.0),
     min=0.0, max=1.0,
     description='Sampler clampU clampV no mipmap 1')
 

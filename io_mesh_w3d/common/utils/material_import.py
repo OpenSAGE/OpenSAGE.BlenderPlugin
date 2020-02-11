@@ -113,29 +113,19 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
-            if isinstance(prop.value, RGBA):
-                material.diffuse_color = prop.value.to_vector_rgba(alpha=1.0)
-            else:
-                material.diffuse_color = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
+            material.diffuse_color = prop.to_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
-            if isinstance(prop.value, RGBA):
-                material.specular_color = prop.value.to_vector_rgb()
-            else:
-                material.specular_color = prop.value
+            material.specular_color = prop.to_rgb()
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = prop.value
+        elif prop.name == 'Texture_0':
+            principled.base_color_texture.image = find_texture(context, prop.value)
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
-            if isinstance(prop.value, RGBA):
-                material.ambient = prop.value.to_vector_rgba()
-            else:
-                material.ambient = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
+            material.ambient = prop.to_rgba()
         elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
-            if isinstance(prop.value, RGBA):
-                material.emission = prop.value.to_vector_rgba()
-            else:
-                material.emission = RGBA(vec=prop.value, a=1.0).to_vector_rgba(alpha=1.0)
+            material.emission = prop.to_rgba()
         elif prop.name == 'Opacity':
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':
@@ -154,8 +144,6 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.sampler_clamp_uv_no_mip_1 = prop.value
         elif prop.name == 'NumTextures':
             material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
-        elif prop.name == 'Texture_0':
-            principled.base_color_texture.image = find_texture(context, prop.value)
         elif prop.name == 'Texture_1':  # second diffuse texture
             material.texture_1 = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
@@ -165,9 +153,9 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'TexCoordMapper_1':
             material.tex_coord_mapper_1 = prop.value
         elif prop.name == 'TexCoordTransform_0':
-            material.tex_coord_transform_0 = prop.value.to_vector_rgba()
+            material.tex_coord_transform_0 = prop.value
         elif prop.name == 'TexCoordTransform_1':
-            material.tex_coord_transform_1 = prop.value.to_vector_rgba()
+            material.tex_coord_transform_1 = prop.value
         elif prop.name == 'EnvironmentTexture':
             material.environment_texture = prop.value
         elif prop.name == 'EnvMult':
@@ -197,7 +185,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'TexCoordTransformV_2':
             material.tex_coord_transform_v_2 = prop.value
         elif prop.name == 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0':
-            material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = prop.value.to_vector_rgba()
+            material.tex_ani_fps_NPR_lastFrame_frameOffset_0 = prop.value
         elif prop.name == 'IonHullTexture':
             material.ion_hull_texture = prop.value
         elif prop.name == 'MultiTextureEnable':

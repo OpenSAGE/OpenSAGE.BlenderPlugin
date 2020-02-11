@@ -14,6 +14,17 @@ def compare_vectors(self, expected, actual):
     self.assertAlmostEqual(expected.z, actual.z, 1)
 
 
+def get_vec4(x=0.0, y=2.0, z=3.14, w=2):
+    return Vector((x, y, z, w))
+
+
+def compare_vectors4(self, expected, actual):
+    self.assertAlmostEqual(expected.x, actual.x, 1)
+    self.assertAlmostEqual(expected.y, actual.y, 1)
+    self.assertAlmostEqual(expected.z, actual.z, 1)
+    self.assertAlmostEqual(expected.w, actual.w, 1)
+
+
 def get_vec2(x=0.0, y=0.0):
     return Vector((x, y))
 

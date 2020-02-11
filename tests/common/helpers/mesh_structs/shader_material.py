@@ -3,8 +3,6 @@
 
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 from tests.mathutils import *
-from tests.common.helpers.rgba import get_rgba, compare_rgbas
-
 
 def get_shader_material_header():
     return ShaderMaterialHeader(
@@ -36,7 +34,7 @@ def get_shader_material_property(
     elif _type == 4:
         result.value = get_vec(x=1.0, y=0.2, z=0.33)
     elif _type == 5:
-        result.value = get_rgba()
+        result.value = get_vec4()
     elif _type == 6:
         result.value = 3
     elif _type == 7:
@@ -59,7 +57,7 @@ def compare_shader_material_properties(self, expected, actual):
     elif expected.type == 4:
         compare_vectors(self, expected.value, actual.value)
     elif expected.type == 5:
-        compare_rgbas(self, expected.value, actual.value)
+        compare_vectors4(self, expected.value, actual.value)
     else:
         self.assertEqual(expected.value, actual.value)
 
@@ -73,8 +71,8 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
         get_shader_material_property(2, 'Opacity'),
         get_shader_material_property(6, 'EdgeFadeOut'),
         get_shader_material_property(7, 'DepthWriteEnable'),
-        get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_0'),
-        get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_1'),
+        get_shader_material_property(5, 'Sampler_ClampU_ClampV_NoMip_0'),
+        get_shader_material_property(5, 'Sampler_ClampU_ClampV_NoMip_1'),
         get_shader_material_property(1, 'EnvironmentTexture', 'texture_env.tga'),
         get_shader_material_property(2, 'EnvMult'),
         get_shader_material_property(1, 'RecolorTexture'),

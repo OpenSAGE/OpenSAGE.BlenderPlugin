@@ -99,19 +99,17 @@ def retrieve_shader_material(material, principled, w3x=False):
 
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'ColorDiffuse', RGBA(vec=material.diffuse_color, a=0),
-                        RGBA(r=204, g=204, b=204, a=0))
-        append_property(shader_mat, 5, 'ColorSpecular', RGBA(material.specular_color, a=0.0))
-        append_property(shader_mat, 5, 'ColorAmbient', RGBA(material.ambient))
-        append_property(shader_mat, 5, 'ColorEmissive', RGBA(material.emission))
+        append_property(shader_mat, 5, 'ColorDiffuse', material.diffuse_color, Vector((0.75, 0.75, 0.75)))
+        append_property(shader_mat, 5, 'ColorSpecular', material.specular_color)
+        append_property(shader_mat, 5, 'ColorAmbient', material.ambient)
+        append_property(shader_mat, 5, 'ColorEmissive', material.emission)
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'DiffuseColor', RGBA(vec=material.diffuse_color, a=0),
-                        RGBA(r=204, g=204, b=204, a=0))
-        append_property(shader_mat, 5, 'SpecularColor', RGBA(material.specular_color, a=0.0))
-        append_property(shader_mat, 5, 'AmbientColor', RGBA(material.ambient))
-        append_property(shader_mat, 5, 'EmissiveColor', RGBA(material.emission))
+        append_property(shader_mat, 5, 'DiffuseColor', material.diffuse_color, Vector((0.75, 0.75, 0.75)))
+        append_property(shader_mat, 5, 'SpecularColor', material.specular_color)
+        append_property(shader_mat, 5, 'AmbientColor', material.ambient)
+        append_property(shader_mat, 5, 'EmissiveColor', material.emission)
 
     if material.texture_1:
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
@@ -124,9 +122,9 @@ def retrieve_shader_material(material, principled, w3x=False):
         append_property(shader_mat, 6, 'TexCoordMapper_1',
                         material.tex_coord_mapper_1)
         append_property(shader_mat, 5, 'TexCoordTransform_0',
-                        RGBA(material.tex_coord_transform_0), RGBA())
+                        material.tex_coord_transform_0, Vector())
         append_property(shader_mat, 5, 'TexCoordTransform_1',
-                        RGBA(material.tex_coord_transform_1), RGBA())
+                        material.tex_coord_transform_1, Vector())
     else:
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
@@ -141,9 +139,9 @@ def retrieve_shader_material(material, principled, w3x=False):
     append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)
     append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
     append_property(shader_mat, 7, 'DepthWriteEnable', material.depth_write)
-    append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_0',
+    append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_0',
                     material.sampler_clamp_uv_no_mip_0)
-    append_property(shader_mat, 4, 'Sampler_ClampU_ClampV_NoMip_1',
+    append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_1',
                     material.sampler_clamp_uv_no_mip_1)
     append_property(shader_mat, 1, 'EnvironmentTexture',
                     material.environment_texture)
@@ -174,7 +172,7 @@ def retrieve_shader_material(material, principled, w3x=False):
     append_property(shader_mat, 2, 'TexCoordTransformV_2',
                     material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
-                    RGBA(material.tex_ani_fps_NPR_lastFrame_frameOffset_0), RGBA())
+                    material.tex_ani_fps_NPR_lastFrame_frameOffset_0, Vector())
     append_property(shader_mat, 1, 'IonHullTexture', material.ion_hull_texture)
     append_property(shader_mat, 7, 'MultiTextureEnable', material.multi_texture_enable)
 
