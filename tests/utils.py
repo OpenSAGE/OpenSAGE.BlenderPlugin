@@ -29,7 +29,7 @@ class TestCase(unittest.TestCase):
     file_format = 'W3D'
     filename_ext = '.w3d'
 
-    log = lambda con, level, text: text
+    def log(con, level, text): return text
 
     def set_format(self, format):
         self.file_format = format
