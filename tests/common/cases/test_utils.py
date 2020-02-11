@@ -35,9 +35,6 @@ class TestUtils(TestCase):
     def test_vertex_material_no_attributes_roundtrip(self):
         mesh = get_mesh()
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
             (material, _) = create_material_from_vertex_material(
@@ -92,8 +89,6 @@ class TestUtils(TestCase):
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
         mesh = get_mesh()
         mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
@@ -114,8 +109,6 @@ class TestUtils(TestCase):
     def test_shader_material_w3x_two_tex_roundtrip(self):
         mesh = get_mesh()
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
@@ -139,9 +132,6 @@ class TestUtils(TestCase):
     def test_shader_material_minimal_roundtrip(self):
         mesh = get_mesh()
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         for source in mesh.shader_materials:
             source.properties = []
 
@@ -154,9 +144,6 @@ class TestUtils(TestCase):
 
     def test_shader_roundtrip(self):
         mesh = get_mesh()
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         (material, _) = create_material_from_vertex_material(
             self, mesh.name(), mesh.vert_materials[0])
@@ -173,9 +160,6 @@ class TestUtils(TestCase):
         meshes = []
         boxes = [get_collision_box(), get_collision_box(
             'containerName.WORLDBOX')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
@@ -201,9 +185,6 @@ class TestUtils(TestCase):
                    get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT'),
                    get_dazzle(name='containerName.Blinklight', type='REN_HEADLIGHT')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_data(self, [], hlod, hierarchy, [], None, None, dazzles)
 
         self.compare_data([], hlod, hierarchy, [], None, None, dazzles)
@@ -217,9 +198,6 @@ class TestUtils(TestCase):
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
@@ -290,9 +268,6 @@ class TestUtils(TestCase):
             get_mesh(name='muzzleflash_01'),
             get_mesh(name='rocketpods', skin=True)]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_data(self, meshes, hlod, hierarchy, [])
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
@@ -309,9 +284,6 @@ class TestUtils(TestCase):
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes)
         coll = get_collection(hlod)
@@ -334,9 +306,6 @@ class TestUtils(TestCase):
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
         self.compare_data([], hlod, hierarchy)
@@ -349,9 +318,6 @@ class TestUtils(TestCase):
             get_hlod_sub_object(bone=0, name='containerName.tree')]
 
         meshes = [get_mesh(name='tree')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes)
 
@@ -385,9 +351,6 @@ class TestUtils(TestCase):
             get_mesh(name='mesh2_3'),
             get_mesh(name='mesh3_3')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_data(self, meshes, hlod, hierarchy)
 
         self.compare_data(meshes, hlod, hierarchy)
@@ -402,9 +365,6 @@ class TestUtils(TestCase):
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
         dazzles = [get_dazzle()]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
@@ -430,9 +390,6 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='parent'),
             get_mesh(name='child')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy)
 
@@ -465,12 +422,6 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='sword', skin=True)]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.tga')
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture_nrm.tga')
-
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         sword = bpy.context.scene.objects['sword']
@@ -486,12 +437,6 @@ class TestUtils(TestCase):
             get_mesh(name='tower2', shader_mats=True),
             get_mesh(name='stone')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture_nrm.dds')
-
         create_data(self, meshes)
 
         self.compare_data(meshes)
@@ -502,12 +447,6 @@ class TestUtils(TestCase):
             get_mesh(name='tower'),
             get_mesh(name='tower2', shader_mats=True),
             get_mesh(name='stone')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture_nrm.dds')
 
         create_data(self, meshes)
 
@@ -562,12 +501,6 @@ class TestUtils(TestCase):
             get_mesh(name='tower2', shader_mats=True),
             get_mesh(name='stone')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture_nrm.dds')
-
         create_data(self, meshes)
 
         self.compare_data(meshes)
@@ -576,9 +509,6 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         meshes = [get_mesh(name='sword', skin=True, prelit=True)]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy)
 
@@ -597,9 +527,6 @@ class TestUtils(TestCase):
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes, animation)
 
@@ -630,9 +557,6 @@ class TestUtils(TestCase):
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy,
                     boxes, None, compressed_animation)
@@ -670,9 +594,6 @@ class TestUtils(TestCase):
 
         hierarchy = get_hierarchy()
         hierarchy.pivots = [get_roottransform(), HierarchyPivot(name='bone', parent_id=0)]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         self.filepath = self.outpath() + 'output'
         create_data(self, [], None, hierarchy, [], None, animation)
@@ -714,9 +635,6 @@ class TestUtils(TestCase):
             get_mesh(name='bone_pivot'),
             get_mesh(name='bone_pivot2')]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_data(self, meshes, hlod, hierarchy)
 
         (_, rig) = retrieve_hierarchy(self, 'containerName')
@@ -741,9 +659,6 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [get_mesh(name='object')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         create_data(self, meshes, hlod, hierarchy)
 

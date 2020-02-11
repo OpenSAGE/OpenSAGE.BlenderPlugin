@@ -28,9 +28,6 @@ class TestRoundtripW3X(TestCase):
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         self.filepath = self.outpath() + 'output_skn'
         create_data(self, meshes, hlod, hierarchy, boxes, animation, None)
 

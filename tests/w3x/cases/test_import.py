@@ -21,9 +21,6 @@ class TestObjectImport(TestCase):
         hierarchy = get_hierarchy(hierarchy_name)
         animation = get_animation(hierarchy_name)
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         # write to file
         write_struct(hierarchy, self.outpath() + hierarchy_name + '.w3x')
         write_struct(animation, self.outpath() + 'animation.w3x')

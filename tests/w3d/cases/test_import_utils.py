@@ -48,9 +48,6 @@ class TestImportUtilsW3D(TestCase):
     def test_prelit_mesh_import(self):
         mesh = get_mesh(prelit=True)
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         create_mesh(self, mesh, None, bpy.context.collection)
 
     def test_duplicate_vertex_material_creation(self):
@@ -88,9 +85,6 @@ class TestImportUtilsW3D(TestCase):
         hierarchy.pivots = [get_roottransform(), pivot]
 
         meshes = [get_mesh(name='MESH')]
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         expected_frames = [0, 4]
         expected = [3.0, 3.0]

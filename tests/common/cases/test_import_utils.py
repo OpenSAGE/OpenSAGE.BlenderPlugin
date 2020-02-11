@@ -46,9 +46,6 @@ class TestImportUtils(TestCase):
             get_mesh(name="first"),
             get_mesh(name="second")]
 
-        copyfile(up(up(self.relpath())) + "/testfiles/texture.dds",
-                 self.outpath() + "texture.dds")
-
         coll = get_collection(hlod)
 
         for mesh_struct in mesh_structs:

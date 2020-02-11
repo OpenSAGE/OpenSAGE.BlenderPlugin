@@ -31,9 +31,6 @@ class TestRoundtripW3D(TestCase):
         dazzles = [get_dazzle()]
         animation = get_animation(hierarchy_name)
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         self.filepath = self.outpath() + 'output_skn'
         create_data(self, meshes, hlod, hierarchy, boxes, animation, None, dazzles)
 
@@ -84,9 +81,6 @@ class TestRoundtripW3D(TestCase):
         boxes = [get_collision_box()]
         dazzles = [get_dazzle()]
         comp_animation = get_compressed_animation(hierarchy_name)
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         self.filepath = self.outpath() + 'output_skn'
         create_data(self, meshes, hlod, hierarchy, boxes, None, comp_animation, dazzles)
@@ -212,9 +206,6 @@ class TestRoundtripW3D(TestCase):
                   get_mesh(name='soldier', skin=True),
                   get_mesh(name='TRUNK', prelit=True)]
         hlod = get_hlod('TestModelName', hierarchy_name)
-
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
 
         self.filepath = self.outpath() + 'output'
         create_data(self, meshes, hlod, hierarchy, [], None, None, [])

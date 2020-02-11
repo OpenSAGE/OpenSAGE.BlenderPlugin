@@ -23,9 +23,6 @@ class TestImport(TestCase):
         hlod = get_hlod('TestModelName', hierarchy_name)
         box = get_collision_box()
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         # write to file
         skn = open(self.outpath() + 'base_skn.w3d', 'wb')
         for mesh in meshes:
