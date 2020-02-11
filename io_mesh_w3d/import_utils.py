@@ -1,15 +1,12 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bmesh
 import bpy
 
 from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
 from io_mesh_w3d.common.utils.animation_import import *
-from io_mesh_w3d.common.utils.material_import import *
 from io_mesh_w3d.common.utils.box_import import *
-from io_mesh_w3d.common.utils.primitives import *
 from io_mesh_w3d.w3d.utils.dazzle_import import *
 
 
@@ -22,9 +19,7 @@ def create_data(
         animation=None,
         compressed_animation=None,
         dazzles=[]):
-    rig = None
     coll = get_collection(hlod)
-
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
     if hlod is not None:
@@ -38,7 +33,7 @@ def create_data(
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
-                        create_mesh(context, mesh, hierarchy, current_coll)
+                        create_mesh(context, mesh, current_coll)
 
                 for box in boxes:
                     if box.name() == sub_object.name:
@@ -46,7 +41,7 @@ def create_data(
 
                 for dazzle in dazzles:
                     if dazzle.name() == sub_object.name:
-                        create_dazzle(context, dazzle, hlod, hierarchy, rig, coll)
+                        create_dazzle(context, dazzle, coll)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
@@ -60,7 +55,7 @@ def create_data(
 
     else:
         for mesh in meshes:
-            create_mesh(context, mesh, hierarchy, coll)
+            create_mesh(context, mesh, coll)
 
-    create_animation(context, rig, animation, hierarchy)
-    create_animation(context, rig, compressed_animation, hierarchy, compressed=True)
+    create_animation(rig, animation, hierarchy)
+    create_animation(rig, compressed_animation, hierarchy, compressed=True)

@@ -21,7 +21,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
         sub_objects=[])
 
     for mesh in meshes:
-        subObject = HLodSubObject(
+        sub_object = HLodSubObject(
             name=mesh.name,
             identifier=container_name + '.' + mesh.name,
             bone_index=0,
@@ -30,9 +30,9 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
         if not mesh.vertex_groups:
             for index, pivot in enumerate(hierarchy.pivots):
                 if pivot.name == mesh.name or pivot.name == mesh.parent_bone:
-                    subObject.bone_index = index
+                    sub_object.bone_index = index
 
-        lod_array.sub_objects.append(subObject)
+        lod_array.sub_objects.append(sub_object)
 
     lod_arrays.append(lod_array)
     return lod_arrays

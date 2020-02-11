@@ -5,7 +5,6 @@ import os.path
 from unittest.mock import patch
 
 from io_mesh_w3d.common.structs.data_context import *
-from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.w3x.export_w3x import save
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
@@ -15,8 +14,7 @@ from tests.utils import *
 
 class TestExportW3X(TestCase):
     def test_unsupported_export_mode(self):
-        export_settings = {}
-        export_settings['mode'] = 'NON_EXISTING'
+        export_settings = {'mode': 'NON_EXISTING'}
 
         self.set_format('W3X')
         self.filepath = self.outpath() + 'output_skn'
@@ -24,11 +22,10 @@ class TestExportW3X(TestCase):
         self.assertEqual({'CANCELLED'}, save(self, export_settings, DataContext()))
 
     def test_only_mesh_is_written_if_mode_M(self):
-        export_settings = {}
-        export_settings['mode'] = 'M'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = False
+        export_settings = {'mode': 'M',
+                           'compression': 'U',
+                           'individual_files': False,
+                           'create_texture_xmls': False}
 
         data_context = DataContext(
             container_name='containerName',
@@ -52,9 +49,8 @@ class TestExportW3X(TestCase):
             self.assertTrue(child.tag in ['W3DMesh', 'Includes'])
 
     def test_warning_is_shown_if_M_and_multiple_meshes(self):
-        export_settings = {}
-        export_settings['mode'] = 'M'
-        export_settings['compression'] = 'U'
+        export_settings = {'mode': 'M',
+                           'compression': 'U'}
 
         data_context = DataContext(
             container_name='containerName',
@@ -77,12 +73,11 @@ class TestExportW3X(TestCase):
                 'Scene does contain multiple meshes, exporting only the first with export mode M!')
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = False
-        export_settings['use_existing_skeleton'] = False
+        export_settings = {'mode': 'HM',
+                           'compression': 'U',
+                           'individual_files': False,
+                           'create_texture_xmls': False,
+                           'use_existing_skeleton': False}
 
         hierarchy_name = 'TestHiera_SKL'
 
@@ -110,12 +105,11 @@ class TestExportW3X(TestCase):
         self.assertIsNotNone(root.find('W3DHierarchy'))
 
     def test_no_hierarchy_is_written_if_mode_HM_and_use_existing_skeleton(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = False
-        export_settings['use_existing_skeleton'] = True
+        export_settings = {'mode': 'HM',
+                           'compression': 'U',
+                           'individual_files': False,
+                           'create_texture_xmls': False,
+                           'use_existing_skeleton': True}
 
         hierarchy_name = 'TestHiera_SKL'
 
@@ -143,11 +137,10 @@ class TestExportW3X(TestCase):
         self.assertIsNone(root.find('W3DHierarchy'))
 
     def test_no_texture_xml_files_are_created_if_not_create_texture_xmls(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = False
-        export_settings['use_existing_skeleton'] = False
+        export_settings = {'mode': 'HM',
+                           'individual_files': False,
+                           'create_texture_xmls': False,
+                           'use_existing_skeleton': False}
 
         hierarchy_name = 'TestHiera_SKL'
 
@@ -175,11 +168,10 @@ class TestExportW3X(TestCase):
         self.assertFalse(os.path.exists(self.outpath() + 'texture.xml'))
 
     def test_texture_xml_files_are_created_if_create_texture_xmls(self):
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = True
-        export_settings['use_existing_skeleton'] = False
+        export_settings = {'mode': 'HM',
+                           'individual_files': False,
+                           'create_texture_xmls': True,
+                           'use_existing_skeleton': False}
 
         hierarchy_name = 'TestHiera_SKL'
 

@@ -31,7 +31,6 @@ def make_transform_matrix(loc, rot):
 
 
 def create_rig(name, location, coll):
-    basic_sphere = create_sphere()
     armature = bpy.data.armatures.new(name)
     armature.show_names = False
 
@@ -41,7 +40,7 @@ def create_rig(name, location, coll):
     rig.track_axis = 'POS_X'
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
-    return (rig, armature)
+    return rig, armature
 
 
 def create_bone_hierarchy(hierarchy, sub_objects, coll):
@@ -94,5 +93,4 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
         if rig.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT')
-
     return rig

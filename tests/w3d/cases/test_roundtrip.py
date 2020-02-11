@@ -11,11 +11,9 @@ from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
-from tests.utils import *
 from tests.utils import TestCase
 from tests.w3d.helpers.dazzle import get_dazzle
 from tests.w3d.helpers.compressed_animation import get_compressed_animation
-from os.path import dirname as up
 
 
 class TestRoundtripW3D(TestCase):
@@ -36,9 +34,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output_skn'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['use_existing_skeleton'] = True
+        export_settings = {'mode': 'HM', 'use_existing_skeleton': True}
         save(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
@@ -55,9 +51,9 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
-        load(self, import_settings={})
+        load(self, {})
         self.filepath = self.outpath() + 'output_ani.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -87,9 +83,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output_skn'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['use_existing_skeleton'] = True
+        export_settings = {'mode': 'HM', 'use_existing_skeleton': True}
         save(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
@@ -106,9 +100,9 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
-        load(self, import_settings={})
+        load(self, {})
         self.filepath = self.outpath() + 'output_comp_ani.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -138,9 +132,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {}
-        export_settings['mode'] = 'HAM'
-        export_settings['compression'] = 'U'
+        export_settings = {'mode': 'HAM', 'compression': 'U'}
         save(self, export_settings)
 
         # reset scene
@@ -148,7 +140,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue('output' in bpy.data.armatures)
@@ -177,9 +169,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {}
-        export_settings['mode'] = 'HAM'
-        export_settings['compression'] = 'TC'
+        export_settings = {'mode': 'HAM', 'compression': 'TC'}
         save(self, export_settings)
 
         # reset scene
@@ -187,7 +177,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue('output' in bpy.data.armatures)
@@ -212,9 +202,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['use_existing_skeleton'] = False
+        export_settings = {'mode': 'HM', 'use_existing_skeleton': False}
         save(self, export_settings)
 
         # reset scene
@@ -222,7 +210,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)

@@ -70,7 +70,7 @@ def retrieve_hierarchy(context, container_name):
         switch_to_pose(rig, 'POSE')
     else:
         context.error('only one armature per scene allowed!')
-        return (None, None)
+        return None, None
 
     meshes = []
     if rig is not None:
@@ -114,4 +114,4 @@ def retrieve_hierarchy(context, container_name):
         process_pivot(pivot, pivots, hierarchy)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
-    return (hierarchy, rig)
+    return hierarchy, rig

@@ -697,14 +697,14 @@ class TestUtils(TestCase):
                 compare_meshes(self, mesh, actual_meshes[i])
 
         if boxes:
-            actual_boxes = retrieve_boxes(actual_hiera, container_name)
+            actual_boxes = retrieve_boxes(container_name)
 
             self.assertEqual(len(boxes), len(actual_boxes))
             for i, box in enumerate(boxes):
                 compare_collision_boxes(self, box, actual_boxes[i])
 
         if dazzles:
-            actual_dazzles = retrieve_dazzles(actual_hiera, container_name)
+            actual_dazzles = retrieve_dazzles(container_name)
 
             self.assertEqual(len(dazzles), len(actual_dazzles))
             for i, dazzle in enumerate(dazzles):

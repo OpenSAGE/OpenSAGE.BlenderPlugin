@@ -5,7 +5,7 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.structs.collision_box import *
 
 
-def retrieve_boxes(hierarchy, container_name):
+def retrieve_boxes(container_name):
     boxes = []
 
     for mesh_object in get_objects('MESH'):

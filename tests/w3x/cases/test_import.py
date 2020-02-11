@@ -5,14 +5,11 @@ from shutil import copyfile
 from unittest.mock import patch
 
 from io_mesh_w3d.w3x.import_w3x import *
-from io_mesh_w3d.w3x.io_xml import *
 from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import get_hierarchy
-from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
 from tests.common.helpers.animation import get_animation
 from tests.utils import *
-from os.path import dirname as up
 
 
 class TestObjectImport(TestCase):
@@ -28,7 +25,7 @@ class TestObjectImport(TestCase):
         # import
         self.set_format('W3X')
         self.filepath = self.outpath() + 'animation.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         self.assertTrue(hierarchy_name in bpy.data.objects)
         self.assertTrue(hierarchy_name in bpy.data.armatures)
@@ -37,16 +34,17 @@ class TestObjectImport(TestCase):
         path = self.outpath() + 'output.w3x'
         self.filepath = path
         self.error = lambda text: self.assertEqual(r'file not found: ' + path, text)
-        load(self, import_settings={})
+        load(self, {})
 
     @patch('io_mesh_w3d.w3x.import_w3x.find_root', return_value=None)
     def test_load_file_root_is_none(self, root):
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
     def test_load_file_invalid_node(self):
         path = self.outpath() + 'output.w3x'
-        data = '<?xml version=\'1.0\' encoding=\'utf8\'?><AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Invalid></Invalid></AssetDeclaration>'
+        data = '<?xml version=\'1.0\' encoding=\'utf8\'?><AssetDeclaration xmlns="uri:ea.com:eala:asset" ' \
+               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Invalid></Invalid></AssetDeclaration> '
 
         file = open(path, 'w')
         file.write(data)
@@ -54,7 +52,7 @@ class TestObjectImport(TestCase):
 
         self.filepath = path
         self.warning = lambda text: self.assertEqual('unsupported node Invalid in file: ' + path, text)
-        load(self, import_settings={})
+        load(self, {})
 
     @patch('io_mesh_w3d.w3x.import_w3x.load_file')
     @patch.object(Mesh, 'container_name', return_value='')
@@ -73,7 +71,7 @@ class TestObjectImport(TestCase):
         load_file.return_value = data_context
 
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         create.assert_called()
 
@@ -94,6 +92,6 @@ class TestObjectImport(TestCase):
         load_file.return_value = data_context
 
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         create.assert_called()

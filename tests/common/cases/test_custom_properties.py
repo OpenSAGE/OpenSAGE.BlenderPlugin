@@ -8,15 +8,15 @@ from tests.utils import *
 
 
 def to_vec4(color):
-    return (color[0], color[1], color[2], color[3])
+    return color[0], color[1], color[2], color[3]
 
 
 def to_vec3(vec):
-    return (vec[0], vec[1], vec[2])
+    return vec[0], vec[1], vec[2]
 
 
 def to_vec2(vec):
-    return (vec[0], vec[1])
+    return vec[0], vec[1]
 
 
 class TestCustomProperties(TestCase):

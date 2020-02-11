@@ -2,11 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.material_import import *
 
 
-def create_mesh(context, mesh_struct, hierarchy, coll):
+def create_mesh(context, mesh_struct, coll):
     triangles = []
     for triangle in mesh_struct.triangles:
         triangles.append(tuple(triangle.vert_ids))

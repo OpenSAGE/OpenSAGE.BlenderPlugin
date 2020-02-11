@@ -1,8 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
-
 from tests.w3x.helpers.mesh_structs.bounding_sphere import *
 from tests.utils import *
 

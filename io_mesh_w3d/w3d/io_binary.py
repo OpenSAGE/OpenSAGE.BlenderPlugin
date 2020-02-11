@@ -145,7 +145,6 @@ def write_vector4(vec, io_stream):
     write_float(vec.w, io_stream)
 
 
-
 def read_quaternion(io_stream):
     quat = Quaternion((0, 0, 0, 0))
     quat.x = read_float(io_stream)
@@ -191,7 +190,7 @@ def read_chunk_head(io_stream):
     chunk_type = read_ulong(io_stream)
     chunk_size = read_ulong(io_stream) & 0x7FFFFFFF
     chunk_end = io_stream.tell() + chunk_size
-    return (chunk_type, chunk_size, chunk_end)
+    return chunk_type, chunk_size, chunk_end
 
 
 def write_chunk_head(chunk_id, io_stream, size, has_sub_chunks=False):

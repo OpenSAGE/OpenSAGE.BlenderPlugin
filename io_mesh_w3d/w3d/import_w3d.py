@@ -89,7 +89,7 @@ def load_file(context, data_context, path=None):
 ##########################################################################
 
 
-def load(context, import_settings):
+def load(context, _):
     data_context = DataContext(
         meshes=[],
         dazzles=[],

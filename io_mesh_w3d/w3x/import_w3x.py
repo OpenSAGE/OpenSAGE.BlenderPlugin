@@ -9,7 +9,6 @@ from io_mesh_w3d.common.structs.hierarchy import *
 from io_mesh_w3d.common.structs.hlod import *
 from io_mesh_w3d.common.structs.mesh import *
 from io_mesh_w3d.common.structs.mesh_structs.texture import *
-from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3x.structs.include import *
 
 
@@ -58,7 +57,7 @@ def load_file(context, data_context, path=None):
 ##########################################################################
 
 
-def load(context, import_settings):
+def load(context, _):
     data_context = DataContext(
         meshes=[],
         textures=[],

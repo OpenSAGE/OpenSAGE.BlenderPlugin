@@ -4,6 +4,7 @@
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 from tests.mathutils import *
 
+
 def get_shader_material_header():
     return ShaderMaterialHeader(
         technique_index=1,

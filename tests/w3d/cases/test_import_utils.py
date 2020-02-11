@@ -43,12 +43,12 @@ class TestImportUtilsW3D(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture2.dds')
 
-        create_mesh(self, mesh, None, bpy.context.collection)
+        create_mesh(self, mesh, bpy.context.collection)
 
     def test_prelit_mesh_import(self):
         mesh = get_mesh(prelit=True)
 
-        create_mesh(self, mesh, None, bpy.context.collection)
+        create_mesh(self, mesh, bpy.context.collection)
 
     def test_duplicate_vertex_material_creation(self):
         vert_mats = [get_vertex_material(vm_name='VM_NAME'), get_vertex_material(vm_name='VM_NAME')]

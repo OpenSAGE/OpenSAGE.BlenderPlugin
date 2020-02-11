@@ -49,7 +49,7 @@ class TestImportUtils(TestCase):
         coll = get_collection(hlod)
 
         for mesh_struct in mesh_structs:
-            create_mesh(self, mesh_struct, hierarchy, coll)
+            create_mesh(self, mesh_struct, coll)
 
         rig = get_or_create_skeleton(hlod, hierarchy, coll)
 

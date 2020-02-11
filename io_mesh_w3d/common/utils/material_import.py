@@ -20,9 +20,8 @@ def create_vertex_material(context, principleds, struct, mesh, name, triangles):
         mesh.materials.append(material)
         principleds.append(principled)
 
-    if struct.material_passes:
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
 
     for mat_pass in struct.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
@@ -42,7 +41,7 @@ def create_material_from_vertex_material(context, name, vert_mat):
     if name in bpy.data.materials:
         material = bpy.data.materials[name]
         principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-        return (material, principled)
+        return material, principled
 
     material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
@@ -76,7 +75,7 @@ def create_material_from_vertex_material(context, name, vert_mat):
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
 
-    return (material, principled)
+    return material, principled
 
 
 ##########################################################################
@@ -88,7 +87,7 @@ def create_material_from_shader_material(context, name, shader_mat):
     if name in bpy.data.materials:
         material = bpy.data.materials[name]
         principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-        return (material, principled)
+        return material, principled
 
     material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
@@ -193,7 +192,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         else:
             context.error('shader property not implemented: ' + prop.name)
 
-    return (material, principled)
+    return material, principled
 
 
 ##########################################################################
