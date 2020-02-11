@@ -27,7 +27,7 @@ class TestCase(unittest.TestCase):
 
     firstError = True
 
-    filepath = __filepath
+    filepath = str(__filepath)
     file_format = 'W3D'
     filename_ext = '.w3d'
 
