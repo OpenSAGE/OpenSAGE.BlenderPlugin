@@ -89,6 +89,10 @@ def append_property(shader_mat, type, name, value, default=None):
         type=type, name=name, value=value))
 
 
+def to_vec(color):
+    return Vector((color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255 if len(color) > 3 else 1.0))
+
+
 def retrieve_shader_material(material, principled, w3x=False):
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
@@ -99,17 +103,17 @@ def retrieve_shader_material(material, principled, w3x=False):
 
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'ColorDiffuse', material.diffuse_color, Vector((0.75, 0.75, 0.75)))
-        append_property(shader_mat, 5, 'ColorSpecular', material.specular_color)
-        append_property(shader_mat, 5, 'ColorAmbient', material.ambient)
-        append_property(shader_mat, 5, 'ColorEmissive', material.emission)
+        append_property(shader_mat, 5, 'ColorDiffuse', to_vec(material.diffuse_color), Vector((0.75, 0.75, 0.75)))
+        append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color))
+        append_property(shader_mat, 5, 'ColorAmbient', to_vec(material.ambient))
+        append_property(shader_mat, 5, 'ColorEmissive', to_vec(material.emission))
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
-        append_property(shader_mat, 5, 'DiffuseColor', material.diffuse_color, Vector((0.75, 0.75, 0.75)))
-        append_property(shader_mat, 5, 'SpecularColor', material.specular_color)
-        append_property(shader_mat, 5, 'AmbientColor', material.ambient)
-        append_property(shader_mat, 5, 'EmissiveColor', material.emission)
+        append_property(shader_mat, 5, 'DiffuseColor', to_vec(material.diffuse_color), Vector((0.75, 0.75, 0.75)))
+        append_property(shader_mat, 5, 'SpecularColor', to_vec(material.specular_color))
+        append_property(shader_mat, 5, 'AmbientColor', to_vec(material.ambient))
+        append_property(shader_mat, 5, 'EmissiveColor', to_vec(material.emission))
 
     if material.texture_1:
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
@@ -122,9 +126,9 @@ def retrieve_shader_material(material, principled, w3x=False):
         append_property(shader_mat, 6, 'TexCoordMapper_1',
                         material.tex_coord_mapper_1)
         append_property(shader_mat, 5, 'TexCoordTransform_0',
-                        material.tex_coord_transform_0, Vector())
+                        to_vec(material.tex_coord_transform_0), Vector())
         append_property(shader_mat, 5, 'TexCoordTransform_1',
-                        material.tex_coord_transform_1, Vector())
+                        to_vec(material.tex_coord_transform_1), Vector())
     else:
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
@@ -140,9 +144,9 @@ def retrieve_shader_material(material, principled, w3x=False):
     append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
     append_property(shader_mat, 7, 'DepthWriteEnable', material.depth_write)
     append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_0',
-                    material.sampler_clamp_uv_no_mip_0)
+                    material.sampler_clamp_uv_no_mip_0, Vector())
     append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_1',
-                    material.sampler_clamp_uv_no_mip_1)
+                    material.sampler_clamp_uv_no_mip_1, Vector())
     append_property(shader_mat, 1, 'EnvironmentTexture',
                     material.environment_texture)
     append_property(shader_mat, 2, 'EnvMult',
