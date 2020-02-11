@@ -40,16 +40,14 @@ class TestIOXML(TestCase):
             self.assertEqual(exp, actual[i])
 
     def test_pretty_print(self):
-        expected = '<?xml version=\'1.0\' encoding=\'utf8\'?>\n<AssetDeclaration xmlns="uri:ea.com:eala:asset" ' \
-                   'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 ' \
-                   '/>\n</AssetDeclaration>\n '
+        expected = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 />\n</AssetDeclaration>\n '
         root = create_root()
         create_node(root, 'Child1')
         create_node(root, 'Child2')
 
         pretty_print(root)
 
-        result = ET.tostring(root, encoding='utf8', method='xml').decode("utf-8")
+        result = ET.tostring(root).decode("utf-8")
 
         self.assertEqual(expected, result)
 
