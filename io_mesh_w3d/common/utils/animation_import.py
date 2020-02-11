@@ -103,7 +103,7 @@ def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
         obj = get_bone(rig, hierarchy, channel)
 
-        apply_func(obj, channel, hierarchy)
+        apply_func(obj, channel)
 
 
 def process_motion_channels(hierarchy, channels, rig):

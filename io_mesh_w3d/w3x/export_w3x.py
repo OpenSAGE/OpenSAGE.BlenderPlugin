@@ -46,7 +46,7 @@ def save(context, export_settings, data_context):
             context.info('Saving file :' + path)
             write_struct(data_context.hierarchy, path)
 
-            for box in data_context.boxes:
+            for box in data_context.collision_boxes:
                 path = dir + box.name_ + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(box, path)
@@ -62,7 +62,7 @@ def save(context, export_settings, data_context):
                 texture_include = Include(type='all', source='ART:' + id + '.xml')
                 texture_include.create(includes)
 
-            for box in data_context.boxes:
+            for box in data_context.collision_boxes:
                 box.create(root)
 
             for mesh in data_context.meshes:

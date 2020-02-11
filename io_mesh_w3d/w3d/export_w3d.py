@@ -24,7 +24,7 @@ def save(context, export_settings, data_context):
             data_context.hlod.header.hierarchy_name = data_context.container_name
             data_context.hierarchy.write(file)
 
-        for box in data_context.boxes:
+        for box in data_context.collision_boxes:
             box.write(file)
 
         for dazzle in data_context.dazzles:
