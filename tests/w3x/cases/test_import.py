@@ -21,31 +21,28 @@ class TestObjectImport(TestCase):
         hierarchy = get_hierarchy(hierarchy_name)
         animation = get_animation(hierarchy_name)
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
-
         # write to file
         write_struct(hierarchy, self.outpath() + hierarchy_name + '.w3x')
         write_struct(animation, self.outpath() + 'animation.w3x')
 
         # import
-        ani = IOWrapper(self.outpath() + 'animation.w3x')
-        load(ani, import_settings={})
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'animation.w3x'
+        load(self, import_settings={})
 
         self.assertTrue(hierarchy_name in bpy.data.objects)
         self.assertTrue(hierarchy_name in bpy.data.armatures)
 
     def test_load_file_file_does_not_exist(self):
         path = self.outpath() + 'output.w3x'
-        context = IOWrapper(path)
-        context.error = lambda text: self.assertEqual(r'file not found: ' + path, text)
-        load(context, import_settings={})
+        self.filepath = path
+        self.error = lambda text: self.assertEqual(r'file not found: ' + path, text)
+        load(self, import_settings={})
 
     @patch('io_mesh_w3d.w3x.import_w3x.find_root', return_value=None)
     def test_load_file_root_is_none(self, root):
-        path = self.outpath() + 'output.w3x'
-        context = IOWrapper(path)
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self, import_settings={})
 
     def test_load_file_invalid_node(self):
         path = self.outpath() + 'output.w3x'
@@ -55,9 +52,9 @@ class TestObjectImport(TestCase):
         file.write(data)
         file.close()
 
-        context = IOWrapper(path)
-        context.warning = lambda text: self.assertEqual('unsupported node Invalid in file: ' + path, text)
-        load(context, import_settings={})
+        self.filepath = path
+        self.warning = lambda text: self.assertEqual('unsupported node Invalid in file: ' + path, text)
+        load(self, import_settings={})
 
     @patch('io_mesh_w3d.w3x.import_w3x.load_file')
     @patch.object(Mesh, 'container_name', return_value='')
@@ -75,8 +72,8 @@ class TestObjectImport(TestCase):
 
         load_file.return_value = data_context
 
-        context = IOWrapper(self.outpath() + 'output.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self, import_settings={})
 
         create.assert_called()
 
@@ -96,7 +93,7 @@ class TestObjectImport(TestCase):
 
         load_file.return_value = data_context
 
-        context = IOWrapper(self.outpath() + 'output.w3x')
-        load(context, import_settings={})
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self, import_settings={})
 
         create.assert_called()

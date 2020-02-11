@@ -18,9 +18,10 @@ class TestExportW3X(TestCase):
         export_settings = {}
         export_settings['mode'] = 'NON_EXISTING'
 
-        context = IOWrapper(self.outpath() + 'output_skn', 'W3X')
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output_skn'
 
-        self.assertEqual({'CANCELLED'}, save(context, export_settings, DataContext()))
+        self.assertEqual({'CANCELLED'}, save(self, export_settings, DataContext()))
 
     def test_only_mesh_is_written_if_mode_M(self):
         export_settings = {}
@@ -41,9 +42,10 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
         root = find_root(self, file_path + extension)
         for child in root:
@@ -65,10 +67,11 @@ class TestExportW3X(TestCase):
             hlod=None)
 
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        with (patch.object(IOWrapper, 'warning')) as warning_func:
-            self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        with (patch.object(self, 'warning')) as warning_func:
+            self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
             warning_func.assert_called_with(
                 'Scene does contain multiple meshes, exporting only the first with export mode M!')
@@ -98,9 +101,10 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
         root = find_root(self, file_path + extension)
         self.assertIsNotNone(root.find('W3DHierarchy'))
@@ -130,9 +134,10 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
         root = find_root(self, file_path + extension)
         self.assertIsNone(root.find('W3DHierarchy'))
@@ -161,9 +166,10 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
         self.assertTrue(os.path.exists(file_path + extension))
         self.assertFalse(os.path.exists(self.outpath() + 'texture.xml'))
@@ -192,9 +198,10 @@ class TestExportW3X(TestCase):
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3X')
+        self.set_format('W3X')
+        self.filepath = file_path
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
         self.assertTrue(os.path.exists(file_path + extension))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))

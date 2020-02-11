@@ -20,55 +20,35 @@ def almost_equal(self, x, y, threshold=0.0001):
     self.assertTrue(abs(x - y) < threshold)
 
 
-class IOWrapper:
-    def __init__(self, filepath, file_format='INVALID'):
-        self.filepath = filepath
-        self.report = print
-        self.file_format = file_format
-        if file_format == 'W3D':
-            self.filename_ext = '.w3d'
-        elif file_format == 'W3X':
-            self.filename_ext = '.w3x'
-
-    def info(self, msg):
-        pass
-        #self.report({'INFO'}, msg)
-
-    def warning(self, msg):
-        pass
-        #self.report({'WARNING'}, msg)
-
-    def error(self, msg):
-        pass
-        #self.report({'ERROR'}, msg)
-
-
 class TestCase(unittest.TestCase):
     __save_test_data = '--save-test-data' in sys.argv
     __tmp_base = os.path.join(tempfile.gettempdir(), 'io_mesh_w3d-tests')
-    filepath = os.path.join(__tmp_base, 'out' + os.path.sep)
+    __filepath = os.path.join(__tmp_base, 'out' + os.path.sep)
 
-    firstError = True
-
+    filepath = ''
     file_format = 'W3D'
+    filename_ext = '.w3d'
+
+    log = lambda con, level, text: text
+
+    def set_format(self, format):
+        self.file_format = format
+        if format == 'W3D':
+            self.filename_ext = '.w3d'
+        else:
+            self.filename_ext = '.w3x'
+
+    def enable_logging(self):
+        self.log = print
 
     def info(self, msg):
-        pass
-        #print({'INFO'}, msg)
+        self.log({'INFO'}, msg)
 
     def warning(self, msg):
-        pass
-        # if self.firstError:
-        #    print('\n >>>' + self.id() + '<<<')
-        #    self.firstError = False
-        #print({'WARNING'}, msg)
+        self.log({'WARNING'}, msg)
 
     def error(self, msg):
-        pass
-        # if self.firstError:
-        #    print('\n' + self.id())
-        #    self.firstError = False
-        #print({'ERROR'}, msg)
+        self.log({'ERROR'}, msg)
 
     @classmethod
     def relpath(cls, path=None):
@@ -79,29 +59,32 @@ class TestCase(unittest.TestCase):
 
     @classmethod
     def outpath(cls, path=''):
-        if not os.path.exists(cls.filepath):
-            os.makedirs(cls.filepath)
-        return os.path.join(cls.filepath, path)
+        if not os.path.exists(cls.__filepath):
+            os.makedirs(cls.__filepath)
+        return os.path.join(cls.__filepath, path)
 
     # def loadBlend(self, blend_file):
     #    bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
+        self.filepath = self.outpath()
+        if not os.path.exists(self.__filepath):
+            os.makedirs(self.__filepath)
         bpy.ops.wm.read_homefile(use_empty=True)
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
     def tearDown(self):
-        if os.path.exists(self.filepath):
+        if os.path.exists(self.__filepath):
             if self.__save_test_data:
                 bpy.ops.wm.save_mainfile(
-                    filepath=os.path.join(self.filepath, 'result.blend'))
+                    __filepath=os.path.join(self.__filepath, 'result.blend'))
                 new_path = os.path.join(
                     self.__tmp_base,
                     self.__class__.__name__,
                     self._testMethodName)
-                os.renames(self.filepath, new_path)
+                os.renames(self.__filepath, new_path)
             else:
-                shutil.rmtree(self.filepath)
+                shutil.rmtree(self.__filepath)
         addon_utils.disable('io_mesh_w3d')
 
     def write_read_test(

@@ -29,15 +29,14 @@ class TestExportW3D(TestCase):
             hierarchy=None,
             hlod=None)
 
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
+        self.filepath = self.outpath() + 'output_skn'
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
-        file_path += '.w3d'
-        self.assertTrue(os.path.exists(file_path))
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        self.filepath += '.w3d'
+        self.assertTrue(os.path.exists(self.filepath))
+        file = open(self.filepath, 'rb')
+        filesize = os.path.getsize(self.filepath)
 
         found_meshes = 0
         while file.tell() < filesize:
@@ -64,11 +63,10 @@ class TestExportW3D(TestCase):
             hierarchy=None,
             hlod=None)
 
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
+        self.filepath = self.outpath() + 'output_skn'
 
-        with (patch.object(IOWrapper, 'warning')) as warning_func:
-            self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        with (patch.object(self, 'warning')) as warning_func:
+            self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
             warning_func.assert_called_with(
                 'Scene does contain multiple meshes, exporting only the first with export mode M!')
@@ -88,11 +86,10 @@ class TestExportW3D(TestCase):
             hierarchy=None,
             hlod=None)
 
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
+        self.filepath = self.outpath() + 'output_skn'
 
-        with (patch.object(IOWrapper, 'error')) as error_func:
-            self.assertEqual({'CANCELLED'}, save(context, export_settings, data_context))
+        with (patch.object(self, 'error')) as error_func:
+            self.assertEqual({'CANCELLED'}, save(self, export_settings, data_context))
 
             error_func.assert_called_with('unsupported export mode: UNSUPPORTED, aborting export!')
 
@@ -117,15 +114,14 @@ class TestExportW3D(TestCase):
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
+        self.filepath = self.outpath() + 'output_skn'
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
-        file_path += '.w3d'
-        self.assertTrue(os.path.exists(file_path))
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        self.filepath += '.w3d'
+        self.assertTrue(os.path.exists(self.filepath))
+        file = open(self.filepath, 'rb')
+        filesize = os.path.getsize(self.filepath)
 
         hierarchy_found = False
         while file.tell() < filesize:
@@ -159,15 +155,14 @@ class TestExportW3D(TestCase):
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 
-        file_path = self.outpath() + 'output_skn'
-        context = IOWrapper(file_path, 'W3D')
+        self.filepath = self.outpath() + 'output_skn'
 
-        self.assertEqual({'FINISHED'}, save(context, export_settings, data_context))
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
 
-        file_path += '.w3d'
-        self.assertTrue(os.path.exists(file_path))
-        file = open(file_path, 'rb')
-        filesize = os.path.getsize(file_path)
+        self.filepath += '.w3d'
+        self.assertTrue(os.path.exists(self.filepath))
+        file = open(self.filepath, 'rb')
+        filesize = os.path.getsize(self.filepath)
 
         while file.tell() < filesize:
             (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
