@@ -22,7 +22,7 @@ def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel)
 
 
-def get_bone(context, rig, hierarchy, channel):
+def get_bone(rig, hierarchy, channel):
     if is_roottransform(channel):
         return rig
 
@@ -76,7 +76,7 @@ def set_keyframe(bone, channel, frame, value):
         set_rotation(bone, frame, value)
 
 
-def apply_timecoded(bone, channel, _):
+def apply_timecoded(bone, channel):
     for key in channel.time_codes:
         set_keyframe(bone, channel, key.time_code, key.value)
 
@@ -92,23 +92,23 @@ def apply_adaptive_delta(bone, channel):
         set_keyframe(bone, channel, i, data[i])
 
 
-def apply_uncompressed(bone, channel, hierarchy):
+def apply_uncompressed(bone, channel):
     for index in range(channel.last_frame - channel.first_frame + 1):
         data = channel.data[index]
         frame = index + channel.first_frame
         set_keyframe(bone, channel, frame, data)
 
 
-def process_channels(context, hierarchy, channels, rig, apply_func):
+def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
-        obj = get_bone(context, rig, hierarchy, channel)
+        obj = get_bone(rig, hierarchy, channel)
 
         apply_func(obj, channel, hierarchy)
 
 
-def process_motion_channels(context, hierarchy, channels, rig):
+def process_motion_channels(hierarchy, channels, rig):
     for channel in channels:
-        obj = get_bone(context, rig, hierarchy, channel)
+        obj = get_bone(rig, hierarchy, channel)
 
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
@@ -116,20 +116,20 @@ def process_motion_channels(context, hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(context, rig, animation, hierarchy, compressed=False):
+def create_animation(rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
     setup_animation(animation)
 
     if not compressed:
-        process_channels(context, hierarchy, animation.channels,
+        process_channels(hierarchy, animation.channels,
                          rig, apply_uncompressed)
     else:
-        process_channels(context, hierarchy, animation.time_coded_channels,
+        process_channels(hierarchy, animation.time_coded_channels,
                          rig, apply_timecoded)
-        process_channels(context, hierarchy, animation.adaptive_delta_channels,
+        process_channels(hierarchy, animation.adaptive_delta_channels,
                          rig, apply_adaptive_delta)
-        process_motion_channels(context, hierarchy, animation.motion_channels, rig)
+        process_motion_channels(hierarchy, animation.motion_channels, rig)
 
     bpy.context.scene.frame_set(0)

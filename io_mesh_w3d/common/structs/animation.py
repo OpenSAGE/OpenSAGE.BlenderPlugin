@@ -166,7 +166,7 @@ class AnimationBitChannel(Struct):
     data = []
 
     @staticmethod
-    def read(io_stream, chunk_end):
+    def read(io_stream):
         result = AnimationBitChannel(
             first_frame=read_ushort(io_stream),
             last_frame=read_ushort(io_stream),
@@ -186,7 +186,7 @@ class AnimationBitChannel(Struct):
 
     def size(self, include_head=True):
         size = const_size(9, include_head)
-        size += (int)(len(self.data) / 8)
+        size += int(len(self.data) / 8)
         if len(self.data) % 8 > 0:
             size += 1
         return size
@@ -275,7 +275,7 @@ class Animation(Struct):
                     AnimationChannel.read(io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_ANIMATION_BIT_CHANNEL:
                 result.channels.append(
-                    AnimationBitChannel.read(io_stream, subchunk_end))
+                    AnimationBitChannel.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result

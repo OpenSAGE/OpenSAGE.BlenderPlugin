@@ -40,10 +40,12 @@ class TestIOXML(TestCase):
             self.assertEqual(exp, actual[i])
 
     def test_pretty_print(self):
-        expected = '<?xml version=\'1.0\' encoding=\'utf8\'?>\n<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 />\n</AssetDeclaration>\n'
+        expected = '<?xml version=\'1.0\' encoding=\'utf8\'?>\n<AssetDeclaration xmlns="uri:ea.com:eala:asset" ' \
+                   'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 ' \
+                   '/>\n</AssetDeclaration>\n '
         root = create_root()
-        child1 = create_node(root, 'Child1')
-        child2 = create_node(root, 'Child2')
+        create_node(root, 'Child1')
+        create_node(root, 'Child2')
 
         pretty_print(root)
 
@@ -76,7 +78,8 @@ class TestIOXML(TestCase):
         self.assertEqual('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n', actual[0])
 
     def test_find_root(self):
-        data = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><obj></obj></AssetDeclaration>'
+        data = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" ' \
+               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><obj></obj></AssetDeclaration> '
         file = open(self.outpath() + 'test.xml', 'w')
         file.write(data)
         file.close()
@@ -231,7 +234,7 @@ class TestIOXML(TestCase):
         actual = parse_quaternion(quat)
         self.assertEqual(expected, actual)
 
-    def test_create_vector(self):
+    def test_create_quat(self):
         expected = get_quat()
         root = ET.Element('root')
         create_quaternion(expected, root, 'Rotation')
@@ -244,7 +247,8 @@ class TestIOXML(TestCase):
 
     def test_parse_matrix(self):
         expected = get_mat()
-        data = '<root><FixupMatrix M00="1" M01="0" M02="0" M03="0" M10="0" M11="1" M12="0" M13="0" M20="0" M21="0" M22="1" M23="0"/></root>'
+        data = '<root><FixupMatrix M00="1" M01="0" M02="0" M03="0" M10="0" M11="1" M12="0" M13="0" M20="0" M21="0" ' \
+               'M22="1" M23="0"/></root> '
         root = ET.fromstring(data)
 
         mat = root.find('FixupMatrix')

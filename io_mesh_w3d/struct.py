@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 
-class Struct():
+class Struct:
     def __init__(self, *argv, **argd):
         if argd:
             # Update by dictionary

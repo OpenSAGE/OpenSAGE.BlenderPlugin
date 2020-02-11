@@ -27,4 +27,4 @@ def create_cone(name):
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
-    return (mesh, cone)
+    return mesh, cone

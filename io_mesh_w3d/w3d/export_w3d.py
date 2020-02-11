@@ -1,9 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.export_utils import *
-from io_mesh_w3d.w3d.io_binary import STRING_LENGTH
-
 
 def save(context, export_settings, data_context):
     context.info('Saving file :' + context.filepath)

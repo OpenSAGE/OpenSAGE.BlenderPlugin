@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import os
 import bmesh
 import bpy
 from bpy_extras import node_shader_utils
@@ -12,7 +11,6 @@ from io_mesh_w3d.common.utils.mesh_export import *
 from io_mesh_w3d.common.utils.hierarchy_export import *
 from io_mesh_w3d.common.utils.animation_export import *
 from io_mesh_w3d.common.utils.hlod_export import *
-from io_mesh_w3d.common.utils.material_export import *
 from io_mesh_w3d.common.utils.box_export import *
 from io_mesh_w3d.w3d.utils.dazzle_export import *
 
@@ -58,8 +56,8 @@ def retrieve_data(context, export_settings, data_context):
     data_context.hierarchy = hierarchy
     data_context.rig = rig
     data_context.hlod = create_hlod(hierarchy, data_context.container_name)
-    data_context.boxes = retrieve_boxes(hierarchy, data_context.container_name)
-    data_context.dazzles = retrieve_dazzles(hierarchy, data_context.container_name)
+    data_context.collision_boxes = retrieve_boxes(data_context.container_name)
+    data_context.dazzles = retrieve_dazzles(data_context.container_name)
 
     if 'M' in export_mode:
         (meshes, textures) = retrieve_meshes(context, hierarchy, rig, data_context.container_name)
@@ -83,7 +81,7 @@ def retrieve_data(context, export_settings, data_context):
             context.error('aborting export!')
             return False
 
-        for box in data_context.boxes:
+        for box in data_context.collision_boxes:
             if not box.validate(context):
                 context.error('aborting export!')
                 return False

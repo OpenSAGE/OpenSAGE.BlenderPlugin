@@ -13,7 +13,6 @@ from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
 from tests.utils import *
 from tests.utils import TestCase
-from os.path import dirname as up
 
 
 class TestRoundtripW3X(TestCase):
@@ -35,11 +34,8 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output_skn'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['individual_files'] = False
-        export_settings['use_existing_skeleton'] = True
-        export_settings['create_texture_xmls'] = True
+        export_settings = {'mode': 'HM', 'individual_files': False, 'use_existing_skeleton': True,
+                           'create_texture_xmls': True}
         save(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
@@ -56,9 +52,9 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
-        load(self, import_settings={})
+        load(self, {})
         self.filepath = self.outpath() + 'output_ani.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -87,11 +83,7 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {}
-        export_settings['mode'] = 'HAM'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = False
-        export_settings['create_texture_xmls'] = True
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'individual_files': False, 'create_texture_xmls': True}
         save(self, export_settings)
 
         # check created files
@@ -103,7 +95,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)
@@ -132,12 +124,8 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output_skn'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = True
-        export_settings['create_texture_xmls'] = True
-        export_settings['use_existing_skeleton'] = True
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': True}
         save(self, export_settings)
 
         # check created files
@@ -154,7 +142,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertTrue('testname_skl' in bpy.data.objects)
@@ -183,12 +171,8 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output_skn'
-        export_settings = {}
-        export_settings['mode'] = 'HM'
-        export_settings['compression'] = 'U'
-        export_settings['individual_files'] = True
-        export_settings['create_texture_xmls'] = True
-        export_settings['use_existing_skeleton'] = True
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': True}
         save(self, export_settings)
 
         # check created files
@@ -205,7 +189,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.TRUNK.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         # check created objects
         self.assertEqual(2, len(bpy.data.collections))
@@ -223,7 +207,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.sword.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         self.assertEqual(2, len(bpy.data.collections))
 
@@ -235,7 +219,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.BOUNDINGBOX.w3x'
-        load(self, import_settings={})
+        load(self, {})
 
         self.assertEqual(2, len(bpy.data.collections))
 

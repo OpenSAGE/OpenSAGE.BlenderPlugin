@@ -1,8 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
-
 from tests.w3x.helpers.include import *
 from tests.utils import TestCase
 

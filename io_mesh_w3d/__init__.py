@@ -131,12 +131,11 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         if self.will_save_settings:
             self.save_settings(context)
 
-        export_settings = {}
-        export_settings['mode'] = self.export_mode
-        export_settings['compression'] = self.animation_compression
-        export_settings['use_existing_skeleton'] = self.use_existing_skeleton
-        export_settings['individual_files'] = self.individual_files
-        export_settings['create_texture_xmls'] = self.create_texture_xmls
+        export_settings = {'mode': self.export_mode,
+                           'compression': self.animation_compression,
+                           'use_existing_skeleton': self.use_existing_skeleton,
+                           'individual_files': self.individual_files,
+                           'create_texture_xmls': self.create_texture_xmls}
 
         return save(self, export_settings)
 
@@ -207,10 +206,10 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
-            load(self, import_settings={})
+            load(self, {})
         else:
             from .w3x.import_w3x import load
-            load(self, import_settings={})
+            load(self, {})
 
         self.info('finished')
         return {'FINISHED'}

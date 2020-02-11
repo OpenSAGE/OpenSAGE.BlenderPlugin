@@ -64,16 +64,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         for i, vertex in enumerate(mesh.vertices):
             if vertex.groups:
-                vertInf = VertexInfluence()
+                vert_inf = VertexInfluence()
                 for index, pivot in enumerate(hierarchy.pivots):
                     if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
-                        vertInf.bone_idx = index
-                vertInf.bone_inf = vertex.groups[0].weight
-                mesh_struct.vert_infs.append(vertInf)
+                        vert_inf.bone_idx = index
+                vert_inf.bone_inf = vertex.groups[0].weight
+                mesh_struct.vert_infs.append(vert_inf)
 
                 matrix = None
-                if vertInf.bone_idx > 0:
-                    matrix = rig.pose.bones[hierarchy.pivots[vertInf.bone_idx].name].matrix
+                if vert_inf.bone_idx > 0:
+                    matrix = rig.pose.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix
                 else:
                     matrix = rig.matrix_local
 
@@ -84,8 +84,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.multi_bone_skinned = True
                     for index, pivot in enumerate(hierarchy.pivots):
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                            vertInf.xtra_idx = index
-                    vertInf.xtra_inf = vertex.groups[1].weight
+                            vert_inf.xtra_idx = index
+                    vert_inf.xtra_inf = vertex.groups[1].weight
 
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
@@ -237,7 +237,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
     switch_to_pose(rig, 'POSE')
 
-    return (mesh_structs, used_textures)
+    return mesh_structs, used_textures
 
 
 ##########################################################################
@@ -285,7 +285,7 @@ def validate_all_points_inside_sphere(center, radius, vertices):
             delta = (curr_dist - radius) / 2
             radius += delta
             center += (vertex - center).normalized() * delta
-    return (center, radius)
+    return center, radius
 
 
 def calculate_mesh_sphere(mesh):

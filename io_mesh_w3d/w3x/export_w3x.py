@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.export_utils import *
-from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3x.structs.include import *
 
 

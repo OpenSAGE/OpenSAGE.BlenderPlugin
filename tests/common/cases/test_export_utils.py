@@ -18,8 +18,7 @@ class TestExportUtils(TestCase):
     def test_retrieve_data_returns_false_if_invalid_mode(self):
         self.error = lambda text: self.assertEqual('unsupported export mode: INVALID, aborting export!', text)
 
-        export_settings = {}
-        export_settings['mode'] = 'INVALID'
+        export_settings = {'mode': 'INVALID'}
 
         self.assertFalse(retrieve_data(self, export_settings, DataContext()))
 
@@ -36,8 +35,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'M'
+        export_settings = {'mode': 'M'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'toolongtestfilename'
 
@@ -62,8 +60,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'M'
+        export_settings = {'mode': 'M'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
@@ -89,8 +86,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'M'
+        export_settings = {'mode': 'M'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
@@ -118,8 +114,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'H'
+        export_settings = {'mode': 'H'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
@@ -148,8 +143,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'HM'
+        export_settings = {'mode': 'HM'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
@@ -180,8 +174,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'HM'
+        export_settings = {'mode': 'HM'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
@@ -211,9 +204,7 @@ class TestExportUtils(TestCase):
             hierarchy=None,
             hlod=None)
 
-        export_settings = {}
-        export_settings['mode'] = 'A'
-        export_settings['compression'] = 'U'
+        export_settings = {'mode': 'A', 'compression': 'U'}
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 

@@ -6,7 +6,7 @@ from io_mesh_w3d.common.utils.primitives import *
 from io_mesh_w3d.common.utils.helpers import *
 
 
-def create_dazzle(context, dazzle, hlod, hierarchy, rig, coll):
+def create_dazzle(context, dazzle, coll):
     # Todo: proper dimensions for cone
     (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
     dazzle_cone.object_type = 'DAZZLE'

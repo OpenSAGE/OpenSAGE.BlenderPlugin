@@ -5,7 +5,7 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.dazzle import *
 
 
-def retrieve_dazzles(hierarchy, container_name):
+def retrieve_dazzles(container_name):
     dazzles = []
 
     for mesh_object in get_objects('MESH'):

@@ -1,16 +1,11 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from shutil import copyfile
-
 from io_mesh_w3d.w3d.import_w3d import *
-from io_mesh_w3d.w3d.io_binary import *
 from tests.common.helpers.collision_box import get_collision_box
-from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
 from tests.utils import *
-from os.path import dirname as up
 
 
 class TestImport(TestCase):
@@ -33,7 +28,7 @@ class TestImport(TestCase):
 
         # import
         self.filepath = self.outpath() + 'base_skn.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + 'output.w3d', 'wb')
@@ -52,7 +47,7 @@ class TestImport(TestCase):
         output.close()
 
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, import_settings={})
+        load(self, {})
 
     def test_unkown_chunk_skip(self):
         path = self.outpath() + 'output.w3d'

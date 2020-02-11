@@ -23,9 +23,9 @@ def insensitive_path(path):
     directory = os.path.dirname(path)
     name = os.path.basename(path)
 
-    for io_streamname in os.listdir(directory):
-        if io_streamname.lower() == name.lower():
-            path = os.path.join(directory, io_streamname)
+    for io_stream_name in os.listdir(directory):
+        if io_stream_name.lower() == name.lower():
+            path = os.path.join(directory, io_stream_name)
     return path
 
 
@@ -46,21 +46,21 @@ def link_object_to_active_scene(obj, coll):
     obj.select_set(True)
 
 
-def rig_object(object, hierarchy, rig, sub_object):
+def rig_object(obj, hierarchy, rig, sub_object):
     if hierarchy is None or not sub_object or sub_object.bone_index <= 0:
         return
 
     pivot = hierarchy.pivots[sub_object.bone_index]
 
     if rig is not None and pivot.name in rig.pose.bones:
-        object.parent = rig
-        object.parent_bone = pivot.name
-        object.parent_type = 'BONE'
+        obj.parent = rig
+        obj.parent_bone = pivot.name
+        obj.parent_type = 'BONE'
         return
 
-    object.rotation_mode = 'QUATERNION'
-    object.delta_location = pivot.translation
-    object.delta_rotation_quaternion = pivot.rotation
+    obj.rotation_mode = 'QUATERNION'
+    obj.delta_location = pivot.translation
+    obj.delta_rotation_quaternion = pivot.rotation
 
     if pivot.parent_id <= 0:
         return
@@ -68,11 +68,11 @@ def rig_object(object, hierarchy, rig, sub_object):
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 
     if parent_pivot.name in bpy.data.objects:
-        object.parent = bpy.data.objects[parent_pivot.name]
+        obj.parent = bpy.data.objects[parent_pivot.name]
     elif rig is not None and parent_pivot.name in rig.pose.bones:
-        object.parent = rig
-        object.parent_bone = parent_pivot.name
-        object.parent_type = 'BONE'
+        obj.parent = rig
+        obj.parent_bone = parent_pivot.name
+        obj.parent_type = 'BONE'
 
 
 def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
@@ -106,6 +106,7 @@ def find_texture(context, file, name=None):
     path = insensitive_path(os.path.dirname(context.filepath))
     filepath = path + os.path.sep + file
     extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
+    img = None
     for extension in extensions:
         img = load_image(filepath + extension)
         if img is not None:
