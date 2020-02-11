@@ -40,7 +40,7 @@ class TestIOXML(TestCase):
             self.assertEqual(exp, actual[i])
 
     def test_pretty_print(self):
-        expected = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 />\n</AssetDeclaration>\n '
+        expected = '<AssetDeclaration xmlns="uri:ea.com:eala:asset" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">\n  <Child1 />\n  <Child2 />\n</AssetDeclaration>\n'
         root = create_root()
         create_node(root, 'Child1')
         create_node(root, 'Child2')
