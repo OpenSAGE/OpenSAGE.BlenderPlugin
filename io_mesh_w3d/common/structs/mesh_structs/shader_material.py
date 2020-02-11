@@ -41,10 +41,10 @@ class ShaderMaterialProperty(Struct):
     value = Vector((1.0, 1.0, 1.0, 1.0))
 
     def to_rgb(self):
-        return (self.value.x * 255, self.value.y * 255, self.value.z * 255)
+        return self.value.x, self.value.y, self.value.z
 
     def to_rgba(self):
-        return (self.value.x * 255, self.value.y * 255, self.value.z * 255, self.value.w * 255)
+        return self.value.x, self.value.y, self.value.z, self.value.w if len(self.value) > 3 else 1.0
 
     @staticmethod
     def read(context, io_stream):
@@ -64,7 +64,7 @@ class ShaderMaterialProperty(Struct):
         elif result.type > 2 and result.type < 6:
             result.value.x = read_float(io_stream)
             result.value.y = read_float(io_stream)
-            if result.type == 4:
+            if result.type > 3:
                 result.value.z = read_float(io_stream)
             if result.type == 5:
                 result.value.w = read_float(io_stream)
@@ -138,8 +138,6 @@ class ShaderMaterialProperty(Struct):
                 constant.type = 3
                 constant.value.x = float(values[0])
                 constant.value.y = float(values[1])
-                constant.value.z = 1.0
-                constant.value.w = 1.0
             if len(values) > 2:
                 constant.type = 4
                 constant.value.z = float(values[2])

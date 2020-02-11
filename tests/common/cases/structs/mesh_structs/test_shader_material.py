@@ -11,7 +11,7 @@ class TestShaderMaterial(TestCase):
         expected = get_shader_material()
 
         self.assertEqual(45, expected.header.size())
-        self.assertEqual(1536, expected.size())
+        self.assertEqual(1544, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read,
                              compare_shader_materials, self, True)

@@ -35,7 +35,7 @@ def get_shader_material_property(
     elif _type == 4:
         result.value = get_vec(x=1.0, y=0.2, z=0.33)
     elif _type == 5:
-        result.value = get_vec4(x=0.33, y=0.3, z=0.1, w=0.7)
+        result.value = get_vec4(x=0.33, y=0.3, z=0.1, w=1.0)
     elif _type == 6:
         result.value = 3
     elif _type == 7:
