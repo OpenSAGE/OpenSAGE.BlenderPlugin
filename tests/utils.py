@@ -25,9 +25,7 @@ class TestCase(unittest.TestCase):
     __tmp_base = os.path.join(tempfile.gettempdir(), 'io_mesh_w3d-tests')
     __filepath = os.path.join(__tmp_base, 'out' + os.path.sep)
 
-    firstError = True
-
-    filepath = str(__filepath)
+    filepath = ''
     file_format = 'W3D'
     filename_ext = '.w3d'
 
@@ -69,6 +67,9 @@ class TestCase(unittest.TestCase):
     #    bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
+        self.filepath = self.outpath()
+        if not os.path.exists(self.__filepath):
+            os.makedirs(self.__filepath)
         bpy.ops.wm.read_homefile(use_empty=True)
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
