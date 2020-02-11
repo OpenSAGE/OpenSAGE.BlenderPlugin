@@ -166,7 +166,7 @@ class ShaderMaterialProperty(Struct):
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = self.value
 
-        if self.type > 1 and self.type < 6:
+        elif self.type > 1 and self.type < 6:
             xml_constant = create_node(parent, 'Float')
             xml_value = create_node(xml_constant, 'Value')
             if self.type == 2:
@@ -178,7 +178,7 @@ class ShaderMaterialProperty(Struct):
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.y)
 
-            if self.type > 4:
+            if self.type > 3:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.z)
 
