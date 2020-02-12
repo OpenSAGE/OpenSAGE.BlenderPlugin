@@ -3,7 +3,6 @@
 
 import bpy
 
-
 def get_material_shader(material):
     return material.get('shader', None)
 

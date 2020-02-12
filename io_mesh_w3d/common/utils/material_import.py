@@ -9,6 +9,33 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
+def set_node_position(node, x, y):
+    node.location = Vector((x, y))
+
+def create_texture_node(node_tree, texture):
+    node = node_tree.nodes.new('ShaderNodeTexImage')
+    node.name = 'TestTexture'
+    #node.color = (1, 0, 0)
+    #node.use_custom_color = True
+    #node.alpha_mode = 'CHANNEL_PACKED'
+    node.image = texture
+    return node
+
+def create_uv_map_node(node_tree):
+    node = node_tree.nodes.new('ShaderNodeUVMap')
+    node.name = 'Test'
+
+    #node.uv_map = 'uvmapname'
+    return node
+
+def create_rgb_mix_node(node_tree):
+    node = node_tree.nodes.new('ShaderNodeMixRGB')
+    #node.blend_type
+    #node.use_alpha
+    #node.use_clamp
+    return node
+
+
 ##########################################################################
 # vertex material
 ##########################################################################
@@ -30,13 +57,41 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
     for mat_pass in structure.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
+    for mat_pass in struct.material_passes:
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
-            texture = structure.textures[tex_id]
-            tex = find_texture(context, texture.file, texture.id)
-            principleds[mat_id].base_color_texture.image = tex
+
+            node_tree = materials[mat_id].node_tree
+            links = node_tree.links
+
+            mix_node = create_rgb_mix_node(node_tree)
+            mix_node.location = Vector((-200, 290))
+            links.new(mix_node.outputs['Color'], principleds[mat_id].inputs['Base Color'])
+
+            texture_struct = struct.textures[tex_id]
+            texture = find_texture(context, texture_struct.file, texture_struct.id)
+
+            texture_node = create_texture_node(node_tree, texture)
+            texture_node.location = Vector((-600, 290))
+            links.new(texture_node.outputs['Color'], mix_node.inputs['Color1'])
+            links.new(texture_node.outputs['Alpha'], principleds[mat_id].inputs['Alpha'])
+
+            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+            uv_node = create_uv_map_node(node_tree)
+            uv_node.location = Vector((-650, 290))
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+
+            texture2_node = create_texture_node(node_tree, None) #diffuse2
+            texture2_node.location = Vector((-600, 190))
+            links.new(texture2_node.outputs['Color'], mix_node.inputs['Color2'])
+            links.new(texture2_node.outputs['Alpha'], mix_node.inputs['Fac'])
+
+            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+            uv2_node = create_uv_map_node(node_tree)
+            uv2_node.location = Vector((-650, 190))
+            links.new(uv2_node.outputs['UV'], texture2_node.inputs['Vector'])
 
     for i, shader in enumerate(struct.shaders):
         set_shader_properties(materials[i], shader)
@@ -46,12 +101,13 @@ def create_material_from_vertex_material(name, vert_mat):
     name = name + "." + vert_mat.vm_name
     if name in bpy.data.materials:
         material = bpy.data.materials[name]
-        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-        return material, principled
+        principled_bsdf = material.node_tree.nodes.get('Principled BSDF')
+        return material, principled_bsdf
 
     material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
+    material.shadow_method = 'CLIP'
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
@@ -66,11 +122,12 @@ def create_material_from_vertex_material(name, vert_mat):
     if attribs & DEPTH_CUE_TO_ALPHA:
         attributes.add('DEPTH_CUE_TO_ALPHA')
 
-    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-    principled.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
-    principled.alpha = vert_mat.vm_info.opacity
+    material.attributes = atts
 
-    material.attributes = attributes
+    principled_bsdf = material.node_tree.nodes.get('Principled BSDF')
+    #principled_bsdf.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
+    #principled_bsdf.alpha = vert_mat.vm_info.opacity
+    
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
@@ -81,7 +138,7 @@ def create_material_from_vertex_material(name, vert_mat):
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
 
-    return material, principled
+    return material, principled_bsdf
 
 
 ##########################################################################
@@ -112,6 +169,7 @@ def create_material_from_shader_material(context, name, shader_mat):
     material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
+    shader.shadow_method = 'CLIP'
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
