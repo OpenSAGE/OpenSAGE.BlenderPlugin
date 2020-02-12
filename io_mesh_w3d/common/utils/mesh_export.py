@@ -185,6 +185,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if material.material_type == 'VERTEX_MATERIAL':
                     mat_pass.shader_ids = [i]
                     mat_pass.vertex_material_ids = [i]
+                    mat_pass.tx_stages[0].tx_ids = [0]
                     mesh_struct.shaders.append(shader)
                     mesh_struct.vert_materials.append(vert_material)
                     mesh_struct.material_passes.append(mat_pass)
@@ -201,6 +202,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                                     material_passes=[],
                                     textures=[])
 
+                        mat_pass.tx_stages[0].tx_ids = [0]
                         mat_pass.shader_ids = [len(mesh_struct.prelit_unlit.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_unlit.vert_materials)]
                         mesh_struct.prelit_unlit.shaders.append(shader)
@@ -217,6 +219,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                                     material_passes=[],
                                     textures=[])
 
+                        mat_pass.tx_stages[0].tx_ids = [0]
                         mat_pass.shader_ids = [len(mesh_struct.prelit_vertex.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_vertex.vert_materials)]
                         mesh_struct.prelit_vertex.shaders.append(shader)
@@ -233,6 +236,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                                     material_passes=[],
                                     textures=[])
 
+                        mat_pass.tx_stages[0].tx_ids = [0]
                         mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_pass.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_pass.vert_materials)]
                         mesh_struct.prelit_lightmap_multi_pass.shaders.append(shader)
@@ -249,6 +253,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                                     material_passes=[],
                                     textures=[])
 
+                        mat_pass.tx_stages[0].tx_ids = [0]
                         mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_texture.shaders)]
                         mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_texture.vert_materials)]
                         mesh_struct.prelit_lightmap_multi_texture.shaders.append(shader)

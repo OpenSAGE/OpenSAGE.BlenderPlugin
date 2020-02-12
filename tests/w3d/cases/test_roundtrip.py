@@ -248,6 +248,8 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_prelit(self):
+        self.enable_logging()
+        print('############### roundtrip test')
         hierarchy_name = 'testhiera_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [get_mesh(name='sword', skin=True, prelit=True),
@@ -269,6 +271,7 @@ class TestRoundtripW3D(TestCase):
         # import
         self.filepath = self.outpath() + 'output.w3d'
         load(self)
+        print('########################### test done')
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)

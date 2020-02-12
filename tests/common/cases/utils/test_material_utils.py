@@ -87,12 +87,9 @@ class TestMaterialUtils(TestCase):
         actual = retrieve_shader_material(material, principled, w3x=True)
 
         for prop in expected.properties:
-            if prop.name in ['ColorAmbient', 'ColorEmissive']:
+            if prop.name in ['ColorAmbient', 'ColorEmissive', 'ColorDiffuse', 'ColorSpecular']:
                 prop.type = 5
-                prop.value = RGBA(vec=prop.value, a=255)
-            elif prop.name in ['ColorDiffuse', 'ColorSpecular']:
-                prop.type = 5
-                prop.value = RGBA(vec=prop.value, a=0)
+                prop.value = Vector((prop.value[0], prop.value[1], prop.value[2], 1.0))
 
         compare_shader_materials(self, expected, actual)
 

@@ -24,7 +24,6 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             material.material_type = 'PRELIT_MATERIAL'
             material.prelit_type = prelit_type
 
-
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
