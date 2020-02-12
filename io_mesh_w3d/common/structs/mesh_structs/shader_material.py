@@ -42,6 +42,7 @@ VEC4_PROPERTY = 5
 LONG_PROPERTY = 6
 BYTE_PROPERTY = 7
 
+
 class ShaderMaterialProperty(Struct):
     type = 0
     name = ''
