@@ -56,7 +56,7 @@ class ShaderMaterialProperty(Struct):
     @staticmethod
     def read(context, io_stream):
         type = read_long(io_stream)
-        read_long(io_stream)  # num available chars
+        num_chars = read_long(io_stream)
         name = read_string(io_stream)
         result = ShaderMaterialProperty(
             type=type,
@@ -64,7 +64,7 @@ class ShaderMaterialProperty(Struct):
             value=Vector((1.0, 1.0, 1.0, 1.0)))
 
         if result.type == STRING_PROPERTY:
-            read_long(io_stream)  # num available chars
+            num_chars = read_long(io_stream)
             result.value = read_string(io_stream)
         elif result.type == FLOAT_PROPERTY:
             result.value = read_float(io_stream)
