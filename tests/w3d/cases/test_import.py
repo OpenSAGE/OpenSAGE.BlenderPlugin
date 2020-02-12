@@ -28,7 +28,7 @@ class TestImport(TestCase):
 
         # import
         self.filepath = self.outpath() + 'base_skn.w3d'
-        load(self, {})
+        load(self)
 
     def test_unsupported_chunk_skip(self):
         output = open(self.outpath() + 'output.w3d', 'wb')
@@ -47,7 +47,7 @@ class TestImport(TestCase):
         output.close()
 
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, {})
+        load(self)
 
     def test_unkown_chunk_skip(self):
         path = self.outpath() + 'output.w3d'

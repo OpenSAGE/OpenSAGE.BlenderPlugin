@@ -206,10 +206,10 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
-            load(self, {})
+            load(self)
         else:
             from .w3x.import_w3x import load
-            load(self, {})
+            load(self)
 
         self.info('finished')
         return {'FINISHED'}

@@ -52,9 +52,9 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
-        load(self, {})
+        load(self)
         self.filepath = self.outpath() + 'output_ani.w3x'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -95,7 +95,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)
@@ -142,7 +142,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue('testname_skl' in bpy.data.objects)
@@ -189,7 +189,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.TRUNK.w3x'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertEqual(2, len(bpy.data.collections))
@@ -207,7 +207,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.sword.w3x'
-        load(self, {})
+        load(self)
 
         self.assertEqual(2, len(bpy.data.collections))
 
@@ -219,7 +219,7 @@ class TestRoundtripW3X(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.BOUNDINGBOX.w3x'
-        load(self, {})
+        load(self)
 
         self.assertEqual(2, len(bpy.data.collections))
 
