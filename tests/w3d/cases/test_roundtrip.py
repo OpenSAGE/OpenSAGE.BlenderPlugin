@@ -52,9 +52,9 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
-        load(self, {})
+        load(self)
         self.filepath = self.outpath() + 'output_ani.w3d'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -101,9 +101,9 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
-        load(self, {})
+        load(self)
         self.filepath = self.outpath() + 'output_comp_ani.w3d'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue(hierarchy_name in bpy.data.objects)
@@ -141,7 +141,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue('output' in bpy.data.armatures)
@@ -178,7 +178,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue('output' in bpy.data.armatures)
@@ -211,7 +211,7 @@ class TestRoundtripW3D(TestCase):
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
-        load(self, {})
+        load(self)
 
         # check created objects
         self.assertTrue('output' in bpy.data.objects)

@@ -25,7 +25,7 @@ class TestObjectImport(TestCase):
         # import
         self.set_format('W3X')
         self.filepath = self.outpath() + 'animation.w3x'
-        load(self, {})
+        load(self)
 
         self.assertTrue(hierarchy_name in bpy.data.objects)
         self.assertTrue(hierarchy_name in bpy.data.armatures)
@@ -34,12 +34,12 @@ class TestObjectImport(TestCase):
         path = self.outpath() + 'output.w3x'
         self.filepath = path
         self.error = lambda text: self.assertEqual(r'file not found: ' + path, text)
-        load(self, {})
+        load(self)
 
     @patch('io_mesh_w3d.w3x.import_w3x.find_root', return_value=None)
     def test_load_file_root_is_none(self, root):
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, {})
+        load(self)
 
     def test_load_file_invalid_node(self):
         path = self.outpath() + 'output.w3x'
@@ -52,7 +52,7 @@ class TestObjectImport(TestCase):
 
         self.filepath = path
         self.warning = lambda text: self.assertEqual('unsupported node Invalid in file: ' + path, text)
-        load(self, {})
+        load(self)
 
     @patch('io_mesh_w3d.w3x.import_w3x.load_file')
     @patch.object(Mesh, 'container_name', return_value='')
@@ -71,7 +71,7 @@ class TestObjectImport(TestCase):
         load_file.return_value = data_context
 
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, {})
+        load(self)
 
         create.assert_called()
 
@@ -92,6 +92,6 @@ class TestObjectImport(TestCase):
         load_file.return_value = data_context
 
         self.filepath = self.outpath() + 'output.w3x'
-        load(self, {})
+        load(self)
 
         create.assert_called()

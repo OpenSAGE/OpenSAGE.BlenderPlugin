@@ -34,6 +34,13 @@ class ShaderMaterialHeader(Struct):
 
 W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
 
+STRING_PROPERTY = 1
+FLOAT_PROPERTY = 2
+VEC2_PROPERTY = 3
+VEC3_PROPERTY = 4
+VEC4_PROPERTY = 5
+LONG_PROPERTY = 6
+BYTE_PROPERTY = 7
 
 class ShaderMaterialProperty(Struct):
     type = 0
@@ -56,21 +63,20 @@ class ShaderMaterialProperty(Struct):
             name=name,
             value=Vector((1.0, 1.0, 1.0, 1.0)))
 
-        if result.type == 1:
+        if result.type == STRING_PROPERTY:
             read_long(io_stream)  # num available chars
             result.value = read_string(io_stream)
-        elif result.type == 2:
+        elif result.type == FLOAT_PROPERTY:
             result.value = read_float(io_stream)
-        elif result.type > 2 and result.type < 6:
-            result.value.x = read_float(io_stream)
-            result.value.y = read_float(io_stream)
-            if result.type > 3:
-                result.value.z = read_float(io_stream)
-            if result.type == 5:
-                result.value.w = read_float(io_stream)
-        elif result.type == 6:
+        elif result.type == VEC2_PROPERTY:
+            result.value = read_vector2(io_stream)
+        elif result.type == VEC3_PROPERTY:
+            result.value = read_vector(io_stream)
+        elif result.type == VEC4_PROPERTY:
+            result.value = read_vector4(io_stream)
+        elif result.type == LONG_PROPERTY:
             result.value = read_long(io_stream)
-        elif result.type == 7:
+        elif result.type == BYTE_PROPERTY:
             result.value = read_ubyte(io_stream)
         else:
             context.warning('unknown property type in shader material: ' + str(result.type))
@@ -79,17 +85,17 @@ class ShaderMaterialProperty(Struct):
     def size(self, include_head=True):
         size = const_size(8, include_head)
         size += len(self.name) + 1
-        if self.type == 1:
+        if self.type == STRING_PROPERTY:
             size += 4 + len(self.value) + 1
-        elif self.type == 2:
+        elif self.type == FLOAT_PROPERTY:
             size += 4
-        elif self.type == 3:
+        elif self.type == VEC2_PROPERTY:
             size += 8
-        elif self.type == 4:
+        elif self.type == VEC3_PROPERTY:
             size += 12
-        elif self.type == 5:
+        elif self.type == VEC4_PROPERTY:
             size += 16
-        elif self.type == 6:
+        elif self.type == LONG_PROPERTY:
             size += 4
         else:
             size += 1
@@ -103,18 +109,18 @@ class ShaderMaterialProperty(Struct):
         write_long(len(self.name) + 1, io_stream)
         write_string(self.name, io_stream)
 
-        if self.type == 1:
+        if self.type == STRING_PROPERTY:
             write_long(len(self.value) + 1, io_stream)
             write_string(self.value, io_stream)
-        elif self.type == 2:
+        elif self.type == FLOAT_PROPERTY:
             write_float(self.value, io_stream)
-        elif self.type == 3:
+        elif self.type == VEC2_PROPERTY:
             write_vector2(self.value, io_stream)
-        elif self.type == 4:
+        elif self.type == VEC3_PROPERTY:
             write_vector(self.value, io_stream)
-        elif self.type == 5:
+        elif self.type == VEC4_PROPERTY:
             write_vector4(self.value, io_stream)
-        elif self.type == 6:
+        elif self.type == LONG_PROPERTY:
             write_long(self.value, io_stream)
         else:
             write_ubyte(self.value, io_stream)
@@ -132,27 +138,27 @@ class ShaderMaterialProperty(Struct):
 
         if type_name == 'Float':
             if len(values) == 1:
-                constant.type = 2
+                constant.type = FLOAT_PROPERTY
                 constant.value = float(values[0])
             if len(values) > 1:
-                constant.type = 3
+                constant.type = VEC2_PROPERTY
                 constant.value.x = float(values[0])
                 constant.value.y = float(values[1])
             if len(values) > 2:
-                constant.type = 4
+                constant.type = VEC3_PROPERTY
                 constant.value.z = float(values[2])
             if len(values) == 4:
-                constant.type = 5
+                constant.type = VEC4_PROPERTY
                 constant.value.w = float(values[3])
 
         elif type_name == 'Int':
-            constant.type = 6
+            constant.type = LONG_PROPERTY
             constant.value = int(values[0])
         elif type_name == 'Bool':
-            constant.type = 7
+            constant.type = BYTE_PROPERTY
             constant.value = bool(values[0])
         else:
-            constant.type = 1
+            constant.type = STRING_PROPERTY
             constant.value = values[0]
 
         return constant
@@ -163,27 +169,27 @@ class ShaderMaterialProperty(Struct):
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = self.value
 
-        elif self.type > 1 and self.type < 6:
+        elif self.type in [FLOAT_PROPERTY, VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
             xml_constant = create_node(parent, 'Float')
             xml_value = create_node(xml_constant, 'Value')
-            if self.type == 2:
+            if self.type == FLOAT_PROPERTY:
                 xml_value.text = str(self.value)
             else:
                 xml_value.text = str(self.value.x)
 
-            if self.type > 2:
+            if self.type in [VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.y)
 
-            if self.type > 3:
+            if self.type in [VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.z)
 
-            if self.type == 5:
+            if self.type == VEC4_PROPERTY:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = str(self.value.w)
 
-        elif self.type == 6:
+        elif self.type == LONG_PROPERTY:
             xml_constant = create_node(parent, 'Int')
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = str(self.value)
