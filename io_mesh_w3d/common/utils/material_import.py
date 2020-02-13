@@ -12,6 +12,26 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.color = (1, 0, 0)
     #node.use_custom_color = True
     #node.name = 'Test'
+    #node.label
+
+
+def get_connected_nodes(links, node, input, types=[]):
+    nodes = []
+    for link in links:
+        #print(link.to_node)
+        #print(link.to_socket)
+        if link.to_node == node and link.to_socket.identifier == input:
+            # and link.from_socket in outputs:
+            # and type(node) == bpy.types.ShaderNodeTexture....
+            # and node.inputs[''].is_linked
+            nodes.append(link.from_node)
+
+    for node in nodes:
+        print('###')
+        print(node.bl_idname)
+        print(node.name)
+    return nodes
+
 
 def create_texture_node(node_tree, texture):
     # inputs: Vector
@@ -54,6 +74,19 @@ def create_normal_map_node(node_tree):
     #node.uv_map = 'uvmapname'
     return node
 
+def create_seperate_hsv_node(node_tree):
+    # inputs: Color
+    # outputs: H, S, V
+
+    node = node_tree.nodes.new('ShaderNodeSeperateHSV')
+    return node
+
+def create_rgb_node(node_tree):
+    # outputs: Color
+
+    node = node_tree.nodes.new('ShaderNodeRGB')
+    return node
+
 
 def create_uvlayer2(tx_coords, mesh, b_mesh, triangles, name):
     uv_layer = mesh.uv_layers.new(do_init=False)
@@ -91,6 +124,25 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
+
+            # hide unsupported inputs
+            principleds[mat_id].inputs['Subsurface'].hide = True
+            principleds[mat_id].inputs['Subsurface Radius'].hide = True
+            principleds[mat_id].inputs['Subsurface Color'].hide = True
+            principleds[mat_id].inputs['Metallic'].hide = True
+            principleds[mat_id].inputs['Specular Tint'].hide = True
+            principleds[mat_id].inputs['Roughness'].hide = True
+            principleds[mat_id].inputs['Anisotropic'].hide = True
+            principleds[mat_id].inputs['Anisotropic Rotation'].hide = True
+            principleds[mat_id].inputs['Sheen'].hide = True
+            principleds[mat_id].inputs['Sheen Tint'].hide = True
+            principleds[mat_id].inputs['Clearcoat'].hide = True
+            principleds[mat_id].inputs['Clearcoat Roughness'].hide = True
+            principleds[mat_id].inputs['IOR'].hide = True
+            principleds[mat_id].inputs['Transmission'].hide = True
+            principleds[mat_id].inputs['Transmission Roughness'].hide = True
+            principleds[mat_id].inputs['Clearcoat Normal'].hide = True
+            principleds[mat_id].inputs['Tangent'].hide = True
 
             node_tree = materials[mat_id].node_tree
             links = node_tree.links
@@ -131,6 +183,10 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             uv_spec_node.location = Vector((-750, 0))
             links.new(uv_spec_node.outputs['UV'], texture_spec_node.inputs['Vector'])
 
+            emission_color_node = create_rgb_node(node_tree)
+            emission_color_node.location = Vector((-250, -100))
+            links.new(emission_color_node.outputs['Color'], principleds[mat_id].inputs['Emission'])
+
             normal_map_node = create_normal_map_node(node_tree)
             normal_map_node.location = Vector((-250, -300))
             links.new(normal_map_node.outputs['Normal'], principleds[mat_id].inputs['Normal'])
@@ -144,6 +200,10 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             uv3_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'normal')
             uv3_node.location = Vector((-750, -300))
             links.new(uv3_node.outputs['UV'], texture_normal_node.inputs['Vector'])
+
+
+            get_connected_nodes(links, principleds[mat_id], 'Base Color')
+            get_connected_nodes(links, principleds[mat_id], 'Specular')
 
 
     for i, shader in enumerate(struct.shaders):
