@@ -15,6 +15,23 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.label
 
 
+def create_node_group():
+    group = bpy.data.node_groups.new('name', 'ShaderNodeTree')
+
+    # create group inputs
+    group_inputs = test_group.nodes.new('NodeGroupInput')
+    group_inputs.location = (-350,0)
+    test_group.inputs.new('NodeSocketFloat','in_to_greater')
+    test_group.inputs.new('NodeSocketFloat','in_to_less')
+
+    # create group outputs
+    group_outputs = test_group.nodes.new('NodeGroupOutput')
+    group_outputs.location = (300,0)
+    test_group.outputs.new('NodeSocketFloat','out_result')
+
+    #TODO link those inputs and outputs to outer scope
+
+
 def get_connected_nodes(links, node, input, types=[]):
     nodes = []
     for link in links:
