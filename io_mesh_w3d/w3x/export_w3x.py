@@ -22,14 +22,11 @@ def save(context, export_settings, data_context):
         data_context.meshes[0].create(root)
 
     elif export_mode == 'HM' or export_mode == 'HAM':
-        if export_mode == 'HAM' \
-                or not export_settings['use_existing_skeleton']:
-            data_context.hierarchy.header.name = data_context.container_name
-            data_context.hlod.header.hierarchy_name = data_context.container_name
+        if export_mode == 'HAM':
             data_context.hierarchy.create(root)
 
-        elif not export_settings['individual_files']:
-            hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.header.name + '.w3x')
+        if export_settings['use_existing_skeleton']:
+            hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.name() + '.w3x')
             hierarchy_include.create(includes)
 
         dir = os.path.dirname(context.filepath) + os.path.sep
@@ -42,16 +39,23 @@ def save(context, export_settings, data_context):
                 write_struct(Texture(id=id, file=texture), path)
 
         if export_settings['individual_files']:
-            path = dir + data_context.hierarchy.name() + context.filename_ext
-            context.info('Saving file :' + path)
-            write_struct(data_context.hierarchy, path)
+            hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.name() + '.w3x')
+            hierarchy_include.create(includes)
+            if not export_settings['use_existing_skeleton']:
+                path = dir + data_context.hierarchy.name() + context.filename_ext
+                context.info('Saving file :' + path)
+                write_struct(data_context.hierarchy, path)
 
             for box in data_context.collision_boxes:
+                box_include = Include(type='all', source='ART:' + box.name_ + '.w3x')
+                box_include.create(includes)
                 path = dir + box.name_ + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(box, path)
 
             for mesh in data_context.meshes:
+                mesh_include = Include(type='all', source='ART:' + mesh.identifier() + '.w3x')
+                mesh_include.create(includes)
                 path = dir + mesh.identifier() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(mesh, path)
