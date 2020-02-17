@@ -137,6 +137,10 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
+        # check created include entries
+        root = find_root(self, self.outpath() + 'output_skn.w3x')
+        self.assertEqual(6, len(root.find('Includes').findall('Include')))
+
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
 
