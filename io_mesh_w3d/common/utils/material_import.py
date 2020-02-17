@@ -15,21 +15,46 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.label
 
 
-def create_node_group():
-    group = bpy.data.node_groups.new('name', 'ShaderNodeTree')
+def create_material_pass():
+    material = bpy.data.materials.new('meshName.MaterialPass1')
+
+    material.material_type = 'VERTEX_MATERIAL'
+    material.use_nodes = True
+    material.shadow_method = 'CLIP'
+    material.blend_method = 'BLEND'
+    material.show_transparent_back = False
+
+    # delete principled bsdf
+    principled_bsdf = material.node_tree.nodes.get('Principled BSDF')
+    material.node_tree.nodes.remove(principled_bsdf)
+
+    # get or create node group
+
+
+def create_material_node_group(nodes, name):
+    group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
+    node_tree = group
+    links = node_tree.links
+    # create nodes
+    shader = create_specular_shader_node(node_tree)
 
     # create group inputs
-    group_inputs = test_group.nodes.new('NodeGroupInput')
+    group_inputs = group.nodes.new('NodeGroupInput')
     group_inputs.location = (-350,0)
-    test_group.inputs.new('NodeSocketFloat','in_to_greater')
-    test_group.inputs.new('NodeSocketFloat','in_to_less')
+    group.inputs.new('NodeSocketFloat', 'in_to_greater')
+    group.inputs.new('NodeSocketFloat', 'in_to_less')
 
     # create group outputs
-    group_outputs = test_group.nodes.new('NodeGroupOutput')
+    group_outputs = group.nodes.new('NodeGroupOutput')
     group_outputs.location = (300,0)
-    test_group.outputs.new('NodeSocketFloat','out_result')
+    group.outputs.new('NodeSocketFloat', 'BSDF_out')
 
-    #TODO link those inputs and outputs to outer scope
+    links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF_out'])
+
+    inst = nodes.new(type='ShaderNodeGroup')
+    inst.node_tree = group
+    return inst
+
 
 
 def get_connected_nodes(links, node, input, types=[]):
@@ -48,6 +73,21 @@ def get_connected_nodes(links, node, input, types=[]):
         print(node.bl_idname)
         print(node.name)
     return nodes
+
+
+def create_specular_shader_node(node_tree):
+    # inputs: Base Color, Specular, Roughness, Emissive Color, Transparency,
+    #           Normal, Clear Coat, Clear Coat Radius, Clear Coat Normal, Ambient Occlusion
+    # outputs: BSDF
+
+    node = node_tree.nodes.new('ShaderNodeEeveeSpecular')
+    node.label = 'Shader'
+    # hide unused inputs
+    node.inputs['Clear Coat'].hide = True
+    node.inputs['Clear Coat Roughness'].hide = True
+    node.inputs['Clear Coat Normal'].hide = True
+    node.inputs['Ambient Occlusion'].hide = True
+    return node
 
 
 def create_texture_node(node_tree, texture):
@@ -163,6 +203,12 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
 
             node_tree = materials[mat_id].node_tree
             links = node_tree.links
+
+            create_material_node_group(node_tree.nodes, 'VertexMaterial1')
+
+            #shade = create_specular_shader_node(node_tree)
+            #out = node_tree.nodes.get('Material Output')
+            #links.new(shade.outputs['BSDF'], out.inputs['Surface'])
 
             mix_node = create_rgb_mix_node(node_tree)
             mix_node.location = Vector((-250, 400))
