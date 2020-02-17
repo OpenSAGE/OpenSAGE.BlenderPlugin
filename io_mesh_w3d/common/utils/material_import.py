@@ -15,14 +15,15 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.label
 
 
-def create_material_pass():
-    material = bpy.data.materials.new('meshName.MaterialPass1')
+def create_material_pass(index=1):
+    material = bpy.data.materials.new('meshName.MaterialPass' + str(index))
 
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
     material.shadow_method = 'CLIP'
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
+    material.pass_index = index
 
     # delete principled bsdf
     principled_bsdf = material.node_tree.nodes.get('Principled BSDF')
