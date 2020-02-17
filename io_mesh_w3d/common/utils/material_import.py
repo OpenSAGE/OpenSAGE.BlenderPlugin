@@ -31,25 +31,56 @@ def create_material_pass():
     # get or create node group
 
 
-def create_material_node_group(nodes, name):
-    group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
+def register_w3d_material_node_group():
+    group = bpy.data.node_groups.new('W3DMaterial', 'ShaderNodeTree')
     node_tree = group
     links = node_tree.links
-    # create nodes
-    shader = create_specular_shader_node(node_tree)
 
     # create group inputs
     group_inputs = group.nodes.new('NodeGroupInput')
     group_inputs.location = (-350,0)
-    group.inputs.new('NodeSocketFloat', 'in_to_greater')
-    group.inputs.new('NodeSocketFloat', 'in_to_less')
+    group.inputs.new('NodeSocketColor', 'Diffuse')
+    group.inputs.new('NodeSocketFloat', 'Alpha')
+    group.inputs['Alpha'].default_value = 1.0
+    group.inputs.new('NodeSocketColor', 'Diffuse2')
+    group.inputs.new('NodeSocketFloat', 'Factor')
+    group.inputs.new('NodeSocketColor', 'Specular')
+    group.inputs.new('NodeSocketFloat', 'Roughness')
+    group.inputs.new('NodeSocketColor', 'Emissive')
+    group.inputs.new('NodeSocketVector', 'Normal')
+    group.inputs.new('NodeSocketFloat', 'Strength')
 
     # create group outputs
     group_outputs = group.nodes.new('NodeGroupOutput')
     group_outputs.location = (300,0)
-    group.outputs.new('NodeSocketFloat', 'BSDF_out')
+    group.outputs.new('NodeSocketShader', 'BSDF')
 
-    links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF_out'])
+    # create and link nodes
+    mix = create_rgb_mix_node(node_tree)
+    mix.location = (-100, 200)
+    links.new(group_inputs.outputs['Diffuse'], mix.inputs['Color1'])
+    links.new(group_inputs.outputs['Diffuse2'], mix.inputs['Color2'])
+    links.new(group_inputs.outputs['Factor'], mix.inputs['Fac'])
+
+    subtract = create_math_node(node_tree, mode='SUBTRACT')
+    subtract.location = (-100, 0)
+    subtract.inputs[0].default_value = 1.0
+    links.new(group_inputs.outputs['Alpha'], subtract.inputs[1])
+
+    normal = create_normal_map_node(node_tree)
+    normal.location = (-100, -200)
+    links.new(group_inputs.outputs['Normal'], normal.inputs['Color'])
+    links.new(group_inputs.outputs['Strength'], normal.inputs['Strength'])
+
+    shader = create_specular_shader_node(node_tree)
+    shader.location = (100, 0)
+    links.new(mix.outputs['Color'], shader.inputs['Base Color'])
+    links.new(group_inputs.outputs['Specular'], shader.inputs['Specular'])
+    links.new(group_inputs.outputs['Roughness'], shader.inputs['Roughness'])
+    links.new(group_inputs.outputs['Emissive'], shader.inputs['Emissive Color'])
+    links.new(subtract.outputs['Value'], shader.inputs['Transparency'])
+    links.new(normal.outputs['Normal'], shader.inputs['Normal'])
+    links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF'])
 
     inst = nodes.new(type='ShaderNodeGroup')
     inst.node_tree = group
@@ -110,6 +141,15 @@ def create_uv_map_node(node_tree):
 
     node = node_tree.nodes.new('ShaderNodeUVMap')
     #node.uv_map = 'uvmapname'
+    return node
+
+def create_math_node(node_tree, mode='SUBTRACT'):
+    # inputs: Value, Value
+    # outputs: Value
+
+    node = node_tree.nodes.new('ShaderNodeMath')
+    node.operation = mode
+    #node.clamp = False
     return node
 
 def create_rgb_mix_node(node_tree):
@@ -204,11 +244,11 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             node_tree = materials[mat_id].node_tree
             links = node_tree.links
 
-            create_material_node_group(node_tree.nodes, 'VertexMaterial1')
 
-            #shade = create_specular_shader_node(node_tree)
-            #out = node_tree.nodes.get('Material Output')
-            #links.new(shade.outputs['BSDF'], out.inputs['Surface'])
+            inst = node_tree.nodes.new(type='ShaderNodeGroup')
+            inst.node_tree = bpy.data.node_groups['W3DMaterial']
+            inst.label = struct.vert_materials[mat_id].vm_name
+
 
             mix_node = create_rgb_mix_node(node_tree)
             mix_node.location = Vector((-250, 400))

@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.custom_properties import *
@@ -405,6 +406,12 @@ def register():
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
+
+    import time
+    from threading import Timer
+    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group
+
+    Timer(1, register_w3d_material_node_group, ()).start()
 
 
 def unregister():
