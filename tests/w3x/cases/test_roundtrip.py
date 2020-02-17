@@ -8,8 +8,8 @@ from io_mesh_w3d.w3x.import_w3x import load
 from io_mesh_w3d.import_utils import create_data
 from tests.common.helpers.animation import get_animation
 from tests.common.helpers.collision_box import get_collision_box
-from tests.common.helpers.hierarchy import get_hierarchy
-from tests.common.helpers.hlod import get_hlod
+from tests.common.helpers.hierarchy import *
+from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import get_mesh
 from tests.utils import *
 from tests.utils import TestCase
@@ -98,9 +98,9 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertTrue('output' in bpy.data.objects)
-        self.assertTrue('output' in bpy.data.armatures)
-        amt = bpy.data.armatures['output']
+        self.assertTrue('testname' in bpy.data.objects)
+        self.assertTrue('testname' in bpy.data.armatures)
+        amt = bpy.data.armatures['testname']
         self.assertEqual(6, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)
@@ -125,7 +125,7 @@ class TestRoundtripW3X(TestCase):
         # export
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
-                           'use_existing_skeleton': True}
+                           'use_existing_skeleton': False}
         save(self, export_settings)
 
         # check created files
@@ -154,6 +154,49 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
+    def test_roundtrip_no_armature(self):
+        hierarchy_name = 'TestModelName'    
+        hierarchy = get_hierarchy(hierarchy_name)
+        hierarchy.pivots = [get_roottransform(),
+                            get_hierarchy_pivot(name='sword', parent=0),
+                            get_hierarchy_pivot(name='soldier', parent=0),
+                            get_hierarchy_pivot(name='TRUNK', parent=0)]
+
+        meshes = [get_mesh(name='sword'),
+                  get_mesh(name='soldier'),
+                  get_mesh(name='TRUNK')]
+        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=1, name='containerName.sword'),
+            get_hlod_sub_object(bone=2, name='containerName.soldier'),
+            get_hlod_sub_object(bone=3, name='containerName.TRUNK')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output'
+        create_data(self, meshes, hlod, hierarchy)
+
+        # export
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': False}
+        save(self, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self)
+
+        # check created objects
+        self.assertFalse('TestModelName' in bpy.data.objects)
+        self.assertFalse('TestModelName' in bpy.data.armatures)
+
+        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('TRUNK' in bpy.data.objects)
+
     def test_roundtrip_single_mesh_imports(self):
         hierarchy_name = 'testname_skl'
         hierarchy = get_hierarchy(hierarchy_name)
@@ -172,7 +215,7 @@ class TestRoundtripW3X(TestCase):
         # export
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
-                           'use_existing_skeleton': True}
+                           'use_existing_skeleton': False}
         save(self, export_settings)
 
         # check created files
