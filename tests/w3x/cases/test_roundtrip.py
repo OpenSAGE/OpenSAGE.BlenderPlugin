@@ -155,7 +155,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_no_armature(self):
-        hierarchy_name = 'TestModelName'    
+        hierarchy_name = 'TestModelName'
         hierarchy = get_hierarchy(hierarchy_name)
         hierarchy.pivots = [get_roottransform(),
                             get_hierarchy_pivot(name='sword', parent=0),
@@ -178,7 +178,7 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': False, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
         save(self, export_settings)
 
@@ -217,6 +217,13 @@ class TestRoundtripW3X(TestCase):
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
         save(self, export_settings)
+
+        # remove includes
+        root = find_root(self, self.outpath() + 'output_skn.w3x')
+        for child in root:
+            if child.tag == 'Includes':
+                root.remove(child)
+        write(root, self.outpath() + 'output_skn.w3x')
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
