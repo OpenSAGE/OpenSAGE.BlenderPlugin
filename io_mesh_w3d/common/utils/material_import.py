@@ -48,7 +48,7 @@ def register_w3d_material_node_group():
     group.inputs.new('NodeSocketColor', 'Specular')
     group.inputs.new('NodeSocketFloat', 'Roughness')
     group.inputs.new('NodeSocketColor', 'Emissive')
-    group.inputs.new('NodeSocketVector', 'Normal')
+    group.inputs.new('NodeSocketColor', 'Normal')
     group.inputs.new('NodeSocketFloat', 'Strength')
 
     # create group outputs
@@ -250,18 +250,17 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             inst.node_tree = bpy.data.node_groups['W3DMaterial']
             inst.label = struct.vert_materials[mat_id].vm_name
 
-
-            mix_node = create_rgb_mix_node(node_tree)
-            mix_node.location = Vector((-250, 400))
-            links.new(mix_node.outputs['Color'], principleds[mat_id].inputs['Base Color'])
+            output = node_tree.nodes.get('Material Output')
+            links.new(inst.outputs['BSDF'], output.inputs['Surface'])
+           
 
             texture_struct = struct.textures[tex_id]
             texture = find_texture(context, texture_struct.file, texture_struct.id)
 
             texture_node = create_texture_node(node_tree, texture)
             texture_node.location = Vector((-550, 600))
-            links.new(texture_node.outputs['Color'], mix_node.inputs['Color1'])
-            links.new(texture_node.outputs['Alpha'], principleds[mat_id].inputs['Alpha'])
+            links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
+            links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
 
             uv_node = create_uv_map_node(node_tree)
             uv_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse')
@@ -270,8 +269,8 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
 
             texture2_node = create_texture_node(node_tree, None)
             texture2_node.location = Vector((-550, 300))
-            links.new(texture2_node.outputs['Color'], mix_node.inputs['Color2'])
-            links.new(texture2_node.outputs['Alpha'], mix_node.inputs['Fac'])
+            links.new(texture2_node.outputs['Color'], inst.inputs['Diffuse2'])
+            links.new(texture2_node.outputs['Alpha'], inst.inputs['Factor'])
 
             uv2_node = create_uv_map_node(node_tree)
             uv2_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse2')
@@ -280,7 +279,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
 
             texture_spec_node = create_texture_node(node_tree, None)
             texture_spec_node.location = Vector((-550, 0))
-            links.new(texture_spec_node.outputs['Color'], principleds[mat_id].inputs['Specular'])
+            links.new(texture_spec_node.outputs['Color'], inst.inputs['Specular'])
 
             uv_spec_node = create_uv_map_node(node_tree)
             uv_spec_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'specular')
@@ -289,25 +288,20 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
 
             emission_color_node = create_rgb_node(node_tree)
             emission_color_node.location = Vector((-250, -100))
-            links.new(emission_color_node.outputs['Color'], principleds[mat_id].inputs['Emission'])
-
-            normal_map_node = create_normal_map_node(node_tree)
-            normal_map_node.location = Vector((-250, -300))
-            links.new(normal_map_node.outputs['Normal'], principleds[mat_id].inputs['Normal'])
+            links.new(emission_color_node.outputs['Color'], inst.inputs['Emissive'])
 
             texture_normal_node = create_texture_node(node_tree, None)
             texture_normal_node.location = Vector((-550, -300))
-            links.new(texture_normal_node.outputs['Color'], normal_map_node.inputs['Color'])
-            links.new(texture_normal_node.outputs['Alpha'], normal_map_node.inputs['Strength'])
+            links.new(texture_normal_node.outputs['Color'], inst.inputs['Normal'])
+            links.new(texture_normal_node.outputs['Alpha'], inst.inputs['Strength'])
 
             uv3_node = create_uv_map_node(node_tree)
             uv3_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'normal')
             uv3_node.location = Vector((-750, -300))
             links.new(uv3_node.outputs['UV'], texture_normal_node.inputs['Vector'])
 
-
-            get_connected_nodes(links, principleds[mat_id], 'Base Color')
-            get_connected_nodes(links, principleds[mat_id], 'Specular')
+            get_connected_nodes(links, inst, 'Diffuse')
+            get_connected_nodes(links, inst, 'Specular')
 
 
     for i, shader in enumerate(struct.shaders):
