@@ -410,9 +410,11 @@ def register():
     # workaround to register the node group when the addon is active
     import time
     from threading import Timer
-    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group
+    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group, register_alpha_node_group
 
+    Timer(1, register_alpha_node_group, ()).start()
     Timer(1, register_w3d_material_node_group, ()).start()
+
 
 
 def unregister():

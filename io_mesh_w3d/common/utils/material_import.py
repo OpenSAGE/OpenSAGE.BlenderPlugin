@@ -44,13 +44,17 @@ def register_w3d_material_node_group():
     group.inputs.new('NodeSocketFloat', 'Alpha')
     group.inputs['Alpha'].default_value = 1.0
     group.inputs.new('NodeSocketColor', 'Diffuse2')
-    group.inputs.new('NodeSocketFloat', 'Factor')
+    group.inputs.new('NodeSocketFloat', 'Alpha2')
+    group.inputs.new('NodeSocketInt', 'DestBlend')
+    group.inputs['DestBlend'].default_value = 0
+    group.inputs['DestBlend'].min_value = 0
+    group.inputs['DestBlend'].max_value = 1
     group.inputs.new('NodeSocketColor', 'Specular')
     group.inputs.new('NodeSocketFloat', 'Roughness')
     group.inputs.new('NodeSocketColor', 'Emissive')
     group.inputs.new('NodeSocketColor', 'Normal')
     group.inputs.new('NodeSocketFloat', 'Strength')
-    group.inputs.new('NodeSocketBool', 'Strength2')
+    
 
     # create group outputs
     group_outputs = group.nodes.new('NodeGroupOutput')
@@ -62,12 +66,14 @@ def register_w3d_material_node_group():
     mix.location = (-100, 200)
     links.new(group_inputs.outputs['Diffuse'], mix.inputs['Color1'])
     links.new(group_inputs.outputs['Diffuse2'], mix.inputs['Color2'])
-    links.new(group_inputs.outputs['Factor'], mix.inputs['Fac'])
+    links.new(group_inputs.outputs['Alpha2'], mix.inputs['Fac'])
 
-    subtract = create_math_node(node_tree, mode='SUBTRACT')
-    subtract.location = (-100, 0)
-    subtract.inputs[0].default_value = 1.0
-    links.new(group_inputs.outputs['Alpha'], subtract.inputs[1])
+    alpha_pipeline = node_tree.nodes.new(type='ShaderNodeGroup')
+    alpha_pipeline.location = (-100, 0)
+    alpha_pipeline.node_tree = bpy.data.node_groups['W3DAlphaPipeline']
+    links.new(group_inputs.outputs['Diffuse'], alpha_pipeline.inputs['Diffuse'])
+    links.new(group_inputs.outputs['Alpha'], alpha_pipeline.inputs['Alpha'])
+    links.new(group_inputs.outputs['DestBlend'], alpha_pipeline.inputs['DestBlend'])
 
     normal = create_normal_map_node(node_tree)
     normal.location = (-100, -200)
@@ -80,14 +86,61 @@ def register_w3d_material_node_group():
     links.new(group_inputs.outputs['Specular'], shader.inputs['Specular'])
     links.new(group_inputs.outputs['Roughness'], shader.inputs['Roughness'])
     links.new(group_inputs.outputs['Emissive'], shader.inputs['Emissive Color'])
-    links.new(subtract.outputs['Value'], shader.inputs['Transparency'])
+    links.new(alpha_pipeline.outputs['Alpha'], shader.inputs['Transparency'])
     links.new(normal.outputs['Normal'], shader.inputs['Normal'])
     links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF'])
 
-    inst = nodes.new(type='ShaderNodeGroup')
-    inst.node_tree = group
-    return inst
 
+def register_alpha_node_group():
+    group = bpy.data.node_groups.new('W3DAlphaPipeline', 'ShaderNodeTree')
+    node_tree = group
+    links = node_tree.links
+
+    # create group inputs
+    group_inputs = group.nodes.new('NodeGroupInput')
+    group_inputs.location = (-500,0)
+    group.inputs.new('NodeSocketColor', 'Diffuse')
+    group.inputs.new('NodeSocketFloat', 'Alpha')
+    group.inputs['Alpha'].default_value = 1.0
+    group.inputs.new('NodeSocketInt', 'DestBlend')
+    group.inputs['DestBlend'].default_value = 0
+    group.inputs['DestBlend'].min_value = 0
+    group.inputs['DestBlend'].max_value = 1
+
+    # create group outputs
+    group_outputs = group.nodes.new('NodeGroupOutput')
+    group_outputs.location = (500,0)
+    group.outputs.new('NodeSocketFloat', 'Alpha')
+
+    # default texture alpha
+    compare_1 = create_math_node(node_tree, mode='COMPARE')
+    compare_1.location = (-200, 100)
+    compare_1.inputs[0].default_value = 0
+    links.new(group_inputs.outputs['DestBlend'], compare_1.inputs[1])
+    links.new(group_inputs.outputs['Alpha'], compare_1.inputs[2])
+
+    # v of diffuse
+    seperate_hsv = create_seperate_hsv_node(node_tree)
+    seperate_hsv.location = (-300, -100)
+    links.new(group_inputs.outputs['Diffuse'], seperate_hsv.inputs['Color'])
+
+    compare_2 = create_math_node(node_tree, mode='COMPARE')
+    compare_2.location = (-100, -100)
+    compare_2.inputs[0].default_value = 1
+    links.new(group_inputs.outputs['DestBlend'], compare_2.inputs[1])
+    links.new(seperate_hsv.outputs['V'], compare_2.inputs[2])
+
+    # both
+    add_node = create_math_node(node_tree, mode='ADD')
+    add_node.location = (100, 0)
+    links.new(compare_1.outputs['Value'], add_node.inputs[0])
+    links.new(compare_2.outputs['Value'], add_node.inputs[1])
+
+    subtract_node = create_math_node(node_tree, mode='SUBTRACT')
+    subtract_node.location = (300, 0)
+    subtract_node.inputs[0].default_value = 1.0
+    links.new(add_node.outputs['Value'], subtract_node.inputs[1])
+    links.new(subtract_node.outputs['Value'], group_outputs.inputs['Alpha'])
 
 
 def get_connected_nodes(links, node, input, types=[]):
@@ -177,7 +230,7 @@ def create_seperate_hsv_node(node_tree):
     # inputs: Color
     # outputs: H, S, V
 
-    node = node_tree.nodes.new('ShaderNodeSeperateHSV')
+    node = node_tree.nodes.new('ShaderNodeSeparateHSV')
     return node
 
 def create_rgb_node(node_tree):
@@ -246,7 +299,6 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             node_tree = materials[mat_id].node_tree
             links = node_tree.links
 
-
             inst = node_tree.nodes.new(type='ShaderNodeGroup')
             inst.node_tree = bpy.data.node_groups['W3DMaterial']
             inst.label = struct.vert_materials[mat_id].vm_name
@@ -271,7 +323,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             texture2_node = create_texture_node(node_tree, None)
             texture2_node.location = Vector((-550, 300))
             links.new(texture2_node.outputs['Color'], inst.inputs['Diffuse2'])
-            links.new(texture2_node.outputs['Alpha'], inst.inputs['Factor'])
+            links.new(texture2_node.outputs['Alpha'], inst.inputs['Alpha2'])
 
             uv2_node = create_uv_map_node(node_tree)
             uv2_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse2')
@@ -286,10 +338,6 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             uv_spec_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'specular')
             uv_spec_node.location = Vector((-750, 0))
             links.new(uv_spec_node.outputs['UV'], texture_spec_node.inputs['Vector'])
-
-            emission_color_node = create_rgb_node(node_tree)
-            emission_color_node.location = Vector((-250, -100))
-            links.new(emission_color_node.outputs['Color'], inst.inputs['Emissive'])
 
             texture_normal_node = create_texture_node(node_tree, None)
             texture_normal_node.location = Vector((-550, -300))
