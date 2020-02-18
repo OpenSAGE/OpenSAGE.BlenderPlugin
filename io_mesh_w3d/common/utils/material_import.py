@@ -50,6 +50,7 @@ def register_w3d_material_node_group():
     group.inputs.new('NodeSocketColor', 'Emissive')
     group.inputs.new('NodeSocketColor', 'Normal')
     group.inputs.new('NodeSocketFloat', 'Strength')
+    group.inputs.new('NodeSocketBool', 'Strength2')
 
     # create group outputs
     group_outputs = group.nodes.new('NodeGroupOutput')

@@ -407,6 +407,7 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
+    # workaround to register the node group when the addon is active
     import time
     from threading import Timer
     from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group
