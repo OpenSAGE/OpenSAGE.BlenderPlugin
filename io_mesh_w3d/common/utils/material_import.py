@@ -285,6 +285,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             inst = node_tree.nodes.new(type='ShaderNodeGroup')
             inst.location = (0, 300)
             inst.node_tree = bpy.data.node_groups['W3DMaterial']
+            inst.inputs['DestBlend'].link_limit = 0
             inst.label = struct.vert_materials[mat_id].vm_name
 
             output = node_tree.nodes.get('Material Output')
