@@ -11,6 +11,7 @@ from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import get_mesh
+from tests.common.helpers.mesh_structs.texture import get_texture
 from tests.utils import *
 from tests.utils import TestCase
 
@@ -106,6 +107,39 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
+
+    def test_roundtrip_texture_name_with_dots(self):
+        hierarchy_name = 'testname_skl'
+        hierarchy = get_hierarchy(hierarchy_name)
+        mesh = get_mesh(name='sword', skin=True)
+        mesh.textures = [get_texture(name='tex.with.dots.in.name.but.not.used.dds'),
+                         get_texture(name='another.tex.with.dots.in.name.dds')]
+        meshes = [mesh]
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
+
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output_skn'
+        create_data(self, meshes, hlod, hierarchy)
+
+        # export
+        self.filepath = self.outpath() + 'output_skn'
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': True}
+        save(self, export_settings)
+
+        # check created files
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'another.tex.with.dots.in.name.xml'))
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        self.filepath = self.outpath() + 'output_skn.w3x'
+        load(self)
+
+        self.assertTrue('sword' in bpy.data.objects)
 
     def test_roundtrip_splitted(self):
         hierarchy_name = 'testname_skl'

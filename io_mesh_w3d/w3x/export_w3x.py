@@ -37,7 +37,7 @@ def save(context, export_settings, data_context):
                 write_struct(data_context.hierarchy, path)
 
         for texture in data_context.textures:
-            id = texture.split('.')[0]
+            id = texture.rsplit('.', 1)[0]
             texture_include = Include(type='all', source='ART:' + id + '.xml')
             texture_include.create(includes)
 
