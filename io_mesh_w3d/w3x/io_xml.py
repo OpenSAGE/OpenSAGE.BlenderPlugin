@@ -106,6 +106,7 @@ def parse_vector2(xml_vector2):
 def format(value):
     return '{:.6f}'.format(value)
 
+
 def create_vector2(vec2, parent, name):
     vector = create_node(parent, name)
     vector.set('X', format(vec2.x))
