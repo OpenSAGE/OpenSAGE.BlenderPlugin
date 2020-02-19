@@ -20,8 +20,6 @@ def save(context, export_settings, data_context):
     elif export_mode == 'HM' or export_mode == 'HAM':
         if export_mode == 'HAM' \
                 or not export_settings['use_existing_skeleton']:
-            data_context.hierarchy.header.name = data_context.container_name
-            data_context.hlod.header.hierarchy_name = data_context.container_name
             data_context.hierarchy.write(file)
 
         for box in data_context.collision_boxes:
@@ -35,7 +33,6 @@ def save(context, export_settings, data_context):
 
         data_context.hlod.write(file)
         if export_mode == 'HAM':
-            data_context.animation.header.hierarchy_name = data_context.container_name
             data_context.animation.write(file)
 
     elif export_mode == 'A':
