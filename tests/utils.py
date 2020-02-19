@@ -8,6 +8,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import addon_utils
 
@@ -65,12 +66,18 @@ class TestCase(unittest.TestCase):
     def loadBlend(self, blend_file):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
-    def setUp(self):
+    @patch('threading.Timer.start')
+    def setUp(self, start):
         self.filepath = self.outpath()
         if not os.path.exists(self.__filepath):
             os.makedirs(self.__filepath)
         bpy.ops.wm.read_homefile(use_empty=True)
         addon_utils.enable('io_mesh_w3d', default_set=True)
+
+        from io_mesh_w3d.common.utils.material_import import register_alpha_node_group, register_w3d_material_node_group
+        register_alpha_node_group()
+        register_w3d_material_node_group()
+
 
     def tearDown(self):
         if os.path.exists(self.__filepath):

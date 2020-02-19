@@ -15,7 +15,34 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.label
 
 
-def create_material_pass(index=1):
+def create_material_passes(base_struct):
+    for i, mat_pass in enumerate(base_struct.material_passes):
+        vert_materials = []
+        shaders = []
+        textures = []
+        shader_materials = []
+        tx_coords = []
+
+        for vert_mat_id in mat_pass.vertex_material_ids:
+            vert_materials.append(base_struct.vert_materials[vert_mat_id])
+
+        for shader_id in mat_pass.shader_ids:
+            shaders.append(base_struct.shaders[shader_id])
+
+        for tx_stage in mat_pass.tx_stages:
+            textures.append(base_struct.textures[tx_stage.tx_ids[0]])
+            tx_coords.append(tx_stage.tx_coords)
+
+        for shader_mat_id in mat_pass.shader_material_ids:
+            shader_materials.append(base_struct.shader_materials[shader_mat_id])
+
+        tx_coords.append(mat_pass.tx_coords)
+
+        create_material_pass(ver_materials, shaders, textures, shader_materials, tx_coords, i + 1)
+
+
+def create_material_pass(vert_materials, shaders, textures, shader_materials, tx_coords, index=1):
+    # TODO: support case where there is only one vertex material and multiple textures?
     material = bpy.data.materials.new('meshName.MaterialPass' + str(index))
 
     material.material_type = 'VERTEX_MATERIAL'
@@ -25,11 +52,72 @@ def create_material_pass(index=1):
     material.show_transparent_back = False
     material.pass_index = index
 
-    # delete principled bsdf
-    principled_bsdf = material.node_tree.nodes.get('Principled BSDF')
-    material.node_tree.nodes.remove(principled_bsdf)
-
     # get or create node group
+    node_tree = materials.node_tree
+    links = node_tree.links
+
+    # delete principled bsdf
+    principled_bsdf = node_tree.nodes.get('Principled BSDF')
+    node_tree.nodes.remove(principled_bsdf)
+
+    # create material node (vert_mat, shader) , (shader_mat)
+    # create texture nodes
+
+
+def create_shading_pipeline(vert_material, shader, textures, shader_material, tx_coords, index=1):
+    inst = node_tree.nodes.new(type='ShaderNodeGroup')
+    inst.location = (0, 300)
+    inst.node_tree = bpy.data.node_groups['W3DMaterial']
+    inst.label = struct.vert_materials[mat_id].vm_name
+
+    output = node_tree.nodes.get('Material Output')
+    links.new(inst.outputs['BSDF'], output.inputs['Surface'])
+
+    texture_struct = struct.textures[tex_id]
+    texture = find_texture(context, texture_struct.file, texture_struct.id)
+
+    texture_node = create_texture_node(node_tree, texture)
+    texture_node.location = (-550, 600)
+    links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
+    links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
+
+    uv_node = create_uv_map_node(node_tree)
+    uv_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse')
+    uv_node.location = (-750, 600)
+    links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+
+    texture2_node = create_texture_node(node_tree, None)
+    texture2_node.location = (-550, 300)
+    links.new(texture2_node.outputs['Color'], inst.inputs['Diffuse2'])
+    links.new(texture2_node.outputs['Alpha'], inst.inputs['Alpha2'])
+
+    uv2_node = create_uv_map_node(node_tree)
+    uv2_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse2')
+    uv2_node.location = (-750, 300)
+    links.new(uv2_node.outputs['UV'], texture2_node.inputs['Vector'])
+
+    texture_spec_node = create_texture_node(node_tree, None)
+    texture_spec_node.location = (-550, 0)
+    links.new(texture_spec_node.outputs['Color'], inst.inputs['Specular'])
+
+    uv_spec_node = create_uv_map_node(node_tree)
+    uv_spec_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'specular')
+    uv_spec_node.location = (-750, 0)
+    links.new(uv_spec_node.outputs['UV'], texture_spec_node.inputs['Vector'])
+
+    texture_normal_node = create_texture_node(node_tree, None)
+    texture_normal_node.location = (-550, -300)
+    links.new(texture_normal_node.outputs['Color'], inst.inputs['Normal'])
+    links.new(texture_normal_node.outputs['Alpha'], inst.inputs['Strength'])
+
+    uv3_node = create_uv_map_node(node_tree)
+    uv3_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'normal')
+    uv3_node.location = (-750, -300)
+    links.new(uv3_node.outputs['UV'], texture_normal_node.inputs['Vector'])
+
+    get_connected_nodes(links, inst, 'Diffuse')
+    get_connected_nodes(links, inst, 'Specular')
+
 
 
 def register_w3d_material_node_group():
@@ -240,14 +328,28 @@ def create_rgb_node(node_tree):
     return node
 
 
-def create_uvlayer2(tx_coords, mesh, b_mesh, triangles, name):
+
+
+
+
+
+def get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords):
+    for uv_layer in mesh.uv_layers:
+        layer_exists = True
+        for i, face in enumerate(b_mesh.faces):
+            for loop in face.loops:
+                idx = triangles[i][loop.index % 3]
+                if uv_layer.data[loop.index].uv != tx_coords[idx].xy:
+                    layer_exists = False
+        if layer_exists:
+            return uv_layer
+
     uv_layer = mesh.uv_layers.new(do_init=False)
-    uv_layer.name = name
     for i, face in enumerate(b_mesh.faces):
         for loop in face.loops:
             idx = triangles[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
-    return name
+    return uv_layer
 
 
 ##########################################################################
@@ -280,7 +382,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
             node_tree = materials[mat_id].node_tree
             links = node_tree.links
 
-            node_tree.nodes.remove(principleds[mat_id])
+            #node_tree.nodes.remove(principleds[mat_id])
 
             inst = node_tree.nodes.new(type='ShaderNodeGroup')
             inst.location = (0, 300)

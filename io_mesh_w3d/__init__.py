@@ -318,11 +318,9 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat.shader, 'alpha_test')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_color_func')
+            col.prop(mat.shader,'post_detail_color_func')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_alpha_func')
+            col.prop(mat.shader,'post_detail_alpha_func')
 
         else:
             col = layout.column()
@@ -398,6 +396,11 @@ CLASSES = (
 )
 
 
+def register_node_groups():
+    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group
+    register_w3d_material_node_group()
+
+
 def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
@@ -410,11 +413,8 @@ def register():
     # workaround to register the node group when the addon is active
     import time
     from threading import Timer
-    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group, register_alpha_node_group
 
-    Timer(1, register_alpha_node_group, ()).start()
-    Timer(1, register_w3d_material_node_group, ()).start()
-
+    Timer(1, register_node_groups, ()).start()
 
 
 def unregister():
@@ -426,3 +426,4 @@ def unregister():
 
 if __name__ == '__main__':
     register()
+    register_node_groups()
