@@ -191,7 +191,7 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('Brakelight' in bpy.data.objects)
 
     def test_roundtrip_no_armature(self):
-        hierarchy_name = 'TestModelName'    
+        hierarchy_name = 'TestModelName'
         hierarchy = get_hierarchy(hierarchy_name)
         hierarchy.pivots = [get_roottransform(),
                             get_hierarchy_pivot(name='sword', parent=0),
