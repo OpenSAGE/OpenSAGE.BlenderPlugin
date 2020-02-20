@@ -71,9 +71,8 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
 
         if pivot.parent_id > 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
-            if parent_pivot.name in armature.edit_bones:
-                bone.parent = armature.edit_bones[parent_pivot.name]
-                matrix = bone.parent.matrix @ matrix
+            bone.parent = armature.edit_bones[parent_pivot.name]
+            matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
         # has to point in y direction, so rotation is applied correctly
