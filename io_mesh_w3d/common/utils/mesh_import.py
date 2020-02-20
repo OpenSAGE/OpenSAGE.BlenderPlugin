@@ -30,13 +30,15 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
-    create_shader_materials(context, mesh_struct, mesh, triangles)
+    create_material_passes(context, mesh_struct, mesh, triangles)
 
-    create_vertex_materials(context, mesh_struct, mesh, triangles)
-    create_vertex_materials(context, mesh_struct.prelit_unlit, mesh, triangles, prelit_type='PRELIT_UNLIT')
-    create_vertex_materials(context, mesh_struct.prelit_vertex, mesh, triangles, prelit_type='PRELIT_VERTEX')
-    create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_pass, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
-    create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_texture, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
+    # create_shader_materials(context, mesh_struct, mesh, triangles)
+
+    #create_vertex_materials(context, mesh_struct, mesh, triangles)
+    #create_vertex_materials(context, mesh_struct.prelit_unlit, mesh, triangles, prelit_type='PRELIT_UNLIT')
+    #create_vertex_materials(context, mesh_struct.prelit_vertex, mesh, triangles, prelit_type='PRELIT_VERTEX')
+    #create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_pass, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_PASS')
+    #create_vertex_materials(context, mesh_struct.prelit_lightmap_multi_texture, mesh, triangles, prelit_type='PRELIT_LIGHTMAP_MULTI_TEXTURE')
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

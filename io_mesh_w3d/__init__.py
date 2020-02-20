@@ -397,7 +397,8 @@ CLASSES = (
 
 
 def register_node_groups():
-    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group
+    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group, register_alpha_node_group
+    register_alpha_node_group()
     register_w3d_material_node_group()
 
 
