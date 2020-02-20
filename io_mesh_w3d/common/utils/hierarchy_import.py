@@ -11,11 +11,8 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hierarchy is None:
         return None
 
-    if hierarchy.header.name in bpy.data.objects:
-        obj = bpy.data.objects[hierarchy.header.name]
-        if obj.type == 'ARMATURE':
-            return obj
-        return None
+    if hierarchy.header.name in bpy.data.objects and hierarchy.header.name in bpy.data.armatures:
+        return bpy.data.objects[hierarchy.header.name]
 
     sub_objects = []
     if hlod is not None:
@@ -84,13 +81,11 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         bone.matrix = matrix
 
     if rig is not None:
-        if rig.mode != 'POSE':
-            bpy.ops.object.mode_set(mode='POSE')
+        bpy.ops.object.mode_set(mode='POSE')
         basic_sphere = create_sphere()
 
         for bone in rig.pose.bones:
             bone.custom_shape = basic_sphere
 
-        if rig.mode != 'OBJECT':
-            bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
     return rig
