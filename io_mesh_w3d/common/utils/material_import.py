@@ -8,7 +8,6 @@ from bpy_extras import node_shader_utils
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
-
     #node.color = (1, 0, 0)
     #node.use_custom_color = True
     #node.name = 'Test'
@@ -272,8 +271,20 @@ def create_material_passes(context, base_struct, mesh, triangles):
         if mat_pass.tx_coords:
             tx_coords.append(mat_pass.tx_coords)
 
+        print('vert: ' + str(len(vert_materials)))
+        print('shaders: ' + str(len(shaders)))
+        print('textures: ' + str(len(textures)))
+        print('shader_materials: ' + str(len(shader_materials)))
+        print('tx_coords: ' + str(len(tx_coords)))
+
         if vert_materials:
-            create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], textures[0], tx_coords[0])
+            texture = None
+            if textures:
+                texture = textures[0]
+            tx_coordinates = None
+            if tx_coords:
+                tx_coordinates = tx_coords[0]
+            create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], texture, tx_coordinates)
 
         if shader_materials:
             create_shader_material(context, mesh, b_mesh, triangles, shader_materials[0], tx_coords[0])
@@ -285,7 +296,6 @@ def create_material_passes(context, base_struct, mesh, triangles):
 ##########################################################################
 
 def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, texture_struct, tx_coords):
-    print('create material ' + mesh.name)
     material = bpy.data.materials.new(mesh.name)
     mesh.materials.append(material)
 
@@ -338,19 +348,20 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     output = node_tree.nodes.get('Material Output')
     links.new(inst.outputs['BSDF'], output.inputs['Surface'])
 
-    texture = find_texture(context, texture_struct.file, texture_struct.id)
+    if texture_struct is not None:
+        texture = find_texture(context, texture_struct.file, texture_struct.id)
 
-    texture_node = create_texture_node(node_tree, texture)
-    texture_node.location = (-250, 0)
-    links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
-    links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
+        texture_node = create_texture_node(node_tree, texture)
+        texture_node.location = (-250, 0)
+        links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
+        links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
 
-    uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+        uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-    uv_node = create_uv_map_node(node_tree)
-    uv_node.uv_map = uv_layer
-    uv_node.location = (-450, 0)
-    links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+        uv_node = create_uv_map_node(node_tree)
+        uv_node.uv_map = uv_layer
+        uv_node.location = (-450, 0)
+        links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
 
 
 ##########################################################################
