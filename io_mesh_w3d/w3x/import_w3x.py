@@ -81,14 +81,12 @@ def load(context):
     if data_context.hlod is None:
         if len(data_context.meshes) == 1:
             mesh = data_context.meshes[0]
-            if mesh.container_name() != '':
-                path = dir + mesh.container_name() + '.w3x'
-                data_context = load_file(context, data_context, path)
+            path = dir + mesh.container_name() + '.w3x'
+            data_context = load_file(context, data_context, path)
         elif len(data_context.collision_boxes) == 1:
             box = data_context.collision_boxes[0]
-            if box.container_name() != '':
-                path = dir + box.container_name() + '.w3x'
-                data_context = load_file(context, data_context, path)
+            path = dir + box.container_name() + '.w3x'
+            data_context = load_file(context, data_context, path)
 
     if data_context.hlod is not None and data_context.hierarchy is None:
         path = dir + data_context.hlod.hierarchy_name() + '.w3x'

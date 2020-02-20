@@ -6,9 +6,6 @@ from io_mesh_w3d.common.utils.helpers import *
 
 
 def create_box(box, hlod, hierarchy, rig, coll):
-    if box is None:
-        return
-
     x = box.extend[0] / 2.0
     y = box.extend[1] / 2.0
     z = box.extend[2]

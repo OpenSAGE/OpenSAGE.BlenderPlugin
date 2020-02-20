@@ -316,3 +316,56 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('BOUNDINGBOX' in bpy.data.objects)
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
+
+    def test_roundtrip_hlod_only_import(self):
+        hierarchy_name = 'testname_skl'
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
+
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output'
+        create_data(self, meshes, hlod, hierarchy)
+
+        # export
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': False}
+        save(self, export_settings)
+
+        # remove includes
+        root = find_root(self, self.outpath() + 'output.w3x')
+        for child in root:
+            if child.tag == 'Includes':
+                root.remove(child)
+        write(root, self.outpath() + 'output.w3x')
+
+        # check created files
+        self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output.sword.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output.soldier.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output.TRUNK.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        self.filepath = self.outpath() + 'output.w3x'
+        load(self)
+
+        # check created objects
+        self.assertEqual(2, len(bpy.data.collections))
+
+        self.assertTrue('testname_skl' in bpy.data.objects)
+        self.assertTrue('testname_skl' in bpy.data.armatures)
+        amt = bpy.data.armatures['testname_skl']
+        self.assertEqual(6, len(amt.bones))
+
+        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('TRUNK' in bpy.data.objects)

@@ -9,6 +9,7 @@ from io_mesh_w3d.w3x.export_w3x import save
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import *
+from tests.common.helpers.animation import *
 from tests.utils import *
 
 
@@ -136,7 +137,7 @@ class TestExportW3X(TestCase):
         root = find_root(self, file_path + extension)
         self.assertIsNone(root.find('W3DHierarchy'))
 
-    def test_no_texture_xml_files_are_created_if_not_create_texture_xmls(self):
+    def test_no_texture_xml_files_are_created_if_mode_HM_and_not_create_texture_xmls(self):
         export_settings = {'mode': 'HM',
                            'individual_files': False,
                            'create_texture_xmls': False,
@@ -156,6 +157,36 @@ class TestExportW3X(TestCase):
             dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
+
+        extension = '.w3x'
+        file_path = self.outpath() + 'output_skn'
+        self.set_format('W3X')
+        self.filepath = file_path
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertTrue(os.path.exists(file_path + extension))
+        self.assertFalse(os.path.exists(self.outpath() + 'texture.xml'))
+
+    def test_no_texture_xml_files_are_created_if_mode_HAM_and_not_create_texture_xmls(self):
+        export_settings = {'mode': 'HAM',
+                           'create_texture_xmls': False}
+
+        hierarchy_name = 'TestHiera_SKL'
+
+        data_context = DataContext(
+            container_name='containerName',
+            rig=None,
+            meshes=[
+                get_mesh(name='sword', skin=True),
+                get_mesh(name='soldier', skin=True),
+                get_mesh(name='TRUNK')],
+            textures=['texture.xml'],
+            boxes=[],
+            dazzles=[],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name),
+            animation=get_animation(hierarchy_name))
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'

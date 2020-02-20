@@ -36,10 +36,19 @@ class TestObjectImport(TestCase):
         self.error = lambda text: self.assertEqual(r'file not found: ' + path, text)
         load(self)
 
+    @patch('io_mesh_w3d.w3x.import_w3x.os.path.dirname', return_value='')
     @patch('io_mesh_w3d.w3x.import_w3x.find_root', return_value=None)
-    def test_load_file_root_is_none(self, root):
-        self.filepath = self.outpath() + 'output.w3x'
-        load(self)
+    def test_load_file_root_is_none(self, root, dirname):
+        path = self.outpath() + 'output.w3x'
+
+        file = open(path, 'w')
+        file.write('lorem ipsum')
+        file.close()
+
+        self.error = lambda text: self.fail(r'no error should be thrown!')
+        load_file(self, None, path)
+
+        dirname.assert_not_called()
 
     def test_load_file_invalid_node(self):
         path = self.outpath() + 'output.w3x'
@@ -54,9 +63,9 @@ class TestObjectImport(TestCase):
         self.warning = lambda text: self.assertEqual('unsupported node Invalid in file: ' + path, text)
         load(self)
 
-    @patch('io_mesh_w3d.w3x.import_w3x.load_file')
-    @patch.object(Mesh, 'container_name', return_value='')
     @patch('io_mesh_w3d.w3x.import_w3x.create_data')
+    @patch.object(Mesh, 'container_name', return_value='')
+    @patch('io_mesh_w3d.w3x.import_w3x.load_file')
     def test_mesh_only_import(self, load_file, mesh, create):
         data_context = DataContext(
             container_name='',
@@ -73,25 +82,6 @@ class TestObjectImport(TestCase):
         self.filepath = self.outpath() + 'output.w3x'
         load(self)
 
-        create.assert_called()
-
-    @patch('io_mesh_w3d.w3x.import_w3x.load_file')
-    @patch.object(CollisionBox, 'container_name', return_value='')
-    @patch('io_mesh_w3d.w3x.import_w3x.create_data')
-    def test_mesh_only_import(self, load_file, mesh, create):
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[get_collision_box()],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        load_file.return_value = data_context
-
-        self.filepath = self.outpath() + 'output.w3x'
-        load(self)
-
+        load_file.assert_called()
+        mesh.assert_called()
         create.assert_called()
