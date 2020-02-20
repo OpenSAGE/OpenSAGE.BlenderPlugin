@@ -14,63 +14,6 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
     #node.name = 'Test'
     #node.label
 
-
-def create_shading_pipeline(vert_material, shader, textures, shader_material, tx_coords, index=1):
-    inst = node_tree.nodes.new(type='ShaderNodeGroup')
-    inst.location = (0, 300)
-    inst.node_tree = bpy.data.node_groups['W3DMaterial']
-    inst.label = struct.vert_materials[mat_id].vm_name
-
-    output = node_tree.nodes.get('Material Output')
-    links.new(inst.outputs['BSDF'], output.inputs['Surface'])
-
-    texture_struct = struct.textures[tex_id]
-    texture = find_texture(context, texture_struct.file, texture_struct.id)
-
-    texture_node = create_texture_node(node_tree, texture)
-    texture_node.location = (-550, 600)
-    links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
-    links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
-
-    uv_node = create_uv_map_node(node_tree)
-    uv_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse')
-    uv_node.location = (-750, 600)
-    links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
-
-    texture2_node = create_texture_node(node_tree, None)
-    texture2_node.location = (-550, 300)
-    links.new(texture2_node.outputs['Color'], inst.inputs['Diffuse2'])
-    links.new(texture2_node.outputs['Alpha'], inst.inputs['Alpha2'])
-
-    uv2_node = create_uv_map_node(node_tree)
-    uv2_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'diffuse2')
-    uv2_node.location = (-750, 300)
-    links.new(uv2_node.outputs['UV'], texture2_node.inputs['Vector'])
-
-    texture_spec_node = create_texture_node(node_tree, None)
-    texture_spec_node.location = (-550, 0)
-    links.new(texture_spec_node.outputs['Color'], inst.inputs['Specular'])
-
-    uv_spec_node = create_uv_map_node(node_tree)
-    uv_spec_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'specular')
-    uv_spec_node.location = (-750, 0)
-    links.new(uv_spec_node.outputs['UV'], texture_spec_node.inputs['Vector'])
-
-    texture_normal_node = create_texture_node(node_tree, None)
-    texture_normal_node.location = (-550, -300)
-    links.new(texture_normal_node.outputs['Color'], inst.inputs['Normal'])
-    links.new(texture_normal_node.outputs['Alpha'], inst.inputs['Strength'])
-
-    uv3_node = create_uv_map_node(node_tree)
-    uv3_node.uv_map = create_uvlayer2(mat_pass.tx_stages[0].tx_coords, mesh, b_mesh, triangles, 'normal')
-    uv3_node.location = (-750, -300)
-    links.new(uv3_node.outputs['UV'], texture_normal_node.inputs['Vector'])
-
-    get_connected_nodes(links, inst, 'Diffuse')
-    get_connected_nodes(links, inst, 'Specular')
-
-
-
 def register_w3d_material_node_group():
     group = bpy.data.node_groups.new('W3DMaterial', 'ShaderNodeTree')
     node_tree = group
@@ -306,7 +249,6 @@ def create_material_passes(context, base_struct, mesh, triangles):
     b_mesh.from_mesh(mesh)
 
     for i, mat_pass in enumerate(base_struct.material_passes):
-        print('material pass')
         vert_materials = []
         shaders = []
         textures = []
@@ -330,12 +272,11 @@ def create_material_passes(context, base_struct, mesh, triangles):
         if mat_pass.tx_coords:
             tx_coords.append(mat_pass.tx_coords)
 
-        print(len(vert_materials))
         if vert_materials:
             create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], textures[0], tx_coords[0])
 
-        #if shader_materials:
-        #    create_shader_material(shader_materials[0], tx_coords[0])
+        if shader_materials:
+            create_shader_material(context, mesh, b_mesh, triangles, shader_materials[0], tx_coords[0])
 
 
 
@@ -368,9 +309,6 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
         material.attributes.add('DEPTH_CUE_TO_ALPHA')
 
     # TODO: map these to shader node properties
-    material.specular_intensity = vert_mat.vm_info.shininess
-    material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
     material.opacity = vert_mat.vm_info.opacity
@@ -393,13 +331,17 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     inst.node_tree = bpy.data.node_groups['W3DMaterial']
     inst.label = vert_mat.vm_name
 
+    inst.inputs['Specular'].default_value = vert_mat.vm_info.specular.to_vector_rgba()
+    inst.inputs['Roughness'].default_value = vert_mat.vm_info.shininess
+    inst.inputs['Emissive'].default_value = vert_mat.vm_info.emissive.to_vector_rgba()
+
     output = node_tree.nodes.get('Material Output')
     links.new(inst.outputs['BSDF'], output.inputs['Surface'])
 
     texture = find_texture(context, texture_struct.file, texture_struct.id)
 
     texture_node = create_texture_node(node_tree, texture)
-    texture_node.location = (-550, 600)
+    texture_node.location = (-250, 0)
     links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
     links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
 
@@ -407,7 +349,7 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
 
     uv_node = create_uv_map_node(node_tree)
     uv_node.uv_map = uv_layer
-    uv_node.location = (-750, 600)
+    uv_node.location = (-450, 0)
     links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
 
 
@@ -415,28 +357,10 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
 # shader material
 ##########################################################################
 
-def create_shader_materials(context, struct, mesh, triangles):
-    for i, shaderMat in enumerate(struct.shader_materials):
-        (material, principled) = create_material_from_shader_material(
-            context, mesh.name, shaderMat)
-        mesh.materials.append(material)
 
-    if struct.material_passes:
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-
-    for mat_pass in struct.material_passes:
-        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
-
-
-def create_material_from_shader_material(context, name, shader_mat):
-    name = name + '.' + shader_mat.header.type_name
-    if name in bpy.data.materials:
-        material = bpy.data.materials[name]
-        principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
-        return material, principled
-
-    material = bpy.data.materials.new(name)
+def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coords):
+    material = bpy.data.materials.new(mesh.name)
+    mesh.materials.append(material)
     material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
     material.blend_method = 'BLEND'
@@ -445,27 +369,73 @@ def create_material_from_shader_material(context, name, shader_mat):
     if shader_mat.header.technique is not None:
         material.technique = shader_mat.header.technique
 
-    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
+    # get or create node group
+    node_tree = material.node_tree
+    links = node_tree.links
+
+    # delete principled bsdf
+    principled_bsdf = node_tree.nodes.get('Principled BSDF')
+    node_tree.nodes.remove(principled_bsdf)
+
+    inst = node_tree.nodes.new(type='ShaderNodeGroup')
+    inst.location = (0, 300)
+    inst.node_tree = bpy.data.node_groups['W3DMaterial']
+    inst.label = shader_mat.header.type_name
+
+    output = node_tree.nodes.get('Material Output')
+    links.new(inst.outputs['BSDF'], output.inputs['Surface'])
+
+    uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
     for prop in shader_mat.properties:
-        if prop.name == 'DiffuseTexture' and prop.value != '':
-            principled.base_color_texture.image = find_texture(context, prop.value)
+        if prop.name in ['DiffuseTexture', 'Texture_0'] and prop.value != '':
+            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node.location = (-550, 600)
+            links.new(texture_node.outputs['Color'], inst.inputs['Diffuse'])
+            links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha'])
+
+            uv_node = create_uv_map_node(node_tree)
+            uv_node.uv_map = uv_layer
+            uv_node.location = (-750, 600)
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
         elif prop.name == 'NormalMap' and prop.value != '':
-            principled.normalmap_texture.image = find_texture(context, prop.value)
+            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node.location = (-550, -300)
+            links.new(texture_node.outputs['Color'], inst.inputs['Normal'])
+
+            uv_node = create_uv_map_node(node_tree)
+            uv_node.uv_map = uv_layer
+            uv_node.location = (-750, -300)
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
         elif prop.name == 'BumpScale':
-            principled.normalmap_strength = prop.value
+            inst.inputs['Strength'].default_value = prop.value
         elif prop.name == 'SpecMap' and prop.value != '':
-            principled.specular_texture.image = find_texture(context, prop.value)
+            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node.location = (-550, 0)
+            links.new(texture_node.outputs['Color'], inst.inputs['Specular'])
+
+            uv_node = create_uv_map_node(node_tree)
+            uv_node.uv_map = uv_layer
+            uv_node.location = (-750, 0)
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
-            material.specular_intensity = prop.value / 200.0
+            inst.inputs['Roughness'].default_value = prop.value / 200.0
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.to_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
             material.specular_color = prop.to_rgb()
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = prop.value
-        elif prop.name == 'Texture_0':
-            principled.base_color_texture.image = find_texture(context, prop.value)
+        elif prop.name == 'Texture_1':
+            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node.location = (-550, 300)
+            links.new(texture_node.outputs['Color'], inst.inputs['Diffuse2'])
+            links.new(texture_node.outputs['Alpha'], inst.inputs['Alpha2'])
+
+            uv_node = create_uv_map_node(node_tree)
+            uv_node.uv_map = uv_layer
+            uv_node.location = (-750, 300)
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
@@ -490,8 +460,6 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.sampler_clamp_uv_no_mip_1 = prop.value
         elif prop.name == 'NumTextures':
             material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
-        elif prop.name == 'Texture_1':  # second diffuse texture
-            material.texture_1 = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
             material.secondary_texture_blend_mode = prop.value
         elif prop.name == 'TexCoordMapper_0':
@@ -538,8 +506,6 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.multi_texture_enable = prop.value
         else:
             context.error('shader property not implemented: ' + prop.name)
-
-    return material, principled
 
 
 ##########################################################################
