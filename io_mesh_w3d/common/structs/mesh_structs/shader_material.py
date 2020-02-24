@@ -174,21 +174,21 @@ class ShaderMaterialProperty(Struct):
             xml_constant = create_node(parent, 'Float')
             xml_value = create_node(xml_constant, 'Value')
             if self.type == FLOAT_PROPERTY:
-                xml_value.text = str(self.value)
+                xml_value.text = format(self.value)
             else:
-                xml_value.text = str(self.value.x)
+                xml_value.text = format(self.value.x)
 
             if self.type in [VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
-                xml_value.text = str(self.value.y)
+                xml_value.text = format(self.value.y)
 
             if self.type in [VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
-                xml_value.text = str(self.value.z)
+                xml_value.text = format(self.value.z)
 
             if self.type == VEC4_PROPERTY:
                 xml_value = create_node(xml_constant, 'Value')
-                xml_value.text = str(self.value.w)
+                xml_value.text = format(self.value.w)
 
         elif self.type == LONG_PROPERTY:
             xml_constant = create_node(parent, 'Int')
@@ -257,9 +257,7 @@ class ShaderMaterial(Struct):
     def create(self, parent):
         fx_shader = create_node(parent, 'FXShader')
         fx_shader.set('ShaderName', self.header.type_name)
-
-        if self.header.technique_index > 0:
-            fx_shader.set('TechniqueIndex', str(self.header.technique_index))
+        fx_shader.set('TechniqueIndex', str(self.header.technique_index))
 
         constants = create_node(fx_shader, 'Constants')
         for property in self.properties:
