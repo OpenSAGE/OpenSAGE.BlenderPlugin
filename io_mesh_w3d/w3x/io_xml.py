@@ -97,14 +97,14 @@ def create_object_list(parent, name, objects, write_func, par1=None):
             write_func(obj, xml_objects_list)
 
 
+def format(value):
+    return '{:.6f}'.format(value)
+
+
 def parse_vector2(xml_vector2):
     return Vector((
         float(xml_vector2.get('X', 0.0)),
         float(xml_vector2.get('Y', 0.0))))
-
-
-def format(value):
-    return '{:.6f}'.format(value)
 
 
 def create_vector2(vec2, parent, name):

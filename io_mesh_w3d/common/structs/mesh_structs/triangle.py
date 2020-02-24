@@ -52,4 +52,4 @@ class Triangle(Struct):
 
         create_vector(self.normal, triangle, 'Nrm')
         xml_distance = create_node(triangle, 'Dist')
-        xml_distance.text = str(self.distance)
+        xml_distance.text = format(self.distance)

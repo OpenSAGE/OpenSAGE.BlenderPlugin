@@ -164,7 +164,7 @@ Material.opacity = FloatProperty(
 Material.alpha_test = BoolProperty(
     name='Alpha test',
     description='Enable the alpha test',
-    default=False)
+    default=True)
 
 Material.blend_mode = IntProperty(
     name='Blend mode',

@@ -110,7 +110,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'SpecMap' and prop.value != '':
             principled.specular_texture.image = find_texture(context, prop.value)
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
-            material.specular_intensity = prop.value
+            material.specular_intensity = prop.value / 255.0
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.to_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':

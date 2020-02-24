@@ -102,14 +102,14 @@ def retrieve_shader_material(material, principled, w3x=False):
     shader_mat.header.technique_index = material.technique
 
     if w3x:
-        append_property(shader_mat, 2, 'Shininess', material.specular_intensity, 0.5)
+        append_property(shader_mat, 2, 'Shininess', material.specular_intensity * 255.0, 0.5)
         append_property(shader_mat, 5, 'ColorDiffuse', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
-        append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color), Vector((1.0, 1.0, 1.0, 1.0)))
+        append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color), Vector((1.0, 1.0, 1.0)))
         append_property(shader_mat, 5, 'ColorAmbient', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
         append_property(shader_mat, 5, 'ColorEmissive', to_vec(material.emission), Vector((1.0, 1.0, 1.0, 0.0)))
 
     else:
-        append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity, 0.5)
+        append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity * 255.0, 50.0)
         append_property(shader_mat, 5, 'DiffuseColor', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
         append_property(shader_mat, 5, 'SpecularColor', to_vec(material.specular_color), Vector((1.0, 1.0, 1.0, 1.0)))
         append_property(shader_mat, 5, 'AmbientColor', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
@@ -134,11 +134,11 @@ def retrieve_shader_material(material, principled, w3x=False):
 
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
     if principled.normalmap_texture is not None:
-        append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
+        append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 0.0)
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
     append_property(shader_mat, 2, 'Opacity', material.opacity)
-    append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test)
+    append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test, True)
     append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
     append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)
     append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
