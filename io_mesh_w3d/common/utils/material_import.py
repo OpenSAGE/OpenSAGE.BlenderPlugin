@@ -129,7 +129,6 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.opacity = prop.value
         elif prop.name == 'AlphaTestEnable':
             material.alpha_test = prop.value
-            print(material.alpha_test)
         elif prop.name == 'BlendMode':  # is blend_method ?
             material.blend_mode = prop.value
         elif prop.name == 'BumpUVScale':
