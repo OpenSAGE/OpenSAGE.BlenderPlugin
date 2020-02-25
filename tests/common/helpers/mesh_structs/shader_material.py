@@ -49,8 +49,7 @@ def compare_shader_material_properties(self, expected, actual):
                      str(actual.type) + ' for property: ' + actual.name)
 
     if expected.type == 1:
-        self.assertEqual(expected.value.split(
-            '.')[0], actual.value.split('.')[0])
+        self.assertEqual(expected.value.split('.')[0], actual.value.split('.')[0])
     elif expected.type == 2:
         self.assertAlmostEqual(expected.value, actual.value, 5)
     elif expected.type == 3:
@@ -93,7 +92,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
         get_shader_material_property(7, 'MultiTextureEnable')]
 
     if w3x:
-        props.append(get_shader_material_property(2, 'Shininess'))
+        props.append(get_shader_material_property(2, 'Shininess', value=125.0))
 
         if rgb_colors:
             props.append(get_shader_material_property(4, 'ColorDiffuse', value=get_vec(x=0.2, y=0.33, z=0.9)))
@@ -106,7 +105,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
             props.append(get_shader_material_property(5, 'ColorAmbient'))
             props.append(get_shader_material_property(5, 'ColorEmissive'))
     else:
-        props.append(get_shader_material_property(2, 'SpecularExponent', value=122.5))
+        props.append(get_shader_material_property(2, 'SpecularExponent', value=125.0))
         props.append(get_shader_material_property(5, 'DiffuseColor'))
         props.append(get_shader_material_property(5, 'SpecularColor'))
         props.append(get_shader_material_property(5, 'AmbientColor'))
@@ -124,7 +123,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
     else:
         props.append(get_shader_material_property(1, 'DiffuseTexture'))
         props.append(get_shader_material_property(1, 'NormalMap', 'texture_nrm.dds'))
-        props.append(get_shader_material_property(2, 'BumpScale', value=122.5))
+        props.append(get_shader_material_property(2, 'BumpScale'))
         props.append(get_shader_material_property(1, 'SpecMap', 'texture_spec.dds'))
     return props
 
