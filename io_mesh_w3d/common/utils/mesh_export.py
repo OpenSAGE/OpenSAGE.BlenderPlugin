@@ -52,8 +52,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        mesh = mesh_object.to_mesh(
-            preserve_all_data_layers=False, depsgraph=None)
+        mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
+
+        if mesh.uv_layers:
+            mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+            mesh.calc_tangents()
 
         triangulate(mesh)
         header.vert_count = len(mesh.vertices)
@@ -63,6 +66,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sph_radius = radius
 
         for i, vertex in enumerate(mesh.vertices):
+            loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
+
             if vertex.groups:
                 vert_inf = VertexInfluence()
                 for index, pivot in enumerate(hierarchy.pivots):
@@ -77,8 +82,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 else:
                     matrix = rig.matrix_local
 
-                mesh_struct.verts.append(
-                    matrix.inverted() @ vertex.co.xyz)
+                mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
+                mesh_struct.normals.append(matrix.inverted() @ vertex.normal)
+
+                if mesh.uv_layers:
+                    mesh_struct.tangents.append(matrix.inverted() @ loop.tangent)
+                    mesh_struct.bitangents.append(matrix.inverted() @ loop.bitangent)
 
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True
@@ -92,8 +101,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
+                mesh_struct.normals.append(vertex.normal)
+                if mesh.uv_layers:
+                    mesh_struct.tangents.append(loop.tangent)
+                    mesh_struct.bitangents.append(loop.bitangent)
 
-            mesh_struct.normals.append(vertex.normal)
             mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
@@ -105,12 +117,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
              mesh_object.bound_box[6][1],
              mesh_object.bound_box[6][2]))
 
-        if mesh.uv_layers:
-            mesh.calc_tangents()
-            mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
-            mesh_struct.tangents = [Vector] * len(mesh_struct.normals)
-            mesh_struct.bitangents = [Vector] * len(mesh_struct.normals)
-
         for face in mesh.polygons:
             triangle = Triangle()
             triangle.vert_ids = list(face.vertices)
@@ -121,16 +127,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             tri_pos = (vec1 + vec2 + vec3) / 3.0
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
-
-            if mesh.uv_layers:
-                for vert in [mesh.loops[i] for i in face.loop_indices]:
-                    # TODO: compute the mean value from the
-                    # face-vertex-tangents etc?
-                    normal = vert.normal
-                    tangent = vert.tangent
-                    mesh_struct.tangents[vert.vertex_index] = tangent
-                    bitangent = vert.bitangent_sign * normal.cross(tangent)
-                    mesh_struct.bitangents[vert.vertex_index] = bitangent
 
         header.face_count = len(mesh_struct.triangles)
 
