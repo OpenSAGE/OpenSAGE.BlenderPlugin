@@ -67,7 +67,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
     props = [
         get_shader_material_property(3, 'BumpUVScale'),
         get_shader_material_property(6, 'BlendMode'),
-        get_shader_material_property(7, 'AlphaTestEnable'),
+        get_shader_material_property(7, 'AlphaTestEnable', value=False),
         get_shader_material_property(7, 'CullingEnable'),
         get_shader_material_property(2, 'Opacity'),
         get_shader_material_property(6, 'EdgeFadeOut'),
@@ -106,7 +106,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
             props.append(get_shader_material_property(5, 'ColorAmbient'))
             props.append(get_shader_material_property(5, 'ColorEmissive'))
     else:
-        props.append(get_shader_material_property(2, 'SpecularExponent'))
+        props.append(get_shader_material_property(2, 'SpecularExponent', value=122.5))
         props.append(get_shader_material_property(5, 'DiffuseColor'))
         props.append(get_shader_material_property(5, 'SpecularColor'))
         props.append(get_shader_material_property(5, 'AmbientColor'))
@@ -124,7 +124,7 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
     else:
         props.append(get_shader_material_property(1, 'DiffuseTexture'))
         props.append(get_shader_material_property(1, 'NormalMap', 'texture_nrm.dds'))
-        props.append(get_shader_material_property(2, 'BumpScale'))
+        props.append(get_shader_material_property(2, 'BumpScale', value=122.5))
         props.append(get_shader_material_property(1, 'SpecMap', 'texture_spec.dds'))
     return props
 

@@ -123,7 +123,7 @@ class TestCustomProperties(TestCase):
         mat.opacity = 2.0
         self.assertEqual(1.0, mat.opacity)
 
-        self.assertEqual(False, mat.alpha_test)
+        self.assertEqual(True, mat.alpha_test)
 
         self.assertEqual(0, mat.blend_mode)
 
