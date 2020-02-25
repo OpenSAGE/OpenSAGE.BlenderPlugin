@@ -121,6 +121,8 @@ class TestUtils(TestCase):
         (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
 
         actual = retrieve_shader_material(material, principled, w3x=False)
+        for prop in actual.properties:
+            print (prop.name)
         self.assertEqual(0, len(actual.properties))
 
         actual = retrieve_shader_material(material, principled, w3x=True)
