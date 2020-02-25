@@ -52,7 +52,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
+        mesh = mesh_object.to_mesh(preserve_all_data_layers=True, depsgraph=None)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -83,11 +83,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = rig.matrix_local
 
                 mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
-                mesh_struct.normals.append(matrix.inverted() @ vertex.normal)
+                mesh_struct.normals.append((vertex.normal).normalized())
 
                 if mesh.uv_layers:
-                    mesh_struct.tangents.append(matrix.inverted() @ loop.tangent)
-                    mesh_struct.bitangents.append(matrix.inverted() @ loop.bitangent)
+                    mesh_struct.tangents.append((matrix.inverted() @ loop.tangent).normalized())
+                    mesh_struct.bitangents.append((matrix.inverted() @ loop.bitangent).normalized())
 
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True

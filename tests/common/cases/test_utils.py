@@ -427,6 +427,39 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes)
 
+    def test_mesh_with_parent_bone_roundtrip(self):
+        print('##########################')
+        hlod = get_hlod()
+        hlod.header.hierarchy_name = 'containerName'
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=2, name='containerName.sword')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = 'containerName'
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='bone0', parent=0),
+            get_hierarchy_pivot(name='bone1', parent=1),
+            get_hierarchy_pivot(name='bone2', parent=2),
+            get_hierarchy_pivot(name='bone3', parent=3)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+        mesh = get_mesh(name='sword', skin=True)
+        meshes = [mesh]
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        (actual_meshes, textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName')
+
+        actual = actual_meshes[0]
+
+        for i, vert in enumerate(mesh.verts):
+            print(str(mesh.normals[i]) + ' -> ' + str(actual.normals[i]))
+            compare_vectors(self, mesh.normals[i], actual.normals[i])
+
+        print('################### end')
+
     def test_meshes_only_roundtrip(self):
         meshes = [
             get_mesh(name='wall'),
