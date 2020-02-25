@@ -157,7 +157,7 @@ class ShaderMaterialProperty(Struct):
             constant.value = int(values[0])
         elif type_name == 'Bool':
             constant.type = BYTE_PROPERTY
-            constant.value = bool(values[0])
+            constant.value = values[0] in ['True', 'true']
         else:
             constant.type = STRING_PROPERTY
             constant.value = values[0]
