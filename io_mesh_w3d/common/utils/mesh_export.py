@@ -53,14 +53,17 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
         mesh = mesh_object.to_mesh(preserve_all_data_layers=True, depsgraph=None)
+        triangulate(mesh)
+        header.vert_count = len(mesh.vertices)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
-            mesh.calc_tangents(uvmap=mesh.uv_layers[0].name)
+            mesh.calc_tangents()
+            mesh.calc_normals()
             print('calculated tangents')
-
-        triangulate(mesh)
-        header.vert_count = len(mesh.vertices)
+            #(ids, count) = mesh.calc_smooth_groups()
+            #print('ids: ' + str(ids))
+            #print('count: ' + str(count))
 
         (center, radius) = calculate_mesh_sphere(mesh)
         header.sph_center = center
@@ -83,15 +86,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = rig.matrix_local
 
                 mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
-                mesh_struct.normals.append((vertex.normal).normalized())
+                mesh_struct.normals.append(vertex.normal)
 
                 if mesh.uv_layers:
-                    #print('matrix: ' + str(matrix.inverted()))
-                    print('normal: ' + str(loop.normal))
-                    print('tangent: ' + str(loop.tangent))
-                    print('bitangent: ' + str(loop.bitangent))
-                    mesh_struct.tangents.append((matrix.inverted() @ loop.tangent).normalized())
-                    mesh_struct.bitangents.append((matrix.inverted() @ loop.bitangent).normalized())
+                    mesh_struct.tangents.append(loop.tangent)
+                    mesh_struct.bitangents.append(loop.bitangent)
 
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True

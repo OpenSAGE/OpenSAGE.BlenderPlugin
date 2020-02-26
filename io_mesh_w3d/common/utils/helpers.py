@@ -71,11 +71,14 @@ def rig_object(obj, hierarchy, rig, sub_object):
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 
     if parent_pivot.name in bpy.data.objects:
+        # we might have to reference by subobject name here
         obj.parent = bpy.data.objects[parent_pivot.name]
     elif parent_pivot.name in rig.pose.bones:
         obj.parent = rig
         obj.parent_bone = parent_pivot.name
         obj.parent_type = 'BONE'
+    else:
+        obj.parent = rig
 
 
 def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):

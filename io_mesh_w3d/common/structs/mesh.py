@@ -193,29 +193,24 @@ class Mesh(Struct):
                 context.info('-> vertices 2 chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
-                result.normals = read_list(
-                    io_stream, subchunk_end, read_vector)
+                result.normals = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
                 context.info('-> normals 2 chunk is not supported')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.user_text = read_string(io_stream)
             elif chunk_type == W3D_CHUNK_VERTEX_INFLUENCES:
-                result.vert_infs = read_list(
-                    io_stream, subchunk_end, VertexInfluence.read)
+                result.vert_infs = read_list(io_stream, subchunk_end, VertexInfluence.read)
             elif chunk_type == W3D_CHUNK_MESH_HEADER:
                 result.header = MeshHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_TRIANGLES:
-                result.triangles = read_list(
-                    io_stream, subchunk_end, Triangle.read)
+                result.triangles = read_list(io_stream, subchunk_end, Triangle.read)
             elif chunk_type == W3D_CHUNK_VERTEX_SHADE_INDICES:
-                result.shade_ids = read_list(
-                    io_stream, subchunk_end, read_long)
+                result.shade_ids = read_list(io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_MATERIAL_INFO:
                 result.mat_info = MaterialInfo.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADERS:
-                result.shaders = read_list(
-                    io_stream, subchunk_end, Shader.read)
+                result.shaders = read_list(io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
                     context,
@@ -239,8 +234,7 @@ class Mesh(Struct):
                 context.info('-> bitangents are computed in blender')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
-                result.aabbtree = AABBTree.read(
-                    context, io_stream, subchunk_end)
+                result.aabbtree = AABBTree.read(context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
                 result.prelit_unlit = PrelitBase.read(
                     context, io_stream, subchunk_end,
