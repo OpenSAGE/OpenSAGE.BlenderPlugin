@@ -104,9 +104,9 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
                   get_vec(-1.0, -1.0, 1.0),
                   get_vec(-1.0, -1.0, -1.0)]
 
-    mesh.normals = [get_vec(0.11, 0.94, 0.32),
-                    get_vec(-0.81, 0.04, 0.58),
-                    get_vec(-0.89, 0.05, -0.44),
+    mesh.normals = [get_vec(0.577, 0.577, 0.577),
+                    get_vec(0.577, 0.577, -0.577),
+                    get_vec(0.577, -0.577, 0.577),
                     get_vec(0.577, -0.577, -0.577),
                     get_vec(-0.577, 0.577, 0.577),
                     get_vec(-0.577, 0.577, -0.577),

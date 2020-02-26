@@ -43,7 +43,8 @@ def retrieve_hierarchy(context, container_name):
 
         switch_to_pose(rig, 'REST')
 
-        root.translation = rig.location
+        root.translation = rig.delta_location
+        root.rotation = rig.delta_rotation_quaternion
 
         hierarchy.header.name = rig.name
         hierarchy.header.center_pos = rig.location

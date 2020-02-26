@@ -56,7 +56,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
-            mesh.calc_tangents()
+            mesh.calc_tangents(uvmap=mesh.uv_layers[0].name)
+            print('calculated tangents')
 
         triangulate(mesh)
         header.vert_count = len(mesh.vertices)
@@ -67,7 +68,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
-
             if vertex.groups:
                 vert_inf = VertexInfluence()
                 for index, pivot in enumerate(hierarchy.pivots):
@@ -86,6 +86,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mesh_struct.normals.append((vertex.normal).normalized())
 
                 if mesh.uv_layers:
+                    #print('matrix: ' + str(matrix.inverted()))
+                    print('normal: ' + str(loop.normal))
+                    print('tangent: ' + str(loop.tangent))
+                    print('bitangent: ' + str(loop.bitangent))
                     mesh_struct.tangents.append((matrix.inverted() @ loop.tangent).normalized())
                     mesh_struct.bitangents.append((matrix.inverted() @ loop.bitangent).normalized())
 

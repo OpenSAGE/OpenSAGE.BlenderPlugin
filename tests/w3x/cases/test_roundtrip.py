@@ -228,9 +228,8 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertFalse('TestModelName' in bpy.data.objects)
-        self.assertFalse('TestModelName' in bpy.data.armatures)
-
+        self.assertTrue('TestModelName' in bpy.data.objects)
+        self.assertTrue('TestModelName' in bpy.data.armatures)
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)

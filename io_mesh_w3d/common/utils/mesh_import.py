@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from mathutils import Matrix
 from io_mesh_w3d.common.utils.material_import import *
 
 
@@ -66,12 +67,17 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
             if weight < 0.01:
                 weight = 1.0
 
+            matrix = Matrix.Identity(4)
             pivot = hierarchy.pivots[vert_inf.bone_idx]
             if vert_inf.bone_idx <= 0:
-                bone = rig
+                if rig is not None:
+                    matrix = rig.matrix_local
+                else:
+                    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
             else:
-                bone = rig.data.bones[pivot.name]
-            mesh.vertices[i].co = bone.matrix_local @ mesh.vertices[i].co
+                matrix = rig.data.bones[pivot.name].matrix_local
+
+            mesh.vertices[i].co = matrix @ mesh.vertices[i].co
 
             if pivot.name not in mesh_ob.vertex_groups:
                 mesh_ob.vertex_groups.new(name=pivot.name)
