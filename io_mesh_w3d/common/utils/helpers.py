@@ -3,7 +3,14 @@
 
 import bpy
 import os
+from mathutils import Quaternion, Matrix
 from bpy_extras.image_utils import load_image
+
+
+def make_transform_matrix(loc, rot):
+    mat_loc = Matrix.Translation(loc)
+    mat_rot = Quaternion(rot).to_matrix().to_4x4()
+    return mat_loc @ mat_rot
 
 
 def get_objects(type, object_list=None):  # MESH, ARMATURE
@@ -47,29 +54,25 @@ def link_object_to_active_scene(obj, coll):
 
 
 def rig_object(obj, hierarchy, rig, sub_object):
-    if hierarchy is None or not sub_object or sub_object.bone_index <= 0:
+    if hierarchy is None or not sub_object:
         return
 
     pivot = hierarchy.pivots[sub_object.bone_index]
 
-    if rig is not None and pivot.name in rig.pose.bones:
+    if pivot.name in rig.pose.bones:
         obj.parent = rig
         obj.parent_bone = pivot.name
         obj.parent_type = 'BONE'
-        return
-
-    obj.rotation_mode = 'QUATERNION'
-    obj.delta_location = pivot.translation
-    obj.delta_rotation_quaternion = pivot.rotation
-
-    if pivot.parent_id <= 0:
-        return
+    else:
+        obj.rotation_mode = 'QUATERNION'
+        obj.delta_location = pivot.translation
+        obj.delta_rotation_quaternion = pivot.rotation
 
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 
     if parent_pivot.name in bpy.data.objects:
         obj.parent = bpy.data.objects[parent_pivot.name]
-    elif rig is not None and parent_pivot.name in rig.pose.bones:
+    elif parent_pivot.name in rig.pose.bones:
         obj.parent = rig
         obj.parent_bone = parent_pivot.name
         obj.parent_type = 'BONE'

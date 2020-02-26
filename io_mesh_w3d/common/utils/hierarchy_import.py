@@ -21,19 +21,14 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     return create_bone_hierarchy(hierarchy, sub_objects, coll)
 
 
-def make_transform_matrix(loc, rot):
-    mat_loc = Matrix.Translation(loc)
-    mat_rot = Quaternion(rot).to_matrix().to_4x4()
-    return mat_loc @ mat_rot
-
-
-def create_rig(name, location, coll):
+def create_rig(name, root, coll):
     armature = bpy.data.armatures.new(name)
     armature.show_names = False
 
     rig = bpy.data.objects.new(name, armature)
-    rig.location = location
     rig.rotation_mode = 'QUATERNION'
+    rig.delta_location = root.translation
+    rig.delta_rotation_quaternion = root.rotation
     rig.track_axis = 'POS_X'
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
@@ -42,7 +37,7 @@ def create_rig(name, location, coll):
 
 def create_bone_hierarchy(hierarchy, sub_objects, coll):
     root = hierarchy.pivots[0]
-    rig = None
+    (rig, armature) = create_rig(hierarchy.name(), root, coll)
 
     for i, pivot in enumerate(hierarchy.pivots):
         pivot.is_bone = True
@@ -56,15 +51,9 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
             if child.is_bone:
                 pivot.is_bone = True
 
-    armature = None
     for pivot in hierarchy.pivots:
-        if pivot.parent_id == -1 or not pivot.is_bone:
+        if not pivot.is_bone or pivot.parent_id < 0:
             continue
-
-        if rig is None:
-            (rig, armature) = create_rig(
-                hierarchy.name(), root.translation, coll)
-        # TODO: also rotate armature/rig
 
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
@@ -79,12 +68,11 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
         bone.tail = Vector((0.0, 0.01, 0.0))
         bone.matrix = matrix
 
-    if rig is not None:
-        bpy.ops.object.mode_set(mode='POSE')
-        basic_sphere = create_sphere()
+    bpy.ops.object.mode_set(mode='POSE')
+    basic_sphere = create_sphere()
 
-        for bone in rig.pose.bones:
-            bone.custom_shape = basic_sphere
+    for bone in rig.pose.bones:
+        bone.custom_shape = basic_sphere
 
-        bpy.ops.object.mode_set(mode='OBJECT')
+    bpy.ops.object.mode_set(mode='OBJECT')
     return rig
