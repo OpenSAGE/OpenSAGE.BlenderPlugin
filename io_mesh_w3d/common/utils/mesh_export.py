@@ -52,16 +52,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        mesh = mesh_object.to_mesh(preserve_all_data_layers=True, depsgraph=None)
+        mesh = mesh_object.to_mesh()
         triangulate(mesh)
         header.vert_count = len(mesh.vertices)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh.calc_tangents()
-            #(ids, count) = mesh.calc_smooth_groups()
-            #print('ids: ' + str(ids))
-            #print('count: ' + str(count))
 
         (center, radius) = calculate_mesh_sphere(mesh)
         header.sph_center = center
@@ -116,9 +113,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
              mesh_object.bound_box[6][2]))
 
         for poly in mesh.polygons:
-            triangle = Triangle()
-            triangle.vert_ids = list(poly.vertices)
-            triangle.normal = Vector(poly.normal)
+            triangle = Triangle(
+                vert_ids=list(poly.vertices),
+                normal=Vector(poly.normal))
+
             vec1 = mesh.vertices[poly.vertices[0]].co
             vec2 = mesh.vertices[poly.vertices[1]].co
             vec3 = mesh.vertices[poly.vertices[2]].co
@@ -258,7 +256,7 @@ def distance(vec1, vec2):
     x = (vec1.x - vec2.x) ** 2
     y = (vec1.y - vec2.y) ** 2
     z = (vec1.z - vec2.z) ** 2
-    return (x + y + z) ** (1 / 2)
+    return (x + y + z) ** 0.5
 
 
 def find_most_distant_point(vertex, vertices):

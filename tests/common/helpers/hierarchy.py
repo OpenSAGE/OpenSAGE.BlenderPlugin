@@ -37,9 +37,9 @@ def get_roottransform():
         name='ROOTTRANSFORM',
         name_id=None,
         parent_id=-1,
-        translation=get_vec(),
+        translation=get_vec(2.0, 3.0, -1.0),
         euler_angles=get_vec(),
-        rotation=get_quat(),
+        rotation=get_quat(0.86, 0.25, -0.25, 0.36),
         fixup_matrix=get_mat())
 
 
