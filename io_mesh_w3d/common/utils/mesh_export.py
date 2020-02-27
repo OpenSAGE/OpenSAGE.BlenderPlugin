@@ -67,12 +67,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sph_center = center
         header.sph_radius = radius
 
-        vertices = []
-        normals = []
-        tangents = []
-        bitangents = []
-        vert_infs = []
-
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
             if vertex.groups:
@@ -81,7 +75,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
                         vert_inf.bone_idx = index
                 vert_inf.bone_inf = vertex.groups[0].weight
-                vert_infs.append(vert_inf)
+                mesh_struct.vert_infs.append(vert_inf)
 
                 matrix = None
                 if vert_inf.bone_idx > 0:
@@ -102,13 +96,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     context.warning('max 2 bone influences per vertex supported!')
 
             else:
-                vertices.append(vertex.co.xyz)
+                mesh_struct.verts.append(vertex.co.xyz)
 
-            normals.append(loop.normal)
+            mesh_struct.shade_ids.append(i)
+
+            mesh_struct.normals.append(loop.normal)
             if mesh.uv_layers:
                 # in order to adapt to 3ds max orientation
-                tangents.append(loop.bitangent * -1)
-                bitangents.append(loop.tangent)
+                mesh_struct.tangents.append(loop.bitangent * -1)
+                mesh_struct.bitangents.append(loop.tangent)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
@@ -119,10 +115,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
              mesh_object.bound_box[6][1],
              mesh_object.bound_box[6][2]))
 
-        i = 0
         for poly in mesh.polygons:
             triangle = Triangle()
-            triangle.vert_ids = (i, i + 1, i + 2)
+            triangle.vert_ids = list(poly.vertices)
             triangle.normal = Vector(poly.normal)
             vec1 = mesh.vertices[poly.vertices[0]].co
             vec2 = mesh.vertices[poly.vertices[1]].co
@@ -130,33 +125,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             tri_pos = (vec1 + vec2 + vec3) / 3.0
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
-
-            mesh_struct.verts.append(vertices[poly.vertices[0]])
-            mesh_struct.verts.append(vertices[poly.vertices[1]])
-            mesh_struct.verts.append(vertices[poly.vertices[2]])
-
-            mesh_struct.normals.append(normals[poly.vertices[0]])
-            mesh_struct.normals.append(normals[poly.vertices[1]])
-            mesh_struct.normals.append(normals[poly.vertices[2]])
-
-            if mesh.uv_layers:
-                mesh_struct.tangents.append(tangents[poly.vertices[0]])
-                mesh_struct.tangents.append(tangents[poly.vertices[1]])
-                mesh_struct.tangents.append(tangents[poly.vertices[2]])
-
-                mesh_struct.bitangents.append(bitangents[poly.vertices[0]])
-                mesh_struct.bitangents.append(bitangents[poly.vertices[1]])
-                mesh_struct.bitangents.append(bitangents[poly.vertices[2]])
-
-            if vert_infs:
-                mesh_struct.vert_infs.append(vert_infs[poly.vertices[0]])
-                mesh_struct.vert_infs.append(vert_infs[poly.vertices[1]])
-                mesh_struct.vert_infs.append(vert_infs[poly.vertices[2]])
-
-            mesh_struct.shade_ids.append(i)
-            mesh_struct.shade_ids.append(i + 1)
-            mesh_struct.shade_ids.append(i + 2)
-            i += 3
 
         header.face_count = len(mesh_struct.triangles)
 
@@ -185,12 +153,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                             and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                         multiple_uvs_per_vertex = True
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
         if multiple_uvs_per_vertex:
-            context.warning('w3d file format does not support multiple uv coords per vertex, try another unwrapping method')
+            context.warning('w3d file format does not support multiple uv coords per vertex, try another unwrapping method or split vertices')
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
