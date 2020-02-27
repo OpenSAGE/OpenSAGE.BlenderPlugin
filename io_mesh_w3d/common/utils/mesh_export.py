@@ -59,8 +59,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh.calc_tangents()
-            mesh.calc_normals()
-            print('calculated tangents')
             #(ids, count) = mesh.calc_smooth_groups()
             #print('ids: ' + str(ids))
             #print('count: ' + str(count))
@@ -86,11 +84,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = rig.matrix_local
 
                 mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
-                mesh_struct.normals.append(vertex.normal)
-
-                if mesh.uv_layers:
-                    mesh_struct.tangents.append(loop.tangent)
-                    mesh_struct.bitangents.append(loop.bitangent)
 
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True
@@ -104,10 +97,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
-                mesh_struct.normals.append(vertex.normal)
-                if mesh.uv_layers:
-                    mesh_struct.tangents.append(loop.tangent)
-                    mesh_struct.bitangents.append(loop.bitangent)
+
+            mesh_struct.normals.append(loop.normal)
+            if mesh.uv_layers:
+                # in order to adapt to 3ds max orientation
+                mesh_struct.tangents.append(loop.bitangent * -1)
+                mesh_struct.bitangents.append(loop.tangent)
 
             mesh_struct.shade_ids.append(i)
 

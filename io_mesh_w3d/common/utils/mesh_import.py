@@ -14,7 +14,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh = bpy.data.meshes.new(mesh_struct.name())
 
     mesh.from_pydata(mesh_struct.verts, [], triangles)
-    mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
+    #mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
     mesh.update()
     mesh.validate()
 
