@@ -245,6 +245,10 @@ def triangulate(mesh):
     b_mesh.free()
 
 
+def split_vertices(mesh):
+    # TODO split vertices whith 2 or more uv coordinates
+    return
+
 def vertices_to_vectors(vertices):
     vectors = []
     for vert in vertices:
