@@ -223,7 +223,7 @@ def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d/.w3x)')
 
 
-class OBJECT_PANEL_PT_w3d(Panel):
+class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
@@ -238,6 +238,18 @@ class OBJECT_PANEL_PT_w3d(Panel):
             col.prop(context.active_object, 'dazzle_type')
         col = layout.column()
         col.prop(context.active_object, 'userText')
+
+
+class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
+    bl_label = 'W3D Properties'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'bone'
+
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column()
+        col.prop(context.active_bone, 'visibility')
 
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
@@ -378,7 +390,8 @@ CLASSES = (
     ExportW3D,
     ImportW3D,
     ShaderProperties,
-    OBJECT_PANEL_PT_w3d,
+    OBJECT_PROPERTIES_PANEL_PT_w3d,
+    BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d
 )
 
