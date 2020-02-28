@@ -319,9 +319,9 @@ def compare_meshes(self, expected, actual):
     for i, expect in enumerate(expected.shade_ids):
         self.assertAlmostEqual(expect, actual.shade_ids[i])
 
-    # if expected.aabbtree is not None: #how to compute the aabbtree?
-    if actual.aabbtree is not None:
-        compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
+    if expected.aabbtree is not None:
+        if actual.aabbtree is not None:
+            compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
 
     if expected.mat_info is not None:
         compare_material_infos(self, expected.mat_info, actual.mat_info)

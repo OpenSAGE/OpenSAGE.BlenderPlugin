@@ -217,9 +217,8 @@ class AnimationBitChannel(Struct):
             default=True,
             data=[])
 
-        if xml_bit_channel.tag == 'ChannelScalar':
-            for value in xml_bit_channel:
-                result.data.append(parse_value(value, float))
+        for value in xml_bit_channel:
+            result.data.append(parse_value(value, float))
 
         result.last_frame = result.first_frame + len(result.data) - 1
         return result

@@ -72,6 +72,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
                         vert_inf.bone_idx = index
                 vert_inf.bone_inf = vertex.groups[0].weight
+
+                if len(vertex.groups) > 1:
+                    mesh_struct.multi_bone_skinned = True
+                    for index, pivot in enumerate(hierarchy.pivots):
+                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
+                            vert_inf.xtra_idx = index
+                    vert_inf.xtra_inf = vertex.groups[1].weight
                 mesh_struct.vert_infs.append(vert_inf)
 
                 matrix = None
@@ -82,22 +89,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
 
-                if len(vertex.groups) > 1:
-                    mesh_struct.multi_bone_skinned = True
-                    for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                            vert_inf.xtra_idx = index
-                    vert_inf.xtra_inf = vertex.groups[1].weight
-
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
             else:
                 mesh_struct.verts.append(vertex.co.xyz)
 
+            mesh_struct.normals.append(loop.normal)
             mesh_struct.shade_ids.append(i)
 
-            mesh_struct.normals.append(loop.normal)
             if mesh.uv_layers:
                 # in order to adapt to 3ds max orientation
                 mesh_struct.tangents.append(loop.bitangent * -1)

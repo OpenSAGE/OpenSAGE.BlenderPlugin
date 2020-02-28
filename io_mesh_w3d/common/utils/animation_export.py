@@ -11,7 +11,7 @@ def is_rotation(fcu):
 
 
 def is_visibility(fcu):
-    return 'hide' in fcu.data_path
+    return 'visibility' in fcu.data_path or 'hide' in fcu.data_path
 
 
 def retrieve_channels(obj, hierarchy, timecoded, name=None):

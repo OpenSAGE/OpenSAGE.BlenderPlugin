@@ -3,7 +3,7 @@
 
 import bpy
 from bpy.props import *
-from bpy.types import Panel, Object, Material, PropertyGroup
+from bpy.types import Panel, Object, Material, PropertyGroup, Bone
 
 ##########################################################################
 # Object
@@ -40,6 +40,16 @@ Object.dazzle_type = EnumProperty(
         ('REN_VEHICLELIGHT_WHITE', 'Ren vehicle light white', 'desc: todo')],
     default='DEFAULT')
 
+
+##########################################################################
+# PoseBone
+##########################################################################
+
+Bone.visibility = FloatProperty(
+    name='Visibility',
+    default=1.0,
+    min=0.0, max=1.0,
+    description='Visibility property')
 
 ##########################################################################
 # Material
