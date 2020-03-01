@@ -15,6 +15,12 @@ def create_mesh(context, mesh_struct, coll):
 
     mesh.from_pydata(mesh_struct.verts, [], triangles)
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
+
+    #new_mesh.polygons.foreach_set('use_smooth', [True] * len(new_mesh.polygons))
+    #new_mesh.normals_split_custom_set_from_vertices(normals)
+    #new_mesh.use_auto_smooth = True
+    #new_mesh.free_normals_split()
+
     mesh.update()
     mesh.validate()
 
