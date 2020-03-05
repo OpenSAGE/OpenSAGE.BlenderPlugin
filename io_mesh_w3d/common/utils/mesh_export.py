@@ -60,8 +60,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         b_mesh = bmesh.new()
         b_mesh.from_mesh(mesh)
+        b_mesh.verts.ensure_lookup_table()
 
-        multi_uv_vertices = False
         for i, uv_layer in enumerate(mesh.uv_layers):
             tx_coords = [None] * len(uv_layer.data)
             for j, face in enumerate(b_mesh.faces):
@@ -69,18 +69,23 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     vert_index = mesh.polygons[j].vertices[loop.index % 3]
                     if tx_coords[vert_index] is not None \
                             and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
-                        multi_uv_vertices = True
+                        b_mesh.verts[vert_index].select = True
                     tx_coords[vert_index] = uv_layer.data[loop.index].uv
 
-        print(multi_uv_vertices)
+        b_mesh = triangulate(mesh)
 
-        if multi_uv_vertices:
-            bmesh.ops.split_edges(b_mesh, edges=b_mesh.edges)
-            b_mesh.to_mesh(mesh)
+        #edges = []
+        #for vert in split_verts:
+
+        edges = [e for e in b_mesh.edges if e.select]
+        bmesh.ops.split_edges(b_mesh, edges=edges)
+        b_mesh.to_mesh(mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh.calc_tangents()
+
+        header.vert_count = len(mesh.vertices)
 
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
@@ -250,12 +255,9 @@ def triangulate(mesh):
     b_mesh.from_mesh(mesh)
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
-    b_mesh.free()
+    return b_mesh
 
 
-def split_vertices(mesh):
-    # TODO split vertices whith 2 or more uv coordinates
-    return
 
 def vertices_to_vectors(vertices):
     vectors = []
