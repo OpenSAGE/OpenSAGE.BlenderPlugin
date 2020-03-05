@@ -1,0 +1,40 @@
+v0.4.5 (WIP)
+- compute tangents and bitangents
+- custom floating point visibility property for bones
+- Bugfix: parenting issue
+- Bugfix: triangle distances
+- Bugfix: proper bool string export
+
+v0.4.4 (19.02.20)
+- limit decimal digits in w3x files to 6
+- Bugfix: use armature name as hierarchy ID
+- Bugfix: create includes on export
+
+v0.4.3 (13.02.20)
+- create only required keyframes on animation import
+- support more texture file formats
+- Bugfix: bone visibility channels
+- Bugfix: do not crash on missing float vector entries
+
+v0.4.2 (04.02.20)
+- switched to ElementTree for xml stuff
+- Bugfix: write boolean values as lower in w3x
+- Bugfix: loading of animations without include for corresponding hierarchy
+
+v0.4.1 (01.02.20)
+- support splitted w3x files
+- support w3x single mesh imports
+- Bugfix: do not crash on missing attributes
+
+v0.4.0 (31.01.20)
+- support for w3x files
+
+v0.3.0 (05.01.20)
+- support multiple levels of detail in HLod chunks
+- Bugfix: fix rigging issues with C&C Generals and C&C Renegade models
+
+v0.2.1 (13.11.19)
+- support for basic uncompressd and timecoded animation export
+- added multiple custom properties in order to reduce data loss on roundtrips
+- Bugfix: exported files now work in W3DViewer 6.0 and the recent revora version
+- Bugfix: hierarchy pivots are now in correct order on exported
