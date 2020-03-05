@@ -53,6 +53,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
         mesh = mesh_object.to_mesh()
+
         triangulate(mesh)
         header.vert_count = len(mesh.vertices)
 
@@ -144,17 +145,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 per_face_tx_coords=[],
                 tx_coords=[None] * len(mesh_struct.verts))
 
-            for i, datum in enumerate(uv_layer.data):
-                index = i % len(mesh.vertices)
-                stage.tx_coords[index] = datum.uv
-
-            #for j, face in enumerate(b_mesh.faces):
-            #    for loop in face.loops:
-            #        vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-            #        if stage.tx_coords[vert_index] is not None \
-            #                and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
-            #            multiple_uvs_per_vertex = True
-            #        stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
+            for j, face in enumerate(b_mesh.faces):
+                for loop in face.loops:
+                    vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
+                    if stage.tx_coords[vert_index] is not None \
+                            and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
+                        multiple_uvs_per_vertex = True
+                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
 
         if multiple_uvs_per_vertex:
