@@ -62,24 +62,30 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         b_mesh.from_mesh(mesh)
         b_mesh.verts.ensure_lookup_table()
 
+        for ver in b_mesh.verts:
+            ver.select_set(False)
+
         for i, uv_layer in enumerate(mesh.uv_layers):
             tx_coords = [None] * len(uv_layer.data)
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh.polygons[j].vertices[loop.index % 3]
+                    print(vert_index)
                     if tx_coords[vert_index] is not None \
                             and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
-                        b_mesh.verts[vert_index].select = True
+                        b_mesh.verts[vert_index].select_set(True)
                     tx_coords[vert_index] = uv_layer.data[loop.index].uv
 
+
+        for ver in b_mesh.verts:
+           print(ver.select)
+
+        edges_e = [e for e in b_mesh.edges if e.verts[0].select == True and e.verts[1].select == True]
+        if edges_e:
+            bmesh.ops.split_edges(b_mesh, edges=edges_e)
+            b_mesh.to_mesh(mesh)
+
         b_mesh = triangulate(mesh)
-
-        #edges = []
-        #for vert in split_verts:
-
-        edges = [e for e in b_mesh.edges if e.select]
-        bmesh.ops.split_edges(b_mesh, edges=edges)
-        b_mesh.to_mesh(mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -155,6 +161,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         center, radius = calculate_mesh_sphere(mesh)
         header.sphCenter = center
         header.sphRadius = radius
+
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
 
         tx_stages = []
         for i, uv_layer in enumerate(mesh.uv_layers):
