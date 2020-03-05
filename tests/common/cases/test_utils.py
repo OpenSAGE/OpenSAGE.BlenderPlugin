@@ -675,31 +675,25 @@ class TestUtils(TestCase):
         hierarchy.pivot_fixups = []
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='bone_pivot', parent=0),
-            get_hierarchy_pivot(name='bone_pivot2', parent=1),
-            get_hierarchy_pivot(name='bone_pivot3', parent=2)]
+            get_hierarchy_pivot(name='mesh', parent=0),
+            get_hierarchy_pivot(name='bone', parent=1)]
 
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         array = HLodLodArray(
             header=get_hlod_array_header(),
-            sub_objects=[get_hlod_sub_object(bone=0, name='containerName.BOUNDINGBOX'),
-                         get_hlod_sub_object(bone=1, name='containerName.bone_pivot'),
-                         get_hlod_sub_object(bone=2, name='containerName.bone_pivot2')])
+            sub_objects=[get_hlod_sub_object(bone=1, name='containerName.mesh')])
 
         array.header.model_count = len(array.sub_objects)
         hlod.lod_arrays = [array]
-        meshes = [
-            get_mesh(name='bone_pivot'),
-            get_mesh(name='bone_pivot2')]
+        meshes = [get_mesh(name='mesh')]
 
         create_data(self, meshes, hlod, hierarchy)
 
         (_, rig) = retrieve_hierarchy(self, 'containerName')
 
-        self.assertTrue('bone_pivot' in rig.pose.bones)
-        self.assertTrue('bone_pivot22' in rig.pose.bones)
-        self.assertTrue('bone_pivot3' in rig.pose.bones)
+        self.assertTrue('mesh' in rig.pose.bones)
+        self.assertTrue('bone' in rig.pose.bones)
 
     def test_bone_is_created_if_referenced_by_subObject_but_names_dont_match(
             self):
