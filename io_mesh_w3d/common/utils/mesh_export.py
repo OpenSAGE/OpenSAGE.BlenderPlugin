@@ -54,16 +54,33 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         mesh = mesh_object.to_mesh()
 
-        triangulate(mesh)
-        header.vert_count = len(mesh.vertices)
+        (center, radius) = calculate_mesh_sphere(mesh)
+        header.sph_center = center
+        header.sph_radius = radius
+
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
+
+        multi_uv_vertices = False
+        for i, uv_layer in enumerate(mesh.uv_layers):
+            tx_coords = [None] * len(uv_layer.data)
+            for j, face in enumerate(b_mesh.faces):
+                for loop in face.loops:
+                    vert_index = mesh.polygons[j].vertices[loop.index % 3]
+                    if tx_coords[vert_index] is not None \
+                            and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
+                        multi_uv_vertices = True
+                    tx_coords[vert_index] = uv_layer.data[loop.index].uv
+
+        print(multi_uv_vertices)
+
+        if multi_uv_vertices:
+            bmesh.ops.split_edges(b_mesh, edges=b_mesh.edges)
+            b_mesh.to_mesh(mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh.calc_tangents()
-
-        (center, radius) = calculate_mesh_sphere(mesh)
-        header.sph_center = center
-        header.sph_radius = radius
 
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
@@ -134,11 +151,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-
         tx_stages = []
-        multiple_uvs_per_vertex = False
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
                 tx_ids=[i],
@@ -148,14 +161,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    if stage.tx_coords[vert_index] is not None \
-                            and stage.tx_coords[vert_index] != uv_layer.data[loop.index].uv:
-                        multiple_uvs_per_vertex = True
                     stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
             tx_stages.append(stage)
-
-        if multiple_uvs_per_vertex:
-            context.warning('w3d file format does not support multiple uv coords per vertex, try another unwrapping method or split vertices')
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
