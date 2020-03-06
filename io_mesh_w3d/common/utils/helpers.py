@@ -67,9 +67,6 @@ def link_object_to_active_scene(obj, coll):
 
 
 def rig_object(obj, hierarchy, rig, sub_object):
-    if hierarchy is None or not sub_object:
-        return
-
     pivot = hierarchy.pivots[sub_object.bone_index]
 
     if pivot.name in rig.pose.bones:
@@ -99,13 +96,10 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
     if mat_pass.tx_coords:
         tx_coords = mat_pass.tx_coords
     else:
-        if len(mat_pass.tx_stages) > 0:
+        if mat_pass.tx_stages:
             tx_coords = mat_pass.tx_stages[0].tx_coords
         if len(mat_pass.tx_stages) > 1:
             context.warning('only one texture stage per material pass supported on export')
-
-    if not tx_coords:
-        return
 
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):

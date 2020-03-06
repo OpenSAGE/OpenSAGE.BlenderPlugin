@@ -28,11 +28,10 @@ def get_bone(rig, hierarchy, channel):
 
     pivot = hierarchy.pivots[channel.pivot]
 
-    if rig is not None:
-        if is_visibility(channel) and pivot.name in rig.data.bones:
-            return rig.data.bones[pivot.name]
-        elif pivot.name in rig.pose.bones:
-            return rig.pose.bones[pivot.name]
+    if is_visibility(channel) and pivot.name in rig.data.bones:
+        return rig.data.bones[pivot.name]
+    elif pivot.name in rig.pose.bones:
+        return rig.pose.bones[pivot.name]
     return bpy.data.objects[pivot.name]
 
 
