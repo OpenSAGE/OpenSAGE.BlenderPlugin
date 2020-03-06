@@ -58,34 +58,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sph_center = center
         header.sph_radius = radius
 
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-        b_mesh.verts.ensure_lookup_table()
-
-        for ver in b_mesh.verts:
-            ver.select_set(False)
-
-        for i, uv_layer in enumerate(mesh.uv_layers):
-            tx_coords = [None] * len(uv_layer.data)
-            for j, face in enumerate(b_mesh.faces):
-                for loop in face.loops:
-                    vert_index = mesh.polygons[j].vertices[loop.index % 3]
-                    print(vert_index)
-                    if tx_coords[vert_index] is not None \
-                            and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
-                        b_mesh.verts[vert_index].select_set(True)
-                    tx_coords[vert_index] = uv_layer.data[loop.index].uv
-
-
-        for ver in b_mesh.verts:
-           print(ver.select)
-
-        edges_e = [e for e in b_mesh.edges if e.verts[0].select == True and e.verts[1].select == True]
-        if edges_e:
-            bmesh.ops.split_edges(b_mesh, edges=edges_e)
-            b_mesh.to_mesh(mesh)
-
-        b_mesh = triangulate(mesh)
+        b_mesh = prepare_bmesh(mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -162,6 +135,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
+        # why is this needed?
         b_mesh = bmesh.new()
         b_mesh.from_mesh(mesh)
 
@@ -259,14 +233,40 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 ##########################################################################
 
 
-def triangulate(mesh):
+def prepare_bmesh(mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
+
+    #b_mesh = split_multi_uv_vertices(mesh, b_mesh)
+
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
+
     return b_mesh
 
 
+def split_multi_uv_vertices(mesh, b_mesh):
+    b_mesh.verts.ensure_lookup_table()
+
+    for ver in b_mesh.verts:
+        ver.select_set(False)
+
+    for i, uv_layer in enumerate(mesh.uv_layers):
+        tx_coords = [None] * len(uv_layer.data)
+        for j, face in enumerate(b_mesh.faces):
+            for loop in face.loops:
+                vert_index = mesh.polygons[j].vertices[loop.index % 3]
+                print(vert_index)
+                if tx_coords[vert_index] is not None \
+                        and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
+                    b_mesh.verts[vert_index].select_set(True)
+                tx_coords[vert_index] = uv_layer.data[loop.index].uv
+
+    split_edges = [e for e in b_mesh.edges if e.verts[0].select == True and e.verts[1].select == True]
+    if split_edges:
+        bmesh.ops.split_edges(b_mesh, edges=split_edges)
+        b_mesh.to_mesh(mesh)
+    return b_mesh
 
 def vertices_to_vectors(vertices):
     vectors = []
