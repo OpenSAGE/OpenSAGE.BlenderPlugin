@@ -72,11 +72,8 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
             matrix = None
             pivot = hierarchy.pivots[vert_inf.bone_idx]
-            if vert_inf.bone_idx == 0:
-                if rig is not None:
-                    matrix = rig.matrix_local
-                else:
-                    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
+            if vert_inf.bone_idx == 0 and rig is not None:
+                matrix = rig.matrix_local
             else:
                 matrix = rig.data.bones[pivot.name].matrix_local
 
