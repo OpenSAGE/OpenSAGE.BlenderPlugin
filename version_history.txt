@@ -1,5 +1,6 @@
 v0.4.5 (WIP)
-- compute tangents and bitangents
+- split vertices if multiple uv coordinates
+- export tangents and bitangents
 - custom floating point visibility property for bones
 - Bugfix: parenting issue
 - Bugfix: triangle distances

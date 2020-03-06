@@ -14,12 +14,8 @@ def create_mesh(context, mesh_struct, coll):
     mesh = bpy.data.meshes.new(mesh_struct.name())
 
     mesh.from_pydata(mesh_struct.verts, [], triangles)
-    mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
 
-    #new_mesh.polygons.foreach_set('use_smooth', [True] * len(new_mesh.polygons))
-    #new_mesh.normals_split_custom_set_from_vertices(normals)
-    #new_mesh.use_auto_smooth = True
-    #new_mesh.free_normals_split()
+    #mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
 
     mesh.update()
     mesh.validate()
@@ -76,13 +72,13 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
             matrix = Matrix.Identity(4)
             pivot = hierarchy.pivots[vert_inf.bone_idx]
-            if vert_inf.bone_idx <= 0:
-                if rig is not None:
-                    matrix = rig.matrix_local
-                else:
-                    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
-            else:
-                matrix = rig.data.bones[pivot.name].matrix_local
+            #if vert_inf.bone_idx == 0:
+                #if rig is not None:
+                #    matrix = rig.matrix_local
+                #else:
+                #    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
+            #else:
+            matrix = rig.data.bones[pivot.name].matrix_local
 
             mesh.vertices[i].co = matrix @ mesh.vertices[i].co
 
