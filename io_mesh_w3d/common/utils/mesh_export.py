@@ -237,7 +237,7 @@ def prepare_bmesh(mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    #b_mesh = split_multi_uv_vertices(mesh, b_mesh)
+    b_mesh = split_multi_uv_vertices(mesh, b_mesh)
 
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
@@ -256,7 +256,6 @@ def split_multi_uv_vertices(mesh, b_mesh):
         for j, face in enumerate(b_mesh.faces):
             for loop in face.loops:
                 vert_index = mesh.polygons[j].vertices[loop.index % 3]
-                print(vert_index)
                 if tx_coords[vert_index] is not None \
                         and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)

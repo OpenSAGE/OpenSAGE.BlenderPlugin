@@ -70,15 +70,15 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
             if weight < 0.01:
                 weight = 1.0
 
-            matrix = Matrix.Identity(4)
+            matrix = None
             pivot = hierarchy.pivots[vert_inf.bone_idx]
-            #if vert_inf.bone_idx == 0:
-                #if rig is not None:
-                #    matrix = rig.matrix_local
-                #else:
-                #    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
-            #else:
-            matrix = rig.data.bones[pivot.name].matrix_local
+            if vert_inf.bone_idx == 0:
+                if rig is not None:
+                    matrix = rig.matrix_local
+                else:
+                    matrix = make_transform_matrix(pivot.translation, pivot.rotation)
+            else:
+                matrix = rig.data.bones[pivot.name].matrix_local
 
             mesh.vertices[i].co = matrix @ mesh.vertices[i].co
 

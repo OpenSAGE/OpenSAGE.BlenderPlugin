@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
 import io
 from shutil import copyfile
 
@@ -10,6 +11,47 @@ from tests.utils import *
 
 
 class TestExportUtils(TestCase):
+    def test_multi_uv_vertex_splitting(self):
+        mesh = bpy.data.meshes.new('mesh')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.to_mesh(mesh)
+
+        tx_coords = [get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0),
+                    get_vec2(1.0, 1.0),
+                    get_vec2(0.0, 1.0),
+                    get_vec2(0.0, 0.0),
+                    get_vec2(1.0, 0.0)]
+
+        uv_layer = mesh.uv_layers.new(do_init=False)
+        for i, datum in enumerate(uv_layer.data):
+            datum.uv = tx_coords[i]
+
+        b_mesh = prepare_bmesh(mesh)
+
+        self.assertEqual(19, len(b_mesh.verts))
+        self.assertEqual(12, len(b_mesh.faces))
+
     def test_aabbtree_creation(self):
         expected = AABBTree(
             header=get_aabbtree_header(num_nodes=5, num_polys=10),
