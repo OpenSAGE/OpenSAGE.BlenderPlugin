@@ -14,8 +14,8 @@ def create_mesh(context, mesh_struct, coll):
     mesh = bpy.data.meshes.new(mesh_struct.name())
 
     mesh.from_pydata(mesh_struct.verts, [], triangles)
-
-    #mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
+    mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
+    mesh.use_auto_smooth = True
 
     mesh.update()
     mesh.validate()
@@ -25,7 +25,6 @@ def create_mesh(context, mesh_struct, coll):
     mesh_ob.userText = mesh_struct.user_text
     mesh_ob.use_empty_image_alpha = True
 
-    smooth_mesh(mesh_ob, mesh)
     link_object_to_active_scene(mesh_ob, coll)
 
     if mesh_struct.is_hidden():
@@ -77,12 +76,9 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
             else:
                 matrix = rig.data.bones[pivot.name].matrix_local
 
-            mesh.vertices[i].co = matrix @ mesh.vertices[i].co
-
             if pivot.name not in mesh_ob.vertex_groups:
                 mesh_ob.vertex_groups.new(name=pivot.name)
-            mesh_ob.vertex_groups[pivot.name].add(
-                [i], weight, 'REPLACE')
+            mesh_ob.vertex_groups[pivot.name].add([i], weight, 'REPLACE')
 
             if vert_inf.xtra_idx > 0:
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
@@ -91,18 +87,11 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
                 mesh_ob.vertex_groups[xtra_pivot.name].add(
                     [i], vert_inf.xtra_inf, 'ADD')
 
+            mesh.vertices[i].co = matrix @ mesh_struct.verts[i]
+
         modifier = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
         modifier.object = rig
         modifier.use_bone_envelopes = False
         modifier.use_vertex_groups = True
-
     else:
         rig_object(mesh_ob, hierarchy, rig, sub_object)
-
-
-def smooth_mesh(mesh_ob, mesh):
-    if mesh_ob.mode != 'OBJECT':
-        bpy.ops.object.mode_set(mode='OBJECT')
-
-    for polygon in mesh.polygons:
-        polygon.use_smooth = True

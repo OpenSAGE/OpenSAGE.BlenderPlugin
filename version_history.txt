@@ -1,5 +1,5 @@
 v0.4.5 (WIP)
-- split vertices if multiple uv coordinates
+- split vertices with multiple uv coordinates on export
 - export tangents and bitangents
 - custom floating point visibility property for bones
 - create armature for roottransform pivot

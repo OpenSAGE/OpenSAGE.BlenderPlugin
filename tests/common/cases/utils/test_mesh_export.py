@@ -10,7 +10,7 @@ from tests.common.helpers.mesh import *
 from tests.utils import *
 
 
-class TestExportUtils(TestCase):
+class TestMeshExportUtils(TestCase):
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
 
