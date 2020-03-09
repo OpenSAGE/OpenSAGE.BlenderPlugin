@@ -69,6 +69,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
 
+            matrix = Matrix.Identity(4)
+
             if vertex.groups:
                 vert_inf = VertexInfluence()
                 for index, pivot in enumerate(hierarchy.pivots):
@@ -84,27 +86,27 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     vert_inf.xtra_inf = vertex.groups[1].weight
                 mesh_struct.vert_infs.append(vert_inf)
 
-                matrix = None
                 if vert_inf.bone_idx > 0:
-                    matrix = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local
+                    matrix = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local.inverted()
                 else:
-                    matrix = rig.matrix_local
-
-                mesh_struct.verts.append(matrix.inverted() @ vertex.co.xyz)
+                    matrix = rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-            else:
-                mesh_struct.verts.append(vertex.co.xyz)
 
-            mesh_struct.normals.append(loop.normal)
-            mesh_struct.shade_ids.append(i)
+            mesh_struct.verts.append(matrix @ vertex.co.xyz)
+
+            (_, rotation, _) = matrix.decompose()
+            mesh_struct.normals.append(rotation @ loop.normal)
 
             if mesh.uv_layers:
                 # in order to adapt to 3ds max orientation
-                mesh_struct.tangents.append(loop.bitangent * -1)
-                mesh_struct.bitangents.append(loop.tangent)
+                mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
+                mesh_struct.bitangents.append((rotation @ loop.tangent))
+            
+            mesh_struct.shade_ids.append(i)
+
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
