@@ -68,6 +68,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
+
             if vertex.groups:
                 vert_inf = VertexInfluence()
                 for index, pivot in enumerate(hierarchy.pivots):
