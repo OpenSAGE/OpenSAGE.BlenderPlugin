@@ -12,13 +12,7 @@ def create_mesh(context, mesh_struct, coll):
         triangles.append(tuple(triangle.vert_ids))
 
     mesh = bpy.data.meshes.new(mesh_struct.name())
-
     mesh.from_pydata(mesh_struct.verts, [], triangles)
-    mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    mesh.use_auto_smooth = True
-
-    mesh.update()
-    mesh.validate()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
     mesh_ob.object_type = 'NORMAL'
@@ -62,8 +56,9 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
     if hierarchy is None or not hierarchy.pivots:
         return
 
+    mesh = bpy.data.meshes[mesh_ob.name]
+    normals = mesh_struct.normals
     if mesh_struct.is_skin():
-        mesh = bpy.data.meshes[mesh_ob.name]
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
             if weight < 0.01:
@@ -89,9 +84,19 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
             mesh.vertices[i].co = matrix @ mesh_struct.verts[i]
 
+            (_, rotation, _) = matrix.decompose()
+            normals[i] = rotation @ normals[i]
+
         modifier = mesh_ob.modifiers.new(rig.name, 'ARMATURE')
         modifier.object = rig
         modifier.use_bone_envelopes = False
         modifier.use_vertex_groups = True
+
     else:
         rig_object(mesh_ob, hierarchy, rig, sub_object)
+
+    mesh.normals_split_custom_set_from_vertices(normals)
+    mesh.use_auto_smooth = True
+
+    mesh.update()
+    mesh.validate()
