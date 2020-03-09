@@ -248,8 +248,9 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
 
     def draw(self, context):
         layout = self.layout
-        col = layout.column()
-        col.prop(context.active_bone, 'visibility')
+        if context.active_bone is not None:
+            col = layout.column()
+            col.prop(context.active_bone, 'visibility')
 
 
 class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
