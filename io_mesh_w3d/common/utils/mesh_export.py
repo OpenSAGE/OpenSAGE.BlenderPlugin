@@ -85,7 +85,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 matrix = None
                 if vert_inf.bone_idx > 0:
-                    matrix = rig.pose.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix
+                    matrix = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local
                 else:
                     matrix = rig.matrix_local
 
