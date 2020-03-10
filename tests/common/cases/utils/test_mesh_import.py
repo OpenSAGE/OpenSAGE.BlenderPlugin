@@ -50,17 +50,27 @@ class TestMeshImportUtils(TestCase):
                     get_vec(0.0, 0.0, -1.0),
                     get_vec(0.0, 0.0, -1.0),
                     get_vec(0.0, 0.0, -1.0)]
+
+        expected_normals = [get_vec(0.25, 0.61, -0.74),
+                    get_vec(0.25, 0.61, -0.75),
+                    get_vec(-0.10, 0.96, -0.25),
+                    get_vec(-0.10, 0.96, -0.25),
+                    get_vec(-0.71, 0.69, -0.019),
+                    get_vec(-0.71, 0.69, -0.019),
+                    get_vec(-0.71, 0.69, -0.019),
+                    get_vec(-0.71, 0.69, -0.019)]
         
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
         get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
 
         mesh = bpy.data.meshes[mesh_name]
-        mesh.calc_tangents()
 
         rig = bpy.data.objects[hierarchy.name()]
         rig_mesh(mesh_struct, hierarchy, rig, sub_object=hlod.lod_arrays[0].sub_objects[1])
 
+        mesh.calc_tangents()
+
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
-            compare_vectors(self, mesh_struct.normals[i], loop.normal)
+            compare_vectors(self, expected_normals[i], loop.normal)
