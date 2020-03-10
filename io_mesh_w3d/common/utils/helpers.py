@@ -17,11 +17,11 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
     return [object for object in object_list if object.type == type]
-    
+
     # apply modifiers and split instanced objects
     #depsgraph = bpy.context.evaluated_depsgraph_get()
     #results = []
-    #for obj in objects:
+    # for obj in objects:
     #    obj = obj.evaluated_get(depsgraph)
     #    if obj.is_instancer:
     #        results.extend([dup.instance_object.original * dup.matrix_world.copy()
@@ -29,7 +29,7 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
     #                        if dup.parent and dup.parent.original == obj])
     #    else:
     #        results.append(obj * obj.matrix_world)
-    #return results
+    # return results
 
 
 def switch_to_pose(rig, pose):

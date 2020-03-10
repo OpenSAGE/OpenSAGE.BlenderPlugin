@@ -94,7 +94,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-
             mesh_struct.verts.append(matrix @ vertex.co.xyz)
 
             (_, rotation, _) = matrix.decompose()
@@ -104,9 +103,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 # in order to adapt to 3ds max orientation
                 mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
                 mesh_struct.bitangents.append((rotation @ loop.tangent))
-            
-            mesh_struct.shade_ids.append(i)
 
+            mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
@@ -264,12 +262,13 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
                     b_mesh.verts[vert_index].select_set(True)
                 tx_coords[vert_index] = uv_layer.data[loop.index].uv
 
-    split_edges = [e for e in b_mesh.edges if e.verts[0].select == True and e.verts[1].select == True]
+    split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
         b_mesh.to_mesh(mesh)
         context.info('mesh vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
+
 
 def vertices_to_vectors(vertices):
     vectors = []
