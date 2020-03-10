@@ -7,15 +7,15 @@ from tests.mathutils import *
 
 def get_shader_material_header():
     return ShaderMaterialHeader(
-        technique_index=1,
+        version=1,
         type_name='NormalMapped.fx',
-        reserved=0)
+        technique=0)
 
 
 def compare_shader_material_headers(self, expected, actual):
-    self.assertEqual(expected.technique_index, actual.technique_index)
+    self.assertEqual(expected.version, actual.version)
     self.assertEqual(expected.type_name, actual.type_name)
-    self.assertEqual(expected.reserved, actual.reserved)
+    self.assertEqual(expected.technique, actual.technique)
 
 
 def get_shader_material_property(

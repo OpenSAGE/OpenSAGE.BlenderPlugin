@@ -9,16 +9,16 @@ W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 
 class ShaderMaterialHeader(Struct):
-    technique_index = 1
+    version = 1
     type_name = ''
-    reserved = 0  # what is this?
+    technique = 0
 
     @staticmethod
     def read(io_stream):
         return ShaderMaterialHeader(
-            technique_index=read_ubyte(io_stream),
+            version=read_ubyte(io_stream),
             type_name=read_long_fixed_string(io_stream),
-            reserved=read_long(io_stream))
+            technique=read_long(io_stream))
 
     @staticmethod
     def size(include_head=True):
@@ -27,9 +27,9 @@ class ShaderMaterialHeader(Struct):
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER,
                          io_stream, self.size(False))
-        write_ubyte(self.technique_index, io_stream)
+        write_ubyte(self.version, io_stream)
         write_long_fixed_string(self.type_name, io_stream)
-        write_long(self.reserved, io_stream)
+        write_long(self.technique, io_stream)
 
 
 W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x53
@@ -246,7 +246,7 @@ class ShaderMaterial(Struct):
         result = ShaderMaterial(
             header=ShaderMaterialHeader(
                 type_name=xml_fx_shader.get('ShaderName'),
-                technique_index=int(xml_fx_shader.get('TechniqueIndex', 0))),
+                technique=int(xml_fx_shader.get('TechniqueIndex', 0))),
             properties=[])
 
         for constants in xml_fx_shader.findall('Constants'):
@@ -257,7 +257,7 @@ class ShaderMaterial(Struct):
     def create(self, parent):
         fx_shader = create_node(parent, 'FXShader')
         fx_shader.set('ShaderName', self.header.type_name)
-        fx_shader.set('TechniqueIndex', str(self.header.technique_index))
+        fx_shader.set('TechniqueIndex', str(self.header.technique))
 
         constants = create_node(fx_shader, 'Constants')
         for property in self.properties:
