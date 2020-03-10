@@ -16,20 +16,26 @@ def make_transform_matrix(loc, rot):
 def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
-    return [object for object in object_list if object.type == type]
+    objects = [object for object in object_list if object.type == type]
 
     # apply modifiers and split instanced objects
-    #depsgraph = bpy.context.evaluated_depsgraph_get()
-    #results = []
-    # for obj in objects:
-    #    obj = obj.evaluated_get(depsgraph)
-    #    if obj.is_instancer:
-    #        results.extend([dup.instance_object.original * dup.matrix_world.copy()
-    #                        for dup in depsgraph.object_instances
-    #                        if dup.parent and dup.parent.original == obj])
-    #    else:
-    #        results.append(obj * obj.matrix_world)
-    # return results
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    results = []
+    for obj in objects:
+        obj = obj.evaluated_get(depsgraph)
+        if obj.is_instancer:
+            print('inst')
+            for dup in depsgraph.object_instances:
+                if dup.parent and dup.parent.original == obj:
+                    duplicate = dup.instance_object.original.copy()
+                    print(dup.matrix_world)
+                    duplicate.matrix_local = dup.matrix_local
+                    results.append(duplicate)
+        else:
+            print(obj.name)
+            print(obj.matrix_world)
+            results.append(obj)
+    return results
 
 
 def switch_to_pose(rig, pose):
