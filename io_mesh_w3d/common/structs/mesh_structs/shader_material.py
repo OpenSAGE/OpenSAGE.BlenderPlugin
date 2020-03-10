@@ -9,7 +9,7 @@ W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 
 class ShaderMaterialHeader(Struct):
-    technique_index = 0
+    technique_index = 1
     type_name = ''
     reserved = 0  # what is this?
 

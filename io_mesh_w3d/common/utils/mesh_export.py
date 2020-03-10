@@ -176,7 +176,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords
                 mesh_struct.shader_materials.append(
-                    retrieve_shader_material(material, principled))
+                    retrieve_shader_material(context, material, principled))
 
             else:
                 # TODO: create prelit material structs if material is prelit

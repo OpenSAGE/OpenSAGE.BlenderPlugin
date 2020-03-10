@@ -64,8 +64,7 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
             matrix = bone.parent.matrix @ matrix
 
         bone.head = Vector((0.0, 0.0, 0.0))
-        # has to point in y direction, so rotation is applied correctly
-        bone.tail = Vector((0.0, 0.01, 0.0))
+        bone.tail = Vector((0.0, 0.0, 0.01))
         bone.matrix = matrix
 
     bpy.ops.object.mode_set(mode='POSE')
