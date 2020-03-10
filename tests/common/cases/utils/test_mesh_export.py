@@ -47,7 +47,7 @@ class TestMeshExportUtils(TestCase):
         for i, datum in enumerate(uv_layer.data):
             datum.uv = tx_coords[i]
 
-        b_mesh = prepare_bmesh(mesh)
+        b_mesh = prepare_bmesh(self, mesh)
 
         self.assertEqual(19, len(b_mesh.verts))
         self.assertEqual(12, len(b_mesh.faces))
