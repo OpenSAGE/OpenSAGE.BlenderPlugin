@@ -68,6 +68,10 @@ def link_object_to_active_scene(obj, coll):
 
 def rig_object(obj, hierarchy, rig, sub_object):
     obj.parent = rig
+    obj.parent_type = 'ARMATURE'
+    if sub_object.bone_index <= 0:
+        return
+
     pivot = hierarchy.pivots[sub_object.bone_index]
 
     if pivot.name in rig.data.bones:
@@ -82,6 +86,7 @@ def rig_object(obj, hierarchy, rig, sub_object):
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 
     if parent_pivot.name in bpy.data.objects:
+        obj.parent_type = 'OBJECT'
         obj.parent = bpy.data.objects[parent_pivot.name]
     elif parent_pivot.name in rig.data.bones:
         obj.parent_bone = parent_pivot.name
@@ -97,6 +102,9 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
             tx_coords = mat_pass.tx_stages[0].tx_coords
         if len(mat_pass.tx_stages) > 1:
             context.warning('only one texture stage per material pass supported on export')
+
+    if tx_coords is None:
+        return
 
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):

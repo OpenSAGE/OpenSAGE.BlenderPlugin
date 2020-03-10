@@ -8,7 +8,7 @@ from tests.mathutils import *
 def get_shader_material_header():
     return ShaderMaterialHeader(
         technique_index=1,
-        type_name='ShaderMaterial.fx',
+        type_name='NormalMapped.fx',
         reserved=0)
 
 
@@ -132,13 +132,11 @@ def get_shader_material_properties_minimal():
     return [
         get_shader_material_property(2, 'SpecularExponent'),
         get_shader_material_property(3, 'BumpUVScale'),
-        get_shader_material_property(4, 'Sampler_ClampU_ClampV_NoMip_0'),
+        get_shader_material_property(4, 'SpecularColor'),
         get_shader_material_property(5, 'AmbientColor'),
         get_shader_material_property(5, 'DiffuseColor'),
-        get_shader_material_property(5, 'SpecularColor'),
         get_shader_material_property(6, 'BlendMode'),
-        get_shader_material_property(7, 'AlphaTestEnable')
-    ]
+        get_shader_material_property(7, 'AlphaTestEnable', value=False)]
 
 
 def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):

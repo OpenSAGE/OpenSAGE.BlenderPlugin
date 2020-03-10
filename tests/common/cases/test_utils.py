@@ -43,7 +43,7 @@ class TestUtils(TestCase):
             compare_vertex_materials(self, source, actual)
 
     def test_shader_material_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material()]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
@@ -53,11 +53,11 @@ class TestUtils(TestCase):
             (material, _) = create_material_from_shader_material(
                 self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled)
+            actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, source, actual)
 
     def test_duplicate_shader_material_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(), get_shader_material()]
 
         materials = []
@@ -66,15 +66,15 @@ class TestUtils(TestCase):
             materials.append(material)
 
         self.assertEqual(1, len(bpy.data.materials))
-        self.assertTrue('meshName.ShaderMaterial.fx' in bpy.data.materials)
+        self.assertTrue('meshName.NormalMapped.fx' in bpy.data.materials)
 
         for expected in mesh.shader_materials:
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled)
+            actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(w3x=True)]
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
                  self.outpath() + 'texture.dds')
@@ -83,18 +83,18 @@ class TestUtils(TestCase):
             (material, _) = create_material_from_shader_material(
                 self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled, w3x=True)
+            actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
 
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
                 self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled, w3x=True)
+            actual = retrieve_shader_material(self, material, principled, w3x=True)
 
             for prop in source.properties:
                 if prop.name in ['ColorAmbient', 'ColorEmissive', 'ColorDiffuse', 'ColorSpecular']:
@@ -104,14 +104,14 @@ class TestUtils(TestCase):
             compare_shader_materials(self, source, actual)
 
     def test_shader_material_w3x_two_tex_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
 
         for source in mesh.shader_materials:
             (material, _) = create_material_from_shader_material(
                 self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(material, principled, w3x=True)
+            actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
 
     def test_default_shader_material_properties_are_not_exported(self):
@@ -120,23 +120,35 @@ class TestUtils(TestCase):
 
         (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
 
-        actual = retrieve_shader_material(material, principled, w3x=False)
+        actual = retrieve_shader_material(self, material, principled, w3x=False)
         self.assertEqual(0, len(actual.properties))
 
-        actual = retrieve_shader_material(material, principled, w3x=True)
+        actual = retrieve_shader_material(self, material, principled, w3x=True)
         self.assertEqual(0, len(actual.properties))
 
     def test_shader_material_minimal_roundtrip(self):
-        mesh = get_mesh()
+        mesh = get_mesh(shader_mats=True)
 
         for source in mesh.shader_materials:
-            source.properties = []
-
-            (material, _) = create_material_from_shader_material(
-                self, mesh, source)
-            principled = retrieve_principled_bsdf(material)
-            actual = retrieve_shader_material(material, principled)
             source.properties = get_shader_material_properties_minimal()
+
+            (material, principled) = create_material_from_shader_material(
+                self, mesh.name(), source)
+            actual = retrieve_shader_material(self, material, principled)
+            source.properties[2].type = 5
+            source.properties[2].value = get_vec4(x=1.0, y=0.2, z=0.33, w=1.0)
+            compare_shader_materials(self, source, actual)
+
+    def test_shader_material_type_name_fallback(self):
+        mesh = get_mesh(shader_mats=True)
+
+        for source in mesh.shader_materials:
+            source.header.type_name = 'LoremIpsum'
+
+            (material, principled) = create_material_from_shader_material(
+                self, mesh.name(), source)
+            actual = retrieve_shader_material(self, material, principled)
+            source.header.type_name = 'DefaultW3D.fx'
             compare_shader_materials(self, source, actual)
 
     def test_shader_roundtrip(self):

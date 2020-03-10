@@ -93,10 +93,15 @@ def to_vec(color):
     return Vector((color[0], color[1], color[2], color[3] if len(color) > 3 else 1.0))
 
 
-def retrieve_shader_material(material, principled, w3x=False):
+def retrieve_shader_material(context, material, principled, w3x=False):
+    name = material.name.split('.', 1)[-1]
+    if not name.endswith('.fx'):
+        context.info(name + ' is not a valid shader name -> defaulting to: DefaultW3D.fx')
+        name = 'DefaultW3D.fx'
+
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
-            type_name=material.name.split('.', 1)[-1]),
+            type_name=name),
         properties=[])
 
     shader_mat.header.technique_index = material.technique
