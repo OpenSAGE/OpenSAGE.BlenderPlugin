@@ -58,7 +58,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sph_center = center
         header.sph_radius = radius
 
-        b_mesh = prepare_bmesh(mesh)
+        b_mesh = prepare_bmesh(context, mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -236,11 +236,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 ##########################################################################
 
 
-def prepare_bmesh(mesh):
+def prepare_bmesh(context, mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    b_mesh = split_multi_uv_vertices(mesh, b_mesh)
+    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
 
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
@@ -248,7 +248,7 @@ def prepare_bmesh(mesh):
     return b_mesh
 
 
-def split_multi_uv_vertices(mesh, b_mesh):
+def split_multi_uv_vertices(context, mesh, b_mesh):
     b_mesh.verts.ensure_lookup_table()
 
     for ver in b_mesh.verts:
@@ -268,6 +268,7 @@ def split_multi_uv_vertices(mesh, b_mesh):
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
         b_mesh.to_mesh(mesh)
+        context.info('mesh vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 def vertices_to_vectors(vertices):
