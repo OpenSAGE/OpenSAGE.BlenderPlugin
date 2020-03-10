@@ -17,14 +17,14 @@ class TestMeshImportUtils(TestCase):
         mesh_struct = get_mesh(mesh_name)
 
         mesh_struct.normals = [get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0)]
-        
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0)]
+
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
         mesh = bpy.data.meshes[mesh_name]
@@ -35,7 +35,6 @@ class TestMeshImportUtils(TestCase):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
             compare_vectors(self, mesh_struct.normals[i], loop.normal)
 
-
     def test_custom_normals_import_skinned_mesh(self):
         mesh_name = 'soldier'
         mesh_struct = get_mesh(mesh_name, skin=True)
@@ -43,23 +42,23 @@ class TestMeshImportUtils(TestCase):
         hlod = get_hlod()
 
         mesh_struct.normals = [get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0),
-                    get_vec(0.0, 0.0, -1.0)]
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0),
+                               get_vec(0.0, 0.0, -1.0)]
 
         expected_normals = [get_vec(0.25, 0.61, -0.74),
-                    get_vec(0.25, 0.61, -0.75),
-                    get_vec(-0.10, 0.96, -0.25),
-                    get_vec(-0.10, 0.96, -0.25),
-                    get_vec(-0.71, 0.69, -0.019),
-                    get_vec(-0.71, 0.69, -0.019),
-                    get_vec(-0.71, 0.69, -0.019),
-                    get_vec(-0.71, 0.69, -0.019)]
-        
+                            get_vec(0.25, 0.61, -0.75),
+                            get_vec(-0.10, 0.96, -0.25),
+                            get_vec(-0.10, 0.96, -0.25),
+                            get_vec(-0.71, 0.69, -0.019),
+                            get_vec(-0.71, 0.69, -0.019),
+                            get_vec(-0.71, 0.69, -0.019),
+                            get_vec(-0.71, 0.69, -0.019)]
+
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
         get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
@@ -192,4 +191,3 @@ class TestMeshImportUtils(TestCase):
         self.assertEqual(parent, mesh.parent)
         self.assertEqual('', mesh.parent_bone)
         self.assertEqual('OBJECT', mesh.parent_type)
-
