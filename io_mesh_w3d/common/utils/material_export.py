@@ -138,8 +138,11 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
-    if principled.normalmap_texture is not None:
+    if principled.normalmap_texture is not None and principled.normalmap_texture.image is not None:
+        if shader_mat.header.type_name == 'DefaultW3D.fx':
+            shader_mat.header.type_name = 'NormalMapped.fx'
         append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
+
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
     append_property(shader_mat, 2, 'Opacity', material.opacity)
