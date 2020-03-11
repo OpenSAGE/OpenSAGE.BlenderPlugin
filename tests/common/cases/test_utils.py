@@ -144,11 +144,24 @@ class TestUtils(TestCase):
 
         for source in mesh.shader_materials:
             source.header.type_name = 'LoremIpsum'
+            source.properties = []
 
             (material, principled) = create_material_from_shader_material(
                 self, mesh.name(), source)
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'DefaultW3D.fx'
+            compare_shader_materials(self, source, actual)
+
+    def test_shader_material_type_name_upgrade_to_normal_mapped(self):
+        mesh = get_mesh(shader_mats=True)
+
+        for source in mesh.shader_materials:
+            source.header.type_name = 'LoremIpsum'
+
+            (material, principled) = create_material_from_shader_material(
+                self, mesh.name(), source)
+            actual = retrieve_shader_material(self, material, principled)
+            source.header.type_name = 'NormalMapped.fx'
             compare_shader_materials(self, source, actual)
 
     def test_shader_roundtrip(self):
