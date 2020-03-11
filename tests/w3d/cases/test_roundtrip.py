@@ -116,6 +116,64 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
         self.assertTrue('Brakelight' in bpy.data.objects)
 
+    def test_hierarchy_name_is_container_name_on_HAM(self):
+        hierarchy_name = 'TestName'
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
+        animation = get_animation(hierarchy_name)
+        create_data(self, meshes, hlod, hierarchy, [], animation)
+
+        # export
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HAM', 'compression': 'U'}
+        save(self, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        self.filepath = self.outpath() + 'output.w3d'
+        load(self)
+
+        # check created objects
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
+        self.assertEqual(6, len(amt.bones))
+
+    def test_hierarchy_name_is_container_name_on_HM_and_not_use_existing_skeleton(self):
+        hierarchy_name = 'TestName'
+        hierarchy = get_hierarchy(hierarchy_name)
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
+        self.filepath = self.outpath() + 'output'
+        create_data(self, meshes, hlod, hierarchy)
+
+        # export
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HM', 
+                           'compression': 'U', 
+                           'use_existing_skeleton': False}
+        save(self, export_settings)
+
+        # reset scene
+        bpy.ops.wm.read_homefile(app_template='')
+
+        # import
+        self.filepath = self.outpath() + 'output.w3d'
+        load(self)
+
+        # check created objects
+        self.assertTrue('output' in bpy.data.armatures)
+        amt = bpy.data.armatures['output']
+        self.assertEqual(6, len(amt.bones))
+
     def test_roundtrip_HAM(self):
         hierarchy_name = 'TestName'
         hierarchy = get_hierarchy(hierarchy_name)
