@@ -55,6 +55,7 @@ def retrieve_hierarchy(context, container_name):
 
             matrix = bone.matrix
 
+            # needed?
             if bone.parent is not None:
                 pivot.parent_id = bone.parent.name
                 matrix = bone.parent.matrix.inverted() @ matrix
@@ -86,16 +87,26 @@ def retrieve_hierarchy(context, container_name):
                 or mesh.name in pick_plane_names:
             continue
 
-        if mesh.delta_location.length < 0.01 \
-                and mesh.delta_rotation_quaternion == Quaternion():
+        matrix = mesh.matrix_local
+        if mesh.parent_bone != '':
+            parent_bone = rig.data.bones[mesh.parent_bone]
+            print(parent_bone.matrix)
+            print(matrix)
+            matrix = parent_bone.matrix_local.inverted() @ matrix
+        #elif mesh.parent is not None:
+         #   matrix = mesh.parent.matrix_world.inverted() @ matrix
+
+        (location, rotation, _) = matrix.decompose()
+
+        if location.length < 0.01 and rotation == Quaternion():
             continue
 
-        eulers = mesh.rotation_quaternion.to_euler()
+        eulers = rotation.to_euler()
         pivot = HierarchyPivot(
             name=mesh.name,
             parent_id=0,
-            translation=mesh.delta_location,
-            rotation=mesh.delta_rotation_quaternion,
+            translation=location,
+            rotation=rotation,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
         if mesh.parent_bone != '':

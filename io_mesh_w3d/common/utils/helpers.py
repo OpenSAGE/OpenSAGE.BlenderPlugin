@@ -79,8 +79,8 @@ def rig_object(obj, hierarchy, rig, sub_object):
         return
 
     obj.rotation_mode = 'QUATERNION'
-    obj.delta_location = pivot.translation
-    obj.delta_rotation_quaternion = pivot.rotation
+    obj.location = pivot.translation
+    obj.rotation_quaternion = pivot.rotation
 
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 
