@@ -87,13 +87,17 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mesh_struct.vert_infs.append(vert_inf)
 
                 if vert_inf.bone_idx > 0:
-                    matrix = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local.inverted()
+                    matrix = matrix @ rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local.inverted()
                 else:
-                    matrix = rig.matrix_local.inverted()
+                    matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
+            (_ , _, scale) = mesh_object.matrix_world.decompose()
+            vertex.co.x *= scale.x
+            vertex.co.y *= scale.y
+            vertex.co.z *= scale.z
             mesh_struct.verts.append(matrix @ vertex.co.xyz)
 
             (_, rotation, _) = matrix.decompose()
