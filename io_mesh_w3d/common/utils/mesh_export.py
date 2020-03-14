@@ -69,7 +69,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
 
-            matrix = Matrix.Identity(4)
+            matrix = mesh_object.matrix_local
 
             if vertex.groups:
                 vert_inf = VertexInfluence()
@@ -94,7 +94,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-            (_ , _, scale) = mesh_object.matrix_world.decompose()
+            (_ , _, scale) = mesh_object.matrix_local.decompose()
             vertex.co.x *= scale.x
             vertex.co.y *= scale.y
             vertex.co.z *= scale.z

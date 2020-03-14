@@ -17,16 +17,11 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
     objects = [object for object in object_list if object.type == type]
-
+    
     depsgraph = bpy.context.evaluated_depsgraph_get()
     results = []
     for obj in objects:
         obj = obj.evaluated_get(depsgraph)
-
-        (trans, rot, _) = obj.matrix_world.decompose()
-        obj.delta_location = trans
-        obj.delta_rotation_quaternion = rot
-
         results.append(obj)
     return results
 

@@ -87,16 +87,7 @@ def retrieve_hierarchy(context, container_name):
                 or mesh.name in pick_plane_names:
             continue
 
-        matrix = mesh.matrix_local
-        if mesh.parent_bone != '':
-            parent_bone = rig.data.bones[mesh.parent_bone]
-            print(parent_bone.matrix)
-            print(matrix)
-            matrix = parent_bone.matrix_local.inverted() @ matrix
-        #elif mesh.parent is not None:
-         #   matrix = mesh.parent.matrix_world.inverted() @ matrix
-
-        (location, rotation, _) = matrix.decompose()
+        (location, rotation, _) = mesh.matrix_local.decompose()
 
         if location.length < 0.01 and rotation == Quaternion():
             continue
