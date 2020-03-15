@@ -17,10 +17,15 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
     objects = [object for object in object_list if object.type == type]
-    
+
+    if type != 'MESH':
+        return objects
+
     depsgraph = bpy.context.evaluated_depsgraph_get()
     results = []
+    print('get meshes')
     for obj in objects:
+        print(obj.name)
         obj = obj.evaluated_get(depsgraph)
         results.append(obj)
     return results

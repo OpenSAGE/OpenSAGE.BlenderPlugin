@@ -69,7 +69,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, vertex in enumerate(mesh.vertices):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
 
-            matrix = mesh_object.matrix_local
+            matrix = Matrix.Identity(4) # mesh_object.matrix_local
 
             if vertex.groups:
                 vert_inf = VertexInfluence()
