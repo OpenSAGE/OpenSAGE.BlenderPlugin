@@ -390,14 +390,6 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
-        print('expected')
-        for pivot in hierarchy.pivots:
-            print(pivot.name)
-
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'container_name')
-        print('actual')
-        for pivot in actual_hiera.pivots:
-            print(pivot.name)
         self.compare_data(meshes, hlod, hierarchy, boxes)
 
     def test_mesh_is_child_of_mesh_roundtrip(self):

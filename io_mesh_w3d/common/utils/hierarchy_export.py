@@ -88,11 +88,11 @@ def retrieve_hierarchy(context, container_name):
             continue
 
         (location, rotation, _) = mesh.matrix_local.decompose()
+        eulers = rotation.to_euler()
 
-        if location.length < 0.01 and rotation == Quaternion():
+        if location.length < 0.01 and abs(eulers.x) < 0.01 and abs(eulers.y) < 0.01 and abs(eulers.z) < 0.01:
             continue
 
-        eulers = rotation.to_euler()
         pivot = HierarchyPivot(
             name=mesh.name,
             parent_id=0,

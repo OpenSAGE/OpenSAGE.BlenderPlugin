@@ -23,10 +23,10 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
     results = []
-    print('get meshes')
     for obj in objects:
-        print(obj.name)
+        hidden = obj.hide_get()
         obj = obj.evaluated_get(depsgraph)
+        obj.hide_set(hidden)
         results.append(obj)
     return results
 
