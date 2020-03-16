@@ -16,19 +16,7 @@ def make_transform_matrix(loc, rot):
 def get_objects(type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
-    objects = [object for object in object_list if object.type == type]
-
-    if type != 'MESH':
-        return objects
-
-    depsgraph = bpy.context.evaluated_depsgraph_get()
-    results = []
-    for obj in objects:
-        hidden = obj.hide_get()
-        obj = obj.evaluated_get(depsgraph)
-        obj.hide_set(hidden)
-        results.append(obj)
-    return results
+    return [object for object in object_list if object.type == type]
 
 
 def switch_to_pose(rig, pose):

@@ -55,7 +55,6 @@ def retrieve_hierarchy(context, container_name):
 
             matrix = bone.matrix
 
-            # needed?
             if bone.parent is not None:
                 pivot.parent_id = bone.parent.name
                 matrix = bone.parent.matrix.inverted() @ matrix
