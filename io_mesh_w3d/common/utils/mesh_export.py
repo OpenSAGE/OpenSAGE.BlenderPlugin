@@ -52,8 +52,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        depsgraph = bpy.context.evaluated_depsgraph_get()
-        mesh_object = mesh_object.evaluated_get(depsgraph)
+        #depsgraph = bpy.context.evaluated_depsgraph_get()
+        #mesh_object = mesh_object.evaluated_get(depsgraph)
 
         mesh = mesh_object.to_mesh()
 
