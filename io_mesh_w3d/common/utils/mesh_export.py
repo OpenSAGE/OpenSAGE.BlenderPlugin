@@ -54,7 +54,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        #mesh_object = mesh_object.evaluated_get(depsgraph) # this breaks unit tests (memory issue?)
+        mesh_object = mesh_object.evaluated_get(depsgraph)
         mesh = mesh_object.to_mesh()
         b_mesh = prepare_bmesh(context, mesh)
 
@@ -150,7 +150,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
+                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
             tx_stages.append(stage)
 
         b_mesh.free()
