@@ -20,19 +20,19 @@ def process_pivot(pivot, pivots, hierarchy):
 
 
 def retrieve_hierarchy(context, container_name):
-    hierarchy = Hierarchy(
-        header=HierarchyHeader(),
-        pivots=[],
-        pivot_fixups=[])
-
     root = HierarchyPivot(
         name='ROOTTRANSFORM',
         parentID=-1,
         translation=Vector())
 
+    hierarchy = Hierarchy(
+        header=HierarchyHeader(),
+        pivots=[root],
+        pivot_fixups=[])
+
     rig = None
     rigs = get_objects('ARMATURE')
-    pivots = [root]
+    pivots = []
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
@@ -101,11 +101,8 @@ def retrieve_hierarchy(context, container_name):
 
         if mesh.parent_bone != '':
             pivot.parent_id = mesh.parent_bone
-        elif mesh.parent is not None:
-            if mesh.parent.name == rig.name:
-                pivot.parent_id = 'ROOTTRANSFORM'
-            else:
-                pivot.parent_id = mesh.parent.name
+        elif mesh.parent is not None and mesh.parent.name != rig.name:
+            pivot.parent_id = mesh.parent.name
 
         pivots.append(pivot)
 
