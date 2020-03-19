@@ -25,7 +25,6 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(42, len(mesh.verts))
 
     def test_multiuser_mesh_with_modifiers_export(self):
-        self.info = print
         self.loadBlend(up(up(up(self.relpath()))) + '/testfiles/multiuser_mesh_with_modifiers.blend')
 
         self.assertTrue('Cube' in bpy.data.objects)
