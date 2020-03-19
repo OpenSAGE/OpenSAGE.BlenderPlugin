@@ -157,8 +157,8 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HM', 
-                           'compression': 'U', 
+        export_settings = {'mode': 'HM',
+                           'compression': 'U',
                            'use_existing_skeleton': False}
         save(self, export_settings)
 
