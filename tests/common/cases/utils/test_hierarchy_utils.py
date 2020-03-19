@@ -76,6 +76,8 @@ class TestHierarchyUtils(TestCase):
         create_data(self, [], None, hierarchy)
 
         hierarchy.header.name = 'troll_skl'
-        rig = get_or_create_skeleton(None, hierarchy, None)
+        rig = get_or_create_skeleton(None, hierarchy, bpy.context.scene.collection)
 
-        self.assertIsNotNone(rig)
+        self.assertTrue('TROLL_SKL' in bpy.data.armatures)
+
+        self.assertEqual(1, len(bpy.data.armatures))
