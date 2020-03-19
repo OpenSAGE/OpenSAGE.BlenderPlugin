@@ -20,19 +20,19 @@ def process_pivot(pivot, pivots, hierarchy):
 
 
 def retrieve_hierarchy(context, container_name):
-    hierarchy = Hierarchy(
-        header=HierarchyHeader(),
-        pivots=[],
-        pivot_fixups=[])
-
     root = HierarchyPivot(
         name='ROOTTRANSFORM',
         parentID=-1,
         translation=Vector())
 
+    hierarchy = Hierarchy(
+        header=HierarchyHeader(),
+        pivots=[root],
+        pivot_fixups=[])
+
     rig = None
     rigs = get_objects('ARMATURE')
-    pivots = [root]
+    pivots = []
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
@@ -86,23 +86,24 @@ def retrieve_hierarchy(context, container_name):
                 or mesh.name in pick_plane_names:
             continue
 
-        if mesh.delta_location.length < 0.01 \
-                and mesh.delta_rotation_quaternion == Quaternion():
+        (location, rotation, _) = mesh.matrix_local.decompose()
+        eulers = rotation.to_euler()
+
+        if location.length < 0.01 and abs(eulers.x) < 0.01 and abs(eulers.y) < 0.01 and abs(eulers.z) < 0.01:
             continue
 
-        eulers = mesh.rotation_quaternion.to_euler()
         pivot = HierarchyPivot(
             name=mesh.name,
             parent_id=0,
-            translation=mesh.delta_location,
-            rotation=mesh.delta_rotation_quaternion,
+            translation=location,
+            rotation=rotation,
             euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
 
         if mesh.parent_bone != '':
             pivot.parent_id = mesh.parent_bone
         elif mesh.parent is not None:
             if mesh.parent.name == rig.name:
-                pivot.parent_id = 'ROOTTRANSFORM'
+                pivot.parent_id = 0
             else:
                 pivot.parent_id = mesh.parent.name
 
@@ -112,7 +113,7 @@ def retrieve_hierarchy(context, container_name):
         pivot.processed = False
 
     for pivot in pivots:
-        if pivot.processed:
+        if pivot.processed or pivot.parent_id != 0:
             continue
         process_pivot(pivot, pivots, hierarchy)
 

@@ -4,6 +4,7 @@
 import bpy
 import io
 from shutil import copyfile
+from os.path import dirname as up
 
 from io_mesh_w3d.common.utils.mesh_export import *
 from tests.common.helpers.mesh import *
@@ -11,6 +12,34 @@ from tests.utils import *
 
 
 class TestMeshExportUtils(TestCase):
+    def test_modifiers_are_applied_on_export(self):
+        self.loadBlend(up(up(up(self.relpath()))) + '/testfiles/cube_with_modifiers.blend')
+
+        self.assertTrue('Cube' in bpy.data.objects)
+
+        (meshes, _)= retrieve_meshes(self, None, None, 'container_name')
+      
+        self.assertEqual(1, len(meshes))
+
+        mesh = meshes[0]
+        self.assertEqual(42, len(mesh.verts))
+
+    def test_multiuser_mesh_with_modifiers_export(self):
+        self.loadBlend(up(up(up(self.relpath()))) + '/testfiles/multiuser_mesh_with_modifiers.blend')
+
+        self.assertTrue('Cube' in bpy.data.objects)
+        self.assertTrue('Cube2' in bpy.data.objects)
+
+        (meshes, _)= retrieve_meshes(self, None, None, 'container_name')
+      
+        self.assertEqual(2, len(meshes))
+
+        mesh = meshes[0]
+        self.assertEqual(42, len(mesh.verts))
+
+        mesh2 = meshes[1]
+        self.assertEqual(160, len(mesh2.verts))
+
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
 

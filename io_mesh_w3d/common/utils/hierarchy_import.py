@@ -11,8 +11,10 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
     if hierarchy is None:
         return None
 
-    if hierarchy.header.name in bpy.data.objects and hierarchy.header.name in bpy.data.armatures:
-        return bpy.data.objects[hierarchy.header.name]
+    name = hierarchy.header.name.upper()
+    for obj in bpy.data.objects:
+        if obj.name.upper() == name and obj.type == 'ARMATURE':
+            return obj
 
     sub_objects = []
     if hlod is not None:

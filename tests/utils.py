@@ -63,8 +63,8 @@ class TestCase(unittest.TestCase):
             os.makedirs(cls.__filepath)
         return os.path.join(cls.__filepath, path)
 
-    # def loadBlend(self, blend_file):
-    #    bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
+    def loadBlend(self, blend_file):
+        bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
         self.filepath = self.outpath()

@@ -18,19 +18,6 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
         object_list = bpy.context.scene.objects
     return [object for object in object_list if object.type == type]
 
-    # apply modifiers and split instanced objects
-    #depsgraph = bpy.context.evaluated_depsgraph_get()
-    #results = []
-    # for obj in objects:
-    #    obj = obj.evaluated_get(depsgraph)
-    #    if obj.is_instancer:
-    #        results.extend([dup.instance_object.original * dup.matrix_world.copy()
-    #                        for dup in depsgraph.object_instances
-    #                        if dup.parent and dup.parent.original == obj])
-    #    else:
-    #        results.append(obj * obj.matrix_world)
-    # return results
-
 
 def switch_to_pose(rig, pose):
     if rig is not None:
@@ -80,8 +67,8 @@ def rig_object(obj, hierarchy, rig, sub_object):
         return
 
     obj.rotation_mode = 'QUATERNION'
-    obj.delta_location = pivot.translation
-    obj.delta_rotation_quaternion = pivot.rotation
+    obj.location = pivot.translation
+    obj.rotation_quaternion = pivot.rotation
 
     parent_pivot = hierarchy.pivots[pivot.parent_id]
 

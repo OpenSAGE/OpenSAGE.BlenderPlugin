@@ -16,6 +16,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
     switch_to_pose(rig, 'REST')
 
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+
     for mesh_object in get_objects('MESH'):
         if mesh_object.object_type != 'NORMAL':
             continue
@@ -52,13 +54,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
+        mesh_object = mesh_object.evaluated_get(depsgraph)
         mesh = mesh_object.to_mesh()
+        b_mesh = prepare_bmesh(context, mesh)
 
         (center, radius) = calculate_mesh_sphere(mesh)
         header.sph_center = center
         header.sph_radius = radius
-
-        b_mesh = prepare_bmesh(context, mesh)
 
         if mesh.uv_layers:
             mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -87,14 +89,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mesh_struct.vert_infs.append(vert_inf)
 
                 if vert_inf.bone_idx > 0:
-                    matrix = rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local.inverted()
+                    matrix = matrix @ rig.data.bones[hierarchy.pivots[vert_inf.bone_idx].name].matrix_local.inverted()
                 else:
-                    matrix = rig.matrix_local.inverted()
+                    matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-            mesh_struct.verts.append(matrix @ vertex.co.xyz)
+            (_ , _, scale) = mesh_object.matrix_local.decompose()
+            scaled_vert = vertex.co * scale.x
+            mesh_struct.verts.append(matrix @ scaled_vert)
 
             (_, rotation, _) = matrix.decompose()
             mesh_struct.normals.append(rotation @ loop.normal)
@@ -136,10 +140,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        # why is this needed?
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-
         tx_stages = []
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
@@ -150,8 +150,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv
+                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
             tx_stages.append(stage)
+
+        b_mesh.free()
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass(
