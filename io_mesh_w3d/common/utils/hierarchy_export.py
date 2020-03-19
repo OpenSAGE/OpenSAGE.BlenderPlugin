@@ -101,8 +101,11 @@ def retrieve_hierarchy(context, container_name):
 
         if mesh.parent_bone != '':
             pivot.parent_id = mesh.parent_bone
-        elif mesh.parent is not None and mesh.parent.name != rig.name:
-            pivot.parent_id = mesh.parent.name
+        elif mesh.parent is not None:
+            if mesh.parent.name == rig.name:
+                pivot.parent_id = 0
+            else:
+                pivot.parent_id = mesh.parent.name
 
         pivots.append(pivot)
 
@@ -110,7 +113,7 @@ def retrieve_hierarchy(context, container_name):
         pivot.processed = False
 
     for pivot in pivots:
-        if pivot.processed:
+        if pivot.processed or pivot.parent_id != 0:
             continue
         process_pivot(pivot, pivots, hierarchy)
 
