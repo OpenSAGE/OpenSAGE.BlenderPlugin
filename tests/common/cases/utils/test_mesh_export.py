@@ -17,8 +17,8 @@ class TestMeshExportUtils(TestCase):
 
         self.assertTrue('Cube' in bpy.data.objects)
 
-        (meshes, _)= retrieve_meshes(self, None, None, 'container_name')
-      
+        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+
         self.assertEqual(1, len(meshes))
 
         mesh = meshes[0]
@@ -30,8 +30,8 @@ class TestMeshExportUtils(TestCase):
         self.assertTrue('Cube' in bpy.data.objects)
         self.assertTrue('Cube2' in bpy.data.objects)
 
-        (meshes, _)= retrieve_meshes(self, None, None, 'container_name')
-      
+        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+
         self.assertEqual(2, len(meshes))
 
         mesh = meshes[0]

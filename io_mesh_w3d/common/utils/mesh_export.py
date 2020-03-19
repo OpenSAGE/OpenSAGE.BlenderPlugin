@@ -96,7 +96,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-            (_ , _, scale) = mesh_object.matrix_local.decompose()
+            (_, _, scale) = mesh_object.matrix_local.decompose()
             scaled_vert = vertex.co * scale.x
             mesh_struct.verts.append(matrix @ scaled_vert)
 
