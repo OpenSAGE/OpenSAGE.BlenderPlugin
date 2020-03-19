@@ -69,3 +69,13 @@ class TestHierarchyUtils(TestCase):
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'troll_skn')
         compare_hierarchies(self, hierarchy, actual_hiera)
+
+    def test_retrieve_hierarchy_case_insensitive(self):
+        hierarchy = get_hierarchy('TROLL_SKL')
+
+        create_data(self, [], None, hierarchy)
+
+        hierarchy.header.name = 'troll_skl'
+        rig = get_or_create_skeleton(None, hierarchy, None)
+
+        self.assertIsNotNone(rig)

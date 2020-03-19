@@ -1,4 +1,8 @@
-v0.4.5 (WIP)
+v0.4.6
+- apply modifiers to meshes on export
+- handle export of 'multi-user' meshes
+
+v0.4.5
 - split vertices with multiple uv coordinates on export
 - use actual mesh normals on import
 - export tangents and bitangents
