@@ -64,7 +64,7 @@ class Texture(Struct):
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += text_size(self.file)
-        if self.texture_info is not None:
+        if self.texture_info :
             size += self.texture_info.size()
         return size
 
@@ -75,7 +75,7 @@ class Texture(Struct):
                          text_size(self.file, False))
         write_string(self.file, io_stream)
 
-        if self.texture_info is not None:
+        if self.texture_info :
             self.texture_info.write(io_stream)
 
     @staticmethod

@@ -307,11 +307,11 @@ def compare_meshes(self, expected, actual):
     for i, expect in enumerate(expected.shade_ids):
         self.assertAlmostEqual(expect, actual.shade_ids[i])
 
-    if expected.aabbtree is not None:
-        if actual.aabbtree is not None:
+    if expected.aabbtree :
+        if actual.aabbtree :
             compare_aabbtrees(self, expected.aabbtree, actual.aabbtree)
 
-    if expected.mat_info is not None:
+    if expected.mat_info :
         compare_material_infos(self, expected.mat_info, actual.mat_info)
 
     self.assertEqual(len(expected.material_passes),
@@ -349,13 +349,13 @@ def compare_meshes(self, expected, actual):
         compare_shader_materials(
             self, expected.shader_materials[i], actual.shader_materials[i])
 
-    if expected.prelit_unlit is not None:
+    if expected.prelit_unlit :
         compare_prelits(self, expected.prelit_unlit, actual.prelit_unlit)
-    if expected.prelit_vertex is not None:
+    if expected.prelit_vertex :
         compare_prelits(self, expected.prelit_vertex, actual.prelit_vertex)
-    if expected.prelit_lightmap_multi_pass is not None:
+    if expected.prelit_lightmap_multi_pass :
         compare_prelits(self, expected.prelit_lightmap_multi_pass,
                         actual.prelit_lightmap_multi_pass)
-    if expected.prelit_lightmap_multi_texture is not None:
+    if expected.prelit_lightmap_multi_texture :
         compare_prelits(self, expected.prelit_lightmap_multi_texture,
                         actual.prelit_lightmap_multi_texture)

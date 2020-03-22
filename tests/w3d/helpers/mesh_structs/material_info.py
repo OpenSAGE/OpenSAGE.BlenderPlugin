@@ -11,7 +11,7 @@ def get_material_info(mesh=None):
         shader_count=0,
         texture_count=0)
 
-    if mesh is not None:
+    if mesh :
         info.pass_count = len(mesh.material_passes)
         info.vert_matl_count = len(mesh.vert_materials)
         info.shader_count = len(mesh.shaders)

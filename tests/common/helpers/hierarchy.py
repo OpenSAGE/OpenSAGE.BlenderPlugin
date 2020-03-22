@@ -45,13 +45,13 @@ def get_roottransform():
 
 def compare_hierarchy_pivots(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
-    if expected.name_id is not None:
+    if expected.name_id :
         self.assertEqual(expected.name_id, actual.name_id)
     self.assertEqual(expected.parent_id, actual.parent_id)
 
     compare_vectors(self, expected.translation, actual.translation)
     # dont care for those
-    # if expected.euler_angles is not None:
+    # if expected.euler_angles :
     # compare_vectors(self, expected.euler_angles, actual.euler_angles)
     compare_quats(self, expected.rotation, actual.rotation)
     compare_mats(self, expected.fixup_matrix, actual.fixup_matrix)

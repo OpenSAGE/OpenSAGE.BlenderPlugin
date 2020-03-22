@@ -8,11 +8,36 @@ from io_mesh_w3d.w3x.import_w3x import *
 from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.mesh import get_mesh
+from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.animation import get_animation
 from tests.utils import *
 
 
 class TestObjectImport(TestCase):
+    def test_hlod_import_no_skeleton_file(self):
+        hierarchy_name = 'TestHiera_SKL'
+        hlod = get_hlod('testmodelname', hierarchy_name)
+
+        # write to file
+        write_struct(hlod, self.outpath() + 'testmodelname.w3x')
+
+        # import
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'testmodelname.w3x'
+        load(self)
+
+    def test_animation_import_no_skeleton_file(self):
+        hierarchy_name = 'TestHiera_SKL'
+        animation = get_animation(hierarchy_name)
+
+        # write to file
+        write_struct(animation, self.outpath() + 'animation.w3x')
+
+        # import
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'animation.w3x'
+        load(self)
+
     def test_import_animation_only_no_include(self):
         hierarchy_name = 'TestHiera_SKL'
         hierarchy = get_hierarchy(hierarchy_name)

@@ -103,11 +103,11 @@ class AABBTreeNode(Struct):
         node.max = parse_vector(xml_node.find('Max'))
 
         xml_polys = xml_node.find('Polys')
-        if xml_polys is not None:
+        if xml_polys :
             node.polys = Polys.parse(xml_polys)
 
         xml_children = xml_node.find('Children')
-        if xml_children is not None:
+        if xml_children :
             node.children = Children.parse(xml_children)
         return node
 
@@ -117,10 +117,10 @@ class AABBTreeNode(Struct):
         create_vector(self.min, xml_node, 'Min')
         create_vector(self.max, xml_node, 'Max')
 
-        if self.polys is not None:
+        if self.polys :
             self.polys.create(xml_node)
 
-        if self.children is not None:
+        if self.children :
             self.children.create(xml_node)
 
 
@@ -187,7 +187,7 @@ class AABBTree(Struct):
             nodes=[])
 
         xml_polyindices = xml_aabbtree.find('PolyIndices')
-        if xml_polyindices is not None:
+        if xml_polyindices :
             for xml_poly_index in xml_polyindices.findall('P'):
                 result.poly_indices.append(int(xml_poly_index.text))
 
