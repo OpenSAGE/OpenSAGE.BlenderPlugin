@@ -123,7 +123,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     def save_settings(self, context):
         all_props = self.properties
         export_props = {x: getattr(self, x) for x in dir(
-            all_props) if x.startswith('export_') and all_props.get(x) is not None}
+            all_props) if x.startswith('export_') and all_props.get(x) }
 
         context.scene[self.scene_key] = export_props
 
@@ -248,7 +248,7 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
 
     def draw(self, context):
         layout = self.layout
-        if context.active_bone is not None:
+        if context.active_bone :
             col = layout.column()
             col.prop(context.active_bone, 'visibility')
 

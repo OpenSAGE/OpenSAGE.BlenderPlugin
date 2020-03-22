@@ -95,7 +95,7 @@ def create_material_from_shader_material(context, name, shader_mat):
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
-    if shader_mat.header.technique is not None:
+    if shader_mat.header.technique :
         material.technique = shader_mat.header.technique
 
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)

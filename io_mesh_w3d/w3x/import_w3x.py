@@ -69,9 +69,10 @@ def load(context):
 
     dir = os.path.dirname(context.filepath) + os.path.sep
 
-    if data_context.hlod is not None and not data_context.meshes:
-        path = dir + os.path.sep + data_context.hlod.header.hierarchy_name + '.w3x'
-        data_context = load_file(context, data_context, path)
+    skl_path = None
+
+    if data_context.hlod and not data_context.meshes:
+        skl_path = dir + os.path.sep + data_context.hlod.header.hierarchy_name + '.w3x'
 
         for array in data_context.hlod.lod_arrays:
             for obj in array.sub_objects:
@@ -88,13 +89,18 @@ def load(context):
             path = dir + box.container_name() + '.w3x'
             data_context = load_file(context, data_context, path)
 
-    if data_context.hlod is not None and data_context.hierarchy is None:
-        path = dir + data_context.hlod.hierarchy_name() + '.w3x'
-        data_context = load_file(context, data_context, path)
+    if data_context.hlod and data_context.hierarchy is None:
+        skl_path = dir + data_context.hlod.hierarchy_name() + '.w3x'
 
-    if data_context.animation is not None and data_context.hierarchy is None:
-        path = dir + data_context.animation.header.hierarchy_name + '.w3x'
-        data_context = load_file(context, data_context, path)
+    if data_context.animation and data_context.hierarchy is None:
+        skl_path = dir + data_context.animation.header.hierarchy_name + '.w3x'
+
+    if skl_path:
+        data_context = load_file(context, data_context, skl_path)
+
+        if data_context.animation and data_context.hierarchy is None:
+            context.error('hierarchy file not found: ' + skl_path)
+            return
 
     meshes = data_context.meshes
     hierarchy = data_context.hierarchy

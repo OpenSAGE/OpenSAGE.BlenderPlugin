@@ -87,7 +87,7 @@ class VertexMaterial(Struct):
     def size(self, include_head=True):
         size = const_size(0, include_head)
         size += text_size(self.vm_name)
-        if self.vm_info is not None:
+        if self.vm_info :
             size += self.vm_info.size()
         size += text_size(self.vm_args_0)
         size += text_size(self.vm_args_1)
@@ -100,7 +100,7 @@ class VertexMaterial(Struct):
                          text_size(self.vm_name, False))
         write_string(self.vm_name, io_stream)
 
-        if self.vm_info is not None:
+        if self.vm_info :
             self.vm_info.write(io_stream)
 
         if self.vm_args_0 is not '':

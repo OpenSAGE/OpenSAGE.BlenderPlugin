@@ -5,6 +5,7 @@ from io_mesh_w3d.w3d.import_w3d import *
 from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
+from tests.common.helpers.animation import get_animation
 from tests.utils import *
 
 
@@ -28,6 +29,19 @@ class TestImport(TestCase):
 
         # import
         self.filepath = self.outpath() + 'base_skn.w3d'
+        load(self)
+
+    def test_animation_import_no_skeleton_file(self):
+        hierarchy_name = 'TestHiera_SKL'
+        animation = get_animation(hierarchy_name)
+
+        # write to file
+        ani = open(self.outpath() + 'animation.w3d', 'wb')
+        animation.write(ani)
+        ani.close()
+
+        # import
+        self.filepath = self.outpath() + 'animation.w3d'
         load(self)
 
     def test_unsupported_chunk_skip(self):

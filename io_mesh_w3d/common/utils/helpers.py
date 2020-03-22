@@ -20,7 +20,7 @@ def get_objects(type, object_list=None):  # MESH, ARMATURE
 
 
 def switch_to_pose(rig, pose):
-    if rig is not None:
+    if rig :
         rig.data.pose_position = pose
         bpy.context.view_layer.update()
 
@@ -37,7 +37,7 @@ def insensitive_path(path):
 
 
 def get_collection(hlod=None, index=''):
-    if hlod is not None:
+    if hlod :
         name = hlod.model_name() + index
         if name in bpy.data.collections:
             return bpy.data.collections[name]
@@ -114,7 +114,7 @@ def find_texture(context, file, name=None):
     img = None
     for extension in extensions:
         img = load_image(filepath + extension)
-        if img is not None:
+        if img :
             context.info('loaded texture: ' + filepath + extension)
             break
 

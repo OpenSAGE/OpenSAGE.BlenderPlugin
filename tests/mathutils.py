@@ -47,19 +47,19 @@ def compare_quats(self, expected, actual):
 
 def get_mat(row0=None, row1=None, row2=None):
     mat = Matrix(([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0]))
-    if row0 is not None:
+    if row0 :
         mat[0][0] = row0[0]
         mat[0][1] = row0[1]
         mat[0][2] = row0[2]
         mat[0][3] = row0[3]
 
-    if row1 is not None:
+    if row1 :
         mat[1][0] = row1[0]
         mat[1][1] = row1[1]
         mat[1][2] = row1[2]
         mat[1][3] = row1[3]
 
-    if row2 is not None:
+    if row2 :
         mat[2][0] = row2[0]
         mat[2][1] = row2[1]
         mat[2][2] = row2[2]

@@ -110,22 +110,23 @@ def load(context):
     if hierarchy is None:
         sklpath = None
 
-        if hlod is not None and hlod.header.model_name != hlod.header.hierarchy_name:
+        if hlod and hlod.header.model_name != hlod.header.hierarchy_name:
             sklpath = os.path.dirname(context.filepath) + os.path.sep + \
                 hlod.header.hierarchy_name.lower() + '.w3d'
 
         # if we load a animation file afterwards and need the hierarchy again
-        elif animation is not None and animation.header.name != '':
+        elif animation and animation.header.name != '':
             sklpath = os.path.dirname(context.filepath) + os.path.sep + \
                 animation.header.hierarchy_name.lower() + '.w3d'
-        elif compressed_animation is not None and compressed_animation.header.name != '':
+        elif compressed_animation and compressed_animation.header.name != '':
             sklpath = os.path.dirname(context.filepath) + os.path.sep + \
                 compressed_animation.header.hierarchy_name.lower() + '.w3d'
 
-        if sklpath is not None:
+        if sklpath:
             data_context = load_file(context, data_context, sklpath)
             if data_context.hierarchy is None:
                 context.error('hierarchy file not found: ' + sklpath)
+                return
 
     create_data(context,
                 data_context.meshes,

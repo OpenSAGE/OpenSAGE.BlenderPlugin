@@ -275,19 +275,19 @@ class Mesh(Struct):
         size += list_size(self.textures)
         size += long_list_size(self.shade_ids)
         size += list_size(self.shader_materials)
-        if self.mat_info is not None:
+        if self.mat_info :
             size += self.mat_info.size()
         size += list_size(self.vert_materials)
         size += list_size(self.material_passes, False)
-        if self.aabbtree is not None:
+        if self.aabbtree :
             size += self.aabbtree.size()
-        if self.prelit_unlit is not None:
+        if self.prelit_unlit :
             size += self.prelit_unlit.size()
-        if self.prelit_vertex is not None:
+        if self.prelit_vertex :
             size += self.prelit_vertex.size()
-        if self.prelit_lightmap_multi_pass is not None:
+        if self.prelit_lightmap_multi_pass :
             size += self.prelit_lightmap_multi_pass.size()
-        if self.prelit_lightmap_multi_texture is not None:
+        if self.prelit_lightmap_multi_texture :
             size += self.prelit_lightmap_multi_texture.size()
         return size
 
@@ -338,7 +338,7 @@ class Mesh(Struct):
                 long_list_size(self.shade_ids, False))
             write_list(self.shade_ids, io_stream, write_long)
 
-        if self.mat_info is not None:
+        if self.mat_info :
             self.mat_info.write(io_stream)
 
         if self.vert_materials:
@@ -382,19 +382,19 @@ class Mesh(Struct):
             write_list(self.material_passes, io_stream,
                        MaterialPass.write)
 
-        if self.aabbtree is not None:
+        if self.aabbtree :
             self.aabbtree.write(io_stream)
 
-        if self.prelit_unlit is not None:
+        if self.prelit_unlit :
             self.prelit_unlit.write(io_stream)
 
-        if self.prelit_vertex is not None:
+        if self.prelit_vertex :
             self.prelit_vertex.write(io_stream)
 
-        if self.prelit_lightmap_multi_pass is not None:
+        if self.prelit_lightmap_multi_pass :
             self.prelit_lightmap_multi_pass.write(io_stream)
 
-        if self.prelit_lightmap_multi_texture is not None:
+        if self.prelit_lightmap_multi_texture :
             self.prelit_lightmap_multi_texture.write(io_stream)
 
     @staticmethod
@@ -552,7 +552,7 @@ class Mesh(Struct):
         for shader_material in self.shader_materials:
             shader_material.create(xml_mesh)
 
-        if self.aabbtree is not None:
+        if self.aabbtree :
             self.aabbtree.create(xml_mesh)
 
 
