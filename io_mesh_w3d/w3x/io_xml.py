@@ -81,7 +81,7 @@ def parse_objects(parent, name, parse_func, par1=None):
     if not objects:
         return result
     for obj in objects:
-        if par1 :
+        if par1 is not None:
             result.append(parse_func(obj, par1))
         else:
             result.append(parse_func(obj))
@@ -91,7 +91,7 @@ def parse_objects(parent, name, parse_func, par1=None):
 def create_object_list(parent, name, objects, write_func, par1=None):
     xml_objects_list = create_node(parent, name)
     for obj in objects:
-        if par1 :
+        if par1 is not None:
             write_func(obj, xml_objects_list, par1)
         else:
             write_func(obj, xml_objects_list)

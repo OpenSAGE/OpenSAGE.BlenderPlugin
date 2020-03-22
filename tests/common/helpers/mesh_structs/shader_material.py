@@ -24,7 +24,7 @@ def get_shader_material_property(
         type=_type,
         name=name)
 
-    if value :
+    if value is not None:
         result.value = value
     elif _type == 1:
         result.value = tex_name
