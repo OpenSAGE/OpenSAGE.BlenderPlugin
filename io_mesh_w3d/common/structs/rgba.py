@@ -16,7 +16,7 @@ class RGBA(Struct):
             self.r = r
             self.g = g
             self.b = b
-            if a :
+            if a is not None:
                 self.a = int(a)
             else:
                 self.a = 0
@@ -25,7 +25,7 @@ class RGBA(Struct):
         self.r = int(vec[0] * scale)
         self.g = int(vec[1] * scale)
         self.b = int(vec[2] * scale)
-        if a :
+        if a is not None:
             self.a = int(a)
         else:
             self.a = int(vec[3] * scale)

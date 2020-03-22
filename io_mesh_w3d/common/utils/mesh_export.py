@@ -259,7 +259,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
         for j, face in enumerate(b_mesh.faces):
             for loop in face.loops:
                 vert_index = mesh.polygons[j].vertices[loop.index % 3]
-                if tx_coords[vert_index]  \
+                if tx_coords[vert_index] is not None \
                         and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)
                 tx_coords[vert_index] = uv_layer.data[loop.index].uv
