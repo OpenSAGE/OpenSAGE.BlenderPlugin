@@ -27,7 +27,7 @@ def compare_collision_boxes(self, expected, actual):
     self.assertEqual(expected.box_type, actual.box_type)
     self.assertEqual(expected.collision_types, actual.collision_types)
     self.assertEqual(expected.name_, actual.name_)
-    if expected.color :
+    if expected.color is not None:
         compare_rgbas(self, expected.color, actual.color)
     compare_vectors(self, expected.center, actual.center)
     compare_vectors(self, expected.extend, actual.extend)

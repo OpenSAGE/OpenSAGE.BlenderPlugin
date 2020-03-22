@@ -190,7 +190,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mesh_struct.vert_materials.append(
                     retrieve_vertex_material(material))
 
-                if principled.base_color_texture.image :
+                if principled.base_color_texture.image is not None:
                     info = TextureInfo(
                         attributes=0,
                         animation_type=0,

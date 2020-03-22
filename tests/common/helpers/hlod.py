@@ -168,9 +168,9 @@ def compare_hlods(self, expected, actual, xml=False):
         compare_hlod_arrays(self, expected_array, actual.lod_arrays[i], xml)
 
     # roundtrip not supported
-    if expected.aggregate_array  and actual.aggregate_array :
+    if expected.aggregate_array is not None and actual.aggregate_array is not None:
         compare_hlod_arrays(self, expected.aggregate_array, actual.aggregate_array)
 
     # roundtrip not supported
-    if actual.proxy_array  and actual.proxy_array :
+    if actual.proxy_array is not None and actual.proxy_array is not None:
         compare_hlod_arrays(self, expected.proxy_array, actual.proxy_array)

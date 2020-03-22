@@ -758,12 +758,12 @@ class TestUtils(TestCase):
         actual_hlod = None
 
         (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
-        if hierarchy :
+        if hierarchy is not None:
             hierarchy.pivot_fixups = []  # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
 
         actual_hlod = create_hlod(actual_hiera, container_name)
-        if hlod :
+        if hlod is not None:
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
@@ -787,12 +787,12 @@ class TestUtils(TestCase):
             for i, dazzle in enumerate(dazzles):
                 compare_dazzles(self, dazzle, actual_dazzles[i])
 
-        if animation :
+        if animation is not None:
             actual_animation = retrieve_animation(
                 animation.header.name, actual_hiera, rig, timecoded=False)
             compare_animations(self, animation, actual_animation)
 
-        if compressed_animation :
+        if compressed_animation is not None:
             actual_compressed_animation = retrieve_animation(
                 compressed_animation.header.name, actual_hiera, rig, timecoded=True)
             compare_compressed_animations(

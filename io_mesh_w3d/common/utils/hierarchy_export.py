@@ -55,7 +55,7 @@ def retrieve_hierarchy(context, container_name):
 
             matrix = bone.matrix
 
-            if bone.parent :
+            if bone.parent is not None:
                 pivot.parent_id = bone.parent.name
                 matrix = bone.parent.matrix.inverted() @ matrix
 
@@ -73,7 +73,7 @@ def retrieve_hierarchy(context, container_name):
         return None, None
 
     meshes = []
-    if rig :
+    if rig is not None:
         for coll in bpy.data.collections:
             if rig.name in coll.objects:
                 meshes = get_objects('MESH', coll.objects)
@@ -101,7 +101,7 @@ def retrieve_hierarchy(context, container_name):
 
         if mesh.parent_bone != '':
             pivot.parent_id = mesh.parent_bone
-        elif mesh.parent :
+        elif mesh.parent is not None:
             if mesh.parent.name == rig.name:
                 pivot.parent_id = 0
             else:

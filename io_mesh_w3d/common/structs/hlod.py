@@ -246,9 +246,9 @@ class HLod(Struct):
         size += self.header.size()
         for lod_array in self.lod_arrays:
             size += lod_array.size()
-        if self.aggregate_array :
+        if self.aggregate_array is not None:
             size += self.aggregate_array.size()
-        if self.proxy_array :
+        if self.proxy_array is not None:
             size += self.proxy_array.size()
         return size
 
@@ -259,9 +259,9 @@ class HLod(Struct):
         for lod_array in self.lod_arrays:
             lod_array.write(io_stream)
 
-        if self.aggregate_array :
+        if self.aggregate_array is not None:
             self.aggregate_array.write(io_stream)
-        if self.proxy_array :
+        if self.proxy_array is not None:
             self.proxy_array.write(io_stream)
 
     @staticmethod

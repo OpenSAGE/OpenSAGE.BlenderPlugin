@@ -53,7 +53,7 @@ class TestCase(unittest.TestCase):
     @classmethod
     def relpath(cls, path=None):
         result = os.path.dirname(inspect.getfile(cls))
-        if path :
+        if path is not None:
             result = os.path.join(result, path)
         return result
 
@@ -132,7 +132,7 @@ class TestCase(unittest.TestCase):
         xml_objects = root.findall(identifier)
         self.assertEqual(1, len(xml_objects))
 
-        if context :
+        if context is not None:
             actual = parse(context, xml_objects[0])
         else:
             actual = parse(xml_objects[0])

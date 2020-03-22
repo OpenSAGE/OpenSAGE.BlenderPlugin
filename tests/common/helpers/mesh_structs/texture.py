@@ -30,7 +30,7 @@ def compare_textures(self, expected, actual):
     self.assertEqual(expected.id, actual.id)
     self.assertEqual(expected.file.split('.')[0], actual.file.split('.')[0])
     self.assertTrue('.tga' in actual.file or '.dds' in actual.file)
-    if expected.texture_info :
+    if expected.texture_info is not None:
         compare_texture_infos(self, expected.texture_info, actual.texture_info)
 
 

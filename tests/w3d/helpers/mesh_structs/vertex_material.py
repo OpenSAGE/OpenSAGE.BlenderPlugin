@@ -60,7 +60,7 @@ def compare_vertex_materials(self, expected, actual):
     self.assertEqual(expected.vm_name.split('.')[0], actual.vm_name.split('.')[0])
     self.assertEqual(expected.vm_args_0, actual.vm_args_0)
     self.assertEqual(expected.vm_args_1, actual.vm_args_1)
-    if expected.vm_info :
+    if expected.vm_info is not None:
         compare_vertex_material_infos(self, expected.vm_info, actual.vm_info)
     else:
         self.assertIsNone(actual.vm_info)

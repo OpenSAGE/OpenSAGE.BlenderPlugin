@@ -22,7 +22,7 @@ def create_data(
     coll = get_collection(hlod)
     rig = get_or_create_skeleton(hlod, hierarchy, coll)
 
-    if hlod :
+    if hlod is not None:
         current_coll = coll
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
             if i > 0:
