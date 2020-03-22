@@ -103,11 +103,11 @@ class AABBTreeNode(Struct):
         node.max = parse_vector(xml_node.find('Max'))
 
         xml_polys = xml_node.find('Polys')
-        if xml_polys :
+        if xml_polys is not None:
             node.polys = Polys.parse(xml_polys)
 
         xml_children = xml_node.find('Children')
-        if xml_children :
+        if xml_children is not None:
             node.children = Children.parse(xml_children)
         return node
 
@@ -117,10 +117,10 @@ class AABBTreeNode(Struct):
         create_vector(self.min, xml_node, 'Min')
         create_vector(self.max, xml_node, 'Max')
 
-        if self.polys :
+        if self.polys:
             self.polys.create(xml_node)
 
-        if self.children :
+        if self.children:
             self.children.create(xml_node)
 
 

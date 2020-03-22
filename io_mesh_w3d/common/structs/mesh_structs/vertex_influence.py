@@ -38,7 +38,7 @@ class VertexInfluence(Struct):
             bone_inf=float(xml_vertex_influence.get('Weight')),
             xtra_inf=0.0)
 
-        if xml_vertex_influence2 :
+        if xml_vertex_influence2 is not None:
             result.xtra_idx = int(xml_vertex_influence2.get('Bone'))
             result.xtra_inf = float(xml_vertex_influence2.get('Weight'))
         return result
@@ -48,7 +48,7 @@ class VertexInfluence(Struct):
         influence.set('Bone', str(self.bone_idx))
         influence.set('Weight', format(self.bone_inf))
 
-        if parent2 :
+        if parent2 is not None:
             influence2 = create_node(parent2, 'I')
             influence2.set('Bone', str(self.xtra_idx))
             influence2.set('Weight', format(self.xtra_inf))

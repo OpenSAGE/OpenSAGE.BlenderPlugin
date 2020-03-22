@@ -82,9 +82,9 @@ class HierarchyPivot(Struct):
 
     def create(self, parent):
         pivot = create_node(parent, 'Pivot')
-        if self.name :
+        if self.name is not None:
             pivot.set('Name', self.name)
-        if self.name_id :
+        if self.name_id is not None:
             pivot.set('NameID', str(self.name_id))
         pivot.set('Parent', str(self.parent_id))
         create_vector(self.translation, pivot, 'Translation')
