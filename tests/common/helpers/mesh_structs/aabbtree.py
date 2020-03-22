@@ -40,10 +40,10 @@ def get_aabbtree_node(xml=False, i=0):
 def compare_aabbtree_nodes(self, expected, actual):
     compare_vectors(self, expected.min, actual.min)
     compare_vectors(self, expected.max, actual.max)
-    if expected.children :
+    if expected.children is not None:
         self.assertEqual(expected.children.front, actual.children.front)
         self.assertEqual(expected.children.front, actual.children.front)
-    if expected.polys :
+    if expected.polys is not None:
         self.assertEqual(expected.polys.begin, actual.polys.begin)
         self.assertEqual(expected.polys.count, actual.polys.count)
 

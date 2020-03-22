@@ -187,7 +187,7 @@ class AABBTree(Struct):
             nodes=[])
 
         xml_polyindices = xml_aabbtree.find('PolyIndices')
-        if xml_polyindices :
+        if xml_polyindices is not None:
             for xml_poly_index in xml_polyindices.findall('P'):
                 result.poly_indices.append(int(xml_poly_index.text))
 

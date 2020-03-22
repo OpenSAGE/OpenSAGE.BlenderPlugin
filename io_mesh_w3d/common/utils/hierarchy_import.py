@@ -17,7 +17,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
             return obj
 
     sub_objects = []
-    if hlod :
+    if hlod is not None:
         sub_objects = hlod.lod_arrays[-1].sub_objects
 
     return create_bone_hierarchy(hierarchy, sub_objects, coll)

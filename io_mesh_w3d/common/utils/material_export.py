@@ -10,7 +10,7 @@ def append_texture_if_valid(texture, used_textures):
     if isinstance(texture, str):
         if texture != '' and texture not in used_textures:
             used_textures.append(texture)
-    elif texture  and texture.image  and texture.image.name not in used_textures:
+    elif texture is not None and texture.image is not None and texture.image.name not in used_textures:
         used_textures.append(texture.image.name)
     return used_textures
 
@@ -138,7 +138,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
-    if principled.normalmap_texture  and principled.normalmap_texture.image :
+    if principled.normalmap_texture is not None and principled.normalmap_texture.image is not None:
         if shader_mat.header.type_name == 'DefaultW3D.fx':
             shader_mat.header.type_name = 'NormalMapped.fx'
         append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)

@@ -45,7 +45,7 @@ def get_roottransform():
 
 def compare_hierarchy_pivots(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
-    if expected.name_id :
+    if expected.name_id is not None:
         self.assertEqual(expected.name_id, actual.name_id)
     self.assertEqual(expected.parent_id, actual.parent_id)
 
