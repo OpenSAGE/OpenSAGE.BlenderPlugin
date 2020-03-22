@@ -5,5 +5,4 @@
 class Struct:
     def __init__(self, *argv, **argd):
         if argd:
-            # Update by dictionary
             self.__dict__.update(argd)

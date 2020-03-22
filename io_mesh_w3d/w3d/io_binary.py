@@ -5,10 +5,9 @@ import struct
 
 from mathutils import Vector, Quaternion
 
-HEAD = 8  # 4(long = chunk_type) + 4 (long = chunk_size)
-
+HEAD = 8  # chunk_type(long) + chunk_size(long)
 STRING_LENGTH = 16
-LARGE_STRING_LENGTH = 32
+LARGE_STRING_LENGTH = STRING_LENGTH * 2
 
 
 def read_string(io_stream):
