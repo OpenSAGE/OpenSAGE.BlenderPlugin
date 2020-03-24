@@ -13,9 +13,10 @@ def save(context, export_settings, data_context):
     if export_mode == 'M':
         if len(data_context.meshes) > 1:
             context.warning('Scene does contain multiple meshes, exporting only the first with export mode M!')
-        data_context.meshes[0].header.container_name = ''
-        data_context.meshes[0].header.mesh_name = data_context.container_name
-        data_context.meshes[0].write(file)
+        mesh = data_context.meshes[0]
+        mesh.header.container_name = ''
+        mesh.header.mesh_name = data_context.container_name
+        mesh.write(file)
 
     elif export_mode == 'HM' or export_mode == 'HAM':
         if export_mode == 'HAM' \
