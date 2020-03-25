@@ -90,9 +90,7 @@ class TestObjectImport(TestCase):
 
     @patch('io_mesh_w3d.w3x.import_w3x.create_data')
     @patch.object(Mesh, 'container_name', return_value='')
-    @patch('io_mesh_w3d.w3x.import_w3x.load_file')
-    def test_mesh_only_import(self, load_file, mesh_mock, create):
-        self.info = print
+    def test_mesh_only_import(self, mesh_mock, create):
         mesh = get_mesh()
 
         # write to file
@@ -103,6 +101,5 @@ class TestObjectImport(TestCase):
         self.filepath = self.outpath() + 'mesh.w3x'
         load(self)
 
-        #self.assertEqual(2, load_file.call_count)
         mesh_mock.assert_called()
         create.assert_called()
