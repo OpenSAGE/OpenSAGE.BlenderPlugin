@@ -30,22 +30,27 @@ def create_data(
                 current_coll.hide_viewport = True
 
             for sub_object in lod_array.sub_objects:
-                for mesh in [_ for _ in meshes if _.name() == sub_object.name]:
-                    create_mesh(context, mesh, current_coll)
+                for mesh in meshes:
+                    if mesh.name() == sub_object.name:
+                        create_mesh(context, mesh, current_coll)
 
-                for box in [_ for _ in boxes if _.name() == sub_object.name]:
-                    create_box(box, hlod, hierarchy, rig, current_coll)
+                for box in boxes:
+                    if box.name() == sub_object.name:
+                        create_box(box, hlod, hierarchy, rig, collection)
 
-                for dazzle in [_ for _ in dazzles if _.name() == sub_object.name]:
-                    create_dazzle(context, dazzle, current_coll)
+                for dazzle in dazzles:
+                    if dazzle.name() == sub_object.name:
+                        create_dazzle(context, dazzle, collection)
 
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
-                for mesh in [_ for _ in meshes if _.name() == sub_object.name]:
-                    rig_mesh(mesh, hierarchy, rig, sub_object)
-                for dazzle in [_ for _ in dazzles if _.name() == sub_object.name]:
-                    dazzle_object = bpy.data.objects[dazzle.name()]
-                    rig_object(dazzle_object, hierarchy, rig, sub_object)
+                for mesh in meshes:
+                    if mesh.name() == sub_object.name:
+                        rig_mesh(mesh, hierarchy, rig, sub_object)
+                for dazzle in dazzles:
+                    if dazzle.name() == sub_object.name:
+                        dazzle_object = bpy.data.objects[dazzle.name()]
+                        rig_object(dazzle_object, hierarchy, rig, sub_object)
 
     else:
         for mesh in meshes:
