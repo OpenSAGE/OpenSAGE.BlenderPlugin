@@ -11,35 +11,21 @@ from tests.common.helpers.collision_box import *
 
 
 class TestExportUtils(TestCase):
-    @patch('io_mesh_w3d.export_utils.retrieve_data', return_value=False)
+    @patch('io_mesh_w3d.export_utils.retrieve_data', return_value=None)
     def test_cancells_if_not_retrieve_data(self, retrieve):
-        self.assertEqual({'CANCELLED'}, save(self, {}))
+        self.assertEqual({'CANCELLED'}, save(self, {'mode': 'M'}))
 
     def test_retrieve_data_returns_false_if_invalid_mode(self):
         self.error = lambda text: self.assertEqual('unsupported export mode: INVALID, aborting export!', text)
 
-        export_settings = {'mode': 'INVALID'}
-
-        self.assertFalse(retrieve_data(self, export_settings, DataContext()))
+        self.assertIsNone(retrieve_data(self, {'mode': 'INVALID'}))
 
     def test_retrieve_data_returns_false_if_w3d_and_container_name_too_long(self):
         self.error = lambda text: self.assertEqual('Filename is longer than 16 characters, aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'M'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'toolongtestfilename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
 
     @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(None, None))
     @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
@@ -50,21 +36,9 @@ class TestExportUtils(TestCase):
             self, retrieve_hierarchy, hlod, boxes, dazzles, retrieve_meshes):
         self.error = lambda text: self.assertEqual('Scene does not contain any meshes, aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'M'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
 
     @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(None, None))
     @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
@@ -76,21 +50,9 @@ class TestExportUtils(TestCase):
             self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'M'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
         retrieve_meshes.assert_called()
         validate.assert_called()
 
@@ -104,21 +66,9 @@ class TestExportUtils(TestCase):
             self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'H'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'H'}))
         retrieve_meshes.assert_called()
         validate.assert_called()
 
@@ -133,21 +83,9 @@ class TestExportUtils(TestCase):
             self, hiera, hlod, boxes, dazzles, retrieve_meshes, h_validate, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'HM'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'HM'}))
         retrieve_meshes.assert_called()
         h_validate.assert_called()
         validate.assert_called()
@@ -164,21 +102,9 @@ class TestExportUtils(TestCase):
             self, hiera, hlod, boxes, dazzles, retrieve_meshes, h_validate, hlod_validate, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'HM'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'HM'}))
         retrieve_meshes.assert_called()
         h_validate.assert_called()
         hlod_validate.assert_called()
@@ -194,19 +120,7 @@ class TestExportUtils(TestCase):
             self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
-
-        export_settings = {'mode': 'A', 'compression': 'U'}
-
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        self.assertFalse(retrieve_data(self, export_settings, data_context))
+        self.assertIsNone(retrieve_data(self, {'mode': 'A', 'compression': 'U'}))
         validate.assert_called()

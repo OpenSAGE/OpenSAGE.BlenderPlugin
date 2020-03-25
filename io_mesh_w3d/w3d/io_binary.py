@@ -5,10 +5,9 @@ import struct
 
 from mathutils import Vector, Quaternion
 
-HEAD = 8  # 4(long = chunk_type) + 4 (long = chunk_size)
-
+HEAD = 8  # chunk_type(long) + chunk_size(long)
 STRING_LENGTH = 16
-LARGE_STRING_LENGTH = 32
+LARGE_STRING_LENGTH = STRING_LENGTH * 2
 
 
 def read_string(io_stream):
@@ -201,11 +200,11 @@ def write_chunk_head(chunk_id, io_stream, size, has_sub_chunks=False):
 
 
 def write_list(data, io_stream, write_func, par1=None):
-    for dat in data:
+    for datum in data:
         if par1 is not None:
-            write_func(dat, io_stream, par1)
+            write_func(datum, io_stream, par1)
         else:
-            write_func(dat, io_stream)
+            write_func(datum, io_stream)
 
 
 def read_list(io_stream, chunk_end, read_func):

@@ -90,23 +90,16 @@ class TestObjectImport(TestCase):
 
     @patch('io_mesh_w3d.w3x.import_w3x.create_data')
     @patch.object(Mesh, 'container_name', return_value='')
-    @patch('io_mesh_w3d.w3x.import_w3x.load_file')
-    def test_mesh_only_import(self, load_file, mesh, create):
-        data_context = DataContext(
-            container_name='',
-            rig=None,
-            meshes=[get_mesh()],
-            textures=[],
-            collision_boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+    def test_mesh_only_import(self, mesh_mock, create):
+        mesh = get_mesh()
 
-        load_file.return_value = data_context
+        # write to file
+        write_struct(mesh, self.outpath() + 'mesh.w3x')
 
-        self.filepath = self.outpath() + 'output.w3x'
+        # import
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'mesh.w3x'
         load(self)
 
-        load_file.assert_called()
-        mesh.assert_called()
+        mesh_mock.assert_called()
         create.assert_called()

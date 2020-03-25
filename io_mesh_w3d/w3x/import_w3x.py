@@ -20,11 +20,11 @@ def load_file(context, data_context, path=None):
 
     if not os.path.exists(path):
         context.error('file not found: ' + path)
-        return data_context
+        return
 
     root = find_root(context, path)
     if root is None:
-        return data_context
+        return
 
     dir = os.path.dirname(path)
     for node in root:
@@ -32,7 +32,7 @@ def load_file(context, data_context, path=None):
             for xml_include in node:
                 include = Include.parse(xml_include)
                 source = include.source.replace('ART:', '')
-                data_context = load_file(context, data_context, os.path.join(dir, source))
+                load_file(context, data_context, os.path.join(dir, source))
 
         elif node.tag == 'W3DMesh':
             data_context.meshes.append(Mesh.parse(context, node))
@@ -49,8 +49,6 @@ def load_file(context, data_context, path=None):
         else:
             context.warning('unsupported node ' + node.tag + ' in file: ' + path)
 
-    return data_context
-
 
 ##########################################################################
 # Load
@@ -65,7 +63,9 @@ def load(context):
         hierarchy=None,
         hlod=None)
 
-    data_context = load_file(context, data_context)
+    context.info(len(data_context.meshes))
+
+    load_file(context, data_context)
 
     dir = os.path.dirname(context.filepath) + os.path.sep
 
@@ -77,17 +77,20 @@ def load(context):
         for array in data_context.hlod.lod_arrays:
             for obj in array.sub_objects:
                 path = dir + obj.identifier + '.w3x'
-                data_context = load_file(context, data_context, path)
+                load_file(context, data_context, path)
 
+    context.info(data_context.hlod is None)
     if data_context.hlod is None:
+        context.info(len(data_context.meshes))
         if len(data_context.meshes) == 1:
             mesh = data_context.meshes[0]
+            context.info(mesh.container_name)
             path = dir + mesh.container_name() + '.w3x'
-            data_context = load_file(context, data_context, path)
+            load_file(context, data_context, path)
         elif len(data_context.collision_boxes) == 1:
             box = data_context.collision_boxes[0]
             path = dir + box.container_name() + '.w3x'
-            data_context = load_file(context, data_context, path)
+            load_file(context, data_context, path)
 
     if data_context.hlod and data_context.hierarchy is None:
         skl_path = dir + data_context.hlod.hierarchy_name() + '.w3x'
@@ -96,7 +99,7 @@ def load(context):
         skl_path = dir + data_context.animation.header.hierarchy_name + '.w3x'
 
     if skl_path:
-        data_context = load_file(context, data_context, skl_path)
+        load_file(context, data_context, skl_path)
 
         if data_context.animation and data_context.hierarchy is None:
             context.error('hierarchy file not found: ' + skl_path)

@@ -20,7 +20,7 @@ def load_file(context, data_context, path=None):
 
     if not os.path.exists(path):
         context.error('file not found: ' + path)
-        return data_context
+        return
 
     file = open(path, 'rb')
     filesize = os.path.getsize(path)
@@ -81,8 +81,6 @@ def load_file(context, data_context, path=None):
 
     file.close()
 
-    return data_context
-
 
 ##########################################################################
 # Load
@@ -100,7 +98,7 @@ def load(context):
         animation=None,
         compressed_animation=None)
 
-    data_context = load_file(context, data_context)
+    load_file(context, data_context)
 
     hierarchy = data_context.hierarchy
     hlod = data_context.hlod
@@ -123,7 +121,7 @@ def load(context):
                 compressed_animation.header.hierarchy_name.lower() + '.w3d'
 
         if sklpath:
-            data_context = load_file(context, data_context, sklpath)
+            load_file(context, data_context, sklpath)
             if data_context.hierarchy is None:
                 context.error('hierarchy file not found: ' + sklpath)
                 return
