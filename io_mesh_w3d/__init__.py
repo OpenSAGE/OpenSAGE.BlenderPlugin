@@ -263,133 +263,27 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     def draw(self, context):
         layout = self.layout
         mat = context.object.active_material
-        col = layout.column()
-        col.prop(mat, 'material_type')
 
-        if mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'prelit_type')
+        for node in mat.node_tree.nodes:
+            
+            if not hasattr(node, 'node_tree'):
+                continue
+            print(node.node_tree.name)
+            if node.node_tree.name in ['VertexMaterial', 'PrelitUnlit', 'PrelitVertex', 'PrelitLightmapMultiPass', 'PrelitLightmapMultiTextue']:
+                col = layout.column()
+                col.prop(mat, 'surface_type')
+                col = layout.column()
+                col.prop(mat, 'attributes')
+                col = layout.column()
+                col.prop(mat, 'vm_args_0')
+                col = layout.column()
+                col.prop(mat, 'vm_args_1')
 
-        col = layout.column()
-        col.prop(mat, 'surface_type')
-        col = layout.column()
-        col.prop(mat, 'blend_mode')
-        col = layout.column()
-        col.prop(mat, 'ambient')
-        col = layout.column()
-        col.prop(mat, 'opacity')
-
-        if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'attributes')
-            col = layout.column()
-            col.prop(mat, 'translucency')
-            col = layout.column()
-            col.prop(mat, 'vm_args_0')
-            col = layout.column()
-            col.prop(mat, 'vm_args_1')
-
-            col = layout.column()
-            layout.label(text="Shader Properties")
-            col = layout.column()
-            col.prop(mat.shader, 'depth_compare')
-            col = layout.column()
-            col.prop(mat.shader, 'depth_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'color_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'dest_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'fog_func')
-            col = layout.column()
-            col.prop(mat.shader, 'pri_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'sec_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'src_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'texturing')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_alpha_func')
-            col = layout.column()
-            col.prop(mat.shader, 'shader_preset')
-            col = layout.column()
-            col.prop(mat.shader, 'alpha_test')
-            col = layout.column()
-            col.prop(mat.shader,'post_detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader,'post_detail_alpha_func')
-
-        else:
-            col = layout.column()
-            col.prop(mat, 'technique')
-            col.prop(mat, 'alpha_test')
-            col = layout.column()
-            col.prop(mat, 'bump_uv_scale')
-            col = layout.column()
-            col.prop(mat, 'edge_fade_out')
-            col = layout.column()
-            col.prop(mat, 'depth_write')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_0')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_1')
-            col = layout.column()
-            col.prop(mat, 'num_textures')
-            col = layout.column()
-            col.prop(mat, 'texture_1')
-            col = layout.column()
-            col.prop(mat, 'secondary_texture_blend_mode')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_1')
-            col = layout.column()
-            col.prop(mat, 'environment_texture')
-            col = layout.column()
-            col.prop(mat, 'environment_mult')
-            col = layout.column()
-            col.prop(mat, 'recolor_texture')
-            col = layout.column()
-            col.prop(mat, 'recolor_mult')
-            col = layout.column()
-            col.prop(mat, 'use_recolor')
-            col = layout.column()
-            col.prop(mat, 'house_color_pulse')
-            col = layout.column()
-            col.prop(mat, 'scrolling_mask_texture')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_angle')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_2')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_2')
-            col = layout.column()
-            col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
-            col = layout.column()
-            col.prop(mat, 'ion_hull_texture')
-            col = layout.column()
-            col.prop(mat, 'multi_texture_enable')
 
 
 CLASSES = (
     ExportW3D,
     ImportW3D,
-    ShaderProperties,
     OBJECT_PROPERTIES_PANEL_PT_w3d,
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d
@@ -397,16 +291,22 @@ CLASSES = (
 
 
 def register_node_groups():
-    from io_mesh_w3d.common.utils.material_import import register_w3d_material_node_group, register_alpha_node_group
-    register_alpha_node_group()
-    register_w3d_material_node_group()
+    from io_mesh_w3d.common.node_groups.alpha_pipeline import AlphaPipeline
+    AlphaPipeline.register()
 
+    from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup, PrelitUnlitGroup, PrelitVertexGroup, PrelitLightmapMultiPassGroup, PrelitLightmapMultiTextureGroup
+    VertexMaterialGroup.register(VertexMaterialGroup.name)
+    PrelitUnlitGroup.register(PrelitUnlitGroup.name)
+    PrelitVertexGroup.register(PrelitVertexGroup.name)
+    PrelitLightmapMultiPassGroup.register(PrelitLightmapMultiPassGroup.name)
+    PrelitLightmapMultiTextureGroup.register(PrelitLightmapMultiTextureGroup.name)
+
+    from io_mesh_w3d.common.node_groups.normal_mapped import NormalMappedGroup
+    NormalMappedGroup.register()
 
 def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
-
-    Material.shader = PointerProperty(type=ShaderProperties)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
