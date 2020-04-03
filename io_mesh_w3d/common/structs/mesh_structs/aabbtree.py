@@ -13,6 +13,7 @@ class AABBTreeHeader:
         self.node_count = node_count
         self.poly_count = poly_count  # num tris of mesh
 
+
     @staticmethod
     def read(io_stream):
         result = AABBTreeHeader(

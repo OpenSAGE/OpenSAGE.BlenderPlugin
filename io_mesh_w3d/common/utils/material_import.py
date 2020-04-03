@@ -7,6 +7,7 @@ from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.node_groups.vertex_material import *
 from io_mesh_w3d.common.node_groups.normal_mapped import *
+from io_mesh_w3d.common.node_groups.objects_gdi import *
 from io_mesh_w3d.common.node_groups.helpers import *
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
@@ -148,6 +149,12 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
     #    mesh.materials.append(bpy.data.materials[mat_name])
     #    return
 
+    if mat_name not in [NormalMappedGroup.name,
+                        ObjectsGDIGroup.name,
+                        ObjectsAlienGroup.name]:
+        context.error('no NodeGroup found for: ' + mat_name)
+        return
+
     material = bpy.data.materials.new(mat_name)
     mesh.materials.append(material)
     material.use_nodes = True
@@ -161,7 +168,12 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
 
     uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-    instance = NormalMappedGroup.create(context, node_tree, shader_mat, uv_layer)
+    if mat_name == NormalMappedGroup.name:
+        instance = NormalMappedGroup.create(context, node_tree, shader_mat, uv_layer)
+    elif mat_name == ObjectsGDIGroup.name:
+        instance = ObjectsGDIGroup.create(context, node_tree, shader_mat, uv_layer)
+    elif mat_name == ObjectsAlienGroup.name:
+        instance = ObjectsAlienGroup.create(context, node_tree, shader_mat, uv_layer)
 
     output = node_tree.nodes.get('Material Output')
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])

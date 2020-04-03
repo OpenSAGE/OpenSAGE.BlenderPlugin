@@ -295,14 +295,18 @@ def register_node_groups():
     AlphaPipeline.register()
 
     from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup, PrelitUnlitGroup, PrelitVertexGroup, PrelitLightmapMultiPassGroup, PrelitLightmapMultiTextureGroup
-    VertexMaterialGroup.register(VertexMaterialGroup.name)
-    PrelitUnlitGroup.register(PrelitUnlitGroup.name)
-    PrelitVertexGroup.register(PrelitVertexGroup.name)
-    PrelitLightmapMultiPassGroup.register(PrelitLightmapMultiPassGroup.name)
-    PrelitLightmapMultiTextureGroup.register(PrelitLightmapMultiTextureGroup.name)
+    VertexMaterialGroup.register()
+    PrelitUnlitGroup.register()
+    PrelitVertexGroup.register()
+    PrelitLightmapMultiPassGroup.register()
+    PrelitLightmapMultiTextureGroup.register()
 
     from io_mesh_w3d.common.node_groups.normal_mapped import NormalMappedGroup
     NormalMappedGroup.register()
+    from io_mesh_w3d.common.node_groups.objects_gdi import ObjectsGDIGroup
+    ObjectsGDIGroup.register()
+    from io_mesh_w3d.common.node_groups.objects_gdi import ObjectsAlienGroup
+    ObjectsAlienGroup.register()
 
 def register():
     for class_ in CLASSES:

@@ -7,15 +7,10 @@ from io_mesh_w3d.common.node_groups.helpers import *
 
 
 class NormalMappedGroup():
+    name = 'NormalMapped.fx'
 
     @staticmethod
-    def create(context, node_tree, shader_mat, uv_layer):
-        instance = node_tree.nodes.new(type='ShaderNodeGroup')
-        instance.node_tree = bpy.data.node_groups['NormalMapped']
-        instance.label = 'NormalMapped.fx'
-        instance.location = (0, 300)
-        instance.width = 300
-
+    def apply_data(context, node_tree, instance, shader_mat, uv_layer):
         links = node_tree.links
 
         if shader_mat.header.technique is not None:
@@ -51,14 +46,22 @@ class NormalMappedGroup():
             elif prop.name in ['SpecularExponent', 'BumpScale', 'AlphaTestEnable']:
                 instance.inputs[prop.name].default_value = prop.value
             else:
-                print(prop.name + ' -> is not a valid input of NormalMapped.fx')
+                context.warning(prop.name + ' -> is not a valid input of:' + NormalMappedGroup.name)
 
         return instance
 
     @staticmethod
-    def register():
-        name = 'NormalMapped'
-        group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
+    def create(context, node_tree, shader_mat, uv_layer):
+        instance = node_tree.nodes.new(type='ShaderNodeGroup')
+        instance.node_tree = bpy.data.node_groups[NormalMappedGroup.name]
+        instance.label = NormalMappedGroup.name
+        instance.location = (0, 300)
+        instance.width = 300
+
+        return NormalMappedGroup.apply_data(context, node_tree, instance, shader_mat, uv_layer)
+
+    @staticmethod
+    def create_inputs_and_links(group, name):
         node_tree = group
         node_tree.name = name
         links = node_tree.links
@@ -81,7 +84,6 @@ class NormalMappedGroup():
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketColor', 'Specular')
-        group.inputs['Specular'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketFloat', 'SpecularExponent')
 
         # create group outputs
@@ -111,3 +113,9 @@ class NormalMappedGroup():
         links.new(alpha_pipeline.outputs['Alpha'], shader.inputs['Transparency'])
         links.new(normal.outputs['Normal'], shader.inputs['Normal'])
         links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF'])
+
+
+    @staticmethod
+    def register():
+        group = bpy.data.node_groups.new(NormalMappedGroup.name, 'ShaderNodeTree')
+        NormalMappedGroup.create_inputs_and_links(group, NormalMappedGroup.name)
