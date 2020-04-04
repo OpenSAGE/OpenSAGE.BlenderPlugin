@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nodegroup name="AlphaPipeline2">
+<nodegroup name="AlphaPipeline">
   <node name="inputs" type="NodeGroupInput" X="-500" Y="0">
     <input name="Diffuse" type="NodeSocketColor"/>
     <input name="Alpha" type="NodeSocketFloat" default="1.0"/>

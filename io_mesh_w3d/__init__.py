@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import os
 import bpy
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
@@ -291,25 +292,21 @@ CLASSES = (
 
 
 def register_node_groups():
-    from io_mesh_w3d.common.node_groups.alpha_pipeline import AlphaPipeline
-    AlphaPipeline.register()
+    from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator.create(directory, file)
 
     from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup, PrelitUnlitGroup, PrelitVertexGroup, PrelitLightmapMultiPassGroup, PrelitLightmapMultiTextureGroup
-    VertexMaterialGroup.register()
-    PrelitUnlitGroup.register()
-    PrelitVertexGroup.register()
-    PrelitLightmapMultiPassGroup.register()
-    PrelitLightmapMultiTextureGroup.register()
-
-    from io_mesh_w3d.common.node_groups.normal_mapped import NormalMappedGroup
-    NormalMappedGroup.register()
-    from io_mesh_w3d.common.node_groups.objects_gdi import ObjectsGDIGroup
-    ObjectsGDIGroup.register()
-    from io_mesh_w3d.common.node_groups.objects_gdi import ObjectsAlienGroup
-    ObjectsAlienGroup.register()
-
-    from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
-    NodeGroupCreator.create()
+    VertexMaterialGroup.register(VertexMaterialGroup.name)
+    PrelitUnlitGroup.register(PrelitUnlitGroup.name)
+    PrelitVertexGroup.register(PrelitVertexGroup.name)
+    PrelitLightmapMultiPassGroup.register(PrelitLightmapMultiPassGroup.name)
+    PrelitLightmapMultiTextureGroup.register(PrelitLightmapMultiTextureGroup.name)
 
 def register():
     for class_ in CLASSES:

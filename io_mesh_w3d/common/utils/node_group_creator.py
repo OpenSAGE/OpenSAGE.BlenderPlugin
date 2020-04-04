@@ -10,14 +10,17 @@ from io_mesh_w3d.common.node_groups.helpers import *
 
 class NodeGroupCreator():
     @staticmethod
-    def create_node_group(path):
-        print(path)
+    def create(directory, file):
+        path = os.path.join(directory, file)
+        print('parsing: ' + path)
         root = find_root(None, path)
         if root is None:
-            print('None')
             return
 
         name = root.get('name')
+        if name in bpy.data.node_groups:
+            return
+
         group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
         node_tree = group
         links = node_tree.links
@@ -25,7 +28,10 @@ class NodeGroupCreator():
         nodes = {}
 
         for xml_node in root:
-            if xml_node.tag == 'node':
+            if xml_node.tag == 'include':
+                file = xml_node.get('file')
+                NodeGroupCreator.create(directory, file)
+            elif xml_node.tag == 'node':
                 type = xml_node.get('type')
                 node = group.nodes.new(type)
                 x = float(xml_node.get('X', 0.0))
@@ -40,7 +46,6 @@ class NodeGroupCreator():
                         input_type = child_node.get('type')
                         input_name = child_node.get('name')
                         group.inputs.new(input_type, input_name)
-                        print('created input: ' + input_name)
 
                         #default = child_node.get('default')
                         #if default is not None:
@@ -73,7 +78,6 @@ class NodeGroupCreator():
                         output_type = child_node.get('type')
                         output_name = child_node.get('name')
                         group.outputs.new(input_type, output_name)
-                        print('created output: ' + output_name)
 
                 if type == 'ShaderNodeMath':
                     node.operation = xml_node.get('mode').upper()
@@ -85,9 +89,20 @@ class NodeGroupCreator():
                     #    default = child_node.get('default')
                     #    node.inputs[int(id)] = int(default)
 
+            elif xml_node.tag == 'nodegroup':
+                nodegroup = node_tree.nodes.new(type='ShaderNodeGroup')
+                x = float(xml_node.get('X', 0.0))
+                y = float(xml_node.get('Y', 0.0))
+                nodegroup.location = (x, y)
+                nodegroup.node_tree = bpy.data.node_groups[xml_node.get('type')]
+                nodes[xml_node.get('name')] = nodegroup
+
             elif xml_node.tag == 'link':
                 from_data = xml_node.get('from').split('.')
                 to_data = xml_node.get('to').split('.')
+
+                print(from_data)
+                print(to_data)
 
                 from_node = nodes[from_data[0]]
                 to_node = nodes[to_data[0]]
@@ -99,9 +114,6 @@ class NodeGroupCreator():
                 if to_port.isdigit():
                     to_port = int(to_port)
 
-                print(from_data)
-                print(to_data)
-                
                 if from_data[1] == 'inputs':
                     from_port = from_node.inputs[from_port]
                 else:
@@ -115,13 +127,4 @@ class NodeGroupCreator():
                 links.new(from_port, to_port)
             else:
                 print('node type: ' + xml_node.tag + ' is not supported')
-
-    @staticmethod
-    def create():
-        dirname = os.path.dirname(__file__)
-        directory = os.path.join(up(up(dirname)), 'node_group_templates')
-
-        for file in os.listdir(directory):
-            if file.endswith(".xml"):
-                NodeGroupCreator.create_node_group(os.path.join(directory, file))
 

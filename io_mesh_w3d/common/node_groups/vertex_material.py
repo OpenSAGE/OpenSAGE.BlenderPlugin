@@ -43,10 +43,10 @@ class VertexMaterialGroup():
         return instance
 
     @staticmethod
-    def register():
-        group = bpy.data.node_groups.new(VertexMaterialGroup.name, 'ShaderNodeTree')
+    def register(name):
+        group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
         node_tree = group
-        node_tree.name = VertexMaterialGroup.name
+        node_tree.name = name
         links = node_tree.links
 
         # create group inputs
