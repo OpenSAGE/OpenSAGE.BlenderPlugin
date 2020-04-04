@@ -308,6 +308,9 @@ def register_node_groups():
     from io_mesh_w3d.common.node_groups.objects_gdi import ObjectsAlienGroup
     ObjectsAlienGroup.register()
 
+    from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
+    NodeGroupCreator.create()
+
 def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
