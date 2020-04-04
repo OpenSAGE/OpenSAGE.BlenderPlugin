@@ -147,9 +147,9 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
     mat_name = shader_mat.header.type_name
 
     # TODO: verify that
-    #if mat_name in bpy.data.materials:
-    #    mesh.materials.append(bpy.data.materials[mat_name])
-    #    return
+    if mat_name in bpy.data.materials:
+        mesh.materials.append(bpy.data.materials[mat_name])
+        return
 
     material = bpy.data.materials.new(mat_name)
     mesh.materials.append(material)
