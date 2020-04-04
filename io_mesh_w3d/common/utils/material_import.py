@@ -113,8 +113,11 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     links = node_tree.links
 
     node_tree.nodes.remove(node_tree.nodes.get('Principled BSDF'))
-    
+
     instance = VertexMaterialGroup.create(node_tree, vert_mat.vm_name, vert_mat.vm_info, shader)
+    instance.label = vert_mat.vm_name
+    instance.location = (0, 300)
+    instance.width = 200
 
     output = node_tree.nodes.get('Material Output')
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
@@ -123,7 +126,7 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
         texture = find_texture(context, texture_struct.file, texture_struct.id)
 
         texture_node = create_texture_node(node_tree, texture)
-        texture_node.location = (-250, 0)
+        texture_node.location = (-350, 300)
         links.new(texture_node.outputs['Color'], instance.inputs['Diffuse'])
         links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseAlpha'])
 
@@ -131,7 +134,7 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
 
         uv_node = create_uv_map_node(node_tree)
         uv_node.uv_map = uv_layer
-        uv_node.location = (-450, 0)
+        uv_node.location = (-550, 300)
         links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
 
 

@@ -3,7 +3,6 @@
 
 import os
 import bpy
-from os.path import dirname as up
 from io_mesh_w3d.common.io_xml import *
 from io_mesh_w3d.common.node_groups.helpers import *
 
@@ -12,18 +11,15 @@ class NodeGroupCreator():
     @staticmethod
     def create(directory, file, node_tree=None):
         path = os.path.join(directory, file)
-        print('parsing: ' + path)
         root = find_root(None, path)
         if root is None:
             return
 
         name = root.get('name')
         if name in bpy.data.node_groups and node_tree is None:
-            print('is none')
             return
 
         if node_tree is None:
-            print('new node tree: ' + name)
             node_tree = bpy.data.node_groups.new(name, 'ShaderNodeTree')
 
         links = node_tree.links
@@ -116,9 +112,6 @@ class NodeGroupCreator():
             elif xml_node.tag == 'link':
                 from_data = xml_node.get('from').split('.')
                 to_data = xml_node.get('to').split('.')
-
-                #print(from_data)
-                #print(to_data)
 
                 from_node = nodes[from_data[0]]
                 to_node = nodes[to_data[0]]

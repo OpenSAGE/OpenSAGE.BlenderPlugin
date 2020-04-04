@@ -23,10 +23,10 @@
     <hide id="Clear Coat Normal" type="input"/>
     <hide id="Ambient Occlusion" type="input"/>
   </node>
-  
+
   <link from="inputs.outputs.ColorEmissive" to="specular_shader.inputs.Emissive Color"/>
   <link from="inputs.outputs.Texture_0" to="specular_shader.inputs.Base Color"/>
-  
+
   <node name="outputs" type="NodeGroupOutput" X="300" Y="0">
     <output name="BSDF" type="NodeSocketShader"/>
   </node>

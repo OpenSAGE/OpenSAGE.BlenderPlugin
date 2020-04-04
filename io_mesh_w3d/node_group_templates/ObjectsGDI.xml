@@ -4,6 +4,7 @@
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
     <input name="SpecMap" type="NodeSocketColor"/>
     <input name="RecolorTexture" type="NodeSocketColor"/>
+    <input name="RecolorTextureAlpha" type="NodeSocketFloat"/>
     <input name="EnvMult" type="NodeSocketFloat"/>
   </node>
 </nodegroup>
