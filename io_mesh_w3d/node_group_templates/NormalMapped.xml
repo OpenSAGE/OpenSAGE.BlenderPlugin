@@ -4,7 +4,7 @@
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
     <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
     <input name="DiffuseColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
-    <input name="DiffuseTexture" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="DiffuseTexture" type="NodeSocketColor"/>
     <input name="DiffuseTextureAlpha" type="NodeSocketFloat" default="1.0"/>
     <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>
     <input name="NormalMap" type="NodeSocketColor"/>
