@@ -39,6 +39,17 @@ class NodeGroupCreator():
                 node.location = (x, y)
                 nodes[xml_node.get('name')] = node
 
+                for child_node in xml_node:
+                    if child_node.tag != 'hide':
+                        continue
+                    id = child_node.get('id')
+                    port_type = child_node.get('type')
+
+                    if port_type == 'input':
+                        node.inputs[id].hide = True
+                    else:
+                        node.outputs[id].hide = True
+
                 if type == 'NodeGroupInput':
                     for child_node in xml_node:
                         if child_node.tag != 'input':

@@ -6,11 +6,10 @@ import bmesh
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.node_groups.vertex_material import *
-from io_mesh_w3d.common.node_groups.normal_mapped import *
-from io_mesh_w3d.common.node_groups.objects_gdi import *
 from io_mesh_w3d.common.node_groups.helpers import *
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
+from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
 
 def get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords):
@@ -149,12 +148,6 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
     #    mesh.materials.append(bpy.data.materials[mat_name])
     #    return
 
-    if mat_name not in [NormalMappedGroup.name,
-                        ObjectsGDIGroup.name,
-                        ObjectsAlienGroup.name]:
-        context.error('no NodeGroup found for: ' + mat_name)
-        return
-
     material = bpy.data.materials.new(mat_name)
     mesh.materials.append(material)
     material.use_nodes = True
@@ -168,12 +161,38 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
 
     uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-    if mat_name == NormalMappedGroup.name:
-        instance = NormalMappedGroup.create(context, node_tree, shader_mat, uv_layer)
-    elif mat_name == ObjectsGDIGroup.name:
-        instance = ObjectsGDIGroup.create(context, node_tree, shader_mat, uv_layer)
-    elif mat_name == ObjectsAlienGroup.name:
-        instance = ObjectsAlienGroup.create(context, node_tree, shader_mat, uv_layer)
+    instance = node_tree.nodes.new(type='ShaderNodeGroup')
+    instance.node_tree = bpy.data.node_groups[mat_name]
+    instance.label = mat_name
+    instance.location = (0, 300)
+    instance.width = 200
+
+    links = node_tree.links
+
+    if shader_mat.header.technique is not None:
+        instance.inputs['Technique'].default_value = shader_mat.header.technique
+
+    uv_node = None
+    y = 300
+
+    for prop in shader_mat.properties:
+        if prop.type == STRING_PROPERTY and prop.value != '':
+            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node.location = (-350, y)
+            y -= 300
+            links.new(texture_node.outputs['Color'], instance.inputs[prop.name])
+            index = instance.inputs.keys().index(prop.name)
+            links.new(texture_node.outputs['Alpha'], instance.inputs[index + 1])
+
+            if uv_node is None:
+                uv_node = create_uv_map_node(node_tree)
+                uv_node.uv_map = uv_layer
+                uv_node.location = (-600, 300)
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+        elif prop.type == VEC4_PROPERTY:
+            instance.inputs[prop.name].default_value = prop.to_rgba()
+        else:
+            instance.inputs[prop.name].default_value = prop.value
 
     output = node_tree.nodes.get('Material Output')
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
