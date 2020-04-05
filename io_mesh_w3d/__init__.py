@@ -299,7 +299,7 @@ def register_node_groups():
     for file in os.listdir(directory):
         if not file.endswith(".xml"):
             continue
-        NodeGroupCreator.create(directory, file)
+        NodeGroupCreator().create(directory, file)
 
     from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup, PrelitUnlitGroup, PrelitVertexGroup, PrelitLightmapMultiPassGroup, PrelitLightmapMultiTextureGroup
     VertexMaterialGroup.register(VertexMaterialGroup.name)
