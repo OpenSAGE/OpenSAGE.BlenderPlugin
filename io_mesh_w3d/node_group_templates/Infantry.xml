@@ -1,34 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nodegroup name="DefaultW3D.fx">
+<nodegroup name="Infantry.fx">
   <include file="alpha_pipeline.xml"/>
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
     <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
     <input name="ColorDiffuse" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="Texture_0" type="NodeSocketColor"/>
     <input name="Texture_0_Alpha" type="NodeSocketFloat" default="1.0"/>
-    <input name="Texture_1" type="NodeSocketColor"/>
-    <input name="Texture_1_Alpha" type="NodeSocketFloat" default="1.0"/>
-    <input name="AlphaTestEnable" type="NodeSocketBool"/>
-    <input name="ColorAmbient" type="NodeSocketColor"/>
+    <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>
+    <input name="RecolorTexture" type="NodeSocketColor"/>
+    <input name="RecolorTextureAlpha" type="NodeSocketFloat"/>
+    <input name="ColorAmbient" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="ColorSpecular" type="NodeSocketColor"/>
     <input name="Shininess" type="NodeSocketFloat"/>
     <input name="ColorEmissive" type="NodeSocketColor"/>
-    <input name="Opacity" type="NodeSocketFloat"/>
-    <input name="NumTextures" type="NodeSocketInt"/>
     <input name="DepthWriteEnable" type="NodeSocketBool"/>
     <input name="CullingEnable" type="NodeSocketBool"/>
     <input name="BlendMode" type="NodeSocketInt"/>
-    <input name="EdgeFadeOut" type="NodeSocketFloat"/>
-    <input name="UseRecolorColors" type="NodeSocketBool"/>
-    <input name="HouseColorPulse" type="NodeSocketBool"/>
-    <input name="SecondaryTextureBlendMode" type="NodeSocketInt"/>
-    <input name="TexCoordMapper_0" type="NodeSocketInt"/>
-    <input name="TexCoordTransform_0" type="NodeSocketColor"/>
-    <input name="TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0" type="NodeSocketColor"/>
-    <input name="TexCoordMapper_1" type="NodeSocketInt"/>
-    <input name="TexCoordTransform_1" type="NodeSocketColor"/>
-    <input name="Sampler_ClampU_ClampV_NoMip_0" type="NodeSocketColor"/>
-    <input name="Sampler_ClampU_ClampV_NoMip_1" type="NodeSocketColor"/>
   </node>
 
   <nodegroup name="alpha_pipeline" type="AlphaPipeline" X="-100" Y="0"/>
@@ -38,7 +25,6 @@
 
   <node name="specular_shader" type="ShaderNodeEeveeSpecular" X="100" Y="0">
     <hide id="Normal" type="input"/>
-    <hide id="Emissive Color" type="input"/>
     <hide id="Clear Coat" type="input"/>
     <hide id="Clear Coat Roughness" type="input"/>
     <hide id="Clear Coat Normal" type="input"/>
@@ -48,6 +34,7 @@
   <link from="inputs.outputs.Texture_0" to="specular_shader.inputs.Base Color"/>
   <link from="inputs.outputs.ColorSpecular" to="specular_shader.inputs.Specular"/>
   <link from="inputs.outputs.Shininess" to="specular_shader.inputs.Roughness"/>
+  <link from="inputs.outputs.ColorEmissive" to="specular_shader.inputs.Emissive Color"/>
   <link from="alpha_pipeline.outputs.Alpha" to="specular_shader.inputs.Transparency"/>
 
   <node name="outputs" type="NodeGroupOutput" X="300" Y="0">
