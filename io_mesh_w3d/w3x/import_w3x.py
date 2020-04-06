@@ -63,8 +63,6 @@ def load(context):
         hierarchy=None,
         hlod=None)
 
-    context.info(len(data_context.meshes))
-
     load_file(context, data_context)
 
     dir = os.path.dirname(context.filepath) + os.path.sep
@@ -79,9 +77,7 @@ def load(context):
                 path = dir + obj.identifier + '.w3x'
                 load_file(context, data_context, path)
 
-    context.info(data_context.hlod is None)
     if data_context.hlod is None:
-        context.info(len(data_context.meshes))
         if len(data_context.meshes) == 1:
             mesh = data_context.meshes[0]
             context.info(mesh.container_name)
