@@ -7,7 +7,7 @@
   </node>
   
   <node name="compare1" type="ShaderNodeMath" mode="COMPARE" X="-200" Y="100">
-    <input id="0" default="0"/>
+    <input id="0" default="0.0"/>
   </node>
   <link from="inputs.outputs.DestBlend" to="compare1.inputs.1"/>
   <link from="inputs.outputs.Alpha" to="compare1.inputs.2"/>
@@ -16,7 +16,7 @@
   <link from="inputs.outputs.Diffuse" to="seperate_hsv.inputs.Color"/>
   
   <node name="compare2" type="ShaderNodeMath" mode="COMPARE" X="-100" Y="-100">
-    <input id="0" default="0"/>
+    <input id="0" default="1.0"/>
   </node>
   <link from="inputs.outputs.DestBlend" to="compare2.inputs.1"/>
   <link from="seperate_hsv.outputs.V" to="compare2.inputs.2"/>

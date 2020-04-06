@@ -3,9 +3,7 @@
 
 import os
 import bpy
-from mathutils import Vector
 from io_mesh_w3d.common.io_xml import *
-from io_mesh_w3d.common.node_groups.helpers import *
 
 
 class NodeGroupCreator():

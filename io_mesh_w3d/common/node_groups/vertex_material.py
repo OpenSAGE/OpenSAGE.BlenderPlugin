@@ -95,7 +95,8 @@ class VertexMaterialGroup():
         links.new(group_inputs.outputs['DiffuseAlpha'], alpha_pipeline.inputs['Alpha'])
         links.new(group_inputs.outputs['DestBlend'], alpha_pipeline.inputs['DestBlend'])
 
-        shader = create_specular_shader_node(node_tree)
+        shader = node_tree.nodes.new('ShaderNodeEeveeSpecular')
+        shader.label = 'Shader'
         shader.location = (100, 0)
         shader.inputs['Normal'].hide = True
 

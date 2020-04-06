@@ -74,9 +74,8 @@ class TestCase(unittest.TestCase):
         bpy.ops.wm.read_homefile(use_empty=True)
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
-        from io_mesh_w3d.common.utils.material_import import register_alpha_node_group, register_w3d_material_node_group
-        register_alpha_node_group()
-        register_w3d_material_node_group()
+        from io_mesh_w3d.__init__ import register_node_groups
+        register_node_groups()
 
 
     def tearDown(self):

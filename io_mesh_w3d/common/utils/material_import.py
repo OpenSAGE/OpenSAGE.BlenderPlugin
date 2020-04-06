@@ -31,19 +31,32 @@ def get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords):
     return uv_layer.name
 
 
+def create_materials_from_combinations(mesh, vert_mat_ids, shader_ids, tex_ids):
+    materials = {}
+
+    if len(vert_mat_ids) == 0:
+        vert_mat_ids = [vert_mat_ids[0]] * len(mesh.vertices)
+    if len(shader_ids) == 0:
+        shader_ids = [shader_ids[0]] * len(mesh.vertices)
+    if len(tex_ids) == 0:
+        tex_ids = [tex_ids[0]] * len(tex_ids)
+
+    # TODO
+    #for i, vertex in enumerate(mesh.vertices):
+
+
+
 def create_material_passes(context, base_struct, mesh, triangles):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    for i, mat_pass in enumerate(base_struct.material_passes):
+    for pass_index, mat_pass in enumerate(base_struct.material_passes):
         vert_materials = []
         shaders = []
         textures = []
         shader_materials = []
         tx_coords = []
 
-        #TODO: create vert_mat - shader - texture combinations 
-        # and support different materials for each triangle
         for vert_mat_id in mat_pass.vertex_material_ids:
             vert_materials.append(base_struct.vert_materials[vert_mat_id])
 
@@ -55,16 +68,15 @@ def create_material_passes(context, base_struct, mesh, triangles):
             tx_coords.append(tx_stage.tx_coords)
 
         for shader_mat_id in mat_pass.shader_material_ids:
-            shader_materials.append(base_struct.shader_materials[shader_mat_id])
+            shader_material = base_struct.shader_materials[shader_mat_id]
+            create_shader_material(context, mesh, b_mesh, triangles, shader_material, mat_pass.tx_coords)
 
-        if mat_pass.tx_coords:
-            tx_coords.append(mat_pass.tx_coords)
 
-        print('vert: ' + str(len(vert_materials)))
-        print('shaders: ' + str(len(shaders)))
-        print('textures: ' + str(len(textures)))
-        print('shader_materials: ' + str(len(shader_materials)))
-        print('tx_coords: ' + str(len(tx_coords)))
+        #print('vert: ' + str(len(vert_materials)))
+        #print('shaders: ' + str(len(shaders)))
+        #print('textures: ' + str(len(textures)))
+        #print('shader_materials: ' + str(len(shader_materials)))
+        #print('tx_coords: ' + str(len(tx_coords)))
 
         if vert_materials:
             texture = None
@@ -73,18 +85,16 @@ def create_material_passes(context, base_struct, mesh, triangles):
             tx_coordinates = None
             if tx_coords:
                 tx_coordinates = tx_coords[0]
-            create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], texture, tx_coordinates)
 
-        if shader_materials:
-            create_shader_material(context, mesh, b_mesh, triangles, shader_materials[0], tx_coords[0])
-
-
+            #TODO: create vert_mat - shader - texture combinations
+            # and support different materials for each triangle
+            create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], texture, tx_coordinates, pass_index)
 
 ##########################################################################
 # vertex material
 ##########################################################################
 
-def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, texture_struct, tx_coords):
+def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, texture_struct, tx_coords, pass_index):
     material = bpy.data.materials.new(mesh.name + '.' + vert_mat.vm_name)
     mesh.materials.append(material)
 
@@ -92,7 +102,7 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     material.shadow_method = 'CLIP'
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
-    #material.pass_index = index
+    material.pass_index = pass_index
 
     material.attributes = {'DEFAULT'}
     attributes = vert_mat.vm_info.attributes
@@ -125,14 +135,15 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     if texture_struct is not None:
         texture = find_texture(context, texture_struct.file, texture_struct.id)
 
-        texture_node = create_texture_node(node_tree, texture)
+        texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+        texture_node.image = texture
         texture_node.location = (-350, 300)
         links.new(texture_node.outputs['Color'], instance.inputs['Diffuse'])
         links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseAlpha'])
 
         uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-        uv_node = create_uv_map_node(node_tree)
+        uv_node = node_tree.nodes.new('ShaderNodeUVMap')
         uv_node.uv_map = uv_layer
         uv_node.location = (-550, 300)
         links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
@@ -180,7 +191,8 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
 
     for prop in shader_mat.properties:
         if prop.type == STRING_PROPERTY and prop.value != '':
-            texture_node = create_texture_node(node_tree, find_texture(context, prop.value))
+            texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+            texture_node.image = find_texture(context, prop.value)
             texture_node.location = (-350, y)
             y -= 300
             links.new(texture_node.outputs['Color'], instance.inputs[prop.name])
@@ -188,7 +200,7 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
             links.new(texture_node.outputs['Alpha'], instance.inputs[index + 1])
 
             if uv_node is None:
-                uv_node = create_uv_map_node(node_tree)
+                uv_node = node_tree.nodes.new('ShaderNodeUVMap')
                 uv_node.uv_map = uv_layer
                 uv_node.location = (-600, 300)
             links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])

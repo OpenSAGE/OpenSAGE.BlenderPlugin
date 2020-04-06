@@ -281,7 +281,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
                 col.prop(mat, 'vm_args_1')
 
 
-
 CLASSES = (
     ExportW3D,
     ImportW3D,
@@ -289,7 +288,6 @@ CLASSES = (
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d
 )
-
 
 def register_node_groups():
     from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
@@ -316,6 +314,7 @@ def register():
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
     # workaround to register the node group when the addon is active
+    # since bpy.data is not yet accessible
     import time
     from threading import Timer
 
