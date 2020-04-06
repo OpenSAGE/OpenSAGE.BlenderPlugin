@@ -94,16 +94,16 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     scene_key = 'w3dExportSettings'
 
     def info(self, msg):
-        print('INFO: ' + msg)
-        self.report({'INFO'}, msg)
+        print('INFO: ' + str(msg))
+        self.report({'INFO'}, str(msg))
 
     def warning(self, msg):
-        print('WARNING: ' + msg)
-        self.report({'WARNING'}, msg)
+        print('WARNING: ' + str(msg))
+        self.report({'WARNING'}, str(msg))
 
     def error(self, msg):
-        print('ERROR: ' + msg)
-        self.report({'ERROR'}, msg)
+        print('ERROR: ' + str(msg))
+        self.report({'ERROR'}, str(msg))
 
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)
@@ -192,16 +192,16 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
 
     def info(self, msg):
-        print('INFO: ' + msg)
-        self.report({'INFO'}, msg)
+        print('INFO: ' + str(msg))
+        self.report({'INFO'}, str(msg))
 
     def warning(self, msg):
-        print('WARNING: ' + msg)
-        self.report({'WARNING'}, msg)
+        print('WARNING: ' + str(msg))
+        self.report({'WARNING'}, str(msg))
 
     def error(self, msg):
-        print('ERROR: ' + msg)
-        self.report({'ERROR'}, msg)
+        print('ERROR: ' + str(msg))
+        self.report({'ERROR'}, str(msg))
 
     def execute(self, context):
         if self.filepath.lower().endswith('.w3d'):
