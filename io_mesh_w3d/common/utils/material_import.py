@@ -138,8 +138,8 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
         texture_node = node_tree.nodes.new('ShaderNodeTexImage')
         texture_node.image = texture
         texture_node.location = (-350, 300)
-        links.new(texture_node.outputs['Color'], instance.inputs['Diffuse'])
-        links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseAlpha'])
+        links.new(texture_node.outputs['Color'], instance.inputs['DiffuseTexture'])
+        links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseTextureAlpha'])
 
         uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 

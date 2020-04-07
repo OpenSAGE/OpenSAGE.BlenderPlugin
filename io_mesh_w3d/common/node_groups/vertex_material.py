@@ -5,6 +5,7 @@ import bpy
 from io_mesh_w3d.common.node_groups.helpers import *
 
 
+
 class VertexMaterialGroup():
     name = 'VertexMaterial'
 
@@ -54,8 +55,9 @@ class VertexMaterialGroup():
         group_inputs.location = (-350,0)
         group.inputs.new('NodeSocketColor', 'Diffuse')
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
-        group.inputs.new('NodeSocketFloat', 'DiffuseAlpha')
-        group.inputs['DiffuseAlpha'].default_value = 1.0
+        group.inputs.new('NodeSocketColor', 'DiffuseTexture')
+        group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
+        group.inputs['DiffuseTextureAlpha'].default_value = 1.0
         addInputInt(group, 'DestBlend', max=1)
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)
@@ -91,8 +93,8 @@ class VertexMaterialGroup():
         alpha_pipeline = node_tree.nodes.new(type='ShaderNodeGroup')
         alpha_pipeline.location = (-100, 0)
         alpha_pipeline.node_tree = bpy.data.node_groups['AlphaPipeline']
-        links.new(group_inputs.outputs['Diffuse'], alpha_pipeline.inputs['Diffuse'])
-        links.new(group_inputs.outputs['DiffuseAlpha'], alpha_pipeline.inputs['Alpha'])
+        links.new(group_inputs.outputs['DiffuseTexture'], alpha_pipeline.inputs['Diffuse'])
+        links.new(group_inputs.outputs['DiffuseTextureAlpha'], alpha_pipeline.inputs['Alpha'])
         links.new(group_inputs.outputs['DestBlend'], alpha_pipeline.inputs['DestBlend'])
 
         shader = node_tree.nodes.new('ShaderNodeEeveeSpecular')
@@ -100,7 +102,7 @@ class VertexMaterialGroup():
         shader.location = (100, 0)
         shader.inputs['Normal'].hide = True
 
-        links.new(group_inputs.outputs['Diffuse'], shader.inputs['Base Color'])
+        links.new(group_inputs.outputs['DiffuseTexture'], shader.inputs['Base Color'])
         links.new(group_inputs.outputs['Specular'], shader.inputs['Specular'])
         links.new(group_inputs.outputs['Shininess'], shader.inputs['Roughness'])
         links.new(group_inputs.outputs['Emissive'], shader.inputs['Emissive Color'])

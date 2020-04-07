@@ -54,6 +54,7 @@ class NodeGroupCreator():
             max = int(max)
         node_tree.inputs[input].max_value = max
 
+
     def process_presets(self, node_tree, xml_node, name=None, type=None):
         if type is None:
             type = xml_node.get('type')

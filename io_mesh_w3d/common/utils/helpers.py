@@ -127,3 +127,21 @@ def find_texture(context, file, name=None):
     img.name = name
     img.alpha_mode = 'STRAIGHT'
     return img
+
+
+def get_connected_nodes(node_tree, node, socket_id, types=[]):
+    result = []
+    for link in node_tree.links:
+        if link.to_node == node and link.to_socket.name == socket_id:
+            if types:
+                if link.from_node.bl_idname in types:
+                    result.append(link.from_node)
+            else:
+                result.append(link.from_node)
+        if link.from_node == node and link.from_socket.name == socket_id:
+            if types:
+                if link.to_node.bl_idname in types:
+                    result.append(link.to_node)
+            else:
+                result.append(link.to_node)
+    return result

@@ -149,118 +149,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass()
 
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            #principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
-            used_textures = get_used_textures(material, principled, used_textures)
+            #used_textures = get_used_textures(material, principled, used_textures)
 
-            if context.file_format == 'W3X' or (
-                    material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
-                mat_pass.shader_material_ids = [i]
-                if i < len(tx_stages):
-                    mat_pass.tx_coords = tx_stages[i].tx_coords
-                mesh_struct.shader_materials.append(
-                    retrieve_shader_material(context, material, principled))
-                mesh_struct.material_passes.append(mat_pass)
-            else:
-                shader = retrieve_shader(material)
+            retrieve_material(context, material)
 
-                if i < len(tx_stages):
-                    mat_pass.tx_stages.append(tx_stages[i])
-
-                vert_material = retrieve_vertex_material(material)
-
-                tex = None
-                if principled.base_color_texture.image is not None:
-                    info = TextureInfo()
-                    img = principled.base_color_texture.image
-                    filepath = os.path.basename(img.filepath)
-                    if filepath == '':
-                        filepath = img.name + '.dds'
-                    tex = Texture(
-                        id=img.name,
-                        file=filepath,
-                        texture_info=info)
-
-                #print('material type: ' + material.material_type)
-                if material.material_type == 'VERTEX_MATERIAL':
-                    mat_pass.shader_ids = [i]
-                    mat_pass.vertex_material_ids = [i]
-                    mat_pass.tx_stages[0].tx_ids = [0]
-                    mesh_struct.shaders.append(shader)
-                    mesh_struct.vert_materials.append(vert_material)
-                    mesh_struct.material_passes.append(mat_pass)
-                    if tex is not None:
-                        mesh_struct.textures.append(tex)
-                else:
-                    #print('prelit type: ' + material.prelit_type)
-                    if material.prelit_type == 'PRELIT_UNLIT':
-                        if  mesh_struct.prelit_unlit is None:
-                            mesh_struct.prelit_unlit = PrelitBase(
-                                    type=W3D_CHUNK_PRELIT_UNLIT,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
-
-                        mat_pass.tx_stages[0].tx_ids = [0]
-                        mat_pass.shader_ids = [len(mesh_struct.prelit_unlit.shaders)]
-                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_unlit.vert_materials)]
-                        mesh_struct.prelit_unlit.shaders.append(shader)
-                        mesh_struct.prelit_unlit.vert_materials.append(vert_material)
-                        mesh_struct.prelit_unlit.material_passes.append(mat_pass)
-                        if tex is not None:
-                            mesh_struct.prelit_unlit.textures.append(tex)
-
-                    elif material.prelit_type == 'PRELIT_VERTEX':
-                        if mesh_struct.prelit_vertex is None:
-                            mesh_struct.prelit_vertex = PrelitBase(type=W3D_CHUNK_PRELIT_VERTEX,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
-
-                        mat_pass.tx_stages[0].tx_ids = [0]
-                        mat_pass.shader_ids = [len(mesh_struct.prelit_vertex.shaders)]
-                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_vertex.vert_materials)]
-                        mesh_struct.prelit_vertex.shaders.append(shader)
-                        mesh_struct.prelit_vertex.vert_materials.append(vert_material)
-                        mesh_struct.prelit_vertex.material_passes.append(mat_pass)
-                        if tex is not None:
-                            mesh_struct.prelit_vertex.textures.append(tex)
-
-                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_PASS':
-                        if mesh_struct.prelit_lightmap_multi_pass is None:
-                            mesh_struct.prelit_lightmap_multi_pass = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
-
-                        mat_pass.tx_stages[0].tx_ids = [0]
-                        mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_pass.shaders)]
-                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_pass.vert_materials)]
-                        mesh_struct.prelit_lightmap_multi_pass.shaders.append(shader)
-                        mesh_struct.prelit_lightmap_multi_pass.vert_materials.append(vert_material)
-                        mesh_struct.prelit_lightmap_multi_pass.material_passes.append(mat_pass)
-                        if tex is not None:
-                            mesh_struct.prelit_lightmap_multi_pass.textures.append(tex)
-
-                    elif material.prelit_type == 'PRELIT_LIGHTMAP_MULTI_TEXTURE':     
-                        if mesh_struct.prelit_lightmap_multi_texture is None:
-                            mesh_struct.prelit_lightmap_multi_texture = PrelitBase(type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE,
-                                    shaders=[],
-                                    vert_materials=[],
-                                    material_passes=[],
-                                    textures=[])
-
-                        mat_pass.tx_stages[0].tx_ids = [0]
-                        mat_pass.shader_ids = [len(mesh_struct.prelit_lightmap_multi_texture.shaders)]
-                        mat_pass.vertex_material_ids = [len(mesh_struct.prelit_lightmap_multi_texture.vert_materials)]
-                        mesh_struct.prelit_lightmap_multi_texture.shaders.append(shader)
-                        mesh_struct.prelit_lightmap_multi_texture.vert_materials.append(vert_material)
-                        mesh_struct.prelit_lightmap_multi_texture.material_passes.append(mat_pass)
-                        if tex is not None:
-                            mesh_struct.prelit_lightmap_multi_texture.textures.append(tex)
 
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
