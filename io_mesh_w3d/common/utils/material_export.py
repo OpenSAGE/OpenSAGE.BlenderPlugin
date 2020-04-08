@@ -7,57 +7,29 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
 
-def append_texture_if_valid(texture, used_textures):
-    if isinstance(texture, str):
-        if texture != '' and texture not in used_textures:
-            used_textures.append(texture)
-    elif texture is not None and texture.image is not None and texture.image.name not in used_textures:
-        used_textures.append(texture.image.name)
-    return used_textures
-
-
-
 def retrieve_material(context, material):
-    # Material Output
-    output = None
-    for node in material.node_tree.nodes:
-        if node.bl_idname == 'ShaderNodeOutputMaterial':
-            output = node
-
-    shader_node = get_connected_nodes(material.node_tree, output, 'Surface', ['ShaderNodeGroup'])[0]
-
     vertex_materials_ids = [VertexMaterialGroup.name, PrelitUnlitGroup.name, PrelitVertexGroup.name,
                     PrelitLightmapMultiPassGroup.name, PrelitLightmapMultiTextureGroup.name]
 
+    shader_node = get_shader_node_group(context, material.node_tree)
+
     if shader_node.node_tree.name in vertex_materials_ids:
-        retrieve_vertex_material(material, shader_node)
+        retrieve_vertex_material(context, material, shader_node)
+    # else: shader material
 
 
-def get_used_textures(material, principled, used_textures):
-    used_textures = append_texture_if_valid(principled.base_color_texture, used_textures)
-    used_textures = append_texture_if_valid(principled.normalmap_texture, used_textures)
-    used_textures = append_texture_if_valid(principled.specular_texture, used_textures)
-
-    used_textures = append_texture_if_valid(material.texture_1, used_textures)
-    used_textures = append_texture_if_valid(material.environment_texture, used_textures)
-    used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
-    used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
-    return used_textures
-
-
-def retrieve_vertex_material(material, shader_node):
-    # TODO: handle connected nodes
-    print(RGBA(vec=shader_node.inputs['Diffuse'].default_value))
+def retrieve_vertex_material(context, material, shader_node):
+    node_tree = material.node_tree
 
     info = VertexMaterialInfo(
         attributes=0,
         shininess=material.specular_intensity,
-        specular=RGBA(vec=shader_node.inputs['Specular'].default_value),
-        diffuse=RGBA(vec=shader_node.inputs['Diffuse'].default_value),
-        emissive=RGBA(vec=shader_node.inputs['Emissive'].default_value),
-        ambient=RGBA(vec=shader_node.inputs['Ambient'].default_value),
-        translucency=shader_node.inputs['Translucency'].default_value,
-        opacity=shader_node.inputs['Opacity'].default_value)
+        specular=get_color_value(context, node_tree, shader_node, 'Specular'),
+        diffuse=get_color_value(context, node_tree, shader_node, 'Diffuse'),
+        emissive=get_color_value(context, node_tree, shader_node, 'Emissive'),
+        ambient=get_color_value(context, node_tree, shader_node, 'Ambient'),
+        translucency=get_value(context, node_tree, shader_node, 'Translucency', float),
+        opacity=get_value(context, node_tree, shader_node, 'Opacity', float))
 
     if 'USE_DEPTH_CUE' in material.attributes:
         info.attributes |= USE_DEPTH_CUE
@@ -77,36 +49,34 @@ def retrieve_vertex_material(material, shader_node):
     vert_mat = VertexMaterial()
     vert_mat.vm_name = shader_node.label
     vert_mat.vm_info = info
+    # TODO: handle these
     vert_mat.vm_args_0 = material.vm_args_0
     vert_mat.vm_args_1 = material.vm_args_1
 
     shader = Shader(
-        depth_compare=shader_node.inputs['DepthCompare'].default_value,
-        depth_mask=shader_node.inputs['DepthMask'].default_value,
-        color_mask=shader_node.inputs['ColorMask'].default_value,
-        dest_blend=shader_node.inputs['DestBlend'].default_value,
-        fog_func=shader_node.inputs['FogFunc'].default_value,
-        pri_gradient=shader_node.inputs['PriGradient'].default_value,
-        sec_gradient=shader_node.inputs['SecGradient'].default_value,
-        src_blend=shader_node.inputs['SrcBlend'].default_value,
-        texturing=shader_node.inputs['Texturing'].default_value,
-        detail_color_func=shader_node.inputs['DetailColorFunc'].default_value,
-        detail_alpha_func=shader_node.inputs['DetailAlphaFunc'].default_value,
-        shader_preset=shader_node.inputs['Preset'].default_value,
-        alpha_test=shader_node.inputs['AlphaTest'].default_value,
-        post_detail_color_func=shader_node.inputs['PostDetailColorFunc'].default_value,
-        post_detail_alpha_func=shader_node.inputs['PostDetailAlphaFunc'].default_value)
+        depth_compare=get_value(context, node_tree, shader_node, 'DepthCompare', int),
+        depth_mask=get_value(context, node_tree, shader_node, 'DepthMask', int),
+        color_mask=get_value(context, node_tree, shader_node, 'ColorMask', int),
+        dest_blend=get_value(context, node_tree, shader_node, 'DestBlend', int),
+        fog_func=get_value(context, node_tree, shader_node, 'FogFunc', int),
+        pri_gradient=get_value(context, node_tree, shader_node, 'PriGradient', int),
+        sec_gradient=get_value(context, node_tree, shader_node, 'SecGradient', int),
+        src_blend=get_value(context, node_tree, shader_node, 'SrcBlend', int),
+        texturing=get_value(context, node_tree, shader_node, 'Texturing', int), #TODO: set this based on applied texture
+        detail_color_func=get_value(context, node_tree, shader_node, 'DetailColorFunc', int),
+        detail_alpha_func=get_value(context, node_tree, shader_node, 'DetailAlphaFunc', int),
+        shader_preset=get_value(context, node_tree, shader_node, 'Preset', int),
+        alpha_test=get_value(context, node_tree, shader_node, 'AlphaTest', int),
+        post_detail_color_func=get_value(context, node_tree, shader_node, 'PostDetailColorFunc', int),
+        post_detail_alpha_func=get_value(context, node_tree, shader_node, 'PostDetailAlphaFunc', int))
+
+    (texture, uv_map) = get_texture_value(context, node_tree, shader_node, 'DiffuseTexture')
+
+    texture_struct = Texture(file=texture)
+    tx_coords = 
 
 
-    texture_nodes = get_connected_nodes(material.node_tree, shader_node, 'DiffuseTexture')
-
-    if texture_nodes:
-        print(texture_nodes[0].image.name)
-        print(texture_nodes[0].bl_idname)
-
-    # TODO: get texture
-    # return (vert_mat, shader, texture, mat_pass_index)
-
+    #return vert_mat, shader, texture_struct, tx_coords, pass_index, prelit_type
     return vert_mat
 
 

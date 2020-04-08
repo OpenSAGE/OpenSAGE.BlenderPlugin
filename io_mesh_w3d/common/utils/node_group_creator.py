@@ -20,50 +20,48 @@ class NodeGroupCreator():
                 node.outputs[id].hide = True
 
 
-    def process_default_value(self, node_tree, input, type, default):
+    def process_default_value(self, socket, default):
         if default is None:
             return
-        if type == 'NodeSocketFloat':
+        if socket.type == 'VALUE':
             default = float(default)
-        elif type == 'NodeSocketInt':
+        elif socket.type == 'INT':
             default = int(default)
-        elif type == 'NodeSocketBool':
+        elif socket.type == 'BOOLEAN':
             default = int(default)
-        elif type == 'NodeSocketColor':
+        elif socket.type == 'RGBA':
             values = default.split(',')
             default = Vector((float(values[0]), float(values[1]), float(values[2]), float(values[3])))
-        node_tree.inputs[input].default_value = default
+        socket.default_value = default
 
 
-    def process_min_value(self, node_tree, input, type, min):
+    def process_min_value(self, socket, min):
         if min is None:
             return
-        if type == 'NodeSocketFloat':
+        if socket.type == 'FLOAT':
             min = float(min)
-        elif type == 'NodeSocketInt':
+        elif socket.type == 'INT':
             min = int(min)
-        node_tree.inputs[input].min_value = min
+        socket.min_value = min
 
 
-    def process_max_value(self, node_tree, input, type, max):
+    def process_max_value(self, socket, max):
         if max is None:
             return
-        if type == 'NodeSocketFloat':
+        if socket.type == 'FLOAT':
             max = float(max)
-        elif type == 'NodeSocketInt':
+        elif socket.type == 'INT':
             max = int(max)
-        node_tree.inputs[input].max_value = max
+        socket.max_value = max
 
 
-    def process_presets(self, node_tree, xml_node, name=None, type=None):
-        if type is None:
-            type = xml_node.get('type')
+    def process_presets(self, socket, xml_node, name=None):
         if name is None:
             name = xml_node.get('name', xml_node.get('id'))
 
-        self.process_default_value(node_tree, name, type, xml_node.get('default'))
-        self.process_min_value(node_tree, name, type, xml_node.get('min'))
-        self.process_max_value(node_tree, name, type, xml_node.get('max'))
+        self.process_default_value(socket, xml_node.get('default'))
+        self.process_min_value(socket, xml_node.get('min'))
+        self.process_max_value(socket, xml_node.get('max'))
 
 
     def create_input_node(self, node_tree, xml_node, node):
@@ -72,8 +70,13 @@ class NodeGroupCreator():
                 continue
             type = child_node.get('type')
             name = child_node.get('name')
-            node_tree.inputs.new(type, name)
-            self.process_presets(node_tree, child_node, name, type)
+            shape = 'CIRCLE'
+
+            if type == 'NodeSocketTexture':
+                type = 'NodeSocketColor'
+
+            socket = node_tree.inputs.new(type, name)
+            self.process_presets(socket, child_node, name)
 
 
     def create_output_node(self, node_tree, xml_node, node):

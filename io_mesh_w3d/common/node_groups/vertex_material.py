@@ -5,7 +5,6 @@ import bpy
 from io_mesh_w3d.common.node_groups.helpers import *
 
 
-
 class VertexMaterialGroup():
     name = 'VertexMaterial'
 
@@ -57,7 +56,7 @@ class VertexMaterialGroup():
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketColor', 'DiffuseTexture')
         group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
-        group.inputs['DiffuseTextureAlpha'].default_value = 1.0
+        group.inputs['DiffuseTextureAlpha'].default_value = 0.0
         addInputInt(group, 'DestBlend', max=1)
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)

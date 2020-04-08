@@ -195,6 +195,9 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
             texture_node.image = find_texture(context, prop.value)
             texture_node.location = (-350, y)
             y -= 300
+
+            instance.inputs[prop.name].display_shape = 'SQUARE'
+
             links.new(texture_node.outputs['Color'], instance.inputs[prop.name])
             index = instance.inputs.keys().index(prop.name)
             links.new(texture_node.outputs['Alpha'], instance.inputs[index + 1])

@@ -5,6 +5,7 @@ import bpy
 import os
 from mathutils import Quaternion, Matrix
 from bpy_extras.image_utils import load_image
+from io_mesh_w3d.common.structs.rgba import RGBA
 
 
 def make_transform_matrix(loc, rot):
@@ -129,19 +130,74 @@ def find_texture(context, file, name=None):
     return img
 
 
-def get_connected_nodes(node_tree, node, socket_id, types=[]):
-    result = []
-    for link in node_tree.links:
-        if link.to_node == node and link.to_socket.name == socket_id:
-            if types:
-                if link.from_node.bl_idname in types:
-                    result.append(link.from_node)
-            else:
-                result.append(link.from_node)
-        if link.from_node == node and link.from_socket.name == socket_id:
-            if types:
-                if link.to_node.bl_idname in types:
-                    result.append(link.to_node)
-            else:
-                result.append(link.to_node)
-    return result
+def get_color_value(context, node_tree, node, input):
+    type = 'ShaderNodeRGB'
+    socket = node.inputs[input]
+    if not socket.is_linked:
+        return RGBA(vec=socket.default_value)
+    for link in socket.links:
+        if link.from_node.bl_idname == type:
+            return RGBA(vec=link.from_node.outputs['Color'].default_value)
+        else:
+            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
+    return RGBA()
+
+
+def get_uv_value(context, node_tree, node, input):
+    type = 'ShaderNodeUVMap'
+    socket = node.inputs[input]
+    if not socket.is_linked:
+        return None
+    for link in socket.links:
+        if link.from_node.bl_idname == type:
+            return link.from_node.uv_map
+        else:
+            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
+    return None
+
+
+def get_texture_value(context, node_tree, node, input):
+    type = 'ShaderNodeTexImage'
+    socket = node.inputs[input]
+    if not socket.is_linked:
+        return (None, None)
+    for link in socket.links:
+        if link.from_node.bl_idname == type:
+            return (link.from_node.image.name, get_uv_value(context, node_tree, link.from_node, 'Vector'))
+        else:
+            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
+    return (None, None)
+
+
+def get_value(context, node_tree, node, input, cast):
+    type = 'ShaderNodeValue'
+    socket = node.inputs[input]
+    if not socket.is_linked:
+        return cast(socket.default_value)
+    for link in socket.links:
+        if link.from_node.bl_idname == type:
+            return cast(link.from_node.outputs['Value'].default_value)
+        else:
+            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
+    return cast(0)
+
+def get_shader_node_group(context, node_tree):
+    output_node = None
+
+    for node in node_tree.nodes:
+        if node.bl_idname == 'ShaderNodeOutputMaterial':
+            output_node = node
+            break
+
+    if output_node is None:
+        return None
+
+    socket = output_node.inputs['Surface']
+    if not socket.is_linked:
+        return None
+
+    for link in socket.links:
+        if link.from_node.bl_idname == 'ShaderNodeGroup':
+            return link.from_node
+    # TODO: handle the default PrincipledBSDF here
+    return None
