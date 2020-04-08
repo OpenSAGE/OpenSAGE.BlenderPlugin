@@ -110,6 +110,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
                     mesh_struct.bitangents.append((rotation @ loop.tangent))
             else:
+                context.info('the vertex ' + str(i) + ' in mesh ' + mesh_object.name + ' is unconnected!')
                 mesh_struct.normals.append(rotation @ vertex.normal)
                 if mesh.uv_layers:
                     # only dummys
