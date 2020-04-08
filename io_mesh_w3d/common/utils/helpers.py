@@ -155,10 +155,8 @@ def get_uv_value(context, node_tree, node, input):
             context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
     return None
 
-
-def get_texture_value(context, node_tree, node, input):
+def get_texture_value(context, node_tree, socket):
     type = 'ShaderNodeTexImage'
-    socket = node.inputs[input]
     if not socket.is_linked:
         return (None, None)
     for link in socket.links:
@@ -167,6 +165,11 @@ def get_texture_value(context, node_tree, node, input):
         else:
             context.error('Node ' + link.from_node.bl_idname + ' connected to ' + input + ' in ' + node_tree.name + ' is not of type ' + type)
     return (None, None)
+
+
+def get_texture_value(context, node_tree, node, input):
+    socket = node.inputs[input]
+    return get_texture_value(context, node_tree, socket)
 
 
 def get_value(context, node_tree, node, input, cast):
@@ -201,3 +204,52 @@ def get_shader_node_group(context, node_tree):
             return link.from_node
     # TODO: handle the default PrincipledBSDF here
     return None
+
+def get_group_input_types(filename):
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(up(up(dirname)), 'node_group_templates')
+
+    path = os.path.join(directory, filename)
+    root = find_root(None, path)
+    if root is None:
+        return {}
+
+    name = root.get('name')
+    if name.replace('.fx', '') != filename.replace('.xml', ''):
+        return {}
+
+    links = node_tree.links
+    inputs = {}
+
+    for xml_node in root:
+        if xml_node.tag == 'parent':
+            parent = xml_node.get('file')
+            inputs = get_group_input_types(parent)
+        elif xml_node.tag == 'node':
+            type = xml_node.get('type')
+            if type != 'NodeGroupInput':
+                continue
+            
+            for child_node in xml_node:
+                if child_node.tag != 'input':
+                    continue
+
+                type = child_node.get('type')
+                if type == 'ShaderNodeTexture':
+                    default = child_node.get('default', None)
+                elif type == 'ShaderNodeFloat':
+                    default = child_node.get('default', 0.0)
+                elif type == 'ShaderNodeVector2':
+                    default = child_node.get('default', Vector((0.0, 0.0)))
+                elif type == 'ShaderNodeVector':
+                    default = child_node.get('default', Vector((0.0, 0.0, 0.0)))
+                elif type == 'ShaderNodeVector4':
+                    default = child_node.get('default', Vector((0.0, 0.0, 0.0, 0.0)))
+                elif type == 'ShaderNodeInt':
+                    default = child_node.get('default', 0)
+                elif type == 'ShaderNodeByte':
+                    default = child_node.get('default', 0)
+
+                inputs[child_node.get('name')] = (type, default)
+
+    return inputs

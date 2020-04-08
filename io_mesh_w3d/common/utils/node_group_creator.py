@@ -70,7 +70,6 @@ class NodeGroupCreator():
                 continue
             type = child_node.get('type')
             name = child_node.get('name')
-            shape = 'CIRCLE'
 
             if type == 'NodeSocketTexture':
                 type = 'NodeSocketColor'

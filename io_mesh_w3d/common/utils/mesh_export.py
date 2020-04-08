@@ -132,17 +132,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        tx_stages = []
-        for i, uv_layer in enumerate(mesh.uv_layers):
-            stage = TextureStage(
-                tx_ids=[i],
-                tx_coords=[Vector((0.0, 0.0))] * len(mesh_struct.verts))
+        tx_coord_dict = {}
+        for uv_layer in mesh.uv_layers:
+            tx_coords=[None] * len(mesh_struct.verts)
 
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
-            tx_stages.append(stage)
+                    tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
+            tx_coord_dict[uv_layer.name] = tx_coords
 
         b_mesh.free()
 
