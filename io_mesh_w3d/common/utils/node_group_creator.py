@@ -71,8 +71,17 @@ class NodeGroupCreator():
             type = child_node.get('type')
             name = child_node.get('name')
 
+            # those special types are needed for export functionality only
             if type == 'NodeSocketTexture':
                 type = 'NodeSocketColor'
+            elif type == 'NodeSocketTextureAlpha':
+                type = 'NodeSocketFloat'
+            elif type == 'NodeSocketVector2':
+                type = 'NodeSocketVector'
+            elif type == 'NodeSocketVector4':
+                type = 'NodeSocketColor'
+            elif type == 'NodeSocketByte':
+                type = 'NodeSocketInt'
 
             socket = node_tree.inputs.new(type, name)
             self.process_presets(socket, child_node, name)

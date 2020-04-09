@@ -31,18 +31,24 @@ def get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords):
     return uv_layer.name
 
 
-def create_materials_from_combinations(mesh, vert_mat_ids, shader_ids, tex_ids):
-    materials = {}
+def expand_indices(indices, count):
+    if len(indices) == 0:
+        return [indices[0]] * count
+    return indices
 
-    if len(vert_mat_ids) == 0:
-        vert_mat_ids = [vert_mat_ids[0]] * len(mesh.vertices)
-    if len(shader_ids) == 0:
-        shader_ids = [shader_ids[0]] * len(mesh.vertices)
-    if len(tex_ids) == 0:
-        tex_ids = [tex_ids[0]] * len(tex_ids)
 
-    # TODO
-    #for i, vertex in enumerate(mesh.vertices):
+def create_vertex_material_combinations(count, mat_pass):
+    vert_mat_ids = expand_indices(mat_pass.vertex_material_ids, count)
+    shader_ids = expand_indices(mat_pass.shader_ids, count)
+    tex_ids = expand_indices(tex_ids, count)
+
+    combinations = []
+    unique_combinations = set()
+    for i in range(count):
+        combination = (vert_mat_ids[i], shader_ids[i], tex_ids[i])
+        combinations.append(combination)
+        unique_combinations.add(combination)
+    return (combinations, unique_combinations)
 
 
 
@@ -57,12 +63,16 @@ def create_material_passes(context, base_struct, mesh, triangles):
         shader_materials = []
         tx_coords = []
 
+
+        (combinations, unique_combinations) = create_vertex_material_combinations(len(mesh.vertices), mat_pass)
+
         for vert_mat_id in mat_pass.vertex_material_ids:
             vert_materials.append(base_struct.vert_materials[vert_mat_id])
 
         for shader_id in mat_pass.shader_ids:
             shaders.append(base_struct.shaders[shader_id])
 
+        # do we also take multiple texture stages into account
         for tx_stage in mat_pass.tx_stages:
             textures.append(base_struct.textures[tx_stage.tx_ids[0]])
             tx_coords.append(tx_stage.tx_coords)
@@ -116,6 +126,11 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
         material.attributes.add('DEPTH_CUE_TO_ALPHA')
 
     # TODO: translate those to shader properties
+    # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, VPhase,
+    #        UStep, VStep, StepsPerSecond, Offset, Axis, UOffset, VOffset, ClampFix, UseReflect, Period, VPerScale,
+    #        BumpRotation, BumpScale
+    # ints: Log1Width, Log2Width, Last(Frame)
+
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
 
