@@ -1,4 +1,9 @@
 v0.4.6
+- support alpha values of textures
+- support for custom shaders via xml templates
+- support prelit materials and multiple material passes
+- support for per face materials
+- support for vertex colors
 - apply modifiers to meshes on export
 - handle export of 'multi-user' meshes
 

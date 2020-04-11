@@ -12,107 +12,62 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
 
-def get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords):
-    for uv_layer in mesh.uv_layers:
-        layer_exists = True
-        for i, face in enumerate(b_mesh.faces):
-            for loop in face.loops:
-                idx = triangles[i][loop.index % 3]
-                if uv_layer.data[loop.index].uv != tx_coords[idx].xy:
-                    layer_exists = False
-        if layer_exists:
-            return uv_layer.name
+def create_uv_layer(mesh, b_mesh, triangles, tx_coords):
+    if tx_coords is None:
+        return
 
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):
         for loop in face.loops:
             idx = triangles[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
-    return uv_layer.name
 
 
-def expand_indices(indices, count):
-    if len(indices) == 0:
-        return [indices[0]] * count
-    return indices
+def create_material_pass(context, base_struct, mesh, triangles):
+    vert_material = None
+    shader = None
+    texture = None
+    tx_coords = None
 
-
-def create_vertex_material_combinations(count, mat_pass):
-    vert_mat_ids = expand_indices(mat_pass.vertex_material_ids, count)
-    shader_ids = expand_indices(mat_pass.shader_ids, count)
-    tex_ids = expand_indices(tex_ids, count)
-
-    combinations = []
-    unique_combinations = set()
-    for i in range(count):
-        combination = (vert_mat_ids[i], shader_ids[i], tex_ids[i])
-        combinations.append(combination)
-        unique_combinations.add(combination)
-    return (combinations, unique_combinations)
-
-
-
-def create_material_passes(context, base_struct, mesh, triangles):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
+    mat_pass = base_struct.material_passes[0]
 
-    for pass_index, mat_pass in enumerate(base_struct.material_passes):
-        vert_materials = []
-        shaders = []
-        textures = []
-        shader_materials = []
-        tx_coords = []
+    if mat_pass.vertex_material_ids:
+        vert_material = base_struct.vert_materials[mat_pass.vertex_material_ids[0]]
 
+    if mat_pass.shader_ids:
+        shader = base_struct.shaders[mat_pass.shader_ids[0]]
 
-        (combinations, unique_combinations) = create_vertex_material_combinations(len(mesh.vertices), mat_pass)
+    if mat_pass.tx_stages:
+        tx_stage = mat_pass.tx_stages[0]
+        texture = base_struct.textures[tx_stage.tx_ids[0]]
+        tx_coords = tx_stage.tx_coords
 
-        for vert_mat_id in mat_pass.vertex_material_ids:
-            vert_materials.append(base_struct.vert_materials[vert_mat_id])
+    if vert_material is not None and shader is not None:
+        create_vertex_material(context, mesh, b_mesh, triangles, vert_material, shader, texture, tx_coords)
 
-        for shader_id in mat_pass.shader_ids:
-            shaders.append(base_struct.shaders[shader_id])
+    if mat_pass.shader_material_ids:
+        shader_material = base_struct.shader_materials[0]
+        create_shader_material(context, mesh, b_mesh, triangles, shader_material, mat_pass.tx_coords)
 
-        # do we also take multiple texture stages into account
-        for tx_stage in mat_pass.tx_stages:
-            textures.append(base_struct.textures[tx_stage.tx_ids[0]])
-            tx_coords.append(tx_stage.tx_coords)
+    b_mesh.free()
 
-        for shader_mat_id in mat_pass.shader_material_ids:
-            shader_material = base_struct.shader_materials[shader_mat_id]
-            create_shader_material(context, mesh, b_mesh, triangles, shader_material, mat_pass.tx_coords)
-
-
-        #print('vert: ' + str(len(vert_materials)))
-        #print('shaders: ' + str(len(shaders)))
-        #print('textures: ' + str(len(textures)))
-        #print('shader_materials: ' + str(len(shader_materials)))
-        #print('tx_coords: ' + str(len(tx_coords)))
-
-        if vert_materials:
-            texture = None
-            if textures:
-                texture = textures[0]
-            tx_coordinates = None
-            if tx_coords:
-                tx_coordinates = tx_coords[0]
-
-            #TODO: create vert_mat - shader - texture combinations
-            # and support different materials for each triangle
-            create_vertex_material(context, mesh, b_mesh, triangles, vert_materials[0], shaders[0], texture, tx_coordinates, pass_index)
 
 ##########################################################################
 # vertex material
 ##########################################################################
 
-def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, texture_struct, tx_coords, pass_index):
+def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, texture_struct, tx_coords):
     material = bpy.data.materials.new(mesh.name + '.' + vert_mat.vm_name)
     mesh.materials.append(material)
+
+    create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
     material.use_nodes = True
     material.shadow_method = 'CLIP'
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
-    material.pass_index = pass_index
 
     material.attributes = {'DEFAULT'}
     attributes = vert_mat.vm_info.attributes
@@ -156,13 +111,6 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
         links.new(texture_node.outputs['Color'], instance.inputs['DiffuseTexture'])
         links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseTextureAlpha'])
 
-        uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
-
-        uv_node = node_tree.nodes.new('ShaderNodeUVMap')
-        uv_node.uv_map = uv_layer
-        uv_node.location = (-550, 300)
-        links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
-
 
 ##########################################################################
 # shader material
@@ -171,8 +119,8 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
 
 def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coords):
     mat_name = shader_mat.header.type_name
+    create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-    # TODO: verify that
     if mat_name in bpy.data.materials:
         mesh.materials.append(bpy.data.materials[mat_name])
         return
@@ -188,8 +136,6 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
 
     node_tree.nodes.remove(node_tree.nodes.get('Principled BSDF'))
 
-    uv_layer = get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords)
-
     instance = node_tree.nodes.new(type='ShaderNodeGroup')
     instance.node_tree = bpy.data.node_groups[mat_name]
     instance.label = mat_name
@@ -201,9 +147,7 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
     if shader_mat.header.technique is not None:
         instance.inputs['Technique'].default_value = shader_mat.header.technique
 
-    uv_node = None
     y = 300
-
     for prop in shader_mat.properties:
         if prop.type == STRING_PROPERTY and prop.value != '':
             texture_node = node_tree.nodes.new('ShaderNodeTexImage')
@@ -211,17 +155,10 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
             texture_node.location = (-350, y)
             y -= 300
 
-            instance.inputs[prop.name].display_shape = 'SQUARE'
-
             links.new(texture_node.outputs['Color'], instance.inputs[prop.name])
             index = instance.inputs.keys().index(prop.name)
             links.new(texture_node.outputs['Alpha'], instance.inputs[index + 1])
 
-            if uv_node is None:
-                uv_node = node_tree.nodes.new('ShaderNodeUVMap')
-                uv_node.uv_map = uv_layer
-                uv_node.location = (-600, 300)
-            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
         elif prop.type == VEC4_PROPERTY:
             instance.inputs[prop.name].default_value = prop.to_rgba()
         else:

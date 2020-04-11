@@ -4,19 +4,40 @@
 from mathutils import Vector
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
+from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
+from io_mesh_w3d.common.structs.mesh_structs.texture import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
 
-def retrieve_material(context, material):
-    vertex_materials_ids = [VertexMaterialGroup.name, PrelitUnlitGroup.name, PrelitVertexGroup.name,
-                    PrelitLightmapMultiPassGroup.name, PrelitLightmapMultiTextureGroup.name]
-
+def retrieve_material(context, mesh, material, tx_coords):
     shader_node = get_shader_node_group(context, material.node_tree)
 
-    if shader_node.node_tree.name in vertex_materials_ids:
-        retrieve_vertex_material(context, material, shader_node)
+    if shader_node.node_tree.name == VertexMaterialGroup.name:
+        (vert_mat, shader, tex_name) = retrieve_vertex_material(context, material, shader_node)
+        mesh.vertex_materials = [vert_mat]
+        mesh.shaders = [shader]
+        mesh.textures = [Texture(file=tex_name, info=None)]
+
+        tx_stage = TextureStage(
+            tx_ids=[0],
+            tx_coords=tx_coords)
+
+        mesh.material_passes.append(MaterialPass(
+            vertex_material_ids=[0],
+            shader_ids=[0],
+            shader_material_ids=[],
+            tx_stages=[tx_stage],
+            tx_coords=[]))
     else:
-        retrieve_shader_material(context, material, shader_node)
+        shader_mat = retrieve_shader_material(context, material, shader_node)
+        mesh.shader_materials = [shader_mat]
+
+        mesh.material_passes.append(MaterialPass(
+            vertex_material_ids=[],
+            shader_ids=[],
+            shader_material_ids=[0],
+            tx_stages=[],
+            tx_coords=tx_coords))
 
 
 def retrieve_vertex_material(context, material, shader_node):
@@ -44,7 +65,6 @@ def retrieve_vertex_material(context, material, shader_node):
     vert_mat = VertexMaterial()
     vert_mat.vm_name = shader_node.label
     vert_mat.vm_info = info
-    # TODO: handle these
     vert_mat.vm_args_0 = material.vm_args_0
     vert_mat.vm_args_1 = material.vm_args_1
 
@@ -65,9 +85,9 @@ def retrieve_vertex_material(context, material, shader_node):
         post_detail_color_func=get_value(context, node_tree, shader_node.inputs['PostDetailColorFunc'], int),
         post_detail_alpha_func=get_value(context, node_tree, shader_node.inputs['PostDetailAlphaFunc'], int))
 
-    (texture, uv_map) = get_texture_value(context, node_tree, shader_node.inputs['DiffuseTexture'])
+    texture = get_texture_value(context, node_tree, shader_node.inputs['DiffuseTexture'])
 
-    return (vert_mat, shader, texture, uv_map)
+    return (vert_mat, shader, texture)
 
 
 def retrieve_shader_material(context, material, shader_node):
@@ -91,7 +111,7 @@ def retrieve_shader_material(context, material, shader_node):
 
             if type == 'NodeSocketTexture':
                 prop_type = STRING_PROPERTY
-                (value, uv_map) = get_texture_value(context, node_tree, input)
+                value = get_texture_value(context, node_tree, input)
             elif type == 'NodeSocketTextureAlpha':
                 continue
             elif type == 'NodeSocketFloat':
@@ -119,5 +139,5 @@ def retrieve_shader_material(context, material, shader_node):
         else:
             context.warning('node group input ' + input.name + ' is not defined in ' + filename)
 
-    return (shader_mat, uv_map)
+    return shader_mat
 

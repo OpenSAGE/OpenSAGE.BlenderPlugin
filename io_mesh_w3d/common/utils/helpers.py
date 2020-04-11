@@ -153,26 +153,15 @@ def get_color_value(context, node_tree, socket):
     return RGBA(vec=socket.default_value)
 
 
-def get_uv_value(context, node_tree, socket):
-    type = 'ShaderNodeUVMap'
-
-    for link in socket.links:
-        if link.from_node.bl_idname == type:
-            return link.from_node.uv_map
-        else:
-            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
-    return None
-
-
 def get_texture_value(context, node_tree, socket):
     type = 'ShaderNodeTexImage'
 
     for link in socket.links:
         if link.from_node.bl_idname == type:
-            return (link.from_node.image.name, get_uv_value(context, node_tree, link.from_node.inputs['Vector']))
+            return link.from_node.image.name
         else:
             context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
-    return (None, None)
+    return None
 
 
 def get_value(context, node_tree, socket, cast):

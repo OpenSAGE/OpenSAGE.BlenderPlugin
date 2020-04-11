@@ -132,28 +132,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        tx_coord_dict = {}
-        for uv_layer in mesh.uv_layers:
-            tx_coords=[None] * len(mesh_struct.verts)
-
-            for j, face in enumerate(b_mesh.faces):
-                for loop in face.loops:
-                    vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
-            tx_coord_dict[uv_layer.name] = tx_coords
+        tx_coords = [None] * len(mesh_struct.verts)
+        for j, face in enumerate(b_mesh.faces):
+            for loop in face.loops:
+                vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
+                tx_coords[vert_index] = mesh.uv_layers[0].data[loop.index].uv.copy()
 
         b_mesh.free()
 
-        for i, material in enumerate(mesh.materials):
-            mat_pass = MaterialPass()
-
-            #principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-
-            #used_textures = get_used_textures(material, principled, used_textures)
-
-            retrieve_material(context, material)
-
-
+        retrieve_material(context, mesh_struct, mesh.materials[0], tx_coords)
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 

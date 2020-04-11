@@ -2,7 +2,7 @@
 <nodegroup name="ObjectsAlien.fx">
   <parent file="ObjectsGDI.xml"/>
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
-    <input name="EnvironmentTexture" type="NodeSocketColor"/>
-    <input name="EnvironmentTextureAlpha" type="NodeSocketFloat"/>
+    <input name="EnvironmentTexture" type="NodeSocketTexture"/>
+    <input name="EnvironmentTextureAlpha" type="NodeSocketTextureAlpha"/>
   </node>
 </nodegroup>
