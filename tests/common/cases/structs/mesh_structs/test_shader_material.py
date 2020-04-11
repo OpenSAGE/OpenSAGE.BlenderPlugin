@@ -22,8 +22,7 @@ class TestShaderMaterial(TestCase):
         size = 8 + len(name) + 1 + 1
         type = 0
 
-        write_chunk_head(
-            W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
         write_long(type, io_stream)
         write_long(len(name) + 1, io_stream)
         write_string(name, io_stream)
@@ -35,7 +34,8 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(size, chunkSize)
 
-        ShaderMaterialProperty.read(self, io_stream)
+        self.warning = lambda text: self.assertEqual('unknown property type in shader material: 0', text)
+        actual = ShaderMaterialProperty.read(self, io_stream)
 
     def test_write_invalid_property(self):
         io_stream = io.BytesIO()
@@ -116,21 +116,63 @@ class TestShaderMaterial(TestCase):
 
     def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(w3x=True),
+            get_shader_material(),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
-    def test_write_read_rgb_colors_xml(self):
+    def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(two_tex=True, rgb_colors=True),
+            get_shader_material('BasicW3D.fx'),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
-    def test_write_read_xml_two_texture(self):
+    def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(two_tex=True),
+            get_shader_material('DefaultW3D.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_xml(self):
+        self.write_read_xml_test(
+            get_shader_material('Infantry.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_xml(self):
+        self.write_read_xml_test(
+            get_shader_material('MuzzleFlash.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_xml(self):
+        self.write_read_xml_test(
+            get_shader_material('ObjectsAlien.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_xml(self):
+        self.write_read_xml_test(
+            get_shader_material('ObjectsGDI.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_xml(self):
+        self.write_read_xml_test(
+            get_shader_material('ObjectsNOD.fx'),
+            'FXShader',
+            ShaderMaterial.parse,
+            compare_shader_materials)
+
+    def test_write_read_rgb_color_xml(self):
+        self.write_read_xml_test(
+            get_shader_material(rgb_color=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)

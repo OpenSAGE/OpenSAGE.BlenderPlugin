@@ -64,24 +64,25 @@ class NodeGroupCreator():
         self.process_max_value(socket, xml_node.get('max'))
 
 
+    def map_custom_type_to_blender_type(self, type):
+        if type in ['NodeSocketTexture', 'NodeSocketVector4']:
+            return 'NodeSocketColor'
+        if type == 'NodeSocketTextureAlpha':
+            return 'NodeSocketFloat'
+        if type == 'NodeSocketVector2':
+            return 'NodeSocketVector'
+        if type == 'NodeSocketByte':
+            return 'NodeSocketInt'
+        return type
+
+
     def create_input_node(self, node_tree, xml_node, node):
         for child_node in xml_node:
             if child_node.tag != 'input':
                 continue
             type = child_node.get('type')
+            type = self.map_custom_type_to_blender_type(type)
             name = child_node.get('name')
-
-            # those special types are needed for export functionality only
-            if type == 'NodeSocketTexture':
-                type = 'NodeSocketColor'
-            elif type == 'NodeSocketTextureAlpha':
-                type = 'NodeSocketFloat'
-            elif type == 'NodeSocketVector2':
-                type = 'NodeSocketVector'
-            elif type == 'NodeSocketVector4':
-                type = 'NodeSocketColor'
-            elif type == 'NodeSocketByte':
-                type = 'NodeSocketInt'
 
             socket = node_tree.inputs.new(type, name)
             self.process_presets(socket, child_node, name)

@@ -40,7 +40,7 @@ VEC2_PROPERTY = 3
 VEC3_PROPERTY = 4
 VEC4_PROPERTY = 5
 LONG_PROPERTY = 6
-BYTE_PROPERTY = 7
+BOOL_PROPERTY = 7
 
 
 class ShaderMaterialProperty:
@@ -78,8 +78,8 @@ class ShaderMaterialProperty:
             result.value = read_vector4(io_stream)
         elif result.type == LONG_PROPERTY:
             result.value = read_long(io_stream)
-        elif result.type == BYTE_PROPERTY:
-            result.value = read_ubyte(io_stream)
+        elif result.type == BOOL_PROPERTY:
+            result.value = bool(read_ubyte(io_stream))
         else:
             context.warning('unknown property type in shader material: ' + str(result.type))
         return result
@@ -155,7 +155,7 @@ class ShaderMaterialProperty:
             constant.type = LONG_PROPERTY
             constant.value = int(values[0])
         elif type_name == 'Bool':
-            constant.type = BYTE_PROPERTY
+            constant.type = BOOL_PROPERTY
             constant.value = values[0] in ['True', 'true']
         else:
             constant.type = STRING_PROPERTY

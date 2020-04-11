@@ -69,10 +69,5 @@ class Shader:
         write_ubyte(self.post_detail_alpha_func, io_stream)
         write_ubyte(self.pad, io_stream)
 
-    def __eq__(self, other):
-        if not isinstance(other, Shader):
-            return False
-        return self.__dict__ == other.__dict__
-
     def __ne__(self, other):
         return not self.__eq__(other)

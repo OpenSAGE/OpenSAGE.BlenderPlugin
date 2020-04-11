@@ -6,7 +6,7 @@
     <input name="DiffuseColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="DiffuseTexture" type="NodeSocketTexture"/>
     <input name="DiffuseTextureAlpha" type="NodeSocketTextureAlpha" default="1.0"/>
-    <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>
+    <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>LON
     <input name="NormalMap" type="NodeSocketTexture"/>
     <input name="NormalMapStrength" type="NodeSocketTextureAlpha"/>
     <input name="BumpScale" type="NodeSocketFloat"/>

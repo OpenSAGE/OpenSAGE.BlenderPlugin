@@ -5,10 +5,10 @@ from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 from tests.mathutils import *
 
 
-def get_shader_material_header():
+def get_shader_material_header(name='NormalMapped.fx'):
     return ShaderMaterialHeader(
         version=1,
-        type_name='NormalMapped.fx',
+        type_name=name,
         technique=0)
 
 
@@ -26,19 +26,19 @@ def get_shader_material_property(
 
     if value is not None:
         result.value = value
-    elif _type == 1:
+    elif _type == STRING_PROPERTY:
         result.value = tex_name
-    elif _type == 2:
+    elif _type == FLOAT_PROPERTY:
         result.value = 0.25
-    elif _type == 3:
+    elif _type == VEC2_PROPERTY:
         result.value = get_vec2(x=1.0, y=0.5)
-    elif _type == 4:
+    elif _type == VEC3_PROPERTY:
         result.value = get_vec(x=1.0, y=0.2, z=0.33)
-    elif _type == 5:
+    elif _type == VEC4_PROPERTY:
         result.value = get_vec4(x=0.33, y=0.3, z=0.1, w=1.0)
-    elif _type == 6:
+    elif _type == LONG_PROPERTY:
         result.value = 3
-    elif _type == 7:
+    elif _type == BOOL_PROPERTY:
         result.value = True
     return result
 
@@ -48,101 +48,157 @@ def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.type, actual.type, 'Incorrect type: ' +
                      str(actual.type) + ' for property: ' + actual.name)
 
-    if expected.type == 1:
+    if expected.type == STRING_PROPERTY:
         self.assertEqual(expected.value.split('.')[0], actual.value.split('.')[0])
-    elif expected.type == 2:
+    elif expected.type == FLOAT_PROPERTY:
         self.assertAlmostEqual(expected.value, actual.value, 5)
-    elif expected.type == 3:
+    elif expected.type == VEC2_PROPERTY:
         compare_vectors2(self, expected.value, actual.value)
-    elif expected.type == 4:
+    elif expected.type == VEC3_PROPERTY:
         compare_vectors(self, expected.value, actual.value)
-    elif expected.type == 5:
+    elif expected.type == VEC4_PROPERTY:
         compare_vectors4(self, expected.value, actual.value)
     else:
         self.assertEqual(expected.value, actual.value)
 
 
-def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
-    props = [
-        get_shader_material_property(3, 'BumpUVScale'),
-        get_shader_material_property(6, 'BlendMode'),
-        get_shader_material_property(7, 'AlphaTestEnable', value=False),
-        get_shader_material_property(7, 'CullingEnable'),
-        get_shader_material_property(2, 'Opacity'),
-        get_shader_material_property(6, 'EdgeFadeOut'),
-        get_shader_material_property(7, 'DepthWriteEnable'),
-        get_shader_material_property(5, 'Sampler_ClampU_ClampV_NoMip_0'),
-        get_shader_material_property(5, 'Sampler_ClampU_ClampV_NoMip_1'),
-        get_shader_material_property(1, 'EnvironmentTexture', 'texture_env.tga'),
-        get_shader_material_property(2, 'EnvMult'),
-        get_shader_material_property(1, 'RecolorTexture'),
-        get_shader_material_property(2, 'RecolorMultiplier'),
-        get_shader_material_property(7, 'UseRecolorColors'),
-        get_shader_material_property(7, 'HouseColorPulse'),
-        get_shader_material_property(1, 'ScrollingMaskTexture', 'texture_scroll.dds'),
-        get_shader_material_property(2, 'TexCoordTransformAngle_0'),
-        get_shader_material_property(2, 'TexCoordTransformU_0'),
-        get_shader_material_property(2, 'TexCoordTransformV_0'),
-        get_shader_material_property(2, 'TexCoordTransformU_1'),
-        get_shader_material_property(2, 'TexCoordTransformV_1'),
-        get_shader_material_property(2, 'TexCoordTransformU_2'),
-        get_shader_material_property(2, 'TexCoordTransformV_2'),
-        get_shader_material_property(5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0'),
-        get_shader_material_property(1, 'IonHullTexture'),
-        get_shader_material_property(7, 'MultiTextureEnable')]
+def get_shader_material_properties(name, rgb_color=False):
+    if name == 'NormalMapped.fx':
+        ambient = get_shader_material_property(VEC4_PROPERTY, 'AmbientColor')
+        if rgb_color:
+            ambient = get_shader_material_property(VEC3_PROPERTY, 'AmbientColor')
 
-    if w3x:
-        props.append(get_shader_material_property(2, 'Shininess', value=125.0))
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'DiffuseColor'),
+            get_shader_material_property(STRING_PROPERTY, 'DiffuseTexture'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(STRING_PROPERTY, 'NormalMap', 'texture_nrm.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'BumpScale'),
+            ambient,
+            get_shader_material_property(VEC4_PROPERTY, 'SpecularColor'),
+            get_shader_material_property(FLOAT_PROPERTY, 'SpecularExponent')]
 
-        if rgb_colors:
-            props.append(get_shader_material_property(4, 'ColorDiffuse', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(4, 'ColorSpecular', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(4, 'ColorAmbient', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(4, 'ColorEmissive', value=get_vec(x=0.2, y=0.33, z=0.9)))
-        else:
-            props.append(get_shader_material_property(5, 'ColorDiffuse'))
-            props.append(get_shader_material_property(5, 'ColorSpecular'))
-            props.append(get_shader_material_property(5, 'ColorAmbient'))
-            props.append(get_shader_material_property(5, 'ColorEmissive'))
-    else:
-        props.append(get_shader_material_property(2, 'SpecularExponent', value=125.0))
-        props.append(get_shader_material_property(5, 'DiffuseColor'))
-        props.append(get_shader_material_property(5, 'SpecularColor'))
-        props.append(get_shader_material_property(5, 'AmbientColor'))
-        props.append(get_shader_material_property(5, 'EmissiveColor'))
+    elif name == 'BasicW3D.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'ColorDiffuse'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_0'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_1', 'texture_1.dds'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorAmbient'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorSpecular'),
+            get_shader_material_property(FLOAT_PROPERTY, 'Shininess'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorEmissive'),
+            get_shader_material_property(BOOL_PROPERTY, 'DepthWriteEnable'),
+            get_shader_material_property(BOOL_PROPERTY, 'CullingEnable'),
+            get_shader_material_property(LONG_PROPERTY, 'BlendMode')]
 
-    if two_tex:
-        props.append(get_shader_material_property(6, 'NumTextures', value=2))
-        props.append(get_shader_material_property(1, 'Texture_0', 'texture_0.dds'))
-        props.append(get_shader_material_property(1, 'Texture_1', 'texture_1.dds'))
-        props.append(get_shader_material_property(6, 'SecondaryTextureBlendMode'))
-        props.append(get_shader_material_property(6, 'TexCoordMapper_0'))
-        props.append(get_shader_material_property(6, 'TexCoordMapper_1'))
-        props.append(get_shader_material_property(5, 'TexCoordTransform_0'))
-        props.append(get_shader_material_property(5, 'TexCoordTransform_1'))
-    else:
-        props.append(get_shader_material_property(1, 'DiffuseTexture'))
-        props.append(get_shader_material_property(1, 'NormalMap', 'texture_nrm.dds'))
-        props.append(get_shader_material_property(2, 'BumpScale'))
-        props.append(get_shader_material_property(1, 'SpecMap', 'texture_spec.dds'))
-    return props
+    elif name == 'DefaultW3D.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'ColorDiffuse'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_0'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_1', 'texture_1.dds'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorAmbient'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorSpecular'),
+            get_shader_material_property(FLOAT_PROPERTY, 'Shininess'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorEmissive'),
+            get_shader_material_property(FLOAT_PROPERTY, 'Opacity'),
+            get_shader_material_property(LONG_PROPERTY, 'NumTextures'),
+            get_shader_material_property(BOOL_PROPERTY, 'DepthWriteEnable'),
+            get_shader_material_property(BOOL_PROPERTY, 'CullingEnable'),
+            get_shader_material_property(LONG_PROPERTY, 'BlendMode'),
+            get_shader_material_property(FLOAT_PROPERTY, 'EdgeFadeOut'),
+            get_shader_material_property(BOOL_PROPERTY, 'UseRecolorColors'),
+            get_shader_material_property(BOOL_PROPERTY, 'HouseColorPulse'),
+            get_shader_material_property(LONG_PROPERTY, 'SecondaryTextureBlendMode'),
+            get_shader_material_property(VEC4_PROPERTY, 'TexCoordMapper_0'),
+            get_shader_material_property(VEC4_PROPERTY, 'TexCoordTransform_0'),
+            get_shader_material_property(VEC4_PROPERTY, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0'),
+            get_shader_material_property(LONG_PROPERTY, 'TexCoordMapper_1'),
+            get_shader_material_property(VEC4_PROPERTY, 'TexCoordTransform_1'),
+            get_shader_material_property(VEC4_PROPERTY, 'Sampler_ClampU_ClampV_NoMip_0'),
+            get_shader_material_property(VEC4_PROPERTY, 'Sampler_ClampU_ClampV_NoMip_1')]
+
+    elif name == 'Infantry.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'ColorDiffuse'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_0'),
+            get_shader_material_property(STRING_PROPERTY, 'Texture_1', 'texture_1.dds'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(STRING_PROPERTY, 'RecolorTexture', 'texture_rec.dds'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorAmbient'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorSpecular'),
+            get_shader_material_property(FLOAT_PROPERTY, 'Shininess'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorEmissive'),
+            get_shader_material_property(BOOL_PROPERTY, 'DepthWriteEnable'),
+            get_shader_material_property(BOOL_PROPERTY, 'CullingEnable'),
+            get_shader_material_property(LONG_PROPERTY, 'BlendMode')]
+
+    elif name == 'MuzzleFlash.fx':
+        return [
+            get_shader_material_property(STRING_PROPERTY, 'Texture_0'),
+            get_shader_material_property(VEC4_PROPERTY, 'ColorEmissive'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformAngle_0'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformU_0'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformV_0'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformU_1'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformV_1'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformU_2'),
+            get_shader_material_property(FLOAT_PROPERTY, 'TexCoordTransformV_2')]
+
+    elif name == 'ObjectsGDI.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'DiffuseColor'),
+            get_shader_material_property(STRING_PROPERTY, 'DiffuseTexture'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(STRING_PROPERTY, 'NormalMap', 'texture_nrm.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'BumpScale'),
+            get_shader_material_property(VEC4_PROPERTY, 'AmbientColor'),
+            get_shader_material_property(VEC4_PROPERTY, 'SpecularColor'),
+            get_shader_material_property(FLOAT_PROPERTY, 'SpecularExponent'),
+            get_shader_material_property(STRING_PROPERTY, 'SpecMap', 'texture_spec.dds'),
+            get_shader_material_property(STRING_PROPERTY, 'RecolorTexture', 'texture_rec.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'EnvMult')]
+
+    elif name == 'ObjectsAlien.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'DiffuseColor'),
+            get_shader_material_property(STRING_PROPERTY, 'DiffuseTexture'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(STRING_PROPERTY, 'NormalMap', 'texture_nrm.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'BumpScale'),
+            get_shader_material_property(VEC4_PROPERTY, 'AmbientColor'),
+            get_shader_material_property(VEC4_PROPERTY, 'SpecularColor'),
+            get_shader_material_property(FLOAT_PROPERTY, 'SpecularExponent'),
+            get_shader_material_property(STRING_PROPERTY, 'SpecMap', 'texture_spec.dds'),
+            get_shader_material_property(STRING_PROPERTY, 'RecolorTexture', 'texture_rec.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'EnvMult'),
+            get_shader_material_property(STRING_PROPERTY, 'EnvironmentTexture', 'texture_env.dds')]
+
+    elif name == 'ObjectsNOD.fx':
+        return [
+            get_shader_material_property(VEC4_PROPERTY, 'DiffuseColor'),
+            get_shader_material_property(STRING_PROPERTY, 'DiffuseTexture'),
+            get_shader_material_property(BOOL_PROPERTY, 'AlphaTestEnable', value=False),
+            get_shader_material_property(STRING_PROPERTY, 'NormalMap', 'texture_nrm.dds'),
+            get_shader_material_property(FLOAT_PROPERTY, 'BumpScale'),
+            get_shader_material_property(VEC4_PROPERTY, 'AmbientColor'),
+            get_shader_material_property(VEC4_PROPERTY, 'SpecularColor'),
+            get_shader_material_property(FLOAT_PROPERTY, 'SpecularExponent'),
+            get_shader_material_property(STRING_PROPERTY, 'SpecMap', 'texture_spec.dds'),
+            get_shader_material_property(STRING_PROPERTY, 'ScrollingMaskTexture', 'texture_scroll.dds'),
+            get_shader_material_property(VEC4_PROPERTY, 'TexCoordTransform_0'),
+            get_shader_material_property(FLOAT_PROPERTY, 'RecolorMultiplier'),
+            get_shader_material_property(FLOAT_PROPERTY, 'EnvMult')]
+
+    print('NO SHADER PROPERTY SET DEFINED FOR : ' + name)
+    return []
 
 
-def get_shader_material_properties_minimal():
-    return [
-        get_shader_material_property(2, 'SpecularExponent'),
-        get_shader_material_property(3, 'BumpUVScale'),
-        get_shader_material_property(4, 'SpecularColor'),
-        get_shader_material_property(5, 'AmbientColor'),
-        get_shader_material_property(5, 'DiffuseColor'),
-        get_shader_material_property(6, 'BlendMode'),
-        get_shader_material_property(7, 'AlphaTestEnable', value=False)]
-
-
-def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):
+def get_shader_material(name='NormalMapped.fx', rgb_color=False):
     return ShaderMaterial(
-        header=get_shader_material_header(),
-        properties=get_shader_material_properties(w3x, two_tex, rgb_colors))
+        header=get_shader_material_header(name),
+        properties=get_shader_material_properties(name, rgb_color))
 
 
 def get_shader_material_minimal():

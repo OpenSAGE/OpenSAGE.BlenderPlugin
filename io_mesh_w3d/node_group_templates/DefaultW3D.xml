@@ -23,12 +23,12 @@
     <input name="HouseColorPulse" type="NodeSocketBool"/>
     <input name="SecondaryTextureBlendMode" type="NodeSocketInt"/>
     <input name="TexCoordMapper_0" type="NodeSocketInt"/>
-    <input name="TexCoordTransform_0" type="NodeSocketColor"/>
-    <input name="TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0" type="NodeSocketColor"/>
+    <input name="TexCoordTransform_0" type="NodeSocketVector4"/>
+    <input name="TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0" type="NodeSocketVector4"/>
     <input name="TexCoordMapper_1" type="NodeSocketInt"/>
-    <input name="TexCoordTransform_1" type="NodeSocketColor"/>
-    <input name="Sampler_ClampU_ClampV_NoMip_0" type="NodeSocketColor"/>
-    <input name="Sampler_ClampU_ClampV_NoMip_1" type="NodeSocketColor"/>
+    <input name="TexCoordTransform_1" type="NodeSocketVector4"/>
+    <input name="Sampler_ClampU_ClampV_NoMip_0" type="NodeSocketVector4"/>
+    <input name="Sampler_ClampU_ClampV_NoMip_1" type="NodeSocketVector4"/>
   </node>
 
   <nodegroup name="alpha_pipeline" type="AlphaPipeline" X="-100" Y="0"/>

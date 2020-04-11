@@ -6,7 +6,7 @@
     <input name="SpecMapAlpha" type="NodeSocketTextureAlpha"/>
     <input name="ScrollingMaskTexture" type="NodeSocketTexture"/>
     <input name="ScrollingMaskTextureAlpha" type="NodeSocketTextureAlpha"/>
-    <input name="TexCoordTransform_0" type="NodeSocketColor"/>
+    <input name="TexCoordTransform_0" type="NodeSocketVector4"/>
     <input name="RecolorMultiplier" type="NodeSocketFloat"/>
     <input name="EnvMult" type="NodeSocketFloat"/>
   </node>
