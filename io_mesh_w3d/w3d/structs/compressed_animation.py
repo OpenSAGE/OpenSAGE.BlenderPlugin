@@ -59,7 +59,7 @@ class TimeCodedDatum:
 
         if (result.time_code >> 31) == 1:
             result.time_code &= ~(1 << 31)
-            result.interpolated = False
+            result.interpolated = True
         return result
 
     @staticmethod

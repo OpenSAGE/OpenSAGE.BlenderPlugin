@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-import node_shader_utils
+from bpy_extras import node_shader_utils
 from shutil import copyfile
 from mathutils import Vector, Quaternion
 
@@ -29,7 +29,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.vert_materials:
-            (material, _) = create_material_from_vertex_material(self, mesh.name(), source)
+            (material, _) = create_material_from_vertex_material(mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -38,7 +38,7 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
-            (material, _) = create_material_from_vertex_material(self, mesh.name(), source)
+            (material, _) = create_material_from_vertex_material(mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -158,7 +158,7 @@ class TestUtils(TestCase):
     def test_shader_roundtrip(self):
         mesh = get_mesh()
 
-        (material, _) = create_material_from_vertex_material(self, mesh.name(), mesh.vert_materials[0])
+        (material, _) = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
