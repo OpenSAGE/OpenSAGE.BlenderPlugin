@@ -6,7 +6,6 @@ import bmesh
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.node_groups.vertex_material import *
-from io_mesh_w3d.common.node_groups.helpers import *
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
@@ -132,8 +131,6 @@ def create_shader_material(context, mesh, b_mesh, triangles, shader_mat, tx_coor
     material.show_transparent_back = False
 
     node_tree = material.node_tree
-    links = node_tree.links
-
     node_tree.nodes.remove(node_tree.nodes.get('Principled BSDF'))
 
     instance = node_tree.nodes.new(type='ShaderNodeGroup')

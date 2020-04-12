@@ -7,6 +7,7 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.custom_properties import *
 
+
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
@@ -299,12 +300,8 @@ def register_node_groups():
             continue
         NodeGroupCreator().create(directory, file)
 
-    from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup, PrelitUnlitGroup, PrelitVertexGroup, PrelitLightmapMultiPassGroup, PrelitLightmapMultiTextureGroup
+    from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup
     VertexMaterialGroup.register(VertexMaterialGroup.name)
-    PrelitUnlitGroup.register(PrelitUnlitGroup.name)
-    PrelitVertexGroup.register(PrelitVertexGroup.name)
-    PrelitLightmapMultiPassGroup.register(PrelitLightmapMultiPassGroup.name)
-    PrelitLightmapMultiTextureGroup.register(PrelitLightmapMultiTextureGroup.name)
 
 def register():
     for class_ in CLASSES:

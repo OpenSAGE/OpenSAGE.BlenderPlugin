@@ -108,6 +108,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_texture_name_with_dots(self):
+        self.info = print
         hierarchy_name = 'testname_skl'
         hierarchy = get_hierarchy(hierarchy_name)
         mesh = get_mesh(name='sword', skin=True)

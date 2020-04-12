@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.common.node_groups.helpers import *
 
 
 class VertexMaterialGroup():
@@ -13,7 +12,7 @@ class VertexMaterialGroup():
         instance = node_tree.nodes.new(type='ShaderNodeGroup')
         instance.location = (0, 300)
         instance.width = 300
-        # TODO: depending on prelit type
+
         instance.node_tree = bpy.data.node_groups['VertexMaterial']
         instance.label = name
 
@@ -43,6 +42,13 @@ class VertexMaterialGroup():
         return instance
 
     @staticmethod
+    def addInputInt(group, name, default=0, min=0, max=255):
+        group.inputs.new('NodeSocketInt', name)
+        group.inputs[name].default_value = default
+        group.inputs[name].min_value = min
+        group.inputs[name].max_value = max
+
+    @staticmethod
     def register(name):
         group = bpy.data.node_groups.new(name, 'ShaderNodeTree')
         node_tree = group
@@ -57,7 +63,7 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketColor', 'DiffuseTexture')
         group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
         group.inputs['DiffuseTextureAlpha'].default_value = 0.0
-        addInputInt(group, 'DestBlend', max=1)
+        VertexMaterialGroup.addInputInt(group, 'DestBlend', max=1)
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketColor', 'Specular')
@@ -68,20 +74,20 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketFloat', 'Opacity')
         group.inputs.new('NodeSocketFloat', 'Translucency')
 
-        addInputInt(group, 'DepthCompare')
-        addInputInt(group, 'DepthMask')
-        addInputInt(group, 'ColorMask')
-        addInputInt(group, 'FogFunc')
-        addInputInt(group, 'PriGradient')
-        addInputInt(group, 'SecGradient')
-        addInputInt(group, 'SrcBlend')
-        addInputInt(group, 'Texturing')
-        addInputInt(group, 'DetailColorFunc')
-        addInputInt(group, 'DetailAlphaFunc')
-        addInputInt(group, 'Preset')
-        addInputInt(group, 'AlphaTest')
-        addInputInt(group, 'PostDetailColorFunc')
-        addInputInt(group, 'PostDetailAlphaFunc')
+        VertexMaterialGroup.addInputInt(group, 'DepthCompare')
+        VertexMaterialGroup.addInputInt(group, 'DepthMask')
+        VertexMaterialGroup.addInputInt(group, 'ColorMask')
+        VertexMaterialGroup.addInputInt(group, 'FogFunc')
+        VertexMaterialGroup.addInputInt(group, 'PriGradient')
+        VertexMaterialGroup.addInputInt(group, 'SecGradient')
+        VertexMaterialGroup.addInputInt(group, 'SrcBlend')
+        VertexMaterialGroup.addInputInt(group, 'Texturing')
+        VertexMaterialGroup.addInputInt(group, 'DetailColorFunc')
+        VertexMaterialGroup.addInputInt(group, 'DetailAlphaFunc')
+        VertexMaterialGroup.addInputInt(group, 'Preset')
+        VertexMaterialGroup.addInputInt(group, 'AlphaTest')
+        VertexMaterialGroup.addInputInt(group, 'PostDetailColorFunc')
+        VertexMaterialGroup.addInputInt(group, 'PostDetailAlphaFunc')
 
         # create group outputs
         group_outputs = group.nodes.new('NodeGroupOutput')
@@ -107,16 +113,3 @@ class VertexMaterialGroup():
         links.new(group_inputs.outputs['Emissive'], shader.inputs['Emissive Color'])
         links.new(alpha_pipeline.outputs['Alpha'], shader.inputs['Transparency'])
         links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF'])
-
-
-class PrelitUnlitGroup(VertexMaterialGroup):
-    name = 'PrelitUnlit'
-
-class PrelitVertexGroup(VertexMaterialGroup):
-    name = 'PrelitVertex'
-
-class PrelitLightmapMultiPassGroup(VertexMaterialGroup):
-    name = 'PrelitLightmapMultiPass'
-
-class PrelitLightmapMultiTextureGroup(VertexMaterialGroup):
-    name = 'PrelitLightmapMultiTextue'
