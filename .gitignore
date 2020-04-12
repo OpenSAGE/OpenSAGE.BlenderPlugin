@@ -7,3 +7,4 @@ io_mesh_w3d.zip
 .pytest_cache
 TestResults
 venv
+/virtual_env
