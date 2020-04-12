@@ -80,6 +80,33 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(19, len(b_mesh.verts))
         self.assertEqual(12, len(b_mesh.faces))
 
+    def test_mesh_with_unconnected_vertex_export(self):
+        mesh = bpy.data.meshes.new('mesh_cube')
+
+        material = bpy.data.materials.new('material')
+        mesh.materials.append(material)
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.verts.new((9, 9, 9))
+        bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
+        b_mesh.to_mesh(mesh)
+        mesh.uv_layers.new(do_init=False)
+
+        mesh_ob = bpy.data.objects.new('mesh_object', mesh)
+        mesh_ob.object_type = 'NORMAL'
+
+        coll = bpy.context.scene.collection
+        coll.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
+
+        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+
+        io_stream = io.BytesIO()
+        for mesh_struct in meshes:
+            mesh_struct.write(io_stream)
+
     def test_aabbtree_creation(self):
         expected = AABBTree(
             header=get_aabbtree_header(num_nodes=5, num_polys=10),

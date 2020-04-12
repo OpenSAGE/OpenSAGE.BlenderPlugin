@@ -52,8 +52,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.vert_count = len(mesh.vertices)
 
         for i, vertex in enumerate(mesh.vertices):
-            loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
-
             matrix = Matrix.Identity(4)
 
             if vertex.groups:
@@ -84,12 +82,23 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh_struct.verts.append(matrix @ scaled_vert)
 
             (_, rotation, _) = matrix.decompose()
-            mesh_struct.normals.append(rotation @ loop.normal)
 
-            if mesh.uv_layers:
-                # in order to adapt to 3ds max orientation
-                mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
-                mesh_struct.bitangents.append((rotation @ loop.tangent))
+            loops = [loop for loop in mesh.loops if loop.vertex_index == i]
+            if loops:
+                loop = loops[0]
+                mesh_struct.normals.append(rotation @ loop.normal)
+
+                if mesh.uv_layers:
+                    # in order to adapt to 3ds max orientation
+                    mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
+                    mesh_struct.bitangents.append((rotation @ loop.tangent))
+            else:
+                context.info('the vertex ' + str(i) + ' in mesh ' + mesh_object.name + ' is unconnected!')
+                mesh_struct.normals.append(rotation @ vertex.normal)
+                if mesh.uv_layers:
+                    # only dummys
+                    mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
+                    mesh_struct.bitangents.append((rotation @ vertex.normal))
 
             mesh_struct.shade_ids.append(i)
 
@@ -127,7 +136,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
                 tx_ids=[i],
-                tx_coords=[None] * len(mesh_struct.verts))
+                tx_coords=[Vector((0.0, 0.0))] * len(mesh_struct.verts))
 
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
