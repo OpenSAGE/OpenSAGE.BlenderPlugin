@@ -1,16 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
 
 
-class RGBA(Struct):
-    r = 0
-    g = 0
-    b = 0
-    a = 0
-
+class RGBA:
     def __init__(self, vec=None, a=None, scale=255, r=0, g=0, b=0):
         if vec is None:
             self.r = r

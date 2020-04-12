@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
@@ -56,16 +57,16 @@ class ShaderMaterialProperty(Struct):
 
     @staticmethod
     def read(context, io_stream):
-        type = read_long(io_stream)
-        num_chars = read_long(io_stream)
+        prop_type = read_long(io_stream)
+        read_long(io_stream)  # num chars
         name = read_string(io_stream)
         result = ShaderMaterialProperty(
-            type=type,
+            type=prop_type,
             name=name,
             value=Vector((1.0, 1.0, 1.0, 1.0)))
 
         if result.type == STRING_PROPERTY:
-            num_chars = read_long(io_stream)
+            read_long(io_stream)  # num chars
             result.value = read_string(io_stream)
         elif result.type == FLOAT_PROPERTY:
             result.value = read_float(io_stream)
@@ -260,5 +261,5 @@ class ShaderMaterial(Struct):
         fx_shader.set('TechniqueIndex', str(self.header.technique))
 
         constants = create_node(fx_shader, 'Constants')
-        for property in self.properties:
-            property.create(constants)
+        for prop in self.properties:
+            prop.create(constants)

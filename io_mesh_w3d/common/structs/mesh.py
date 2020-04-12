@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.common.structs.mesh_structs.aabbtree import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.common.structs.mesh_structs.triangle import *
@@ -420,13 +421,13 @@ class Mesh(Struct):
             prelit_lightmap_multi_pass=None,
             prelit_lightmap_multi_texture=None)
 
-        id = xml_mesh.get('id')
-        if '.' in id:
-            (container_name, name) = id.split('.', 1)
+        identifier = xml_mesh.get('id')
+        if '.' in identifier:
+            (container_name, name) = identifier.split('.', 1)
             result.header.mesh_name = name
             result.header.container_name = container_name
         else:
-            result.header.mesh_name = id
+            result.header.mesh_name = identifier
 
         geometry_type = xml_mesh.get('GeometryType')
         result.header.attrs = GEOMETRY_TYPE_NORMAL
@@ -437,11 +438,7 @@ class Mesh(Struct):
             | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
         result.material_passes = [MaterialPass(shader_material_ids=[0])]
-        result.mat_info = MaterialInfo(
-            pass_count=len(result.material_passes),
-            vert_mat_count=0,
-            shader_count=0,
-            texture_count=0)
+        result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
 
         bone_influences = []
 
@@ -507,8 +504,8 @@ class Mesh(Struct):
 
     def create(self, parent):
         xml_mesh = create_node(parent, 'W3DMesh')
-        id = self.header.container_name + "." + self.header.mesh_name
-        xml_mesh.set('id', id)
+        identifier = self.header.container_name + "." + self.header.mesh_name
+        xml_mesh.set('id', identifier)
 
         xml_mesh.set('GeometryType', 'Normal')
         if self.header.attrs & GEOMETRY_TYPE_SKIN:

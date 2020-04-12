@@ -124,7 +124,7 @@ class HLodBaseArray(Struct):
     sub_objects = []
 
     @staticmethod
-    def read(context, io_stream, chunk_end, array):
+    def read_base(context, io_stream, chunk_end, array):
         array.header = None
         array.sub_objects = []
 
@@ -145,7 +145,7 @@ class HLodBaseArray(Struct):
         size += list_size(self.sub_objects, False)
         return size
 
-    def write(self, io_stream, chunk_id):
+    def write_base(self, io_stream, chunk_id):
         write_chunk_head(chunk_id, io_stream,
                          self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
@@ -158,10 +158,10 @@ W3D_CHUNK_HLOD_LOD_ARRAY = 0x00000702
 class HLodLodArray(HLodBaseArray):
     @staticmethod
     def read(context, io_stream, chunk_end):
-        return HLodBaseArray.read(context, io_stream, chunk_end, HLodLodArray())
+        return HLodBaseArray.read_base(context, io_stream, chunk_end, HLodLodArray())
 
     def write(self, io_stream):
-        super().write(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY)
+        super().write_base(io_stream, W3D_CHUNK_HLOD_LOD_ARRAY)
 
 
 W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
@@ -170,10 +170,10 @@ W3D_CHUNK_HLOD_AGGREGATE_ARRAY = 0x00000705
 class HLodAggregateArray(HLodBaseArray):
     @staticmethod
     def read(context, io_stream, chunk_end):
-        return HLodBaseArray.read(context, io_stream, chunk_end, HLodAggregateArray())
+        return HLodBaseArray.read_base(context, io_stream, chunk_end, HLodAggregateArray())
 
     def write(self, io_stream):
-        super().write(io_stream, W3D_CHUNK_HLOD_AGGREGATE_ARRAY)
+        super().write_base(io_stream, W3D_CHUNK_HLOD_AGGREGATE_ARRAY)
 
 
 W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
@@ -182,10 +182,10 @@ W3D_CHUNK_HLOD_PROXY_ARRAY = 0x00000706
 class HLodProxyArray(HLodBaseArray):
     @staticmethod
     def read(context, io_stream, chunk_end):
-        return HLodBaseArray.read(context, io_stream, chunk_end, HLodProxyArray())
+        return HLodBaseArray.read_base(context, io_stream, chunk_end, HLodProxyArray())
 
     def write(self, io_stream):
-        super().write(io_stream, W3D_CHUNK_HLOD_PROXY_ARRAY)
+        super().write_base(io_stream, W3D_CHUNK_HLOD_PROXY_ARRAY)
 
 
 W3D_CHUNK_HLOD = 0x00000700

@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector, Quaternion, Matrix
 from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils.helpers import *
