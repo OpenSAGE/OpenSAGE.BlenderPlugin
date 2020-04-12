@@ -1,7 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
+import bpy
+import bmesh
 from shutil import copyfile
 
 from io_mesh_w3d.import_utils import *
@@ -54,7 +55,7 @@ class TestImportUtilsW3D(TestCase):
         vert_mats = [get_vertex_material(vm_name='VM_NAME'), get_vertex_material(vm_name='VM_NAME')]
 
         for mat in vert_mats:
-            create_material_from_vertex_material(self, 'meshName', mat)
+            create_material_from_vertex_material('meshName', mat)
 
         self.assertEqual(1, len(bpy.data.materials))
         self.assertTrue('meshName.VM_NAME' in bpy.data.materials)

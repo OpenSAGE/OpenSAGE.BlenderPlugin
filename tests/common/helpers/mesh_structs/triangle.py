@@ -5,10 +5,11 @@ from io_mesh_w3d.common.structs.mesh_structs.triangle import *
 from tests.mathutils import *
 
 
-def get_triangle(vert_ids=[1, 2, 3],
+def get_triangle(vert_ids=None,
                  surface_type=13,
                  normal=get_vec(x=1.0, y=22.0, z=-5.0),
                  distance=103.0):
+    vert_ids = vert_ids if vert_ids is not None else [1, 2, 3]
     return Triangle(
         vert_ids=vert_ids,
         surface_type=surface_type,

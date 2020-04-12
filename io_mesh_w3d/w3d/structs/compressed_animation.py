@@ -371,7 +371,7 @@ W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL = 0x00000284
 
 
 class CompressedAnimation:
-    def __init__(self, header=CompressedAnimationHeader(), time_coded_channels=None, adaptive_delta_channels=None,
+    def __init__(self, header=None, time_coded_channels=None, adaptive_delta_channels=None,
                  time_coded_bit_channels=None, motion_channels=None):
         self.header = header
         self.time_coded_channels = time_coded_channels if time_coded_channels is not None else []

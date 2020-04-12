@@ -14,9 +14,9 @@ W3D_CHUNK_DAZZLE_TYPENAME = 0x00000902
 
 
 class Dazzle:
-    def __init__(self, name='', type_name=''):
-        self.name_ = ''
-        self.type_name = ''
+    def __init__(self, name_='', type_name=''):
+        self.name_ = name_
+        self.type_name = type_name
 
     def name(self):
         return self.name_.split('.')[-1]

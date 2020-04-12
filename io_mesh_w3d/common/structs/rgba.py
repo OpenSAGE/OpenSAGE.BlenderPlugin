@@ -38,7 +38,8 @@ class RGBA:
                     b=int(read_float(io_stream) * 255),
                     a=int(read_float(io_stream) * 255))
 
-    def size(self):
+    @staticmethod
+    def size():
         return 4
 
     def write(self, io_stream):

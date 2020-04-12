@@ -13,30 +13,28 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 # vertex material
 ##########################################################################
 
-def create_vertex_material(context, principleds, struct, mesh, name, triangles):
-    for vertMat in struct.vert_materials:
-        (material, principled) = create_material_from_vertex_material(
-            context, name, vertMat)
+def create_vertex_material(context, principleds, structure, mesh, name, triangles):
+    for vertMat in structure.vert_materials:
+        (material, principled) = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
 
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    for mat_pass in struct.material_passes:
+    for mat_pass in structure.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
             tex_id = tx_stage.tx_ids[0]
-            texture = struct.textures[tex_id]
+            texture = structure.textures[tex_id]
             tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
-            #principleds[mat_id].alpha_texture.image = tex
 
 
-def create_material_from_vertex_material(context, name, vert_mat):
+def create_material_from_vertex_material(name, vert_mat):
     name = name + "." + vert_mat.vm_name
     if name in bpy.data.materials:
         material = bpy.data.materials[name]
@@ -49,22 +47,22 @@ def create_material_from_vertex_material(context, name, vert_mat):
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
-    atts = {'DEFAULT'}
-    attributes = vert_mat.vm_info.attributes
-    if attributes & USE_DEPTH_CUE:
-        atts.add('USE_DEPTH_CUE')
-    if attributes & ARGB_EMISSIVE_ONLY:
-        atts.add('ARGB_EMISSIVE_ONLY')
-    if attributes & COPY_SPECULAR_TO_DIFFUSE:
-        atts.add('COPY_SPECULAR_TO_DIFFUSE')
-    if attributes & DEPTH_CUE_TO_ALPHA:
-        atts.add('DEPTH_CUE_TO_ALPHA')
+    attributes = {'DEFAULT'}
+    attribs = vert_mat.vm_info.attributes
+    if attribs & USE_DEPTH_CUE:
+        attributes.add('USE_DEPTH_CUE')
+    if attribs & ARGB_EMISSIVE_ONLY:
+        attributes.add('ARGB_EMISSIVE_ONLY')
+    if attribs & COPY_SPECULAR_TO_DIFFUSE:
+        attributes.add('COPY_SPECULAR_TO_DIFFUSE')
+    if attribs & DEPTH_CUE_TO_ALPHA:
+        attributes.add('DEPTH_CUE_TO_ALPHA')
 
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     principled.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
     principled.alpha = vert_mat.vm_info.opacity
 
-    material.attributes = atts
+    material.attributes = attributes
     material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba()

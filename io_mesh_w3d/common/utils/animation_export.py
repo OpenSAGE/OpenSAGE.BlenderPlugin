@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
+from mathutils import Quaternion
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
@@ -48,8 +50,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
                     type=channel_type,
-                    pivot=pivot_index,
-                    time_codes=[])
+                    pivot=pivot_index)
 
                 num_keyframes = len(fcu.keyframe_points)
                 channel.time_codes = [None] * num_keyframes
@@ -109,12 +110,10 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
 
 def retrieve_animation(animation_name, hierarchy, rig, timecoded):
-    ani_struct = None
     channels = []
 
     for mesh in get_objects('MESH'):
-        channels.extend(retrieve_channels(
-            mesh, hierarchy, timecoded, mesh.name))
+        channels.extend(retrieve_channels(mesh, hierarchy, timecoded, mesh.name))
 
     for rig in get_objects('ARMATURE'):
         channels.extend(retrieve_channels(rig, hierarchy, timecoded))
@@ -123,10 +122,11 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
 
     if timecoded:
-        ani_struct = CompressedAnimation(time_coded_channels=channels)
-        ani_struct.header.flavor = TIME_CODED_FLAVOR
+        ani_struct = CompressedAnimation(
+            header=CompressedAnimationHeader(flavor=TIME_CODED_FLAVOR),
+            time_coded_channels=channels)
     else:
-        ani_struct = Animation(channels=channels)
+        ani_struct = Animation(header=AnimationHeader(), channels=channels)
 
     ani_struct.header.name = animation_name
     ani_struct.header.hierarchy_name = hierarchy.name()

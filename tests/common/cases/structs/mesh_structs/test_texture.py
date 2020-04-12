@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.mesh_structs.texture import *
 from tests.utils import TestCase
 
@@ -13,13 +12,7 @@ class TestTexture(TestCase):
         self.assertEqual(20, expected.texture_info.size())
         self.assertEqual(48, expected.size())
 
-        self.write_read_test(
-            expected,
-            W3D_CHUNK_TEXTURE,
-            Texture.read,
-            compare_textures,
-            self,
-            True)
+        self.write_read_test(expected, W3D_CHUNK_TEXTURE, Texture.read, compare_textures, self, True)
 
     def test_write_read_no_texture_info(self):
         expected = get_texture()
@@ -27,13 +20,7 @@ class TestTexture(TestCase):
 
         self.assertEqual(28, expected.size())
 
-        self.write_read_test(
-            expected,
-            W3D_CHUNK_TEXTURE,
-            Texture.read,
-            compare_textures,
-            self,
-            True)
+        self.write_read_test(expected, W3D_CHUNK_TEXTURE, Texture.read, compare_textures, self, True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

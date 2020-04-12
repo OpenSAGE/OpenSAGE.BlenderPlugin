@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
@@ -124,16 +125,11 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
         append_property(shader_mat, 1, 'Texture_1', material.texture_1)
         append_property(shader_mat, 6, 'NumTextures', 2)
-        append_property(shader_mat, 6, 'SecondaryTextureBlendMode',
-                        material.secondary_texture_blend_mode)
-        append_property(shader_mat, 6, 'TexCoordMapper_0',
-                        material.tex_coord_mapper_0)
-        append_property(shader_mat, 6, 'TexCoordMapper_1',
-                        material.tex_coord_mapper_1)
-        append_property(shader_mat, 5, 'TexCoordTransform_0',
-                        to_vec(material.tex_coord_transform_0), Vector())
-        append_property(shader_mat, 5, 'TexCoordTransform_1',
-                        to_vec(material.tex_coord_transform_1), Vector())
+        append_property(shader_mat, 6, 'SecondaryTextureBlendMode', material.secondary_texture_blend_mode)
+        append_property(shader_mat, 6, 'TexCoordMapper_0', material.tex_coord_mapper_0)
+        append_property(shader_mat, 6, 'TexCoordMapper_1', material.tex_coord_mapper_1)
+        append_property(shader_mat, 5, 'TexCoordTransform_0', to_vec(material.tex_coord_transform_0), Vector())
+        append_property(shader_mat, 5, 'TexCoordTransform_1', to_vec(material.tex_coord_transform_1), Vector())
     else:
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
@@ -155,34 +151,20 @@ def retrieve_shader_material(context, material, principled, w3x=False):
                     material.sampler_clamp_uv_no_mip_0, Vector((0.0, 0.0, 0.0, 0.0)))
     append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_1',
                     material.sampler_clamp_uv_no_mip_1, Vector((0.0, 0.0, 0.0, 0.0)))
-    append_property(shader_mat, 1, 'EnvironmentTexture',
-                    material.environment_texture)
-    append_property(shader_mat, 2, 'EnvMult',
-                    material.environment_mult)
-    append_property(shader_mat, 1, 'RecolorTexture',
-                    material.recolor_texture)
-    append_property(shader_mat, 2, 'RecolorMultiplier',
-                    material.recolor_mult)
-    append_property(shader_mat, 7, 'UseRecolorColors',
-                    material.use_recolor)
-    append_property(shader_mat, 7, 'HouseColorPulse',
-                    material.house_color_pulse)
-    append_property(shader_mat, 1, 'ScrollingMaskTexture',
-                    material.scrolling_mask_texture)
-    append_property(shader_mat, 2, 'TexCoordTransformAngle_0',
-                    material.tex_coord_transform_angle)
-    append_property(shader_mat, 2, 'TexCoordTransformU_0',
-                    material.tex_coord_transform_u_0)
-    append_property(shader_mat, 2, 'TexCoordTransformV_0',
-                    material.tex_coord_transform_v_0)
-    append_property(shader_mat, 2, 'TexCoordTransformU_1',
-                    material.tex_coord_transform_u_1)
-    append_property(shader_mat, 2, 'TexCoordTransformV_1',
-                    material.tex_coord_transform_v_1)
-    append_property(shader_mat, 2, 'TexCoordTransformU_2',
-                    material.tex_coord_transform_u_2)
-    append_property(shader_mat, 2, 'TexCoordTransformV_2',
-                    material.tex_coord_transform_v_2)
+    append_property(shader_mat, 1, 'EnvironmentTexture', material.environment_texture)
+    append_property(shader_mat, 2, 'EnvMult', material.environment_mult)
+    append_property(shader_mat, 1, 'RecolorTexture', material.recolor_texture)
+    append_property(shader_mat, 2, 'RecolorMultiplier', material.recolor_mult)
+    append_property(shader_mat, 7, 'UseRecolorColors', material.use_recolor)
+    append_property(shader_mat, 7, 'HouseColorPulse', material.house_color_pulse)
+    append_property(shader_mat, 1, 'ScrollingMaskTexture', material.scrolling_mask_texture)
+    append_property(shader_mat, 2, 'TexCoordTransformAngle_0', material.tex_coord_transform_angle)
+    append_property(shader_mat, 2, 'TexCoordTransformU_0', material.tex_coord_transform_u_0)
+    append_property(shader_mat, 2, 'TexCoordTransformV_0', material.tex_coord_transform_v_0)
+    append_property(shader_mat, 2, 'TexCoordTransformU_1', material.tex_coord_transform_u_1)
+    append_property(shader_mat, 2, 'TexCoordTransformV_1', material.tex_coord_transform_v_1)
+    append_property(shader_mat, 2, 'TexCoordTransformU_2', material.tex_coord_transform_u_2)
+    append_property(shader_mat, 2, 'TexCoordTransformV_2', material.tex_coord_transform_v_2)
     append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
                     material.tex_ani_fps_NPR_lastFrame_frameOffset_0, Vector((0.0, 0.0, 0.0, 0.0)))
     append_property(shader_mat, 1, 'IonHullTexture', material.ion_hull_texture)

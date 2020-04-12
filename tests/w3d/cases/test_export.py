@@ -5,7 +5,6 @@ import os.path
 from unittest.mock import patch
 
 from io_mesh_w3d.common.structs.data_context import *
-from io_mesh_w3d.import_utils import *
 from io_mesh_w3d.w3d.export_w3d import save
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
@@ -17,15 +16,9 @@ class TestExportW3D(TestCase):
     def test_only_mesh_chunk_is_written_if_mode_M(self):
         export_settings = {'mode': 'M', 'compression': 'U'}
 
-        data_context = DataContext(
-            container_name='containerName',
-            rig=None,
-            meshes=[get_mesh()],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+        data_context = DataContext()
+        data_context.container_name = 'containerName'
+        data_context.meshes = [get_mesh()]
 
         self.filepath = self.outpath() + 'output_skn'
 
@@ -49,15 +42,9 @@ class TestExportW3D(TestCase):
     def test_warning_is_shown_if_M_and_multiple_meshes(self):
         export_settings = {'mode': 'M', 'compression': 'U'}
 
-        data_context = DataContext(
-            container_name='containerName',
-            rig=None,
-            meshes=[get_mesh(), get_mesh()],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+        data_context = DataContext()
+        data_context.container_name = 'containerName'
+        data_context.meshes = [get_mesh(), get_mesh()]
 
         self.filepath = self.outpath() + 'output_skn'
 
@@ -70,15 +57,9 @@ class TestExportW3D(TestCase):
     def test_error_is_shown_if_unsupported_export_mode(self):
         export_settings = {'mode': 'UNSUPPORTED', 'compression': 'U'}
 
-        data_context = DataContext(
-            container_name='containerName',
-            rig=None,
-            meshes=[get_mesh(), get_mesh()],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+        data_context = DataContext()
+        data_context.container_name = 'containerName'
+        data_context.meshes = [get_mesh(), get_mesh()]
 
         self.filepath = self.outpath() + 'output_skn'
 
@@ -92,18 +73,14 @@ class TestExportW3D(TestCase):
 
         hierarchy_name = 'TestHiera_SKL'
 
-        data_context = DataContext(
-            container_name='containerName',
-            rig=None,
-            meshes=[
-                get_mesh(name='sword', skin=True),
-                get_mesh(name='soldier', skin=True),
-                get_mesh(name='TRUNK')],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=get_hierarchy(hierarchy_name),
-            hlod=get_hlod('TestModelName', hierarchy_name))
+        data_context = DataContext()
+        data_context.container_name = 'containerName',
+        data_context.meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        data_context.hierarchy = get_hierarchy(hierarchy_name)
+        data_context.hlod = get_hlod('TestModelName', hierarchy_name)
 
         self.filepath = self.outpath() + 'output_skn'
 
@@ -130,18 +107,14 @@ class TestExportW3D(TestCase):
 
         hierarchy_name = 'TestHiera_SKL'
 
-        data_context = DataContext(
-            container_name='containerName',
-            rig=None,
-            meshes=[
-                get_mesh(name='sword', skin=True),
-                get_mesh(name='soldier', skin=True),
-                get_mesh(name='TRUNK')],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=get_hierarchy(hierarchy_name),
-            hlod=get_hlod('TestModelName', hierarchy_name))
+        data_context = DataContext()
+        data_context.container_name = 'containerName'
+        data_context.meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK')]
+        data_context.hierarchy = get_hierarchy(hierarchy_name)
+        data_context.hlod = get_hlod('TestModelName', hierarchy_name)
 
         self.filepath = self.outpath() + 'output_skn'
 

@@ -123,8 +123,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
         sub_objects=[])
 
     array0.sub_objects = [get_hlod_sub_object(bone=1, name='containerName.mesh1'),
-                          get_hlod_sub_object(
-                              bone=1, name='containerName.mesh2'),
+                          get_hlod_sub_object(bone=1, name='containerName.mesh2'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3')]
 
     array1 = HLodLodArray(
@@ -132,8 +131,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
         sub_objects=[])
 
     array1.sub_objects = [get_hlod_sub_object(bone=1, name='containerName.mesh1_1'),
-                          get_hlod_sub_object(
-                              bone=1, name='containerName.mesh2_1'),
+                          get_hlod_sub_object(bone=1, name='containerName.mesh2_1'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3_1')]
 
     array2 = HLodLodArray(
@@ -141,8 +139,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
         sub_objects=[])
 
     array2.sub_objects = [get_hlod_sub_object(bone=1, name='containerName.mesh1_2'),
-                          get_hlod_sub_object(
-                              bone=1, name='containerName.mesh2_2'),
+                          get_hlod_sub_object(bone=1, name='containerName.mesh2_2'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3_2')]
 
     array3 = HLodLodArray(
@@ -150,8 +147,7 @@ def get_hlod_4_levels(model_name='containerName', hierarchy_name='TestHierarchy'
         sub_objects=[])
 
     array3.sub_objects = [get_hlod_sub_object(bone=1, name='containerName.mesh1_3'),
-                          get_hlod_sub_object(
-                              bone=1, name='containerName.mesh2_3'),
+                          get_hlod_sub_object(bone=1, name='containerName.mesh2_3'),
                           get_hlod_sub_object(bone=1, name='containerName.mesh3_3')]
 
     return HLod(

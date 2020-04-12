@@ -31,10 +31,10 @@ def compare_compressed_animation_headers(self, expected, actual):
 def get_time_coded_datum(time_code, type=0, random_interpolation=True):
     datum = TimeCodedDatum(
         time_code=time_code,
-        non_interpolated=False)
+        interpolated=True)
 
     if random_interpolation:
-        datum.non_interpolated = (random() < 0.5)
+        datum.interpolated = (random() >= 0.5)
 
     if type == 6:
         datum.value = get_quat(0.1, -2.0, -0.3, 2.0)
@@ -45,7 +45,7 @@ def get_time_coded_datum(time_code, type=0, random_interpolation=True):
 
 def compare_time_coded_datums(self, type, expected, actual):
     self.assertEqual(expected.time_code, actual.time_code)
-    self.assertEqual(expected.non_interpolated, actual.non_interpolated)
+    self.assertEqual(expected.interpolated, actual.interpolated)
 
     if type == 6:
         compare_quats(self, expected.value, actual.value)

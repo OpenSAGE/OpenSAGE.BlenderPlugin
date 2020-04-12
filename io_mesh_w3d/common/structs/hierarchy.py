@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector, Quaternion, Matrix
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
@@ -10,11 +9,12 @@ from io_mesh_w3d.w3x.io_xml import *
 W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 
 
-class HierarchyHeader(Struct):
-    version = Version()
-    name = ''
-    num_pivots = 0
-    center_pos = Vector((0.0, 0.0, 0.0))
+class HierarchyHeader:
+    def __init__(self, version=Version(), name='', num_pivots=0, center_pos=Vector((0.0, 0.0, 0.0))):
+        self.version = version
+        self.name = name
+        self.num_pivots = num_pivots
+        self.center_pos = center_pos
 
     @staticmethod
     def read(io_stream):
@@ -36,14 +36,19 @@ class HierarchyHeader(Struct):
         write_vector(self.center_pos, io_stream)
 
 
-class HierarchyPivot(Struct):
-    name = ''
-    name_id = None
-    parent_id = -1
-    translation = Vector()
-    euler_angles = Vector()
-    rotation = Quaternion()
-    fixup_matrix = Matrix()
+class HierarchyPivot:
+    def __init__(self, name='', name_id=None, parent_id=-1, translation=Vector(), euler_angles=Vector(),
+                 rotation=Quaternion(), fixup_matrix=Matrix()):
+        self.name = name
+        self.name_id = name_id
+        self.parent_id = parent_id
+        self.translation = translation
+        self.euler_angles = euler_angles
+        self.rotation = rotation
+        self.fixup_matrix = fixup_matrix
+
+        # non struct attributes
+        self.processed = False
 
     @staticmethod
     def read(io_stream):
@@ -98,10 +103,11 @@ W3D_CHUNK_PIVOTS = 0x00000102
 W3D_CHUNK_PIVOT_FIXUPS = 0x00000103
 
 
-class Hierarchy(Struct):
-    header = HierarchyHeader()
-    pivots = []
-    pivot_fixups = []
+class Hierarchy:
+    def __init__(self, header=None, pivots=None, pivot_fixups=None):
+        self.header = header
+        self.pivots = pivots if pivots is not None else []
+        self.pivot_fixups = pivot_fixups if pivot_fixups is not None else []
 
     def name(self):
         return self.header.name
@@ -120,9 +126,7 @@ class Hierarchy(Struct):
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = Hierarchy(
-            pivots=[],
-            pivot_fixups=[])
+        result = Hierarchy()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -160,8 +164,7 @@ class Hierarchy(Struct):
     def parse(context, xml_hierarchy):
         result = Hierarchy(
             header=HierarchyHeader(
-                name=xml_hierarchy.get('id')),
-            pivots=[])
+                name=xml_hierarchy.get('id')))
 
         for child in xml_hierarchy:
             if child.tag == 'Pivot':

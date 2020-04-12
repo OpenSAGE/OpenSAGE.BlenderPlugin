@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.collision_box import *
 from tests.utils import TestCase
 
@@ -38,10 +37,5 @@ class TestCollisionBox(TestCase):
         self.assertEqual('BOUNDINGBOX', box.name())
 
     def test_write_read_xml(self):
-        self.write_read_xml_test(
-            get_collision_box(
-                xml=True),
-            'W3DCollisionBox',
-            CollisionBox.parse,
-            compare_collision_boxes,
-            self)
+        self.write_read_xml_test(get_collision_box( xml=True), 'W3DCollisionBox', CollisionBox.parse,
+                                 compare_collision_boxes, self)

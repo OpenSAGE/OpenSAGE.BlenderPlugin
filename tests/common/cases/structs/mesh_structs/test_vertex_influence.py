@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.mesh_structs.vertex_influence import *
 from tests.utils import TestCase
 from io_mesh_w3d.w3x.io_xml import *

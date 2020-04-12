@@ -1,16 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
-import os
-from shutil import copyfile
-
-from io_mesh_w3d.import_utils import *
-from tests.common.helpers.hierarchy import *
-from tests.common.helpers.hlod import *
+import bpy
+from mathutils import Vector
 from tests.common.helpers.mesh import *
 from tests.utils import *
-from os.path import dirname as up
 
 
 class TestImportUtils(TestCase):

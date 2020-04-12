@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
+import bpy
 from tests.utils import TestCase
 
 from io_mesh_w3d.import_utils import *

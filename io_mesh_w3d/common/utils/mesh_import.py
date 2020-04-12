@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from mathutils import Matrix
+import bmesh
 from io_mesh_w3d.common.utils.material_import import *
 
 
@@ -48,11 +48,11 @@ def create_mesh(context, mesh_struct, coll):
             mesh.materials.append(material)
             principleds.append(principled)
 
-        if mesh_struct.material_passes:
-            b_mesh = bmesh.new()
-            b_mesh.from_mesh(mesh)
-
+        b_mesh = None
         for mat_pass in mesh_struct.material_passes:
+            if b_mesh is None:
+                b_mesh = bmesh.new()
+                b_mesh.from_mesh(mesh)
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
 
@@ -70,7 +70,6 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
             if weight < 0.01:
                 weight = 1.0
 
-            matrix = None
             pivot = hierarchy.pivots[vert_inf.bone_idx]
             if vert_inf.bone_idx == 0 and rig is not None:
                 matrix = rig.matrix_local

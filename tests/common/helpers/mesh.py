@@ -71,27 +71,8 @@ def get_vertex_influences():
 
 
 def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidden=False, mat_count=2):
-    mesh = Mesh(
-        header=get_mesh_header(name, skin, shader_mats, hidden),
-        user_text='',
-        verts=[],
-        normals=[],
-        tangents=[],
-        bitangents=[],
-        vert_infs=[],
-        triangles=[],
-        shade_ids=[],
-        mat_info=None,
-        shaders=[],
-        vert_materials=[],
-        textures=[],
-        shader_materials=[],
-        material_passes=[],
-        aabbtree=None,
-        prelit_unlit=None,
-        prelit_vertex=None,
-        prelit_lightmap_multi_pass=None,
-        prelit_lightmap_multi_texture=None)
+    mesh = Mesh()
+    mesh.header = get_mesh_header(name, skin, shader_mats, hidden)
 
     mesh.user_text = 'TestUserText'
 
@@ -157,8 +138,7 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
 
     if shader_mats:
         mesh.shader_materials.append(get_shader_material())
-        mesh.material_passes.append(
-            get_material_pass(index=0, shader_mat=shader_mats))
+        mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mats))
     elif prelit:
         mesh.header.attrs |= PRELIT_VERTEX
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
@@ -173,8 +153,7 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
             mesh.vert_materials.append(get_vertex_material())
             mesh.textures.append(get_texture())
 
-            mesh.material_passes.append(
-                get_material_pass(index=i, shader_mat=shader_mats))
+            mesh.material_passes.append(get_material_pass(index=i, shader_mat=shader_mats))
 
     if not prelit:
         mesh.mat_info = get_material_info()
@@ -185,8 +164,7 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
 
     mesh.header.face_count = len(mesh.triangles)
     mesh.header.vert_count = len(mesh.verts)
-    mesh.header.matl_count = max(
-        len(mesh.vert_materials), len(mesh.shader_materials))
+    mesh.header.matl_count = max(len(mesh.vert_materials), len(mesh.shader_materials))
     return mesh
 
 
@@ -211,27 +189,27 @@ def get_mesh_two_textures(name='meshName'):
 
 
 def get_mesh_minimal(xml=False):
-    mesh = Mesh(
-        header=get_mesh_header(),
-        user_text='text',
-        verts=[get_vec()],
-        normals=[get_vec()],
-        tangents=[get_vec()],
-        bitangents=[get_vec()],
-        vert_infs=[get_vertex_influence()],
-        triangles=[get_triangle()],
-        shade_ids=[1],
-        mat_info=get_material_info(),
-        shaders=[get_shader()],
-        vert_materials=[get_vertex_material_minimal()],
-        textures=[get_texture_minimal()],
-        shader_materials=[get_shader_material_minimal()],
-        material_passes=[get_material_pass_minimal()],
-        aabbtree=get_aabbtree_minimal(),
-        prelit_unlit=None,
-        prelit_vertex=None,
-        prelit_lightmap_multi_pass=None,
-        prelit_lightmap_multi_texture=None)
+    mesh = Mesh()
+    mesh.header = get_mesh_header()
+    mesh.user_text = 'text'
+    mesh.verts = [get_vec()]
+    mesh.normals = [get_vec()]
+    mesh.tangents = [get_vec()]
+    mesh.bitangents = [get_vec()]
+    mesh.vert_infs = [get_vertex_influence()]
+    mesh.triangles = [get_triangle()]
+    mesh.shade_ids = [1]
+    mesh.mat_info = get_material_info()
+    mesh.shaders = [get_shader()]
+    mesh.vert_materials = [get_vertex_material_minimal()]
+    mesh.textures = [get_texture_minimal()]
+    mesh.shader_materials = [get_shader_material_minimal()]
+    mesh.material_passes = [get_material_pass_minimal()]
+    mesh.aabbtree = get_aabbtree_minimal()
+    mesh.prelit_unlit = None
+    mesh.prelit_vertex = None
+    mesh.prelit_lightmap_multi_pass = None
+    mesh.prelit_lightmap_multi_texture = None
 
     mesh.mat_info.pass_count = 1
     mesh.mat_info.vert_mat_count = 1
@@ -263,27 +241,12 @@ def get_mesh_minimal(xml=False):
 
 
 def get_mesh_empty():
-    return Mesh(
-        header=get_mesh_header(),
-        user_text='',
-        verts=[get_vec()],
-        normals=[get_vec()],
-        tangents=[],
-        bitangents=[],
-        vert_infs=[],
-        triangles=[get_triangle()],
-        shade_ids=[],
-        mat_info=None,
-        shaders=[],
-        vert_materials=[],
-        textures=[],
-        shader_materials=[],
-        material_passes=[],
-        aabbtree=None,
-        prelit_unlit=None,
-        prelit_vertex=None,
-        prelit_lightmap_multi_pass=None,
-        prelit_lightmap_multi_texture=None)
+    mesh = Mesh()
+    mesh.header = get_mesh_header()
+    mesh.verts = [get_vec()]
+    mesh.normals = [get_vec()]
+    mesh.triangles = [get_triangle()]
+    return mesh
 
 
 def compare_meshes(self, expected, actual):
@@ -314,21 +277,17 @@ def compare_meshes(self, expected, actual):
     if expected.mat_info is not None:
         compare_material_infos(self, expected.mat_info, actual.mat_info)
 
-    self.assertEqual(len(expected.material_passes),
-                     len(actual.material_passes))
+    self.assertEqual(len(expected.material_passes), len(actual.material_passes))
     for i in range(len(expected.material_passes)):
-        compare_material_passes(
-            self, expected.material_passes[i], actual.material_passes[i])
+        compare_material_passes(self, expected.material_passes[i], actual.material_passes[i])
 
     self.assertEqual(len(expected.vert_infs), len(actual.vert_infs))
     for i in range(len(expected.vert_infs)):
-        compare_vertex_influences(
-            self, expected.vert_infs[i], actual.vert_infs[i])
+        compare_vertex_influences(self, expected.vert_infs[i], actual.vert_infs[i])
 
     self.assertEqual(len(expected.triangles), len(actual.triangles))
     for i in range(len(expected.triangles)):
-        compare_triangles(
-            self, expected.triangles[i], actual.triangles[i], is_skin)
+        compare_triangles(self, expected.triangles[i], actual.triangles[i], is_skin)
 
     self.assertEqual(len(expected.shaders), len(actual.shaders))
     for i in range(len(expected.shaders)):
@@ -336,26 +295,21 @@ def compare_meshes(self, expected, actual):
 
     self.assertEqual(len(expected.vert_materials), len(actual.vert_materials))
     for i in range(len(expected.vert_materials)):
-        compare_vertex_materials(
-            self, expected.vert_materials[i], actual.vert_materials[i])
+        compare_vertex_materials(self, expected.vert_materials[i], actual.vert_materials[i])
 
     self.assertEqual(len(expected.textures), len(actual.textures))
     for i in range(len(expected.textures)):
         compare_textures(self, expected.textures[i], actual.textures[i])
 
-    self.assertEqual(len(expected.shader_materials),
-                     len(actual.shader_materials))
+    self.assertEqual(len(expected.shader_materials), len(actual.shader_materials))
     for i in range(len(expected.shader_materials)):
-        compare_shader_materials(
-            self, expected.shader_materials[i], actual.shader_materials[i])
+        compare_shader_materials(self, expected.shader_materials[i], actual.shader_materials[i])
 
     if expected.prelit_unlit is not None:
         compare_prelits(self, expected.prelit_unlit, actual.prelit_unlit)
     if expected.prelit_vertex is not None:
         compare_prelits(self, expected.prelit_vertex, actual.prelit_vertex)
     if expected.prelit_lightmap_multi_pass is not None:
-        compare_prelits(self, expected.prelit_lightmap_multi_pass,
-                        actual.prelit_lightmap_multi_pass)
+        compare_prelits(self, expected.prelit_lightmap_multi_pass, actual.prelit_lightmap_multi_pass)
     if expected.prelit_lightmap_multi_texture is not None:
-        compare_prelits(self, expected.prelit_lightmap_multi_texture,
-                        actual.prelit_lightmap_multi_texture)
+        compare_prelits(self, expected.prelit_lightmap_multi_texture, actual.prelit_lightmap_multi_texture)

@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
@@ -9,11 +8,12 @@ from io_mesh_w3d.w3x.io_xml import *
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 
 
-class HLodHeader(Struct):
-    version = Version()
-    lod_count = 1
-    model_name = ''
-    hierarchy_name = ''
+class HLodHeader:
+    def __init__(self, version=Version(), lod_count=1, model_name='', hierarchy_name=''):
+        self.version = version
+        self.lod_count = lod_count
+        self.model_name = model_name
+        self.hierarchy_name = hierarchy_name
 
     @staticmethod
     def read(io_stream):
@@ -28,8 +28,7 @@ class HLodHeader(Struct):
         return const_size(40, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_HLOD_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_HLOD_HEADER, io_stream, self.size(False))
         self.version.write(io_stream)
         write_ulong(self.lod_count, io_stream)
         write_fixed_string(self.model_name, io_stream)
@@ -41,9 +40,10 @@ W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER = 0x00000703
 MAX_SCREEN_SIZE = 340282346638528859811704183484516925440.000000
 
 
-class HLodArrayHeader(Struct):
-    model_count = 0
-    max_screen_size = MAX_SCREEN_SIZE
+class HLodArrayHeader:
+    def __init__(self, model_count=0, max_screen_size=MAX_SCREEN_SIZE):
+        self.model_count = model_count
+        self.max_screen_size = max_screen_size
 
     @staticmethod
     def read(io_stream):
@@ -56,8 +56,7 @@ class HLodArrayHeader(Struct):
         return const_size(8, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT_ARRAY_HEADER, io_stream, self.size(False))
         write_ulong(self.model_count, io_stream)
         write_float(self.max_screen_size, io_stream)
 
@@ -65,12 +64,14 @@ class HLodArrayHeader(Struct):
 W3D_CHUNK_HLOD_SUB_OBJECT = 0x00000704
 
 
-class HLodSubObject(Struct):
-    bone_index = 0
-    identifier = ''
-    name = ''
+class HLodSubObject:
+    def __init__(self, bone_index=0, identifier='', name='', is_box=False):
+        self.bone_index = bone_index
+        self.identifier = identifier
+        self.name = name
 
-    is_box = False
+        # non struct properties
+        self.is_box = is_box
 
     @staticmethod
     def read(io_stream):
@@ -86,8 +87,7 @@ class HLodSubObject(Struct):
         return const_size(36, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_HLOD_SUB_OBJECT, io_stream, self.size(False))
         write_ulong(self.bone_index, io_stream)
         write_long_fixed_string(self.identifier, io_stream)
 
@@ -119,15 +119,13 @@ class HLodSubObject(Struct):
             mesh.text = self.identifier
 
 
-class HLodBaseArray(Struct):
-    header = HLodArrayHeader()
-    sub_objects = []
+class HLodBaseArray:
+    def __init__(self, header=None, sub_objects=None):
+        self.header = header
+        self.sub_objects = sub_objects if sub_objects is not None else []
 
     @staticmethod
     def read_base(context, io_stream, chunk_end, array):
-        array.header = None
-        array.sub_objects = []
-
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
 
@@ -146,8 +144,7 @@ class HLodBaseArray(Struct):
         return size
 
     def write_base(self, io_stream, chunk_id):
-        write_chunk_head(chunk_id, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(chunk_id, io_stream, self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
         write_list(self.sub_objects, io_stream, HLodSubObject.write)
 
@@ -191,11 +188,12 @@ class HLodProxyArray(HLodBaseArray):
 W3D_CHUNK_HLOD = 0x00000700
 
 
-class HLod(Struct):
-    header = HLodHeader()
-    lod_arrays = []
-    aggregate_array = None
-    proxy_array = None
+class HLod:
+    def __init__(self, header=None, lod_arrays=None, aggregate_array=None, proxy_array=None):
+        self.header = header
+        self.lod_arrays = lod_arrays if lod_arrays is not None else []
+        self.aggregate_array = aggregate_array
+        self.proxy_array = proxy_array
 
     def model_name(self):
         return self.header.model_name
@@ -219,9 +217,7 @@ class HLod(Struct):
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = HLod(
-            header=None,
-            lod_arrays=[])
+        result = HLod()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -229,14 +225,11 @@ class HLod(Struct):
             if chunk_type == W3D_CHUNK_HLOD_HEADER:
                 result.header = HLodHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_HLOD_LOD_ARRAY:
-                result.lod_arrays.append(HLodLodArray.read(
-                    context, io_stream, subchunk_end))
+                result.lod_arrays.append(HLodLodArray.read(context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_HLOD_AGGREGATE_ARRAY:
-                result.aggregate_array = HLodAggregateArray.read(
-                    context, io_stream, subchunk_end)
+                result.aggregate_array = HLodAggregateArray.read(context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_HLOD_PROXY_ARRAY:
-                result.proxy_array = HLodProxyArray.read(
-                    context, io_stream, subchunk_end)
+                result.proxy_array = HLodProxyArray.read(context, io_stream, subchunk_end)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -270,12 +263,11 @@ class HLod(Struct):
             header=HLodHeader(
                 model_name=xml_container.get('id'),
                 hierarchy_name=xml_container.get('Hierarchy')),
-            lod_arrays=[HLodLodArray(sub_objects=[])])
+            lod_arrays=[HLodLodArray(header=HLodArrayHeader())])
 
         for child in xml_container:
             if child.tag == 'SubObject':
-                result.lod_arrays[0].sub_objects.append(
-                    HLodSubObject.parse(child))
+                result.lod_arrays[0].sub_objects.append(HLodSubObject.parse(child))
             else:
                 context.warning('unhandled node: ' + child.tag + ' in W3DContainer!')
 

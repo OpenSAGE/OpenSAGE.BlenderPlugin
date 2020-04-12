@@ -147,8 +147,7 @@ def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):
 
 def get_shader_material_minimal():
     shader_mat = ShaderMaterial(
-        header=get_shader_material_header(),
-        properties=[])
+        header=get_shader_material_header())
 
     shader_mat.properties = [
         get_shader_material_property(1, 'a'),
@@ -163,8 +162,7 @@ def get_shader_material_minimal():
 
 def get_shader_material_empty():
     return ShaderMaterial(
-        header=get_shader_material_header(),
-        properties=[])
+        header=get_shader_material_header())
 
 
 def compare_shader_materials(self, expected, actual):

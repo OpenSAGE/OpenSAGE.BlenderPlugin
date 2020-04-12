@@ -2,17 +2,17 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
 
-class ShaderMaterialHeader(Struct):
-    version = 1
-    type_name = ''
-    technique = 0
+class ShaderMaterialHeader:
+    def __init__(self, version=1, type_name='', technique=0):
+        self.version = version
+        self.type_name = type_name
+        self.technique = technique
 
     @staticmethod
     def read(io_stream):
@@ -26,8 +26,7 @@ class ShaderMaterialHeader(Struct):
         return const_size(37, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER,
-                         io_stream, self.size(False))
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_HEADER, io_stream, self.size(False))
         write_ubyte(self.version, io_stream)
         write_long_fixed_string(self.type_name, io_stream)
         write_long(self.technique, io_stream)
@@ -44,10 +43,11 @@ LONG_PROPERTY = 6
 BYTE_PROPERTY = 7
 
 
-class ShaderMaterialProperty(Struct):
-    type = 0
-    name = ''
-    value = Vector((1.0, 1.0, 1.0, 1.0))
+class ShaderMaterialProperty:
+    def __init__(self, type=0, name='', value=Vector((1.0, 1.0, 1.0, 1.0))):
+        self.type = type
+        self.name = name
+        self.value = value
 
     def to_rgb(self):
         return self.value.x, self.value.y, self.value.z
@@ -104,9 +104,7 @@ class ShaderMaterialProperty(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(
-            W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream,
-            self.size(False))
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, self.size(False))
         write_long(self.type, io_stream)
         write_long(len(self.name) + 1, io_stream)
         write_string(self.name, io_stream)
@@ -207,14 +205,14 @@ class ShaderMaterialProperty(Struct):
 W3D_CHUNK_SHADER_MATERIAL = 0x51
 
 
-class ShaderMaterial(Struct):
-    header = ShaderMaterialHeader()
-    properties = []
+class ShaderMaterial:
+    def __init__(self, header=None, properties=None):
+        self.header = header
+        self.properties = properties if properties is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = ShaderMaterial(
-            properties=[])
+        result = ShaderMaterial()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
@@ -236,23 +234,20 @@ class ShaderMaterial(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, io_stream, self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
-        write_list(self.properties, io_stream,
-                   ShaderMaterialProperty.write)
+        write_list(self.properties, io_stream, ShaderMaterialProperty.write)
 
     @staticmethod
     def parse(xml_fx_shader):
         result = ShaderMaterial(
             header=ShaderMaterialHeader(
                 type_name=xml_fx_shader.get('ShaderName'),
-                technique=int(xml_fx_shader.get('TechniqueIndex', 0))),
-            properties=[])
+                technique=int(xml_fx_shader.get('TechniqueIndex', 0))))
 
         for constants in xml_fx_shader.findall('Constants'):
-            for property in constants:
-                result.properties.append(ShaderMaterialProperty.parse(property))
+            for prop in constants:
+                result.properties.append(ShaderMaterialProperty.parse(prop))
         return result
 
     def create(self, parent):

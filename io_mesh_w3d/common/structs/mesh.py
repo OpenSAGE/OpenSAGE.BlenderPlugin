@@ -34,24 +34,28 @@ VERTEX_CHANNEL_TANGENT = 0x20
 VERTEX_CHANNEL_BITANGENT = 0x40
 
 
-class MeshHeader(Struct):
-    version = Version()
-    attrs = GEOMETRY_TYPE_NORMAL
-    mesh_name = ''
-    container_name = ''
-    face_count = 0
-    vert_count = 0
-    matl_count = 0
-    damage_stage_count = 0
-    sort_level = 0
-    prelit_version = 0
-    future_count = 0
-    vert_channel_flags = 0
-    face_channel_flags = 1
-    min_corner = Vector((0.0, 0.0, 0.0))
-    max_corner = Vector((0.0, 0.0, 0.0))
-    sph_center = Vector((0.0, 0.0, 0.0))
-    sph_radius = 0.0
+class MeshHeader:
+    def __init__(self, version=Version(), attrs=GEOMETRY_TYPE_NORMAL, mesh_name='', container_name='', face_count=0,
+                 vert_count=0, matl_count=0, damage_stage_count=0, sort_level=0, prelit_version=0, future_count=0,
+                 vert_channel_flags=0, face_channel_flags=1, min_corner=Vector(), max_corner=Vector(),
+                 sph_center=Vector(), sph_radius=0.0):
+        self.version = version
+        self.attrs = attrs
+        self.mesh_name = mesh_name
+        self.container_name = container_name
+        self.face_count = face_count
+        self.vert_count = vert_count
+        self.matl_count = matl_count
+        self.damage_stage_count = damage_stage_count
+        self.sort_level = sort_level
+        self.prelit_version = prelit_version
+        self.future_count = future_count
+        self.vert_channel_flags = vert_channel_flags
+        self.face_channel_flags = face_channel_flags
+        self.min_corner = min_corner
+        self.max_corner = max_corner
+        self.sph_center = sph_center
+        self.sph_radius = sph_radius
 
     @staticmethod
     def read(io_stream):
@@ -80,8 +84,7 @@ class MeshHeader(Struct):
         return const_size(116, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_MESH_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_MESH_HEADER, io_stream, self.size(False))
         self.version.write(io_stream)
         write_ulong(self.attrs, io_stream)
         write_fixed_string(self.mesh_name, io_stream)
@@ -115,29 +118,31 @@ W3D_CHUNK_TANGENTS = 0x60
 W3D_CHUNK_BITANGENTS = 0x61
 
 
-class Mesh(Struct):
-    header = MeshHeader()
-    user_text = ''
-    verts = []
-    normals = []
-    tangents = []
-    bitangents = []
-    vert_infs = []
-    triangles = []
-    shade_ids = []
-    mat_info = None
-    shaders = []
-    vert_materials = []
-    textures = []
-    shader_materials = []
-    material_passes = []
-    aabbtree = None
-    prelit_unlit = None
-    prelit_vertex = None
-    prelit_lightmap_multi_pass = None
-    prelit_lightmap_multi_texture = None
+class Mesh:
+    def __init__(self):
+        self.header = None
+        self.user_text = ''
+        self.verts = []
+        self.normals = []
+        self.tangents = []
+        self.bitangents = []
+        self.vert_infs = []
+        self.triangles = []
+        self.shade_ids = []
+        self.mat_info = None
+        self.shaders = []
+        self.vert_materials = []
+        self.textures = []
+        self.shader_materials = []
+        self.material_passes = []
+        self.aabbtree = None
+        self.prelit_unlit = None
+        self.prelit_vertex = None
+        self.prelit_lightmap_multi_pass = None
+        self.prelit_lightmap_multi_texture = None
 
-    multi_bone_skinned = False
+        # non struct properties
+        self.multi_bone_skinned = False
 
     def validate(self, context):
         if context.file_format == 'W3X':
@@ -164,26 +169,7 @@ class Mesh(Struct):
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = Mesh(
-            user_text='',
-            verts=[],
-            normals=[],
-            tangents=[],
-            bitangents=[],
-            vert_infs=[],
-            triangles=[],
-            shade_ids=[],
-            mat_info=None,
-            shaders=[],
-            vert_materials=[],
-            textures=[],
-            material_passes=[],
-            shader_materials=[],
-            aabbtree=None,
-            prelit_unlit=None,
-            prelit_vertex=None,
-            prelit_lightmap_multi_pass=None,
-            prelit_lightmap_multi_texture=None)
+        result = Mesh()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -213,21 +199,15 @@ class Mesh(Struct):
             elif chunk_type == W3D_CHUNK_SHADERS:
                 result.shaders = read_list(io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
-                result.vert_materials = read_chunk_array(
-                    context,
-                    io_stream,
-                    subchunk_end,
-                    W3D_CHUNK_VERTEX_MATERIAL,
-                    VertexMaterial.read)
+                result.vert_materials = read_chunk_array(context, io_stream, subchunk_end, W3D_CHUNK_VERTEX_MATERIAL,
+                                                         VertexMaterial.read)
             elif chunk_type == W3D_CHUNK_TEXTURES:
-                result.textures = read_chunk_array(
-                    context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
+                result.textures = read_chunk_array(context, io_stream, subchunk_end, W3D_CHUNK_TEXTURE, Texture.read)
             elif chunk_type == W3D_CHUNK_MATERIAL_PASS:
-                result.material_passes.append(MaterialPass.read(
-                    context, io_stream, subchunk_end))
+                result.material_passes.append(MaterialPass.read(context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_SHADER_MATERIALS:
-                result.shader_materials = read_chunk_array(
-                    context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read)
+                result.shader_materials = read_chunk_array(context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL,
+                                                           ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
                 context.info('-> tangents are computed in blender')
                 io_stream.seek(chunk_size, 1)
@@ -237,21 +217,13 @@ class Mesh(Struct):
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = AABBTree.read(context, io_stream, subchunk_end)
             elif chunk_type == W3D_CHUNK_PRELIT_UNLIT:
-                result.prelit_unlit = PrelitBase.read(
-                    context, io_stream, subchunk_end,
-                    chunk_type)
+                result.prelit_unlit = PrelitBase.read(context, io_stream, subchunk_end, chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_VERTEX:
-                result.prelit_vertex = PrelitBase.read(
-                    context, io_stream, subchunk_end,
-                    chunk_type)
+                result.prelit_vertex = PrelitBase.read(context, io_stream, subchunk_end, chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
-                result.prelit_lightmap_multi_pass = PrelitBase.read(
-                    context, io_stream, subchunk_end,
-                    chunk_type)
+                result.prelit_lightmap_multi_pass = PrelitBase.read(context, io_stream, subchunk_end, chunk_type)
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
-                result.prelit_lightmap_multi_texture = PrelitBase.read(
-                    context, io_stream, subchunk_end,
-                    chunk_type)
+                result.prelit_lightmap_multi_texture = PrelitBase.read(context, io_stream, subchunk_end, chunk_type)
             elif chunk_type == W3D_CHUNK_DEFORM:
                 context.info('-> deform chunk is not supported')
                 io_stream.seek(chunk_size, 1)
@@ -293,50 +265,39 @@ class Mesh(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_MESH, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_MESH, io_stream, self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if len(self.user_text) > 0:
             write_chunk_head(
                 W3D_CHUNK_MESH_USER_TEXT,
                 io_stream,
-                text_size(
-                    self.user_text,
-                    False))
+                text_size(self.user_text, False))
             write_string(self.user_text, io_stream)
 
-        write_chunk_head(W3D_CHUNK_VERTICES, io_stream,
-                         vec_list_size(self.verts, False))
+        write_chunk_head(W3D_CHUNK_VERTICES, io_stream, vec_list_size(self.verts, False))
         write_list(self.verts, io_stream, write_vector)
 
-        write_chunk_head(W3D_CHUNK_VERTEX_NORMALS, io_stream,
-                         vec_list_size(self.normals, False))
+        write_chunk_head(W3D_CHUNK_VERTEX_NORMALS, io_stream, vec_list_size(self.normals, False))
         write_list(self.normals, io_stream, write_vector)
 
         if self.tangents:
-            write_chunk_head(W3D_CHUNK_TANGENTS, io_stream,
-                             vec_list_size(self.tangents, False))
+            write_chunk_head(W3D_CHUNK_TANGENTS, io_stream, vec_list_size(self.tangents, False))
             write_list(self.tangents, io_stream, write_vector)
 
         if self.bitangents:
-            write_chunk_head(W3D_CHUNK_BITANGENTS, io_stream,
-                             vec_list_size(self.bitangents, False))
+            write_chunk_head(W3D_CHUNK_BITANGENTS, io_stream, vec_list_size(self.bitangents, False))
             write_list(self.bitangents, io_stream, write_vector)
 
-        write_chunk_head(W3D_CHUNK_TRIANGLES, io_stream,
-                         list_size(self.triangles, False))
+        write_chunk_head(W3D_CHUNK_TRIANGLES, io_stream, list_size(self.triangles, False))
         write_list(self.triangles, io_stream, Triangle.write)
 
         if self.vert_infs:
-            write_chunk_head(W3D_CHUNK_VERTEX_INFLUENCES, io_stream,
-                             list_size(self.vert_infs, False))
+            write_chunk_head(W3D_CHUNK_VERTEX_INFLUENCES, io_stream, list_size(self.vert_infs, False))
             write_list(self.vert_infs, io_stream, VertexInfluence.write)
 
         if self.shade_ids:
-            write_chunk_head(
-                W3D_CHUNK_VERTEX_SHADE_INDICES, io_stream,
-                long_list_size(self.shade_ids, False))
+            write_chunk_head(W3D_CHUNK_VERTEX_SHADE_INDICES, io_stream, long_list_size(self.shade_ids, False))
             write_list(self.shade_ids, io_stream, write_long)
 
         if self.mat_info is not None:
@@ -346,25 +307,19 @@ class Mesh(Struct):
             write_chunk_head(
                 W3D_CHUNK_VERTEX_MATERIALS,
                 io_stream,
-                list_size(
-                    self.vert_materials,
-                    False),
+                list_size(self.vert_materials, False),
                 has_sub_chunks=True)
-            write_list(self.vert_materials, io_stream,
-                       VertexMaterial.write)
+            write_list(self.vert_materials, io_stream, VertexMaterial.write)
 
         if self.shaders:
-            write_chunk_head(W3D_CHUNK_SHADERS, io_stream,
-                             list_size(self.shaders, False))
+            write_chunk_head(W3D_CHUNK_SHADERS, io_stream, list_size(self.shaders, False))
             write_list(self.shaders, io_stream, Shader.write)
 
         if self.textures:
             write_chunk_head(
                 W3D_CHUNK_TEXTURES,
                 io_stream,
-                list_size(
-                    self.textures,
-                    False),
+                list_size(self.textures, False),
                 has_sub_chunks=True)
             write_list(self.textures, io_stream, Texture.write)
 
@@ -372,16 +327,12 @@ class Mesh(Struct):
             write_chunk_head(
                 W3D_CHUNK_SHADER_MATERIALS,
                 io_stream,
-                list_size(
-                    self.shader_materials,
-                    False),
+                list_size(self.shader_materials, False),
                 has_sub_chunks=True)
-            write_list(self.shader_materials, io_stream,
-                       ShaderMaterial.write)
+            write_list(self.shader_materials, io_stream, ShaderMaterial.write)
 
         if self.material_passes:
-            write_list(self.material_passes, io_stream,
-                       MaterialPass.write)
+            write_list(self.material_passes, io_stream, MaterialPass.write)
 
         if self.aabbtree is not None:
             self.aabbtree.write(io_stream)
@@ -400,26 +351,8 @@ class Mesh(Struct):
 
     @staticmethod
     def parse(context, xml_mesh):
-        result = Mesh(
-            header=MeshHeader(),
-            verts=[],
-            normals=[],
-            tangents=[],
-            bitangents=[],
-            vert_infs=[],
-            triangles=[],
-            shade_ids=[],
-            mat_info=None,
-            shaders=[],
-            vert_materials=[],
-            textures=[],
-            material_passes=[],
-            shader_materials=[],
-            aabbtree=None,
-            prelit_unlit=None,
-            prelit_vertex=None,
-            prelit_lightmap_multi_pass=None,
-            prelit_lightmap_multi_texture=None)
+        result = Mesh()
+        result.header = MeshHeader()
 
         identifier = xml_mesh.get('id')
         if '.' in identifier:
@@ -435,7 +368,7 @@ class Mesh(Struct):
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
-            | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+                                           | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
         result.material_passes = [MaterialPass(shader_material_ids=[0])]
         result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
@@ -498,8 +431,7 @@ class Mesh(Struct):
                 xtra_infs = bone_influences[1]
 
             for i, inf in enumerate(bone_infs):
-                result.vert_infs.append(VertexInfluence.parse(
-                    inf, xtra_infs[i]))
+                result.vert_infs.append(VertexInfluence.parse(inf, xtra_infs[i]))
         return result
 
     def create(self, parent):

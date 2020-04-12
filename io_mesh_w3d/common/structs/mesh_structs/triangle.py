@@ -2,22 +2,21 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3x.io_xml import *
 
 
-class Triangle(Struct):
-    vert_ids = []
-    surface_type = 13
-    normal = Vector((0.0, 0.0, 0.0))
-    distance = 0.0
+class Triangle:
+    def __init__(self, vert_ids=None, surface_type=13, normal=Vector((0.0, 0.0, 0.0)), distance=0.0):
+        self.vert_ids = vert_ids if vert_ids is not None else []
+        self.surface_type = surface_type
+        self.normal = normal
+        self.distance = distance
 
     @staticmethod
     def read(io_stream):
         return Triangle(
-            vert_ids=[read_ulong(io_stream), read_ulong(
-                io_stream), read_ulong(io_stream)],
+            vert_ids=[read_ulong(io_stream), read_ulong(io_stream), read_ulong(io_stream)],
             surface_type=read_ulong(io_stream),
             normal=read_vector(io_stream),
             distance=read_float(io_stream))

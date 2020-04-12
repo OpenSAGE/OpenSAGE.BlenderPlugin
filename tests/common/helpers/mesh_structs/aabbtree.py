@@ -26,9 +26,7 @@ def get_aabbtree_poly_indices(num_polys=41):
 def get_aabbtree_node(xml=False, i=0):
     node = AABBTreeNode(
         min=get_vec(1.0, 2.0, 3.0),
-        max=get_vec(4.0, 5.0, 6.0),
-        polys=None,
-        children=None)
+        max=get_vec(4.0, 5.0, 6.0))
 
     if xml and i % 2 == 0:
         node.polys = Polys(begin=3, count=44)
@@ -70,10 +68,7 @@ def get_aabbtree_minimal():
 
 
 def get_aabbtree_empty():
-    return AABBTree(
-        header=get_aabbtree_header(num_nodes=0, num_polys=0),
-        poly_indices=[],
-        nodes=[])
+    return AABBTree(header=get_aabbtree_header(num_nodes=0, num_polys=0))
 
 
 def compare_aabbtrees(self, expected, actual):

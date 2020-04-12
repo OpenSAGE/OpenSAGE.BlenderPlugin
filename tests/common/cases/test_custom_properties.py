@@ -2,8 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.struct import Struct
-from io_mesh_w3d.custom_properties import *
 from tests.utils import *
 
 

@@ -10,15 +10,10 @@ from io_mesh_w3d.common.utils.box_import import *
 from io_mesh_w3d.w3d.utils.dazzle_import import *
 
 
-def create_data(
-        context,
-        meshes,
-        hlod=None,
-        hierarchy=None,
-        boxes=[],
-        animation=None,
-        compressed_animation=None,
-        dazzles=[]):
+def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animation=None, compressed_animation=None,
+                dazzles=None):
+    boxes = boxes if boxes is not None else []
+    dazzles = dazzles if dazzles is not None else []
     collection = get_collection(hlod)
     rig = get_or_create_skeleton(hlod, hierarchy, collection)
 

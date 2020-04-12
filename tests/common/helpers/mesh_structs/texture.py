@@ -5,11 +5,7 @@ from io_mesh_w3d.common.structs.mesh_structs.texture import *
 
 
 def get_texture_info():
-    return TextureInfo(
-        attributes=0,
-        animation_type=0,
-        frame_count=0,
-        frame_rate=0.0)
+    return TextureInfo()
 
 
 def get_texture(name='texture.dds'):

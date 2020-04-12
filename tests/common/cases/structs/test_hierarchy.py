@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.hierarchy import *
 from tests.utils import TestCase
 
@@ -86,10 +85,5 @@ class TestHierarchy(TestCase):
         self.write_read_xml_test(get_hierarchy(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)
 
     def test_write_read_minimal_xml(self):
-        self.write_read_xml_test(
-            get_hierarchy_minimal(
-                xml=True),
-            'W3DHierarchy',
-            Hierarchy.parse,
-            compare_hierarchies,
-            self)
+        self.write_read_xml_test(get_hierarchy_minimal(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies,
+                                 self)

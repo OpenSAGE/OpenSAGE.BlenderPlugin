@@ -31,8 +31,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
     if hierarchy is None or rig is None:
         return
 
-    sub_objects = [
-        sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == box.name()]
+    sub_objects = [sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == box.name()]
     if not sub_objects:
         return
     sub_object = sub_objects[0]
