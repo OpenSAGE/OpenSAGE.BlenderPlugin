@@ -2,27 +2,50 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
 class VertexMaterialGroup():
     name = 'VertexMaterial'
 
     @staticmethod
-    def create(node_tree, name, vm_info, shader):
+    def create(node_tree, vert_mat, shader):
         instance = node_tree.nodes.new(type='ShaderNodeGroup')
         instance.location = (0, 300)
         instance.width = 300
 
         instance.node_tree = bpy.data.node_groups['VertexMaterial']
-        instance.label = name
+        instance.label = vert_mat.vm_name
 
-        instance.inputs['Diffuse'].default_value = vm_info.diffuse.to_vector_rgba()
-        instance.inputs['Ambient'].default_value = vm_info.ambient.to_vector_rgba()
-        instance.inputs['Specular'].default_value = vm_info.specular.to_vector_rgba()
-        instance.inputs['Emissive'].default_value = vm_info.emissive.to_vector_rgba()
-        instance.inputs['Shininess'].default_value = vm_info.shininess
-        instance.inputs['Opacity'].default_value = vm_info.shininess
-        instance.inputs['Translucency'].default_value = vm_info.shininess
+        attributes = {'DEFAULT'}
+        attributes = vert_mat.vm_info.attributes
+        if vert_mat.vm_info.attributes & USE_DEPTH_CUE:
+            material.attributes.add('USE_DEPTH_CUE')
+        if vert_mat.vm_info.attributes & ARGB_EMISSIVE_ONLY:
+            material.attributes.add('ARGB_EMISSIVE_ONLY')
+        if vert_mat.vm_info.attributes & COPY_SPECULAR_TO_DIFFUSE:
+            material.attributes.add('COPY_SPECULAR_TO_DIFFUSE')
+        if vert_mat.vm_info.attributes & DEPTH_CUE_TO_ALPHA:
+            material.attributes.add('DEPTH_CUE_TO_ALPHA')
+
+        instance.inputs['Attributes'].default_value = attributes
+
+        # TODO: translate those to shader properties
+        # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, VPhase,
+        #        UStep, VStep, StepsPerSecond, Offset, Axis, UOffset, VOffset, ClampFix, UseReflect, Period, VPerScale,
+        #        BumpRotation, BumpScale
+        # ints: Log1Width, Log2Width, Last(Frame)
+
+        instance.inputs['VM_ARGS_0'].default_value = vert_mat.vm_args_0
+        instance.inputs['VM_ARGS_0'].default_value = vert_mat.vm_args_1
+
+        instance.inputs['Diffuse'].default_value = vert_mat.vm_info.diffuse.to_vector_rgba()
+        instance.inputs['Ambient'].default_value = vert_mat.vm_info.ambient.to_vector_rgba()
+        instance.inputs['Specular'].default_value = vert_mat.vm_info.specular.to_vector_rgba()
+        instance.inputs['Emissive'].default_value = vert_mat.vm_info.emissive.to_vector_rgba()
+        instance.inputs['Shininess'].default_value = vert_mat.vm_info.shininess
+        instance.inputs['Opacity'].default_value = vert_mat.vm_info.shininess
+        instance.inputs['Translucency'].default_value = vert_mat.vm_info.shininess
 
         instance.inputs['DepthCompare'].default_value = shader.depth_compare
         instance.inputs['DepthMask'].default_value = shader.depth_mask
@@ -58,9 +81,14 @@ class VertexMaterialGroup():
         # create group inputs
         group_inputs = group.nodes.new('NodeGroupInput')
         group_inputs.location = (-350,0)
+
+        group.inputs.new('NodeSocketMaterialAttributes', 'Attributes')
+        group.inputs.new('NodeSocketSurfaceType', 'Surface type')
+        group.inputs.new('NodeSocketString', 'VM_ARGS_0')
+        group.inputs.new('NodeSocketString', 'VM_ARGS_1')
         group.inputs.new('NodeSocketColor', 'Diffuse')
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
-        group.inputs.new('NodeSocketColor', 'DiffuseTexture')
+        group.inputs.new('NodeSocketTexture', 'DiffuseTexture')
         group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
         group.inputs['DiffuseTextureAlpha'].default_value = 0.0
         VertexMaterialGroup.addInputInt(group, 'DestBlend', max=1)

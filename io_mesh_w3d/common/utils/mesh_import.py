@@ -21,8 +21,8 @@ def create_mesh(context, mesh_struct, coll):
     mesh.validate()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
-    mesh_ob.object_type = 'NORMAL'
-    mesh_ob.userText = mesh_struct.user_text
+    #mesh_ob.object_type = 'NORMAL'
+    #mesh_ob.userText = mesh_struct.user_text
     mesh_ob.use_empty_image_alpha = True
 
     link_object_to_active_scene(mesh_ob, coll)

@@ -43,6 +43,8 @@ def retrieve_material(context, mesh, material, tx_coords):
 def retrieve_vertex_material(context, material, shader_node):
     node_tree = material.node_tree
 
+    print(get_value(context, node_tree, shader_node.inputs['Translucency'], float))
+
     info = VertexMaterialInfo(
         attributes=0,
         shininess=material.specular_intensity,
@@ -53,20 +55,20 @@ def retrieve_vertex_material(context, material, shader_node):
         translucency=get_value(context, node_tree, shader_node.inputs['Translucency'], float),
         opacity=get_value(context, node_tree, shader_node.inputs['Opacity'], float))
 
-    if 'USE_DEPTH_CUE' in material.attributes:
-        info.attributes |= USE_DEPTH_CUE
-    if 'ARGB_EMISSIVE_ONLY' in material.attributes:
-        info.attributes |= ARGB_EMISSIVE_ONLY
-    if 'COPY_SPECULAR_TO_DIFFUSE' in material.attributes:
-        info.attributes |= COPY_SPECULAR_TO_DIFFUSE
-    if 'DEPTH_CUE_TO_ALPHA' in material.attributes:
-        info.attributes |= DEPTH_CUE_TO_ALPHA
+    #if 'USE_DEPTH_CUE' in material.attributes:
+    #    info.attributes |= USE_DEPTH_CUE
+    #if 'ARGB_EMISSIVE_ONLY' in material.attributes:
+    #    info.attributes |= ARGB_EMISSIVE_ONLY
+    #if 'COPY_SPECULAR_TO_DIFFUSE' in material.attributes:
+    #    info.attributes |= COPY_SPECULAR_TO_DIFFUSE
+    #if 'DEPTH_CUE_TO_ALPHA' in material.attributes:
+    #    info.attributes |= DEPTH_CUE_TO_ALPHA
 
     vert_mat = VertexMaterial()
     vert_mat.vm_name = shader_node.label
     vert_mat.vm_info = info
-    vert_mat.vm_args_0 = material.vm_args_0
-    vert_mat.vm_args_1 = material.vm_args_1
+    #vert_mat.vm_args_0 = material.vm_args_0
+    #vert_mat.vm_args_1 = material.vm_args_1
 
     shader = Shader(
         depth_compare=get_value(context, node_tree, shader_node.inputs['DepthCompare'], int),

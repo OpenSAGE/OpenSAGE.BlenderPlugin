@@ -225,12 +225,13 @@ def menu_func_export(self, _context):
 def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d/.w3x)')
 
+from bpy.types import Panel
 
-class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
+class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = 'object'
+    bl_context = 'mesh'
 
     def draw(self, context):
         layout = self.layout
@@ -256,39 +257,63 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(context.active_bone, 'visibility')
 
 
-class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
+class MESH_POLYGON_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'material'
+    bl_region_type = 'PANEL'
+    bl_context = 'mesh polygon'
 
     def draw(self, context):
         layout = self.layout
-        mat = context.object.active_material
+        if context.active_polygon is not None:
+            col = layout.column()
+            col.prop(context.active_bone, 'visibility')
 
-        for node in mat.node_tree.nodes:
-            
-            if not hasattr(node, 'node_tree'):
-                continue
-            print(node.node_tree.name)
-            if node.node_tree.name in ['VertexMaterial', 'PrelitUnlit', 'PrelitVertex', 'PrelitLightmapMultiPass', 'PrelitLightmapMultiTextue']:
-                col = layout.column()
-                col.prop(mat, 'surface_type')
-                col = layout.column()
-                col.prop(mat, 'attributes')
-                col = layout.column()
-                col.prop(mat, 'vm_args_0')
-                col = layout.column()
-                col.prop(mat, 'vm_args_1')
+
+import nodeitems_utils
+from nodeitems_utils import NodeCategory, NodeItem
+
+# all categories in a list
+node_categories = [
+    # identifier, label, items list
+    NodeCategory('SOMENODES', 'Some Nodes', items=[
+        # our basic node
+        NodeItem('DecisionNode'),
+    ]),
+    NodeCategory('OTHERNODES', "Other Nodes", items=[
+        # the node item can have additional settings,
+        # which are applied to new nodes
+        # NB: settings values are stored as string expressions,
+        # for this reason they should be converted to strings using repr()
+        NodeItem("CustomNodeType", label="Node A", settings={
+            "my_string_prop": repr("Lorem ipsum dolor sit amet"),
+            "my_float_prop": repr(1.0),
+        }),
+        NodeItem("CustomNodeType", label="Node B", settings={
+            "my_string_prop": repr("consectetur adipisicing elit"),
+            "my_float_prop": repr(2.0),
+        }),
+    ]),
+]
+
+
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
+from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
+from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
+from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
+from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketMaterialAttributes
 
 
 CLASSES = (
+    NodeSocketTexture,
+    NodeSocketTextureAlpha,
+    NodeSocketVector2,
+    NodeSocketVector4,
+    NodeSocketMaterialAttributes,
     ExportW3D,
     ImportW3D,
-    OBJECT_PROPERTIES_PANEL_PT_w3d,
-    BONE_PROPERTIES_PANEL_PT_w3d,
-    MATERIAL_PROPERTIES_PANEL_PT_w3d
-)
+    MESH_PROPERTIES_PANEL_PT_w3d,
+    BONE_PROPERTIES_PANEL_PT_w3d)
 
 def register_node_groups():
     from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
@@ -300,12 +325,14 @@ def register_node_groups():
             continue
         NodeGroupCreator().create(directory, file)
 
-    from io_mesh_w3d.common.node_groups.vertex_material import VertexMaterialGroup
+    from io_mesh_w3d.common.shading.vertex_material_group import VertexMaterialGroup
     VertexMaterialGroup.register(VertexMaterialGroup.name)
 
 def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
+
+    nodeitems_utils.register_node_categories('CUSTOM_NODES', node_categories)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
@@ -319,6 +346,8 @@ def register():
 
 
 def unregister():
+    nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
+
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)

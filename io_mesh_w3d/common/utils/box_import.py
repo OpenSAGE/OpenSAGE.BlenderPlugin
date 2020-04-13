@@ -19,7 +19,7 @@ def create_box(box, hlod, hierarchy, rig, coll):
     cube.from_pydata(verts, [], faces)
     cube.update(calc_edges=True)
     box_object = bpy.data.objects.new(box.name(), cube)
-    box_object.object_type = 'BOX'
+    #box_object.object_type = 'BOX'
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new(box.name() + ".Material")
 

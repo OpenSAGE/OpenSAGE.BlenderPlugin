@@ -5,7 +5,7 @@ import bpy
 import bmesh
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.common.node_groups.vertex_material import *
+from io_mesh_w3d.common.shading.vertex_material_group import *
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
@@ -68,32 +68,12 @@ def create_vertex_material(context, mesh, b_mesh, triangles, vert_mat, shader, t
     material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
-    material.attributes = {'DEFAULT'}
-    attributes = vert_mat.vm_info.attributes
-    if attributes & USE_DEPTH_CUE:
-        material.attributes.add('USE_DEPTH_CUE')
-    if attributes & ARGB_EMISSIVE_ONLY:
-        material.attributes.add('ARGB_EMISSIVE_ONLY')
-    if attributes & COPY_SPECULAR_TO_DIFFUSE:
-        material.attributes.add('COPY_SPECULAR_TO_DIFFUSE')
-    if attributes & DEPTH_CUE_TO_ALPHA:
-        material.attributes.add('DEPTH_CUE_TO_ALPHA')
-
-    # TODO: translate those to shader properties
-    # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, VPhase,
-    #        UStep, VStep, StepsPerSecond, Offset, Axis, UOffset, VOffset, ClampFix, UseReflect, Period, VPerScale,
-    #        BumpRotation, BumpScale
-    # ints: Log1Width, Log2Width, Last(Frame)
-
-    material.vm_args_0 = vert_mat.vm_args_0
-    material.vm_args_1 = vert_mat.vm_args_1
-
     node_tree = material.node_tree
     links = node_tree.links
 
     node_tree.nodes.remove(node_tree.nodes.get('Principled BSDF'))
 
-    instance = VertexMaterialGroup.create(node_tree, vert_mat.vm_name, vert_mat.vm_info, shader)
+    instance = VertexMaterialGroup.create(node_tree, vert_mat, shader)
     instance.label = vert_mat.vm_name
     instance.location = (0, 300)
     instance.width = 200
