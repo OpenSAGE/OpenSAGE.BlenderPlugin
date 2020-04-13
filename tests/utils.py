@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
+import bpy
 import inspect
 import os
 import shutil
@@ -10,7 +10,6 @@ import tempfile
 import unittest
 
 import addon_utils
-import bpy
 
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.w3d.io_binary import *

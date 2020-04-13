@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from shutil import copyfile
 
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.w3d.import_w3d import load

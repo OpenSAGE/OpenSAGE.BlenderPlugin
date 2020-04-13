@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
@@ -9,12 +8,13 @@ from io_mesh_w3d.w3x.io_xml import *
 W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
 
-class AnimationHeader(Struct):
-    version = Version()
-    name = ''
-    hierarchy_name = ''
-    num_frames = 0
-    frame_rate = 0
+class AnimationHeader:
+    def __init__(self, version=Version(), name='', hierarchy_name='', num_frames=0, frame_rate=0):
+        self.version = version
+        self.name = name
+        self.hierarchy_name = hierarchy_name
+        self.num_frames = num_frames
+        self.frame_rate = frame_rate
 
     @staticmethod
     def read(io_stream):
@@ -30,8 +30,7 @@ class AnimationHeader(Struct):
         return const_size(44, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_ANIMATION_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_ANIMATION_HEADER, io_stream, self.size(False))
         self.version.write(io_stream)
         write_fixed_string(self.name, io_stream)
         write_fixed_string(self.hierarchy_name, io_stream)
@@ -42,15 +41,16 @@ class AnimationHeader(Struct):
 W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
 
 
-class AnimationChannel(Struct):
-    first_frame = 0
-    last_frame = 0
-    vector_len = 0
-    type = 0
-    pivot = 0
-    unknown = 0
-    data = []
-    pad_bytes = []
+class AnimationChannel:
+    def __init__(self, first_frame=0, last_frame=0, vector_len=1, type=0, pivot=0, unknown=0, data=None):
+        self.first_frame = first_frame
+        self.last_frame = last_frame
+        self.vector_len = vector_len
+        self.type = type
+        self.pivot = pivot
+        self.unknown = unknown
+        self.data = data if data is not None else []
+        self.pad_bytes = []
 
     @staticmethod
     def read(io_stream, chunk_end):
@@ -60,17 +60,14 @@ class AnimationChannel(Struct):
             vector_len=read_ushort(io_stream),
             type=read_ushort(io_stream),
             pivot=read_ushort(io_stream),
-            unknown=read_ushort(io_stream),
-            data=[],
-            pad_bytes=[])
+            unknown=read_ushort(io_stream))
 
         num_elements = result.last_frame - result.first_frame + 1
 
         if result.vector_len == 1:
             result.data = read_fixed_list(io_stream, num_elements, read_float)
         else:
-            result.data = read_fixed_list(
-                io_stream, num_elements, read_quaternion)
+            result.data = read_fixed_list(io_stream, num_elements, read_quaternion)
 
         while io_stream.tell() < chunk_end:
             result.pad_bytes.append(read_ubyte(io_stream))
@@ -83,8 +80,7 @@ class AnimationChannel(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_ANIMATION_CHANNEL, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_ANIMATION_CHANNEL, io_stream, self.size(False))
 
         write_ushort(self.first_frame, io_stream)
         write_ushort(self.last_frame, io_stream)
@@ -103,10 +99,7 @@ class AnimationChannel(Struct):
     def parse(xml_channel):
         result = AnimationChannel(
             pivot=int(xml_channel.get('Pivot')),
-            first_frame=int(xml_channel.get('FirstFrame')),
-            vector_len=1,
-            type=0,
-            data=[])
+            first_frame=int(xml_channel.get('FirstFrame')))
 
         type_name = xml_channel.get('Type')
 
@@ -157,13 +150,14 @@ class AnimationChannel(Struct):
 W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
 
 
-class AnimationBitChannel(Struct):
-    first_frame = 0
-    last_frame = 0
-    type = 0
-    pivot = 0
-    default = 1.0
-    data = []
+class AnimationBitChannel:
+    def __init__(self, first_frame=0, last_frame=0, type=0, pivot=0, default=1.0, data=None):
+        self.first_frame = first_frame
+        self.last_frame = last_frame
+        self.type = type
+        self.pivot = pivot
+        self.default = default
+        self.data = data if data is not None else []
 
     @staticmethod
     def read(io_stream):
@@ -192,8 +186,7 @@ class AnimationBitChannel(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream, self.size(False))
         write_ushort(self.first_frame, io_stream)
         write_ushort(self.last_frame, io_stream)
         write_ushort(self.type, io_stream)
@@ -214,8 +207,7 @@ class AnimationBitChannel(Struct):
             pivot=int(xml_bit_channel.get('Pivot')),
             first_frame=int(xml_bit_channel.get('FirstFrame')),
             type=0,
-            default=True,
-            data=[])
+            default=True)
 
         for value in xml_bit_channel:
             result.data.append(parse_value(value, float))
@@ -237,9 +229,10 @@ class AnimationBitChannel(Struct):
 W3D_CHUNK_ANIMATION = 0x00000200
 
 
-class Animation(Struct):
-    header = AnimationHeader()
-    channels = []
+class Animation:
+    def __init__(self, header=None, channels=None):
+        self.header = header
+        self.channels = channels if channels is not None else []
 
     def validate(self, context):
         if not self.channels:
@@ -263,18 +256,16 @@ class Animation(Struct):
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = Animation(channels=[])
+        result = Animation()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
             if chunk_type == W3D_CHUNK_ANIMATION_HEADER:
                 result.header = AnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_ANIMATION_CHANNEL:
-                result.channels.append(
-                    AnimationChannel.read(io_stream, subchunk_end))
+                result.channels.append(AnimationChannel.read(io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_ANIMATION_BIT_CHANNEL:
-                result.channels.append(
-                    AnimationBitChannel.read(io_stream))
+                result.channels.append(AnimationBitChannel.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -286,8 +277,7 @@ class Animation(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_ANIMATION, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_ANIMATION, io_stream, self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         for channel in self.channels:
@@ -295,9 +285,7 @@ class Animation(Struct):
 
     @staticmethod
     def parse(context, xml_animation):
-        result = Animation(
-            header=AnimationHeader(),
-            channels=[])
+        result = Animation(header=AnimationHeader())
 
         result.header.name = xml_animation.get('id')
         result.header.hierarchy_name = xml_animation.get('Hierarchy')

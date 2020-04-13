@@ -1,16 +1,17 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
+from mathutils import Vector
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_AABBTREE_HEADER = 0x00000091
 
 
-class AABBTreeHeader(Struct):
-    node_count = 0
-    poly_count = 0  # num tris of mesh
+class AABBTreeHeader:
+    def __init__(self, node_count=0, poly_count=0):
+        self.node_count = node_count
+        self.poly_count = poly_count  # num tris of mesh
 
     @staticmethod
     def read(io_stream):
@@ -26,8 +27,7 @@ class AABBTreeHeader(Struct):
         return const_size(32, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_AABBTREE_HEADER, io_stream,
-                         self.size(False))
+        write_chunk_head(W3D_CHUNK_AABBTREE_HEADER, io_stream, self.size(False))
         write_ulong(self.node_count, io_stream)
         write_ulong(self.poly_count, io_stream)
 
@@ -35,9 +35,10 @@ class AABBTreeHeader(Struct):
             write_ubyte(0, io_stream)  # padding
 
 
-class Children(Struct):
-    front = 0
-    back = 0
+class Children:
+    def __init__(self, front=0, back=0):
+        self.front = front
+        self.back = back
 
     @staticmethod
     def parse(xml_children):
@@ -51,9 +52,10 @@ class Children(Struct):
         xml_children.set('Back', str(self.back))
 
 
-class Polys(Struct):
-    begin = 0
-    count = 0
+class Polys:
+    def __init__(self, begin=0, count=0):
+        self.begin = begin
+        self.count = count
 
     @staticmethod
     def parse(xml_polys):
@@ -67,11 +69,12 @@ class Polys(Struct):
         xml_polys.set('Count', str(self.count))
 
 
-class AABBTreeNode(Struct):
-    min = Vector((0.0, 0.0, 0.0))
-    max = Vector((0.0, 0.0, 0.0))
-    children = None
-    polys = None
+class AABBTreeNode:
+    def __init__(self, min=Vector((0.0, 0.0, 0.0)), max=Vector((0.0, 0.0, 0.0)), children=None, polys=None):
+        self.min = min
+        self.max = max
+        self.children = children
+        self.polys = polys
 
     @staticmethod
     def read(io_stream):
@@ -96,11 +99,8 @@ class AABBTreeNode(Struct):
     @staticmethod
     def parse(xml_node):
         node = AABBTreeNode(
-            children=None,
-            polys=None)
-
-        node.min = parse_vector(xml_node.find('Min'))
-        node.max = parse_vector(xml_node.find('Max'))
+            min=parse_vector(xml_node.find('Min')),
+            max=parse_vector(xml_node.find('Max')))
 
         xml_polys = xml_node.find('Polys')
         if xml_polys is not None:
@@ -129,10 +129,11 @@ W3D_CHUNK_AABBTREE_POLYINDICES = 0x00000092
 W3D_CHUNK_AABBTREE_NODES = 0x00000093
 
 
-class AABBTree(Struct):
-    header = AABBTreeHeader()
-    poly_indices = []
-    nodes = []
+class AABBTree:
+    def __init__(self, header=None, poly_indices=None, nodes=None):
+        self.header = header
+        self.poly_indices = poly_indices if poly_indices is not None else []
+        self.nodes = nodes if nodes is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -144,11 +145,9 @@ class AABBTree(Struct):
             if chunk_type == W3D_CHUNK_AABBTREE_HEADER:
                 result.header = AABBTreeHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_AABBTREE_POLYINDICES:
-                result.poly_indices = read_list(
-                    io_stream, subchunk_end, read_long)
+                result.poly_indices = read_list(io_stream, subchunk_end, read_long)
             elif chunk_type == W3D_CHUNK_AABBTREE_NODES:
-                result.nodes = read_list(
-                    io_stream, subchunk_end, AABBTreeNode.read)
+                result.nodes = read_list(io_stream, subchunk_end, AABBTreeNode.read)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -161,30 +160,23 @@ class AABBTree(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_AABBTREE, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_AABBTREE, io_stream, self.size(False), has_sub_chunks=True)
         self.header.write(io_stream)
 
         if self.poly_indices:
-            write_chunk_head(W3D_CHUNK_AABBTREE_POLYINDICES, io_stream,
-                             long_list_size(self.poly_indices, False))
+            write_chunk_head(W3D_CHUNK_AABBTREE_POLYINDICES, io_stream, long_list_size(self.poly_indices, False))
             write_list(self.poly_indices, io_stream, write_long)
 
         if self.nodes:
             write_chunk_head(
                 W3D_CHUNK_AABBTREE_NODES,
                 io_stream,
-                list_size(
-                    self.nodes,
-                    False))
+                list_size(self.nodes, False))
             write_list(self.nodes, io_stream, AABBTreeNode.write)
 
     @staticmethod
     def parse(xml_aabbtree):
-        result = AABBTree(
-            header=AABBTreeHeader(),
-            poly_indices=[],
-            nodes=[])
+        result = AABBTree(header=AABBTreeHeader())
 
         xml_polyindices = xml_aabbtree.find('PolyIndices')
         if xml_polyindices is not None:

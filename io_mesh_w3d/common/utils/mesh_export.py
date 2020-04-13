@@ -1,8 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import os
+import bpy
 import bmesh
+from mathutils import Vector, Matrix
 from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.structs.mesh import *
@@ -25,30 +26,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT')
 
-        mesh_struct = Mesh(
-            header=MeshHeader(
-                attrs=GEOMETRY_TYPE_NORMAL),
-            vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
-            face_channel_flags=1,
-            user_text='',
-            verts=[],
-            normals=[],
-            tangents=[],
-            bitangents=[],
-            vert_infs=[],
-            triangles=[],
-            shade_ids=[],
-            shaders=[],
-            vert_materials=[],
-            textures=[],
-            material_passes=[],
-            shader_materials=[],
-            multi_bone_skinned=False)
+        mesh_struct = Mesh()
+        mesh_struct.header = MeshHeader(
+            mesh_name=mesh_object.name,
+            container_name=container_name)
 
         header = mesh_struct.header
-        header.mesh_name = mesh_object.name
-        header.container_name = container_name
-
         mesh_struct.user_text = mesh_object.userText
 
         if mesh_object.hide_get():
@@ -153,7 +136,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
                 tx_ids=[i],
-                per_face_tx_coords=[],
                 tx_coords=[Vector((0.0, 0.0))] * len(mesh_struct.verts))
 
             for j, face in enumerate(b_mesh.faces):
@@ -165,15 +147,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         b_mesh.free()
 
         for i, material in enumerate(mesh.materials):
-            mat_pass = MaterialPass(
-                vertex_material_ids=[],
-                shader_ids=[],
-                dcg=[],
-                dig=[],
-                scg=[],
-                shader_material_ids=[],
-                tx_stages=[],
-                tx_coords=[])
+            mat_pass = MaterialPass()
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
@@ -200,11 +174,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     retrieve_vertex_material(material))
 
                 if principled.base_color_texture.image is not None:
-                    info = TextureInfo(
-                        attributes=0,
-                        animation_type=0,
-                        frame_count=0,
-                        frame_rate=0.0)
+                    info = TextureInfo()
                     img = principled.base_color_texture.image
                     filepath = os.path.basename(img.filepath)
                     if filepath == '':
@@ -328,10 +298,7 @@ def calculate_mesh_sphere(mesh):
 
 
 def retrieve_aabbtree(verts):
-    result = AABBTree(
-        header=AABBTreeHeader(),
-        poly_indices=[],
-        nodes=[])
+    result = AABBTree(header=AABBTreeHeader())
 
     compute_aabbtree(result, verts, verts)
     result.header.node_count = len(result.nodes)
@@ -344,7 +311,6 @@ def compute_aabbtree(aabbtree, verts, sublist):
     max = Vector((sublist[0].x, sublist[0].y, sublist[0].z))
 
     for vert in sublist:
-        # print('v: ' + str(vert))
         if vert.x < min.x:
             min.x = vert.x
         if vert.y < min.y:
@@ -359,16 +325,9 @@ def compute_aabbtree(aabbtree, verts, sublist):
         if vert.z > max.z:
             max.z = vert.z
 
-    # print('min: ' + str(min))
-    # print('max: ' + str(max))
-
     delta_x = max.x - min.x
     delta_y = max.y - min.y
     delta_z = max.z - min.z
-
-    # print('delta_x: ' + str(delta_x))
-    # print('delta_y: ' + str(delta_y))
-    # print('delta_z: ' + str(delta_z))
 
     if delta_x > delta_y:
         if delta_x > delta_z:

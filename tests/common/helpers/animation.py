@@ -29,9 +29,9 @@ def get_animation_channel(type=1, pivot=0):
         last_frame=4,
         type=type,
         pivot=pivot,
-        unknown=0,
-        data=[],
-        pad_bytes=[0xff, 0xff, 0xff])
+        unknown=0)
+
+    channel.pad_bytes = [0xff, 0xff, 0xff]
 
     if type == 6:
         channel.vector_len = 4

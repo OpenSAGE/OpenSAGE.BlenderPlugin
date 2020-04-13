@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.mesh_structs.shader_material import *
 from tests.utils import TestCase
 
@@ -36,7 +35,7 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(size, chunkSize)
 
-        actual = ShaderMaterialProperty.read(self, io_stream)
+        ShaderMaterialProperty.read(self, io_stream)
 
     def test_write_invalid_property(self):
         io_stream = io.BytesIO()
@@ -65,8 +64,7 @@ class TestShaderMaterial(TestCase):
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
-        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL,
-                         output, 9, has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, output, 9, has_sub_chunks=True)
 
         write_chunk_head(0x00, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
@@ -118,24 +116,21 @@ class TestShaderMaterial(TestCase):
 
     def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(
-                w3x=True),
+            get_shader_material(w3x=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
     def test_write_read_rgb_colors_xml(self):
         self.write_read_xml_test(
-            get_shader_material(
-                two_tex=True, rgb_colors=True),
+            get_shader_material(two_tex=True, rgb_colors=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
     def test_write_read_xml_two_texture(self):
         self.write_read_xml_test(
-            get_shader_material(
-                two_tex=True),
+            get_shader_material(two_tex=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
@@ -161,7 +156,7 @@ class TestShaderMaterial(TestCase):
         for child in root.find('FXShader'):
             if child.tag != 'Constants':
                 continue
-            for property in child:
-                if property.tag == 'Bool':
-                    value = property.find('Value').text
+            for prop in child:
+                if prop.tag == 'Bool':
+                    value = prop.find('Value').text
                     self.assertTrue(value in ['true', 'false'])

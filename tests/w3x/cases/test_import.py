@@ -1,11 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from shutil import copyfile
+import bpy
 from unittest.mock import patch
 
 from io_mesh_w3d.w3x.import_w3x import *
-from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.mesh import get_mesh
 from tests.common.helpers.hlod import get_hlod

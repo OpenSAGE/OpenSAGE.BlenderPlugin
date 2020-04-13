@@ -1,11 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
-import unittest
-
-from io_mesh_w3d.w3x.io_xml import *
-
 from tests.utils import *
 from tests.mathutils import *
 

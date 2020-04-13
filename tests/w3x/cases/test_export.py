@@ -30,13 +30,7 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
-            meshes=[get_mesh()],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+            meshes=[get_mesh()])
 
         extension = '.w3x'
         file_path = self.outpath() + 'output_skn'
@@ -55,13 +49,7 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
-            meshes=[get_mesh(), get_mesh()],
-            textures=[],
-            boxes=[],
-            dazzles=[],
-            hierarchy=None,
-            hlod=None)
+            meshes=[get_mesh(), get_mesh()])
 
         file_path = self.outpath() + 'output_skn'
         self.set_format('W3X')
@@ -84,14 +72,10 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
-            textures=[],
-            boxes=[],
-            dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 
@@ -116,14 +100,10 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
-            textures=[],
-            boxes=[],
-            dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 
@@ -147,14 +127,11 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
             textures=['texture.xml'],
-            boxes=[],
-            dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 
@@ -176,14 +153,11 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
             textures=['texture.xml'],
-            boxes=[],
-            dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name),
             animation=get_animation(hierarchy_name))
@@ -208,14 +182,11 @@ class TestExportW3X(TestCase):
 
         data_context = DataContext(
             container_name='containerName',
-            rig=None,
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),
                 get_mesh(name='TRUNK')],
             textures=['texture.xml'],
-            boxes=[],
-            dazzles=[],
             hierarchy=get_hierarchy(hierarchy_name),
             hlod=get_hlod('TestModelName', hierarchy_name))
 

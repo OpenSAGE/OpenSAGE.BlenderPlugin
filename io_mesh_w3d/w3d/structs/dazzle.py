@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils.helpers import *
 
 W3D_CHUNK_DAZZLE = 0x00000900
@@ -14,9 +13,10 @@ W3D_CHUNK_DAZZLE_TYPENAME = 0x00000902
 # coordinate-system of the bone will define the direction.
 
 
-class Dazzle(Struct):
-    name_ = ''
-    type_name = ''
+class Dazzle:
+    def __init__(self, name_='', type_name=''):
+        self.name_ = name_
+        self.type_name = type_name
 
     def name(self):
         return self.name_.split('.')[-1]

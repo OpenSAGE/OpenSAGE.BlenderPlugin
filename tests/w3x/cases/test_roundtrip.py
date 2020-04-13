@@ -1,8 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from shutil import copyfile
-
+import bpy
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.w3x.import_w3x import load
 from io_mesh_w3d.import_utils import create_data

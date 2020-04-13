@@ -2,7 +2,6 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.common.structs.rgba import RGBA
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils.helpers import *
 
 W3D_CHUNK_TEXTURE_STAGE = 0x00000048
@@ -11,17 +10,15 @@ W3D_CHUNK_STAGE_TEXCOORDS = 0x0000004A
 W3D_CHUNK_PER_FACE_TEXCOORD_IDS = 0x0000004B
 
 
-class TextureStage(Struct):
-    tx_ids = []
-    per_face_tx_coords = []
-    tx_coords = []
+class TextureStage:
+    def __init__(self, tx_ids=None, per_face_tx_coords=None, tx_coords=None):
+        self.tx_ids = tx_ids if tx_ids is not None else []
+        self.per_face_tx_coords = per_face_tx_coords if per_face_tx_coords is not None else []
+        self.tx_coords = tx_coords if tx_coords is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = TextureStage(
-            tx_ids=[],
-            per_face_tx_coords=[],
-            tx_coords=[])
+        result = TextureStage()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -74,37 +71,29 @@ W3D_CHUNK_SCG = 0x0000003E
 W3D_CHUNK_SHADER_MATERIAL_ID = 0x0000003F
 
 
-class MaterialPass(Struct):
-    vertex_material_ids = []
-    shader_ids = []
-    dcg = []
-    dig = []
-    scg = []
-    shader_material_ids = []
-    tx_stages = []
-    tx_coords = []
+class MaterialPass:
+    def __init__(self, vertex_material_ids=None, shader_ids=None, dcg=None, dig=None, scg=None,
+                 shader_material_ids=None, tx_stages=None, tx_coords=None):
+        self.vertex_material_ids = vertex_material_ids if vertex_material_ids is not None else []
+        self.shader_ids = shader_ids if shader_ids is not None else []
+        self.dcg = dcg if dcg is not None else []
+        self.dig = dig if dig is not None else []
+        self.scg = scg if scg is not None else []
+        self.shader_material_ids = shader_material_ids if shader_material_ids is not None else []
+        self.tx_stages = tx_stages if tx_stages is not None else []
+        self.tx_coords = tx_coords if tx_coords is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
-        result = MaterialPass(
-            vertex_material_ids=[],
-            shader_ids=[],
-            dcg=[],
-            dig=[],
-            scg=[],
-            shader_material_ids=[],
-            tx_stages=[],
-            tx_coords=[])
+        result = MaterialPass()
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
             if chunk_type == W3D_CHUNK_VERTEX_MATERIAL_IDS:
-                result.vertex_material_ids = read_list(
-                    io_stream, subchunk_end, read_ulong)
+                result.vertex_material_ids = read_list(io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_SHADER_IDS:
-                result.shader_ids = read_list(
-                    io_stream, subchunk_end, read_ulong)
+                result.shader_ids = read_list(io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_DCG:
                 result.dcg = read_list(io_stream, subchunk_end, RGBA.read)
             elif chunk_type == W3D_CHUNK_DIG:
@@ -112,14 +101,11 @@ class MaterialPass(Struct):
             elif chunk_type == W3D_CHUNK_SCG:
                 result.scg = read_list(io_stream, subchunk_end, RGBA.read)
             elif chunk_type == W3D_CHUNK_SHADER_MATERIAL_ID:
-                result.shader_material_ids = read_list(
-                    io_stream, subchunk_end, read_ulong)
+                result.shader_material_ids = read_list(io_stream, subchunk_end, read_ulong)
             elif chunk_type == W3D_CHUNK_TEXTURE_STAGE:
-                result.tx_stages.append(
-                    TextureStage.read(context, io_stream, subchunk_end))
+                result.tx_stages.append(TextureStage.read(context, io_stream, subchunk_end))
             elif chunk_type == W3D_CHUNK_STAGE_TEXCOORDS:
-                result.tx_coords = read_list(
-                    io_stream, subchunk_end, read_vector2)
+                result.tx_coords = read_list(io_stream, subchunk_end, read_vector2)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
@@ -137,8 +123,7 @@ class MaterialPass(Struct):
         return size
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_MATERIAL_PASS, io_stream,
-                         self.size(False), has_sub_chunks=True)
+        write_chunk_head(W3D_CHUNK_MATERIAL_PASS, io_stream, self.size(False), has_sub_chunks=True)
 
         if self.vertex_material_ids:
             write_chunk_head(W3D_CHUNK_VERTEX_MATERIAL_IDS, io_stream,
@@ -146,23 +131,19 @@ class MaterialPass(Struct):
             write_list(self.vertex_material_ids, io_stream, write_ulong)
 
         if self.shader_ids:
-            write_chunk_head(W3D_CHUNK_SHADER_IDS, io_stream,
-                             long_list_size(self.shader_ids, False))
+            write_chunk_head(W3D_CHUNK_SHADER_IDS, io_stream, long_list_size(self.shader_ids, False))
             write_list(self.shader_ids, io_stream, write_ulong)
 
         if self.dcg:
-            write_chunk_head(W3D_CHUNK_DCG, io_stream,
-                             list_size(self.dcg, False))
+            write_chunk_head(W3D_CHUNK_DCG, io_stream, list_size(self.dcg, False))
             write_list(self.dcg, io_stream, RGBA.write)
 
         if self.dig:
-            write_chunk_head(W3D_CHUNK_DIG, io_stream,
-                             list_size(self.dig, False))
+            write_chunk_head(W3D_CHUNK_DIG, io_stream, list_size(self.dig, False))
             write_list(self.dig, io_stream, RGBA.write)
 
         if self.scg:
-            write_chunk_head(W3D_CHUNK_SCG, io_stream,
-                             list_size(self.scg, False))
+            write_chunk_head(W3D_CHUNK_SCG, io_stream, list_size(self.scg, False))
             write_list(self.scg, io_stream, RGBA.write)
 
         if self.shader_material_ids:

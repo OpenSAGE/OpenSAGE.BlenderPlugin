@@ -13,24 +13,19 @@ W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS = 0x00000025
 W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 
 
-class PrelitBase(Struct):
-    type = W3D_CHUNK_PRELIT_UNLIT
-
-    mat_info = MaterialInfo()
-    material_passes = []
-    vert_materials = []
-    textures = []
-    shaders = []
+class PrelitBase:
+    def __init__(self, type=W3D_CHUNK_PRELIT_UNLIT, mat_info=MaterialInfo(), material_passes=None,
+                 vert_materials=None, textures=None, shaders=None):
+        self.type = type
+        self.mat_info = mat_info
+        self.material_passes = material_passes if material_passes is not None else []
+        self.vert_materials = vert_materials if vert_materials is not None else []
+        self.textures = textures if textures is not None else []
+        self.shaders = shaders if shaders is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end, type):
-        result = PrelitBase(
-            type=type,
-            version=None,
-            material_passes=[],
-            vert_materials=[],
-            textures=[],
-            shaders=[])
+        result = PrelitBase(type=type)
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
@@ -38,8 +33,7 @@ class PrelitBase(Struct):
             if chunk_type == W3D_CHUNK_MATERIAL_INFO:
                 result.mat_info = MaterialInfo.read(io_stream)
             elif chunk_type == W3D_CHUNK_SHADERS:
-                result.shaders = read_list(
-                    io_stream, subchunk_end, Shader.read)
+                result.shaders = read_list(io_stream, subchunk_end, Shader.read)
             elif chunk_type == W3D_CHUNK_VERTEX_MATERIALS:
                 result.vert_materials = read_chunk_array(
                     context,
@@ -76,12 +70,9 @@ class PrelitBase(Struct):
             write_chunk_head(
                 W3D_CHUNK_VERTEX_MATERIALS,
                 io_stream,
-                list_size(
-                    self.vert_materials,
-                    False),
+                list_size(self.vert_materials, False),
                 has_sub_chunks=True)
-            write_list(self.vert_materials, io_stream,
-                       VertexMaterial.write)
+            write_list(self.vert_materials, io_stream, VertexMaterial.write)
 
         if self.shaders:
             write_chunk_head(W3D_CHUNK_SHADERS, io_stream,
@@ -92,12 +83,9 @@ class PrelitBase(Struct):
             write_chunk_head(
                 W3D_CHUNK_TEXTURES,
                 io_stream,
-                list_size(
-                    self.textures,
-                    False),
+                list_size(self.textures, False),
                 has_sub_chunks=True)
             write_list(self.textures, io_stream, Texture.write)
 
         if self.material_passes:
-            write_list(self.material_passes, io_stream,
-                       MaterialPass.write)
+            write_list(self.material_passes, io_stream, MaterialPass.write)

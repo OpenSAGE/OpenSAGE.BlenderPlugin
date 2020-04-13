@@ -1,16 +1,16 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3x.io_xml import *
 
 
-class VertexInfluence(Struct):
-    bone_idx = 0
-    xtra_idx = 0
-    bone_inf = 0.0
-    xtra_inf = 0.0
+class VertexInfluence:
+    def __init__(self, bone_idx=0, xtra_idx=0, bone_inf=0.0, xtra_inf=0.0):
+        self.bone_idx = bone_idx
+        self.xtra_idx = xtra_idx
+        self.bone_inf = bone_inf
+        self.xtra_inf = xtra_inf
 
     @staticmethod
     def read(io_stream):
@@ -34,9 +34,7 @@ class VertexInfluence(Struct):
     def parse(xml_vertex_influence, xml_vertex_influence2=None):
         result = VertexInfluence(
             bone_idx=int(xml_vertex_influence.get('Bone')),
-            xtra_idx=0,
-            bone_inf=float(xml_vertex_influence.get('Weight')),
-            xtra_inf=0.0)
+            bone_inf=float(xml_vertex_influence.get('Weight')))
 
         if xml_vertex_influence2 is not None:
             result.xtra_idx = int(xml_vertex_influence2.get('Bone'))

@@ -2,8 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-import io
-from shutil import copyfile
+import bmesh
 from os.path import dirname as up
 
 from io_mesh_w3d.common.utils.mesh_export import *

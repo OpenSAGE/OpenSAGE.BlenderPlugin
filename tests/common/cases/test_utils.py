@@ -1,7 +1,10 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
+from bpy_extras import node_shader_utils
 from shutil import copyfile
+from mathutils import Vector, Quaternion
 
 from io_mesh_w3d.export_utils import *
 from io_mesh_w3d.import_utils import *
@@ -23,12 +26,10 @@ class TestUtils(TestCase):
     def test_vertex_material_roundtrip(self):
         mesh = get_mesh()
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.vert_materials:
-            (material, _) = create_material_from_vertex_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_vertex_material(mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -37,8 +38,7 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
-            (material, _) = create_material_from_vertex_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_vertex_material(mesh.name(), source)
             actual = retrieve_vertex_material(material)
             compare_vertex_materials(self, source, actual)
 
@@ -46,12 +46,10 @@ class TestUtils(TestCase):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material()]
 
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, source, actual)
@@ -68,20 +66,18 @@ class TestUtils(TestCase):
         self.assertEqual(1, len(bpy.data.materials))
         self.assertTrue('meshName.NormalMapped.fx' in bpy.data.materials)
 
-        for expected in mesh.shader_materials:
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled)
+        for i, expected in enumerate(mesh.shader_materials):
+            principled = node_shader_utils.PrincipledBSDFWrapper(materials[i], is_readonly=True)
+            actual = retrieve_shader_material(self, materials[i], principled)
             compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_roundtrip(self):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(w3x=True)]
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.dds')
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
@@ -91,8 +87,7 @@ class TestUtils(TestCase):
         mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
 
@@ -108,8 +103,7 @@ class TestUtils(TestCase):
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
@@ -132,8 +126,7 @@ class TestUtils(TestCase):
         for source in mesh.shader_materials:
             source.properties = get_shader_material_properties_minimal()
 
-            (material, principled) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
             actual = retrieve_shader_material(self, material, principled)
             source.properties[2].type = 5
             source.properties[2].value = get_vec4(x=1.0, y=0.2, z=0.33, w=1.0)
@@ -146,8 +139,7 @@ class TestUtils(TestCase):
             source.header.type_name = 'LoremIpsum'
             source.properties = []
 
-            (material, principled) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'DefaultW3D.fx'
             compare_shader_materials(self, source, actual)
@@ -158,8 +150,7 @@ class TestUtils(TestCase):
         for source in mesh.shader_materials:
             source.header.type_name = 'LoremIpsum'
 
-            (material, principled) = create_material_from_shader_material(
-                self, mesh.name(), source)
+            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'NormalMapped.fx'
             compare_shader_materials(self, source, actual)
@@ -167,8 +158,7 @@ class TestUtils(TestCase):
     def test_shader_roundtrip(self):
         mesh = get_mesh()
 
-        (material, _) = create_material_from_vertex_material(
-            self, mesh.name(), mesh.vert_materials[0])
+        (material, _) = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -176,12 +166,10 @@ class TestUtils(TestCase):
 
     def test_boxes_roundtrip(self):
         hlod = get_hlod()
-        hlod.lod_arrays[0].sub_objects.append(
-            get_hlod_sub_object(bone=1, name='containerName.WORLDBOX'))
+        hlod.lod_arrays[0].sub_objects.append(get_hlod_sub_object(bone=1, name='containerName.WORLDBOX'))
         hierarchy = get_hierarchy()
         meshes = []
-        boxes = [get_collision_box(), get_collision_box(
-            'containerName.WORLDBOX')]
+        boxes = [get_collision_box(), get_collision_box('containerName.WORLDBOX')]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
@@ -292,8 +280,6 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, [])
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-
         self.compare_data([], None, hierarchy)
 
     def test_too_many_hierarchies_roundtrip(self):
@@ -309,7 +295,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy, boxes)
         coll = get_collection(hlod)
-        rig2 = get_or_create_skeleton(hlod, hierarchy2, coll)
+        get_or_create_skeleton(hlod, hierarchy2, coll)
 
         self.assertEqual(2, len(get_objects('ARMATURE')))
 
@@ -745,17 +731,18 @@ class TestUtils(TestCase):
 
     def compare_data(
             self,
-            meshes=[],
+            meshes=None,
             hlod=None,
             hierarchy=None,
-            boxes=[],
+            boxes=None,
             animation=None,
             compressed_animation=None,
-            dazzles=[]):
+            dazzles=None):
+        meshes = meshes if meshes is not None else []
+        boxes = boxes if boxes is not None else []
+        dazzles = dazzles if dazzles is not None else []
+
         container_name = 'containerName'
-        rig = None
-        actual_hiera = None
-        actual_hlod = None
 
         (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:

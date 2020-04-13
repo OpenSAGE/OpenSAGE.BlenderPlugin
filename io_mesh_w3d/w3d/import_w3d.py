@@ -88,15 +88,7 @@ def load_file(context, data_context, path=None):
 
 
 def load(context):
-    data_context = DataContext(
-        meshes=[],
-        dazzles=[],
-        textures=[],
-        collision_boxes=[],
-        hierarchy=None,
-        hlod=None,
-        animation=None,
-        compressed_animation=None)
+    data_context = DataContext()
 
     load_file(context, data_context)
 

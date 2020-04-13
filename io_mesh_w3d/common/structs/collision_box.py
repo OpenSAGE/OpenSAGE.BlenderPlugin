@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.common.structs.rgba import RGBA
-from io_mesh_w3d.struct import Struct
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3x.io_xml import *
@@ -10,15 +10,17 @@ from io_mesh_w3d.w3x.io_xml import *
 W3D_CHUNK_BOX = 0x00000740
 
 
-class CollisionBox(Struct):
-    version = Version()
-    box_type = 0
-    collision_types = 0
-    name_ = 'containerName.BOUNDINGBOX'
-    color = RGBA()
-    center = Vector((0.0, 0.0, 0.0))
-    extend = Vector((0.0, 0.0, 0.0))
-    joypad_picking_only = False
+class CollisionBox:
+    def __init__(self, version=Version(), box_type=0, collision_types=0, name_='', color=RGBA(),
+                 center=Vector((0.0, 0.0, 0.0)), extend=Vector((0.0, 0.0, 0.0)), joypad_picking_only=False):
+        self.version = version
+        self.box_type = box_type
+        self.collision_types = collision_types
+        self.name_ = name_
+        self.color = color
+        self.center = center
+        self.extend = extend
+        self.joypad_picking_only = joypad_picking_only
 
     def validate(self, context):
         if context.file_format == 'W3X':
@@ -55,8 +57,7 @@ class CollisionBox(Struct):
         write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size(False))
 
         self.version.write(io_stream)
-        write_ulong((self.collision_types & 0xFF)
-                    | (self.box_type & 0b11), io_stream)
+        write_ulong((self.collision_types & 0xFF) | (self.box_type & 0b11), io_stream)
         write_long_fixed_string(self.name_, io_stream)
         self.color.write(io_stream)
         write_vector(self.center, io_stream)

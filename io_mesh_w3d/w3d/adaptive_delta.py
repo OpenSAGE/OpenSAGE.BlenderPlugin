@@ -74,15 +74,15 @@ def decode(channel):
     data = channel.data.data
     scale = channel.data.scale
 
-    scaleFactor = 1.0
+    scale_factor = 1.0
     if data.bit_count == 8:
-        scaleFactor /= 16.0
+        scale_factor /= 16.0
 
     result = [None] * channel.num_time_codes
     result[0] = data.initial_value
 
     for i, delta_block in enumerate(data.delta_blocks):
-        deltaScale = scale * scaleFactor * DELTA_TABLE[delta_block.block_index]
+        delta_scale = scale * scale_factor * DELTA_TABLE[delta_block.block_index]
         deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
 
         for j, delta in enumerate(deltas):
@@ -93,19 +93,19 @@ def decode(channel):
             if channel.type == 6:
                 # shift from wxyz to xyzw
                 index = (delta_block.vector_index + 1) % 4
-                value = result[idx - 1][index] + deltaScale * delta
+                value = result[idx - 1][index] + delta_scale * delta
                 if result[idx] is None:
                     result[idx] = result[idx - 1].copy()
                 result[idx][index] = value
             else:
-                result[idx] = result[idx - 1] + deltaScale * delta
+                result[idx] = result[idx - 1] + delta_scale * delta
     return result
 
 
 def encode(channel, num_bits):
-    scaleFactor = 1.0
+    scale_factor = 1.0
     if num_bits == 8:
-        scaleFactor /= 16.0
+        scale_factor /= 16.0
 
     scale = 0.07435  # how to get this ???
 
@@ -123,10 +123,10 @@ def encode(channel, num_bits):
         block_index = 33  # how to get this one?
 
         old = default_value
-        if i > 1:
-            channel.data[i - 1]
+        # if i > 1:
+        #    channel.data[i - 1]
         delta = value - old
-        delta /= (scaleFactor * scale * DELTA_TABLE[block_index])
+        delta /= (scale_factor * scale * DELTA_TABLE[block_index])
 
         delta = int(delta)
         # print("delta: " + str(delta) + " index: " + str(block_index))

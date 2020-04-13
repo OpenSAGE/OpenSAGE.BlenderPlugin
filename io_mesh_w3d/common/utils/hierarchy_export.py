@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.structs.hierarchy import *
 
@@ -20,15 +21,11 @@ def create_pivot_subtree(pivot, pivots, hierarchy):
 
 
 def retrieve_hierarchy(context, container_name):
-    root = HierarchyPivot(
-        name='ROOTTRANSFORM',
-        parentID=-1,
-        translation=Vector())
+    root = HierarchyPivot(name='ROOTTRANSFORM')
 
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
-        pivots=[root],
-        pivot_fixups=[])
+        pivots=[root])
 
     rig = None
     rigs = get_objects('ARMATURE')
@@ -49,9 +46,7 @@ def retrieve_hierarchy(context, container_name):
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:
-            pivot = HierarchyPivot(
-                name=bone.name,
-                parent_id=0)
+            pivot = HierarchyPivot(name=bone.name, parent_id=0)
 
             matrix = bone.matrix
 

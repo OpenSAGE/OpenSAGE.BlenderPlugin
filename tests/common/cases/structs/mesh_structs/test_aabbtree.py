@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 from tests.common.helpers.mesh_structs.aabbtree import *
 from tests.utils import TestCase
 
@@ -13,26 +12,14 @@ class TestAABBTree(TestCase):
         self.assertEqual(40, expected.header.size())
         self.assertEqual(1284, expected.size())
 
-        self.write_read_test(
-            expected,
-            W3D_CHUNK_AABBTREE,
-            AABBTree.read,
-            compare_aabbtrees,
-            self,
-            True)
+        self.write_read_test(expected, W3D_CHUNK_AABBTREE, AABBTree.read, compare_aabbtrees, self, True)
 
     def test_write_read_empty(self):
         expected = get_aabbtree_empty()
 
         self.assertEqual(40, expected.header.size())
 
-        self.write_read_test(
-            expected,
-            W3D_CHUNK_AABBTREE,
-            AABBTree.read,
-            compare_aabbtrees,
-            self,
-            True)
+        self.write_read_test(expected, W3D_CHUNK_AABBTREE, AABBTree.read, compare_aabbtrees, self, True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

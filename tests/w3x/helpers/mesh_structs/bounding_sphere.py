@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+from mathutils import Vector
 from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
 
 

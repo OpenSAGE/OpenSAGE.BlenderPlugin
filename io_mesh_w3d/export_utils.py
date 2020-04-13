@@ -1,10 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bmesh
-import bpy
-from bpy_extras import node_shader_utils
-
 from io_mesh_w3d.common.structs.data_context import *
 
 from io_mesh_w3d.common.utils.mesh_export import *
