@@ -2,10 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import NodeSocket
+from bpy.types import NodeSocketInt, NodeSocketInterfaceInt
 
 
-class NodeSocketEnum(NodeSocket):
+class NodeSocketEnum(NodeSocketInt, metaclass=NodeSocketInterfaceInt):
     bl_idname = 'NodeSocketEnum'
     bl_label = 'Enum Node Socket'
 

@@ -20,18 +20,22 @@ class NodeGroupCreator():
                 node.outputs[id].hide = True
 
 
-    def process_default_value(self, socket, default):
+    def process_default_value(self, socket, type, default):
         if default is None:
             return
-        if socket.type == 'VALUE':
+        if type in ['NodeSocketFloat', 'NodeSocketTextureAlpha']:
             default = float(default)
-        elif socket.type == 'INT':
+        elif type == 'NodeSocketInt':
             default = int(default)
-        elif socket.type == 'BOOLEAN':
-            default = int(default)
-        elif socket.type == 'RGBA':
+        elif type == 'NodeSocketBool':
+            default = default in ['True', 'true']
+        elif type == 'NodeSocketColor':
             values = default.split(',')
             default = Vector((float(values[0]), float(values[1]), float(values[2]), float(values[3])))
+        else:
+            print(type)
+            return
+        print(type)
         socket.default_value = default
 
 
@@ -55,11 +59,11 @@ class NodeGroupCreator():
         socket.max_value = max
 
 
-    def process_presets(self, socket, xml_node, name=None):
+    def process_presets(self, socket, type, xml_node, name=None):
         if name is None:
             name = xml_node.get('name', xml_node.get('id'))
 
-        self.process_default_value(socket, xml_node.get('default'))
+        self.process_default_value(socket, type, xml_node.get('default'))
         self.process_min_value(socket, xml_node.get('min'))
         self.process_max_value(socket, xml_node.get('max'))
 
@@ -72,7 +76,7 @@ class NodeGroupCreator():
             name = child_node.get('name')
 
             socket = node_tree.inputs.new(type, name)
-            self.process_presets(socket, child_node, name)
+            self.process_presets(socket, type, child_node, name)
 
 
     def create_output_node(self, node_tree, xml_node, node):
@@ -124,7 +128,7 @@ class NodeGroupCreator():
                     self.create_output_node(node_tree, xml_node, node)
                 elif type == 'ShaderNodeMath':
                     node.operation = xml_node.get('mode').upper()
-                    self.process_presets(node_tree, xml_node)
+                    # self.process_presets(node_tree, type, xml_node)
                 elif type in ['ShaderNodeEeveeSpecular', 'ShaderNodeNormalMap', 'ShaderNodeSeparateHSV']:
                     continue
                 else:

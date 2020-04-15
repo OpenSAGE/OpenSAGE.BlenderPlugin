@@ -83,14 +83,13 @@ class VertexMaterialGroup():
         group_inputs.location = (-350,0)
 
         group.inputs.new('NodeSocketMaterialAttributes', 'Attributes')
-        group.inputs.new('NodeSocketSurfaceType', 'Surface type')
         group.inputs.new('NodeSocketString', 'VM_ARGS_0')
         group.inputs.new('NodeSocketString', 'VM_ARGS_1')
         group.inputs.new('NodeSocketColor', 'Diffuse')
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketTexture', 'DiffuseTexture')
-        group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
-        group.inputs['DiffuseTextureAlpha'].default_value = 0.0
+        group.inputs.new('NodeSocketTextureAlpha', 'DiffuseTextureAlpha')
+        #  group.inputs['DiffuseTextureAlpha'].default_value = 0.0
         VertexMaterialGroup.addInputInt(group, 'DestBlend', max=1)
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)

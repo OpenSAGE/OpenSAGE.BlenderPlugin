@@ -2,10 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import NodeSocket
+from bpy.types import NodeSocketFloat, NodeSocketInterfaceFloat
 
 
-class NodeSocketTextureAlpha(NodeSocket):
+class NodeSocketTextureAlpha(NodeSocketInterfaceFloat, NodeSocketFloat):
     bl_idname = 'NodeSocketTextureAlpha'
     bl_label = 'Texture Alpha Node Socket'
 

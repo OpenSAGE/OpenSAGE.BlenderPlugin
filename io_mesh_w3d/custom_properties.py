@@ -3,23 +3,15 @@
 
 import bpy
 from bpy.props import *
-from bpy.types import Mesh, Bone, MeshPolygon, NodeSocket
-
-
-NodeSocket.presets = CollectionProperty(
-    type=None,
-    name="",
-    description="",
-    options={'ANIMATABLE'},
-    tags={})
+from bpy.types import Mesh, Bone, Material
 
 
 ##########################################################################
-# Mesh
+# Material
 ##########################################################################
 
 
-MeshPolygon.surface_type = EnumProperty(
+Material.surface_type = EnumProperty(
         name="Surface type",
         description="Describes the surface type for this face",
         items=[

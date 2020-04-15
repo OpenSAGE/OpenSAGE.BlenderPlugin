@@ -257,17 +257,17 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(context.active_bone, 'visibility')
 
 
-class MESH_POLYGON_PROPERTIES_PANEL_PT_w3d(Panel):
+class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
-    bl_region_type = 'PANEL'
-    bl_context = 'mesh polygon'
+    bl_region_type = 'WINDOW'
+    bl_context = 'material'
 
     def draw(self, context):
         layout = self.layout
-        if context.active_polygon is not None:
-            col = layout.column()
-            col.prop(context.active_bone, 'visibility')
+        mat = context.object.active_material
+        col = layout.column()
+        col.prop(mat, 'surface_type')
 
 
 import nodeitems_utils
