@@ -2,24 +2,26 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import NodeSocketFloat, NodeSocketInterfaceFloat
+from bpy.types import NodeSocketFloat
 
 
-class NodeSocketTextureAlpha(NodeSocketInterfaceFloat, NodeSocketFloat):
+class NodeSocketTextureAlpha(NodeSocketFloat):
     bl_idname = 'NodeSocketTextureAlpha'
     bl_label = 'Texture Alpha Node Socket'
 
-    float_prop: bpy.props.FloatProperty(
+    default_value: bpy.props.FloatProperty(
         name='Texture Alpha',
-        default=1.0,
-        min=0.0, max=1.0,
-        description='Texture alpha property')
+        description='the alpha value of a texture',
+        default=1.0)
 
     def draw(self, context, layout, node, text):
         if self.is_output or self.is_linked:
             layout.label(text=text)
         else:
-            layout.prop(self, "float_prop", text=text)
+            layout.prop(self, 'default_value', text=text)
+
+    def draw(self, context, layout, node, text):
+        layout.label(text=text)
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.216, 0.5)

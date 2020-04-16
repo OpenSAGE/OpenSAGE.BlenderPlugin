@@ -2,14 +2,14 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import NodeSocketInt, NodeSocketInterfaceInt
+from bpy.types import NodeSocketInt
 
 
-class NodeSocketEnum(NodeSocketInt, metaclass=NodeSocketInterfaceInt):
+class NodeSocketEnum(NodeSocketInt):
     bl_idname = 'NodeSocketEnum'
     bl_label = 'Enum Node Socket'
 
-    my_enum_prop: bpy.props.EnumProperty(
+    default_value: bpy.props.EnumProperty(
         name="Direction",
         description="Just an example",
         items=[
@@ -23,16 +23,16 @@ class NodeSocketEnum(NodeSocketInt, metaclass=NodeSocketInterfaceInt):
         if self.is_output or self.is_linked:
             layout.label(text=text)
         else:
-            layout.prop(self, "my_enum_prop", text=text)
+            layout.prop(self, 'default_value', text=text)
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.216, 0.5)
 
 class NodeSocketMaterialAttributes(NodeSocketEnum):
     bl_idname = 'NodeSocketMaterialAttributes'
-    bl_label = "Material Attributes Enum Flag Node Socket"
+    bl_label = 'Material Attributes Enum Flag Node Socket'
 
-    my_enum_prop: bpy.props.EnumProperty(
+    default_value: bpy.props.EnumProperty(
         name='Attributes',
         description='Attributes that define the behaviour of this material',
         items=[

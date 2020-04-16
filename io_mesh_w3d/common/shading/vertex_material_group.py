@@ -18,15 +18,14 @@ class VertexMaterialGroup():
         instance.label = vert_mat.vm_name
 
         attributes = {'DEFAULT'}
-        attributes = vert_mat.vm_info.attributes
         if vert_mat.vm_info.attributes & USE_DEPTH_CUE:
-            material.attributes.add('USE_DEPTH_CUE')
+            attributes.add('USE_DEPTH_CUE')
         if vert_mat.vm_info.attributes & ARGB_EMISSIVE_ONLY:
-            material.attributes.add('ARGB_EMISSIVE_ONLY')
+            attributes.add('ARGB_EMISSIVE_ONLY')
         if vert_mat.vm_info.attributes & COPY_SPECULAR_TO_DIFFUSE:
-            material.attributes.add('COPY_SPECULAR_TO_DIFFUSE')
+            attributes.add('COPY_SPECULAR_TO_DIFFUSE')
         if vert_mat.vm_info.attributes & DEPTH_CUE_TO_ALPHA:
-            material.attributes.add('DEPTH_CUE_TO_ALPHA')
+            attributes.add('DEPTH_CUE_TO_ALPHA')
 
         instance.inputs['Attributes'].default_value = attributes
 
@@ -89,7 +88,6 @@ class VertexMaterialGroup():
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketTexture', 'DiffuseTexture')
         group.inputs.new('NodeSocketTextureAlpha', 'DiffuseTextureAlpha')
-        #  group.inputs['DiffuseTextureAlpha'].default_value = 0.0
         VertexMaterialGroup.addInputInt(group, 'DestBlend', max=1)
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)

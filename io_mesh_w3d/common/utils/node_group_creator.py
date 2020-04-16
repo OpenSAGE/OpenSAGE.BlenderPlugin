@@ -33,7 +33,6 @@ class NodeGroupCreator():
             values = default.split(',')
             default = Vector((float(values[0]), float(values[1]), float(values[2]), float(values[3])))
         else:
-            print(type)
             return
         print(type)
         socket.default_value = default
@@ -74,6 +73,9 @@ class NodeGroupCreator():
                 continue
             type = child_node.get('type')
             name = child_node.get('name')
+
+            if type == 'NodeSocketTextureAlpha':
+                type = 'NodeSocketFloat'
 
             socket = node_tree.inputs.new(type, name)
             self.process_presets(socket, type, child_node, name)
