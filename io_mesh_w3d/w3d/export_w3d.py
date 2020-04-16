@@ -6,6 +6,7 @@ def save(context, export_settings, data_context):
     filepath = context.filepath
     if not filepath.lower().endswith(context.filename_ext):
         filepath += context.filename_ext
+
     context.info('Saving file :' + filepath)
 
     export_mode = export_settings['mode']

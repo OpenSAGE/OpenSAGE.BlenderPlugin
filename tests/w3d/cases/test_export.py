@@ -13,6 +13,20 @@ from tests.utils import *
 
 
 class TestExportW3D(TestCase):
+    def test_does_not_apply_extension_if_already_there(self):
+        export_settings = {'mode': 'M', 'compression': 'U'}
+
+        data_context = DataContext(
+            container_name='containerName',
+            meshes=[get_mesh()])
+
+        self.filepath = self.outpath() + 'output_skn.w3d'
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertTrue(os.path.exists(self.filepath))
+        self.assertFalse(os.path.exists(self.filepath + '.w3d'))
+
     def test_only_mesh_chunk_is_written_if_mode_M(self):
         export_settings = {'mode': 'M', 'compression': 'U'}
 

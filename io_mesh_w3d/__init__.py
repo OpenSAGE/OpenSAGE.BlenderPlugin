@@ -5,10 +5,12 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.custom_properties import *
 
+VERSION = (0, 4, 6)
+
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 4, 6),
+    'version': VERSION,
     "blender": (2, 82, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
@@ -97,6 +99,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         print('INFO: ' + str(msg))
         self.report({'INFO'}, str(msg))
 
+    def print_version(self):
+        self.info('plugin version: ' + str(VERSION).replace('(', '').replace(')', '').replace(',', '.').replace(' ', ''))
+
     def warning(self, msg):
         print('WARNING: ' + str(msg))
         self.report({'WARNING'}, str(msg))
@@ -128,6 +133,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
+        self.print_version()
         if self.will_save_settings:
             self.save_settings(context)
 
@@ -195,6 +201,9 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         print('INFO: ' + str(msg))
         self.report({'INFO'}, str(msg))
 
+    def print_version(self):
+        self.info('plugin version: ' + str(VERSION).replace('(', '').replace(')', '').replace(',', '.').replace(' ', ''))
+
     def warning(self, msg):
         print('WARNING: ' + str(msg))
         self.report({'WARNING'}, str(msg))
@@ -204,6 +213,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         self.report({'ERROR'}, str(msg))
 
     def execute(self, context):
+        self.print_version()
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
             load(self)
