@@ -1,4 +1,5 @@
 v0.4.6
+- support custom node sockets
 - support alpha values of textures
 - support for custom shaders via xml templates
 - support prelit materials and multiple material passes

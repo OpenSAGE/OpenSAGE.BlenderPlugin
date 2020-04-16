@@ -5,7 +5,7 @@
     <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
     <input name="ColorDiffuse" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="Texture_0" type="NodeSocketTexture"/>
-    <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha" default="1.0"/>
+    <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha"/>
     <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>
     <input name="ColorAmbient" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="ColorSpecular" type="NodeSocketColor"/>
