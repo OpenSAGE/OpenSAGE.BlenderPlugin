@@ -6,39 +6,39 @@ from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3x.io_xml import *
 
 
-surface_types = {
-    '0': 'LightMetal',
-    '1': 'HeavyMetal',
-    '2': 'Water',
-    '3': 'Sand',
-    '4': 'Dirt',
-    '5': 'Mud',
-    '6': 'Grass',
-    '7': 'Wood',
-    '8': 'Concrete',
-    '9': 'Flesh',
-    '10': 'Rock',
-    '11': 'Snow',
-    '12': 'Ice',
-    '13': 'Default',
-    '14': 'Glass',
-    '15': 'Cloth',
-    '16': 'TiberiumField',
-    '17': 'FoliagePermeable',
-    '18': 'GlassPermeable',
-    '19': 'IcePermeable',
-    '20': 'ClothPermeable',
-    '21': 'Electrical',
-    '22': 'Flammable',
-    '23': 'Steam',
-    '24': 'ElectricalPermeable',
-    '25': 'FlammablePermeable',
-    '26': 'SteamPermeable',
-    '27': 'WaterPermeable',
-    '28': 'TiberiumWater',
-    '29': 'TiberiumWaterPermeable',
-    '30': 'UnderwaterDirt',
-    '31': 'UnderwaterTiberiumDirt'}
+surface_types = [
+    'LightMetal',
+    'HeavyMetal',
+    'Water',
+    'Sand',
+    'Dirt',
+    'Mud',
+    'Grass',
+    'Wood',
+    'Concrete',
+    'Flesh',
+    'Rock',
+    'Snow',
+    'Ice',
+    'Default',
+    'Glass',
+    'Cloth',
+    'TiberiumField',
+    'FoliagePermeable',
+    'GlassPermeable',
+    'IcePermeable',
+    'ClothPermeable',
+    'Electrical',
+    'Flammable',
+    'Steam',
+    'ElectricalPermeable',
+    'FlammablePermeable',
+    'SteamPermeable',
+    'WaterPermeable',
+    'TiberiumWater',
+    'TiberiumWaterPermeable',
+    'UnderwaterDirt',
+    'UnderwaterTiberiumDirt']
 
 
 
@@ -48,6 +48,9 @@ class Triangle:
         self.surface_type = surface_type
         self.normal = normal
         self.distance = distance
+
+    def get_surface_type_name(self):
+        return surface_types[self.surface_type]
 
     @staticmethod
     def read(io_stream):

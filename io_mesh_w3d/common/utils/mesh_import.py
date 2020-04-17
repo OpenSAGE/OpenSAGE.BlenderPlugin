@@ -15,10 +15,10 @@ def create_mesh(context, mesh_struct, coll):
     mesh.from_pydata(mesh_struct.verts, [], triangles)
 
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    mesh.use_auto_smooth = True
+    #mesh.use_auto_smooth = True
 
-    mesh.update()
-    mesh.validate()
+    #mesh.update()
+    #mesh.validate()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
     #mesh_ob.object_type = 'NORMAL'
@@ -26,6 +26,14 @@ def create_mesh(context, mesh_struct, coll):
     mesh_ob.use_empty_image_alpha = True
 
     link_object_to_active_scene(mesh_ob, coll)
+
+    # TODO: fix this and implement export
+    for i, triangle in enumerate(mesh_struct.triangles):
+        surface_type_name = triangle.get_surface_type_name()
+        if surface_type_name not in mesh_ob.face_maps:
+            mesh_ob.face_maps.new(name=surface_type_name)
+
+        mesh_ob.face_maps[surface_type_name].add(triangle.vert_ids)
 
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
@@ -75,7 +83,6 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
         modifier.use_vertex_groups = True
 
         mesh.normals_split_custom_set_from_vertices(normals)
-        mesh.use_auto_smooth = True
 
         mesh.update()
         mesh.validate()

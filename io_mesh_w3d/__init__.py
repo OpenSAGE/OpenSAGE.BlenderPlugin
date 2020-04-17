@@ -270,11 +270,23 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(mat, 'surface_type')
 
 
+import nodeitems_utils
+from nodeitems_utils import NodeCategory, NodeItem
+
+
+node_categories = [
+    NodeCategory('W3D nodes', 'W3D nodes', items=[
+        NodeItem('DecisionNode'),
+    ])
+]
+
+
 from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
 from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
 from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketMaterialAttributes
+from io_mesh_w3d.common.shading.node_decision import DecisionNode
 
 
 CLASSES = (
@@ -283,6 +295,7 @@ CLASSES = (
     NodeSocketVector2,
     NodeSocketVector4,
     NodeSocketMaterialAttributes,
+    DecisionNode,
     ExportW3D,
     ImportW3D,
     MESH_PROPERTIES_PANEL_PT_w3d,
@@ -307,6 +320,8 @@ def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
 
+    nodeitems_utils.register_node_categories('CUSTOM_NODES', node_categories)
+
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
@@ -323,6 +338,9 @@ def unregister():
 
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
+
+    nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
+
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
