@@ -368,7 +368,7 @@ class Mesh:
             result.header.attrs |= GEOMETRY_TYPE_SKIN
 
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
-                                           | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
+            | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
         result.material_passes = [MaterialPass(shader_material_ids=[0])]
         result.mat_info = MaterialInfo(pass_count=len(result.material_passes))

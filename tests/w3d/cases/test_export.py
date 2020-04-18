@@ -88,7 +88,7 @@ class TestExportW3D(TestCase):
         hierarchy_name = 'TestHiera_SKL'
 
         data_context = DataContext(
-            container_name = 'containerName',
+            container_name='containerName',
             meshes=[
                 get_mesh(name='sword', skin=True),
                 get_mesh(name='soldier', skin=True),

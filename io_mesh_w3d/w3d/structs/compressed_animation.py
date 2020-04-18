@@ -163,7 +163,7 @@ class AdaptiveDeltaData:
 
     def write(self, io_stream, type):
         write_channel_value(self.initial_value, io_stream, type)
-        write_list(self.delta_blocks, io_stream,AdaptiveDeltaBlock.write)
+        write_list(self.delta_blocks, io_stream, AdaptiveDeltaBlock.write)
 
 
 class AdaptiveDeltaAnimationChannel:

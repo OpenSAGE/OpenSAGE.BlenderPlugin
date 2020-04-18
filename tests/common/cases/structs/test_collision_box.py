@@ -37,5 +37,5 @@ class TestCollisionBox(TestCase):
         self.assertEqual('BOUNDINGBOX', box.name())
 
     def test_write_read_xml(self):
-        self.write_read_xml_test(get_collision_box( xml=True), 'W3DCollisionBox', CollisionBox.parse,
+        self.write_read_xml_test(get_collision_box(xml=True), 'W3DCollisionBox', CollisionBox.parse,
                                  compare_collision_boxes, self)
