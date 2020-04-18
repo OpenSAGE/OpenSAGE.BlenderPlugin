@@ -22,8 +22,8 @@ bl_info = {
 
 
 def print_version(info):
-    version = str(VERSION).replace('(','').replace(')','')
-    version = version.replace(',','.').replace(' ','')
+    version = str(VERSION).replace('(', '').replace(')', '')
+    version = version.replace(',', '.').replace(' ', '')
     info('plugin version: ' + version)
 
 
