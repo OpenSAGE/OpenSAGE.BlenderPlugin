@@ -77,7 +77,7 @@ def retrieve_hierarchy(context, container_name):
 
     for mesh in list(reversed(meshes)):
         if mesh.vertex_groups \
-                or mesh.object_type == 'BOX' \
+                or mesh.data.object_type == 'BOX' \
                 or mesh.name in pick_plane_names:
             continue
 

@@ -9,7 +9,7 @@ def retrieve_dazzles(container_name):
     dazzles = []
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'DAZZLE':
+        if mesh_object.data.object_type != 'DAZZLE':
             continue
         name = container_name + '.' + mesh_object.name
         dazzle = Dazzle(

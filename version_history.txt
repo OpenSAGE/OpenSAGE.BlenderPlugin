@@ -4,6 +4,7 @@ v0.4.6
 - support for custom shaders via xml templates
 - support prelit materials and multiple material passes
 - support for per face materials
+- support for per face surface types via face maps
 - support for vertex colors
 - apply modifiers to meshes on export
 - handle export of 'multi-user' meshes

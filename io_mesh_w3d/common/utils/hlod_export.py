@@ -25,7 +25,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
             name=mesh.name,
             identifier=container_name + '.' + mesh.name,
             bone_index=0,
-            is_box=mesh.object_type == 'BOX')
+            is_box=mesh.data.object_type == 'BOX')
 
         if not mesh.vertex_groups:
             for index, pivot in enumerate(hierarchy.pivots):

@@ -20,7 +20,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'NORMAL':
+        if mesh_object.data.object_type != 'NORMAL':
             continue
 
         if mesh_object.mode != 'OBJECT':
@@ -32,7 +32,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             container_name=container_name)
 
         header = mesh_struct.header
-        mesh_struct.user_text = mesh_object.userText
+        mesh_struct.user_text = mesh_object.data.userText
 
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
@@ -78,8 +78,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     context.warning('max 2 bone influences per vertex supported!')
 
             (_, _, scale) = mesh_object.matrix_local.decompose()
-            scaled_vert = vertex.co * scale.x
-            mesh_struct.verts.append(matrix @ scaled_vert)
+            vertex.co.x *= scale.x
+            vertex.co.y *= scale.y
+            vertex.co.z *= scale.z
+            mesh_struct.verts.append(matrix @ vertex.co)
 
             (_, rotation, _) = matrix.decompose()
 
