@@ -100,7 +100,17 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         self.report({'INFO'}, str(msg))
 
     def print_version(self):
-        self.info('plugin version: ' + str(VERSION).replace('(', '').replace(')', '').replace(',', '.').replace(' ', ''))
+        self.info(
+            'plugin version: ' +
+            str(VERSION).replace(
+                '(',
+                '').replace(
+                ')',
+                '').replace(
+                ',',
+                '.').replace(
+                    ' ',
+                ''))
 
     def warning(self, msg):
         print('WARNING: ' + str(msg))
@@ -202,7 +212,17 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         self.report({'INFO'}, str(msg))
 
     def print_version(self):
-        self.info('plugin version: ' + str(VERSION).replace('(', '').replace(')', '').replace(',', '.').replace(' ', ''))
+        self.info(
+            'plugin version: ' +
+            str(VERSION).replace(
+                '(',
+                '').replace(
+                ')',
+                '').replace(
+                ',',
+                '.').replace(
+                    ' ',
+                ''))
 
     def warning(self, msg):
         print('WARNING: ' + str(msg))
