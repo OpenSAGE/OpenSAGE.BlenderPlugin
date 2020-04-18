@@ -21,6 +21,12 @@ bl_info = {
     'category': 'Import-Export'}
 
 
+def print_version(info):
+    version = str(VERSION).replace('(','').replace(')','')
+    version = version.replace(',','.').replace(' ','')
+    info('plugin version: ' + version)
+
+
 class ExportW3D(bpy.types.Operator, ExportHelper):
     '''Export to Westwood 3D file format (.w3d/.w3x)'''
     bl_idname = 'export_mesh.westwood_w3d'
@@ -99,19 +105,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         print('INFO: ' + str(msg))
         self.report({'INFO'}, str(msg))
 
-    def print_version(self):
-        self.info(
-            'plugin version: ' +
-            str(VERSION).replace(
-                '(',
-                '').replace(
-                ')',
-                '').replace(
-                ',',
-                '.').replace(
-                    ' ',
-                ''))
-
     def warning(self, msg):
         print('WARNING: ' + str(msg))
         self.report({'WARNING'}, str(msg))
@@ -143,7 +136,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         context.scene[self.scene_key] = export_props
 
     def execute(self, context):
-        self.print_version()
+        print_version(self.info)
         if self.will_save_settings:
             self.save_settings(context)
 
@@ -211,19 +204,6 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         print('INFO: ' + str(msg))
         self.report({'INFO'}, str(msg))
 
-    def print_version(self):
-        self.info(
-            'plugin version: ' +
-            str(VERSION).replace(
-                '(',
-                '').replace(
-                ')',
-                '').replace(
-                ',',
-                '.').replace(
-                    ' ',
-                ''))
-
     def warning(self, msg):
         print('WARNING: ' + str(msg))
         self.report({'WARNING'}, str(msg))
@@ -233,7 +213,7 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         self.report({'ERROR'}, str(msg))
 
     def execute(self, context):
-        self.print_version()
+        print_version(self.info)
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
             load(self)
