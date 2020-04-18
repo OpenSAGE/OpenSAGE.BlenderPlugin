@@ -12,28 +12,25 @@ def create_mesh(context, mesh_struct, coll):
         triangles.append(tuple(triangle.vert_ids))
 
     mesh = bpy.data.meshes.new(mesh_struct.name())
+    mesh.userText = mesh_struct.user_text
     mesh.from_pydata(mesh_struct.verts, [], triangles)
 
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    #mesh.use_auto_smooth = True
+    mesh.use_auto_smooth = True
 
-    #mesh.update()
-    #mesh.validate()
+    mesh.update()
+    mesh.validate()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
-    #mesh_ob.object_type = 'NORMAL'
-    #mesh_ob.userText = mesh_struct.user_text
     mesh_ob.use_empty_image_alpha = True
 
     link_object_to_active_scene(mesh_ob, coll)
 
-    # TODO: fix this and implement export
     for i, triangle in enumerate(mesh_struct.triangles):
         surface_type_name = triangle.get_surface_type_name()
         if surface_type_name not in mesh_ob.face_maps:
             mesh_ob.face_maps.new(name=surface_type_name)
-
-        mesh_ob.face_maps[surface_type_name].add(triangle.vert_ids)
+        mesh_ob.face_maps[surface_type_name].add([i])
 
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)

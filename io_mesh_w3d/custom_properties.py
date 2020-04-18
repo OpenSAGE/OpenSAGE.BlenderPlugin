@@ -7,49 +7,6 @@ from bpy.types import Mesh, Bone, Material
 
 
 ##########################################################################
-# Material
-##########################################################################
-
-
-Material.surface_type = EnumProperty(
-        name="Surface type",
-        description="Describes the surface type for this face",
-        items=[
-            ('0', 'LightMetal', 'desc: todo'),
-            ('1', 'HeavyMetal', 'desc: todo'),
-            ('2', 'Water', 'desc: todo'),
-            ('3', 'Sand', 'desc: todo'),
-            ('4', 'Dirt', 'desc: todo'),
-            ('5', 'Mud', 'desc: todo'),
-            ('6', 'Grass', 'desc: todo'),
-            ('7', 'Wood', 'desc: todo'),
-            ('8', 'Concrete', 'desc: todo'),
-            ('9', 'Flesh', 'desc: todo'),
-            ('10', 'Rock', 'desc: todo'),
-            ('11', 'Snow', 'desc: todo'),
-            ('12', 'Ice', 'desc: todo'),
-            ('13', 'Default', 'desc: todo'),
-            ('14', 'Glass', 'desc: todo'),
-            ('15', 'Cloth', 'desc: todo'),
-            ('16', 'TiberiumField', 'desc: todo'),
-            ('17', 'FoliagePermeable', 'desc: todo'),
-            ('18', 'GlassPermeable', 'desc: todo'),
-            ('19', 'IcePermeable', 'desc: todo'),
-            ('20', 'ClothPermeable', 'desc: todo'),
-            ('21', 'Electrical', 'desc: todo'),
-            ('22', 'Flammable', 'desc: todo'),
-            ('23', 'Steam', 'desc: todo'),
-            ('24', 'ElectricalPermeable', 'desc: todo'),
-            ('25', 'FlammablePermeable', 'desc: todo'),
-            ('26', 'SteamPermeable', 'desc: todo'),
-            ('27', 'WaterPermeable', 'desc: todo'),
-            ('28', 'TiberiumWater', 'desc: todo'),
-            ('29', 'TiberiumWaterPermeable', 'desc: todo'),
-            ('30', 'UnderwaterDirt', 'desc: todo'),
-            ('31', 'UnderwaterTiberiumDirt', 'desc: todo')],
-        default='13')
-
-##########################################################################
 # Mesh
 ##########################################################################
 

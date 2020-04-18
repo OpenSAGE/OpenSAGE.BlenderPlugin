@@ -231,17 +231,18 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = 'mesh'
+    bl_context = 'data'
 
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.prop(context.active_object, 'object_type')
-        if context.active_object.object_type == 'DAZZLE':
+        mesh = context.active_object.data
+        col.prop(mesh, 'object_type')
+        if mesh.object_type == 'DAZZLE':
             col = layout.column()
-            col.prop(context.active_object, 'dazzle_type')
+            col.prop(mesh, 'dazzle_type')
         col = layout.column()
-        col.prop(context.active_object, 'userText')
+        col.prop(mesh, 'userText')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
@@ -255,19 +256,6 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
         if context.active_bone is not None:
             col = layout.column()
             col.prop(context.active_bone, 'visibility')
-
-
-class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
-    bl_label = 'W3D Properties'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'material'
-
-    def draw(self, context):
-        layout = self.layout
-        mat = context.object.active_material
-        col = layout.column()
-        col.prop(mat, 'surface_type')
 
 
 import nodeitems_utils
@@ -320,7 +308,7 @@ def register():
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
 
-    nodeitems_utils.register_node_categories('CUSTOM_NODES', node_categories)
+    #nodeitems_utils.register_node_categories('CUSTOM_NODES', node_categories)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
@@ -339,7 +327,7 @@ def unregister():
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
 
-    nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
+    #nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
 
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
