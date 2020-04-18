@@ -14,6 +14,25 @@ from tests.utils import *
 
 
 class TestExportW3X(TestCase):
+    def test_does_not_apply_extension_if_already_there(self):
+        export_settings = {'mode': 'M',
+                           'compression': 'U',
+                           'individual_files': False,
+                           'create_texture_xmls': False}
+
+        data_context = DataContext(
+            container_name='containerName',
+            meshes=[get_mesh()])
+
+        file_path = self.outpath() + 'output_skn.w3x'
+        self.set_format('W3X')
+        self.filepath = file_path
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertTrue(os.path.exists(self.filepath))
+        self.assertFalse(os.path.exists(self.filepath + '.w3x'))
+
     def test_unsupported_export_mode(self):
         export_settings = {'mode': 'NON_EXISTING'}
 

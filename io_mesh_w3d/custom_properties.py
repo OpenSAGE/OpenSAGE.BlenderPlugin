@@ -63,7 +63,7 @@ Material.material_type = EnumProperty(
         ('SHADER_MATERIAL', 'Shader Material', 'desc: todo'),
         ('VERTEX_MATERIAL', 'Vertex Material', 'desc: todo'),
         ('PRELIT_MATERIAL', 'Prelit Material', 'desc: todo')],
-    default='SHADER_MATERIAL')
+    default='VERTEX_MATERIAL')
 
 Material.prelit_type = EnumProperty(
     name='Prelit Type',

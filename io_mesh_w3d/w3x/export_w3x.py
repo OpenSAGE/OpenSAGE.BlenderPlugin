@@ -6,7 +6,10 @@ from io_mesh_w3d.w3x.structs.include import *
 
 
 def save(context, export_settings, data_context):
-    context.info('Saving file :' + context.filepath + context.filename_ext)
+    filepath = context.filepath
+    if not filepath.lower().endswith(context.filename_ext):
+        filepath += context.filename_ext
+    context.info('Saving file :' + filepath)
 
     export_mode = export_settings['mode']
     context.info("export mode: " + str(export_mode))
@@ -105,7 +108,7 @@ def save(context, export_settings, data_context):
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return {'CANCELLED'}
 
-    write(root, context.filepath + context.filename_ext)
+    write(root, filepath)
 
     context.info('finished')
     return {'FINISHED'}

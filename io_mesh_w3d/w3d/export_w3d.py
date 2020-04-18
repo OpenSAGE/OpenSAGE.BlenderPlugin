@@ -3,12 +3,16 @@
 
 
 def save(context, export_settings, data_context):
-    context.info('Saving file :' + context.filepath)
+    filepath = context.filepath
+    if not filepath.lower().endswith(context.filename_ext):
+        filepath += context.filename_ext
+
+    context.info('Saving file :' + filepath)
 
     export_mode = export_settings['mode']
     context.info('export mode: ' + str(export_mode))
 
-    file = open(context.filepath + context.filename_ext, 'wb')
+    file = open(filepath, 'wb')
 
     if export_mode == 'M':
         if len(data_context.meshes) > 1:

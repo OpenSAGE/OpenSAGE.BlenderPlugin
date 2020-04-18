@@ -170,12 +170,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mat_pass.vertex_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_stages.append(tx_stages[i])
-                mesh_struct.vert_materials.append(
-                    retrieve_vertex_material(material))
+                mesh_struct.vert_materials.append(retrieve_vertex_material(material))
 
-                if principled.base_color_texture.image is not None:
+                base_col_tex = principled.base_color_texture
+                if base_col_tex is not None and base_col_tex.image is not None:
                     info = TextureInfo()
-                    img = principled.base_color_texture.image
+                    img = base_col_tex.image
                     filepath = os.path.basename(img.filepath)
                     if filepath == '':
                         filepath = img.name + '.dds'
