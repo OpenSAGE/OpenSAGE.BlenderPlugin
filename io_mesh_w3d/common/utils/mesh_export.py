@@ -125,6 +125,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
+        face_map_names = [map.name for map in mesh_object.face_maps]
+        Triangle.validate_face_map_names(context, face_map_names)
+
+        for map in mesh.face_maps:
+            for i, val in enumerate(map.data):
+                mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
+
         header.face_count = len(mesh_struct.triangles)
 
         if mesh_struct.vert_infs:
@@ -134,15 +141,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        tx_coords = [None] * len(mesh_struct.verts)
-        for j, face in enumerate(b_mesh.faces):
-            for loop in face.loops:
-                vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                tx_coords[vert_index] = mesh.uv_layers[0].data[loop.index].uv.copy()
+        #tx_coords = [None] * len(mesh_struct.verts)
+        #for j, face in enumerate(b_mesh.faces):
+        #    for loop in face.loops:
+        #        vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
+        #        tx_coords[vert_index] = mesh.uv_layers[0].data[loop.index].uv.copy()
 
         b_mesh.free()
 
-        retrieve_material(context, mesh_struct, mesh.materials[0], tx_coords)
+        #retrieve_material(context, mesh_struct, mesh.materials[0], tx_coords)
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
@@ -152,58 +159,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh_struct.tangents = []
             mesh_struct.bitangents = []
 
-        if mesh_struct.prelit_unlit is not None:
-            # print('prelit unlit')
-            mesh_struct.header.attrs |= PRELIT_UNLIT
-            prelit = mesh_struct.prelit_unlit
-            prelit.mat_info = MaterialInfo(
-                pass_count=len(prelit.material_passes),
-                vert_matl_count=len(prelit.vert_materials),
-                shader_count=len(prelit.shaders),
-                texture_count=len(prelit.textures))
-
-        if mesh_struct.prelit_vertex is not None:
-            # print('prelit vertex')
-            mesh_struct.header.attrs |= PRELIT_VERTEX
-            prelit = mesh_struct.prelit_vertex
-            prelit.mat_info = MaterialInfo(
-                pass_count=len(prelit.material_passes),
-                vert_matl_count=len(prelit.vert_materials),
-                shader_count=len(prelit.shaders),
-                texture_count=len(prelit.textures))
-
-        if mesh_struct.prelit_lightmap_multi_pass is not None:
-            # print('prelit lightmap multi pass')
-            mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_PASS
-            prelit = mesh_struct.prelit_lightmap_multi_pass
-            prelit.mat_info = MaterialInfo(
-                pass_count=len(prelit.material_passes),
-                vert_matl_count=len(prelit.vert_materials),
-                shader_count=len(prelit.shaders),
-                texture_count=len(prelit.textures))
-
-        if mesh_struct.prelit_lightmap_multi_texture is not None:
-            # print('prelit lightmap multi texture')
-            mesh_struct.header.attrs |= PRELIT_LIGHTMAP_MULTI_TEXTURE
-            prelit = mesh_struct.prelit_lightmap_multi_texture
-            prelit.mat_info = MaterialInfo(
-                pass_count=len(prelit.material_passes),
-                vert_matl_count=len(prelit.vert_materials),
-                shader_count=len(prelit.shaders),
-                texture_count=len(prelit.textures))
-
-
-        if mesh_struct.prelit_unlit is None and mesh_struct.prelit_vertex is None \
-                and mesh_struct.prelit_lightmap_multi_pass is None and mesh_struct.prelit_lightmap_multi_texture is None:
-            # print('NO PRELIT')
-            mesh_struct.mat_info = MaterialInfo(
-                pass_count=len(mesh_struct.material_passes),
-                vert_matl_count=len(mesh_struct.vert_materials),
-                shader_count=len(mesh_struct.shaders),
-                texture_count=len(mesh_struct.textures))
-
-        mesh_struct.header.matl_count = max(
-            len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
+        mesh_struct.header.matl_count = max(len(mesh_struct.vert_materials), len(mesh_struct.shader_materials))
         mesh_structs.append(mesh_struct)
 
     switch_to_pose(rig, 'POSE')
