@@ -30,7 +30,8 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             (material, _) = create_material_from_vertex_material(mesh.name(), source)
-            actual = retrieve_vertex_material(material)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
 
     def test_vertex_material_no_attributes_roundtrip(self):
@@ -39,7 +40,8 @@ class TestUtils(TestCase):
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
             (material, _) = create_material_from_vertex_material(mesh.name(), source)
-            actual = retrieve_vertex_material(material)
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
 
     def test_shader_material_roundtrip(self):

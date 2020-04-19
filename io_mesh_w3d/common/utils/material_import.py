@@ -61,9 +61,9 @@ def create_material_from_vertex_material(name, vert_mat):
     principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=False)
     principled.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
     principled.alpha = vert_mat.vm_info.opacity
+    principled.specular = vert_mat.vm_info.shininess
 
     material.attributes = attributes
-    material.specular_intensity = vert_mat.vm_info.shininess
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
