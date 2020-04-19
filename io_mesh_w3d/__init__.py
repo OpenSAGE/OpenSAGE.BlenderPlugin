@@ -263,7 +263,6 @@ from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextu
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
 from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketMaterialAttributes
-from io_mesh_w3d.common.shading.node_decision import DecisionNode
 
 
 CLASSES = (
@@ -272,7 +271,6 @@ CLASSES = (
     NodeSocketVector2,
     NodeSocketVector4,
     NodeSocketMaterialAttributes,
-    DecisionNode,
     ExportW3D,
     ImportW3D,
     MESH_PROPERTIES_PANEL_PT_w3d,
@@ -309,8 +307,6 @@ def register():
 
 
 def unregister():
-    nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
-
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
 

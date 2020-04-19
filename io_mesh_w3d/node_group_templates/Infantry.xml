@@ -6,7 +6,7 @@
     <input name="ColorDiffuse" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="Texture_0" type="NodeSocketTexture"/>
     <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha"/>
-    <input name="AlphaTestEnable" type="NodeSocketInt" max="1"/>
+    <input name="AlphaTestEnable" type="NodeSocketBool"/>
     <input name="RecolorTexture" type="NodeSocketColor"/>
     <input name="RecolorTextureAlpha" type="NodeSocketTextureAlpha"/>
     <input name="ColorAmbient" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
