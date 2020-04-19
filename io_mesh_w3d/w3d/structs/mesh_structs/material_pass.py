@@ -24,22 +24,23 @@ class TextureStage:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
 
             if chunk_type == W3D_CHUNK_TEXTURE_IDS:
-                result.tx_ids = read_list(io_stream, subchunk_end, read_long)
+                result.tx_ids.append(read_list(io_stream, subchunk_end, read_long))
             elif chunk_type == W3D_CHUNK_STAGE_TEXCOORDS:
-                result.tx_coords = read_list(
-                    io_stream, subchunk_end, read_vector2)
+                result.tx_coords.append(read_list(io_stream, subchunk_end, read_vector2))
             elif chunk_type == W3D_CHUNK_PER_FACE_TEXCOORD_IDS:
-                result.per_face_tx_coords = read_list(
-                    io_stream, subchunk_end, read_vector)
+                result.per_face_tx_coords.append(read_list(io_stream, subchunk_end, read_vector))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
         return result
 
     def size(self, include_head=True):
         size = const_size(0, include_head)
-        size += long_list_size(self.tx_ids)
-        size += vec2_list_size(self.tx_coords)
-        size += vec_list_size(self.per_face_tx_coords)
+        for tx_ids in self.tx_ids:
+            size += long_list_size(tx_ids)
+        for tx_coords in self.tx_coords:
+            size += vec2_list_size(tx_coords)
+        for per_face_tx_coords in self.per_face_tx_coords:
+            size += vec_list_size(self.per_face_tx_coords)
         return size
 
     def write(self, io_stream):
@@ -47,19 +48,19 @@ class TextureStage:
                          self.size(False), has_sub_chunks=True)
 
         if self.tx_ids:
-            write_chunk_head(W3D_CHUNK_TEXTURE_IDS, io_stream,
-                             long_list_size(self.tx_ids, False))
-            write_list(self.tx_ids, io_stream, write_long)
+            for tx_ids in self.tx_ids:
+                write_chunk_head(W3D_CHUNK_TEXTURE_IDS, io_stream, long_list_size(tx_ids, False))
+                write_list(tx_ids, io_stream, write_long)
 
         if self.tx_coords:
-            write_chunk_head(W3D_CHUNK_STAGE_TEXCOORDS, io_stream,
-                             vec2_list_size(self.tx_coords, False))
-            write_list(self.tx_coords, io_stream, write_vector2)
+            for tx_coords in self.tx_coords:
+                write_chunk_head(W3D_CHUNK_STAGE_TEXCOORDS, io_stream, vec2_list_size(tx_coords, False))
+                write_list(tx_coords, io_stream, write_vector2)
 
         if self.per_face_tx_coords:
-            write_chunk_head(W3D_CHUNK_PER_FACE_TEXCOORD_IDS, io_stream,
-                             vec_list_size(self.per_face_tx_coords, False))
-            write_list(self.per_face_tx_coords, io_stream, write_vector)
+            for per_face_tx_coords in self.per_face_tx_coords:
+                write_chunk_head(W3D_CHUNK_PER_FACE_TEXCOORD_IDS, io_stream, vec_list_size(per_face_tx_coords, False))
+                write_list(per_face_tx_coords, io_stream, write_vector)
 
 
 W3D_CHUNK_MATERIAL_PASS = 0x00000038

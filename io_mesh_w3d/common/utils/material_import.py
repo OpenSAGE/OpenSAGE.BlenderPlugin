@@ -30,7 +30,38 @@ class Pipeline():
     uv_coords = None
 
 
+def expand(ids, count):
+    if len(ids) != count:
+        return [ids[0]] * count
+    return ids
+
+
 def create_materials(context, mesh_struct, mesh, triangles):
+    num_faces = len(triangles)
+    face_pipelines = [[]] * num_faces
+
+    for mat_pass in mesh_struct.material_passes:
+        vert_mat_ids = [None] * num_faces
+        shader_ids = [None] * num_faces
+        texture_ids = [None] * num_faces
+        shader_mat_ids = [None] * num_faces
+        uv_coords = None
+
+        if mat_pass.vertex_material_ids:
+            vert_mat_ids = expand(mat_pass.vertex_material_ids, num_faces)
+
+        if mat_pass.shader_ids:
+            shader_ids = expand(mat_pass.shader_ids, num_faces)
+
+        if mat_pass.shader_material_ids:
+            shader_mat_ids = expand(mat_pass.shader_material_ids, num_faces)
+
+        if mat_pass.tx_coords:
+            uv_coords = mat_pass.tx_coords
+
+        # TODO: do the tx stages stuff
+        #for tx_stage in mat_pass.tx_stages:
+
 
 
 
