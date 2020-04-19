@@ -67,6 +67,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
                             vert_inf.xtra_idx = index
                     vert_inf.xtra_inf = vertex.groups[1].weight
+
+                if vert_inf.bone_inf < 0.01 and vert_inf.xtra_inf < 0.01:
+                    vert_inf.bone_inf = 1.0
+
                 mesh_struct.vert_infs.append(vert_inf)
 
                 if vert_inf.bone_idx > 0:
