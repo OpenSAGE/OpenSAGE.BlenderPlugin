@@ -22,6 +22,19 @@ def create_uv_layer(mesh, b_mesh, triangles, tx_coords):
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 
+class Pipeline():
+    vert_mat_id = None
+    shader_id = None
+    texture_id = None
+    shader_mat_id = None
+    uv_coords = None
+
+
+def create_materials(context, mesh_struct, mesh, triangles):
+
+
+
+
 def create_material_pass(context, base_struct, mesh, triangles):
     vert_material = None
     shader = None

@@ -35,7 +35,7 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
-    create_material_pass(context, mesh_struct, mesh, triangles)
+    create_materials(context, mesh_struct, mesh, triangles)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
