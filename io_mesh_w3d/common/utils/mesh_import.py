@@ -67,7 +67,9 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
         normals = [None] * len(mesh_struct.normals)
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
-            if weight < 0.01:
+            xtra_weight = vert_inf.xtra_inf
+
+            if weight < 0.01 and xtra_weight < 0.01:
                 weight = 1.0
 
             pivot = hierarchy.pivots[vert_inf.bone_idx]
@@ -84,8 +86,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
                 xtra_pivot = hierarchy.pivots[vert_inf.xtra_idx]
                 if xtra_pivot.name not in mesh_ob.vertex_groups:
                     mesh_ob.vertex_groups.new(name=xtra_pivot.name)
-                mesh_ob.vertex_groups[xtra_pivot.name].add(
-                    [i], vert_inf.xtra_inf, 'ADD')
+                mesh_ob.vertex_groups[xtra_pivot.name].add([i], xtra_weight, 'ADD')
 
             mesh.vertices[i].co = matrix @ mesh_struct.verts[i]
 

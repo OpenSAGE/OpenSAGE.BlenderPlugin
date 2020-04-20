@@ -28,10 +28,10 @@ def get_used_textures(material, principled, used_textures):
     return used_textures
 
 
-def retrieve_vertex_material(material):
+def retrieve_vertex_material(material, principled):
     info = VertexMaterialInfo(
         attributes=0,
-        shininess=material.specular_intensity,
+        shininess=principled.specular,
         specular=RGBA(vec=material.specular_color, a=0),
         diffuse=RGBA(vec=material.diffuse_color, a=0),
         emissive=RGBA(vec=material.emission),

@@ -67,6 +67,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
                             vert_inf.xtra_idx = index
                     vert_inf.xtra_inf = vertex.groups[1].weight
+
+                if vert_inf.bone_inf < 0.01 and vert_inf.xtra_inf < 0.01:
+                    vert_inf.bone_inf = 1.0
+
                 mesh_struct.vert_infs.append(vert_inf)
 
                 if vert_inf.bone_idx > 0:
@@ -99,8 +103,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     # only dummys
                     mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
                     mesh_struct.bitangents.append((rotation @ vertex.normal))
-
-            mesh_struct.shade_ids.append(i)
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
@@ -170,7 +172,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mat_pass.vertex_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_stages.append(tx_stages[i])
-                mesh_struct.vert_materials.append(retrieve_vertex_material(material))
+                mesh_struct.vert_materials.append(retrieve_vertex_material(material, principled))
 
                 base_col_tex = principled.base_color_texture
                 if base_col_tex is not None and base_col_tex.image is not None:
