@@ -104,8 +104,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
                     mesh_struct.bitangents.append((rotation @ vertex.normal))
 
-            mesh_struct.shade_ids.append(i)
-
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
              mesh_object.bound_box[0][1],
