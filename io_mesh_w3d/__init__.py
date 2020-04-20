@@ -262,15 +262,26 @@ from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
 from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
-from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketMaterialAttributes
+#from io_mesh_w3d.common.shading.node_socket_enum import *
 
 
 CLASSES = (
+    #NodeSocketEnum,
+    #NodeSocketEnumMaterialAttributes,
+    #NodeSocketEnumDepthCompare,
+    #NodeSocketEnumDepthmaskWrite,
+    #NodeSocketEnumAlphatest,
+    #NodeSocketEnumDestBlendFunc,
+    #NodeSocketEnumPriGradient,
+    #NodeSocketEnumSecGradient,
+    #NodeSocketEnumSrcBlendFunc,
+    #NodeSocketEnumTexturing,
+    #NodeSocketEnumDetailColorFunc,
+    #NodeSocketEnumDetailAlphaFunc,
     NodeSocketTexture,
     NodeSocketTextureAlpha,
     NodeSocketVector2,
     NodeSocketVector4,
-    NodeSocketMaterialAttributes,
     ExportW3D,
     ImportW3D,
     MESH_PROPERTIES_PANEL_PT_w3d,
