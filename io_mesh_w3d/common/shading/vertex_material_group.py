@@ -17,6 +17,7 @@ class VertexMaterialGroup():
         instance.node_tree = bpy.data.node_groups['VertexMaterial']
         instance.label = vert_mat.vm_name
 
+        # TODO: this should be done in parsing of vm_info
         attributes = {'DEFAULT'}
         if vert_mat.vm_info.attributes & USE_DEPTH_CUE:
             attributes.add('USE_DEPTH_CUE')
@@ -27,7 +28,7 @@ class VertexMaterialGroup():
         if vert_mat.vm_info.attributes & DEPTH_CUE_TO_ALPHA:
             attributes.add('DEPTH_CUE_TO_ALPHA')
 
-        #instance.inputs['Attributes'].default_value = attributes
+        instance.inputs['Attributes'].default_value = attributes
 
         # TODO: translate those to shader properties
         # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, VPhase,
@@ -46,23 +47,21 @@ class VertexMaterialGroup():
         instance.inputs['Opacity'].default_value = vert_mat.vm_info.shininess
         instance.inputs['Translucency'].default_value = vert_mat.vm_info.shininess
 
-        return instance
-
-        instance.inputs['DepthCompare'].default_value = shader.depth_compare
-        instance.inputs['DepthMaskWrite'].default_value = shader.depth_mask
+        instance.inputs['DepthCompare'].default_value = str(shader.depth_compare)
+        instance.inputs['DepthMaskWrite'].default_value = str(shader.depth_mask)
         instance.inputs['ColorMask'].default_value = shader.color_mask
         instance.inputs['FogFunc'].default_value = shader.fog_func
-        instance.inputs['DestBlendFunc'].default_value = shader.dest_blend
-        instance.inputs['PriGradient'].default_value = shader.pri_gradient
-        instance.inputs['SecGradient'].default_value = shader.sec_gradient
-        instance.inputs['SrcBlendFunc'].default_value = shader.src_blend
-        instance.inputs['Texturing'].default_value = shader.texturing
-        instance.inputs['DetailColorFunc'].default_value = shader.detail_color_func
-        instance.inputs['DetailAlphaFunc'].default_value = shader.detail_alpha_func
+        instance.inputs['DestBlendFunc'].default_value = str(shader.dest_blend)
+        instance.inputs['PriGradient'].default_value = str(shader.pri_gradient)
+        instance.inputs['SecGradient'].default_value = str(shader.sec_gradient)
+        instance.inputs['SrcBlendFunc'].default_value = str(shader.src_blend)
+        instance.inputs['Texturing'].default_value = str(shader.texturing)
+        instance.inputs['DetailColorFunc'].default_value = str(shader.detail_color_func)
+        instance.inputs['DetailAlphaFunc'].default_value = str(shader.detail_alpha_func)
         instance.inputs['Preset'].default_value = shader.shader_preset
-        instance.inputs['AlphaTest'].default_value = shader.alpha_test
-        instance.inputs['PostDetailColorFunc'].default_value = shader.post_detail_color_func
-        instance.inputs['PostDetailAlphaFunc'].default_value = shader.post_detail_alpha_func
+        instance.inputs['AlphaTest'].default_value = str(shader.alpha_test)
+        instance.inputs['PostDetailColorFunc'].default_value = str(shader.post_detail_color_func)
+        instance.inputs['PostDetailAlphaFunc'].default_value = str(shader.post_detail_alpha_func)
 
         return instance
 
@@ -84,7 +83,7 @@ class VertexMaterialGroup():
         group_inputs = group.nodes.new('NodeGroupInput')
         group_inputs.location = (-350,0)
 
-        # group.inputs.new('NodeSocketEnumMaterialAttributes', 'Attributes')
+        group.inputs.new('NodeSocketEnumMaterialAttributes', 'Attributes')
         group.inputs.new('NodeSocketString', 'VM_ARGS_0')
         group.inputs.new('NodeSocketString', 'VM_ARGS_1')
         group.inputs.new('NodeSocketColor', 'Diffuse')
@@ -101,21 +100,21 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketFloat', 'Opacity')
         group.inputs.new('NodeSocketFloat', 'Translucency')
 
-        #group.inputs.new('NodeSocketEnumDepthCompare', 'DepthCompare')
-        #group.inputs.new('NodeSocketEnumDepthMaskWrite', 'DepthMaskWrite')
+        group.inputs.new('NodeSocketEnumDepthCompare', 'DepthCompare')
+        group.inputs.new('NodeSocketEnumDepthMaskWrite', 'DepthMaskWrite')
         VertexMaterialGroup.addInputInt(group, 'ColorMask') # obsolete (w3d_file.h)
         VertexMaterialGroup.addInputInt(group, 'FogFunc') # obsolete (w3d_file.h)
-        #group.inputs.new('NodeSocketEnumDestBlendFunc', 'DestBlendFunc')
-        #group.inputs.new('NodeSocketEnumPriGradient', 'PriGradient')
-        #group.inputs.new('NodeSocketEnumSecGradient', 'SecGradient')
-        #group.inputs.new('NodeSocketEnumSrcBlendFunc', 'SrcBlendFunc')
-        #group.inputs.new('NodeSocketEnumTexturing', 'Texturing')
-        #group.inputs.new('NodeSocketEnumDetailColorFunc', 'DetailColorFunc')
-        #group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'DetailAlphaFunc')
+        group.inputs.new('NodeSocketEnumDestBlendFunc', 'DestBlendFunc')
+        group.inputs.new('NodeSocketEnumPriGradient', 'PriGradient')
+        group.inputs.new('NodeSocketEnumSecGradient', 'SecGradient')
+        group.inputs.new('NodeSocketEnumSrcBlendFunc', 'SrcBlendFunc')
+        group.inputs.new('NodeSocketEnumTexturing', 'Texturing')
+        group.inputs.new('NodeSocketEnumDetailColorFunc', 'DetailColorFunc')
+        group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'DetailAlphaFunc')
         VertexMaterialGroup.addInputInt(group, 'Preset') # obsolete (w3d_file.h)
-        #group.inputs.new('NodeSocketEnumAlphaTest', 'AlphaTest')
-        #group.inputs.new('NodeSocketEnumDetailColorFunc', 'PostDetailColorFunc')
-        #group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'PostDetailAlphaFunc')
+        group.inputs.new('NodeSocketEnumAlphaTest', 'AlphaTest')
+        group.inputs.new('NodeSocketEnumDetailColorFunc', 'PostDetailColorFunc')
+        group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'PostDetailAlphaFunc')
 
         # create group outputs
         group_outputs = group.nodes.new('NodeGroupOutput')
@@ -128,7 +127,7 @@ class VertexMaterialGroup():
         alpha_pipeline.node_tree = bpy.data.node_groups['AlphaPipeline']
         links.new(group_inputs.outputs['DiffuseTexture'], alpha_pipeline.inputs['Diffuse'])
         links.new(group_inputs.outputs['DiffuseTextureAlpha'], alpha_pipeline.inputs['Alpha'])
-        #links.new(group_inputs.outputs['AlphaTest'], alpha_pipeline.inputs['DestBlend'])
+        links.new(group_inputs.outputs['AlphaTest'], alpha_pipeline.inputs['DestBlend'])
 
         shader = node_tree.nodes.new('ShaderNodeEeveeSpecular')
         shader.label = 'Shader'
@@ -141,3 +140,7 @@ class VertexMaterialGroup():
         links.new(group_inputs.outputs['Emissive'], shader.inputs['Emissive Color'])
         links.new(alpha_pipeline.outputs['Alpha'], shader.inputs['Transparency'])
         links.new(shader.outputs['BSDF'], group_outputs.inputs['BSDF'])
+
+    @staticmethod
+    def unregister(name):
+        bpy.data.node_groups.remove(name)

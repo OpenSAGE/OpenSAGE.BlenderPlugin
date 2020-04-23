@@ -163,3 +163,14 @@ class NodeGroupCreator():
             else:
                 print('node type: ' + xml_node.tag + ' is not supported')
         return nodes
+
+
+    def unregister(self, directory, file):
+        path = os.path.join(directory, file)
+        root = find_root(None, path)
+        if root is None:
+            return
+
+        name = root.get('name')
+        if name in bpy.data.node_groups:
+            bpy.data.node_groups.remove(name)

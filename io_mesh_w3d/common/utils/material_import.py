@@ -7,6 +7,7 @@ from bpy_extras import node_shader_utils
 
 from io_mesh_w3d.common.shading.vertex_material_group import *
 from io_mesh_w3d.common.utils.helpers import *
+from io_mesh_w3d.w3d.structs.mesh_structs.prelit import PrelitBase
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
@@ -76,61 +77,65 @@ def expand(ids, count):
     return ids
 
 
-def create_materials(context, mesh_struct, mesh, triangles):
+def create_materials(context, structs, mesh, triangles):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
     num_faces = len(triangles)
     face_pipeline_sets = [None] * num_faces
 
-    for i, mat_pass in enumerate(mesh_struct.material_passes):
-        vert_mat_ids = [None] * num_faces
-        shader_ids = [None] * num_faces
-        texture_ids = []
-        uv_maps = []
-        shader_mat_ids = [None] * num_faces
+    for struct in structs:
+        if struct is None:
+            continue
 
-        if mat_pass.vertex_material_ids:
-            vert_mat_ids = expand(mat_pass.vertex_material_ids, num_faces)
+        for i, mat_pass in enumerate(struct.material_passes):
+            vert_mat_ids = [None] * num_faces
+            shader_ids = [None] * num_faces
+            texture_ids = []
+            uv_maps = []
+            shader_mat_ids = [None] * num_faces
 
-        if mat_pass.shader_ids:
-            shader_ids = expand(mat_pass.shader_ids, num_faces)
+            if mat_pass.vertex_material_ids:
+                vert_mat_ids = expand(mat_pass.vertex_material_ids, num_faces)
 
-        if mat_pass.shader_material_ids:
-            shader_mat_ids = expand(mat_pass.shader_material_ids, num_faces)
+            if mat_pass.shader_ids:
+                shader_ids = expand(mat_pass.shader_ids, num_faces)
 
-        if mat_pass.tx_coords:
-            uv_maps = get_or_create_uv_layer(mesh, b_mesh, triangles, mat_pass.tx_coords)
+            if mat_pass.shader_material_ids:
+                shader_mat_ids = expand(mat_pass.shader_material_ids, num_faces)
 
-        for tx_stage in mat_pass.tx_stages:
-            for tx_coords in tx_stage.tx_coords:
-                uv_maps.append(get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords))
+            if mat_pass.tx_coords:
+                uv_maps = get_or_create_uv_layer(mesh, b_mesh, triangles, mat_pass.tx_coords)
 
-            for k, tx_ids in enumerate(tx_stage.tx_ids):
-                tex_ids = expand(tx_ids, num_faces)
-                uv_map = uv_maps[k]
+            for tx_stage in mat_pass.tx_stages:
+                for tx_coords in tx_stage.tx_coords:
+                    uv_maps.append(get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords))
+
+                for k, tx_ids in enumerate(tx_stage.tx_ids):
+                    tex_ids = expand(tx_ids, num_faces)
+                    uv_map = uv_maps[k]
+                    for j, tri in enumerate(triangles):
+                        pipeline = Pipeline(type='vertex', pass_index=i)
+                        pipeline.vert_mat = struct.vert_materials[vert_mat_ids[j]]
+                        pipeline.shader = struct.shaders[shader_ids[j]]
+                        pipeline.texture = struct.textures[tex_ids[j]]
+                        pipeline.uv_map = uv_map
+
+                        if face_pipeline_sets[j] is None:
+                            face_pipeline_sets[j] = PipelineSet()
+                        face_pipeline_sets[j].add(pipeline)
+
+            if not isinstance(struct, PrelitBase) and struct.shader_materials:
                 for j, tri in enumerate(triangles):
-                    pipeline = Pipeline(type='vertex', pass_index=i)
-                    pipeline.vert_mat = mesh_struct.vert_materials[vert_mat_ids[j]]
-                    pipeline.shader = mesh_struct.shaders[shader_ids[j]]
-                    pipeline.texture = mesh_struct.textures[tex_ids[j]]
-                    pipeline.uv_map = uv_map
+                    pipeline = Pipeline(
+                        type='shader',
+                        pass_index=i,
+                        shader_mat=struct.shader_materials[shader_mat_ids[j]],
+                        uv_map=uv_maps)
 
                     if face_pipeline_sets[j] is None:
                         face_pipeline_sets[j] = PipelineSet()
                     face_pipeline_sets[j].add(pipeline)
-
-        if not mat_pass.tx_stages:
-            for j, tri in enumerate(triangles):
-                pipeline = Pipeline(
-                    type='shader',
-                    pass_index=i,
-                    shader_mat=mesh_struct.shader_materials[shader_mat_ids[j]],
-                    uv_map=uv_maps)
-
-                if face_pipeline_sets[j] is None:
-                    face_pipeline_sets[j] = PipelineSet()
-                face_pipeline_sets[j].add(pipeline)
 
     unique_pipeline_sets = []
     face_mat_indices = [0] * num_faces
@@ -162,9 +167,13 @@ def create_material(context, mesh, b_mesh, triangles, pps):
     node_tree = material.node_tree
     node_tree.nodes.remove(node_tree.nodes.get('Principled BSDF'))
 
+    vert_ = dict()
+    uv_nodes = dict()
+    uv_tex_combos = dict()
+
     for pipeline in pps.pipelines:
         if pipeline.type == 'vertex':
-            create_vertex_material_pipeline(context, node_tree, pipeline)
+            create_vertex_material_pipeline(context, node_tree, pipeline, vert_, uv_nodes, uv_tex_combos)
         else:
             create_shader_material_pipeline(context, node_tree, pipeline)
 
@@ -173,11 +182,12 @@ def create_material(context, mesh, b_mesh, triangles, pps):
 # vertex material
 ##########################################################################
 
-def create_vertex_material_pipeline(context, node_tree, pipeline):
+def create_vertex_material_pipeline(context, node_tree, pipeline, vert_, uv_nodes, uv_tex_combos):
     instance = VertexMaterialGroup.create(node_tree, pipeline.vert_mat, pipeline.shader)
     instance.label = pipeline.vert_mat.vm_name
     instance.location = (0, 300)
     instance.width = 200
+    instance.hide = True
 
     output = node_tree.nodes.get('Material Output')
 
@@ -185,17 +195,27 @@ def create_vertex_material_pipeline(context, node_tree, pipeline):
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
 
     if pipeline.texture is not None:
-        texture = find_texture(context, pipeline.texture.file, pipeline.texture.id)
+        if (pipeline.uv_map, pipeline.texture.file) in uv_tex_combos:
+            texture_node = uv_tex_combos[(pipeline.uv_map, pipeline.texture.file)]
+        else:
+            texture = find_texture(context, pipeline.texture.file, pipeline.texture.id)
+            texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+            texture_node.image = texture
+            texture_node.location = (-350, 300 * (-len(uv_tex_combos) + 1))
+            texture_node.hide = True
+            uv_tex_combos[(pipeline.uv_map, pipeline.texture.file)] = texture_node
 
-        texture_node = node_tree.nodes.new('ShaderNodeTexImage')
-        texture_node.image = texture
-        texture_node.location = (-350, 300)
         links.new(texture_node.outputs['Color'], instance.inputs['DiffuseTexture'])
         links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseTextureAlpha'])
 
-        uv_node = node_tree.nodes.new('ShaderNodeUVMap')
-        uv_node.location = (-550, 300)
-        uv_node.uv_map = pipeline.uv_map
+        if pipeline.uv_map in uv_nodes:
+            uv_node = uv_nodes[pipeline.uv_map]
+        else:
+            uv_node = node_tree.nodes.new('ShaderNodeUVMap')
+            uv_node.location = (-550, 300 * (-len(uv_nodes) + 1))
+            uv_node.uv_map = pipeline.uv_map
+            uv_nodes[pipeline.uv_map] = uv_node
+
         links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
 
 

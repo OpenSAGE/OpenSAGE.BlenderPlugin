@@ -52,6 +52,15 @@ class VertexMaterialInfo:
         write_float(self.opacity, io_stream)
         write_float(self.translucency, io_stream)
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 W3D_CHUNK_VERTEX_MATERIAL = 0x0000002B
 W3D_CHUNK_VERTEX_MATERIAL_NAME = 0x0000002C
@@ -109,3 +118,12 @@ class VertexMaterial:
         if self.vm_args_1 is not '':
             write_chunk_head(W3D_CHUNK_VERTEX_MAPPER_ARGS1, io_stream, text_size(self.vm_args_1, False))
             write_string(self.vm_args_1, io_stream)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

@@ -34,6 +34,15 @@ class TextureInfo:
         write_ulong(self.frame_count, io_stream)
         write_float(self.frame_rate, io_stream)
 
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 W3D_CHUNK_TEXTURE = 0x00000031
 W3D_CHUNK_TEXTURE_NAME = 0x00000032
@@ -87,3 +96,12 @@ class Texture:
         texture = create_node(parent, 'Texture')
         texture.set('id', self.id)
         texture.set('File', self.file)
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)

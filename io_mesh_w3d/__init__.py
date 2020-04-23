@@ -262,22 +262,22 @@ from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
 from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
-#from io_mesh_w3d.common.shading.node_socket_enum import *
+from io_mesh_w3d.common.shading.node_socket_enum import *
 
 
 CLASSES = (
-    #NodeSocketEnum,
-    #NodeSocketEnumMaterialAttributes,
-    #NodeSocketEnumDepthCompare,
-    #NodeSocketEnumDepthmaskWrite,
-    #NodeSocketEnumAlphatest,
-    #NodeSocketEnumDestBlendFunc,
-    #NodeSocketEnumPriGradient,
-    #NodeSocketEnumSecGradient,
-    #NodeSocketEnumSrcBlendFunc,
-    #NodeSocketEnumTexturing,
-    #NodeSocketEnumDetailColorFunc,
-    #NodeSocketEnumDetailAlphaFunc,
+    NodeSocketEnum,
+    NodeSocketEnumMaterialAttributes,
+    NodeSocketEnumDepthCompare,
+    NodeSocketEnumDepthmaskWrite,
+    NodeSocketEnumAlphatest,
+    NodeSocketEnumDestBlendFunc,
+    NodeSocketEnumPriGradient,
+    NodeSocketEnumSecGradient,
+    NodeSocketEnumSrcBlendFunc,
+    NodeSocketEnumTexturing,
+    NodeSocketEnumDetailColorFunc,
+    NodeSocketEnumDetailAlphaFunc,
     NodeSocketTexture,
     NodeSocketTextureAlpha,
     NodeSocketVector2,
@@ -288,8 +288,10 @@ CLASSES = (
     BONE_PROPERTIES_PANEL_PT_w3d)
 
 
+from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
+from io_mesh_w3d.common.shading.vertex_material_group import VertexMaterialGroup
+
 def register_node_groups():
-    from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
     dirname = os.path.dirname(__file__)
     directory = os.path.join(dirname, 'node_group_templates')
 
@@ -298,7 +300,6 @@ def register_node_groups():
             continue
         NodeGroupCreator().create(directory, file)
 
-    from io_mesh_w3d.common.shading.vertex_material_group import VertexMaterialGroup
     VertexMaterialGroup.register(VertexMaterialGroup.name)
 
 
@@ -317,6 +318,18 @@ def register():
     Timer(1, register_node_groups, ()).start()
 
 
+def unregister_node_groups():
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator().unregister(directory, file)
+
+    VertexMaterialGroup.unregister(VertexMaterialGroup.name)
+
+
 def unregister():
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
@@ -324,7 +337,8 @@ def unregister():
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 
+    unregister_node_groups()
+
 
 if __name__ == '__main__':
     register()
-    register_node_groups()
