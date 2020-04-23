@@ -116,6 +116,8 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketEnumDetailColorFunc', 'PostDetailColorFunc')
         group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'PostDetailAlphaFunc')
 
+        print('created')
+
         # create group outputs
         group_outputs = group.nodes.new('NodeGroupOutput')
         group_outputs.location = (300,0)

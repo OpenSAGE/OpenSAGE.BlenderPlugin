@@ -269,7 +269,7 @@ CLASSES = (
     NodeSocketEnum,
     NodeSocketEnumMaterialAttributes,
     NodeSocketEnumDepthCompare,
-    NodeSocketEnumDepthmaskWrite,
+    NodeSocketEnumDepthMaskWrite,
     NodeSocketEnumAlphatest,
     NodeSocketEnumDestBlendFunc,
     NodeSocketEnumPriGradient,

@@ -30,7 +30,7 @@ class NodeSocketEnum(NodeSocket):
 
 
 class NodeSocketEnumMaterialAttributes(NodeSocketEnum):
-    bl_idname = 'NodeSocketMaterialAttributes'
+    bl_idname = 'NodeSocketEnumMaterialAttributes'
     bl_label = 'Material Attributes Enum Flag Node Socket'
 
     default_value: bpy.props.EnumProperty(
@@ -65,8 +65,8 @@ class NodeSocketEnumDepthCompare(NodeSocketEnum):
         default='3')
 
 
-class NodeSocketEnumDepthmaskWrite(NodeSocketEnum):
-    bl_idname = 'NodeSocketEnumDepthmaskWrite'
+class NodeSocketEnumDepthMaskWrite(NodeSocketEnum):
+    bl_idname = 'NodeSocketEnumDepthMaskWrite'
     bl_label = 'Depthmask Write Enum Node Socket'
 
     default_value: bpy.props.EnumProperty(
@@ -182,7 +182,11 @@ class NodeSocketEnumDetailColorFunc(NodeSocketEnum):
             ('5', 'SUB', 'local - other'),
             ('6', 'SUBR', 'other - local'),
             ('7', 'BLEND', '(localAlpha)*local + (~localAlpha)*other'),
-            ('8', 'DETAILBLEND', '(otherAlpha)*local + (~otherAlpha)*other')],
+            ('8', 'DETAILBLEND', '(otherAlpha)*local + (~otherAlpha)*other'),
+            ('9', '9_UNKNOWN', 'unknown'),
+            ('10', '10_UNKNOWN', 'unknown'),
+            ('11', '11_UNKNOWN', 'unknown'),
+            ('12', '12_UNKNOWN', 'unknown')],
         default='0')
 
 
