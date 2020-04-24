@@ -1,6 +1,6 @@
 v0.4.7
 
-v0.4.6
+v0.4.6 (24.04.20)
 - apply modifiers to meshes on export
 - handle export of 'multi-user' meshes
 - default material type is now 'VERTEX_MATERIAL'
@@ -8,7 +8,7 @@ v0.4.6
 - Bugfix: handle already applied file extensions by user
 - Bugfix: check for referenced armature case insensitive
 
-v0.4.5
+v0.4.5 (11.03.20)
 - split vertices with multiple uv coordinates on export
 - use actual mesh normals on import
 - export tangents and bitangents
