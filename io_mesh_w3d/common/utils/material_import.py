@@ -211,6 +211,7 @@ def create_vertex_material_pipeline(context, node_tree, pipeline, vert_, uv_node
             texture_node.hide = True
             uv_tex_combos[(pipeline.uv_map, pipeline.texture.file)] = texture_node
 
+        print(instance.inputs['DiffuseTexture'].type)
         links.new(texture_node.outputs['Color'], instance.inputs['DiffuseTexture'])
         links.new(texture_node.outputs['Alpha'], instance.inputs['DiffuseTextureAlpha'])
 

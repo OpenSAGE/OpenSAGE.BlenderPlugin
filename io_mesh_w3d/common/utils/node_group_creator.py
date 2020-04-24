@@ -19,6 +19,16 @@ class NodeGroupCreator():
             else:
                 node.outputs[id].hide = True
 
+    def process_value_setups(self, xml_node, node):
+        for child_node in xml_node:
+            if child_node.tag != 'set':
+                continue
+            id = int(child_node.get('id'))
+            value = child_node.get('value')
+            socket = node.inputs[id]
+            type = socket.type
+            self.process_default_value(socket, type, value)
+
 
     def process_default_value(self, socket, type, default):
         if default is None:
@@ -121,6 +131,7 @@ class NodeGroupCreator():
                 nodes[xml_node.get('name')] = node
 
                 self.process_input_hides(xml_node, node)
+                self.process_value_setups(xml_node, node)
 
                 if type == 'NodeGroupInput':
                     self.create_input_node(node_tree, xml_node, node)

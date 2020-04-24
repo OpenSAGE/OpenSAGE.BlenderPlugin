@@ -10,14 +10,14 @@ class NodeSocketEnum(NodeSocket):
     bl_label = 'Enum Node Socket'
 
     default_value: bpy.props.EnumProperty(
-        name="Direction",
-        description="Just an example",
+        name='Direction',
+        description='Just an example',
         items=[
-            ('DOWN', "Down", "Where your feet are"),
-            ('UP', "Up", "Where your head should be"),
-            ('LEFT', "Left", "Not right"),
-            ('RIGHT', "Right", "Not left")],
-        default='UP')
+            ('0', 'DOWN', 'Where your feet are'),
+            ('1', 'UP', 'Where your head should be'),
+            ('2', 'LEFT', 'Not right'),
+            ('3', 'RIGHT', 'Not left')],
+        default='0')
 
     def draw(self, context, layout, node, text):
         if self.is_output or self.is_linked:
@@ -27,6 +27,9 @@ class NodeSocketEnum(NodeSocket):
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.216, 0.5)
+
+    def get(self):
+        return int(self.default_value)
 
 
 class NodeSocketEnumMaterialAttributes(NodeSocketEnum):

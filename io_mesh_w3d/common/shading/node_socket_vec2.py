@@ -9,7 +9,7 @@ class NodeSocketVector2(NodeSocket):
     bl_idname = 'NodeSocketVector2'
     bl_label = 'Vector2 Node Socket'
 
-    vec2_prop: bpy.props.FloatVectorProperty(
+    default_value: bpy.props.FloatVectorProperty(
         name='Vector2',
         subtype='TRANSLATION',
         size=2,
@@ -21,7 +21,7 @@ class NodeSocketVector2(NodeSocket):
         if self.is_output or self.is_linked:
             layout.label(text=text)
         else:
-            layout.prop(self, "vec2_prop", text=text)
+            layout.prop(self, 'default_value', text=text)
 
     def draw_color(self, context, node):
         return (1.0, 0.4, 0.216, 0.5)

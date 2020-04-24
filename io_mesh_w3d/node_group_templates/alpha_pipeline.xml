@@ -6,27 +6,28 @@
     <input name="DestBlend" type="NodeSocketInt" default="0" min="0" max="1"/>
   </node>
   
-  <node name="compare1" type="ShaderNodeMath" mode="COMPARE" X="-200" Y="100">
-    <input id="0" default="0.0"/>
+  <node name="compare" type="ShaderNodeMath" mode="COMPARE" X="-300" Y="100">
+    <set id="1" value="0.0"/>
   </node>
-  <link from="inputs.outputs.DestBlend" to="compare1.inputs.1"/>
-  <link from="inputs.outputs.Alpha" to="compare1.inputs.2"/>
-  
+  <link from="inputs.outputs.DestBlend" to="compare.inputs.0"/>
+
   <node name="seperate_hsv" type="ShaderNodeSeparateHSV" X="-300" Y="-100"/>
   <link from="inputs.outputs.Diffuse" to="seperate_hsv.inputs.Color"/>
   
-  <node name="compare2" type="ShaderNodeMath" mode="COMPARE" X="-100" Y="-100">
-    <input id="0" default="1.0"/>
-  </node>
-  <link from="inputs.outputs.DestBlend" to="compare2.inputs.1"/>
-  <link from="seperate_hsv.outputs.V" to="compare2.inputs.2"/>
+  <node name="multiply1" type="ShaderNodeMath" mode="MULTIPLY" X="-100" Y="100"/>
+  <link from="compare.outputs.Value" to="multiply1.inputs.0"/>
+  <link from="inputs.outputs.Alpha" to="multiply1.inputs.1"/>
+  
+  <node name="multiply2" type="ShaderNodeMath" mode="MULTIPLY" X="-100" Y="-100"/>
+  <link from="inputs.outputs.DestBlend" to="multiply2.inputs.0"/>
+  <link from="seperate_hsv.outputs.V" to="multiply2.inputs.1"/>
   
   <node name="add" type="ShaderNodeMath" mode="ADD" X="100" Y="0"/>
-  <link from="compare1.outputs.Value" to="add.inputs.0"/>
-  <link from="compare2.outputs.Value" to="add.inputs.1"/>
+  <link from="multiply1.outputs.Value" to="add.inputs.0"/>
+  <link from="multiply2.outputs.Value" to="add.inputs.1"/>
   
   <node name="subtract" type="ShaderNodeMath" mode="SUBTRACT" X="300" Y="0">
-    <input id="0" default="1.0"/>
+    <set id="0" value="1.0"/>
   </node>
   <link from="add.outputs.Value" to="subtract.inputs.1"/>
   

@@ -5,9 +5,17 @@ import bpy
 from bpy.types import NodeSocketColor
 
 
+# This does not work atm (blender 2.82a)
 class NodeSocketTexture(NodeSocketColor):
     bl_idname = 'NodeSocketTexture'
     bl_label = 'Texture Node Socket'
+
+    default_value: bpy.props.FloatVectorProperty(
+        name='texture',
+        subtype='COLOR',
+        size=4,
+        default=(0.0, 0.0, 0.0, 0.0),
+        description='Texture')
 
     def draw(self, context, layout, node, text):
         layout.label(text=text)
