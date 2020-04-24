@@ -75,8 +75,7 @@ class PrelitBase:
             write_list(self.vert_materials, io_stream, VertexMaterial.write)
 
         if self.shaders:
-            write_chunk_head(W3D_CHUNK_SHADERS, io_stream,
-                             list_size(self.shaders, False))
+            write_chunk_head(W3D_CHUNK_SHADERS, io_stream, list_size(self.shaders, False))
             write_list(self.shaders, io_stream, Shader.write)
 
         if self.textures:

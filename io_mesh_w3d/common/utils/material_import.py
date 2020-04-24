@@ -111,15 +111,21 @@ def create_materials(context, structs, mesh, triangles):
                 for tx_coords in tx_stage.tx_coords:
                     uv_maps.append(get_or_create_uv_layer(mesh, b_mesh, triangles, tx_coords))
 
+                type = 'vertex'
+                if isinstance(struct, PrelitBase):
+                    type += '_' + str(struct.type)
+
                 for k, tx_ids in enumerate(tx_stage.tx_ids):
                     tex_ids = expand(tx_ids, num_faces)
                     uv_map = uv_maps[k]
                     for j, tri in enumerate(triangles):
-                        pipeline = Pipeline(type='vertex', pass_index=i)
-                        pipeline.vert_mat = struct.vert_materials[vert_mat_ids[j]]
-                        pipeline.shader = struct.shaders[shader_ids[j]]
-                        pipeline.texture = struct.textures[tex_ids[j]]
-                        pipeline.uv_map = uv_map
+                        pipeline = Pipeline(
+                            type=type,
+                            pass_index=i,
+                            vert_mat=struct.vert_materials[vert_mat_ids[j]],
+                            shader=struct.shaders[shader_ids[j]],
+                            texture=struct.textures[tex_ids[j]],
+                            uv_map=uv_map)
 
                         if face_pipeline_sets[j] is None:
                             face_pipeline_sets[j] = PipelineSet()
@@ -172,7 +178,7 @@ def create_material(context, mesh, b_mesh, triangles, pps):
     uv_tex_combos = dict()
 
     for pipeline in pps.pipelines:
-        if pipeline.type == 'vertex':
+        if 'vertex' in pipeline.type:
             create_vertex_material_pipeline(context, node_tree, pipeline, vert_, uv_nodes, uv_tex_combos)
         else:
             create_shader_material_pipeline(context, node_tree, pipeline)
@@ -184,7 +190,7 @@ def create_material(context, mesh, b_mesh, triangles, pps):
 
 def create_vertex_material_pipeline(context, node_tree, pipeline, vert_, uv_nodes, uv_tex_combos):
     instance = VertexMaterialGroup.create(node_tree, pipeline.vert_mat, pipeline.shader)
-    instance.label = pipeline.vert_mat.vm_name
+    instance.label = pipeline.vert_mat.vm_name + '_' + str(pipeline.pass_index) + '_' + str(pipeline.type)
     instance.location = (0, 300)
     instance.width = 200
     instance.hide = True

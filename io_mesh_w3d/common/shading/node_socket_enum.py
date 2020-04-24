@@ -186,7 +186,7 @@ class NodeSocketEnumDetailColorFunc(NodeSocketEnum):
             ('9', '9_UNKNOWN', 'unknown'),
             ('10', '10_UNKNOWN', 'unknown'),
             ('11', '11_UNKNOWN', 'unknown'),
-            ('12', '12_UNKNOWN', 'unknown')],
+            ('12', 'MOD_ALPHA_ADD_COLOR', 'unknown')],
         default='0')
 
 
