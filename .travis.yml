@@ -2,9 +2,14 @@ language: python
 python:
   - "3.7"
 sudo: false
+
+env:
+    matrix:
+        - BLENDER_VERSION="2.80"
+        - BLENDER_VERSION="2.81"
+
 install:
   - pip install codecov
-  - BLENDER_VERSION="2.81"
   - BLENDER_VERSION_SUFFIX=""
   - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}${BLENDER_VERSION_SUFFIX}-linux-glibc217-x86_64"
   - mkdir tmp && cd tmp
