@@ -1,3 +1,5 @@
+v0.4.7
+
 v0.4.6
 - apply modifiers to meshes on export
 - handle export of 'multi-user' meshes
