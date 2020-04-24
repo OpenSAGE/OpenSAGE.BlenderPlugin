@@ -7,7 +7,6 @@ env:
     matrix:
         - BLENDER_VERSION="2.80"
         - BLENDER_VERSION="2.81"
-        - BLENDER_VERSION="2.82"
 
 install:
   - pip install codecov
