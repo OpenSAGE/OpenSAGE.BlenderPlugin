@@ -1,6 +1,10 @@
 v0.4.6
 - apply modifiers to meshes on export
 - handle export of 'multi-user' meshes
+- default material type is now 'VERTEX_MATERIAL'
+- Bugfix: handle free vertices correctly
+- Bugfix: handle already applied file extensions by user
+- Bugfix: check for referenced armature case insensitive
 
 v0.4.5
 - split vertices with multiple uv coordinates on export
