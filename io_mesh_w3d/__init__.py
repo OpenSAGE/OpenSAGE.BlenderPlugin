@@ -5,7 +5,7 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.custom_properties import *
 
-VERSION = (0, 4, 6)
+VERSION = (0, 4, 7)
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
