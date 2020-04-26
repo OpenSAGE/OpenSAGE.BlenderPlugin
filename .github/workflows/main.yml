@@ -22,10 +22,14 @@ jobs:
     steps:
       - id: installBlender
         run: |
+          echo "start"
           mkdir tmp && cd tmp
           wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender$matrix.BLENDER_VERSION/$BLENDER_ARCHIVE.tar.bz2
+          echo "2"
           tar jxf $BLENDER_ARCHIVE.tar.bz2
           mv $BLENDER_ARCHIVE blender
           rm $BLENDER_ARCHIVE.tar.bz2
+          echo "3"
           cd ..
           ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/$matrix.BLENDER_VERSION/scripts/addons/io_mesh_w3d
+          echo "4"
