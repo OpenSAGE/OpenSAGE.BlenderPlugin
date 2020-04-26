@@ -1,0 +1,31 @@
+name: InstallationTests
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  install:
+    runs-on: [ ubuntu-latest ]
+  
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+        BLENDER_VERSION: [ "2.81" ]
+
+    env:
+      BLENDER_VERSION_SUFFIX: "" 
+      blender_archive: "blender-${{BLENDER_VERSION}}${{BLENDER_VERSION_SUFFIX}}-linux-glibc217-x86_64"
+    
+    steps:
+      - id: install blender
+        run: |
+          mkdir tmp && cd tmp
+          wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.tar.bz2
+          tar jxf ${BLENDER_ARCHIVE}.tar.bz2
+          mv ${BLENDER_ARCHIVE} blender
+          rm ${BLENDER_ARCHIVE}.tar.bz2
+          cd ..
+          ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${BLENDER_VERSION}/scripts/addons/io_mesh_w3d
