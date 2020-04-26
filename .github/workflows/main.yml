@@ -16,14 +16,13 @@ jobs:
         BLENDER_VERSION: [ "2.81" ]
 
     env:
-      BLENDER_VERSION_SUFFIX: "" 
-      BLENDER_ARCHIVE: "blender-${{ matrix.BLENDER_VERSION }} ${{ BLENDER_VERSION_SUFFIX }}-linux-glibc217-x86_64"
+      BLENDER_ARCHIVE: "blender-${{ matrix.BLENDER_VERSION }}-linux-glibc217-x86_64"
     
     steps:
       - id: installBlender
         run: |
           echo "start"
-          echo ${{ BLENDER_VERSION_SUFFIX }} ${{ matrix.BLENDER_VERSION }} &{{ BLENDER_ARCHIVE }}
+          echo ${{ matrix.BLENDER_VERSION }} &{{ BLENDER_ARCHIVE }}
           mkdir tmp && cd tmp
           wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${{ matrix.BLENDER_VERSION }}/${{ BLENDER_ARCHIVE }}.tar.bz2
           echo "2"
