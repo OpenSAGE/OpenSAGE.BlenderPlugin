@@ -27,4 +27,4 @@ jobs:
           mv $BLENDER_ARCHIVE blender
           rm $BLENDER_ARCHIVE.tar.bz2
           cd blender
-          blender --background --python ../ci_install.py
+          ./blender --background --python ../ci_install.py
