@@ -1,4 +1,9 @@
 import bpy
 
-bpy.ops.preferences.addon_install(file_path='', overwrite=True)
-bpy.ops.preferences.addon_enable(module='Import/Export Westwood W3D Format (.w3d/.w3x)')
+result = bpy.ops.preferences.addon_install(filepath='../../io_mesh_w3d.zip', overwrite=True)
+if result is not 'FINISHED':
+	raise Exception(1)
+
+result = bpy.ops.preferences.addon_enable(module='io_mesh_w3d')
+if result is not 'FINISHED':
+	raise Exception(1)
