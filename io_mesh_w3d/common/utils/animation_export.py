@@ -113,8 +113,8 @@ def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     channels = []
 
     # TODO: only one armature supported!
-    for armature in bpy.data.armatures:
-        channels.extend(retrieve_channels(armature, hierarchy, timecoded))
+    for rig in get_objects('ARMATURE'):
+        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(
