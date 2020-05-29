@@ -164,9 +164,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     retrieve_shader_material(context, material, principled))
 
             else:
-                # TODO: create prelit material structs if material is prelit
-                # set mesh_struct.header.attributes accordingly
-
                 mesh_struct.shaders.append(retrieve_shader(material))
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]

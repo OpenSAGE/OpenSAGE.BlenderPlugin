@@ -30,9 +30,7 @@ def get_bone(rig, hierarchy, channel):
 
     if is_visibility(channel) and pivot.name in rig.data.bones:
         return rig.data.bones[pivot.name]
-    elif pivot.name in rig.pose.bones:
-        return rig.pose.bones[pivot.name]
-    return bpy.data.objects[pivot.name]
+    return rig.pose.bones[pivot.name]
 
 
 def setup_animation(animation):

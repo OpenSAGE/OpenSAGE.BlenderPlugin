@@ -112,12 +112,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 def retrieve_animation(animation_name, hierarchy, rig, timecoded):
     channels = []
 
-    for mesh in get_objects('MESH'):
-        channels.extend(retrieve_channels(mesh, hierarchy, timecoded, mesh.name))
-
-    for rig in get_objects('ARMATURE'):
-        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
-
+    # TODO: only one armature supported!
     for armature in bpy.data.armatures:
         channels.extend(retrieve_channels(armature, hierarchy, timecoded))
 

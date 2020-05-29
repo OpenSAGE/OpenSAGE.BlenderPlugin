@@ -48,17 +48,12 @@ def retrieve_hierarchy(context, container_name):
             eulers = rotation.to_euler()
             pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
-            print(pivot.name)
             hierarchy.pivots.append(pivot)
 
         switch_to_pose(rig, 'POSE')
     else:
         context.error('only one armature per scene allowed!')
         return None, None
-
-    print(len(hierarchy.pivots))
-
-
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig
