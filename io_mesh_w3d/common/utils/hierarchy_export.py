@@ -46,7 +46,7 @@ def retrieve_hierarchy(context, container_name):
             pivot.translation = translation
             pivot.rotation = rotation
             eulers = rotation.to_euler()
-            #pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
+            pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
             print(pivot.name)
             hierarchy.pivots.append(pivot)

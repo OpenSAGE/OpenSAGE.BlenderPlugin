@@ -180,7 +180,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     img = base_col_tex.image
                     filepath = os.path.basename(img.filepath)
                     if filepath == '':
-                        filepath = img.name + '.dds'
+                        filepath = img.name
                     tex = Texture(
                         id=img.name,
                         file=filepath,
