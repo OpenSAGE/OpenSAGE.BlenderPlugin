@@ -47,9 +47,6 @@ class HierarchyPivot:
         self.rotation = rotation
         self.fixup_matrix = fixup_matrix
 
-        # non struct attributes
-        self.processed = False
-
     @staticmethod
     def read(io_stream):
         return HierarchyPivot(

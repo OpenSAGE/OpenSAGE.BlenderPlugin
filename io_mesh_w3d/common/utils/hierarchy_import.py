@@ -41,20 +41,8 @@ def create_bone_hierarchy(hierarchy, sub_objects, coll):
     root = hierarchy.pivots[0]
     (rig, armature) = create_rig(hierarchy.name(), root, coll)
 
-    for i, pivot in enumerate(hierarchy.pivots):
-        pivot.is_bone = True
-        for obj in sub_objects:
-            if obj.bone_index == i and obj.name == pivot.name:
-                pivot.is_bone = False
-
-    for i, pivot in reversed(list(enumerate(hierarchy.pivots))):
-        childs = [child for child in hierarchy.pivots if child.parent_id == i]
-        for child in childs:
-            if child.is_bone:
-                pivot.is_bone = True
-
     for pivot in hierarchy.pivots:
-        if not pivot.is_bone or pivot.parent_id < 0:
+        if pivot.parent_id < 0:
             continue
 
         bone = armature.edit_bones.new(pivot.name)
