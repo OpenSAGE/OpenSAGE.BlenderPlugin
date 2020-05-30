@@ -3,6 +3,7 @@
 
 import bpy
 import bmesh
+import time
 from mathutils import Vector, Matrix
 from bpy_extras import node_shader_utils
 
@@ -20,6 +21,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
+        print(mesh_object.name)
+        
         if mesh_object.object_type != 'NORMAL':
             continue
 
@@ -51,6 +54,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         header.vert_count = len(mesh.vertices)
 
+        loop_dict = dict()
+        for loop in mesh.loops:
+            loop_dict[loop.vertex_index] = loop
+
+        (_, _, scale) = mesh_object.matrix_local.decompose()
+
         for i, vertex in enumerate(mesh.vertices):
             matrix = Matrix.Identity(4)
 
@@ -81,15 +90,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if len(vertex.groups) > 2:
                     context.warning('max 2 bone influences per vertex supported!')
 
-            (_, _, scale) = mesh_object.matrix_local.decompose()
             scaled_vert = vertex.co * scale.x
             mesh_struct.verts.append(matrix @ scaled_vert)
 
             (_, rotation, _) = matrix.decompose()
 
-            loops = [loop for loop in mesh.loops if loop.vertex_index == i]
-            if loops:
-                loop = loops[0]
+            if i in loop_dict:
+                loop = loop_dict[i]
                 mesh_struct.normals.append(rotation @ loop.normal)
 
                 if mesh.uv_layers:
