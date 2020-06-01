@@ -39,7 +39,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
         mesh_object = mesh_object.evaluated_get(depsgraph)
-        mesh = mesh_object.to_mesh()
+        mesh = mesh_object.data
         b_mesh = prepare_bmesh(context, mesh)
 
         (center, radius) = calculate_mesh_sphere(mesh)
@@ -227,10 +227,20 @@ def prepare_bmesh(context, mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
-
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
+
+    b_mesh.free()
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+
+    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
+
+    print('#######################')
+    for j, face in enumerate(b_mesh.faces):
+        print('face: ' + str(j))
+        for loop in face.loops:
+            print(loop.index)
 
     return b_mesh
 
