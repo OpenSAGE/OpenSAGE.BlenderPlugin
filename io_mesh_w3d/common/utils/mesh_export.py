@@ -257,7 +257,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        context.info('mesh vertices have been split because of multiple uv coordinates per vertex!')
+        context.info('vertices of mesh ' + mesh.name + ' have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 
