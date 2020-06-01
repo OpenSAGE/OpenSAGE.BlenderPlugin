@@ -777,12 +777,12 @@ class TestUtils(TestCase):
                 compare_dazzles(self, dazzle, actual_dazzles[i])
 
         if animation is not None:
-            actual_animation = retrieve_animation(
+            actual_animation = retrieve_animation(self,
                 animation.header.name, actual_hiera, rig, timecoded=False)
             compare_animations(self, animation, actual_animation)
 
         if compressed_animation is not None:
-            actual_compressed_animation = retrieve_animation(
+            actual_compressed_animation = retrieve_animation(self,
                 compressed_animation.header.name, actual_hiera, rig, timecoded=True)
             compare_compressed_animations(
                 self, compressed_animation, actual_compressed_animation)

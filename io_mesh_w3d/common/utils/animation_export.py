@@ -109,12 +109,23 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     return channels
 
 
-def retrieve_animation(animation_name, hierarchy, rig, timecoded):
+def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
     channels = []
 
-    # TODO: only one armature supported!
-    for rig in get_objects('ARMATURE'):
-        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
+    for mesh in get_objects('MESH'):
+        if (retrieve_channels(mesh, hierarchy, timecoded, mesh.name)):
+            context.warning('Animating meshes is not supported!!! Animate the respective bone instead!')
+
+    rigs = get_objects('ARMATURE')
+    if (len(rigs) > 0):
+        channels.extend(retrieve_channels(rigs[0], hierarchy, timecoded))
+    if (len(rigs) > 1):
+        context.warning('Scene should only contain a single armature! -> exporting only animations of the first one')
+
+    if (len(bpy.data.armatures) > 0):
+        channels.extend(retrieve_channels(bpy.data.armatures[0], hierarchy, timecoded))
+    if (len(bpy.data.armatures) > 1):
+        context.warning('Scene should only contain a single armature! -> exporting only animations of the first one')
 
     if timecoded:
         ani_struct = CompressedAnimation(
