@@ -226,21 +226,14 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 def prepare_bmesh(context, mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
-
     b_mesh.free()
+
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-
     b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
-
-    print('#######################')
-    for j, face in enumerate(b_mesh.faces):
-        print('face: ' + str(j))
-        for loop in face.loops:
-            print(loop.index)
+    b_mesh.to_mesh(mesh)
 
     return b_mesh
 
@@ -264,7 +257,6 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        b_mesh.to_mesh(mesh)
         context.info('mesh vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
