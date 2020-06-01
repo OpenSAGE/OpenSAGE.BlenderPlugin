@@ -37,7 +37,7 @@ def retrieve_vertex_material(material, principled):
         emissive=RGBA(vec=material.emission),
         ambient=RGBA(vec=material.ambient),
         translucency=material.translucency,
-        opacity=material.opacity)
+        opacity=principled.alpha)
 
     if 'USE_DEPTH_CUE' in material.attributes:
         info.attributes |= USE_DEPTH_CUE
@@ -141,7 +141,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
 
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
-    append_property(shader_mat, 2, 'Opacity', material.opacity)
+    append_property(shader_mat, 2, 'Opacity', principled.alpha, 1.0)
     append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test, True)
     append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
     append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)

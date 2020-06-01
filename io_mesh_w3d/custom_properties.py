@@ -165,12 +165,6 @@ Material.emission = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Emission color')
 
-Material.opacity = FloatProperty(
-    name='Opacity',
-    default=0.0,
-    min=0.0, max=1.0,
-    description='Opacity property')
-
 Material.alpha_test = BoolProperty(
     name='Alpha test',
     description='Enable the alpha test',

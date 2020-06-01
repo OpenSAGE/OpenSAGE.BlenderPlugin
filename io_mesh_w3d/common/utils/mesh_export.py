@@ -21,8 +21,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
-        print(mesh_object.name)
-        
         if mesh_object.object_type != 'NORMAL':
             continue
 
@@ -157,6 +155,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass()
+
+            if material is None:
+                context.warning('mesh: ' + mesh_object.name + ' uses a invalid/empty material!')
+                continue
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
