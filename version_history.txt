@@ -1,4 +1,16 @@
+v0.5.0
+- create pivots for meshes on export if they have no parent bone
+- create a bone for each hierarchy pivot on import (otherwise pivot order can not be maintained on roundtrip)
+- reduced export time for meshes (O(n²) -> O(n))
+- handle empty/invalid/default materials correctly on export
+- Bugfix: texture name got falsely '.dds' appended on export
+- Bugfix: export proper opacity value of material (fixes invisible objects in W3DViewer)
+- Bugfix: do not export uv coordinates if no texutre is used by the material
+- Bugfix: fixed mesh triangulation on export
+- Bugfix: use proper hierarchy name for animation and hlod on export
+
 v0.4.7
+- Bugfix: fixed installation issue
 
 v0.4.6 (24.04.20)
 - apply modifiers to meshes on export
