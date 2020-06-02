@@ -37,7 +37,7 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(42, len(mesh.verts))
 
         mesh2 = meshes[1]
-        self.assertEqual(160, len(mesh2.verts))
+        self.assertEqual(34, len(mesh2.verts))
 
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
@@ -75,10 +75,10 @@ class TestMeshExportUtils(TestCase):
         for i, datum in enumerate(uv_layer.data):
             datum.uv = tx_coords[i]
 
-        b_mesh = prepare_bmesh(self, mesh)
+        _mesh = prepare_bmesh(self, mesh)
 
-        self.assertEqual(19, len(b_mesh.verts))
-        self.assertEqual(12, len(b_mesh.faces))
+        self.assertEqual(24, len(_mesh.verts))
+        self.assertEqual(12, len(_mesh.faces))
 
     def test_mesh_with_unconnected_vertex_export(self):
         mesh = bpy.data.meshes.new('mesh_cube')

@@ -47,7 +47,7 @@ class TestExportUtils(TestCase):
     @patch('io_mesh_w3d.export_utils.retrieve_meshes', return_value=([get_mesh(), get_mesh()], None))
     @patch.object(Mesh, 'validate', return_value=False)
     def test_retrieve_data_returns_false_if_M_in_mode_and_invalid_mesh(
-            self, hiera, hlod, boxes, dazzles, retrieve_meshes, validate):
+            self, validate, retrieve_meshes, dazzles, boxes, hlod, hiera):
         self.error = lambda text: self.assertEqual('aborting export!', text)
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'

@@ -320,18 +320,42 @@ class TestUtils(TestCase):
 
         self.compare_data([], hlod, hierarchy)
 
-    def test_mesh_only_hlod_roundtrip(self):
+    def test_mesh_only_roundtrip(self):
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = 'containerName'
+        root = HierarchyPivot(
+            name='ROOTTRANSFORM',
+            name_id=None,
+            parent_id=-1,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+        pivot =  HierarchyPivot(
+            name='tree',
+            name_id=None,
+            parent_id=0,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+
+        hierarchy.pivots = [
+            root,
+            pivot]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'containerName'
         hlod.lod_arrays[0].header.model_count = 1
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=0, name='containerName.tree')]
+            get_hlod_sub_object(bone=1, name='containerName.tree')]
 
         meshes = [get_mesh(name='tree')]
 
         create_data(self, meshes)
 
-        self.compare_data([], hlod)
+        self.compare_data([], hlod, hierarchy)
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()
