@@ -97,7 +97,7 @@ def to_vec(color):
 def retrieve_shader_material(context, material, principled, w3x=False):
     name = material.name.split('.', 1)[-1]
     if not name.endswith('.fx'):
-        context.info(name + ' is not a valid shader name -> defaulting to: DefaultW3D.fx')
+        context.info('\'' + name + '\' is not a valid shader name -> defaulting to: \'DefaultW3D.fx\'')
         name = 'DefaultW3D.fx'
 
     shader_mat = ShaderMaterial(

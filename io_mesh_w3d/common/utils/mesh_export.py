@@ -86,7 +86,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
-                    context.warning('max 2 bone influences per vertex supported!')
+                    context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is influenced by more than 2 bones!')
 
             scaled_vert = vertex.co * scale.x
             mesh_struct.verts.append(matrix @ scaled_vert)
@@ -102,7 +102,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
                     mesh_struct.bitangents.append((rotation @ loop.tangent))
             else:
-                context.info('the vertex ' + str(i) + ' in mesh ' + mesh_object.name + ' is unconnected!')
+                context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is not connected to any face!')
                 mesh_struct.normals.append(rotation @ vertex.normal)
                 if mesh.uv_layers:
                     # only dummys
@@ -157,7 +157,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mat_pass = MaterialPass()
 
             if material is None:
-                context.warning('mesh: ' + mesh_object.name + ' uses a invalid/empty material!')
+                context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
                 continue
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
@@ -257,7 +257,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        context.info('vertices of mesh ' + mesh.name + ' have been split because of multiple uv coordinates per vertex!')
+        context.info('mesh \'' + mesh.name + '\' vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 
@@ -306,6 +306,9 @@ def calculate_mesh_sphere(mesh):
 
     return validate_all_points_inside_sphere(center, radius, vertices)
 
+
+
+# WIP code below
 
 def retrieve_aabbtree(verts):
     result = AABBTree(header=AABBTreeHeader())

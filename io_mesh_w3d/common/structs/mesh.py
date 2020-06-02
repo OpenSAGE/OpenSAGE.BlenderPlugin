@@ -145,10 +145,8 @@ class Mesh:
         self.multi_bone_skinned = False
 
     def validate(self, context):
-        if context.file_format == 'W3X':
-            return True
-        if len(self.header.mesh_name) >= STRING_LENGTH:
-            context.error('mesh name ' + self.header.mesh_name + ' exceeds max length of: ' + str(STRING_LENGTH))
+        if len(self.header.mesh_name) >= STRING_LENGTH and context.file_format == 'W3D':
+            context.error('mesh name \'' + self.header.mesh_name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         return True
 

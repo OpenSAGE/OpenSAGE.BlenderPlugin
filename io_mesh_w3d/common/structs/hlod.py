@@ -9,7 +9,7 @@ W3D_CHUNK_HLOD_HEADER = 0x00000701
 
 
 class HLodHeader:
-    def __init__(self, version=Version(), lod_count=1, model_name='', hierarchy_name=''):
+    def __init__(self, version=Version(major=1, minor=0), lod_count=1, model_name='', hierarchy_name=''):
         self.version = version
         self.lod_count = lod_count
         self.model_name = model_name
@@ -208,9 +208,9 @@ class HLod:
             for sub_obj in lod_array.sub_objects:
                 if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:
                     context.error(
-                        'identifier ' +
+                        'identifier \'' +
                         sub_obj.identifier +
-                        ' exceeds max length of: ' +
+                        '\' exceeds max length of ' +
                         str(LARGE_STRING_LENGTH))
                     return False
         return True

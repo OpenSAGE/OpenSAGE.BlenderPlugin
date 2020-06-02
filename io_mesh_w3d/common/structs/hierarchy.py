@@ -113,11 +113,11 @@ class Hierarchy:
         if context.file_format == 'W3X':
             return True
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('hierarchy name exceeds max length of: ' + str(STRING_LENGTH))
+            context.error('armature name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         for pivot in self.pivots:
             if len(pivot.name) >= STRING_LENGTH:
-                context.error('name of object ' + pivot.name + ' exceeds max length of: ' + str(STRING_LENGTH))
+                context.error('name of object \'' + pivot.name + '\' exceeds max length of ' + str(STRING_LENGTH))
                 return False
         return True
 

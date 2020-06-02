@@ -22,6 +22,8 @@ def retrieve_hierarchy(context, container_name):
     if len(rigs) == 0:
         hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
+        context.warning('scene does not contain an armature object!')
+
     elif len(rigs) == 1:
         rig = rigs[0]
 
@@ -54,6 +56,26 @@ def retrieve_hierarchy(context, container_name):
     else:
         context.error('only one armature per scene allowed!')
         return None, None
+
+    meshes = get_objects('MESH')
+
+    for mesh in list(reversed(meshes)):
+        if mesh.vertex_groups or mesh.object_type == 'BOX' or mesh.name in pick_plane_names \
+            or mesh.parent is not None:
+            continue
+
+        (location, rotation, _) = mesh.matrix_local.decompose()
+        eulers = rotation.to_euler()
+
+        pivot = HierarchyPivot(
+            name=mesh.name,
+            parent_id=0,
+            translation=location,
+            rotation=rotation,
+            euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
+
+        hierarchy.pivots.append(pivot)
+        context.warning('mesh \'' + mesh.name + '\' did not have a parent bone!')
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig

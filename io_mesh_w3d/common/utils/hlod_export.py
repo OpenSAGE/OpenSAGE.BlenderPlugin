@@ -29,7 +29,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
 
         if not mesh.vertex_groups:
             for index, pivot in enumerate(hierarchy.pivots):
-                if pivot.name == mesh.parent_bone:
+                if pivot.name == mesh.parent_bone or pivot.name == mesh.name:
                     sub_object.bone_index = index
 
         lod_array.sub_objects.append(sub_object)

@@ -236,21 +236,17 @@ class Animation:
 
     def validate(self, context):
         if not self.channels:
-            context.error('Scene does not contain any animation data')
+            context.error('Scene does not contain any animation data!')
             return False
 
         if context.file_format == 'W3X':
             return True
 
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('animation name ' + self.header.name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            context.error('animation name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         if len(self.header.hierarchy_name) >= STRING_LENGTH:
-            context.error(
-                'animation hierarchy name ' +
-                self.header.hierarchy_name +
-                ' exceeds max length of: ' +
-                str(STRING_LENGTH))
+            context.error('armature name \'' + self.header.hierarchy_name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         return True
 
