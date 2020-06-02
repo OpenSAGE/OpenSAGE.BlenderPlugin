@@ -4,8 +4,8 @@
 from io_mesh_w3d.w3d.structs.version import Version
 
 
-def get_version():
-    return Version(major=5, minor=0)
+def get_version(major=5, minor=0):
+    return Version(major=major, minor=minor)
 
 
 def compare_versions(self, expected, actual):
