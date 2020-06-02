@@ -199,18 +199,18 @@ def create_material_from_shader_material(context, name, shader_mat):
 
 
 def set_shader_properties(material, shader):
-    material.shader.depth_compare = shader.depth_compare
-    material.shader.depth_mask = shader.depth_mask
+    material.shader.depth_compare = str(shader.depth_compare)
+    material.shader.depth_mask = str(shader.depth_mask)
     material.shader.color_mask = shader.color_mask
-    material.shader.dest_blend = shader.dest_blend
+    material.shader.dest_blend = str(shader.dest_blend)
     material.shader.fog_func = shader.fog_func
-    material.shader.pri_gradient = shader.pri_gradient
-    material.shader.sec_gradient = shader.sec_gradient
-    material.shader.src_blend = shader.src_blend
-    material.shader.texturing = shader.texturing
-    material.shader.detail_color_func = shader.detail_color_func
-    material.shader.detail_alpha_func = shader.detail_alpha_func
+    material.shader.pri_gradient = str(shader.pri_gradient)
+    material.shader.sec_gradient = str(shader.sec_gradient)
+    material.shader.src_blend = str(shader.src_blend)
+    material.shader.texturing = str(shader.texturing)
+    material.shader.detail_color_func = str(shader.detail_color_func)
+    material.shader.detail_alpha_func = str(shader.detail_alpha_func)
     material.shader.shader_preset = shader.shader_preset
-    material.shader.alpha_test = shader.alpha_test
-    material.shader.post_detail_color_func = shader.post_detail_color_func
-    material.shader.post_detail_alpha_func = shader.post_detail_alpha_func
+    material.shader.alpha_test = str(shader.alpha_test)
+    material.shader.post_detail_color_func = str(shader.post_detail_color_func)
+    material.shader.post_detail_alpha_func = str(shader.post_detail_alpha_func)

@@ -182,32 +182,18 @@ class TestCustomProperties(TestCase):
         # shader properties
         shader = mat.shader
 
-        self.assertEqual(0, shader.depth_compare)
-
-        self.assertEqual(0, shader.depth_mask)
-
+        self.assertEqual('3', shader.depth_compare)
+        self.assertEqual('1', shader.depth_mask)
         self.assertEqual(0, shader.color_mask)
-
-        self.assertEqual(0, shader.dest_blend)
-
+        self.assertEqual('0', shader.dest_blend)
         self.assertEqual(0, shader.fog_func)
-
-        self.assertEqual(0, shader.pri_gradient)
-
-        self.assertEqual(0, shader.sec_gradient)
-
-        self.assertEqual(0, shader.src_blend)
-
-        self.assertEqual(0, shader.texturing)
-
-        self.assertEqual(0, shader.detail_color_func)
-
-        self.assertEqual(0, shader.detail_alpha_func)
-
+        self.assertEqual('1', shader.pri_gradient)
+        self.assertEqual('0', shader.sec_gradient)
+        self.assertEqual('1', shader.src_blend)
+        self.assertEqual('0', shader.texturing)
+        self.assertEqual('0', shader.detail_color_func)
+        self.assertEqual('0', shader.detail_alpha_func)
         self.assertEqual(0, shader.shader_preset)
-
-        self.assertEqual(0, shader.alpha_test)
-
-        self.assertEqual(0, shader.post_detail_color_func)
-
-        self.assertEqual(0, shader.post_detail_alpha_func)
+        self.assertEqual('0', shader.alpha_test)
+        self.assertEqual('0', shader.post_detail_color_func)
+        self.assertEqual('0', shader.post_detail_alpha_func)

@@ -175,18 +175,18 @@ def retrieve_shader_material(context, material, principled, w3x=False):
 
 def retrieve_shader(material):
     return Shader(
-        depth_compare=material.shader.depth_compare,
-        depth_mask=material.shader.depth_mask,
+        depth_compare=int(material.shader.depth_compare),
+        depth_mask=int(material.shader.depth_mask),
         color_mask=material.shader.color_mask,
-        dest_blend=material.shader.dest_blend,
+        dest_blend=int(material.shader.dest_blend),
         fog_func=material.shader.fog_func,
-        pri_gradient=material.shader.pri_gradient,
-        sec_gradient=material.shader.sec_gradient,
-        src_blend=material.shader.src_blend,
-        texturing=material.shader.texturing,
-        detail_color_func=material.shader.detail_color_func,
-        detail_alpha_func=material.shader.detail_alpha_func,
+        pri_gradient=int(material.shader.pri_gradient),
+        sec_gradient=int(material.shader.sec_gradient),
+        src_blend=int(material.shader.src_blend),
+        texturing=int(material.shader.texturing),
+        detail_color_func=int(material.shader.detail_color_func),
+        detail_alpha_func=int(material.shader.detail_alpha_func),
         shader_preset=material.shader.shader_preset,
-        alpha_test=material.shader.alpha_test,
-        post_detail_color_func=material.shader.post_detail_color_func,
-        post_detail_alpha_func=material.shader.post_detail_alpha_func)
+        alpha_test=int(material.shader.alpha_test),
+        post_detail_color_func=int(material.shader.post_detail_color_func),
+        post_detail_alpha_func=int(material.shader.post_detail_alpha_func))
