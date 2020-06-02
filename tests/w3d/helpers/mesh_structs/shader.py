@@ -6,21 +6,21 @@ from io_mesh_w3d.w3d.structs.mesh_structs.shader import Shader
 
 def get_shader():
     return Shader(
-        depth_compare=4,
-        depth_mask=100,
-        color_mask=44,
-        dest_blend=6,
-        fog_func=123,
-        pri_gradient=90,
-        sec_gradient=45,
-        src_blend=42,
-        texturing=11,
-        detail_color_func=3,
-        detail_alpha_func=7,
-        shader_preset=8,
-        alpha_test=83,
-        post_detail_color_func=245,
-        post_detail_alpha_func=32,
+        depth_compare=3,
+        depth_mask=1,
+        color_mask=0,
+        dest_blend=0,
+        fog_func=0,
+        pri_gradient=1,
+        sec_gradient=0,
+        src_blend=1,
+        texturing=0,
+        detail_color_func=0,
+        detail_alpha_func=0,
+        shader_preset=0,
+        alpha_test=0,
+        post_detail_color_func=0,
+        post_detail_alpha_func=0,
         pad=0)
 
 
