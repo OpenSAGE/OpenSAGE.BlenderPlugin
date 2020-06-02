@@ -7,7 +7,7 @@
 
 ![Sample](/art/AotR_Umbar_Buildings.jpg)
 
-**OpenSAGE.BlenderPlugin**: a free, open source blender plugin of the [Westwood](https://de.wikipedia.org/wiki/Westwood_Studios) 3D
+**OpenSAGE.BlenderPlugin**: a free, open source blender plugin for the [Westwood](https://de.wikipedia.org/wiki/Westwood_Studios) 3D
 format used in Command & Conquer™: Generals and other RTS titles from Westwood Studios and EA Pacific. 
 
 ## Installing and activating
@@ -18,6 +18,10 @@ tab, click the **Install Add-on from File...** button, select
 
 To activate, open Blender's **User Preferences** panel, click the **Add-ons**
 tab, find "Import-Export: Westwood 3d (.w3d)", andclick its checkbox.
+
+## Note
+
+The plugin is still in beta and the behaviour may change between releases. Also bugs might still occur, which we'll try to fix as soon as we find them. See [Troubleshoting](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Troubleshooting) for more information.
 
 ## Legal disclaimers
 
