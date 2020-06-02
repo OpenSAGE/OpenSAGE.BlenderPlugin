@@ -365,18 +365,144 @@ Material.multi_texture_enable = BoolProperty(
 
 
 class ShaderProperties(PropertyGroup):
-    depth_compare: bpy.props.IntProperty(min=0, max=255)
-    depth_mask: bpy.props.IntProperty(min=0, max=255)
-    color_mask: bpy.props.IntProperty(min=0, max=255)
-    dest_blend: bpy.props.IntProperty(min=0, max=255)
-    fog_func: bpy.props.IntProperty(min=0, max=255)
-    pri_gradient: bpy.props.IntProperty(min=0, max=255)
-    sec_gradient: bpy.props.IntProperty(min=0, max=255)
-    src_blend: bpy.props.IntProperty(min=0, max=255)
-    texturing: bpy.props.IntProperty(min=0, max=255)
-    detail_color_func: bpy.props.IntProperty(min=0, max=255)
-    detail_alpha_func: bpy.props.IntProperty(min=0, max=255)
-    shader_preset: bpy.props.IntProperty(min=0, max=255)
-    alpha_test: bpy.props.IntProperty(min=0, max=255)
-    post_detail_color_func: bpy.props.IntProperty(min=0, max=255)
-    post_detail_alpha_func: bpy.props.IntProperty(min=0, max=255)
+    depth_compare: EnumProperty(
+        name='Depth Compare',
+        description='Describes how to depth check this material',
+        items=[
+            ('0', 'PASS_NEVER', 'pass never (i.e. always fail depth comparison test)'),
+            ('1', 'PASS_LESS', 'pass if incoming less than stored'),
+            ('2', 'PASS_EQUAL', 'pass if incoming equal to stored'),
+            ('3', 'PASS_LEQUAL', 'pass if incoming less than or equal to stored (default)'),
+            ('4', 'PASS_GREATER', 'pass if incoming greater than stored'),
+            ('5', 'PASS_NOTEQUAL', 'pass if incoming not equal to stored'),
+            ('6', 'PASS_GEQUAL', 'pass if incoming greater than or equal to stored'),
+            ('7', 'PASS_ALWAYS', 'pass always')],
+        default='3')
+
+    depth_mask: EnumProperty(
+        name='Write Depthmask',
+        description='Wether or not to store the depthmask',
+        items=[
+            ('0', 'DISABLE', 'disable depth buffer writes'),
+            ('1', 'ENABLE', 'enable depth buffer writes (default)')],
+        default='1')
+
+    color_mask: IntProperty(min=0, max=255, name='Color Mask')
+    dest_blend: EnumProperty(
+        name='Destination Blendfunc',
+        description='Describes how this material blends',
+        items=[
+            ('0', 'Zero', 'destination pixel doesn\'t affect blending (default)'),
+            ('1', 'One', 'destination pixel added unmodified'),
+            ('2', 'SrcColor', 'destination pixel multiplied by fragment RGB components'),
+            ('3', 'OneMinusSrcColor',
+             'destination pixel multiplied by one minus (i.e. inverse) fragment RGB components'),
+            ('4', 'SrcAlpha', 'destination pixel multiplied by fragment alpha component'),
+            ('5', 'OneMinusSrcAlpha',
+             'destination pixel multiplied by one minus (i.e. inverse) fragment alpha component'),
+            ('6', 'SrcColorPreFog',
+             'destination pixel multiplied by fragment RGB components prior to fogging'),
+        ],
+        default='0')
+    fog_func: IntProperty(min=0, max=255, name='Fog function')
+
+    pri_gradient: EnumProperty(
+        name='Primary Gradient',
+        description='Specify the primary gradient',
+        items=[
+            ('0', 'Disable', 'disable primary gradient (same as OpenGL \'decal\' texture blend)'),
+            ('1', 'Modulate', 'modulate fragment ARGB by gradient ARGB (default)'),
+            ('2', 'Add', 'add gradient RGB to fragment RGB, copy gradient A to fragment A'),
+            ('3', 'BumpEnvMap', 'environment-mapped bump mapping'),
+            ('5', 'Enable', '')],
+        default='1')
+
+    sec_gradient: EnumProperty(
+        name='Secondary Gradient',
+        description='Specify the primary gradient',
+        items=[
+            ('0', 'Disable', 'don\'t draw secondary gradient (default)'),
+            ('1', 'Enable', 'add secondary gradient RGB to fragment RGB')],
+        default='0')
+
+    src_blend: EnumProperty(
+        name='Source Blendfunc',
+        description='Describes how this material blends',
+        items=[
+            ('0', 'Zero', 'fragment not added to color buffer'),
+            ('1', 'One', 'fragment added unmodified to color buffer (default)'),
+            ('2', 'SrcAlpha', 'fragment RGB components multiplied by fragment A'),
+            ('3', 'OneMinusSrcAlpha',
+             'fragment RGB components multiplied by fragment inverse (one minus) A'),
+        ],
+        default='1')
+    texturing: EnumProperty(
+        name='Shader texturing',
+        description='Enable texturing',
+        items=[
+            ('0', 'Disable', 'no texturing (treat fragment initial color as 1,1,1,1) (default)'),
+            ('1', 'Enable', 'enable texturing'),
+        ],
+        default='0')
+    detail_color_func: EnumProperty(
+        name='Detail color function',
+        items=[
+            ('0', 'Disable', 'local (default)'),
+            ('1', 'Detail', 'other'),
+            ('2', 'Scale', 'local * other'),
+            ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
+            ('4', 'Add', 'local + other'),
+            ('5', 'Sub', 'local - other'),
+            ('6', 'SubR', 'other - local'),
+            ('7', 'Blend', '(localAlpha)*local + (~localAlpha)*other'),
+            ('8', 'DetailBlend', '(otherAlpha)*local + (~otherAlpha)*other'),
+            ('9', 'Alt', ''),
+            ('10', 'DetailAlt', ''),
+            ('11', 'ScaleAlt', ''),
+            ('12', 'InvScaleAlt', ''),
+        ],
+        default='0')
+    detail_alpha_func: EnumProperty(
+        name='Detail alpha function',
+        items=[
+            ('0', 'Disable', 'local (default)'),
+            ('1', 'Detail', 'other'),
+            ('2', 'Scale', 'local * other'),
+            ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
+        ],
+        default='0')
+    shader_preset: bpy.props.IntProperty(min=0, max=255, name="Shader presets")
+    alpha_test: EnumProperty(
+        name='Alpha test',
+        description='Specify wether or not to alpha check',
+        items=[
+            ('0', 'Disable', 'disable alpha testing (default)'),
+            ('1', 'Enable', 'enable alpha testing')],
+        default='0')
+    post_detail_color_func: EnumProperty(
+        name='Post-Detail color function',
+        items=[
+            ('0', 'Disable', 'local (default)'),
+            ('1', 'Detail', 'other'),
+            ('2', 'Scale', 'local * other'),
+            ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
+            ('4', 'Add', 'local + other'),
+            ('5', 'Sub', 'local - other'),
+            ('6', 'SubR', 'other - local'),
+            ('7', 'Blend', '(localAlpha)*local + (~localAlpha)*other'),
+            ('8', 'DetailBlend', '(otherAlpha)*local + (~otherAlpha)*other'),
+            ('9', 'Alt', ''),
+            ('10', 'DetailAlt', ''),
+            ('11', 'ScaleAlt', ''),
+            ('12', 'InvScaleAlt', ''),
+        ],
+        default='0')
+    post_detail_alpha_func: EnumProperty(
+        name='Post-Detail alpha function',
+        items=[
+            ('0', 'Disable', 'local (default)'),
+            ('1', 'Detail', 'other'),
+            ('2', 'Scale', 'local * other'),
+            ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
+        ],
+        default='0')
