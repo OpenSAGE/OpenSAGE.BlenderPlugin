@@ -423,7 +423,7 @@ class ShaderProperties(PropertyGroup):
             ('5', 'Enable', '')],
         default='1')
 
-    sec_gradient:  EnumProperty(
+    sec_gradient: EnumProperty(
         name='Secondary Gradient',
         description='Specify the primary gradient',
         items=[
@@ -477,7 +477,7 @@ class ShaderProperties(PropertyGroup):
             ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
         ],
         default='0')
-    shader_preset: bpy.props.IntProperty(min=0, max=255,name="Shader presets")
+    shader_preset: bpy.props.IntProperty(min=0, max=255, name="Shader presets")
     alpha_test: EnumProperty(
         name='Alpha test',
         description='Specify wether or not to alpha check',
