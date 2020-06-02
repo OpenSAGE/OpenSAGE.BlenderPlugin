@@ -95,7 +95,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
             if i in loop_dict:
                 loop = loop_dict[i]
-                mesh_struct.normals.append(rotation @ loop.normal)
+                # do NOT use loop.normal here! that might result in weird shading issues
+                mesh_struct.normals.append(rotation @ vertex.normal) 
 
                 if mesh.uv_layers:
                     # in order to adapt to 3ds max orientation
