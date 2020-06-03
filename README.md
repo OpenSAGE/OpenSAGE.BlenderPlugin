@@ -21,7 +21,7 @@ tab, find "Import-Export: Westwood 3d (.w3d)", andclick its checkbox.
 
 ## Note
 
-The plugin is still in beta and the behaviour may change between releases. Also bugs might still occur, which we'll try to fix as soon as we find them. See [Troubleshoting](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Troubleshooting) for more information.
+The plugin is still in beta and the behaviour may change between releases. Also bugs might still occur, which we'll try to fix as soon as possible. So feel free to report bugs and issues in the #w3d-blender-plugin channel on [OpenSAGE Discord](https://discord.gg/G2FhZUT). Also see [Troubleshoting](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Troubleshooting) for more information.
 
 ## Legal disclaimers
 
