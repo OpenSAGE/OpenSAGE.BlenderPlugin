@@ -174,7 +174,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     retrieve_shader_material(context, material, principled))
 
             else:
-                mesh_struct.shaders.append(retrieve_shader(material))
+                shader = retrieve_shader(material)
+                mesh_struct.shaders.append(shader)
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
                 mesh_struct.vert_materials.append(retrieve_vertex_material(material, principled))
@@ -191,6 +192,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         file=filepath,
                         texture_info=info)
                     mesh_struct.textures.append(tex)
+                    shader.texturing = 1
 
                     if i < len(tx_stages):
                         mat_pass.tx_stages.append(tx_stages[i])

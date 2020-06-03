@@ -164,6 +164,7 @@ class TestUtils(TestCase):
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
+        actual.texturing = 1 # this is set on export if a texture is applied
         compare_shaders(self, expected, actual)
 
     def test_boxes_roundtrip(self):

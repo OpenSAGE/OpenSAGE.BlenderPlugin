@@ -184,7 +184,6 @@ class TestCustomProperties(TestCase):
         self.assertEqual('1', shader.pri_gradient)
         self.assertEqual('0', shader.sec_gradient)
         self.assertEqual('1', shader.src_blend)
-        self.assertEqual('0', shader.texturing)
         self.assertEqual('0', shader.detail_color_func)
         self.assertEqual('0', shader.detail_alpha_func)
         self.assertEqual(0, shader.shader_preset)

@@ -436,14 +436,6 @@ class ShaderProperties(PropertyGroup):
              'fragment RGB components multiplied by fragment inverse (one minus) A'),
         ],
         default='1')
-    texturing: EnumProperty(
-        name='Shader texturing',
-        description='Enable texturing',
-        items=[
-            ('0', 'Disable', 'no texturing (treat fragment initial color as 1,1,1,1) (default)'),
-            ('1', 'Enable', 'enable texturing'),
-        ],
-        default='0')
     detail_color_func: EnumProperty(
         name='Detail color function',
         items=[

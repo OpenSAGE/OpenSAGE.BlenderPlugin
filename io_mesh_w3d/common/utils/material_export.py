@@ -183,7 +183,7 @@ def retrieve_shader(material):
         pri_gradient=int(material.shader.pri_gradient),
         sec_gradient=int(material.shader.sec_gradient),
         src_blend=int(material.shader.src_blend),
-        texturing=int(material.shader.texturing),
+        texturing=0, # is set to 1 if textures are applied
         detail_color_func=int(material.shader.detail_color_func),
         detail_alpha_func=int(material.shader.detail_alpha_func),
         shader_preset=material.shader.shader_preset,
