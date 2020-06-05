@@ -19,6 +19,8 @@ def retrieve_hierarchy(context, container_name):
     rig = None
     rigs = get_objects('ARMATURE')
 
+    pivot_id_dict = dict()
+
     if len(rigs) == 0:
         hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
@@ -50,6 +52,7 @@ def retrieve_hierarchy(context, container_name):
             eulers = rotation.to_euler()
             pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
+            pivot_id_dict[pivot.name] = len(hierarchy.pivots)
             hierarchy.pivots.append(pivot)
 
         switch_to_pose(rig, 'POSE')
@@ -59,23 +62,37 @@ def retrieve_hierarchy(context, container_name):
 
     meshes = get_objects('MESH')
 
-    for mesh in list(reversed(meshes)):
-        if mesh.vertex_groups or mesh.object_type == 'BOX' or mesh.name in pick_plane_names \
-            or mesh.parent is not None:
-            continue
-
-        (location, rotation, _) = mesh.matrix_local.decompose()
-        eulers = rotation.to_euler()
-
-        pivot = HierarchyPivot(
-            name=mesh.name,
-            parent_id=0,
-            translation=location,
-            rotation=rotation,
-            euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
-
-        hierarchy.pivots.append(pivot)
-        context.warning('mesh \'' + mesh.name + '\' did not have a parent bone!')
+    for mesh in meshes:
+        process_mesh(context, mesh, hierarchy, pivot_id_dict)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig
+
+def process_mesh(context, mesh, hierarchy, pivot_id_dict):
+    if mesh.vertex_groups or mesh.object_type == 'BOX' or mesh.name in pick_plane_names \
+            or mesh.parent_type == 'BONE':
+        return
+
+    pivot = HierarchyPivot(name=mesh.name, parent_id=0)
+
+    matrix = mesh.matrix_local
+
+    if mesh.parent is not None:
+        context.warning('mesh \'' + mesh.name + '\' did have a object instead of a bone as parent!')
+        if mesh.parent_type == 'OBJECT':
+            if not mesh.parent.name in pivot_id_dict:
+                process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
+            pivot.parent_id = pivot_id_dict[mesh.parent.name]
+            matrix = mesh.parent.matrix_local.inverted() @ matrix
+    else:
+        context.warning('mesh \'' + mesh.name + '\' did not have a parent bone!')
+
+    location, rotation, _ = matrix.decompose()
+    eulers = rotation.to_euler()
+
+    pivot.translation = location
+    pivot.rotation = rotation
+    pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
+
+    pivot_id_dict[pivot.name] = len(hierarchy.pivots)
+    hierarchy.pivots.append(pivot)
