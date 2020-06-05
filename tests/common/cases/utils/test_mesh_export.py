@@ -6,6 +6,7 @@ import bmesh
 from os.path import dirname as up
 
 from io_mesh_w3d.common.utils.mesh_export import *
+from io_mesh_w3d.common.utils.mesh_import import *
 from tests.common.helpers.mesh import *
 from tests.utils import *
 
@@ -16,7 +17,7 @@ class TestMeshExportUtils(TestCase):
 
         self.assertTrue('Cube' in bpy.data.objects)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         self.assertEqual(1, len(meshes))
 
@@ -29,7 +30,7 @@ class TestMeshExportUtils(TestCase):
         self.assertTrue('Cube' in bpy.data.objects)
         self.assertTrue('Cube2' in bpy.data.objects)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         self.assertEqual(2, len(meshes))
 
@@ -38,6 +39,15 @@ class TestMeshExportUtils(TestCase):
 
         mesh2 = meshes[1]
         self.assertEqual(34, len(mesh2.verts))
+
+    def test_used_texture_file_ending_is_correct(self):
+        create_mesh(self, get_mesh(), get_collection())
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        mesh = meshes[0]
+        self.assertEqual(mesh.textures[0].file, 'texture.dds')
+        self.assertEqual(mesh.textures[1].file, 'texture.dds')
 
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
@@ -101,7 +111,7 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
         mesh_ob.select_set(True)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         io_stream = io.BytesIO()
         for mesh_struct in meshes:
