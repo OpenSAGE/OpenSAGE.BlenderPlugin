@@ -10,7 +10,7 @@ from tests.utils import *
 
 
 class TestImport(TestCase):
-    def test_import_no_skeleton_file(self):
+    def test_import_no_skeleton_file_found(self):
         hierarchy_name = 'TestHiera_SKL'
         meshes = [
             get_mesh(name='sword', skin=True),
@@ -31,7 +31,7 @@ class TestImport(TestCase):
         self.filepath = self.outpath() + 'base_skn.w3d'
         load(self)
 
-    def test_animation_import_no_skeleton_file(self):
+    def test_animation_import_no_skeleton_file_found(self):
         hierarchy_name = 'TestHiera_SKL'
         animation = get_animation(hierarchy_name)
 

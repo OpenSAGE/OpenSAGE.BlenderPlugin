@@ -74,19 +74,7 @@ class TestMeshImportUtils(TestCase):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
             compare_vectors(self, expected_normals[i], loop.normal)
 
-    def test_mesh_no_parent(self):
-        mesh_name = 'soldier'
-        mesh_struct = get_mesh(mesh_name)
-
-        create_mesh(self, mesh_struct, bpy.context.scene.collection)
-
-        mesh = bpy.data.objects[mesh_name]
-
-        self.assertEqual(None, mesh.parent)
-        self.assertEqual('', mesh.parent_bone)
-        self.assertEqual('OBJECT', mesh.parent_type)
-
-    def test_mesh_armature_as_parent(self):
+    def test_unskinned_mesh_has_armature_as_parent(self):
         mesh_name = 'soldier'
         mesh_struct = get_mesh(mesh_name)
 
@@ -116,7 +104,41 @@ class TestMeshImportUtils(TestCase):
         self.assertEqual('', mesh.parent_bone)
         self.assertEqual('ARMATURE', mesh.parent_type)
 
-    def test_mesh_bone_as_parent(self):
+    def test_skinned_mesh_is_not_child_of_armature(self):
+        mesh_name = 'soldier'
+        mesh_struct = get_mesh(mesh_name, skin=True)
+
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = 'containerName'
+        hierarchy.pivots = [get_roottransform(),
+                            get_hierarchy_pivot(name='hip', parent=0),
+                            get_hierarchy_pivot(name='shoulder', parent=1),
+                            get_hierarchy_pivot(name='arm', parent=2),
+                            get_hierarchy_pivot(name='hand', parent=3)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod()
+        hlod.header.hierarchy_name = 'containerName'
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=0, name='containerName.soldier')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
+
+        mesh = bpy.data.meshes[mesh_name]
+
+        rig = bpy.data.objects[hierarchy.name()]
+        rig_mesh(mesh_struct, hierarchy, rig, sub_object=hlod.lod_arrays[0].sub_objects[0])
+
+        mesh = bpy.data.objects[mesh_name]
+
+        self.assertIsNone(mesh.parent)
+        self.assertEqual('', mesh.parent_bone)
+        self.assertEqual('OBJECT', mesh.parent_type)
+
+    def test_mesh_has_bone_as_parent(self):
         mesh_name = 'soldier'
         mesh_struct = get_mesh(mesh_name)
 

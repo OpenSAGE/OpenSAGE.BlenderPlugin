@@ -21,3 +21,5 @@ class TestBoxImportUtils(TestCase):
         fake_rig = bpy.data.objects.new('rig', bpy.data.armatures.new('rig'))
 
         create_box(box, hlod, hierarchy, fake_rig, bpy.context.scene.collection)
+
+        self.assertTrue('BOUNDINGBOX' in bpy.data.objects)

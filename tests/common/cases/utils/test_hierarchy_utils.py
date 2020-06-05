@@ -70,7 +70,7 @@ class TestHierarchyUtils(TestCase):
         (actual_hiera, rig) = retrieve_hierarchy(self, 'troll_skn')
         compare_hierarchies(self, hierarchy, actual_hiera)
 
-    def test_retrieve_hierarchy_case_insensitive(self):
+    def test_get_or_create_skeleton_is_case_insensitive(self):
         hierarchy = get_hierarchy('TROLL_SKL')
 
         create_data(self, [], None, hierarchy)
@@ -78,8 +78,8 @@ class TestHierarchyUtils(TestCase):
         hierarchy.header.name = 'troll_skl'
         rig = get_or_create_skeleton(None, hierarchy, bpy.context.scene.collection)
 
+        self.assertIsNotNone(rig)
         self.assertTrue('TROLL_SKL' in bpy.data.armatures)
-
         self.assertEqual(1, len(bpy.data.armatures))
 
     def test_retrieve_hierarchy_creates_pivots_for_meshes_without_parent_bone(self):

@@ -45,7 +45,7 @@ class TestHelpers(TestCase):
             bpy.ops.wm.read_homefile(use_empty=True)
             os.remove(self.outpath() + 'texture' + extension)
 
-    def test_create_uv_layer_without_tx_coords(self):
+    def test_call_create_uv_layer_without_tx_coords(self):
         fake_mat_pass = FakeClass()
 
         create_uvlayer(self, None, None, None, fake_mat_pass)
