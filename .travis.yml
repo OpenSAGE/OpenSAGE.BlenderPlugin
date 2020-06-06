@@ -7,23 +7,23 @@ jobs:
     include:
         - BLENDER_VERSION: "2.80"
           BLENDER_ARCHIVE_NAME: "linux-glibc217-x86_64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.bz2"
+          BLENDER_ARCHIVE_EXTENSION: ".tar.bz2"
         - BLENDER_VERSION: "2.81"
           BLENDER_ARCHIVE_NAME: "linux-glibc217-x86_64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.bz2"
+          BLENDER_ARCHIVE_EXTENSION: ".tar.bz2"
         - BLENDER_VERSION: "2.82"
           BLENDER_ARCHIVE_NAME: "linux64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.xz"
+          BLENDER_ARCHIVE_EXTENSION: ".tar.xz"
         - BLENDER_VERSION: "2.83"
           BLENDER_ARCHIVE_NAME: "linux64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.xz"
+          BLENDER_ARCHIVE_EXTENSION: ".tar.xz"
 
 install:
   - pip install codecov
   - BLENDER_VERSION_SUFFIX=""
   - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}${BLENDER_VERSION_SUFFIX}-${BLENDER_ARCHIVE_NAME}"
   - mkdir tmp && cd tmp
-  - wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
+  - wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}${BLENDER_ARCHIVE_EXTENSION}
   - tar jxf ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
   - mv ${BLENDER_ARCHIVE} blender
   - rm ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
