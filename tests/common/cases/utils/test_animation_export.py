@@ -16,8 +16,7 @@ from tests.utils import *
 
 
 class TestAnimationExportUtils(TestCase):
-    @patch.object(TestCase, 'warning')
-    def test_user_is_notified_if_mesh_is_falsely_animated(self, warning_mock):
+    def test_user_is_notified_if_mesh_is_falsely_animated(self):
         create_mesh(self, get_mesh('mesh'), get_collection())
 
         mesh = bpy.data.objects['mesh']
@@ -27,19 +26,20 @@ class TestAnimationExportUtils(TestCase):
         mesh.location = Vector((2, 2, 2))
         mesh.keyframe_insert(data_path='location', index=0, frame=2)
 
-        retrieve_animation(self, 'ani_name', get_hierarchy(), None, False)
+        with (patch.object(self, 'warning')) as warning_func:
+            retrieve_animation(self, 'ani_name', get_hierarchy(), None, False)
 
-        warning_mock.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
+            warning_func.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
 
-    @patch.object(TestCase, 'warning')
-    def test_user_is_notified_if_multiple_armatures_in_scene(self, warning_mock):
+    def test_user_is_notified_if_multiple_armatures_in_scene(self):
         hierarchy_name = 'TestHierarchy'
         hierarchy = get_hierarchy(hierarchy_name)
         rig = get_or_create_skeleton(get_hlod(), hierarchy, get_collection())
 
         rig2 = get_or_create_skeleton(get_hlod(), get_hierarchy('hiera2'), get_collection())
 
-        retrieve_animation(self, 'ani_name', hierarchy, rig, False)
+        with (patch.object(self, 'warning')) as warning_func:
+            retrieve_animation(self, 'ani_name', hierarchy, rig, False)
 
-        warning_mock.assert_called_with('Scene should only contain a single armature! -> exporting only animations of the first one: ' + hierarchy_name)
+            warning_func.assert_called_with('Scene should only contain a single armature! -> exporting only animations of the first one: ' + hierarchy_name)
 
