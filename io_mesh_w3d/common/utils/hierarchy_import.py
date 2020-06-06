@@ -39,7 +39,7 @@ def create_rig(name, root, coll):
 
 def create_bone_hierarchy(hierarchy, sub_objects, coll):
     root = hierarchy.pivots[0]
-    (rig, armature) = create_rig(hierarchy.name(), root, coll)
+    rig, armature = create_rig(hierarchy.name(), root, coll)
 
     for pivot in hierarchy.pivots:
         if pivot.parent_id < 0:

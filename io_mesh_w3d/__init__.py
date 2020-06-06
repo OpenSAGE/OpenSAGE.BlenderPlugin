@@ -11,11 +11,11 @@ bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
     'version': (0, 5, 0),
-    "blender": (2, 82, 0),
+    "blender": (2, 83, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
     'warning': 'Still in Progress',
-    'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
+    'doc_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
     'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
     'support': 'OFFICIAL',
     'category': 'Import-Export'}
