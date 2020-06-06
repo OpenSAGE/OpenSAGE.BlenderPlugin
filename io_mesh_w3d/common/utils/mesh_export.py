@@ -178,6 +178,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mesh_struct.shaders.append(shader)
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
+
                 mesh_struct.vert_materials.append(retrieve_vertex_material(material, principled))
 
                 base_col_tex = principled.base_color_texture
