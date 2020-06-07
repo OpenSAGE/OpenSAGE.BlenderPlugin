@@ -28,7 +28,7 @@ jobs:
 install:
   - pip install codecov
   - mkdir tmp && cd tmp
-  - wget $FILE
+  - wget ${FILE}
   - tar jxf ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
   - mv ${BLENDER_ARCHIVE} blender
   - rm ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
