@@ -62,30 +62,32 @@ def retrieve_hierarchy(context, container_name):
 
     meshes = get_objects('MESH')
 
+    processed_meshes = []
     for mesh in meshes:
-        process_mesh(context, mesh, hierarchy, pivot_id_dict)
+        process_mesh(context, mesh, hierarchy, pivot_id_dict, processed_meshes)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig
 
-def process_mesh(context, mesh, hierarchy, pivot_id_dict):
-    if mesh.vertex_groups or mesh.object_type == 'BOX' or mesh.name in pick_plane_names \
-            or mesh.parent_type == 'BONE':
+def process_mesh(context, mesh, hierarchy, pivot_id_dict, processed_meshes):
+    if mesh.vertex_groups \
+            or mesh.object_type == 'BOX' \
+            or mesh.name in pick_plane_names \
+            or mesh.parent_type == 'BONE' \
+            or mesh.name in processed_meshes:
         return
 
     pivot = HierarchyPivot(name=mesh.name, parent_id=0)
-
     matrix = mesh.matrix_local
 
     if mesh.parent is not None:
         context.warning('mesh \'' + mesh.name + '\' did have a object instead of a bone as parent!')
-        if mesh.parent_type == 'OBJECT':
-            if not mesh.parent.name in pivot_id_dict:
-                process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
-            pivot.parent_id = pivot_id_dict[mesh.parent.name]
-            matrix = mesh.parent.matrix_local.inverted() @ matrix
-    else:
-        context.warning('mesh \'' + mesh.name + '\' did not have a parent bone!')
+        if mesh.parent.name not in processed_meshes:
+            process_mesh(context, mesh.parent, hierarchy, pivot_id_dict, processed_meshes)
+            return
+
+        pivot.parent_id = pivot_id_dict[mesh.parent.name]
+        matrix = mesh.parent.matrix_local.inverted() @ matrix
 
     location, rotation, _ = matrix.decompose()
     eulers = rotation.to_euler()
@@ -96,3 +98,7 @@ def process_mesh(context, mesh, hierarchy, pivot_id_dict):
 
     pivot_id_dict[pivot.name] = len(hierarchy.pivots)
     hierarchy.pivots.append(pivot)
+    processed_meshes.append(mesh.name)
+
+    for child in mesh.children:
+        process_mesh(context, child, hierarchy, pivot_id_dict, processed_meshes)

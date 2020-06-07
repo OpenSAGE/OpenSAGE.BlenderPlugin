@@ -56,9 +56,6 @@ def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         bone.visibility = value
         bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
-    else:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

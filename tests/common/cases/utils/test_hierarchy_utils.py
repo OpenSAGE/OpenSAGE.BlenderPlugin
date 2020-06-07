@@ -128,3 +128,33 @@ class TestHierarchyUtils(TestCase):
         self.assertEqual(2, hierarchy.pivots[3].parent_id)
         self.assertEqual('mesh4', hierarchy.pivots[4].name)
         self.assertEqual(1, hierarchy.pivots[4].parent_id)
+
+    def test_retrieve_hierarchy_creates_pivots_with_correct_parent_id_for_parented_meshes_inversed_order(self):
+        collection = get_collection()
+
+        create_mesh(self, get_mesh('mesh1'), collection)
+        create_mesh(self, get_mesh('mesh2'), collection)
+        create_mesh(self, get_mesh('mesh3'), collection)
+        create_mesh(self, get_mesh('mesh4'), collection)
+
+        bpy.data.objects['mesh1'].parent_type = 'OBJECT'
+        bpy.data.objects['mesh1'].parent = bpy.data.objects['mesh4']
+
+        bpy.data.objects['mesh2'].parent_type = 'OBJECT'
+        bpy.data.objects['mesh2'].parent = bpy.data.objects['mesh3']
+
+        bpy.data.objects['mesh3'].parent_type = 'OBJECT'
+        bpy.data.objects['mesh3'].parent = bpy.data.objects['mesh4']
+
+        hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
+
+        self.assertEqual(5, len(hierarchy.pivots))
+
+        self.assertEqual('mesh4', hierarchy.pivots[1].name)
+        self.assertEqual(0, hierarchy.pivots[1].parent_id)
+        self.assertEqual('mesh1', hierarchy.pivots[2].name)
+        self.assertEqual(1, hierarchy.pivots[2].parent_id)
+        self.assertEqual('mesh3', hierarchy.pivots[3].name)
+        self.assertEqual(1, hierarchy.pivots[3].parent_id)
+        self.assertEqual('mesh2', hierarchy.pivots[4].name)
+        self.assertEqual(3, hierarchy.pivots[4].parent_id)

@@ -327,11 +327,9 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat.shader, 'alpha_test')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_color_func')
+            col.prop(mat.shader, 'post_detail_color_func')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_alpha_func')
+            col.prop(mat.shader, 'post_detail_alpha_func')
 
         else:
             col = layout.column()
