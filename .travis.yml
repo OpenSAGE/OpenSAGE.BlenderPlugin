@@ -26,10 +26,10 @@ jobs:
           BLENDER_ARCHIVE_EXTENSION: ".tar.xz"
           BLENDER_FILE: https://download.blender.org/release/Blender2.83/blender-2.83-linux64.tar.xz
 
-install:
+install:q
   - pip install codecov
   - mkdir tmp && cd tmp
-  - wget ${BLENDER_FILE}
+  - wget "$BLENDER_FILE"
   - tar jxf ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
   - mv ${BLENDER_ARCHIVE} blender
   - rm ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
