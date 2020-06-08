@@ -216,6 +216,22 @@ class TestUtils(TestCase):
 
         self.compare_data([], None, hierarchy)
 
+    def test_model_with_hierarchy_name_same_as_mesh_name_roundtrip(self):
+        hierarchy = get_hierarchy('ubbarracks')
+        hierarchy.pivots = [get_roottransform()]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod()
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=0, name='containerName.ubbarracks')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        meshes = [get_mesh(name='ubbarracks')]
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        self.compare_data(meshes, hlod, hierarchy)
+
     def test_hierarchy_only_roundtrip(self):
         hierarchy = get_hierarchy()
 

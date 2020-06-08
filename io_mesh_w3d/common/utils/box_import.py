@@ -5,7 +5,7 @@ import bpy
 from io_mesh_w3d.common.utils.helpers import *
 
 
-def create_box(box, hlod, hierarchy, rig, coll):
+def create_box(box, coll):
     x = box.extend[0] / 2.0
     y = box.extend[1] / 2.0
     z = box.extend[2]
@@ -28,13 +28,12 @@ def create_box(box, hlod, hierarchy, rig, coll):
     box_object.location = box.center
     link_object_to_active_scene(box_object, coll)
 
-    sub_objects = [sub_object for sub_object in hlod.lod_arrays[-1].sub_objects if sub_object.name == box.name()]
-    if not sub_objects:
-        return
-    sub_object = sub_objects[0]
+
+def rig_box(box, hierarchy, rig, sub_object):
     if sub_object.bone_index == 0:
         return
     pivot = hierarchy.pivots[sub_object.bone_index]
+    box_object = bpy.data.objects[box.name()]
     box_object.parent = rig
     box_object.parent_bone = pivot.name
     box_object.parent_type = 'BONE'

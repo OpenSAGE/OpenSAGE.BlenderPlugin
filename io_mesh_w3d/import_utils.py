@@ -15,7 +15,6 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
     boxes = boxes if boxes is not None else []
     dazzles = dazzles if dazzles is not None else []
     collection = get_collection(hlod)
-    rig = get_or_create_skeleton(hlod, hierarchy, collection)
 
     if hlod is not None:
         current_coll = collection
@@ -31,17 +30,23 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
 
                 for box in boxes:
                     if box.name() == sub_object.name:
-                        create_box(box, hlod, hierarchy, rig, collection)
+                        create_box(box, collection)
 
                 for dazzle in dazzles:
                     if dazzle.name() == sub_object.name:
                         create_dazzle(context, dazzle, collection)
 
+    rig = get_or_create_skeleton(hlod, hierarchy, collection)
+
+    if hlod is not None:
         for lod_array in reversed(hlod.lod_arrays):
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
                         rig_mesh(mesh, hierarchy, rig, sub_object)
+                for box in boxes:
+                    if box.name() == sub_object.name:
+                        rig_box(box, hierarchy, rig, sub_object)
                 for dazzle in dazzles:
                     if dazzle.name() == sub_object.name:
                         dazzle_object = bpy.data.objects[dazzle.name()]

@@ -107,13 +107,8 @@ class TestHierarchyUtils(TestCase):
         create_mesh(self, get_mesh('mesh3'), collection)
         create_mesh(self, get_mesh('mesh4'), collection)
 
-        bpy.data.objects['mesh2'].parent_type = 'OBJECT'
         bpy.data.objects['mesh2'].parent = bpy.data.objects['mesh1']
-
-        bpy.data.objects['mesh3'].parent_type = 'OBJECT'
         bpy.data.objects['mesh3'].parent = bpy.data.objects['mesh2']
-
-        bpy.data.objects['mesh4'].parent_type = 'OBJECT'
         bpy.data.objects['mesh4'].parent = bpy.data.objects['mesh1']
 
         hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
@@ -137,13 +132,8 @@ class TestHierarchyUtils(TestCase):
         create_mesh(self, get_mesh('mesh3'), collection)
         create_mesh(self, get_mesh('mesh4'), collection)
 
-        bpy.data.objects['mesh1'].parent_type = 'OBJECT'
         bpy.data.objects['mesh1'].parent = bpy.data.objects['mesh4']
-
-        bpy.data.objects['mesh2'].parent_type = 'OBJECT'
         bpy.data.objects['mesh2'].parent = bpy.data.objects['mesh3']
-
-        bpy.data.objects['mesh3'].parent_type = 'OBJECT'
         bpy.data.objects['mesh3'].parent = bpy.data.objects['mesh4']
 
         hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
@@ -158,3 +148,61 @@ class TestHierarchyUtils(TestCase):
         self.assertEqual(1, hierarchy.pivots[3].parent_id)
         self.assertEqual('mesh2', hierarchy.pivots[4].name)
         self.assertEqual(3, hierarchy.pivots[4].parent_id)
+
+    def test_retrieve_hierarchy_creates_pivots_with_correct_parent_id_for_parented_meshes_where_root_mesh_has_parent_bone(self):
+        collection = get_collection()
+
+        armature = bpy.data.armatures.new('armature')
+        rig = bpy.data.objects.new('skele', armature)
+        collection.objects.link(rig)
+        bpy.context.view_layer.objects.active = rig
+        bpy.ops.object.mode_set(mode='EDIT')
+
+        #armature = bpy.data.armatures.new('armature')
+        #rig = bpy.data.objects.new('rig', armature)
+        #bpy.context.scene.collection.objects.link(rig)
+        #bpy.context.view_layer.objects.active = rig
+        #rig.select_set(True)
+
+        #if rig.mode != 'EDIT':
+        #    bpy.ops.object.mode_set(mode='EDIT')
+
+        #bone = armature.edit_bones.new('bone')
+        #bone.head = Vector((0.0, 0.0, 0.0))
+        #bone.tail = Vector((0.0, 1.0, 0.0))
+
+        #if rig.mode != 'OBJECT':
+        #    bpy.ops.object.mode_set(mode='OBJECT')
+
+        bone = armature.edit_bones.new('bone1')
+        bone2 = armature.edit_bones.new('mesh1') # also test if bone is not named after mesh
+        bone2.parent = bone
+
+        create_mesh(self, get_mesh('mesh1'), collection)
+        create_mesh(self, get_mesh('mesh2'), collection)
+        create_mesh(self, get_mesh('mesh3'), collection)
+        create_mesh(self, get_mesh('mesh4'), collection)
+
+        bpy.data.objects['mesh1'].parent_bone = 'mesh1'
+        bpy.data.objects['mesh2'].parent = bpy.data.objects['mesh1']
+        bpy.data.objects['mesh3'].parent = bpy.data.objects['mesh2']
+        bpy.data.objects['mesh4'].parent = bpy.data.objects['mesh1']
+
+        print('################################################ start')
+        hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
+        print('################################################ end')
+
+        #self.assertEqual(6, len(hierarchy.pivots))
+
+        self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
+        self.assertEqual(-1, hierarchy.pivots[0].parent_id)
+        self.assertEqual('bone1', hierarchy.pivots[1].name)
+        self.assertEqual(0, hierarchy.pivots[1].parent_id)
+        self.assertEqual('mesh1', hierarchy.pivots[2].name)
+        self.assertEqual(1, hierarchy.pivots[2].parent_id)
+        self.assertEqual('mesh2', hierarchy.pivots[3].name)
+        self.assertEqual(2, hierarchy.pivots[3].parent_id)
+        self.assertEqual('mesh3', hierarchy.pivots[4].name)
+        self.assertEqual(3, hierarchy.pivots[4].parent_id)
+        self.assertEqual('mesh4', hierarchy.pivots[5].name)
+        self.assertEqual(2, hierarchy.pivots[5].parent_id)

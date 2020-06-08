@@ -36,7 +36,7 @@ class TestAnimationExportUtils(TestCase):
         hierarchy = get_hierarchy(hierarchy_name)
         rig = get_or_create_skeleton(get_hlod(), hierarchy, get_collection())
 
-        rig2 = get_or_create_skeleton(get_hlod(), get_hierarchy('hiera2'), get_collection())
+        rig2 = get_or_create_skeleton(get_hlod(), get_hierarchy('TestHierarchy2'), get_collection())
 
         with (patch.object(self, 'warning')) as warning_func:
             retrieve_animation(self, 'ani_name', hierarchy, rig, False)

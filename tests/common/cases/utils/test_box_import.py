@@ -11,15 +11,17 @@ from tests.utils import *
 
 
 class TestBoxImportUtils(TestCase):
-    def test_create_box(self):
+    def test_import_box(self):
         box = get_collision_box()
         hlod = get_hlod()
-        hlod.lod_arrays[0].sub_objects = []
+        sub_object = get_hlod_sub_object(bone=1, name='containerName.box')
+        hlod.lod_arrays[0].sub_objects = [sub_object]
 
         hierarchy = get_hierarchy()
 
         fake_rig = bpy.data.objects.new('rig', bpy.data.armatures.new('rig'))
 
-        create_box(box, hlod, hierarchy, fake_rig, bpy.context.scene.collection)
+        create_box(box, bpy.context.scene.collection)
+        rig_box(box, hierarchy, fake_rig, sub_object)
 
         self.assertTrue('BOUNDINGBOX' in bpy.data.objects)
