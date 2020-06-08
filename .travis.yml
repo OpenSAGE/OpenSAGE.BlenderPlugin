@@ -23,7 +23,7 @@ jobs:
 install:
   - pip install codecov
   - mkdir tmp && cd tmp
-  - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}-${BLENDER_ARCHIVE_NAME}"
+  - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}-linux-glibc217-x86_64"
   - wget https://ftp.halifax.rwth-aachen.de/blender/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.tar.bz2
   - tar jxf ${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}
   - mv ${BLENDER_ARCHIVE} blender
