@@ -26,16 +26,15 @@ def retrieve_hierarchy(context, container_name):
         hierarchy.header.center_pos = Vector()
         context.warning('scene does not contain an armature object!')
 
-    elif len(rigs) == 1:
+    elif len(rigs) > 0:
         rig = rigs[0]
-        armature = bpy.data.armatures[0]
 
         switch_to_pose(rig, 'REST')
 
         root.translation = rig.delta_location
         root.rotation = rig.delta_rotation_quaternion
 
-        hierarchy.header.name = armature.name
+        hierarchy.header.name = rig.data.name
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:
@@ -59,7 +58,7 @@ def retrieve_hierarchy(context, container_name):
 
         switch_to_pose(rig, 'POSE')
     else:
-        context.error('only one armature per scene allowed!')
+        context.error('only one armature per scene allowed! Exporting only the first one: ' + rigs[0].name)
         return None, None
 
     meshes = get_objects('MESH')

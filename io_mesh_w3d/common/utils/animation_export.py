@@ -118,11 +118,7 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
 
     if rig is not None:
         channels.extend(retrieve_channels(rig, hierarchy, timecoded))
-
-    if (len(bpy.data.armatures) > 0):
-        channels.extend(retrieve_channels(bpy.data.armatures[0], hierarchy, timecoded))
-    if (len(bpy.data.armatures) > 1):
-        context.warning('Scene should only contain a single armature! -> exporting only animations of the first one: ' + bpy.data.armatures[0].name)
+        channels.extend(retrieve_channels(rig.data, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(
