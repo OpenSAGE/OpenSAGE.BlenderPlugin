@@ -31,7 +31,7 @@ class AABBTreeHeader:
         write_ulong(self.node_count, io_stream)
         write_ulong(self.poly_count, io_stream)
 
-        for pad in range(24):
+        for _ in range(24):
             write_ubyte(0, io_stream)  # padding
 
 

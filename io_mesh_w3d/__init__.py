@@ -28,7 +28,7 @@ def print_version(info):
 
 
 class ExportW3D(bpy.types.Operator, ExportHelper):
-    '''Export to Westwood 3D file format (.w3d/.w3x)'''
+    """Export to Westwood 3D file format (.w3d/.w3x)"""
     bl_idname = 'export_mesh.westwood_w3d'
     bl_label = 'Export W3D/W3X'
     bl_options = {'UNDO', 'PRESET'}
@@ -193,7 +193,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
 
 
 class ImportW3D(bpy.types.Operator, ImportHelper):
-    '''Import from Westwood 3D file format (.w3d/.w3x)'''
+    """Import from Westwood 3D file format (.w3d/.w3x)"""
     bl_idname = 'import_mesh.westwood_w3d'
     bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}

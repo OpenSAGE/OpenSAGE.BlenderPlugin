@@ -61,7 +61,7 @@ class TestMeshImportUtils(TestCase):
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
-        get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
+        get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
 
         mesh = bpy.data.meshes[mesh_name]
 
@@ -91,7 +91,7 @@ class TestMeshImportUtils(TestCase):
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
-        get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
+        get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
 
         mesh = bpy.data.meshes[mesh_name]
 
@@ -125,7 +125,7 @@ class TestMeshImportUtils(TestCase):
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
-        get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
+        get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
 
         mesh = bpy.data.meshes[mesh_name]
 
@@ -156,7 +156,7 @@ class TestMeshImportUtils(TestCase):
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
-        get_or_create_skeleton(hlod, hierarchy, bpy.context.scene.collection)
+        get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
 
         self.assertTrue(mesh_name in bpy.data.meshes)
 

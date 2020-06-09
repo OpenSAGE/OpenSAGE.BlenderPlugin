@@ -7,7 +7,7 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.primitives import *
 
 
-def get_or_create_skeleton(hlod, hierarchy, coll):
+def get_or_create_skeleton(hierarchy, coll):
     if hierarchy is None:
         return None
 
@@ -16,11 +16,7 @@ def get_or_create_skeleton(hlod, hierarchy, coll):
         if obj.name.upper() == name and obj.type == 'ARMATURE':
             return obj
 
-    sub_objects = []
-    if hlod is not None:
-        sub_objects = hlod.lod_arrays[-1].sub_objects
-
-    return create_bone_hierarchy(hierarchy, sub_objects, coll)
+    return create_bone_hierarchy(hierarchy, coll)
 
 
 def create_rig(name, root, coll):
@@ -37,7 +33,7 @@ def create_rig(name, root, coll):
     return rig, armature
 
 
-def create_bone_hierarchy(hierarchy, sub_objects, coll):
+def create_bone_hierarchy(hierarchy, coll):
     root = hierarchy.pivots[0]
     rig, armature = create_rig(hierarchy.name(), root, coll)
 
