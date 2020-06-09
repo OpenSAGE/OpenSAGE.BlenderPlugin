@@ -5,6 +5,7 @@ import bpy
 from bpy_extras import node_shader_utils
 from shutil import copyfile
 from mathutils import Vector, Quaternion
+from unittest.mock import patch
 
 from io_mesh_w3d.export_utils import *
 from io_mesh_w3d.import_utils import *
@@ -218,19 +219,26 @@ class TestUtils(TestCase):
 
     def test_model_with_hierarchy_name_same_as_mesh_name_roundtrip(self):
         hierarchy = get_hierarchy('ubbarracks')
-        hierarchy.pivots = [get_roottransform()]
+        hierarchy.pivots = [get_roottransform(), get_hierarchy_pivot(name='ubbarracks', parent=0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        hlod = get_hlod()
+        hlod = get_hlod(hierarchy_name='ubbarracks')
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=0, name='containerName.ubbarracks')]
+            get_hlod_sub_object(bone=1, name='containerName.ubbarracks')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         meshes = [get_mesh(name='ubbarracks')]
 
+        print('############################### same name')
         create_data(self, meshes, hlod, hierarchy)
 
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        for piv in actual_hiera.pivots:
+            print(piv.name)
+
+        print('############################### same name end')
         self.compare_data(meshes, hlod, hierarchy)
+
 
     def test_hierarchy_only_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -313,14 +321,15 @@ class TestUtils(TestCase):
             get_mesh(name='PICK')]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
-        coll = get_collection(hlod)
-        get_or_create_skeleton(hlod, hierarchy2, coll)
+        create_data(self, [], None, hierarchy2)
 
         self.assertEqual(2, len(get_objects('ARMATURE')))
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        self.assertIsNone(actual_hiera)
-        self.assertIsNone(rig)
+        with (patch.object(self, 'error')) as error_func:
+            (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+            self.assertIsNotNone(actual_hiera)
+            self.assertIsNotNone(rig)
+            error_func.assert_called_with('only one armature per scene allowed! Exporting only the first one: TestHierarchy2')
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()

@@ -158,25 +158,16 @@ class TestHierarchyUtils(TestCase):
         bpy.context.view_layer.objects.active = rig
         bpy.ops.object.mode_set(mode='EDIT')
 
-        #armature = bpy.data.armatures.new('armature')
-        #rig = bpy.data.objects.new('rig', armature)
-        #bpy.context.scene.collection.objects.link(rig)
-        #bpy.context.view_layer.objects.active = rig
-        #rig.select_set(True)
-
-        #if rig.mode != 'EDIT':
-        #    bpy.ops.object.mode_set(mode='EDIT')
-
-        #bone = armature.edit_bones.new('bone')
-        #bone.head = Vector((0.0, 0.0, 0.0))
-        #bone.tail = Vector((0.0, 1.0, 0.0))
-
-        #if rig.mode != 'OBJECT':
-        #    bpy.ops.object.mode_set(mode='OBJECT')
-
         bone = armature.edit_bones.new('bone1')
-        bone2 = armature.edit_bones.new('mesh1') # also test if bone is not named after mesh
+        bone.head = Vector((0.0, 0.0, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
+        bone2 = armature.edit_bones.new('mesh1')
+        bone2.head = Vector((0.0, 0.0, 0.0))
+        bone2.tail = Vector((0.0, 1.0, 0.0))
         bone2.parent = bone
+
+        if rig.mode != 'OBJECT':
+            bpy.ops.object.mode_set(mode='OBJECT')
 
         create_mesh(self, get_mesh('mesh1'), collection)
         create_mesh(self, get_mesh('mesh2'), collection)
@@ -188,11 +179,9 @@ class TestHierarchyUtils(TestCase):
         bpy.data.objects['mesh3'].parent = bpy.data.objects['mesh2']
         bpy.data.objects['mesh4'].parent = bpy.data.objects['mesh1']
 
-        print('################################################ start')
         hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
-        print('################################################ end')
 
-        #self.assertEqual(6, len(hierarchy.pivots))
+        self.assertEqual(6, len(hierarchy.pivots))
 
         self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
         self.assertEqual(-1, hierarchy.pivots[0].parent_id)
