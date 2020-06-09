@@ -36,7 +36,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
                     if dazzle.name() == sub_object.name:
                         create_dazzle(context, dazzle, collection)
 
-    rig = get_or_create_skeleton(hlod, hierarchy, collection)
+    rig = get_or_create_skeleton(hierarchy, collection)
 
     if hlod is not None:
         for lod_array in reversed(hlod.lod_arrays):
