@@ -86,7 +86,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
-                    context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is influenced by more than 2 bones!')
+                    context.warning('mesh \'' + mesh_object.name + '\' vertex ' +
+                                    str(i) + ' is influenced by more than 2 bones!')
 
             scaled_vert = vertex.co * scale.x
             mesh_struct.verts.append(matrix @ scaled_vert)
@@ -96,7 +97,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             if i in loop_dict:
                 loop = loop_dict[i]
                 # do NOT use loop.normal here! that might result in weird shading issues
-                mesh_struct.normals.append(rotation @ vertex.normal) 
+                mesh_struct.normals.append(rotation @ vertex.normal)
 
                 if mesh.uv_layers:
                     # in order to adapt to 3ds max orientation
@@ -262,7 +263,10 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        context.info('mesh \'' + mesh.name + '\' vertices have been split because of multiple uv coordinates per vertex!')
+        context.info(
+            'mesh \'' +
+            mesh.name +
+            '\' vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 
@@ -310,7 +314,6 @@ def calculate_mesh_sphere(mesh):
     radius = z.length
 
     return validate_all_points_inside_sphere(center, radius, vertices)
-
 
 
 # WIP code below

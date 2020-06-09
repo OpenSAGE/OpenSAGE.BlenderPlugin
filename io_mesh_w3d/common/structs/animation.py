@@ -246,7 +246,11 @@ class Animation:
             context.error('animation name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         if len(self.header.hierarchy_name) >= STRING_LENGTH:
-            context.error('armature name \'' + self.header.hierarchy_name + '\' exceeds max length of ' + str(STRING_LENGTH))
+            context.error(
+                'armature name \'' +
+                self.header.hierarchy_name +
+                '\' exceeds max length of ' +
+                str(STRING_LENGTH))
             return False
         return True
 

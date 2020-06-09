@@ -149,7 +149,8 @@ class TestHierarchyUtils(TestCase):
         self.assertEqual('mesh2', hierarchy.pivots[4].name)
         self.assertEqual(3, hierarchy.pivots[4].parent_id)
 
-    def test_retrieve_hierarchy_creates_pivots_with_correct_parent_id_for_parented_meshes_where_root_mesh_has_parent_bone(self):
+    def test_retrieve_hierarchy_creates_pivots_with_correct_parent_id_for_parented_meshes_where_root_mesh_has_parent_bone(
+            self):
         collection = get_collection()
 
         armature = bpy.data.armatures.new('armature')

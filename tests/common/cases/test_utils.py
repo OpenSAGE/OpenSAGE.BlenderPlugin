@@ -165,7 +165,7 @@ class TestUtils(TestCase):
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
-        actual.texturing = 1 # this is set on export if a texture is applied
+        actual.texturing = 1  # this is set on export if a texture is applied
         compare_shaders(self, expected, actual)
 
     def test_boxes_roundtrip(self):
@@ -236,7 +236,6 @@ class TestUtils(TestCase):
             print(piv.name)
 
         self.compare_data(meshes, hlod, hierarchy)
-
 
     def test_hierarchy_only_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -327,7 +326,8 @@ class TestUtils(TestCase):
             (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
             self.assertIsNotNone(actual_hiera)
             self.assertIsNotNone(rig)
-            error_func.assert_called_with('only one armature per scene allowed! Exporting only the first one: TestHierarchy2')
+            error_func.assert_called_with(
+                'only one armature per scene allowed! Exporting only the first one: TestHierarchy2')
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -355,7 +355,7 @@ class TestUtils(TestCase):
             euler_angles=get_vec(),
             rotation=get_quat(),
             fixup_matrix=get_mat())
-        pivot =  HierarchyPivot(
+        pivot = HierarchyPivot(
             name='tree',
             name_id=None,
             parent_id=0,
@@ -826,11 +826,11 @@ class TestUtils(TestCase):
 
         if animation is not None:
             actual_animation = retrieve_animation(self,
-                animation.header.name, actual_hiera, rig, timecoded=False)
+                                                  animation.header.name, actual_hiera, rig, timecoded=False)
             compare_animations(self, animation, actual_animation)
 
         if compressed_animation is not None:
-            actual_compressed_animation = retrieve_animation(self,
-                compressed_animation.header.name, actual_hiera, rig, timecoded=True)
+            actual_compressed_animation = retrieve_animation(
+                self, compressed_animation.header.name, actual_hiera, rig, timecoded=True)
             compare_compressed_animations(
                 self, compressed_animation, actual_compressed_animation)
