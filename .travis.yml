@@ -4,9 +4,7 @@ python:
 sudo: false
 
 env:
-    - BLENDER_VERSION="2.80"
-    - BLENDER_ARCHIVE_NAME="linux-glibc217-x86_64"
-    - BLENDER_ARCHIVE_EXTENSION="tar.bz2"
+    - BLENDER_VERSION="2.80" BLENDER_ARCHIVE_NAME="linux-glibc217-x86_64" BLENDER_ARCHIVE_EXTENSION="tar.bz2"
 
 
 install:
