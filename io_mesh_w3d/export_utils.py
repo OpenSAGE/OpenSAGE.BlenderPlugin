@@ -40,7 +40,11 @@ def retrieve_data(context, export_settings):
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
         return None
 
-    (hierarchy, rig) = retrieve_hierarchy(context, container_name)
+    hierarchy, rig, hlod = None, None, None
+
+    if export_mode != 'M':
+        hierarchy, rig = retrieve_hierarchy(context, container_name)
+        hlod = create_hlod(hierarchy, container_name)
 
     data_context = DataContext(
         container_name=container_name,
@@ -50,7 +54,7 @@ def retrieve_data(context, export_settings):
         collision_boxes=retrieve_boxes(container_name),
         dazzles=retrieve_dazzles(container_name),
         hierarchy=hierarchy,
-        hlod=create_hlod(hierarchy, container_name))
+        hlod=hlod)
 
     if 'M' in export_mode:
         (meshes, textures) = retrieve_meshes(context, hierarchy, rig, container_name)
@@ -81,7 +85,7 @@ def retrieve_data(context, export_settings):
 
     if 'A' in export_mode:
         timecoded = export_settings['compression'] == 'TC'
-        data_context.animation = retrieve_animation(container_name, hierarchy, rig, timecoded)
+        data_context.animation = retrieve_animation(context, container_name, hierarchy, rig, timecoded)
         if not data_context.animation.validate(context):
             context.error('aborting export!')
             return None

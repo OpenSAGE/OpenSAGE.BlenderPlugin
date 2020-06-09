@@ -11,7 +11,16 @@ ADAPTIVE_DELTA_FLAVOR = 1
 
 
 class CompressedAnimationHeader:
-    def __init__(self, version=Version(), name='', hierarchy_name='', num_frames=0, frame_rate=0, flavor=0):
+    def __init__(
+            self,
+            version=Version(
+                major=1,
+                minor=0),
+            name='',
+            hierarchy_name='',
+            num_frames=0,
+            frame_rate=0,
+            flavor=0):
         self.version = version
         self.name = name
         self.hierarchy_name = hierarchy_name

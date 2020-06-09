@@ -26,8 +26,6 @@ class TestVertexInfluence(TestCase):
         bone_infs2 = create_node(root, 'BoneInfluences')
         expected.create(bone_infs, bone_infs2)
 
-        # TODO: is this sufficient or should we write to an io.BytesIO ?
-
         xml_objects = root.findall('BoneInfluences')
         self.assertEqual(2, len(xml_objects))
 
@@ -39,8 +37,6 @@ class TestVertexInfluence(TestCase):
         root = create_root()
         bone_infs = create_node(root, 'BoneInfluences')
         expected.create(bone_infs)
-
-        # TODO: is this sufficient or should we write to an io.BytesIO ?
 
         xml_objects = root.findall('BoneInfluences')
         self.assertEqual(1, len(xml_objects))

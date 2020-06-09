@@ -9,7 +9,7 @@ W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
 
 class AnimationHeader:
-    def __init__(self, version=Version(), name='', hierarchy_name='', num_frames=0, frame_rate=0):
+    def __init__(self, version=Version(major=4, minor=1), name='', hierarchy_name='', num_frames=0, frame_rate=0):
         self.version = version
         self.name = name
         self.hierarchy_name = hierarchy_name
@@ -236,20 +236,20 @@ class Animation:
 
     def validate(self, context):
         if not self.channels:
-            context.error('Scene does not contain any animation data')
+            context.error('Scene does not contain any animation data!')
             return False
 
         if context.file_format == 'W3X':
             return True
 
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('animation name ' + self.header.name + ' exceeds max length of: ' + str(STRING_LENGTH))
+            context.error('animation name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         if len(self.header.hierarchy_name) >= STRING_LENGTH:
             context.error(
-                'animation hierarchy name ' +
+                'armature name \'' +
                 self.header.hierarchy_name +
-                ' exceeds max length of: ' +
+                '\' exceeds max length of ' +
                 str(STRING_LENGTH))
             return False
         return True

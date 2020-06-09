@@ -184,6 +184,7 @@ def compare_shader_materials(self, expected, actual):
             if actual_prop.name == expected_prop.name:
                 match_found = True
 
-        self.assertTrue(match_found, 'Unexpected property ' + actual_prop.name + ' in result!' + str(actual_prop.value))
+        self.assertTrue(match_found, 'Unexpected property ' + actual_prop.name +
+                        ' in result! value: ' + str(actual_prop.value))
 
     self.assertEqual(len(expected.properties), len(actual.properties))

@@ -12,7 +12,7 @@ from tests.w3d.helpers.version import *
 
 def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False):
     header = MeshHeader(
-        version=get_version(),
+        version=get_version(major=4, minor=2),
         attrs=0,
         mesh_name=name,
         container_name='containerName',

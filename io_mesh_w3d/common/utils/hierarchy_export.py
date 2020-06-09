@@ -9,17 +9,6 @@ from io_mesh_w3d.common.structs.hierarchy import *
 pick_plane_names = ['PICK']
 
 
-def create_pivot_subtree(pivot, pivots, hierarchy):
-    hierarchy.pivots.append(pivot)
-    children = [child for child in pivots if child.parent_id == pivot.name]
-    parent_index = len(hierarchy.pivots) - 1
-
-    for child in children:
-        child.parent_id = parent_index
-        create_pivot_subtree(child, pivots, hierarchy)
-    pivot.processed = True
-
-
 def retrieve_hierarchy(context, container_name):
     root = HierarchyPivot(name='ROOTTRANSFORM')
 
@@ -29,12 +18,15 @@ def retrieve_hierarchy(context, container_name):
 
     rig = None
     rigs = get_objects('ARMATURE')
-    pivots = []
+
+    pivot_id_dict = dict()
 
     if len(rigs) == 0:
         hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
-    elif len(rigs) == 1:
+        context.warning('scene does not contain an armature object!')
+
+    if len(rigs) > 0:
         rig = rigs[0]
 
         switch_to_pose(rig, 'REST')
@@ -42,7 +34,7 @@ def retrieve_hierarchy(context, container_name):
         root.translation = rig.delta_location
         root.rotation = rig.delta_rotation_quaternion
 
-        hierarchy.header.name = rig.name
+        hierarchy.header.name = rig.data.name
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:
@@ -51,7 +43,7 @@ def retrieve_hierarchy(context, container_name):
             matrix = bone.matrix
 
             if bone.parent is not None:
-                pivot.parent_id = bone.parent.name
+                pivot.parent_id = pivot_id_dict[bone.parent.name]
                 matrix = bone.parent.matrix.inverted() @ matrix
 
             (translation, rotation, _) = matrix.decompose()
@@ -60,57 +52,52 @@ def retrieve_hierarchy(context, container_name):
             eulers = rotation.to_euler()
             pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
 
-            pivots.append(pivot)
+            pivot_id_dict[pivot.name] = len(hierarchy.pivots)
+            hierarchy.pivots.append(pivot)
 
         switch_to_pose(rig, 'POSE')
-    else:
-        context.error('only one armature per scene allowed!')
-        return None, None
 
-    meshes = []
-    if rig is not None:
-        for coll in bpy.data.collections:
-            if rig.name in coll.objects:
-                meshes = get_objects('MESH', coll.objects)
-    else:
-        meshes = get_objects('MESH')
+    if len(rigs) > 1:
+        context.error('only one armature per scene allowed! Exporting only the first one: ' + rigs[0].name)
 
-    for mesh in list(reversed(meshes)):
-        if mesh.vertex_groups \
-                or mesh.object_type == 'BOX' \
-                or mesh.name in pick_plane_names:
-            continue
+    meshes = get_objects('MESH')
 
-        (location, rotation, _) = mesh.matrix_local.decompose()
-        eulers = rotation.to_euler()
-
-        if location.length < 0.01 and abs(eulers.x) < 0.01 and abs(eulers.y) < 0.01 and abs(eulers.z) < 0.01:
-            continue
-
-        pivot = HierarchyPivot(
-            name=mesh.name,
-            parent_id=0,
-            translation=location,
-            rotation=rotation,
-            euler_angles=Vector((eulers.x, eulers.y, eulers.z)))
-
-        if mesh.parent_bone != '':
-            pivot.parent_id = mesh.parent_bone
-        elif mesh.parent is not None:
-            if mesh.parent.name == rig.name:
-                pivot.parent_id = 0
-            else:
-                pivot.parent_id = mesh.parent.name
-
-        pivots.append(pivot)
-
-    for pivot in pivots:
-        pivot.processed = False
-
-    for pivot in pivots:
-        if pivot.processed or pivot.parent_id != 0:
-            continue
-        create_pivot_subtree(pivot, pivots, hierarchy)
+    for mesh in meshes:
+        process_mesh(context, mesh, hierarchy, pivot_id_dict)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig
+
+
+def process_mesh(context, mesh, hierarchy, pivot_id_dict):
+    if mesh.vertex_groups \
+            or mesh.object_type == 'BOX' \
+            or mesh.name in pick_plane_names \
+            or mesh.name in pivot_id_dict.keys():
+        return
+
+    if not mesh.parent_type == 'BONE':
+        pivot = HierarchyPivot(name=mesh.name, parent_id=0)
+        matrix = mesh.matrix_local
+
+        if mesh.parent is not None and mesh.parent.type == 'MESH':
+            context.warning('mesh \'' + mesh.name + '\' did have a object instead of a bone as parent!')
+            if mesh.parent.name not in pivot_id_dict.keys():
+                process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
+                return
+
+            pivot.parent_id = pivot_id_dict[mesh.parent.name]
+            matrix = mesh.parent.matrix_local.inverted() @ matrix
+
+        location, rotation, _ = matrix.decompose()
+        eulers = rotation.to_euler()
+
+        pivot.translation = location
+        pivot.rotation = rotation
+        pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
+
+        pivot_id_dict[pivot.name] = len(hierarchy.pivots)
+        hierarchy.pivots.append(pivot)
+
+    for child in mesh.children:
+        process_mesh(context, child, hierarchy, pivot_id_dict)

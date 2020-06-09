@@ -109,17 +109,16 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     return channels
 
 
-def retrieve_animation(animation_name, hierarchy, rig, timecoded):
+def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
     channels = []
 
     for mesh in get_objects('MESH'):
-        channels.extend(retrieve_channels(mesh, hierarchy, timecoded, mesh.name))
+        if (retrieve_channels(mesh, hierarchy, timecoded, mesh.name)):
+            context.warning('Mesh \'' + mesh.name + '\' is animated, animate its parent bone instead!')
 
-    for rig in get_objects('ARMATURE'):
+    if rig is not None:
         channels.extend(retrieve_channels(rig, hierarchy, timecoded))
-
-    for armature in bpy.data.armatures:
-        channels.extend(retrieve_channels(armature, hierarchy, timecoded))
+        channels.extend(retrieve_channels(rig.data, hierarchy, timecoded))
 
     if timecoded:
         ani_struct = CompressedAnimation(

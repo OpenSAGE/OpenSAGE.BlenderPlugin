@@ -7,7 +7,7 @@ from tests.w3d.helpers.version import get_version, compare_versions
 
 def get_hlod_header(model_name, hierarchy_name, lod_count=1):
     return HLodHeader(
-        version=get_version(),
+        version=get_version(major=1, minor=0),
         lod_count=lod_count,
         model_name=model_name,
         hierarchy_name=hierarchy_name)
