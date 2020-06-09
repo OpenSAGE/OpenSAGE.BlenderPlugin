@@ -23,8 +23,8 @@ install:
   - mkdir tmp && cd tmp
   - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}-${BLENDER_ARCHIVE_NAME}"
   - BLENDER_FILE="https://download.blender.org/release/Blender${BLENDER_VERSION}/${BLENDER_ARCHIVE}.${BLENDER_ARCHIVE_EXTENSION}"
-  - echo $BLENDER_FILE
-  - wget $BLENDER_FILE
+  - echo "$BLENDER_FILE"
+  - wget "$BLENDER_FILE"
   - tar jxf ${BLENDER_ARCHIVE}.tar.bz2
   - mv ${BLENDER_ARCHIVE} blender
   - rm ${BLENDER_ARCHIVE}.tar.bz2
