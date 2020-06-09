@@ -3,22 +3,11 @@ python:
   - "3.7"
 sudo: false
 
-jobs:
-    include:
-        - BLENDER_VERSION: "2.80"
-          BLENDER_ARCHIVE_NAME: "linux-glibc217-x86_64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.bz2"
-        - BLENDER_VERSION: "2.81"
-          BLENDER_ARCHIVE_NAME: "linux-glibc217-x86_64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.bz2"
-        - BLENDER_VERSION: "2.82"
-          BLENDER_ARCHIVE_NAME: "linux64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.xz"
-        - BLENDER_VERSION: "2.83"
-          BLENDER_ARCHIVE_NAME: "linux64"
-          BLENDER_ARCHIVE_EXTENSION: "tar.xz"
-
 install:
+  - BLENDER_VERSION="2.80"
+  - BLENDER_ARCHIVE_NAME="linux-glibc217-x86_64"
+  - BLENDER_ARCHIVE_EXTENSION="tar.bz2"
+
   - pip install codecov
   - mkdir tmp && cd tmp
   - BLENDER_ARCHIVE="blender-${BLENDER_VERSION}-${BLENDER_ARCHIVE_NAME}"
