@@ -10,7 +10,7 @@ W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 
 
 class HierarchyHeader:
-    def __init__(self, version=Version(), name='', num_pivots=0, center_pos=Vector((0.0, 0.0, 0.0))):
+    def __init__(self, version=Version(major=4, minor=1), name='', num_pivots=0, center_pos=Vector((0.0, 0.0, 0.0))):
         self.version = version
         self.name = name
         self.num_pivots = num_pivots

@@ -229,14 +229,12 @@ class TestUtils(TestCase):
 
         meshes = [get_mesh(name='ubbarracks')]
 
-        print('############################### same name')
         create_data(self, meshes, hlod, hierarchy)
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
         for piv in actual_hiera.pivots:
             print(piv.name)
 
-        print('############################### same name end')
         self.compare_data(meshes, hlod, hierarchy)
 
 

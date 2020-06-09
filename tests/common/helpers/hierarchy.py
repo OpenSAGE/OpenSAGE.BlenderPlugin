@@ -8,7 +8,7 @@ from tests.w3d.helpers.version import get_version, compare_versions
 
 def get_hierarchy_header(name='TestHierarchy'):
     return HierarchyHeader(
-        version=get_version(),
+        version=get_version(major=4, minor=1),
         name=name,
         num_pivots=0,
         center_pos=get_vec(0.0, 0.0, 0.0))

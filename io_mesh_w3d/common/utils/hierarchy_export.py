@@ -43,7 +43,7 @@ def retrieve_hierarchy(context, container_name):
             matrix = bone.matrix
 
             if bone.parent is not None:
-                pivot.parent_id = rig.pose.bones.find(bone.parent.name) + 1
+                pivot.parent_id = pivot_id_dict[bone.parent.name]
                 matrix = bone.parent.matrix.inverted() @ matrix
 
             (translation, rotation, _) = matrix.decompose()

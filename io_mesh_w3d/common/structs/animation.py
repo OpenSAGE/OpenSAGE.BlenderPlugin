@@ -9,7 +9,7 @@ W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
 
 class AnimationHeader:
-    def __init__(self, version=Version(), name='', hierarchy_name='', num_frames=0, frame_rate=0):
+    def __init__(self, version=Version(major=4, minor=1), name='', hierarchy_name='', num_frames=0, frame_rate=0):
         self.version = version
         self.name = name
         self.hierarchy_name = hierarchy_name

@@ -8,7 +8,7 @@ from tests.w3d.helpers.version import *
 
 def get_animation_header(hierarchy_name='hierarchy'):
     return AnimationHeader(
-        version=get_version(),
+        version=get_version(major=4, minor=1),
         name='containerName',
         hierarchy_name=hierarchy_name,
         num_frames=5,

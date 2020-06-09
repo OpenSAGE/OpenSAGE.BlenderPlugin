@@ -35,7 +35,7 @@ VERTEX_CHANNEL_BITANGENT = 0x40
 
 
 class MeshHeader:
-    def __init__(self, version=Version(), attrs=GEOMETRY_TYPE_NORMAL, mesh_name='', container_name='', face_count=0,
+    def __init__(self, version=Version(major=4, minor=2), attrs=GEOMETRY_TYPE_NORMAL, mesh_name='', container_name='', face_count=0,
                  vert_count=0, matl_count=0, damage_stage_count=0, sort_level=0, prelit_version=0, future_count=0,
                  vert_channel_flags=0, face_channel_flags=1, min_corner=Vector(), max_corner=Vector(),
                  sph_center=Vector(), sph_radius=0.0):
