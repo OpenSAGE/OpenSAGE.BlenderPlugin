@@ -10,7 +10,7 @@ W3D_CHUNK_HIERARCHY_HEADER = 0x00000101
 
 
 class HierarchyHeader:
-    def __init__(self, version=Version(), name='', num_pivots=0, center_pos=Vector((0.0, 0.0, 0.0))):
+    def __init__(self, version=Version(major=4, minor=1), name='', num_pivots=0, center_pos=Vector((0.0, 0.0, 0.0))):
         self.version = version
         self.name = name
         self.num_pivots = num_pivots
@@ -46,9 +46,6 @@ class HierarchyPivot:
         self.euler_angles = euler_angles
         self.rotation = rotation
         self.fixup_matrix = fixup_matrix
-
-        # non struct attributes
-        self.processed = False
 
     @staticmethod
     def read(io_stream):
@@ -116,11 +113,11 @@ class Hierarchy:
         if context.file_format == 'W3X':
             return True
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('hierarchy name exceeds max length of: ' + str(STRING_LENGTH))
+            context.error('armature name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         for pivot in self.pivots:
             if len(pivot.name) >= STRING_LENGTH:
-                context.error('name of object ' + pivot.name + ' exceeds max length of: ' + str(STRING_LENGTH))
+                context.error('name of object \'' + pivot.name + '\' exceeds max length of ' + str(STRING_LENGTH))
                 return False
         return True
 

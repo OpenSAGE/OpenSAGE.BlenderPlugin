@@ -165,12 +165,6 @@ Material.emission = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Emission color')
 
-Material.opacity = FloatProperty(
-    name='Opacity',
-    default=0.0,
-    min=0.0, max=1.0,
-    description='Opacity property')
-
 Material.alpha_test = BoolProperty(
     name='Alpha test',
     description='Enable the alpha test',
@@ -442,14 +436,6 @@ class ShaderProperties(PropertyGroup):
              'fragment RGB components multiplied by fragment inverse (one minus) A'),
         ],
         default='1')
-    texturing: EnumProperty(
-        name='Shader texturing',
-        description='Enable texturing',
-        items=[
-            ('0', 'Disable', 'no texturing (treat fragment initial color as 1,1,1,1) (default)'),
-            ('1', 'Enable', 'enable texturing'),
-        ],
-        default='0')
     detail_color_func: EnumProperty(
         name='Detail color function',
         items=[

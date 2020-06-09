@@ -9,6 +9,7 @@ from io_mesh_w3d.w3d.export_w3d import save
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import *
+from tests.common.helpers.animation import *
 from tests.utils import *
 
 
@@ -146,3 +147,46 @@ class TestExportW3D(TestCase):
             skip_unknown_chunk(self, file, chunk_type, chunk_size)
 
         file.close()
+
+    def test_hlod_hierarchy_name_is_container_name_if_export_mode_HM_and_not_use_existing_skeleton(self):
+        export_settings = {'mode': 'HM', 'compression': 'U', 'use_existing_skeleton': False}
+
+        hierarchy_name = 'TestHiera_SKL'
+
+        data_context = DataContext(
+            container_name='containerName',
+            meshes=[
+                get_mesh(name='sword', skin=True),
+                get_mesh(name='soldier', skin=True),
+                get_mesh(name='TRUNK')],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name))
+
+        self.filepath = self.outpath() + 'output_skn'
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertEqual('containerName', data_context.hlod.header.hierarchy_name)
+
+    def test_hierarchy_name_is_container_name_for_hlod_and_animation_if_export_mode_HAM(self):
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'use_existing_skeleton': False}
+
+        hierarchy_name = 'TestHiera_SKL'
+
+        data_context = DataContext(
+            container_name='containerName',
+            meshes=[
+                get_mesh(name='sword', skin=True),
+                get_mesh(name='soldier', skin=True),
+                get_mesh(name='TRUNK')],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name),
+            animation=get_animation(hierarchy_name))
+
+        self.filepath = self.outpath() + 'output_skn'
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertEqual('containerName', data_context.hierarchy.header.name)
+        self.assertEqual('containerName', data_context.hlod.header.hierarchy_name)
+        self.assertEqual('containerName', data_context.animation.header.hierarchy_name)

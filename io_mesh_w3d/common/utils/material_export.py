@@ -37,7 +37,7 @@ def retrieve_vertex_material(material, principled):
         emissive=RGBA(vec=material.emission),
         ambient=RGBA(vec=material.ambient),
         translucency=material.translucency,
-        opacity=material.opacity)
+        opacity=principled.alpha)
 
     if 'USE_DEPTH_CUE' in material.attributes:
         info.attributes |= USE_DEPTH_CUE
@@ -97,7 +97,7 @@ def to_vec(color):
 def retrieve_shader_material(context, material, principled, w3x=False):
     name = material.name.split('.', 1)[-1]
     if not name.endswith('.fx'):
-        context.info(name + ' is not a valid shader name -> defaulting to: DefaultW3D.fx')
+        context.info('\'' + name + '\' is not a valid shader name -> defaulting to: \'DefaultW3D.fx\'')
         name = 'DefaultW3D.fx'
 
     shader_mat = ShaderMaterial(
@@ -141,7 +141,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
 
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
     append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
-    append_property(shader_mat, 2, 'Opacity', material.opacity)
+    append_property(shader_mat, 2, 'Opacity', principled.alpha, 1.0)
     append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test, True)
     append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
     append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)
@@ -183,7 +183,7 @@ def retrieve_shader(material):
         pri_gradient=int(material.shader.pri_gradient),
         sec_gradient=int(material.shader.sec_gradient),
         src_blend=int(material.shader.src_blend),
-        texturing=int(material.shader.texturing),
+        texturing=0, # is set to 1 if textures are applied
         detail_color_func=int(material.shader.detail_color_func),
         detail_alpha_func=int(material.shader.detail_alpha_func),
         shader_preset=material.shader.shader_preset,

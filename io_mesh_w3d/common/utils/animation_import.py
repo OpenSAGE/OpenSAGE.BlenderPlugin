@@ -30,9 +30,7 @@ def get_bone(rig, hierarchy, channel):
 
     if is_visibility(channel) and pivot.name in rig.data.bones:
         return rig.data.bones[pivot.name]
-    elif pivot.name in rig.pose.bones:
-        return rig.pose.bones[pivot.name]
-    return bpy.data.objects[pivot.name]
+    return rig.pose.bones[pivot.name]
 
 
 def setup_animation(animation):
@@ -58,9 +56,6 @@ def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         bone.visibility = value
         bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
-    else:
-        bone.hide_viewport = value
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

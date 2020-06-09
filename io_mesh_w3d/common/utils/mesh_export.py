@@ -3,6 +3,7 @@
 
 import bpy
 import bmesh
+import time
 from mathutils import Vector, Matrix
 from bpy_extras import node_shader_utils
 
@@ -38,7 +39,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
         mesh_object = mesh_object.evaluated_get(depsgraph)
-        mesh = mesh_object.to_mesh()
+        mesh = mesh_object.data
         b_mesh = prepare_bmesh(context, mesh)
 
         (center, radius) = calculate_mesh_sphere(mesh)
@@ -50,6 +51,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh.calc_tangents()
 
         header.vert_count = len(mesh.vertices)
+
+        loop_dict = dict()
+        for loop in mesh.loops:
+            loop_dict[loop.vertex_index] = loop
+
+        (_, _, scale) = mesh_object.matrix_local.decompose()
 
         for i, vertex in enumerate(mesh.vertices):
             matrix = Matrix.Identity(4)
@@ -79,25 +86,24 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
-                    context.warning('max 2 bone influences per vertex supported!')
+                    context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is influenced by more than 2 bones!')
 
-            (_, _, scale) = mesh_object.matrix_local.decompose()
             scaled_vert = vertex.co * scale.x
             mesh_struct.verts.append(matrix @ scaled_vert)
 
             (_, rotation, _) = matrix.decompose()
 
-            loops = [loop for loop in mesh.loops if loop.vertex_index == i]
-            if loops:
-                loop = loops[0]
-                mesh_struct.normals.append(rotation @ loop.normal)
+            if i in loop_dict:
+                loop = loop_dict[i]
+                # do NOT use loop.normal here! that might result in weird shading issues
+                mesh_struct.normals.append(rotation @ vertex.normal) 
 
                 if mesh.uv_layers:
                     # in order to adapt to 3ds max orientation
                     mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
                     mesh_struct.bitangents.append((rotation @ loop.tangent))
             else:
-                context.info('the vertex ' + str(i) + ' in mesh ' + mesh_object.name + ' is unconnected!')
+                context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is not connected to any face!')
                 mesh_struct.normals.append(rotation @ vertex.normal)
                 if mesh.uv_layers:
                     # only dummys
@@ -151,6 +157,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, material in enumerate(mesh.materials):
             mat_pass = MaterialPass()
 
+            if material is None:
+                context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
+                continue
+
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
             used_textures = get_used_textures(material, principled, used_textures)
@@ -164,14 +174,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     retrieve_shader_material(context, material, principled))
 
             else:
-                # TODO: create prelit material structs if material is prelit
-                # set mesh_struct.header.attributes accordingly
-
-                mesh_struct.shaders.append(retrieve_shader(material))
+                shader = retrieve_shader(material)
+                mesh_struct.shaders.append(shader)
                 mat_pass.shader_ids = [i]
                 mat_pass.vertex_material_ids = [i]
-                if i < len(tx_stages):
-                    mat_pass.tx_stages.append(tx_stages[i])
+
                 mesh_struct.vert_materials.append(retrieve_vertex_material(material, principled))
 
                 base_col_tex = principled.base_color_texture
@@ -180,12 +187,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     img = base_col_tex.image
                     filepath = os.path.basename(img.filepath)
                     if filepath == '':
-                        filepath = img.name + '.dds'
+                        filepath = img.name
                     tex = Texture(
                         id=img.name,
                         file=filepath,
                         texture_info=info)
                     mesh_struct.textures.append(tex)
+                    shader.texturing = 1
+
+                    if i < len(tx_stages):
+                        mat_pass.tx_stages.append(tx_stages[i])
 
             mesh_struct.material_passes.append(mat_pass)
 
@@ -220,10 +231,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 def prepare_bmesh(context, mesh):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-
-    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
-
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
+    b_mesh.to_mesh(mesh)
+    b_mesh.free()
+
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
     b_mesh.to_mesh(mesh)
 
     return b_mesh
@@ -248,8 +262,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        b_mesh.to_mesh(mesh)
-        context.info('mesh vertices have been split because of multiple uv coordinates per vertex!')
+        context.info('mesh \'' + mesh.name + '\' vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 
@@ -298,6 +311,9 @@ def calculate_mesh_sphere(mesh):
 
     return validate_all_points_inside_sphere(center, radius, vertices)
 
+
+
+# WIP code below
 
 def retrieve_aabbtree(verts):
     result = AABBTree(header=AABBTreeHeader())

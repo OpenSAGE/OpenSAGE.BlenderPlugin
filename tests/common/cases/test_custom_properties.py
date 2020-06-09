@@ -115,12 +115,6 @@ class TestCustomProperties(TestCase):
         mat.emission = (2.0, 2.0, 2.0, 2.0)
         self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.emission))
 
-        self.assertEqual(0.0, mat.opacity)
-        mat.opacity = -1.0
-        self.assertEqual(0.0, mat.opacity)
-        mat.opacity = 2.0
-        self.assertEqual(1.0, mat.opacity)
-
         self.assertEqual(True, mat.alpha_test)
 
         self.assertEqual(0, mat.blend_mode)
@@ -190,7 +184,6 @@ class TestCustomProperties(TestCase):
         self.assertEqual('1', shader.pri_gradient)
         self.assertEqual('0', shader.sec_gradient)
         self.assertEqual('1', shader.src_blend)
-        self.assertEqual('0', shader.texturing)
         self.assertEqual('0', shader.detail_color_func)
         self.assertEqual('0', shader.detail_alpha_func)
         self.assertEqual(0, shader.shader_preset)

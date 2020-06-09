@@ -68,7 +68,6 @@ def create_material_from_vertex_material(name, vert_mat):
     material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
-    material.opacity = vert_mat.vm_info.opacity
 
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
@@ -124,7 +123,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
             material.emission = prop.to_rgba()
         elif prop.name == 'Opacity':
-            material.opacity = prop.value
+            principled.alpha = prop.value
         elif prop.name == 'AlphaTestEnable':
             material.alpha_test = prop.value
         elif prop.name == 'BlendMode':  # is blend_method ?

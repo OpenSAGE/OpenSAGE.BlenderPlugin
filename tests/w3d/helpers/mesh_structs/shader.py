@@ -14,7 +14,7 @@ def get_shader():
         pri_gradient=1,
         sec_gradient=0,
         src_blend=1,
-        texturing=0,
+        texturing=1,
         detail_color_func=0,
         detail_alpha_func=0,
         shader_preset=0,

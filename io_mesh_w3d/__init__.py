@@ -5,17 +5,17 @@ from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save
 from io_mesh_w3d.custom_properties import *
 
-VERSION = (0, 4, 8)
+VERSION = (0, 5, 0)
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 4, 8),
-    "blender": (2, 82, 0),
+    'version': (0, 5, 0),
+    "blender": (2, 83, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
     'warning': 'Still in Progress',
-    'wiki_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
+    'doc_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin',
     'tracker_url': 'https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/issues',
     'support': 'OFFICIAL',
     'category': 'Import-Export'}
@@ -327,11 +327,9 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat.shader, 'alpha_test')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_color_func')
+            col.prop(mat.shader, 'post_detail_color_func')
             col = layout.column()
-            col.prop(mat.shader,
-                     'post_detail_alpha_func')
+            col.prop(mat.shader, 'post_detail_alpha_func')
 
         else:
             col = layout.column()

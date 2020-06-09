@@ -4,8 +4,10 @@
 import bpy
 import bmesh
 from os.path import dirname as up
+from unittest.mock import patch
 
 from io_mesh_w3d.common.utils.mesh_export import *
+from io_mesh_w3d.common.utils.mesh_import import *
 from tests.common.helpers.mesh import *
 from tests.utils import *
 
@@ -16,7 +18,7 @@ class TestMeshExportUtils(TestCase):
 
         self.assertTrue('Cube' in bpy.data.objects)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         self.assertEqual(1, len(meshes))
 
@@ -29,7 +31,7 @@ class TestMeshExportUtils(TestCase):
         self.assertTrue('Cube' in bpy.data.objects)
         self.assertTrue('Cube2' in bpy.data.objects)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         self.assertEqual(2, len(meshes))
 
@@ -37,7 +39,53 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(42, len(mesh.verts))
 
         mesh2 = meshes[1]
-        self.assertEqual(160, len(mesh2.verts))
+        self.assertEqual(34, len(mesh2.verts))
+
+    def test_trianglulation_of_sphere(self):
+        mesh = bpy.data.meshes.new('sphere')
+        sphere = bpy.data.objects.new('sphere', mesh)
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+        b_mesh.to_mesh(mesh)
+        b_mesh.free()
+
+        coll = get_collection()
+        coll.objects.link(sphere)
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertEqual(62, len(meshes[0].verts))
+        self.assertEqual(120, len(meshes[0].triangles))
+
+    def test_used_texture_file_ending_is_correct(self):
+        create_mesh(self, get_mesh(), get_collection())
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        mesh = meshes[0]
+        self.assertEqual(mesh.textures[0].file, 'texture.dds')
+        self.assertEqual(mesh.textures[1].file, 'texture.dds')
+
+    def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
+        mesh = get_mesh('mesh')
+        mesh.textures = []
+        mesh.material_passes[0].tx_stages = []
+        mesh.material_passes[1].tx_stages = []
+        create_mesh(self, mesh, get_collection())
+
+        mesh_structs, textures = retrieve_meshes(self, None, None, 'container_name')
+        self.assertEqual(0, len(mesh_structs[0].material_passes[0].tx_stages))
+
+    def test_material_pass_does_not_contain_texture_stages_if_no_texture_is_applied(self):
+        create_mesh(self, get_mesh('mesh'), get_collection())
+
+        mesh = bpy.data.objects['mesh']
+        mesh.data.materials.append(None)
+
+        with (patch.object(self, 'warning')) as warning_func:
+            retrieve_meshes(self, None, None, 'container_name')
+            warning_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
 
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
@@ -75,10 +123,10 @@ class TestMeshExportUtils(TestCase):
         for i, datum in enumerate(uv_layer.data):
             datum.uv = tx_coords[i]
 
-        b_mesh = prepare_bmesh(self, mesh)
+        _mesh = prepare_bmesh(self, mesh)
 
-        self.assertEqual(19, len(b_mesh.verts))
-        self.assertEqual(12, len(b_mesh.faces))
+        self.assertEqual(24, len(_mesh.verts))
+        self.assertEqual(12, len(_mesh.faces))
 
     def test_mesh_with_unconnected_vertex_export(self):
         mesh = bpy.data.meshes.new('mesh_cube')
@@ -101,7 +149,7 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
         mesh_ob.select_set(True)
 
-        (meshes, _) = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         io_stream = io.BytesIO()
         for mesh_struct in meshes:

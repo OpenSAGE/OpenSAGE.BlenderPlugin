@@ -5,6 +5,7 @@ import bpy
 from bpy_extras import node_shader_utils
 from shutil import copyfile
 from mathutils import Vector, Quaternion
+from unittest.mock import patch
 
 from io_mesh_w3d.export_utils import *
 from io_mesh_w3d.import_utils import *
@@ -164,6 +165,7 @@ class TestUtils(TestCase):
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
+        actual.texturing = 1 # this is set on export if a texture is applied
         compare_shaders(self, expected, actual)
 
     def test_boxes_roundtrip(self):
@@ -214,6 +216,27 @@ class TestUtils(TestCase):
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data([], None, hierarchy)
+
+    def test_model_with_hierarchy_name_same_as_mesh_name_roundtrip(self):
+        hierarchy = get_hierarchy('ubbarracks')
+        hierarchy.pivots = [get_roottransform(), get_hierarchy_pivot(name='ubbarracks', parent=0)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod(hierarchy_name='ubbarracks')
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=1, name='containerName.ubbarracks')]
+        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
+
+        meshes = [get_mesh(name='ubbarracks')]
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        for piv in actual_hiera.pivots:
+            print(piv.name)
+
+        self.compare_data(meshes, hlod, hierarchy)
+
 
     def test_hierarchy_only_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -296,14 +319,15 @@ class TestUtils(TestCase):
             get_mesh(name='PICK')]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
-        coll = get_collection(hlod)
-        get_or_create_skeleton(hlod, hierarchy2, coll)
+        create_data(self, [], None, hierarchy2)
 
         self.assertEqual(2, len(get_objects('ARMATURE')))
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        self.assertIsNone(actual_hiera)
-        self.assertIsNone(rig)
+        with (patch.object(self, 'error')) as error_func:
+            (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+            self.assertIsNotNone(actual_hiera)
+            self.assertIsNotNone(rig)
+            error_func.assert_called_with('only one armature per scene allowed! Exporting only the first one: TestHierarchy2')
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -320,18 +344,42 @@ class TestUtils(TestCase):
 
         self.compare_data([], hlod, hierarchy)
 
-    def test_mesh_only_hlod_roundtrip(self):
+    def test_mesh_only_roundtrip(self):
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = 'containerName'
+        root = HierarchyPivot(
+            name='ROOTTRANSFORM',
+            name_id=None,
+            parent_id=-1,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+        pivot =  HierarchyPivot(
+            name='tree',
+            name_id=None,
+            parent_id=0,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+
+        hierarchy.pivots = [
+            root,
+            pivot]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'containerName'
         hlod.lod_arrays[0].header.model_count = 1
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=0, name='containerName.tree')]
+            get_hlod_sub_object(bone=1, name='containerName.tree')]
 
         meshes = [get_mesh(name='tree')]
 
         create_data(self, meshes)
 
-        self.compare_data([], hlod)
+        self.compare_data([], hlod, hierarchy)
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()
@@ -777,12 +825,12 @@ class TestUtils(TestCase):
                 compare_dazzles(self, dazzle, actual_dazzles[i])
 
         if animation is not None:
-            actual_animation = retrieve_animation(
+            actual_animation = retrieve_animation(self,
                 animation.header.name, actual_hiera, rig, timecoded=False)
             compare_animations(self, animation, actual_animation)
 
         if compressed_animation is not None:
-            actual_compressed_animation = retrieve_animation(
+            actual_compressed_animation = retrieve_animation(self,
                 compressed_animation.header.name, actual_hiera, rig, timecoded=True)
             compare_compressed_animations(
                 self, compressed_animation, actual_compressed_animation)

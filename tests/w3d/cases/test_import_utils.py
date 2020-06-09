@@ -85,7 +85,7 @@ class TestImportUtilsW3D(TestCase):
 
         hierarchy.pivots = [get_roottransform(), pivot]
 
-        meshes = [get_mesh(name='MESH')]
+        meshes = [get_mesh(name='MESH_Obj')]
 
         expected_frames = [0, 4]
         expected = [3.0, 3.0]
@@ -93,7 +93,7 @@ class TestImportUtilsW3D(TestCase):
         self.filepath = self.outpath() + 'output'
         create_data(self, meshes, hlod, hierarchy, [], None, animation)
 
-        obj = bpy.data.objects['MESH']
+        obj = bpy.data.objects['TestHierarchy']
         for fcu in obj.animation_data.action.fcurves:
             self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
             for i, keyframe in enumerate(fcu.keyframe_points):

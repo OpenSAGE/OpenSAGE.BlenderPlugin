@@ -11,7 +11,7 @@ from tests.w3d.helpers.version import get_version, compare_versions
 def get_compressed_animation_header(
         hierarchy_name='hierarchy', flavor=ADAPTIVE_DELTA_FLAVOR):
     return CompressedAnimationHeader(
-        version=get_version(),
+        version=get_version(major=1, minor=0),
         name='containerName',
         hierarchy_name=hierarchy_name,
         num_frames=155,
