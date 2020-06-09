@@ -18,11 +18,6 @@ jobs:
           BLENDER_ARCHIVE_NAME: "linux64"
           BLENDER_ARCHIVE_EXTENSION: ".tar.xz"
 
-env:
-    matrix:
-        - BLENDER_VERSION="2.80"
-        - BLENDER_VERSION="2.81"
-
 install:
   - pip install codecov
   - mkdir tmp && cd tmp
