@@ -48,11 +48,9 @@ def create_mesh(context, mesh_struct, coll):
             mesh.materials.append(material)
             principleds.append(principled)
 
-        b_mesh = None
+        b_mesh = bmesh.new()
+        b_mesh.from_mesh(mesh)
         for mat_pass in mesh_struct.material_passes:
-            if b_mesh is None:
-                b_mesh = bmesh.new()
-                b_mesh.from_mesh(mesh)
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
 

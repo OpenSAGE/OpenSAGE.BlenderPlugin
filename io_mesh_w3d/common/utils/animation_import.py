@@ -53,9 +53,8 @@ def set_rotation(bone, frame, value):
 
 
 def set_visibility(bone, frame, value):
-    if isinstance(bone, bpy.types.Bone):
-        bone.visibility = value
-        bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
+    bone.visibility = value
+    bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):
@@ -63,7 +62,7 @@ def set_keyframe(bone, channel, frame, value):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
         set_translation(bone, channel.type, frame, value)
-    elif is_rotation(channel):
+    else:
         set_rotation(bone, frame, value)
 
 
