@@ -30,4 +30,3 @@ class TestAnimationExportUtils(TestCase):
             retrieve_animation(self, 'ani_name', get_hierarchy(), None, False)
 
             warning_func.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
-
