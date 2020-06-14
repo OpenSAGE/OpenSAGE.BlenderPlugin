@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
+
 from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.structs.hlod import *
 

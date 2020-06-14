@@ -22,6 +22,7 @@ def create_mesh(context, mesh_struct, coll):
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
     mesh_ob.object_type = 'NORMAL'
+    mesh_ob.sort_level = mesh_struct.header.sort_level
     mesh_ob.userText = mesh_struct.user_text
     mesh_ob.use_empty_image_alpha = True
 

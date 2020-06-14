@@ -11,7 +11,7 @@ from io_mesh_w3d.common.utils.box_export import *
 from io_mesh_w3d.w3d.utils.dazzle_export import *
 
 
-def save(context, export_settings):
+def save_data(context, export_settings):
     data_context = retrieve_data(context, export_settings)
 
     if data_context is None:

@@ -14,6 +14,13 @@ Object.userText = StringProperty(
     description='This is a text defined by the user',
     default='')
 
+Object.sort_level = IntProperty(
+    name='Sorting level',
+    description='Objects with higher sorting level are rendered after objects with lower levels.',
+    default=0,
+    min=0,
+    max=32)
+
 Object.object_type = EnumProperty(
     name='Type',
     description='Attributes that define the type of this object',

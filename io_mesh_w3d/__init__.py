@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from io_mesh_w3d.export_utils import save
+from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.custom_properties import *
 
 VERSION = (0, 5, 1)
@@ -243,6 +243,8 @@ class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
         layout = self.layout
         col = layout.column()
         col.prop(context.active_object, 'object_type')
+        col = layout.column()
+        col.prop(context.active_object, 'sort_level')
         if context.active_object.object_type == 'DAZZLE':
             col = layout.column()
             col.prop(context.active_object, 'dazzle_type')
