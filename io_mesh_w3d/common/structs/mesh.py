@@ -17,6 +17,7 @@ W3D_CHUNK_MESH_HEADER = 0x0000001F
 GEOMETRY_TYPE_NORMAL = 0x00000000
 GEOMETRY_TYPE_HIDDEN = 0x00001000
 GEOMETRY_TYPE_TWO_SIDED = 0x00002000
+GEOMETRY_TYPE_CAST_SHADOW = 0x00008000
 GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
 
@@ -167,6 +168,9 @@ class Mesh:
             context.error('mesh name \'' + self.header.mesh_name + '\' exceeds max length of ' + str(STRING_LENGTH))
             return False
         return True
+
+    def casts_shadow(self):
+        return self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW
 
     def is_hidden(self):
         return self.header.attrs & GEOMETRY_TYPE_HIDDEN
@@ -378,6 +382,16 @@ class Mesh:
         else:
             result.header.mesh_name = identifier
 
+        hidden = bool(xml_mesh.get('Hidden'))
+        if hidden:
+            self.header.attrs |= GEOMETRY_TYPE_HIDDEN
+
+        cast_shadow = bool(xml_mesh.get('CastShadow'))
+        if cast_shadow:
+            self.header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
+
+        result.header.sort_level = int(xml_mesh.get('SortLevel'))
+
         geometry_type = xml_mesh.get('GeometryType')
         result.header.attrs = GEOMETRY_TYPE_NORMAL
         if geometry_type == 'Skin':
@@ -454,6 +468,14 @@ class Mesh:
         xml_mesh = create_node(parent, 'W3DMesh')
         identifier = self.header.container_name + "." + self.header.mesh_name
         xml_mesh.set('id', identifier)
+
+        if self.casts_shadow():
+            xml_mesh.set('CastShadow', 'true')
+
+        if self.is_hidden():
+            xml_mesh.set('Hidden', 'true')
+
+        xml_mesh.set('SortLevel', str(self.header.sort_level))
 
         xml_mesh.set('GeometryType', 'Normal')
         if self.header.attrs & GEOMETRY_TYPE_SKIN:
