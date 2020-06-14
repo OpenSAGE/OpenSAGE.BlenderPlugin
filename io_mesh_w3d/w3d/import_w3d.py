@@ -38,7 +38,11 @@ def load_file(context, data_context, path=None):
             data_context.compressed_animation = CompressedAnimation.read(
                 context, file, chunk_end)
         elif chunk_type == W3D_CHUNK_HLOD:
-            data_context.hlod = HLod.read(context, file, chunk_end)
+            if data_context.hlod is None:
+                data_context.hlod = HLod.read(context, file, chunk_end)
+            else:
+                context.warning('-> already got a hlod chunk (skipping this one)!')
+                file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_DAZZLE:

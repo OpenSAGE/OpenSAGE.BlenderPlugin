@@ -382,15 +382,15 @@ class Mesh:
         else:
             result.header.mesh_name = identifier
 
-        hidden = bool(xml_mesh.get('Hidden'))
+        hidden = bool(xml_mesh.get('Hidden', False))
         if hidden:
             self.header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        cast_shadow = bool(xml_mesh.get('CastShadow'))
+        cast_shadow = bool(xml_mesh.get('CastShadow', False))
         if cast_shadow:
             self.header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
 
-        result.header.sort_level = int(xml_mesh.get('SortLevel'))
+        result.header.sort_level = int(xml_mesh.get('SortLevel', 0))
 
         geometry_type = xml_mesh.get('GeometryType')
         result.header.attrs = GEOMETRY_TYPE_NORMAL
