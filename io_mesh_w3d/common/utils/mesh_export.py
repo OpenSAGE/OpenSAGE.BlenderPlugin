@@ -33,6 +33,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             container_name=container_name)
 
         header = mesh_struct.header
+        header.sort_level = mesh_object.sort_level
         mesh_struct.user_text = mesh_object.userText
 
         if mesh_object.hide_get():
@@ -202,6 +203,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mesh_struct.material_passes.append(mat_pass)
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
+
+        if mesh_struct.vert_infs:
+            header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
 
         if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
