@@ -10,7 +10,7 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 from tests.w3d.helpers.version import *
 
 
-def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False):
+def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False, cast_shadow=False):
     header = MeshHeader(
         version=get_version(major=4, minor=2),
         attrs=0,
@@ -33,10 +33,12 @@ def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=Fals
     if shader_mats:
         header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
     if skin:
-        header.attrs = GEOMETRY_TYPE_SKIN
+        header.attrs |= GEOMETRY_TYPE_SKIN
         header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
     if hidden:
-        header.attrs = GEOMETRY_TYPE_HIDDEN
+        header.attrs |= GEOMETRY_TYPE_HIDDEN
+    if cast_shadow:
+        header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
     return header
 
 
@@ -71,9 +73,9 @@ def get_vertex_influences():
             get_vertex_influence(3, 4, 0.25, 0.75)]
 
 
-def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidden=False, mat_count=2):
+def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidden=False, cast_shadow=False, mat_count=2):
     mesh = Mesh()
-    mesh.header = get_mesh_header(name, skin, shader_mats, hidden)
+    mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow)
 
     mesh.user_text = 'TestUserText'
 
@@ -129,7 +131,6 @@ def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidde
 
     if skin:
         mesh.multi_bone_skinned = True
-        mesh.header.attrs |= GEOMETRY_TYPE_SKIN
         mesh.vert_infs = get_vertex_influences()
 
     for i in range(len(mesh.verts)):
