@@ -3,7 +3,7 @@
 
 import bpy
 
-from io_mesh_w3d.export_utils import save
+from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.w3d.import_w3d import load
 from io_mesh_w3d.import_utils import create_data
 from tests.common.helpers.animation import get_animation
@@ -35,16 +35,16 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'use_existing_skeleton': True}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
         export_settings['mode'] = 'H'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'output_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(use_empty=True)
@@ -84,16 +84,16 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'use_existing_skeleton': True}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
         export_settings['mode'] = 'H'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'output_comp_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -129,7 +129,7 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HAM', 'compression': 'U'}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -159,7 +159,7 @@ class TestRoundtripW3D(TestCase):
         export_settings = {'mode': 'HM',
                            'compression': 'U',
                            'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -191,7 +191,7 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HAM', 'compression': 'U'}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -228,7 +228,7 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HAM', 'compression': 'TC'}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -261,7 +261,7 @@ class TestRoundtripW3D(TestCase):
         # export
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HM', 'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')

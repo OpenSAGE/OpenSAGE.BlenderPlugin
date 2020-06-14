@@ -13,7 +13,7 @@ from tests.common.helpers.collision_box import *
 class TestExportUtils(TestCase):
     @patch('io_mesh_w3d.export_utils.retrieve_data', return_value=None)
     def test_cancels_if_not_retrieve_data(self, retrieve):
-        self.assertEqual({'CANCELLED'}, save(self, {'mode': 'M'}))
+        self.assertEqual({'CANCELLED'}, save_data(self, {'mode': 'M'}))
 
     def test_retrieve_data_returns_false_if_invalid_mode(self):
         with (patch.object(self, 'error')) as error_func:

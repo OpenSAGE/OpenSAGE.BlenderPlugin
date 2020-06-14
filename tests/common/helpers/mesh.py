@@ -20,7 +20,7 @@ def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=Fals
         vert_count=8,
         matl_count=2,
         damage_stage_count=0,
-        sort_level=0,
+        sort_level=3,
         prelit_version=0,
         future_count=0,
         vert_channel_flags=VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL,
@@ -34,6 +34,7 @@ def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=Fals
         header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
     if skin:
         header.attrs = GEOMETRY_TYPE_SKIN
+        header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
     if hidden:
         header.attrs = GEOMETRY_TYPE_HIDDEN
     return header
