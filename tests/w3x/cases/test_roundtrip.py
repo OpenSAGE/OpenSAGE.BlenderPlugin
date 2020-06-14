@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.export_utils import save
+from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.w3x.import_w3x import load
 from io_mesh_w3d.import_utils import create_data
 from tests.common.helpers.animation import get_animation
@@ -36,16 +36,16 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'individual_files': False, 'use_existing_skeleton': True,
                            'create_texture_xmls': True}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'testhiera_skl'
         export_settings['mode'] = 'H'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         self.filepath = self.outpath() + 'output_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -84,7 +84,7 @@ class TestRoundtripW3X(TestCase):
         # export
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HAM', 'compression': 'U', 'individual_files': False, 'create_texture_xmls': True}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
@@ -124,7 +124,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': True}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
@@ -159,7 +159,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
@@ -217,7 +217,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': False, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # reset scene
         bpy.ops.wm.read_homefile(app_template='')
@@ -252,7 +252,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # remove includes
         root = find_root(self, self.outpath() + 'output_skn.w3x')
@@ -332,7 +332,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
-        save(self, export_settings)
+        save_data(self, export_settings)
 
         # remove includes
         root = find_root(self, self.outpath() + 'output.w3x')
