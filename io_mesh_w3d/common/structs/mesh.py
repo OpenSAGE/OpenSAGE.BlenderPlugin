@@ -170,13 +170,13 @@ class Mesh:
         return True
 
     def casts_shadow(self):
-        return self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW
+        return bool(self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW)
 
     def is_hidden(self):
-        return self.header.attrs & GEOMETRY_TYPE_HIDDEN
+        return bool(self.header.attrs & GEOMETRY_TYPE_HIDDEN)
 
     def is_skin(self):
-        return self.header.attrs & GEOMETRY_TYPE_SKIN
+        return bool(self.header.attrs & GEOMETRY_TYPE_SKIN)
 
     def container_name(self):
         return self.header.container_name
@@ -382,20 +382,17 @@ class Mesh:
         else:
             result.header.mesh_name = identifier
 
-        hidden = bool(xml_mesh.get('Hidden', False))
-        if hidden:
-            self.header.attrs |= GEOMETRY_TYPE_HIDDEN
+        result.header.attrs = GEOMETRY_TYPE_NORMAL
+        if xml_mesh.get('GeometryType') == 'Skin':
+            result.header.attrs |= GEOMETRY_TYPE_SKIN
 
-        cast_shadow = bool(xml_mesh.get('CastShadow', False))
-        if cast_shadow:
-            self.header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
+        if bool(xml_mesh.get('Hidden', False)):
+            result.header.attrs |= GEOMETRY_TYPE_HIDDEN
+
+        if bool(xml_mesh.get('CastShadow', False)):
+            result.header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
 
         result.header.sort_level = int(xml_mesh.get('SortLevel', 0))
-
-        geometry_type = xml_mesh.get('GeometryType')
-        result.header.attrs = GEOMETRY_TYPE_NORMAL
-        if geometry_type == 'Skin':
-            result.header.attrs |= GEOMETRY_TYPE_SKIN
 
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
             | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT

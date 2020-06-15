@@ -203,20 +203,6 @@ class TestUtils(TestCase):
 
         self.compare_data([], hlod, hierarchy, [], None, None, dazzles)
 
-    def test_hierarchy_roundtrip(self):
-        hierarchy = get_hierarchy()
-        hlod = get_hlod()
-        boxes = [get_collision_box()]
-        meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK'),
-            get_mesh(name='PICK')]
-
-        create_data(self, meshes, hlod, hierarchy, boxes)
-
-        self.compare_data([], None, hierarchy)
-
     def test_model_with_hierarchy_name_same_as_mesh_name_roundtrip(self):
         hierarchy = get_hierarchy('ubbarracks')
         hierarchy.pivots = [get_roottransform(), get_hierarchy_pivot(name='ubbarracks', parent=0)]
@@ -236,75 +222,6 @@ class TestUtils(TestCase):
             print(piv.name)
 
         self.compare_data(meshes, hlod, hierarchy)
-
-    def test_hierarchy_only_roundtrip(self):
-        hierarchy = get_hierarchy()
-
-        create_data(self, [], None, hierarchy)
-
-        self.compare_data([], None, hierarchy)
-
-    def test_hierarchy_roundtrip_pivot_order_is_correct(self):
-        hierarchy = get_hierarchy()
-        hierarchy.pivots = [
-            get_roottransform(),
-            get_hierarchy_pivot(name='bone_chassis01', parent=0),
-            get_hierarchy_pivot(name='bone_treadlf', parent=1),
-            get_hierarchy_pivot(name='bone_treadlr', parent=1),
-            get_hierarchy_pivot(name='bone_treadrf', parent=1),
-            get_hierarchy_pivot(name='bone_treadrr', parent=1),
-            get_hierarchy_pivot(name='bone_turret', parent=1),
-            get_hierarchy_pivot(name='bone_rocketpod', parent=6),
-            get_hierarchy_pivot(name='turret01', parent=7),
-            get_hierarchy_pivot(name='rocketlaunch01', parent=8),
-            get_hierarchy_pivot(name='turret02', parent=7),
-            get_hierarchy_pivot(name='rocketlaunch02', parent=10),
-            get_hierarchy_pivot(name='bone_rails', parent=6),
-            get_hierarchy_pivot(name='bone_barrel_01', parent=12),
-            get_hierarchy_pivot(name='muzzlefx01', parent=13),
-            get_hierarchy_pivot(name='muzzleflash_01', parent=13),
-            get_hierarchy_pivot(name='muzzleflash_02', parent=13),
-            get_hierarchy_pivot(name='ugrail_01', parent=13),
-            get_hierarchy_pivot(name='bone_barrel_02', parent=12),
-            get_hierarchy_pivot(name='muzzlefx02', parent=18),
-            get_hierarchy_pivot(name='ugrail_02', parent=18),
-            get_hierarchy_pivot(name='fxtrackslf', parent=1),
-            get_hierarchy_pivot(name='fxtrackslr', parent=1),
-            get_hierarchy_pivot(name='fxtracksrf', parent=1),
-            get_hierarchy_pivot(name='fxtracksrr', parent=1)]
-        hierarchy.header.num_pivots = len(hierarchy.pivots)
-
-        hlod = get_hlod()
-        hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=0, name='containerName.treadsback'),
-            get_hlod_sub_object(bone=0, name='containerName.treadsleft'),
-            get_hlod_sub_object(bone=0, name='containerName.treadsmove'),
-            get_hlod_sub_object(bone=0, name='containerName.treadsright'),
-            get_hlod_sub_object(bone=0, name='containerName.treadsstop'),
-            get_hlod_sub_object(bone=0, name='containerName.mammothtank'),
-            get_hlod_sub_object(bone=20, name='containerName.ugrail_02'),
-            get_hlod_sub_object(bone=17, name='containerName.ugrail_01'),
-            get_hlod_sub_object(bone=16, name='containerName.muzzleflash_02'),
-            get_hlod_sub_object(bone=15, name='containerName.muzzleflash_01'),
-            get_hlod_sub_object(bone=0, name='containerName.rocketpods'), ]
-        hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
-
-        meshes = [
-            get_mesh(name='treadsbaack', skin=True),
-            get_mesh(name='treadsleft', skin=True),
-            get_mesh(name='treadsmove', skin=True),
-            get_mesh(name='treadsright', skin=True),
-            get_mesh(name='treadsstop', skin=True),
-            get_mesh(name='mammothtank', skin=True),
-            get_mesh(name='ugrail_02'),
-            get_mesh(name='ugrail_01'),
-            get_mesh(name='muzzleflash_02'),
-            get_mesh(name='muzzleflash_01'),
-            get_mesh(name='rocketpods', skin=True)]
-
-        create_data(self, meshes, hlod, hierarchy, [])
-
-        self.compare_data([], None, hierarchy)
 
     def test_too_many_hierarchies_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -427,6 +344,18 @@ class TestUtils(TestCase):
         create_data(self, meshes, hlod, hierarchy, boxes, None, None, dazzles)
 
         self.compare_data(meshes, hlod, hierarchy, boxes)
+
+    def test_mesh_attributes_roundtrip(self):
+        hlod = get_hlod()
+        hierarchy = get_hierarchy()
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='TRUNK', hidden=True),
+            get_mesh(name='PICK', cast_shadow=True)]
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        self.compare_data(meshes)
 
     def test_mesh_is_child_of_mesh_roundtrip(self):
         hlod = get_hlod()
