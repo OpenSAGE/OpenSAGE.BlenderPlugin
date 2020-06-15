@@ -58,3 +58,18 @@ class TestAdaptiveDelta(unittest.TestCase):
 
         # self.assertEqual(len(expected), len(actual))
         # self.assertEqual(expected, actual)
+
+    def test_encode_4bit(self):
+        channel = AnimationChannel(
+            first_frame=0,
+            last_frame=7,
+            type=1,
+            pivot=2,
+            unknown=0,
+            data=[4.3611, 4.3611, 4.6254, 4.9559, 5.4186, 5.8812])
+        expected = [] #?
+
+        actual = encode(channel, num_bits=4)
+
+        # self.assertEqual(len(expected), len(actual))
+        # self.assertEqual(expected, actual)
