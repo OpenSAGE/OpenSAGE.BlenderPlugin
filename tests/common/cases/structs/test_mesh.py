@@ -177,6 +177,9 @@ class TestMesh(TestCase):
     def test_write_read_xml(self):
         self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
 
+    def test_write_read_xml_attributes(self):
+        self.write_read_xml_test(get_mesh(shader_mats=True, hidden=True, cast_shadow=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
 

@@ -13,6 +13,66 @@ from io_mesh_w3d.common.utils.hierarchy_export import *
 
 
 class TestHierarchyUtils(TestCase):
+    def test_hierarchy_roundtrip(self):
+        hierarchy = get_hierarchy()
+        hlod = get_hlod()
+        meshes = [
+            get_mesh(name='sword', skin=True),
+            get_mesh(name='soldier', skin=True),
+            get_mesh(name='TRUNK'),
+            get_mesh(name='PICK')]
+
+        create_data(self, meshes, hlod, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        hierarchy.pivot_fixups = []  # roundtrip not supported
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+    def test_hierarchy_only_roundtrip(self):
+        hierarchy = get_hierarchy()
+
+        create_data(self, [], None, hierarchy)
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        hierarchy.pivot_fixups = []  # roundtrip not supported
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
+    def test_hierarchy_roundtrip_pivot_order_is_correct(self):
+        hierarchy = get_hierarchy()
+        hierarchy.pivots = [
+            get_roottransform(),
+            get_hierarchy_pivot(name='bone_chassis01', parent=0),
+            get_hierarchy_pivot(name='bone_treadlf', parent=1),
+            get_hierarchy_pivot(name='bone_treadlr', parent=1),
+            get_hierarchy_pivot(name='bone_treadrf', parent=1),
+            get_hierarchy_pivot(name='bone_treadrr', parent=1),
+            get_hierarchy_pivot(name='bone_turret', parent=1),
+            get_hierarchy_pivot(name='bone_rocketpod', parent=6),
+            get_hierarchy_pivot(name='turret01', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch01', parent=8),
+            get_hierarchy_pivot(name='turret02', parent=7),
+            get_hierarchy_pivot(name='rocketlaunch02', parent=10),
+            get_hierarchy_pivot(name='bone_rails', parent=6),
+            get_hierarchy_pivot(name='bone_barrel_01', parent=12),
+            get_hierarchy_pivot(name='muzzlefx01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_01', parent=13),
+            get_hierarchy_pivot(name='muzzleflash_02', parent=13),
+            get_hierarchy_pivot(name='ugrail_01', parent=13),
+            get_hierarchy_pivot(name='bone_barrel_02', parent=12),
+            get_hierarchy_pivot(name='muzzlefx02', parent=18),
+            get_hierarchy_pivot(name='ugrail_02', parent=18),
+            get_hierarchy_pivot(name='fxtrackslf', parent=1),
+            get_hierarchy_pivot(name='fxtrackslr', parent=1),
+            get_hierarchy_pivot(name='fxtracksrf', parent=1),
+            get_hierarchy_pivot(name='fxtracksrr', parent=1)]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        create_data(self, [], None, hierarchy, [])
+
+        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        hierarchy.pivot_fixups = []  # roundtrip not supported
+        compare_hierarchies(self, hierarchy, actual_hiera)
+
     def test_troll_roundtrip(self):
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'troll_skl'

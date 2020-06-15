@@ -5,8 +5,11 @@ from io_mesh_w3d.w3d.import_w3d import *
 from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hlod import get_hlod
 from tests.common.helpers.mesh import get_mesh
+from tests.common.helpers.hierarchy import get_hierarchy
 from tests.common.helpers.animation import get_animation
+from tests.w3d.helpers.compressed_animation import get_compressed_animation
 from tests.utils import *
+from unittest.mock import patch, call
 
 
 class TestImport(TestCase):
@@ -30,6 +33,70 @@ class TestImport(TestCase):
         # import
         self.filepath = self.outpath() + 'base_skn.w3d'
         load(self)
+
+    def test_skips_multiple_hlod_chunks(self):
+        hlod = get_hlod()
+        skn = open(self.outpath() + 'output.w3d', 'wb')
+
+        hlod.write(skn)
+        hlod.write(skn)
+        skn.close()
+
+        # import
+        with (patch.object(self, 'warning')) as warning_func:
+            self.filepath = self.outpath() + 'output.w3d'
+            load(self)
+            warning_func.assert_called_with('-> already got one hlod chunk (skipping this one)!')
+
+    def test_skips_multiple_hierarchy_chunks(self):
+        hierarchy = get_hierarchy()
+        skl = open(self.outpath() + 'output.w3d', 'wb')
+
+        hierarchy.write(skl)
+        hierarchy.write(skl)
+        skl.close()
+
+        # import
+        with (patch.object(self, 'warning')) as warning_func:
+            self.filepath = self.outpath() + 'output.w3d'
+            self.assertEqual({'FINISHED'}, load(self))
+            warning_func.assert_called_with('-> already got one hierarchy chunk (skipping this one)!')
+
+    def test_skips_multiple_animation_chunks(self):
+        animation = get_animation()
+        comp_animation = get_compressed_animation()
+        ani = open(self.outpath() + 'output.w3d', 'wb')
+
+        animation.write(ani)
+        animation.write(ani)
+        comp_animation.write(ani)
+        ani.close()
+
+        # import
+        with (patch.object(self, 'warning')) as warning_func:
+            self.filepath = self.outpath() + 'output.w3d'
+            load(self)
+
+            msg = '-> already got one animation chunk (skipping this one)!'
+            warning_func.assert_has_calls([call(msg), call(msg)])
+
+    def test_skips_multiple_compressed_animation_chunks(self):
+        animation = get_animation()
+        comp_animation = get_compressed_animation()
+        ani = open(self.outpath() + 'output.w3d', 'wb')
+
+        comp_animation.write(ani)
+        animation.write(ani)
+        animation.write(ani)
+        ani.close()
+
+        # import
+        with (patch.object(self, 'warning')) as warning_func:
+            self.filepath = self.outpath() + 'output.w3d'
+            load(self)
+
+            msg = '-> already got one animation chunk (skipping this one)!'
+            warning_func.assert_has_calls([call(msg), call(msg)])
 
     def test_animation_import_no_skeleton_file_found(self):
         hierarchy_name = 'TestHiera_SKL'
