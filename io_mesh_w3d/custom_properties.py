@@ -21,6 +21,11 @@ Object.sort_level = IntProperty(
     min=0,
     max=32)
 
+Object.casts_shadow = BoolProperty(
+    name='Casts shadow',
+    description='Determines if this object casts a shadow',
+    default=True)
+
 Object.object_type = EnumProperty(
     name='Type',
     description='Attributes that define the type of this object',

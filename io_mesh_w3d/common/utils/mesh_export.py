@@ -39,6 +39,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
+        if mesh_object.casts_shadow:
+            header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
+
         mesh_object = mesh_object.evaluated_get(depsgraph)
         mesh = mesh_object.data
         b_mesh = prepare_bmesh(context, mesh)

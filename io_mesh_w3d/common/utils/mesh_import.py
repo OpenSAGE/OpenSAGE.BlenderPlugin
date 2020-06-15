@@ -31,6 +31,8 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
+    mesh_ob.casts_shadow = mesh_struct.casts_shadow()
+
     principleds = []
 
     # vertex material stuff
