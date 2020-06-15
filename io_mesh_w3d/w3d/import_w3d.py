@@ -31,18 +31,27 @@ def load_file(context, data_context, path=None):
         if chunk_type == W3D_CHUNK_MESH:
             data_context.meshes.append(Mesh.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
-            data_context.hierarchy = Hierarchy.read(context, file, chunk_end)
-        elif chunk_type == W3D_CHUNK_ANIMATION:
-            data_context.animation = Animation.read(context, file, chunk_end)
-        elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
-            data_context.compressed_animation = CompressedAnimation.read(
-                context, file, chunk_end)
+            if data_context.hierarchy is None:
+                data_context.hierarchy = Hierarchy.read(context, file, chunk_end)
+            else:
+                context.warning('-> already got a hierarchy chunk (skipping this one)!')
+                file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_HLOD:
             if data_context.hlod is None:
                 data_context.hlod = HLod.read(context, file, chunk_end)
             else:
                 context.warning('-> already got a hlod chunk (skipping this one)!')
                 file.seek(chunk_size, 1)
+        elif chunk_type == W3D_CHUNK_ANIMATION:
+            if data_context.animation is None and data_context.compressed_animation is None:
+                data_context.animation = Animation.read(context, file, chunk_end)
+            else:
+                context.warning('-> already got an animation chunk (skipping this one)!')
+        elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION:
+            if data_context.animation is None and data_context.compressed_animation is None:
+                data_context.compressed_animation = CompressedAnimation.read(context, file, chunk_end)
+            else:
+                context.warning('-> already got an animation chunk (skipping this one)!')
         elif chunk_type == W3D_CHUNK_BOX:
             data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_DAZZLE:
