@@ -13,11 +13,6 @@ def is_roottransform(channel):
 def is_translation(channel):
     return channel.type < 3
 
-
-def is_rotation(channel):
-    return channel.type == 6
-
-
 def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel)
 
