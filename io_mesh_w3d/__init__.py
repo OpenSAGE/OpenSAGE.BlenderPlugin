@@ -245,6 +245,8 @@ class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(context.active_object, 'object_type')
         col = layout.column()
         col.prop(context.active_object, 'sort_level')
+        col = layout.column()
+        col.prop(context.active_object, 'casts_shadow')
         if context.active_object.object_type == 'DAZZLE':
             col = layout.column()
             col.prop(context.active_object, 'dazzle_type')
