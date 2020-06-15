@@ -73,7 +73,14 @@ def get_vertex_influences():
             get_vertex_influence(3, 4, 0.25, 0.75)]
 
 
-def get_mesh(name='meshName', skin=False, shader_mats=False, prelit=False, hidden=False, cast_shadow=False, mat_count=2):
+def get_mesh(
+        name='meshName',
+        skin=False,
+        shader_mats=False,
+        prelit=False,
+        hidden=False,
+        cast_shadow=False,
+        mat_count=2):
     mesh = Mesh()
     mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow)
 
