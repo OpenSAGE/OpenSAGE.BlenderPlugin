@@ -218,8 +218,6 @@ class TestUtils(TestCase):
         create_data(self, meshes, hlod, hierarchy)
 
         (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        for piv in actual_hiera.pivots:
-            print(piv.name)
 
         self.compare_data(meshes, hlod, hierarchy)
 

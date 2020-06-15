@@ -77,7 +77,7 @@ def get_time_coded_animation_channel(type_=0, random_interpolation=True):
             time_code=i,
             value=value)
         if random_interpolation:
-            datum.non_interpolated = (random() < 0.5)
+            datum.interpolated = (random() < 0.5)
         channel.time_codes.append(datum)
     return channel
 

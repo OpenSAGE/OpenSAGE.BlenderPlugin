@@ -8,7 +8,9 @@ from unittest.mock import patch
 
 from io_mesh_w3d.common.utils.mesh_export import *
 from io_mesh_w3d.common.utils.mesh_import import *
+from io_mesh_w3d.common.utils.hierarchy_import import *
 from tests.common.helpers.mesh import *
+from tests.common.helpers.hierarchy import *
 from tests.utils import *
 
 
@@ -66,6 +68,45 @@ class TestMeshExportUtils(TestCase):
         mesh = meshes[0]
         self.assertEqual(mesh.textures[0].file, 'texture.dds')
         self.assertEqual(mesh.textures[1].file, 'texture.dds')
+
+    def test_retrieve_meshes_with_meshes_in_edit_mode(self):
+        mesh = get_mesh()
+        create_mesh(self, mesh, get_collection())
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+        for mesh_ob in meshes:
+            if mesh_ob.mode != 'EDIT':
+                bpy.ops.object.mode_set(mode='EDIT')
+
+        meshes, _ = retrieve_meshes(self, None, None, 'containerName')
+
+        compare_meshes(self, mesh, meshes[0])
+
+    def test_retrieve_meshes_with_bone_weights_are_zero(self):
+        coll =  get_collection()
+        mesh = get_mesh(skin=True)
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        rig_mesh(mesh, hierarchy, rig)
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+        for mesh_object in meshes:
+            for i, vertex in enumerate(mesh_object.data.vertices):
+                if vertex.groups:
+                    vertex.groups[0].weight = 0.0
+                    if len(vertex.groups) > 1:
+                        vertex.groups[1].weight = 0.0
+
+        for inf in mesh.vert_infs:
+            inf.bone_inf = 1.0
+            inf.xtra_inf = 0.0
+
+        meshes, _ = retrieve_meshes(self, hierarchy, rig, 'containerName')
+
+        compare_meshes(self, mesh, meshes[0])
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
