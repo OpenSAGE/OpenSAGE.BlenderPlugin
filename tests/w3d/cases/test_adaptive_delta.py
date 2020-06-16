@@ -67,7 +67,7 @@ class TestAdaptiveDelta(unittest.TestCase):
             pivot=2,
             unknown=0,
             data=[4.3611, 4.3611, 4.6254, 4.9559, 5.4186, 5.8812])
-        expected = [] #?
+        expected = []  # ?
 
         actual = encode(channel, num_bits=4)
 

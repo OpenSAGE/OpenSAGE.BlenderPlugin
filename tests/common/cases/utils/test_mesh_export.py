@@ -83,7 +83,7 @@ class TestMeshExportUtils(TestCase):
         compare_meshes(self, mesh, meshes[0])
 
     def test_retrieve_meshes_with_bone_weights_are_zero(self):
-        coll =  get_collection()
+        coll = get_collection()
         mesh = get_mesh(skin=True)
         create_mesh(self, mesh, coll)
 
