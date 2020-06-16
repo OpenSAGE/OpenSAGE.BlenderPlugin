@@ -146,7 +146,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
                            'individual_files': self.individual_files,
                            'create_texture_xmls': self.create_texture_xmls}
 
-        return save(self, export_settings)
+        return save_data(self, export_settings)
 
     def draw(self, _context):
         self.draw_general_settings()

@@ -64,6 +64,7 @@ class TimeCodedDatum:
     def read(io_stream, type):
         result = TimeCodedDatum(
             time_code=read_ulong(io_stream),
+            interpolated=False,
             value=read_channel_value(io_stream, type))
 
         if (result.time_code >> 31) == 1:
@@ -81,6 +82,7 @@ class TimeCodedDatum:
         time_code = self.time_code
         if self.interpolated:
             time_code |= (1 << 31)
+
         write_ulong(time_code, io_stream)
         write_channel_value(self.value, io_stream, type)
 
