@@ -271,6 +271,16 @@ class TestMesh(TestCase):
     def test_create_parse_single_bone_influences(self):
         mesh = get_mesh(shader_mats=True, skin=True)
         mesh.multi_bone_skinned = False
+
+        mesh.vert_infs = [get_vertex_influence(0, 0, 0.0, 0.0),
+                        get_vertex_influence(1, 0, 1.0, 0.0),
+                        get_vertex_influence(2, 0, 1.0, 0.0),
+                        get_vertex_influence(2, 0, 1.0, 0.0),
+                        get_vertex_influence(3, 0, 1.0, 0.0),
+                        get_vertex_influence(3, 0, 1.0, 0.0),
+                        get_vertex_influence(3, 0, 1.0, 0.0),
+                        get_vertex_influence(3, 0, 1.0, 0.0)]
+
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_create_parse_no_material_passes(self):
