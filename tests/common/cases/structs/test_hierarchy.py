@@ -89,9 +89,9 @@ class TestHierarchy(TestCase):
         self.write_read_xml_test(get_hierarchy_minimal(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies,
                                  self)
 
-    def test_create_parse_xml_name_is_None(self):
+    def test_create_parse_xml_pivot_name_is_None(self):
         hiera = get_hierarchy(xml=True)
-        hiera.name = None
+        hiera.pivots[0].name = None
         self.write_read_xml_test(hiera, 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)
 
     def test_parse_invalid_identifier(self):
