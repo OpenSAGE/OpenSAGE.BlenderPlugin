@@ -102,8 +102,10 @@ class HLodSubObject:
                 for o_child in child:
                     if o_child.tag in ['Mesh', 'CollisionBox']:
                         sub_object.identifier = o_child.text
+                    else:
+                        context.warning('unhandled node \'' + o_child.tag + '\' in W3DContainer RenderObject!')
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in SubObject!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DContainer SubObject!')
         return sub_object
 
     def create(self, parent):

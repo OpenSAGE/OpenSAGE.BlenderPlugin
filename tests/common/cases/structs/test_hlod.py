@@ -105,6 +105,8 @@ class TestHLod(TestCase):
         sub_object.set('SubObjectID', 'fakeID')
         sub_object.set('BoneIndex', '2')
         create_node(sub_object, 'InvalidIdentifier')
+        obj = create_node(sub_object, 'RenderObject')
+        create_node(obj, 'InvalidIdentifier')
 
         xml_objects = root.findall('W3DContainer')
         self.assertEqual(1, len(xml_objects))
@@ -113,4 +115,5 @@ class TestHLod(TestCase):
             actual = HLod.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DContainer!'),
-                                           call('unhandled node \'InvalidIdentifier\' in SubObject!')])
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer SubObject!'),
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer RenderObject!')])
