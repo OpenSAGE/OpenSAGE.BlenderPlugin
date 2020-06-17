@@ -111,4 +111,4 @@ class TestHierarchy(TestCase):
             actual = Hierarchy.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DHierarchy!'),
-                                           call('unhandled node \'InvalidIdentifier\' in Pivot!')])
+                                          call('unhandled node \'InvalidIdentifier\' in Pivot!')])
