@@ -109,14 +109,14 @@ class AnimationChannel:
             result.type = 1
         elif type_name == 'ZTranslation':
             result.type = 2
-        elif type_name == 'Orientation':
+        else:
             result.vector_len = 4
             result.type = 6
 
         if xml_channel.tag == 'ChannelScalar':
             for value in xml_channel:
                 result.data.append(parse_value(value, float))
-        elif xml_channel.tag == 'ChannelQuaternion':
+        else:
             for value in xml_channel:
                 result.data.append(parse_quaternion(value))
 
@@ -130,7 +130,7 @@ class AnimationChannel:
                 channel.set('Type', 'XTranslation')
             elif self.type == 1:
                 channel.set('Type', 'YTranslation')
-            elif self.type == 2:
+            else:
                 channel.set('Type', 'ZTranslation')
         else:
             channel = create_node(parent, 'ChannelQuaternion')
@@ -301,9 +301,9 @@ class Animation:
                         else:
                             result.channels.append(AnimationChannel.parse(channel_child))
                     else:
-                        context.warning('unhandled node: ' + channel_child.tag + ' in Channels!')
+                        context.warning('unhandled node \'' + channel_child.tag + '\' in Channels!')
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DAnimation!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DAnimation!')
         return result
 
     def create(self, parent):
