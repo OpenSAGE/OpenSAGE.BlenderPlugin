@@ -448,7 +448,7 @@ class Mesh:
             elif child.tag == 'AABTree':
                 result.aabbtree = AABBTree.parse(child)
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DMesh!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DMesh!')
 
         if bone_influences:
             bone_infs = bone_influences[0]

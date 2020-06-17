@@ -3,6 +3,7 @@
 
 from tests.common.helpers.mesh import *
 from tests.utils import TestCase
+from unittest.mock import patch, call
 
 
 def clear_tangents(mesh):
@@ -190,6 +191,82 @@ class TestMesh(TestCase):
 
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+
+    def test_write_read_no_dot_in_identifier(self):
+        mesh = get_mesh(shader_mats=True)
+        mesh.identifier = "meshName"
+        self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
+
+    def test_parse_dublicate_vertices_and_normals(self):
+        mesh = get_mesh(shader_mats=True)
+        root = create_root()
+        xml_mesh = create_node(root, 'W3DMesh')
+        xml_mesh.set('id', 'fakeIdentifier')
+        xml_mesh.set('SortLevel', '0')
+
+        create_object_list(xml_mesh, 'Vertices', mesh.verts, create_vector, 'V')
+        create_object_list(xml_mesh, 'Vertices', mesh.verts, create_vector, 'V')
+        create_object_list(xml_mesh, 'Normals', mesh.normals, create_vector, 'N')
+        create_object_list(xml_mesh, 'Normals', mesh.normals, create_vector, 'N')
+
+        xml_objects = root.findall('W3DMesh')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'info')) as info_func:
+            actual = Mesh.parse(self, xml_objects[0])
+
+            info_func.assert_has_calls([call('secondary vertices are not supported'),
+                                           call('secondary normals are not supported')])
+
+    def test_parse_multiple_uv_coords(self):
+        mesh = get_mesh(shader_mats=True)
+        root = create_root()
+        xml_mesh = create_node(root, 'W3DMesh')
+        xml_mesh.set('id', 'fakeIdentifier')
+        xml_mesh.set('SortLevel', '0')
+
+        create_object_list(xml_mesh, 'TexCoords', mesh.material_passes[0].tx_coords, create_vector2, 'T')
+        create_object_list(xml_mesh, 'TexCoords', mesh.material_passes[0].tx_coords, create_vector2, 'T')
+
+        xml_objects = root.findall('W3DMesh')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as warning_func:
+            actual = Mesh.parse(self, xml_objects[0])
+
+            warning_func.assert_called_with('multiple uv coords not yet supported!')
+
+    def test_parse_vertex_colors(self):
+        root = create_root()
+        xml_mesh = create_node(root, 'W3DMesh')
+        xml_mesh.set('id', 'fakeIdentifier')
+        xml_mesh.set('SortLevel', '0')
+
+        create_node(xml_mesh, 'VertexColors')
+
+        xml_objects = root.findall('W3DMesh')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'info')) as info_func:
+            actual = Mesh.parse(self, xml_objects[0])
+
+            info_func.assert_called_with('vertex colors are not yet supported')
+
+    def test_parse_invalid_identifier(self):
+        root = create_root()
+        xml_mesh = create_node(root, 'W3DMesh')
+        xml_mesh.set('id', 'fakeIdentifier')
+        xml_mesh.set('SortLevel', '0')
+
+        create_node(xml_mesh, 'InvalidIdentifier')
+
+        xml_objects = root.findall('W3DMesh')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as report_func:
+            actual = Mesh.parse(self, xml_objects[0])
+
+            report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DMesh!')
 
     def test_node_order(self):
         expecteds = ['BoundingBox',
