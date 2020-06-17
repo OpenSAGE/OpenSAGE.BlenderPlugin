@@ -227,7 +227,7 @@ def get_mesh_minimal(xml=False):
 
     if xml:
         mesh.multi_bone_skinned = True
-        mesh.header = get_mesh_header(shader_mats=True)
+        mesh.header = get_mesh_header(shader_mats=True, skin=True)
         mesh.vert_materials = []
         mesh.header.matl_count = 1
         mesh.shaders = []

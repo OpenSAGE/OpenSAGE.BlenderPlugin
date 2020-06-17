@@ -394,12 +394,6 @@ class Mesh:
 
         result.header.sort_level = int(xml_mesh.get('SortLevel', 0))
 
-        result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
-            | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
-
-        result.material_passes = [MaterialPass(shader_material_ids=[0])]
-        result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
-
         bone_influences = []
 
         for child in xml_mesh:
@@ -413,31 +407,38 @@ class Mesh:
                 result.header.sph_radius = bounding_sphere.radius
             elif child.tag == 'Vertices':
                 if not result.verts:
+                    result.header.vert_channel_flags |= VERTEX_CHANNEL_LOCATION
                     result.verts = parse_objects(child, 'V', parse_vector)
                     result.header.vert_count = len(result.verts)
                 else:
                     context.info('secondary vertices are not supported')
             elif child.tag == 'Normals':
                 if not result.normals:
+                    result.header.vert_channel_flags |= VERTEX_CHANNEL_NORMAL
                     result.normals = parse_objects(child, 'N', parse_vector)
                 else:
                     context.info('secondary normals are not supported')
             elif child.tag == 'Tangents':
+                result.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT
                 result.tangents = parse_objects(child, 'T', parse_vector)
             elif child.tag == 'Binormals':
+                result.header.vert_channel_flags |= VERTEX_CHANNEL_BITANGENT
                 result.bitangents = parse_objects(child, 'B', parse_vector)
             elif child.tag == 'Triangles':
                 result.triangles = parse_objects(child, 'T', Triangle.parse)
                 result.header.face_count = len(result.triangles)
             elif child.tag == 'TexCoords':
-                if not result.material_passes[0].tx_coords:
-                    result.material_passes[0].tx_coords = parse_objects(child, 'T', parse_vector2)
+                if not result.material_passes:
+                    mat_pass = MaterialPass(shader_material_ids=[0])
+                    mat_pass.tx_coords = parse_objects(child, 'T', parse_vector2)
+                    result.material_passes.append(mat_pass)
                 else:
                     context.warning('multiple uv coords not yet supported!')
             elif child.tag == 'ShadeIndices':
                 result.shade_ids = parse_objects(child, 'I', parse_value, int)
                 context.info('shade indices are not supported')
             elif child.tag == 'BoneInfluences':
+                result.header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
                 bone_influences.append(child.findall('I'))
             elif child.tag == 'VertexColors':
                 context.info('vertex colors are not yet supported')
@@ -448,7 +449,7 @@ class Mesh:
             elif child.tag == 'AABTree':
                 result.aabbtree = AABBTree.parse(child)
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DMesh!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DMesh!')
 
         if bone_influences:
             bone_infs = bone_influences[0]
@@ -459,6 +460,8 @@ class Mesh:
 
             for i, inf in enumerate(bone_infs):
                 result.vert_infs.append(VertexInfluence.parse(inf, xtra_infs[i]))
+
+        result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
         return result
 
     def create(self, parent):

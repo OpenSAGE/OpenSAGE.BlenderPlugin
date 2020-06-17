@@ -123,7 +123,7 @@ class TestShaderMaterial(TestCase):
 
     def test_write_read_rgb_colors_xml(self):
         self.write_read_xml_test(
-            get_shader_material(two_tex=True, rgb_colors=True),
+            get_shader_material(w3x=True, two_tex=True, rgb_colors=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)

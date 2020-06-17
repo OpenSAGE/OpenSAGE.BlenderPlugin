@@ -68,7 +68,7 @@ def get_animation_bit_channel(pivot=0, xml=False):
         data = [0.0, 1.0, 1.0, 1.0, 0.0, 0.57, 0.33, 1.0, 1.0, 1.0]
     return AnimationBitChannel(
         first_frame=0,
-        last_frame=9,
+        last_frame=len(data) - 1,
         type=0,
         pivot=pivot,
         default=1.0,

@@ -72,8 +72,6 @@ class ShaderMaterialProperty:
             result.value = read_float(io_stream)
         elif result.type == VEC2_PROPERTY:
             result.value = read_vector2(io_stream)
-        elif result.type == VEC3_PROPERTY:
-            result.value = read_vector(io_stream)
         elif result.type == VEC4_PROPERTY:
             result.value = read_vector4(io_stream)
         elif result.type == LONG_PROPERTY:
@@ -116,8 +114,6 @@ class ShaderMaterialProperty:
             write_float(self.value, io_stream)
         elif self.type == VEC2_PROPERTY:
             write_vector2(self.value, io_stream)
-        elif self.type == VEC3_PROPERTY:
-            write_vector(self.value, io_stream)
         elif self.type == VEC4_PROPERTY:
             write_vector4(self.value, io_stream)
         elif self.type == LONG_PROPERTY:

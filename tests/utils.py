@@ -126,8 +126,6 @@ class TestCase(unittest.TestCase):
         root = create_root()
         expected.create(root)
 
-        # TODO: is this sufficient or should we write to an io.BytesIO ?
-
         xml_objects = root.findall(identifier)
         self.assertEqual(1, len(xml_objects))
 

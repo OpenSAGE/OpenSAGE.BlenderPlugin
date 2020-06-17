@@ -6,6 +6,7 @@ from io_mesh_w3d.common.structs.rgba import RGBA
 from io_mesh_w3d.w3d.utils.helpers import *
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3x.io_xml import *
+from unittest.mock import patch, call
 
 W3D_CHUNK_BOX = 0x00000740
 
@@ -26,7 +27,7 @@ class CollisionBox:
         if context.file_format == 'W3X':
             return True
         if len(self.name_) >= LARGE_STRING_LENGTH:
-            context.error('box name ' + self.name_ + ' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+            context.error('box name \'' + self.name_ + '\' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
             return False
         return True
 
@@ -75,7 +76,7 @@ class CollisionBox:
             elif child.tag == 'Extent':
                 result.extend = parse_vector(child)
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DCollisionBox!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DCollisionBox!')
         return result
 
     def create(self, parent):

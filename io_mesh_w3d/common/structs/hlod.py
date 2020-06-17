@@ -92,17 +92,20 @@ class HLodSubObject:
         write_long_fixed_string(self.identifier, io_stream)
 
     @staticmethod
-    def parse(xml_sub_object):
+    def parse(context, xml_sub_object):
         sub_object = HLodSubObject(
             name=xml_sub_object.get('SubObjectID'),
             bone_index=int(xml_sub_object.get('BoneIndex')))
 
         for child in xml_sub_object:
-            if child.tag != 'RenderObject':
-                continue
-            for o_child in child:
-                if o_child.tag in ['Mesh', 'CollisionBox']:
-                    sub_object.identifier = o_child.text
+            if child.tag == 'RenderObject':
+                for o_child in child:
+                    if o_child.tag in ['Mesh', 'CollisionBox']:
+                        sub_object.identifier = o_child.text
+                    else:
+                        context.warning('unhandled node \'' + o_child.tag + '\' in W3DContainer RenderObject!')
+            else:
+                context.warning('unhandled node \'' + child.tag + '\' in W3DContainer SubObject!')
         return sub_object
 
     def create(self, parent):
@@ -259,19 +262,20 @@ class HLod:
 
     @staticmethod
     def parse(context, xml_container):
+        lod_array = HLodLodArray(header=HLodArrayHeader())
         result = HLod(
             header=HLodHeader(
                 model_name=xml_container.get('id'),
                 hierarchy_name=xml_container.get('Hierarchy')),
-            lod_arrays=[HLodLodArray(header=HLodArrayHeader())])
+            lod_arrays=[lod_array])
 
         for child in xml_container:
             if child.tag == 'SubObject':
-                result.lod_arrays[0].sub_objects.append(HLodSubObject.parse(child))
+                lod_array.sub_objects.append(HLodSubObject.parse(context, child))
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DContainer!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DContainer!')
 
-        result.lod_arrays[0].header.model_count = len(result.lod_arrays[0].sub_objects)
+        lod_array.header.model_count = len(lod_array.sub_objects)
         return result
 
     def create(self, parent):

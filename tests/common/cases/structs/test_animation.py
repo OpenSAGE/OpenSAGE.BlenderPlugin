@@ -3,6 +3,7 @@
 
 from tests.common.helpers.animation import *
 from tests.utils import TestCase
+from unittest.mock import patch, call
 
 
 class TestAnimation(TestCase):
@@ -76,8 +77,34 @@ class TestAnimation(TestCase):
         self.assertEqual(95, ani.size(False))
         self.assertEqual(103, ani.size())
 
+        data = [0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 1.0, 0.0]
+        bit_channel = AnimationBitChannel(data=data)
+        self.assertEqual(10, bit_channel.size(False))
+
     def test_write_read_xml(self):
         self.write_read_xml_test(get_animation(xml=True), 'W3DAnimation', Animation.parse, compare_animations, self)
 
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_animation_minimal(), 'W3DAnimation', Animation.parse, compare_animations, self)
+
+    def test_parse_invalid_identifier(self):
+        root = create_root()
+        xml_animation = create_node(root, 'W3DAnimation')
+        xml_animation.set('id', 'fakeIdentifier')
+        xml_animation.set('Hierarchy', 'fakeHiera')
+        xml_animation.set('NumFrames', '1')
+        xml_animation.set('FrameRate', '22')
+
+        create_node(xml_animation, 'InvalidIdentifier')
+
+        channels = create_node(xml_animation, 'Channels')
+        create_node(channels, 'InvalidIdentifier')
+
+        xml_objects = root.findall('W3DAnimation')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as report_func:
+            actual = Animation.parse(self, xml_objects[0])
+
+            report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DAnimation!'),
+                                           call('unhandled node \'InvalidIdentifier\' in Channels!')])

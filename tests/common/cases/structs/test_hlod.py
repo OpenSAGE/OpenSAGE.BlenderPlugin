@@ -3,6 +3,7 @@
 
 from tests.common.helpers.hlod import *
 from tests.utils import TestCase
+from unittest.mock import patch, call
 
 
 class TestHLod(TestCase):
@@ -92,3 +93,27 @@ class TestHLod(TestCase):
 
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_hlod_minimal(), 'W3DContainer', HLod.parse, compare_hlods, self)
+
+    def test_parse_invalid_identifier(self):
+        root = create_root()
+        xml_hlod = create_node(root, 'W3DContainer')
+        xml_hlod.set('id', 'fakeIdentifier')
+        xml_hlod.set('Hierarchy', 'fakeHierarchy')
+
+        create_node(xml_hlod, 'InvalidIdentifier')
+        sub_object = create_node(xml_hlod, 'SubObject')
+        sub_object.set('SubObjectID', 'fakeID')
+        sub_object.set('BoneIndex', '2')
+        create_node(sub_object, 'InvalidIdentifier')
+        obj = create_node(sub_object, 'RenderObject')
+        create_node(obj, 'InvalidIdentifier')
+
+        xml_objects = root.findall('W3DContainer')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as report_func:
+            actual = HLod.parse(self, xml_objects[0])
+
+            report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DContainer!'),
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer SubObject!'),
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer RenderObject!')])

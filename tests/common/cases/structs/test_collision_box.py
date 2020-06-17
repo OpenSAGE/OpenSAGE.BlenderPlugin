@@ -39,3 +39,18 @@ class TestCollisionBox(TestCase):
     def test_write_read_xml(self):
         self.write_read_xml_test(get_collision_box(xml=True), 'W3DCollisionBox', CollisionBox.parse,
                                  compare_collision_boxes, self)
+
+    def test_parse_invalid_identifier(self):
+        root = create_root()
+        xml_box = create_node(root, 'W3DCollisionBox')
+        xml_box.set('id', 'fakeIdentifier')
+
+        create_node(xml_box, 'InvalidIdentifier')
+
+        xml_objects = root.findall('W3DCollisionBox')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as report_func:
+            actual = CollisionBox.parse(self, xml_objects[0])
+
+            report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DCollisionBox!')
