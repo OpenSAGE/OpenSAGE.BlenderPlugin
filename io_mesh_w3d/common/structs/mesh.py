@@ -397,9 +397,6 @@ class Mesh:
         result.header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL \
             | VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
 
-        result.material_passes = [MaterialPass(shader_material_ids=[0])]
-        result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
-
         bone_influences = []
 
         for child in xml_mesh:
@@ -430,8 +427,10 @@ class Mesh:
                 result.triangles = parse_objects(child, 'T', Triangle.parse)
                 result.header.face_count = len(result.triangles)
             elif child.tag == 'TexCoords':
-                if not result.material_passes[0].tx_coords:
-                    result.material_passes[0].tx_coords = parse_objects(child, 'T', parse_vector2)
+                if not result.material_passes:
+                    mat_pass = MaterialPass(shader_material_ids=[0])
+                    mat_pass.tx_coords = parse_objects(child, 'T', parse_vector2)
+                    result.material_passes.append(mat_pass)
                 else:
                     context.warning('multiple uv coords not yet supported!')
             elif child.tag == 'ShadeIndices':
@@ -459,6 +458,8 @@ class Mesh:
 
             for i, inf in enumerate(bone_infs):
                 result.vert_infs.append(VertexInfluence.parse(inf, xtra_infs[i]))
+
+        result.mat_info = MaterialInfo(pass_count=len(result.material_passes))
         return result
 
     def create(self, parent):
