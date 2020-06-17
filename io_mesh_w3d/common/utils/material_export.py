@@ -75,10 +75,8 @@ def append_property(shader_mat, type, name, value, default=None):
             return
     elif type == 3 and default is None:
         default = Vector().xy
-    elif type == 4 and default is None:
-        default = Vector()
     elif type == 5 and default is None:
-        default = Vector((0.0, 0.0, 0.0, 1.0))
+        default = Vector()
     elif type == 6 and default is None:
         default = 0
     elif type == 7 and default is None:
@@ -128,8 +126,8 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         append_property(shader_mat, 6, 'SecondaryTextureBlendMode', material.secondary_texture_blend_mode)
         append_property(shader_mat, 6, 'TexCoordMapper_0', material.tex_coord_mapper_0)
         append_property(shader_mat, 6, 'TexCoordMapper_1', material.tex_coord_mapper_1)
-        append_property(shader_mat, 5, 'TexCoordTransform_0', to_vec(material.tex_coord_transform_0), Vector())
-        append_property(shader_mat, 5, 'TexCoordTransform_1', to_vec(material.tex_coord_transform_1), Vector())
+        append_property(shader_mat, 5, 'TexCoordTransform_0', to_vec(material.tex_coord_transform_0))
+        append_property(shader_mat, 5, 'TexCoordTransform_1', to_vec(material.tex_coord_transform_1))
     else:
         append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
 
