@@ -68,7 +68,7 @@ class HierarchyPivot:
         write_quaternion(self.rotation, io_stream)
 
     @staticmethod
-    def parse(xml_pivot):
+    def parse(context, xml_pivot):
         pivot = HierarchyPivot(
             name=xml_pivot.get('Name'),
             parent_id=int(xml_pivot.get('Parent')),
@@ -81,6 +81,8 @@ class HierarchyPivot:
                 pivot.rotation = parse_quaternion(child)
             elif child.tag == 'FixupMatrix':
                 pivot.fixup_matrix = parse_matrix(child)
+            else:
+                context.warning('unhandled node \'' + child.tag + '\' in Pivot!')
         return pivot
 
     def create(self, parent):
@@ -165,9 +167,9 @@ class Hierarchy:
 
         for child in xml_hierarchy:
             if child.tag == 'Pivot':
-                result.pivots.append(HierarchyPivot.parse(child))
+                result.pivots.append(HierarchyPivot.parse(context, child))
             else:
-                context.warning('unhandled node: ' + child.tag + ' in W3DHierarchy!')
+                context.warning('unhandled node \'' + child.tag + '\' in W3DHierarchy!')
         return result
 
     def create(self, parent):

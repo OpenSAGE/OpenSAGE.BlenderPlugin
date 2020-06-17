@@ -3,6 +3,7 @@
 
 from tests.common.helpers.hierarchy import *
 from tests.utils import TestCase
+from unittest.mock import patch, call
 
 
 class TestHierarchy(TestCase):
@@ -87,3 +88,27 @@ class TestHierarchy(TestCase):
     def test_write_read_minimal_xml(self):
         self.write_read_xml_test(get_hierarchy_minimal(xml=True), 'W3DHierarchy', Hierarchy.parse, compare_hierarchies,
                                  self)
+
+    def test_create_parse_xml_name_is_None(self):
+        hiera = get_hierarchy(xml=True)
+        hiera.name = None
+        self.write_read_xml_test(hiera, 'W3DHierarchy', Hierarchy.parse, compare_hierarchies, self)
+
+    def test_parse_invalid_identifier(self):
+        root = create_root()
+        xml_hierarchy = create_node(root, 'W3DHierarchy')
+        xml_hierarchy.set('id', 'fakeIdentifier')
+
+        create_node(xml_hierarchy, 'InvalidIdentifier')
+        pivot = create_node(xml_hierarchy, 'Pivot')
+        pivot.set('Parent', '1')
+        create_node(pivot, 'InvalidIdentifier')
+
+        xml_objects = root.findall('W3DHierarchy')
+        self.assertEqual(1, len(xml_objects))
+
+        with (patch.object(self, 'warning')) as report_func:
+            actual = Hierarchy.parse(self, xml_objects[0])
+
+            report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DHierarchy!'),
+                                           call('unhandled node \'InvalidIdentifier\' in Pivot!')])
