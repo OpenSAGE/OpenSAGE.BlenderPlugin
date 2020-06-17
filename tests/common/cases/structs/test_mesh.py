@@ -269,7 +269,7 @@ class TestMesh(TestCase):
             report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DMesh!')
 
     def test_create_parse_single_bone_influences(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mats=True, skin=True)
         mesh.multi_bone_skinned = False
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
 
