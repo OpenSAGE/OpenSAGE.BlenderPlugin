@@ -37,7 +37,7 @@ before_deploy:
 
 deploy:
   provider: releases
-  api_key: "${GH_TOKEN}"
+  token: "${GH_TOKEN}"
   file: "io_mesh_w3d.zip"
   cleanup: false
   on:
