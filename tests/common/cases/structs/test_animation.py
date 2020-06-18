@@ -107,4 +107,4 @@ class TestAnimation(TestCase):
             actual = Animation.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DAnimation!'),
-                                          call('unhandled node \'InvalidIdentifier\' in Channels!')])
+                                           call('unhandled node \'InvalidIdentifier\' in Channels!')])

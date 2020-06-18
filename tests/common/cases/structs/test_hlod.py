@@ -115,5 +115,5 @@ class TestHLod(TestCase):
             actual = HLod.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DContainer!'),
-                                          call('unhandled node \'InvalidIdentifier\' in W3DContainer SubObject!'),
-                                          call('unhandled node \'InvalidIdentifier\' in W3DContainer RenderObject!')])
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer SubObject!'),
+                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer RenderObject!')])
