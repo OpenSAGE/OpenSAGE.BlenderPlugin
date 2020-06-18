@@ -1,7 +1,9 @@
 language: python
 python:
   - "3.7"
-sudo: false
+
+dist: xenial
+os: linux
 
 env:
     - BLENDER_VERSION="2.80" TAR="jxf" BLENDER_VERSION_SUFFIX="" BLENDER_ARCHIVE_NAME="linux-glibc217-x86_64" BLENDER_ARCHIVE_EXTENSION="tar.bz2"
@@ -37,6 +39,6 @@ deploy:
   provider: releases
   api_key: "${GH_TOKEN}"
   file: "io_mesh_w3d.zip"
-  skip_cleanup: true
+  cleanup: false
   on:
     tags: true
