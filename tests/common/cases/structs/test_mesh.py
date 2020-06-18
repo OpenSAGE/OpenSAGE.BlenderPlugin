@@ -216,7 +216,7 @@ class TestMesh(TestCase):
             actual = Mesh.parse(self, xml_objects[0])
 
             info_func.assert_has_calls([call('secondary vertices are not supported'),
-                                           call('secondary normals are not supported')])
+                                        call('secondary normals are not supported')])
 
     def test_parse_multiple_uv_coords(self):
         mesh = get_mesh(shader_mats=True)
@@ -273,13 +273,13 @@ class TestMesh(TestCase):
         mesh.multi_bone_skinned = False
 
         mesh.vert_infs = [get_vertex_influence(0, 0, 0.0, 0.0),
-                        get_vertex_influence(1, 0, 1.0, 0.0),
-                        get_vertex_influence(2, 0, 1.0, 0.0),
-                        get_vertex_influence(2, 0, 1.0, 0.0),
-                        get_vertex_influence(3, 0, 1.0, 0.0),
-                        get_vertex_influence(3, 0, 1.0, 0.0),
-                        get_vertex_influence(3, 0, 1.0, 0.0),
-                        get_vertex_influence(3, 0, 1.0, 0.0)]
+                          get_vertex_influence(1, 0, 1.0, 0.0),
+                          get_vertex_influence(2, 0, 1.0, 0.0),
+                          get_vertex_influence(2, 0, 1.0, 0.0),
+                          get_vertex_influence(3, 0, 1.0, 0.0),
+                          get_vertex_influence(3, 0, 1.0, 0.0),
+                          get_vertex_influence(3, 0, 1.0, 0.0),
+                          get_vertex_influence(3, 0, 1.0, 0.0)]
 
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
 

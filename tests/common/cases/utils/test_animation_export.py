@@ -36,10 +36,10 @@ class TestAnimationExportUtils(TestCase):
         bpy.context.scene.frame_end = 10
 
         hiera = get_hierarchy()
-        rig = get_or_create_skeleton(hiera,  get_collection())
+        rig = get_or_create_skeleton(hiera, get_collection())
         bone = rig.pose.bones[0]
         bone.location = Vector((0, 3, 0))
-        bone.keyframe_insert(data_path='location', index = 0, frame=3)
+        bone.keyframe_insert(data_path='location', index=0, frame=3)
 
         ani = retrieve_animation(self, 'ani_name', hiera, rig, False)
 
