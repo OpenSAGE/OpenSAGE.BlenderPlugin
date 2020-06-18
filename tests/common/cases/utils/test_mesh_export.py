@@ -195,3 +195,49 @@ class TestMeshExportUtils(TestCase):
         io_stream = io.BytesIO()
         for mesh_struct in meshes:
             mesh_struct.write(io_stream)
+
+    def test_mesh_export_W3X_too_few_uv_layers(self):
+        self.file_format = 'W3X'
+        mesh = bpy.data.meshes.new('mesh_cube')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.to_mesh(mesh)
+
+        material = bpy.data.materials.new('material')
+        mesh.materials.append(material)
+
+        mesh_ob = bpy.data.objects.new('mesh_object', mesh)
+        mesh_ob.object_type = 'NORMAL'
+
+        coll = bpy.context.scene.collection
+        coll.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertEqual(0, len(meshes[0].material_passes[0].tx_coords))
+
+    def test_mesh_export_W3D_too_few_uv_layers(self):
+        self.file_format = 'W3D'
+        mesh = bpy.data.meshes.new('mesh_cube')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.to_mesh(mesh)
+
+        material = bpy.data.materials.new('material')
+        mesh.materials.append(material)
+
+        mesh_ob = bpy.data.objects.new('mesh_object', mesh)
+        mesh_ob.object_type = 'NORMAL'
+
+        coll = bpy.context.scene.collection
+        coll.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertEqual(0, len(meshes[0].material_passes[0].tx_stages))
