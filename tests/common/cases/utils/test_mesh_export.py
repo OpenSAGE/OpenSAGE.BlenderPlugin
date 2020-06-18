@@ -5,6 +5,7 @@ import bpy
 import bmesh
 from os.path import dirname as up
 from unittest.mock import patch
+from shutil import copyfile
 
 from io_mesh_w3d.common.utils.mesh_export import *
 from io_mesh_w3d.common.utils.mesh_import import *
@@ -221,6 +222,7 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(0, len(meshes[0].material_passes[0].tx_coords))
 
     def test_mesh_export_W3D_too_few_uv_layers(self):
+        copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
         self.file_format = 'W3D'
         mesh = bpy.data.meshes.new('mesh_cube')
 
@@ -228,7 +230,9 @@ class TestMeshExportUtils(TestCase):
         bmesh.ops.create_cube(b_mesh, size=1)
         b_mesh.to_mesh(mesh)
 
-        material, _ = create_material_from_vertex_material('loem ipsum', get_vertex_material())
+        material, principled = create_material_from_vertex_material('loem ipsum', get_vertex_material())
+        tex = find_texture(self, 'texture.dds')
+        principled.base_color_texture.image = tex
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
