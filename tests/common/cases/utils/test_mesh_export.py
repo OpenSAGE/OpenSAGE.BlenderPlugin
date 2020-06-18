@@ -228,6 +228,7 @@ class TestMeshExportUtils(TestCase):
         b_mesh.to_mesh(mesh)
 
         material = bpy.data.materials.new('material')
+        material.material_type = 'VERTEX_MATERIAL'
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)

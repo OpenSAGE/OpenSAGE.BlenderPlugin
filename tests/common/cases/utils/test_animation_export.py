@@ -30,3 +30,18 @@ class TestAnimationExportUtils(TestCase):
             retrieve_animation(self, 'ani_name', get_hierarchy(), None, False)
 
             warning_func.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
+
+    def test_retrieve_channels_uncompressed_only_one_frame(self):
+        bpy.context.scene.frame_end = 2
+        bpy.context.scene.frame_end = 10
+
+        hiera = get_hierarchy()
+        rig = get_or_create_skeleton(hiera,  get_collection())
+        bone = rig.pose.bones[0]
+        bone.location = Vector((0, 3, 0))
+        bone.keyframe_insert(data_path='location', index = 0, frame=3)
+
+        ani = retrieve_animation(self, 'ani_name', hiera, rig, False)
+
+        self.assertEqual(1, ani.channels[0].first_frame)
+        self.assertEqual(10, ani.channels[0].last_frame)
