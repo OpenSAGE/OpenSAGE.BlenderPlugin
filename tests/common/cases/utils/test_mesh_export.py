@@ -11,6 +11,7 @@ from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
 from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
+from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.utils import *
 
 
@@ -227,8 +228,7 @@ class TestMeshExportUtils(TestCase):
         bmesh.ops.create_cube(b_mesh, size=1)
         b_mesh.to_mesh(mesh)
 
-        material = bpy.data.materials.new('material')
-        material.material_type = 'VERTEX_MATERIAL'
+        material, _ = create_material_from_vertex_material('loem ipsum', get_vertex_material())
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
