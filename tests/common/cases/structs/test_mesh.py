@@ -225,7 +225,7 @@ class TestMesh(TestCase):
             Mesh.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('secondary vertices are not supported'),
-                                        call('secondary normals are not supported')])
+                                          call('secondary normals are not supported')])
 
     def test_parse_multiple_uv_coords(self):
         mesh = get_mesh(shader_mats=True)
