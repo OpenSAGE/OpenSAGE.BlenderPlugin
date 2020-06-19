@@ -126,9 +126,9 @@ class TestMeshExportUtils(TestCase):
         mesh = bpy.data.objects['mesh']
         mesh.data.materials.append(None)
 
-        with (patch.object(self, 'warning')) as warning_func:
+        with (patch.object(self, 'warning')) as report_func:
             retrieve_meshes(self, None, None, 'container_name')
-            warning_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
+            report_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
 
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
@@ -172,6 +172,7 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(12, len(_mesh.faces))
 
     def test_mesh_with_unconnected_vertex_export(self):
+        self.file_format = 'W3X'
         mesh = bpy.data.meshes.new('mesh_cube')
 
         material = bpy.data.materials.new('material')
@@ -182,7 +183,10 @@ class TestMeshExportUtils(TestCase):
         b_mesh.verts.new((9, 9, 9))
         bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
         b_mesh.to_mesh(mesh)
-        mesh.uv_layers.new(do_init=False)
+
+        uv_layer = mesh.uv_layers.new(do_init=False)
+        for datum in uv_layer.data:
+            datum.uv = Vector((0.0, 0.1))
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
         mesh_ob.object_type = 'NORMAL'
@@ -192,11 +196,58 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
         mesh_ob.select_set(True)
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        self.assertEqual(1, len(mesh.uv_layers))
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_called_with('mesh \'mesh_object\' vertex 8 is not connected to any face!')
+
+        self.assertEqual(1, len(meshes))
+
+        self.assertEqual(32, meshes[0].header.vert_channel_flags & VERTEX_CHANNEL_TANGENT)
+        self.assertEqual(64, meshes[0].header.vert_channel_flags & VERTEX_CHANNEL_BITANGENT)
+
+        self.assertEqual(9, len(meshes[0].verts))
+        self.assertEqual(9, len(meshes[0].tangents))
+        self.assertEqual(9, len(meshes[0].bitangents))
 
         io_stream = io.BytesIO()
-        for mesh_struct in meshes:
-            mesh_struct.write(io_stream)
+        meshes[0].write(io_stream)
+
+    def test_mesh_with_unconnected_vertex_export_no_uv_layer(self):
+        mesh = bpy.data.meshes.new('mesh_cube')
+
+        material = bpy.data.materials.new('material')
+        mesh.materials.append(material)
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.verts.new((9, 9, 9))
+        bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
+        b_mesh.to_mesh(mesh)
+
+        mesh_ob = bpy.data.objects.new('mesh_object', mesh)
+        mesh_ob.object_type = 'NORMAL'
+
+        coll = bpy.context.scene.collection
+        coll.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
+
+        self.assertEqual(0, len(mesh.uv_layers))
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_called_with('mesh \'mesh_object\' vertex 8 is not connected to any face!')
+
+        self.assertEqual(1, len(meshes))
+
+        self.assertEqual(9, len(meshes[0].verts))
+        self.assertEqual(0, len(meshes[0].tangents))
+        self.assertEqual(0, len(meshes[0].bitangents))
+
+        io_stream = io.BytesIO()
+        meshes[0].write(io_stream)
 
     def test_mesh_export_W3X_too_few_uv_layers(self):
         self.file_format = 'W3X'

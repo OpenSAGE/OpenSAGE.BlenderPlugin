@@ -51,7 +51,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sph_radius = radius
 
         if mesh.uv_layers:
-            mesh_struct.header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
             mesh.calc_tangents()
 
         header.vert_count = len(mesh.vertices)
