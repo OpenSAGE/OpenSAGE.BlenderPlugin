@@ -194,7 +194,7 @@ class TestUtils(TestCase):
             get_hierarchy_pivot(name='Backlight', parent=0),
             get_hierarchy_pivot(name='Blinklight', parent=1),
             get_hierarchy_pivot(name='Headlight', parent=2)]
-        meshes = []
+
         dazzles = [get_dazzle(name='containerName.Backlight', type='REN_BRAKELIGHT'),
                    get_dazzle(name='containerName.Blinklight', type='REN_HEADLIGHT'),
                    get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT')]
@@ -216,8 +216,6 @@ class TestUtils(TestCase):
         meshes = [get_mesh(name='ubbarracks')]
 
         create_data(self, meshes, hlod, hierarchy)
-
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
 
         self.compare_data(meshes, hlod, hierarchy)
 
@@ -678,7 +676,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (_, rig) = retrieve_hierarchy(self, 'containerName')
+        _, rig = retrieve_hierarchy(self, 'containerName')
 
         self.assertTrue('mesh' in rig.pose.bones)
         self.assertTrue('bone' in rig.pose.bones)
@@ -702,7 +700,7 @@ class TestUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (_, rig) = retrieve_hierarchy(self, 'containerName')
+        _, rig = retrieve_hierarchy(self, 'containerName')
 
         self.assertTrue('object_bone' in rig.pose.bones)
 

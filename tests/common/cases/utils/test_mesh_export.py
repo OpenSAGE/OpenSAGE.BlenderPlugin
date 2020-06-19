@@ -3,6 +3,8 @@
 
 import bpy
 import bmesh
+import io
+from mathutils import Vector
 from os.path import dirname as up
 from unittest.mock import patch
 from shutil import copyfile

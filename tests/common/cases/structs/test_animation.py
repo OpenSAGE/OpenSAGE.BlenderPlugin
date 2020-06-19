@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import io
 from tests.common.helpers.animation import *
 from tests.utils import TestCase
 from unittest.mock import patch, call
@@ -37,8 +38,9 @@ class TestAnimation(TestCase):
 
         self.assertEqual(W3D_CHUNK_ANIMATION, chunk_type)
 
-        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
-        Animation.read(self, io_stream, subchunk_end)
+        with (patch.object(self, 'warning')) as report_func:
+            Animation.read(self, io_stream, subchunk_end)
+            report_func.assert_called_with('unknown chunk_type in io_stream: 0x0')
 
     def test_validate(self):
         ani = get_animation()
@@ -104,7 +106,7 @@ class TestAnimation(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            actual = Animation.parse(self, xml_objects[0])
+            Animation.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DAnimation!'),
                                           call('unhandled node \'InvalidIdentifier\' in Channels!')])

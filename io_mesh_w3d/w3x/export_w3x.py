@@ -17,7 +17,7 @@ def save(context, export_settings, data_context):
     root = create_root()
     includes = create_node(root, 'Includes')
 
-    dir = os.path.dirname(context.filepath) + os.path.sep
+    directory = os.path.dirname(context.filepath) + os.path.sep
 
     if export_mode == 'M':
         if len(data_context.meshes) > 1:
@@ -35,7 +35,7 @@ def save(context, export_settings, data_context):
 
         if export_settings['individual_files']:
             if not export_settings['use_existing_skeleton']:
-                path = dir + data_context.hierarchy.name() + context.filename_ext
+                path = directory + data_context.hierarchy.name() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(data_context.hierarchy, path)
 
@@ -45,7 +45,7 @@ def save(context, export_settings, data_context):
             texture_include.create(includes)
 
             if export_settings['create_texture_xmls']:
-                path = dir + id + '.xml'
+                path = directory + id + '.xml'
                 context.info('Saving file :' + path)
                 write_struct(Texture(id=id, file=texture), path)
 
@@ -53,7 +53,7 @@ def save(context, export_settings, data_context):
             if export_settings['individual_files']:
                 box_include = Include(type='all', source='ART:' + box.name_ + '.w3x')
                 box_include.create(includes)
-                path = dir + box.name_ + context.filename_ext
+                path = directory + box.name_ + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(box, path)
             else:
@@ -63,7 +63,7 @@ def save(context, export_settings, data_context):
             if export_settings['individual_files']:
                 mesh_include = Include(type='all', source='ART:' + mesh.identifier() + '.w3x')
                 mesh_include.create(includes)
-                path = dir + mesh.identifier() + context.filename_ext
+                path = directory + mesh.identifier() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(mesh, path)
             else:
@@ -77,7 +77,7 @@ def save(context, export_settings, data_context):
         if export_settings['create_texture_xmls']:
             for texture in data_context.textures:
                 id = texture.split('.')[0]
-                path = dir + id + '.xml'
+                path = directory + id + '.xml'
                 context.info('Saving file :' + path)
                 write_struct(Texture(id=id, file=texture), path)
 

@@ -3,7 +3,6 @@
 
 import bpy
 import bmesh
-import time
 from mathutils import Vector, Matrix
 from bpy_extras import node_shader_utils
 

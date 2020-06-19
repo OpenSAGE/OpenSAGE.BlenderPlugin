@@ -3,6 +3,7 @@
 
 from tests.common.helpers.collision_box import *
 from tests.utils import TestCase
+from unittest.mock import patch
 
 
 class TestCollisionBox(TestCase):
@@ -51,6 +52,5 @@ class TestCollisionBox(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            actual = CollisionBox.parse(self, xml_objects[0])
-
+            CollisionBox.parse(self, xml_objects[0])
             report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DCollisionBox!')
