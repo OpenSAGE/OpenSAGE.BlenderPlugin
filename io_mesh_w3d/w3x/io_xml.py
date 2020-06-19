@@ -1,7 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
 import xml.etree.ElementTree as ET
 from mathutils import Vector, Quaternion, Matrix
 
