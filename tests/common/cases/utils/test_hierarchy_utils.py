@@ -3,7 +3,7 @@
 
 import bpy
 from tests.utils import TestCase
-
+from mathutils import Vector
 from io_mesh_w3d.import_utils import *
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *

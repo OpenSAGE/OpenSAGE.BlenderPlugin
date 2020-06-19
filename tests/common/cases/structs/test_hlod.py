@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import io
 from tests.common.helpers.hlod import *
 from tests.utils import TestCase
 from unittest.mock import patch, call
@@ -112,7 +113,7 @@ class TestHLod(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            actual = HLod.parse(self, xml_objects[0])
+            HLod.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('unhandled node \'InvalidIdentifier\' in W3DContainer!'),
                                           call('unhandled node \'InvalidIdentifier\' in W3DContainer SubObject!'),

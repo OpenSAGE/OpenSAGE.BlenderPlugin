@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+import io
 from mathutils import Vector
 from tests.common.helpers.mesh import *
 from tests.utils import *
