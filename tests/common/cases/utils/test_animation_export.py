@@ -2,16 +2,13 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-import bmesh
-from os.path import dirname as up
 from unittest.mock import patch
-
+from mathutils import Vector
 from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
 from io_mesh_w3d.common.utils.animation_export import *
 from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
-from tests.common.helpers.hlod import *
 from tests.utils import *
 
 

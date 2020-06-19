@@ -1,11 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import bpy
 from tests.utils import TestCase
 from unittest.mock import patch
 
-from io_mesh_w3d.import_utils import *
 from tests.common.helpers.mesh_structs.shader_material import *
 from io_mesh_w3d.common.utils.material_import import *
 

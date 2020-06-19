@@ -93,8 +93,6 @@ class TestMeshImportUtils(TestCase):
 
         get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
 
-        mesh = bpy.data.meshes[mesh_name]
-
         rig = bpy.data.objects[hierarchy.name()]
         rig_mesh(mesh_struct, hierarchy, rig, sub_object=hlod.lod_arrays[0].sub_objects[0])
 
@@ -126,8 +124,6 @@ class TestMeshImportUtils(TestCase):
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
 
         get_or_create_skeleton(hierarchy, bpy.context.scene.collection)
-
-        mesh = bpy.data.meshes[mesh_name]
 
         rig = bpy.data.objects[hierarchy.name()]
         rig_mesh(mesh_struct, hierarchy, rig, sub_object=hlod.lod_arrays[0].sub_objects[0])

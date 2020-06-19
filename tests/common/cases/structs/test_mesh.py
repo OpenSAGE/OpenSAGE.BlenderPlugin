@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import io
 from tests.common.helpers.mesh import *
 from tests.utils import TestCase
 from unittest.mock import patch, call
@@ -125,8 +126,14 @@ class TestMesh(TestCase):
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
-        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
-        Mesh.read(self, io_stream, subchunk_end)
+        with (patch.object(self, 'info')) as report_func:
+            Mesh.read(self, io_stream, subchunk_end)
+            report_func.assert_has_calls([call('-> vertices 2 chunk is not supported'),
+                                          call('-> normals 2 chunk is not supported'),
+                                          call('-> tangents are computed in blender'),
+                                          call('-> bitangents are computed in blender'),
+                                          call('-> deform chunk is not supported'),
+                                          call('-> ps2 shaders chunk is not supported')])
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
@@ -140,7 +147,9 @@ class TestMesh(TestCase):
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
-        Mesh.read(self, io_stream, subchunk_end)
+        with (patch.object(self, 'warning')) as report_func:
+            Mesh.read(self, io_stream, subchunk_end)
+            report_func.assert_called_with('unknown chunk_type in io_stream: 0x0')
 
     def test_chunk_sizes(self):
         mesh = get_mesh_minimal()
@@ -212,11 +221,11 @@ class TestMesh(TestCase):
         xml_objects = root.findall('W3DMesh')
         self.assertEqual(1, len(xml_objects))
 
-        with (patch.object(self, 'info')) as info_func:
-            actual = Mesh.parse(self, xml_objects[0])
+        with (patch.object(self, 'info')) as report_func:
+            Mesh.parse(self, xml_objects[0])
 
-            info_func.assert_has_calls([call('secondary vertices are not supported'),
-                                        call('secondary normals are not supported')])
+            report_func.assert_has_calls([call('secondary vertices are not supported'),
+                                          call('secondary normals are not supported')])
 
     def test_parse_multiple_uv_coords(self):
         mesh = get_mesh(shader_mats=True)
@@ -231,10 +240,10 @@ class TestMesh(TestCase):
         xml_objects = root.findall('W3DMesh')
         self.assertEqual(1, len(xml_objects))
 
-        with (patch.object(self, 'warning')) as warning_func:
-            actual = Mesh.parse(self, xml_objects[0])
+        with (patch.object(self, 'warning')) as report_func:
+            Mesh.parse(self, xml_objects[0])
 
-            warning_func.assert_called_with('multiple uv coords not yet supported!')
+            report_func.assert_called_with('multiple uv coords not yet supported!')
 
     def test_parse_vertex_colors(self):
         root = create_root()
@@ -247,10 +256,10 @@ class TestMesh(TestCase):
         xml_objects = root.findall('W3DMesh')
         self.assertEqual(1, len(xml_objects))
 
-        with (patch.object(self, 'info')) as info_func:
-            actual = Mesh.parse(self, xml_objects[0])
+        with (patch.object(self, 'info')) as report_func:
+            Mesh.parse(self, xml_objects[0])
 
-            info_func.assert_called_with('vertex colors are not yet supported')
+            report_func.assert_called_with('vertex colors are not yet supported')
 
     def test_parse_invalid_identifier(self):
         root = create_root()
@@ -264,7 +273,7 @@ class TestMesh(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            actual = Mesh.parse(self, xml_objects[0])
+            Mesh.parse(self, xml_objects[0])
 
             report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DMesh!')
 
