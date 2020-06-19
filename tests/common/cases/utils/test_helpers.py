@@ -8,6 +8,7 @@ from os.path import dirname as up
 from io_mesh_w3d.common.utils.helpers import *
 from unittest.mock import patch, call
 
+
 class FakeClass:
     def __init__(self):
         self.tx_coords = []
