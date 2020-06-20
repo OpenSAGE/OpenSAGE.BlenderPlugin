@@ -53,7 +53,7 @@ def set_visibility(bone, frame, value):
         bone.visibility = value
         bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
     else:
-        bone.hide_viewport = value
+        bone.hide_viewport = bool(value)
         bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
