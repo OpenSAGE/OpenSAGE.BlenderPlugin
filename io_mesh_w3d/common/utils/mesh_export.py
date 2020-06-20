@@ -206,20 +206,20 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.attrs |= GEOMETRY_TYPE_SKIN
             header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
 
-            if len(mesh_ob.constraints) > 0:
-                constext.warning('mesh \'' + mesh_object.name + '\' is rigged and thus does not support any constraints!')
+            if len(mesh_object.constraints) > 0:
+                context.warning('mesh \'' + mesh_object.name + '\' is rigged and thus does not support any constraints!')
 
         else:
-            if len(mesh_ob.constraints) > 1:
-                constext.warning('mesh \'' + mesh_object.name + '\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
-            for constraint in mesh_ob.constraints:
+            if len(mesh_object.constraints) > 1:
+                context.warning('mesh \'' + mesh_object.name + '\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
+            for constraint in mesh_object.constraints:
                 if constraint.name == 'Copy Rotation':
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
                     break
                 if constraint.name == 'Damped Track':
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
                     break
-                constext.warning('mesh \'' + mesh_object.name + '\' constraint \'' + constraint.name + '\' is not supported!')
+                context.warning('mesh \'' + mesh_object.name + '\' constraint \'' + constraint.name + '\' is not supported!')
 
         if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
