@@ -299,3 +299,82 @@ class TestMeshExportUtils(TestCase):
         meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         self.assertEqual(0, len(meshes[0].material_passes[0].tx_stages))
+
+    def test_mesh_export_skin_warned_if_constraints_applied(self):
+        coll = get_collection()
+        mesh = get_mesh('mesh', skin=True)
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        rig_mesh(mesh, hierarchy, rig)
+
+        mesh_ob = bpy.data.objects['mesh']
+
+        constraint = mesh_ob.constraints.new('COPY_ROTATION')
+        constraint.target = bpy.context.scene.camera
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            report_func.assert_called_with('mesh \'mesh\' is rigged and thus does not support any constraints!')
+
+    def test_mesh_export_warned_if_multiple_constraints_applied(self):
+        create_mesh(self, get_mesh('mesh'), get_collection())
+
+        mesh_ob = bpy.data.objects['mesh']
+
+        constraint = mesh_ob.constraints.new('COPY_ROTATION')
+        constraint.target = bpy.context.scene.camera
+
+        constraint = mesh_ob.constraints.new('DAMPED_TRACK')
+        constraint.target = bpy.context.scene.camera
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_called_with('mesh \'mesh\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
+
+        self.assertTrue(meshes[0].is_camera_oriented())
+        self.assertFalse(meshes[0].is_camera_aligned())
+
+    def test_mesh_export_camera_oriented(self):
+        create_mesh(self, get_mesh('mesh'), get_collection())
+
+        mesh_ob = bpy.data.objects['mesh']
+
+        constraint = mesh_ob.constraints.new('COPY_ROTATION')
+        constraint.target = bpy.context.scene.camera
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertTrue(meshes[0].is_camera_oriented())
+        self.assertFalse(meshes[0].is_camera_aligned())
+
+    def test_mesh_export_camera_aligned(self):
+        create_mesh(self, get_mesh('mesh'), get_collection())
+
+        mesh_ob = bpy.data.objects['mesh']
+
+        constraint = mesh_ob.constraints.new('DAMPED_TRACK')
+        constraint.target = bpy.context.scene.camera
+
+        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertTrue(meshes[0].is_camera_aligned())
+        self.assertFalse(meshes[0].is_camera_oriented())
+
+    def test_mesh_export_warned_if_unsupported_constraints_applied(self):
+        create_mesh(self, get_mesh('mesh'), get_collection())
+
+        mesh_ob = bpy.data.objects['mesh']
+
+        constraint = mesh_ob.constraints.new('COPY_LOCATION')
+        constraint.target = bpy.context.scene.camera
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_called_with('mesh \'mesh\' constraint \'Copy Location\' is not supported!')
+
+        self.assertFalse(meshes[0].is_camera_oriented())
+        self.assertFalse(meshes[0].is_camera_aligned())
+        

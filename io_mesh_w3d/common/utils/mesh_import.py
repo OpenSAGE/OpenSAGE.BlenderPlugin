@@ -39,7 +39,7 @@ def create_mesh(context, mesh_struct, coll):
         constraint.use_z = True
         constraint.invert_z = True
 
-    elif mesh_struct.is_camera_aligned():
+    if mesh_struct.is_camera_aligned():
         constraint = mesh_ob.constraints.new('DAMPED_TRACK')
         constraint.target = bpy.context.scene.camera
         constraint.track_axis = 'TRACK_X'
