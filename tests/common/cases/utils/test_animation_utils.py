@@ -6,13 +6,15 @@ from unittest.mock import patch
 from mathutils import Vector
 from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
+from io_mesh_w3d.common.utils.animation_import import *
 from io_mesh_w3d.common.utils.animation_export import *
 from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
+from tests.common.helpers.animation import *
 from tests.utils import *
 
 
-class TestAnimationExportUtils(TestCase):
+class TestAnimationUtils(TestCase):
     def test_user_is_notified_if_mesh_is_falsely_animated(self):
         create_mesh(self, get_mesh('mesh'), get_collection())
 
@@ -42,3 +44,18 @@ class TestAnimationExportUtils(TestCase):
 
         self.assertEqual(1, ani.channels[0].first_frame)
         self.assertEqual(10, ani.channels[0].last_frame)
+
+    def test_roottransform_visibility_channel_import(self):
+        hierarchy = get_hierarchy()
+        animation = get_animation()
+
+        animation.channels = [get_animation_channel(type=CHANNEL_VIS, pivot=0)]
+
+        rig = get_or_create_skeleton(hierarchy, get_collection())
+
+        create_animation(rig, animation, hierarchy)
+
+        ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=False)
+
+        self.assertEqual(1, len(ani.channels))
+        self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
