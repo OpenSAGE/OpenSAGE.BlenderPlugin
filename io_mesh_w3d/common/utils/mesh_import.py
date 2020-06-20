@@ -40,8 +40,14 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.vert_materials:
         create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
 
-    for i, shader in enumerate(mesh_struct.shaders):
-        set_shader_properties(mesh.materials[i], shader)
+        for i, shader in enumerate(mesh_struct.shaders):
+            set_shader_properties(mesh.materials[i], shader)
+
+    elif mesh_struct.prelit_vertex:
+        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, name, triangles)
+
+        for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
+            set_shader_properties(mesh.materials[i], shader)
 
     # shader material stuff
     if mesh_struct.shader_materials:

@@ -24,10 +24,6 @@ def create_rig(name, root, coll):
     armature.show_names = False
 
     rig = bpy.data.objects.new(name, armature)
-    rig.rotation_mode = 'QUATERNION'
-    rig.delta_location = root.translation
-    rig.delta_rotation_quaternion = root.rotation
-    rig.track_axis = 'POS_X'
     link_object_to_active_scene(rig, coll)
     bpy.ops.object.mode_set(mode='EDIT')
     return rig, armature
@@ -38,13 +34,10 @@ def create_bone_hierarchy(hierarchy, coll):
     rig, armature = create_rig(hierarchy.name(), root, coll)
 
     for pivot in hierarchy.pivots:
-        if pivot.parent_id < 0:
-            continue
-
         bone = armature.edit_bones.new(pivot.name)
         matrix = make_transform_matrix(pivot.translation, pivot.rotation)
 
-        if pivot.parent_id > 0:
+        if pivot.parent_id >= 0:
             parent_pivot = hierarchy.pivots[pivot.parent_id]
             bone.parent = armature.edit_bones[parent_pivot.name]
             matrix = bone.parent.matrix @ matrix

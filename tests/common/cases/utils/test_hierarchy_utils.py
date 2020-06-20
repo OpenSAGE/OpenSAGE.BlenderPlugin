@@ -154,6 +154,7 @@ class TestHierarchyUtils(TestCase):
 
         self.assertEqual(5, len(hierarchy.pivots))
 
+        self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
         self.assertEqual('mesh1', hierarchy.pivots[1].name)
         self.assertEqual('mesh2', hierarchy.pivots[2].name)
         self.assertEqual('mesh3', hierarchy.pivots[3].name)
@@ -175,6 +176,8 @@ class TestHierarchyUtils(TestCase):
 
         self.assertEqual(5, len(hierarchy.pivots))
 
+        self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
+        self.assertEqual(-1, hierarchy.pivots[0].parent_id)
         self.assertEqual('mesh1', hierarchy.pivots[1].name)
         self.assertEqual(0, hierarchy.pivots[1].parent_id)
         self.assertEqual('mesh2', hierarchy.pivots[2].name)
@@ -200,6 +203,8 @@ class TestHierarchyUtils(TestCase):
 
         self.assertEqual(5, len(hierarchy.pivots))
 
+        self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
+        self.assertEqual(-1, hierarchy.pivots[0].parent_id)
         self.assertEqual('mesh4', hierarchy.pivots[1].name)
         self.assertEqual(0, hierarchy.pivots[1].parent_id)
         self.assertEqual('mesh1', hierarchy.pivots[2].name)
@@ -219,9 +224,11 @@ class TestHierarchyUtils(TestCase):
         bpy.context.view_layer.objects.active = rig
         bpy.ops.object.mode_set(mode='EDIT')
 
+        root = armature.edit_bones.new('ROOTTRANSFORM')
         bone = armature.edit_bones.new('bone1')
         bone.head = Vector((0.0, 0.0, 0.0))
         bone.tail = Vector((0.0, 1.0, 0.0))
+        bone.parent = root
         bone2 = armature.edit_bones.new('mesh1')
         bone2.head = Vector((0.0, 0.0, 0.0))
         bone2.tail = Vector((0.0, 1.0, 0.0))

@@ -8,13 +8,16 @@ from io_mesh_w3d.common.structs.hierarchy import *
 
 pick_plane_names = ['PICK']
 
+def create_root_pivot(pivot_id_dict, hierarchy):
+    pivot = HierarchyPivot(name='ROOTTRANSFORM', parent_id=-1)
+    pivot_id_dict[pivot.name] = len(hierarchy.pivots)
+    hierarchy.pivots.append(pivot)
+
 
 def retrieve_hierarchy(context, container_name):
-    root = HierarchyPivot(name='ROOTTRANSFORM')
-
     hierarchy = Hierarchy(
         header=HierarchyHeader(),
-        pivots=[root])
+        pivots=[])
 
     rig = None
     rigs = get_objects('ARMATURE')
@@ -24,6 +27,8 @@ def retrieve_hierarchy(context, container_name):
     if len(rigs) == 0:
         hierarchy.header.name = container_name
         hierarchy.header.center_pos = Vector()
+
+        create_root_pivot(pivot_id_dict, hierarchy)
         context.warning('scene does not contain an armature object!')
 
     if len(rigs) > 0:
@@ -31,14 +36,14 @@ def retrieve_hierarchy(context, container_name):
 
         switch_to_pose(rig, 'REST')
 
-        root.translation = rig.delta_location
-        root.rotation = rig.delta_rotation_quaternion
-
         hierarchy.header.name = rig.data.name
         hierarchy.header.center_pos = rig.location
 
+        if (rig.pose.bones[0].name.lower() != 'roottransform'):
+            create_root_pivot(pivot_id_dict, hierarchy)
+
         for bone in rig.pose.bones:
-            pivot = HierarchyPivot(name=bone.name, parent_id=0)
+            pivot = HierarchyPivot(name=bone.name, parent_id=-1)
 
             matrix = bone.matrix
 

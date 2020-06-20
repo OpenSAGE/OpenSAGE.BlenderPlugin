@@ -15,13 +15,10 @@ def is_translation(channel):
 
 
 def is_visibility(channel):
-    return isinstance(channel, AnimationBitChannel)
+    return isinstance(channel, AnimationBitChannel) or channel.type == 15
 
 
 def get_bone(rig, hierarchy, channel):
-    if is_roottransform(channel):
-        return rig
-
     pivot = hierarchy.pivots[channel.pivot]
 
     if is_visibility(channel) and pivot.name in rig.data.bones:
