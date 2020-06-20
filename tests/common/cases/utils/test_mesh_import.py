@@ -177,7 +177,7 @@ class TestMeshImportUtils(TestCase):
         self.assertEqual(1, len(mesh.constraints))
         self.assertEqual('Copy Rotation', mesh.constraints[0].name)
 
-    def test_mesh_is_camera_oriented(self):
+    def test_mesh_is_camera_aligned(self):
         mesh_name = 'camera_aligned'
         mesh_struct = get_mesh(mesh_name)
         mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
