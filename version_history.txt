@@ -1,4 +1,7 @@
 v0.5.1
+- support mesh flags 'camera oriented' and 'camera aligned'
+- import prelit vertex material as basic vertex material for now
+- Bugfix: fix import of visibility channels of armature
 
 v0.5.0 (10.06.20)
 - use proper enums for vertex material shader properties
