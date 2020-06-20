@@ -31,6 +31,19 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.is_hidden():
         mesh_ob.hide_set(True)
 
+    if mesh_struct.is_camera_oriented():
+        constraint = mesh_ob.constraints.new('COPY_ROTATION')
+        constraint.target = bpy.context.scene.camera
+        constraint.use_x = False
+        constraint.use_y = False
+        constraint.use_z = True
+        constraint.invert_z = True
+
+    elif mesh_struct.is_camera_aligned():
+        constraint = mesh_ob.constraints.new('DAMPED_TRACK')
+        constraint.target = bpy.context.scene.camera
+        constraint.track_axis = 'TRACK_X'
+
     mesh_ob.casts_shadow = mesh_struct.casts_shadow()
 
     principleds = []
@@ -40,8 +53,14 @@ def create_mesh(context, mesh_struct, coll):
     if mesh_struct.vert_materials:
         create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
 
-    for i, shader in enumerate(mesh_struct.shaders):
-        set_shader_properties(mesh.materials[i], shader)
+        for i, shader in enumerate(mesh_struct.shaders):
+            set_shader_properties(mesh.materials[i], shader)
+
+    elif mesh_struct.prelit_vertex:
+        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, name, triangles)
+
+        for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
+            set_shader_properties(mesh.materials[i], shader)
 
     # shader material stuff
     if mesh_struct.shader_materials:
@@ -65,7 +84,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
     if mesh_struct.is_skin():
         mesh = bpy.data.meshes[mesh_ob.name]
-        normals = [None] * len(mesh_struct.normals)
+        normals = mesh_struct.normals.copy()
         for i, vert_inf in enumerate(mesh_struct.vert_infs):
             weight = vert_inf.bone_inf
             xtra_weight = vert_inf.xtra_inf

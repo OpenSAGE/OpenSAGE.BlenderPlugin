@@ -241,18 +241,31 @@ class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_context = 'object'
 
     def draw(self, context):
+        obj = context.active_object
+        if (obj.type != 'MESH'):
+            return
+
         layout = self.layout
         col = layout.column()
-        col.prop(context.active_object, 'object_type')
+
+        col.prop(obj, 'object_type')
         col = layout.column()
-        col.prop(context.active_object, 'sort_level')
-        col = layout.column()
-        col.prop(context.active_object, 'casts_shadow')
-        if context.active_object.object_type == 'DAZZLE':
+
+        
+        if obj.object_type == 'NORMAL':
+            col.prop(obj, 'sort_level')
             col = layout.column()
-            col.prop(context.active_object, 'dazzle_type')
-        col = layout.column()
-        col.prop(context.active_object, 'userText')
+            col.prop(obj, 'casts_shadow')
+            col = layout.column()
+            col.prop(obj, 'camera_oriented')
+            col = layout.column()
+            col.prop(obj, 'camera_aligned')
+            col = layout.column()
+            col.prop(obj, 'userText')
+
+        if obj.object_type == 'DAZZLE':
+            col = layout.column()
+            col.prop(obj, 'dazzle_type')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
