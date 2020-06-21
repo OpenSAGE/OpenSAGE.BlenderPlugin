@@ -251,7 +251,6 @@ class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(obj, 'object_type')
         col = layout.column()
 
-        
         if obj.object_type == 'NORMAL':
             col.prop(obj, 'sort_level')
             col = layout.column()
