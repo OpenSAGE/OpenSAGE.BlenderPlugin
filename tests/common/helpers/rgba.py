@@ -8,8 +8,8 @@ def get_rgba(a=0):
     return RGBA(r=3, g=200, b=44, a=a)
 
 
-def compare_rgbas(self, expected, actual):
-    self.assertEqual(expected.r, actual.r)
-    self.assertEqual(expected.g, actual.g)
-    self.assertEqual(expected.b, actual.b)
-    self.assertEqual(expected.a, actual.a)
+def compare_rgbas(self, expected, actual, delta=0):
+    self.assertTrue(abs(expected.r - actual.r) <= delta)
+    self.assertTrue(abs(expected.g - actual.g) <= delta)
+    self.assertTrue(abs(expected.b - actual.b) <= delta)
+    self.assertTrue(abs(expected.a - actual.a) <= delta)

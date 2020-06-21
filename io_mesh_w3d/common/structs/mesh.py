@@ -516,10 +516,10 @@ class Mesh:
         if self.bitangents:
             create_object_list(xml_mesh, 'Binormals', self.bitangents, create_vector, 'B')
 
-        if self.get_material_pass().dcg:
-            create_object_list(xml_mesh, 'VertexColors', self.get_material_pass().dcg, RGBA.create)
-
         if self.material_passes:
+            if self.material_passes[0].dcg:
+                create_object_list(xml_mesh, 'VertexColors', self.get_material_pass().dcg, RGBA.create)
+
             create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T')
 
         if self.vert_infs:
