@@ -194,6 +194,12 @@ class Mesh:
     def identifier(self):
         return self.header.container_name + '.' + self.name()
 
+    def get_material_pass(self):
+        if not self.material_passes:
+            mat_pass = MaterialPass(shader_material_ids=[0])
+            self.material_passes.append(mat_pass)
+        return self.material_passes[0]
+
     @staticmethod
     def read(context, io_stream, chunk_end):
         result = Mesh()
@@ -434,11 +440,13 @@ class Mesh:
             elif child.tag == 'Triangles':
                 result.triangles = parse_objects(child, 'T', Triangle.parse)
                 result.header.face_count = len(result.triangles)
+            elif child.tag == 'VertexColors':
+                mat_pass = result.get_material_pass()
+                mat_pass.dcg = parse_objects(child, 'C', RGBA.parse)
             elif child.tag == 'TexCoords':
-                if not result.material_passes:
-                    mat_pass = MaterialPass(shader_material_ids=[0])
+                mat_pass = result.get_material_pass()
+                if not mat_pass.tx_coords:
                     mat_pass.tx_coords = parse_objects(child, 'T', parse_vector2)
-                    result.material_passes.append(mat_pass)
                 else:
                     context.warning('multiple uv coords not yet supported!')
             elif child.tag == 'ShadeIndices':
@@ -447,9 +455,6 @@ class Mesh:
             elif child.tag == 'BoneInfluences':
                 result.header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
                 bone_influences.append(child.findall('I'))
-            elif child.tag == 'VertexColors':
-                context.info('vertex colors are not yet supported')
-                # <C R="0.258824" G="0.223529" B="1.000000" A="0.020000"/>
             elif child.tag == 'FXShader':
                 result.shader_materials.append(ShaderMaterial.parse(child))
                 result.header.matl_count = len(result.shader_materials)
@@ -511,6 +516,9 @@ class Mesh:
         if self.bitangents:
             create_object_list(xml_mesh, 'Binormals', self.bitangents, create_vector, 'B')
 
+        if self.get_material_pass().dcg:
+            create_object_list(xml_mesh, 'VertexColors', self.get_material_pass().dcg, RGBA.create)
+
         if self.material_passes:
             create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T')
 
@@ -523,7 +531,8 @@ class Mesh:
             for vert_inf in self.vert_infs:
                 vert_inf.create(vertex_influences, vertex_influences2)
 
-        create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
+        if self.shade_ids:
+            create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
 
         create_object_list(xml_mesh, 'Triangles', self.triangles, Triangle.create)
 
