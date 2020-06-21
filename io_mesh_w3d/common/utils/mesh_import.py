@@ -55,6 +55,11 @@ def create_mesh(context, mesh_struct, coll):
             mesh_ob.face_maps.new(name=surface_type_name)
         mesh_ob.face_maps[surface_type_name].add([i])
 
+    for mat_pass in mesh_struct.material_passes:
+        create_vertex_color_layer(mesh, mat_pass.dcg, 'DCG')
+        create_vertex_color_layer(mesh, mat_pass.dig, 'DIG')
+        create_vertex_color_layer(mesh, mat_pass.scg, 'SCG')
+
     principleds = []
 
     # vertex material stuff
@@ -134,3 +139,10 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 
     else:
         rig_object(mesh_ob, hierarchy, rig, sub_object)
+
+def create_vertex_color_layer(mesh, colors, name):
+    if not colors:
+        return
+    layer = mesh.vertex_colors.new(name=name)
+    for i, col in enumerate(colors):
+        layer.data[i].color = col.to_vector_rgba()

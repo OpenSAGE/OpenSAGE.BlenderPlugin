@@ -129,6 +129,9 @@ class TestCase(unittest.TestCase):
         root = create_root()
         expected.create(root)
 
+        #pretty_print(root)
+        #print(ET.tostring(root))
+
         xml_objects = root.findall(identifier)
         self.assertEqual(1, len(xml_objects))
 

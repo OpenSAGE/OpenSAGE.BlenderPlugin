@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.w3d.io_binary import *
-
+from io_mesh_w3d.w3x.io_xml import *
 
 class RGBA:
     def __init__(self, vec=None, a=None, scale=255, r=0, g=0, b=0):
@@ -39,6 +39,15 @@ class RGBA:
                     a=int(read_float(io_stream) * 255))
 
     @staticmethod
+    def parse(xml_color):
+        print(xml_color.get('R', 0.0))
+        print(xml_color.get('R', 0.0) * 255)
+        return RGBA(r=int(xml_color.get('R', 0.0) * 255),
+                    g=int(xml_color.get('G', 0.0) * 255),
+                    b=int(xml_color.get('B', 0.0) * 255),
+                    a=int(xml_color.get('A', 0.0) * 255))
+
+    @staticmethod
     def size():
         return 4
 
@@ -53,6 +62,13 @@ class RGBA:
         write_float(self.g / 255, io_stream)
         write_float(self.b / 255, io_stream)
         write_float(self.a / 255, io_stream)
+
+    def create(self, parent):
+        color = create_node(parent, 'C')
+        color.set('R', format(self.r / 255))
+        color.set('G', format(self.g / 255))
+        color.set('B', format(self.b / 255))
+        color.set('A', format(self.a / 255))
 
     def to_vector_rgba(self, scale=255.0):
         return self.r / scale, self.g / scale, self.b / scale, self.a / scale

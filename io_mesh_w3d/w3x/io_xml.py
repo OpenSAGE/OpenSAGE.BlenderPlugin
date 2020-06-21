@@ -80,6 +80,8 @@ def parse_objects(parent, name, parse_func, par1=None):
     if not objects:
         return result
     for obj in objects:
+        if obj is None:
+            print('None')
         if par1 is not None:
             result.append(parse_func(obj, par1))
         else:

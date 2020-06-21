@@ -245,22 +245,6 @@ class TestMesh(TestCase):
 
             report_func.assert_called_with('multiple uv coords not yet supported!')
 
-    def test_parse_vertex_colors(self):
-        root = create_root()
-        xml_mesh = create_node(root, 'W3DMesh')
-        xml_mesh.set('id', 'fakeIdentifier')
-        xml_mesh.set('SortLevel', '0')
-
-        create_node(xml_mesh, 'VertexColors')
-
-        xml_objects = root.findall('W3DMesh')
-        self.assertEqual(1, len(xml_objects))
-
-        with (patch.object(self, 'info')) as report_func:
-            Mesh.parse(self, xml_objects[0])
-
-            report_func.assert_called_with('vertex colors are not yet supported')
-
     def test_parse_invalid_identifier(self):
         root = create_root()
         xml_mesh = create_node(root, 'W3DMesh')
@@ -305,6 +289,7 @@ class TestMesh(TestCase):
                      'Normals',
                      'Tangents',
                      'Binormals',
+                     'VertexColors',
                      'TexCoords',
                      'BoneInfluences',
                      'BoneInfluences',
