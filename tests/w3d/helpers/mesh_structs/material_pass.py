@@ -121,20 +121,23 @@ def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
     self.assertEqual(expected.shader_ids, actual.shader_ids)
 
-    if actual.dcg:  # roundtrip not supported yet
+    delta = 1 
+    # because the color floats are truncated to 6 decimal places we 
+    # have rounding errors on a roundtrip
+    if actual.dcg:
         self.assertEqual(len(expected.dcg), len(actual.dcg))
         for i in range(len(expected.dcg)):
-            compare_rgbas(self, expected.dcg[i], actual.dcg[i])
+            compare_rgbas(self, expected.dcg[i], actual.dcg[i], delta)
 
-    if actual.dig:  # roundtrip not supported yet
+    if actual.dig:
         self.assertEqual(len(expected.dig), len(actual.dig))
         for i in range(len(expected.dig)):
-            compare_rgbas(self, expected.dig[i], actual.dig[i])
+            compare_rgbas(self, expected.dig[i], actual.dig[i], delta)
 
-    if actual.scg:  # roundtrip not supported yet
+    if actual.scg:
         self.assertEqual(len(expected.scg), len(actual.scg))
         for i in range(len(expected.scg)):
-            compare_rgbas(self, expected.scg[i], actual.scg[i])
+            compare_rgbas(self, expected.scg[i], actual.scg[i], delta)
 
     self.assertEqual(expected.shader_material_ids, actual.shader_material_ids)
 
