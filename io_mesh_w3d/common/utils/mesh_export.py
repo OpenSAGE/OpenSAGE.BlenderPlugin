@@ -173,6 +173,19 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
                 continue
 
+            for layer in mesh.vertex_colors:
+                if layer.name == 'DCG':
+                    target = mat_pass.dcg
+                elif layer.name == 'DIG':
+                    target = mat_pass.dcg
+                elif layer.name == 'SCG':
+                    target = mat_pass.dcg
+                else:
+                    continue
+
+                for datum in layer.data:
+                    target.append(RGBA(datum.color))
+
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
             used_textures = get_used_textures(material, principled, used_textures)
