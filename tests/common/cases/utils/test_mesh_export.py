@@ -332,7 +332,8 @@ class TestMeshExportUtils(TestCase):
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_called_with('mesh \'mesh\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
+            report_func.assert_called_with(
+                'mesh \'mesh\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
 
         self.assertTrue(meshes[0].is_camera_oriented())
         self.assertFalse(meshes[0].is_camera_aligned())
@@ -377,4 +378,3 @@ class TestMeshExportUtils(TestCase):
 
         self.assertFalse(meshes[0].is_camera_oriented())
         self.assertFalse(meshes[0].is_camera_aligned())
-        

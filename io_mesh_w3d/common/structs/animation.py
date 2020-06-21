@@ -13,6 +13,7 @@ CHANNEL_Z = 2
 CHANNEL_Q = 6
 CHANNEL_VIS = 15
 
+
 class AnimationHeader:
     def __init__(self, version=Version(major=4, minor=1), name='', hierarchy_name='', num_frames=0, frame_rate=0):
         self.version = version
