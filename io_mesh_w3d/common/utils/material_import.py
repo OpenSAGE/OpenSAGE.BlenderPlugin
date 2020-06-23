@@ -28,7 +28,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
             mat_id = mat_pass.vertex_material_ids[0]
-            tex_id = tx_stage.tx_ids[0]
+            tex_id = tx_stage.tx_ids[0][0]
             texture = structure.textures[tex_id]
             tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex

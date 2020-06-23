@@ -10,7 +10,7 @@ def retrieve_boxes(container_name):
     boxes = []
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'BOX':
+        if mesh_object.data.object_type != 'BOX':
             continue
         name = container_name + '.' + mesh_object.name
         box = CollisionBox(

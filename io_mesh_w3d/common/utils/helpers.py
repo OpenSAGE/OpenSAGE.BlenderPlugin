@@ -71,9 +71,11 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
         tx_coords = mat_pass.tx_coords
     else:
         if mat_pass.tx_stages:
-            tx_coords = mat_pass.tx_stages[0].tx_coords
+            tx_coords = mat_pass.tx_stages[0].tx_coords[0]
+            if len(mat_pass.tx_stages[0].tx_coords) > 1:
+                context.warning('only one set of texture coords per texture stage supported')
         if len(mat_pass.tx_stages) > 1:
-            context.warning('only one texture stage per material pass supported on export')
+            context.warning('only one texture stage per material pass supported')
 
     if tx_coords is None:
         return
