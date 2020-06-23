@@ -242,6 +242,10 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_context = 'data'
 
     def draw(self, context):
+        obj = context.active_object
+        if (obj.type != 'MESH'):
+            return
+
         layout = self.layout
         col = layout.column()
         mesh = context.active_object.data
@@ -251,6 +255,10 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mesh, 'sort_level')
             col = layout.column()
             col.prop(mesh, 'casts_shadow')
+            col = layout.column()
+            col.prop(mesh, 'camera_oriented')
+            col = layout.column()
+            col.prop(mesh, 'camera_aligned')
             col = layout.column()
             col.prop(mesh, 'userText')
         elif mesh.object_type == 'DAZZLE':

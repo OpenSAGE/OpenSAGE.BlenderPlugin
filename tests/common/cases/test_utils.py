@@ -550,15 +550,15 @@ class TestUtils(TestCase):
 
         self.compare_data(meshes)
 
-    def test_prelit_meshes_roundtrip(self):
-        hlod = get_hlod()
-        hierarchy = get_hierarchy()
-        meshes = [get_mesh(name='sword', skin=True, prelit=True)]
+    def test_materials_are_created_from_prlit_materials(self):
+        meshes = [get_mesh(name='sword', prelit=True)]
 
-        create_data(self, meshes, hlod, hierarchy)
+        create_data(self, meshes)
 
-        # not yet supported
-        # self.compare_data(meshes, None, None)
+        mesh = bpy.data.objects['sword'].data
+
+        self.assertEqual(1, len(mesh.materials))
+        self.assertEqual('sword.W3D_CHUNK_PRELIT_VERTEX0', mesh.materials[0].name)
 
     def test_animation_roundtrip(self):
         animation = get_animation()

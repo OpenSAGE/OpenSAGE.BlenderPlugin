@@ -15,7 +15,7 @@ def is_translation(channel):
 
 
 def is_visibility(channel):
-    return isinstance(channel, AnimationBitChannel)
+    return isinstance(channel, AnimationBitChannel) or channel.type == CHANNEL_VIS
 
 
 def get_bone(rig, hierarchy, channel):
@@ -49,8 +49,12 @@ def set_rotation(bone, frame, value):
 
 
 def set_visibility(bone, frame, value):
-    bone.visibility = value
-    bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
+    if isinstance(bone, bpy.types.Bone):
+        bone.visibility = value
+        bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
+    else:
+        bone.hide_viewport = bool(value)
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):

@@ -7,6 +7,12 @@ from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 
+CHANNEL_X = 0
+CHANNEL_Y = 1
+CHANNEL_Z = 2
+CHANNEL_Q = 6
+CHANNEL_VIS = 15
+
 
 class AnimationHeader:
     def __init__(self, version=Version(major=4, minor=1), name='', hierarchy_name='', num_frames=0, frame_rate=0):
@@ -104,14 +110,14 @@ class AnimationChannel:
         type_name = xml_channel.get('Type')
 
         if type_name == 'XTranslation':
-            result.type = 0
+            result.type = CHANNEL_X
         elif type_name == 'YTranslation':
-            result.type = 1
+            result.type = CHANNEL_Y
         elif type_name == 'ZTranslation':
-            result.type = 2
+            result.type = CHANNEL_Z
         else:
             result.vector_len = 4
-            result.type = 6
+            result.type = CHANNEL_Q
 
         if xml_channel.tag == 'ChannelScalar':
             for value in xml_channel:
@@ -124,11 +130,11 @@ class AnimationChannel:
         return result
 
     def create(self, parent):
-        if self.type < 6:
+        if self.type < CHANNEL_Q:
             channel = create_node(parent, 'ChannelScalar')
-            if self.type == 0:
+            if self.type == CHANNEL_X:
                 channel.set('Type', 'XTranslation')
-            elif self.type == 1:
+            elif self.type == CHANNEL_Y:
                 channel.set('Type', 'YTranslation')
             else:
                 channel.set('Type', 'ZTranslation')
@@ -139,7 +145,7 @@ class AnimationChannel:
         channel.set('Pivot', str(self.pivot))
         channel.set('FirstFrame', str(self.first_frame))
 
-        if self.type < 6:
+        if self.type < CHANNEL_Q:
             for value in self.data:
                 create_value(value, channel, 'Frame')
         else:

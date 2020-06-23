@@ -2,9 +2,11 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from io_mesh_w3d.common.structs.mesh import *
 from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.w3x.import_w3x import load
 from io_mesh_w3d.import_utils import create_data
+from io_mesh_w3d.common.utils.mesh_import import *
 from tests.common.helpers.animation import get_animation
 from tests.common.helpers.collision_box import get_collision_box
 from tests.common.helpers.hierarchy import *
@@ -324,11 +326,10 @@ class TestRoundtripW3X(TestCase):
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
 
-        self.set_format('W3X')
-        self.filepath = self.outpath() + 'output'
         create_data(self, meshes, hlod, hierarchy)
 
         # export
+        self.set_format('W3X')
         self.filepath = self.outpath() + 'output'
         export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
                            'use_existing_skeleton': False}
@@ -367,3 +368,27 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
+
+    def test_roundtrip_mesh_is_camera_oriented(self):
+        mesh_struct = get_mesh('camera_oriented')
+        mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': False}
+        save_data(self, export_settings)
+
+    def test_roundtrip_mesh_is_camera_aligned(self):
+        mesh_struct = get_mesh('camera_aligned')
+        mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        self.set_format('W3X')
+        self.filepath = self.outpath() + 'output'
+        export_settings = {'mode': 'HM', 'compression': 'U', 'individual_files': True, 'create_texture_xmls': True,
+                           'use_existing_skeleton': False}
+        save_data(self, export_settings)

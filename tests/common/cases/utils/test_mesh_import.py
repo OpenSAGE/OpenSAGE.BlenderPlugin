@@ -164,3 +164,27 @@ class TestMeshImportUtils(TestCase):
         self.assertEqual(rig, mesh.parent)
         self.assertEqual('bone', mesh.parent_bone)
         self.assertEqual('BONE', mesh.parent_type)
+
+    def test_mesh_is_camera_oriented(self):
+        mesh_name = 'camera_oriented'
+        mesh_struct = get_mesh(mesh_name)
+        mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        mesh = bpy.data.objects[mesh_name]
+
+        self.assertEqual(1, len(mesh.constraints))
+        self.assertEqual('Copy Rotation', mesh.constraints[0].name)
+
+    def test_mesh_is_camera_aligned(self):
+        mesh_name = 'camera_aligned'
+        mesh_struct = get_mesh(mesh_name)
+        mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        mesh = bpy.data.objects[mesh_name]
+
+        self.assertEqual(1, len(mesh.constraints))
+        self.assertEqual('Damped Track', mesh.constraints[0].name)

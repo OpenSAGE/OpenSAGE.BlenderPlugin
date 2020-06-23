@@ -20,6 +20,7 @@ GEOMETRY_TYPE_TWO_SIDED = 0x00002000
 GEOMETRY_TYPE_CAST_SHADOW = 0x00008000
 GEOMETRY_TYPE_CAMERA_ALIGNED = 0x00010000
 GEOMETRY_TYPE_SKIN = 0x00020000
+GEOMETRY_TYPE_CAMERA_ORIENTED = 0x00060000
 
 # Prelit types
 PRELIT_MASK = 0x0F000000
@@ -170,13 +171,19 @@ class Mesh:
         return True
 
     def casts_shadow(self):
-        return bool(self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW)
+        return (self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW) == GEOMETRY_TYPE_CAST_SHADOW
 
     def is_hidden(self):
-        return bool(self.header.attrs & GEOMETRY_TYPE_HIDDEN)
+        return (self.header.attrs & GEOMETRY_TYPE_HIDDEN) == GEOMETRY_TYPE_HIDDEN
 
     def is_skin(self):
-        return bool(self.header.attrs & GEOMETRY_TYPE_SKIN)
+        return (self.header.attrs & GEOMETRY_TYPE_SKIN) == GEOMETRY_TYPE_SKIN
+
+    def is_camera_oriented(self):
+        return (self.header.attrs & GEOMETRY_TYPE_CAMERA_ORIENTED) == GEOMETRY_TYPE_CAMERA_ORIENTED
+
+    def is_camera_aligned(self):
+        return (self.header.attrs & GEOMETRY_TYPE_CAMERA_ALIGNED) == GEOMETRY_TYPE_CAMERA_ALIGNED
 
     def container_name(self):
         return self.header.container_name
@@ -478,7 +485,11 @@ class Mesh:
         xml_mesh.set('SortLevel', str(self.header.sort_level))
 
         xml_mesh.set('GeometryType', 'Normal')
-        if self.header.attrs & GEOMETRY_TYPE_SKIN:
+        if self.is_camera_aligned():
+            xml_mesh.set('GeometryType', 'CameraAligned')
+        if self.is_camera_oriented():
+            xml_mesh.set('GeometryType', 'CameraOriented')
+        if self.is_skin():
             xml_mesh.set('GeometryType', 'Skin')
 
         box = BoundingBox(
