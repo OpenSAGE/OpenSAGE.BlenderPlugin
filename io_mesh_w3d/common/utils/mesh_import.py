@@ -47,7 +47,7 @@ def create_mesh(context, mesh_struct, coll):
         constraint.target = bpy.context.scene.camera
         constraint.track_axis = 'TRACK_X'
 
-    mesh_ob.casts_shadow = mesh_struct.casts_shadow()
+    mesh_ob.data.casts_shadow = mesh_struct.casts_shadow()
 
     for i, triangle in enumerate(mesh_struct.triangles):
         surface_type_name = triangle.get_surface_type_name()
