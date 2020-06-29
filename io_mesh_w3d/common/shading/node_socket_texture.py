@@ -2,7 +2,16 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import NodeSocketColor
+from bpy.types import NodeSocketColor, NodeSocketInterfaceColor
+
+class NodeSocketInterfaceTexture(NodeSocketInterfaceColor):
+    bl_socket_idname = 'NodeSocketTexture'
+
+    def draw(self, context, layout):
+        pass
+
+    def draw_color(self, context):
+        return (1.0, 0.4, 0.216, 0.5)
 
 
 # This does not work atm (blender 2.82a)

@@ -258,7 +258,7 @@ class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(context.active_bone, 'visibility')
 
 
-from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture, NodeSocketInterfaceTexture
 from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
@@ -266,6 +266,8 @@ from io_mesh_w3d.common.shading.node_socket_enum import *
 
 
 CLASSES = (
+    NodeSocketTexture,
+    NodeSocketInterfaceTexture,
     NodeSocketEnum,
     NodeSocketEnumMaterialAttributes,
     NodeSocketEnumDepthCompare,
@@ -278,7 +280,6 @@ CLASSES = (
     NodeSocketEnumTexturing,
     NodeSocketEnumDetailColorFunc,
     NodeSocketEnumDetailAlphaFunc,
-    NodeSocketTexture,
     NodeSocketTextureAlpha,
     NodeSocketVector2,
     NodeSocketVector4,

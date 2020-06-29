@@ -86,6 +86,9 @@ class NodeGroupCreator():
             name = child_node.get('name')
 
             socket = node_tree.inputs.new(type, name)
+            if (type == 'NodeSocketTexture'):
+                print(socket)
+                socket.default_value
             self.process_presets(socket, type, child_node, name)
 
 
