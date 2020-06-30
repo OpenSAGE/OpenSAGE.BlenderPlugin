@@ -7,6 +7,8 @@ from bpy.types import NodeSocketColor, NodeSocketInterfaceColor
 class NodeSocketInterfaceTexture(NodeSocketInterfaceColor):
     bl_socket_idname = 'NodeSocketTexture'
 
+    default_value = [0.0, 0.0, 0.0, 0.0]
+
     def draw(self, context, layout):
         pass
 
