@@ -7,6 +7,8 @@ from io_mesh_w3d.common.utils.material_import import *
 
 
 def create_mesh(context, mesh_struct, coll):
+    context.info('creating mesh \'' + mesh_struct.name() + '\'')
+
     triangles = []
     for triangle in mesh_struct.triangles:
         triangles.append(tuple(triangle.vert_ids))
@@ -47,10 +49,8 @@ def create_mesh(context, mesh_struct, coll):
         constraint.target = bpy.context.scene.camera
         constraint.track_axis = 'TRACK_X'
 
-    mesh_ob.data.casts_shadow = mesh_struct.casts_shadow()
-
     for i, triangle in enumerate(mesh_struct.triangles):
-        surface_type_name = triangle.get_surface_type_name()
+        surface_type_name = triangle.get_surface_type_name(i)
         if surface_type_name not in mesh_ob.face_maps:
             mesh_ob.face_maps.new(name=surface_type_name)
         mesh_ob.face_maps[surface_type_name].add([i])

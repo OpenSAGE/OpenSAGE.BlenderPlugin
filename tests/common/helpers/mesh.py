@@ -123,17 +123,17 @@ def get_mesh(
                            get_vec(-0.577, -0.577, 0.577),
                            get_vec(-0.577, -0.577, -0.577)]
 
-    mesh.triangles = [get_triangle([4, 2, 0], 13, get_vec(0.0, 0.0, 1.0), 1.10),
-                      get_triangle([2, 7, 3], 13, get_vec(0.0, -1.0, 0.0), 1.10),
-                      get_triangle([6, 5, 7], 13, get_vec(-1.0, 0.0, 0.0), 1.10),
-                      get_triangle([1, 7, 5], 13, get_vec(0.0, 0.0, -1.0), 1.10),
-                      get_triangle([0, 3, 1], 13, get_vec(1.0, 0.0, 0.0), 1.10),
-                      get_triangle([4, 1, 5], 13, get_vec(0.0, 1.0, 0.0), 1.10),
-                      get_triangle([4, 6, 2], 13, get_vec(0.0, 0.0, 1.0), 1.10),
-                      get_triangle([2, 6, 7], 13, get_vec(0.0, -1.0, 0.0), 1.10),
-                      get_triangle([6, 4, 5], 13, get_vec(-1.0, 0.0, 0.0), 1.10),
-                      get_triangle([1, 3, 7], 13, get_vec(0.0, 0.0, -1.0), 1.10),
-                      get_triangle([0, 2, 3], 13, get_vec(1.0, 0.0, 0.0), 1.10),
+    mesh.triangles = [get_triangle([4, 2, 0], 1, get_vec(0.0, 0.0, 1.0), 1.10),
+                      get_triangle([2, 7, 3], 2, get_vec(0.0, -1.0, 0.0), 1.10),
+                      get_triangle([6, 5, 7], 3, get_vec(-1.0, 0.0, 0.0), 1.10),
+                      get_triangle([1, 7, 5], 4, get_vec(0.0, 0.0, -1.0), 1.10),
+                      get_triangle([0, 3, 1], 5, get_vec(1.0, 0.0, 0.0), 1.10),
+                      get_triangle([4, 1, 5], 6, get_vec(0.0, 1.0, 0.0), 1.10),
+                      get_triangle([4, 6, 2], 7, get_vec(0.0, 0.0, 1.0), 1.10),
+                      get_triangle([2, 6, 7], 8, get_vec(0.0, -1.0, 0.0), 1.10),
+                      get_triangle([6, 4, 5], 9, get_vec(-1.0, 0.0, 0.0), 1.10),
+                      get_triangle([1, 3, 7], 10, get_vec(0.0, 0.0, -1.0), 1.10),
+                      get_triangle([0, 2, 3], 11, get_vec(1.0, 0.0, 0.0), 1.10),
                       get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10)]
 
     if skin:

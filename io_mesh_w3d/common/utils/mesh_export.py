@@ -136,12 +136,15 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
-        face_map_names = [map.name for map in mesh_object.face_maps]
-        Triangle.validate_face_map_names(context, face_map_names)
+        if context.file_format == 'W3X' and len(mesh_object.face_maps) > 0:
+            context.warning('triangle surface types (mesh face maps) are not supported in W3X file format!')
+        else:
+            face_map_names = [map.name for map in mesh_object.face_maps]
+            Triangle.validate_face_map_names(context, face_map_names)
 
-        for map in mesh.face_maps:
-            for i, val in enumerate(map.data):
-                mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
+            for map in mesh.face_maps:
+                for i, val in enumerate(map.data):
+                    mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
 
         header.face_count = len(mesh_struct.triangles)
 

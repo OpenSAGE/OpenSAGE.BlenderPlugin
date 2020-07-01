@@ -296,7 +296,7 @@ class TestMesh(TestCase):
         mesh = get_mesh(shader_mats=True)
         mesh.material_passes = []
         mesh.mat_info.pass_count = 0
-        self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(mesh, 'W3XMesh', Mesh.parse, compare_meshes, self)
 
     def test_node_order(self):
         expecteds = ['BoundingBox',
