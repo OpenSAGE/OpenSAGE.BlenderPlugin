@@ -207,7 +207,7 @@ class TestMeshImportUtils(TestCase):
     def test_mesh_import_multiple_uv_coords_in_tx_stage(self):
         mesh_name = 'mesh'
         mesh_struct = get_mesh(mesh_name)
-        
+
         from tests.w3d.helpers.mesh_structs.material_pass import get_uvs
         mesh_struct.material_passes[0].tx_stages[0].tx_coords.append(get_uvs())
 

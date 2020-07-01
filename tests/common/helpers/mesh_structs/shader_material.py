@@ -95,10 +95,38 @@ def get_shader_material_properties(w3x=False, two_tex=False, rgb_colors=False):
         props.append(get_shader_material_property(FLOAT_PROPERTY, 'Shininess', value=125.0))
 
         if rgb_colors:
-            props.append(get_shader_material_property(VEC3_PROPERTY, 'ColorDiffuse', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(VEC3_PROPERTY, 'ColorSpecular', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(VEC3_PROPERTY, 'ColorAmbient', value=get_vec(x=0.2, y=0.33, z=0.9)))
-            props.append(get_shader_material_property(VEC3_PROPERTY, 'ColorEmissive', value=get_vec(x=0.2, y=0.33, z=0.9)))
+            props.append(
+                get_shader_material_property(
+                    VEC3_PROPERTY,
+                    'ColorDiffuse',
+                    value=get_vec(
+                        x=0.2,
+                        y=0.33,
+                        z=0.9)))
+            props.append(
+                get_shader_material_property(
+                    VEC3_PROPERTY,
+                    'ColorSpecular',
+                    value=get_vec(
+                        x=0.2,
+                        y=0.33,
+                        z=0.9)))
+            props.append(
+                get_shader_material_property(
+                    VEC3_PROPERTY,
+                    'ColorAmbient',
+                    value=get_vec(
+                        x=0.2,
+                        y=0.33,
+                        z=0.9)))
+            props.append(
+                get_shader_material_property(
+                    VEC3_PROPERTY,
+                    'ColorEmissive',
+                    value=get_vec(
+                        x=0.2,
+                        y=0.33,
+                        z=0.9)))
         else:
             props.append(get_shader_material_property(VEC4_PROPERTY, 'ColorDiffuse'))
             props.append(get_shader_material_property(VEC4_PROPERTY, 'ColorSpecular'))
