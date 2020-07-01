@@ -50,7 +50,7 @@ def create_mesh(context, mesh_struct, coll):
         constraint.track_axis = 'TRACK_X'
 
     for i, triangle in enumerate(mesh_struct.triangles):
-        surface_type_name = triangle.get_surface_type_name(i)
+        surface_type_name = triangle.get_surface_type_name(context, i)
         if surface_type_name not in mesh_ob.face_maps:
             mesh_ob.face_maps.new(name=surface_type_name)
         mesh_ob.face_maps[surface_type_name].add([i])

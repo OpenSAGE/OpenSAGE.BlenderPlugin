@@ -188,3 +188,18 @@ class TestMeshImportUtils(TestCase):
 
         self.assertEqual(1, len(mesh.constraints))
         self.assertEqual('Damped Track', mesh.constraints[0].name)
+
+    def test_mesh_import_invalid_surface_types(self):
+        mesh_name = 'mesh'
+        mesh_struct = get_mesh(mesh_name)
+        for triangle in mesh_struct.triangles:
+            triangle.surface_type = 0xff
+
+        with (patch.object(self, 'warning')) as report_func:
+            create_mesh(self, mesh_struct, bpy.context.scene.collection)
+            report_func.assert_any_call('triangle 0 has an invalid surface type \'255\'')
+
+        mesh = bpy.data.objects[mesh_name]
+
+        self.assertEqual(1, len(mesh.face_maps))
+        self.assertEqual('Default', mesh.face_maps[0].name)

@@ -54,7 +54,7 @@ class Triangle:
             if not name in surface_types:
                 context.warning('name of face map \'' + name + '\' is not one of valid surface types: ' + str(surface_types))
 
-    def get_surface_type_name(self, index):
+    def get_surface_type_name(self, context, index):
         if self.surface_type >= len(surface_types):
             context.warning('triangle ' + str(index) + ' has an invalid surface type \'' + str(self.surface_type) + '\'')
             return 'Default'
