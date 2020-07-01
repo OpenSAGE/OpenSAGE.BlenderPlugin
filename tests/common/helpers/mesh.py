@@ -123,17 +123,17 @@ def get_mesh(
                            get_vec(-0.577, -0.577, 0.577),
                            get_vec(-0.577, -0.577, -0.577)]
 
-    mesh.triangles = [get_triangle([4, 2, 0], 13, get_vec(0.0, 0.0, 1.0), 1.10),
-                      get_triangle([2, 7, 3], 13, get_vec(0.0, -1.0, 0.0), 1.10),
-                      get_triangle([6, 5, 7], 13, get_vec(-1.0, 0.0, 0.0), 1.10),
-                      get_triangle([1, 7, 5], 13, get_vec(0.0, 0.0, -1.0), 1.10),
-                      get_triangle([0, 3, 1], 13, get_vec(1.0, 0.0, 0.0), 1.10),
-                      get_triangle([4, 1, 5], 13, get_vec(0.0, 1.0, 0.0), 1.10),
-                      get_triangle([4, 6, 2], 13, get_vec(0.0, 0.0, 1.0), 1.10),
-                      get_triangle([2, 6, 7], 13, get_vec(0.0, -1.0, 0.0), 1.10),
-                      get_triangle([6, 4, 5], 13, get_vec(-1.0, 0.0, 0.0), 1.10),
-                      get_triangle([1, 3, 7], 13, get_vec(0.0, 0.0, -1.0), 1.10),
-                      get_triangle([0, 2, 3], 13, get_vec(1.0, 0.0, 0.0), 1.10),
+    mesh.triangles = [get_triangle([4, 2, 0], 1, get_vec(0.0, 0.0, 1.0), 1.10),
+                      get_triangle([2, 7, 3], 2, get_vec(0.0, -1.0, 0.0), 1.10),
+                      get_triangle([6, 5, 7], 3, get_vec(-1.0, 0.0, 0.0), 1.10),
+                      get_triangle([1, 7, 5], 4, get_vec(0.0, 0.0, -1.0), 1.10),
+                      get_triangle([0, 3, 1], 5, get_vec(1.0, 0.0, 0.0), 1.10),
+                      get_triangle([4, 1, 5], 6, get_vec(0.0, 1.0, 0.0), 1.10),
+                      get_triangle([4, 6, 2], 7, get_vec(0.0, 0.0, 1.0), 1.10),
+                      get_triangle([2, 6, 7], 8, get_vec(0.0, -1.0, 0.0), 1.10),
+                      get_triangle([6, 4, 5], 9, get_vec(-1.0, 0.0, 0.0), 1.10),
+                      get_triangle([1, 3, 7], 10, get_vec(0.0, 0.0, -1.0), 1.10),
+                      get_triangle([0, 2, 3], 11, get_vec(1.0, 0.0, 0.0), 1.10),
                       get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10)]
 
     if skin:
@@ -149,7 +149,7 @@ def get_mesh(
         mesh.shader_materials.append(get_shader_material())
         mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mats))
     elif prelit:
-        mesh.header.attrs |= PRELIT_VERTEX
+        mesh.header.attrs |= PRELIT_UNLIT | PRELIT_VERTEX | PRELIT_LIGHTMAP_MULTI_PASS | PRELIT_LIGHTMAP_MULTI_TEXTURE
         mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
         mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
         mesh.prelit_lightmap_multi_pass = get_prelit(

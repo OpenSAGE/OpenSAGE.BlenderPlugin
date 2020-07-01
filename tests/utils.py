@@ -9,6 +9,7 @@ import shutil
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import addon_utils
 
@@ -124,6 +125,7 @@ class TestCase(unittest.TestCase):
         compare(self, expected, actual)
 
     def write_read_xml_test(self, expected, identifier, parse, compare, context=None):
+        self.file_format = 'W3X'
         root = create_root()
         expected.create(root)
 

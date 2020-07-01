@@ -22,31 +22,31 @@ class TestCustomProperties(TestCase):
         mesh = bpy.data.meshes.new('mesh')
         obj = bpy.data.objects.new('object', mesh)
 
-        self.assertEqual('', obj.userText)
-        obj.userText = 'lorem ipsum'
-        self.assertEqual('lorem ipsum', obj.userText)
+        self.assertEqual('', obj.data.userText)
+        obj.data.userText = 'lorem ipsum'
+        self.assertEqual('lorem ipsum', obj.data.userText)
 
         object_types = ['NORMAL', 'BOX', 'DAZZLE']
 
-        self.assertEqual('NORMAL', obj.object_type)
+        self.assertEqual('NORMAL', obj.data.object_type)
         for object_type in object_types:
-            obj.object_type = object_type
-            self.assertEqual(object_type, obj.object_type)
+            obj.data.object_type = object_type
+            self.assertEqual(object_type, obj.data.object_type)
 
         with self.assertRaises(TypeError):
-            obj.object_type = 'INVALID'
+            obj.data.object_type = 'INVALID'
 
         dazzle_types = ['DEFAULT', 'SUN', 'REN_L5_STREETLIGHT', 'REN_BRAKELIGHT',
                         'REN_HEADLIGHT', 'REN_L5_REDLIGHT', 'REN_NUKE', 'REN_BLINKLIGHT_RED',
                         'REN_BLINKLIGHT_WHITE', 'REN_VEHICLELIGHT_RED', 'REN_VEHICLELIGHT_WHITE']
 
-        self.assertEqual('DEFAULT', obj.dazzle_type)
+        self.assertEqual('DEFAULT', obj.data.dazzle_type)
         for dazzle_type in dazzle_types:
-            obj.dazzle_type = dazzle_type
-            self.assertEqual(dazzle_type, obj.dazzle_type)
+            obj.data.dazzle_type = dazzle_type
+            self.assertEqual(dazzle_type, obj.data.dazzle_type)
 
         with self.assertRaises(TypeError):
-            obj.dazzle_type = 'INVALID'
+            obj.data.dazzle_type = 'INVALID'
 
     def test_material_properties(self):
         mat = bpy.data.materials.new('material')

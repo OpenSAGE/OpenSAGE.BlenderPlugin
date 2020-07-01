@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.custom_properties import *
@@ -234,11 +235,11 @@ def menu_func_import(self, _context):
     self.layout.operator(ImportW3D.bl_idname, text='Westwood W3D (.w3d/.w3x)')
 
 
-class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
+class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
     bl_label = 'W3D Properties'
     bl_space_type = 'PROPERTIES'
     bl_region_type = 'WINDOW'
-    bl_context = 'object'
+    bl_context = 'data'
 
     def draw(self, context):
         obj = context.active_object
@@ -247,24 +248,22 @@ class OBJECT_PROPERTIES_PANEL_PT_w3d(Panel):
 
         layout = self.layout
         col = layout.column()
-
-        col.prop(obj, 'object_type')
+        mesh = context.active_object.data
+        col.prop(mesh, 'object_type')
         col = layout.column()
-
-        if obj.object_type == 'NORMAL':
-            col.prop(obj, 'sort_level')
+        if mesh.object_type == 'NORMAL':
+            col.prop(mesh, 'sort_level')
             col = layout.column()
-            col.prop(obj, 'casts_shadow')
+            col.prop(mesh, 'casts_shadow')
             col = layout.column()
-            col.prop(obj, 'camera_oriented')
+            col.prop(mesh, 'camera_oriented')
             col = layout.column()
-            col.prop(obj, 'camera_aligned')
+            col.prop(mesh, 'camera_aligned')
             col = layout.column()
-            col.prop(obj, 'userText')
-
-        if obj.object_type == 'DAZZLE':
+            col.prop(mesh, 'userText')
+        elif mesh.object_type == 'DAZZLE':
             col = layout.column()
-            col.prop(obj, 'dazzle_type')
+            col.prop(mesh, 'dazzle_type')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
@@ -416,7 +415,7 @@ CLASSES = (
     ExportW3D,
     ImportW3D,
     ShaderProperties,
-    OBJECT_PROPERTIES_PANEL_PT_w3d,
+    MESH_PROPERTIES_PANEL_PT_w3d,
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d
 )

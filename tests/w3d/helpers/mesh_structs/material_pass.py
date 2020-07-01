@@ -30,42 +30,39 @@ def get_per_face_txcoords():
 
 def get_texture_stage(index=0):
     return TextureStage(
-        tx_ids=[index],
-        per_face_tx_coords=get_per_face_txcoords(),
-        tx_coords=get_uvs())
+        tx_ids=[[index]],
+        per_face_tx_coords=[get_per_face_txcoords()],
+        tx_coords=[get_uvs()])
 
 
 def get_texture_stage_minimal():
     return TextureStage(
-        tx_ids=[0],
-        per_face_tx_coords=[get_vec()],
-        tx_coords=[get_vec()])
+        tx_ids=[[0]],
+        per_face_tx_coords=[[get_vec()]],
+        tx_coords=[[get_vec()]])
 
 
 def get_texture_stage_empty():
-    return TextureStage(
-        tx_ids=[],
-        per_face_tx_coords=[],
-        tx_coords=[])
+    return TextureStage()
 
 
 def compare_texture_stages(self, expected, actual):
     if actual.tx_ids:  # roundtrip not yet supported
         self.assertEqual(len(expected.tx_ids), len(actual.tx_ids))
         for i in range(len(expected.tx_ids)):
-            self.assertEqual(expected.tx_ids[i], actual.tx_ids[i])
+            for j, tex_id in enumerate(expected.tx_ids[i]):
+                self.assertEqual(tex_id, actual.tx_ids[i][j])
 
     self.assertEqual(len(expected.tx_coords), len(actual.tx_coords))
     for i in range(len(expected.tx_coords)):
-        compare_vectors2(self, expected.tx_coords[i], actual.tx_coords[i])
+        for j, tx_coord in enumerate(expected.tx_coords[i]):
+            compare_vectors2(self, tx_coord, actual.tx_coords[i][j])
 
     if actual.per_face_tx_coords:  # roundtrip not yet supported
-        self.assertEqual(len(expected.per_face_tx_coords),
-                         len(actual.per_face_tx_coords))
+        self.assertEqual(len(expected.per_face_tx_coords), len(actual.per_face_tx_coords))
         for i in range(len(expected.per_face_tx_coords)):
-            compare_vectors(self,
-                            expected.per_face_tx_coords[i],
-                            actual.per_face_tx_coords[i])
+            for j, tx_coord in enumerate(expected.per_face_tx_coords[i]):
+                compare_vectors(self, tx_coord, actual.per_face_tx_coords[i][j])
 
 
 def get_material_pass(index=0, shader_mat=False, num_stages=1):

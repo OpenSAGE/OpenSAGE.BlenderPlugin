@@ -10,8 +10,8 @@ from io_mesh_w3d.common.utils.helpers import *
 def create_dazzle(context, dazzle, coll):
     # Todo: proper dimensions for cone
     (dazzle_mesh, dazzle_cone) = create_cone(dazzle.name())
-    dazzle_cone.object_type = 'DAZZLE'
-    dazzle_cone.dazzle_type = dazzle.type_name
+    dazzle_cone.data.object_type = 'DAZZLE'
+    dazzle_cone.data.dazzle_type = dazzle.type_name
     link_object_to_active_scene(dazzle_cone, coll)
 
     material = bpy.data.materials.new(dazzle.name())

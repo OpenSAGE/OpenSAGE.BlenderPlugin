@@ -16,6 +16,7 @@ from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.utils import *
+from io_mesh_w3d.common.structs.mesh_structs.triangle import surface_types
 
 
 class TestMeshExportUtils(TestCase):
@@ -191,7 +192,7 @@ class TestMeshExportUtils(TestCase):
             datum.uv = Vector((0.0, 0.1))
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'NORMAL'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -229,7 +230,7 @@ class TestMeshExportUtils(TestCase):
         b_mesh.to_mesh(mesh)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'NORMAL'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -263,7 +264,7 @@ class TestMeshExportUtils(TestCase):
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'NORMAL'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -289,7 +290,7 @@ class TestMeshExportUtils(TestCase):
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'NORMAL'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -378,3 +379,23 @@ class TestMeshExportUtils(TestCase):
 
         self.assertFalse(meshes[0].is_camera_oriented())
         self.assertFalse(meshes[0].is_camera_aligned())
+
+    def test_mesh_export_invalid_surface_types(self):
+        mesh = get_mesh('mesh')
+        create_mesh(self, mesh, get_collection())
+
+        mesh_ob = bpy.data.objects['mesh']
+        mesh_ob.face_maps.clear()
+
+        mesh_ob.face_maps.new(name='InvalidSurfaceType')
+        for i, _ in enumerate(mesh.verts):
+            mesh_ob.face_maps[0].add([i])
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_any_call('name of face map \'InvalidSurfaceType\' is not one of valid surface types: ' + str(surface_types))
+
+        self.assertEqual(1, len(meshes))
+
+        for triangle in meshes[0].triangles:
+            self.assertEqual(13, triangle.surface_type)

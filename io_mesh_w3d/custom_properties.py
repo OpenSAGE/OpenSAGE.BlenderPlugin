@@ -3,30 +3,30 @@
 
 import bpy
 from bpy.props import *
-from bpy.types import Panel, Object, Material, PropertyGroup, Bone
+from bpy.types import Material, PropertyGroup, Bone, Mesh
 
 ##########################################################################
-# Object
+# Mesh
 ##########################################################################
 
-Object.userText = StringProperty(
+Mesh.userText = StringProperty(
     name='User Text',
     description='This is a text defined by the user',
     default='')
 
-Object.sort_level = IntProperty(
+Mesh.sort_level = IntProperty(
     name='Sorting level',
     description='Objects with higher sorting level are rendered after objects with lower levels.',
     default=0,
     min=0,
     max=32)
 
-Object.casts_shadow = BoolProperty(
+Mesh.casts_shadow = BoolProperty(
     name='Casts shadow',
     description='Determines if this object casts a shadow',
     default=True)
 
-Object.object_type = EnumProperty(
+Mesh.object_type = EnumProperty(
     name='Type',
     description='Attributes that define the type of this object',
     items=[
@@ -35,7 +35,7 @@ Object.object_type = EnumProperty(
         ('DAZZLE', 'Dazzle', 'desc: todo')],
     default='NORMAL')
 
-Object.dazzle_type = EnumProperty(
+Mesh.dazzle_type = EnumProperty(
     name='Dazzle Type',
     description='defines the dazzle type',
     items=[

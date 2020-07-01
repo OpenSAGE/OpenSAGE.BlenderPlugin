@@ -20,7 +20,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.object_type != 'NORMAL':
+        if mesh_object.data.object_type != 'NORMAL':
             continue
 
         if mesh_object.mode != 'OBJECT':
@@ -32,13 +32,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             container_name=container_name)
 
         header = mesh_struct.header
-        header.sort_level = mesh_object.sort_level
-        mesh_struct.user_text = mesh_object.userText
+        header.sort_level = mesh_object.data.sort_level
+        mesh_struct.user_text = mesh_object.data.userText
 
         if mesh_object.hide_get():
             header.attrs |= GEOMETRY_TYPE_HIDDEN
 
-        if mesh_object.casts_shadow:
+        if mesh_object.data.casts_shadow:
             header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
 
         mesh_object = mesh_object.evaluated_get(depsgraph)
@@ -91,8 +91,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     context.warning('mesh \'' + mesh_object.name + '\' vertex ' +
                                     str(i) + ' is influenced by more than 2 bones!')
 
-            scaled_vert = vertex.co * scale.x
-            mesh_struct.verts.append(matrix @ scaled_vert)
+            vertex.co.x *= scale.x
+            vertex.co.y *= scale.y
+            vertex.co.z *= scale.z
+            mesh_struct.verts.append(matrix @ vertex.co)
 
             (_, rotation, _) = matrix.decompose()
 
@@ -134,6 +136,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
+        if context.file_format == 'W3X' and len(mesh_object.face_maps) > 0:
+            context.warning('triangle surface types (mesh face maps) are not supported in W3X file format!')
+        else:
+            face_map_names = [map.name for map in mesh_object.face_maps]
+            Triangle.validate_face_map_names(context, face_map_names)
+
+            for map in mesh.face_maps:
+                for i, val in enumerate(map.data):
+                    mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
+
         header.face_count = len(mesh_struct.triangles)
 
         center, radius = calculate_mesh_sphere(mesh)
@@ -143,13 +155,13 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         tx_stages = []
         for i, uv_layer in enumerate(mesh.uv_layers):
             stage = TextureStage(
-                tx_ids=[i],
-                tx_coords=[Vector((0.0, 0.0))] * len(mesh_struct.verts))
+                tx_ids=[[i]],
+                tx_coords=[[Vector((0.0, 0.0))] * len(mesh_struct.verts)])
 
             for j, face in enumerate(b_mesh.faces):
                 for loop in face.loops:
                     vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    stage.tx_coords[vert_index] = uv_layer.data[loop.index].uv.copy()
+                    stage.tx_coords[0][vert_index] = uv_layer.data[loop.index].uv.copy()
             tx_stages.append(stage)
 
         b_mesh.free()
@@ -169,7 +181,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
-                    mat_pass.tx_coords = tx_stages[i].tx_coords
+                    mat_pass.tx_coords = tx_stages[i].tx_coords[0]
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(context, material, principled))
 

@@ -16,16 +16,16 @@ class TestExportUtils(TestCase):
         self.assertEqual({'CANCELLED'}, save_data(self, {'mode': 'M'}))
 
     def test_retrieve_data_returns_false_if_invalid_mode(self):
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'INVALID'}))
-            error_func.assert_called_with('unsupported export mode: INVALID, aborting export!')
+            report_func.assert_called_with('unsupported export mode: INVALID, aborting export!')
 
     def test_retrieve_data_returns_false_if_w3d_and_container_name_too_long(self):
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'toolongtestfilename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
-            error_func.assert_called_with('Filename is longer than 16 characters, aborting export!')
+            report_func.assert_called_with('Filename is longer than 16 characters, aborting export!')
 
     @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(None, None))
     @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
@@ -37,9 +37,9 @@ class TestExportUtils(TestCase):
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
-            error_func.assert_called_with('Scene does not contain any meshes, aborting export!')
+            report_func.assert_called_with('Scene does not contain any meshes, aborting export!')
 
     @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(None, None))
     @patch('io_mesh_w3d.export_utils.create_hlod', return_value=None)
@@ -51,9 +51,9 @@ class TestExportUtils(TestCase):
             self, validate, retrieve_meshes, dazzles, boxes, hlod, hiera):
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'M'}))
-            error_func.assert_called_with('aborting export!')
+            report_func.assert_called_with('aborting export!')
         retrieve_meshes.assert_called()
         validate.assert_called()
 
@@ -68,9 +68,9 @@ class TestExportUtils(TestCase):
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'H'}))
-            error_func.assert_called_with('aborting export!')
+            report_func.assert_called_with('aborting export!')
         validate.assert_called()
 
     @patch('io_mesh_w3d.export_utils.retrieve_hierarchy', return_value=(get_hierarchy(), None))
@@ -85,9 +85,9 @@ class TestExportUtils(TestCase):
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'HM'}))
-            error_func.assert_called_with('aborting export!')
+            report_func.assert_called_with('aborting export!')
         retrieve_meshes.assert_called()
         h_validate.assert_called()
         validate.assert_called()
@@ -105,9 +105,9 @@ class TestExportUtils(TestCase):
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'HM'}))
-            error_func.assert_called_with('aborting export!')
+            report_func.assert_called_with('aborting export!')
         retrieve_meshes.assert_called()
         h_validate.assert_called()
         hlod_validate.assert_called()
@@ -124,8 +124,8 @@ class TestExportUtils(TestCase):
 
         self.filepath = r'C:dir' + os.path.sep + 'dir.dir' + os.path.sep + 'filename'
 
-        with (patch.object(self, 'error')) as error_func:
+        with (patch.object(self, 'error')) as report_func:
             self.assertIsNone(retrieve_data(self, {'mode': 'A', 'compression': 'U'}))
-            error_func.assert_called_with('aborting export!')
+            report_func.assert_called_with('aborting export!')
 
         validate.assert_called()
