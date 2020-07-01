@@ -393,7 +393,9 @@ class TestMeshExportUtils(TestCase):
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_any_call('name of face map \'InvalidSurfaceType\' is not one of valid surface types: ' + str(surface_types))
+            report_func.assert_any_call(
+                'name of face map \'InvalidSurfaceType\' is not one of valid surface types: ' +
+                str(surface_types))
 
         self.assertEqual(1, len(meshes))
 

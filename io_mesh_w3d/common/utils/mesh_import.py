@@ -28,7 +28,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.casts_shadow = mesh_struct.casts_shadow()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
-    
+
     mesh_ob.use_empty_image_alpha = True
 
     link_object_to_active_scene(mesh_ob, coll)
