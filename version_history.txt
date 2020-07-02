@@ -1,6 +1,6 @@
 v0.5.1
 - support for mesh sorting levels
-- only dispaly appropriate custom object properties
+- only display appropriate custom object properties
 - support mesh flags 'cast_shadow', 'camera oriented' and 'camera aligned'
 - import prelit vertex material as basic vertex material for now
 - Bugfix: fix import of visibility channels of armature

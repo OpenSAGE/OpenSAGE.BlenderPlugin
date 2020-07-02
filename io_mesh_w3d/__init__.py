@@ -301,8 +301,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col.prop(mat, 'blend_mode')
         col = layout.column()
         col.prop(mat, 'ambient')
-        col = layout.column()
-        col.prop(mat, 'opacity')
 
         if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
             col = layout.column()
@@ -332,8 +330,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat.shader, 'sec_gradient')
             col = layout.column()
             col.prop(mat.shader, 'src_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'texturing')
             col = layout.column()
             col.prop(mat.shader, 'detail_color_func')
             col = layout.column()

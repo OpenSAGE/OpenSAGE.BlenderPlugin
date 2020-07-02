@@ -231,3 +231,13 @@ class TestMeshImportUtils(TestCase):
         self.assertEqual('DCG_1', mesh.vertex_colors[3].name)
         self.assertEqual('DIG_1', mesh.vertex_colors[4].name)
         self.assertEqual('SCG_1', mesh.vertex_colors[5].name)
+
+    def test_mesh_import_tx_stage_has_no_tx_coords(self):
+        mesh_name = 'mesh'
+        mesh_struct = get_mesh(mesh_name)
+
+        mesh_struct.material_passes[0].tx_stages[0].tx_coords = []
+
+        with (patch.object(self, 'warning')) as report_func:
+            create_mesh(self, mesh_struct, bpy.context.scene.collection)
+            report_func.assert_any_call('texture stage did not have uv coordinates!')
