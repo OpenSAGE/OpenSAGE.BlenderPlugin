@@ -401,3 +401,18 @@ class TestMeshExportUtils(TestCase):
 
         for triangle in meshes[0].triangles:
             self.assertEqual(13, triangle.surface_type)
+
+    def test_mesh_export_invalid_vertex_color_layer_name(self):
+        mesh = get_mesh('mesh')
+        create_mesh(self, mesh, get_collection())
+
+        mesh = bpy.data.objects['mesh'].data
+        mesh.vertex_colors.new(name='Invalid')
+
+        with (patch.object(self, 'warning')) as report_func:
+            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_any_call('invalid vertex color layer name \'Invalid\'')
+
+        self.assertEqual(0, len(meshes[0].material_passes[0].dcg))
+        self.assertEqual(0, len(meshes[0].material_passes[0].dig))
+        self.assertEqual(0, len(meshes[0].material_passes[0].scg))
