@@ -214,3 +214,20 @@ class TestMeshImportUtils(TestCase):
         with (patch.object(self, 'warning')) as report_func:
             create_mesh(self, mesh_struct, bpy.context.scene.collection)
             report_func.assert_any_call('only one set of texture coords per texture stage supported')
+
+    def test_mesh_import_vertex_colors_are_imported_correctly(self):
+        mesh_name = 'mesh'
+        mesh_struct = get_mesh(mesh_name)
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        mesh = bpy.data.objects[mesh_name].data
+
+        self.assertEqual(6, len(mesh.vertex_colors))
+
+        self.assertEqual('DCG_0', mesh.vertex_colors[0].name)
+        self.assertEqual('DIG_0', mesh.vertex_colors[1].name)
+        self.assertEqual('SCG_0', mesh.vertex_colors[2].name)
+        self.assertEqual('DCG_1', mesh.vertex_colors[3].name)
+        self.assertEqual('DIG_1', mesh.vertex_colors[4].name)
+        self.assertEqual('SCG_1', mesh.vertex_colors[5].name)

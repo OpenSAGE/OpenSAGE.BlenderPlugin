@@ -173,19 +173,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
                 continue
 
-            for layer in mesh.vertex_colors:
-                if layer.name == 'DCG':
-                    target = mat_pass.dcg
-                elif layer.name == 'DIG':
-                    target = mat_pass.dcg
-                elif layer.name == 'SCG':
-                    target = mat_pass.dcg
-                else:
-                    continue
-
-                for datum in layer.data:
-                    target.append(RGBA(datum.color))
-
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
 
             used_textures = get_used_textures(material, principled, used_textures)
@@ -224,6 +211,26 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         mat_pass.tx_stages.append(tx_stages[i])
 
             mesh_struct.material_passes.append(mat_pass)
+
+        for layer in mesh.vertex_colors:
+            if '_' in layer.name:
+                index = int(layer.name.split('_')[-1])
+            else:
+                index = 0
+            if 'DCG' in layer.name:
+                target = mesh_struct.material_passes[index].dcg
+            elif 'DIG' in layer.name:
+                target = mesh_struct.material_passes[index].dig
+            elif 'SCG' in layer.name:
+                target = mesh_struct.material_passes[index].scg
+            else:
+                context.warning('invalid vertex color layer name \'' + layer.name + '\'')
+                continue
+
+            target = [RGBA] * len(mesh.vertices)
+
+            for i, loop in enumerate(mesh.loops):
+                target[loop.vertex_index] = RGBA(layer.data[i].color)
 
         header.vert_channel_flags = VERTEX_CHANNEL_LOCATION | VERTEX_CHANNEL_NORMAL
 
