@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from io_mesh_w3d.w3d.utils.helpers import *
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 W3D_CHUNK_TEXTURES = 0x00000030
 W3D_CHUNK_TEXTURE_INFO = 0x00000033

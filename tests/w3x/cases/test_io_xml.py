@@ -82,26 +82,30 @@ class TestIOXML(TestCase):
 
     def test_find_root_none_found(self):
         path = self.outpath() + 'test.xml'
-        self.error = lambda text: self.assertEqual('file: ' + path + ' does not contain a AssetDeclaration node!', text)
 
         data = '<?xml version=\'1.0\' encoding=\'utf8\'?><root></root>'
         file = open(path, 'w')
         file.write(data)
         file.close()
 
-        root = find_root(self, path)
+        with (patch.object(self, 'error')) as report_func:
+            root = find_asset_root(self, path)
+            report_func.assert_called_with('file \'' + path + '\' does not contain a AssetDeclaration node!')
+
         self.assertIsNone(root)
 
     def test_find_root_parse_error(self):
         path = self.outpath() + 'test.xml'
-        self.error = lambda text: self.assertEqual('file: ' + path + ' does not contain valid XML data!', text)
 
         data = 'Invalid Data'
         file = open(path, 'w')
         file.write(data)
         file.close()
 
-        root = find_root(self, path)
+        with (patch.object(self, 'error')) as report_func:
+            root = find_root(self, path)
+            report_func.assert_called_with('file \'' + path + '\' does not contain valid XML data!')
+
         self.assertIsNone(root)
 
     def test_create_root(self):

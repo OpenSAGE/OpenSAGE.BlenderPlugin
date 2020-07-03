@@ -3,7 +3,7 @@
 
 from mathutils import Vector
 from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 
 surface_types = [

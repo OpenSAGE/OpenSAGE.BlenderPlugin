@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 
 class Include:
