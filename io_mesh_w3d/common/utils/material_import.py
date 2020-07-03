@@ -23,7 +23,7 @@ def create_vertex_material(context, principleds, structure, mesh, name, triangle
     b_mesh.from_mesh(mesh)
 
     for mat_pass in structure.material_passes:
-        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+        get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]

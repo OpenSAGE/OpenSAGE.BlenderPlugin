@@ -89,7 +89,7 @@ def create_mesh(context, mesh_struct, coll):
         b_mesh = bmesh.new()
         b_mesh.from_mesh(mesh)
         for mat_pass in mesh_struct.material_passes:
-            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+            get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

@@ -65,7 +65,7 @@ def rig_object(obj, hierarchy, rig, sub_object):
     obj.parent_type = 'BONE'
 
 
-def get_or_create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
+def get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass):
     tx_coords = None
     if mat_pass.tx_coords:
         tx_coords = mat_pass.tx_coords
@@ -83,20 +83,10 @@ def get_or_create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
     if tx_coords is None:
         return
 
-    for uv_layer in mesh.uv_layers:
-        uv_layer_exists = True
-        for i, face in enumerate(b_mesh.faces):
-            for loop in face.loops:
-                idx = triangles[i][loop.index % 3]
-                if uv_layer.data[loop.index].uv != tx_coords[idx].xy:
-                    uv_layer_exists = False
-        if uv_layer_exists:
-            return uv_layer.name
-
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):
         for loop in face.loops:
-            idx = tris[i][loop.index % 3]
+            idx = triangles[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
     return uv_layer.name

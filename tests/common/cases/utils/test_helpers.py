@@ -51,4 +51,4 @@ class TestHelpers(TestCase):
     def test_call_create_uv_layer_without_tx_coords(self):
         fake_mat_pass = FakeClass()
 
-        create_uvlayer(self, None, None, None, fake_mat_pass)
+        get_or_create_uvlayer(self, None, None, None, fake_mat_pass)

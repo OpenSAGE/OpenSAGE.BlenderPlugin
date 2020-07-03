@@ -34,7 +34,7 @@ class TestImportUtilsW3D(TestCase):
         mesh_struct.material_passes[0].tx_stages.append(get_texture_stage())
 
         for mat_pass in mesh_struct.material_passes:
-            create_uvlayer(self, mesh, b_mesh, triangles, mat_pass)
+            get_or_create_uvlayer(self, mesh, b_mesh, triangles, mat_pass)
 
     def test_mesh_import_2_textures_1_vertex_material(self):
         mesh = get_mesh_two_textures()
