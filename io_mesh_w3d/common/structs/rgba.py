@@ -4,6 +4,7 @@
 from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3x.io_xml import *
 
+
 class RGBA:
     def __init__(self, vec=None, a=None, scale=255, r=0, g=0, b=0):
         if vec is None:
