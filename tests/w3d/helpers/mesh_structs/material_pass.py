@@ -121,8 +121,8 @@ def compare_material_passes(self, expected, actual):
     self.assertEqual(expected.vertex_material_ids, actual.vertex_material_ids)
     self.assertEqual(expected.shader_ids, actual.shader_ids)
 
-    delta = 1 
-    # because the color floats are truncated to 6 decimal places we 
+    delta = 1
+    # because the color floats are truncated to 6 decimal places we
     # have rounding errors on a roundtrip
     if actual.dcg:
         self.assertEqual(len(expected.dcg), len(actual.dcg))

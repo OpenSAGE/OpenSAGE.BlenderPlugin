@@ -140,6 +140,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
     else:
         rig_object(mesh_ob, hierarchy, rig, sub_object)
 
+
 def create_vertex_color_layer(mesh, colors, name, index):
     if not colors:
         return
