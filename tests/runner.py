@@ -22,5 +22,5 @@ if '--coverage' in sys.argv:
     cov.stop()
     cov.xml_report()
 
-if '--coverage' in sys.argv and '--save-html-report' in sys.argv:
-    cov.html_report()
+    if '--save-html-report' in sys.argv:
+        cov.html_report()
