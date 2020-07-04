@@ -1,5 +1,6 @@
 __pycache__
 .vscode
+.coverage
 coverage.xml
 htmlcov
 io_mesh_w3d.zip
