@@ -84,8 +84,7 @@ def append_property(shader_mat, type, name, value, default=None):
 
     if value == default:
         return
-    shader_mat.properties.append(ShaderMaterialProperty(
-        type=type, name=name, value=value))
+    shader_mat.properties.append(ShaderMaterialProperty(type=type, name=name, value=value))
 
 
 def to_vec(color):
@@ -98,10 +97,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         context.info('\'' + name + '\' is not a valid shader name -> defaulting to: \'DefaultW3D.fx\'')
         name = 'DefaultW3D.fx'
 
-    shader_mat = ShaderMaterial(
-        header=ShaderMaterialHeader(
-            type_name=name),
-        properties=[])
+    shader_mat = ShaderMaterial(header=ShaderMaterialHeader(type_name=name), properties=[])
 
     shader_mat.header.technique_index = material.technique
 

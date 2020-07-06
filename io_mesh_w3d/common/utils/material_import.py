@@ -15,7 +15,7 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 def create_vertex_material(context, principleds, structure, mesh, name, triangles):
     for vertMat in structure.vert_materials:
-        (material, principled) = create_material_from_vertex_material(name, vertMat)
+        material, principled = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
 

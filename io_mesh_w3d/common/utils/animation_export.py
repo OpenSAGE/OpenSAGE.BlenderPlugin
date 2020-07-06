@@ -56,8 +56,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 channel.time_codes = [None] * num_keyframes
                 channel.num_time_codes = num_keyframes
             else:
-                range_ = fcu.range()
-
                 if is_visibility(fcu):
                     channel = AnimationBitChannel()
                 else:
@@ -67,13 +65,15 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
 
                 channel.data = []
                 channel.pivot = pivot_index
-                num_frames = range_[1] + 1 - range_[0]
+                frame_range = fcu.range()
+                num_frames = frame_range[1] + 1 - frame_range[0]
+
                 if num_frames == 1:
                     channel.first_frame = bpy.context.scene.frame_start
                     channel.last_frame = bpy.context.scene.frame_end
                 else:
-                    channel.first_frame = int(range_[0])
-                    channel.last_frame = int(range_[1])
+                    channel.first_frame = int(frame_range[0])
+                    channel.last_frame = int(frame_range[1])
                 num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
 
