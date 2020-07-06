@@ -84,8 +84,6 @@ class NodeGroupCreator():
             type = child_node.get('type')
 
             socket = node_tree.inputs.new(type, name)
-            print(type)
-            print(socket)
             self.process_presets(socket, type, child_node, name)
 
 
@@ -97,7 +95,6 @@ class NodeGroupCreator():
 
 
     def create(self, directory, file, node_tree=None):
-        print(file)
         path = os.path.join(directory, file)
         root = find_root(None, path)
         if root is None:
@@ -184,5 +181,6 @@ class NodeGroupCreator():
             return
 
         name = root.get('name')
+
         if name in bpy.data.node_groups:
-            bpy.data.node_groups.remove(name)
+            bpy.data.node_groups.remove(bpy.data.node_groups[name])

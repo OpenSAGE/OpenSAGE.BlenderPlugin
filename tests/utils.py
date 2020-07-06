@@ -77,10 +77,12 @@ class TestCase(unittest.TestCase):
             os.makedirs(self.__filepath)
         bpy.ops.wm.read_homefile(use_empty=True)
 
-        from io_mesh_w3d.__init__ import create_node_groups
-        start = create_node_groups()
+        start = print()
 
         addon_utils.enable('io_mesh_w3d', default_set=True)
+
+        #from io_mesh_w3d.__init__ import create_node_groups
+        #create_node_groups()
 
     def tearDown(self):
         if os.path.exists(self.__filepath):
