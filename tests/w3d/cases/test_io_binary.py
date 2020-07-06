@@ -6,9 +6,10 @@ import unittest
 
 from io_mesh_w3d.w3d.io_binary import *
 from tests.mathutils import *
+from tests.utils import TestCase
 
 
-class TestIOBinary(unittest.TestCase):
+class TestIOBinary(TestCase):
     def test_read_string(self):
         expecteds = [
             'Teststring',

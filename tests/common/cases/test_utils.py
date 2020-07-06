@@ -453,7 +453,6 @@ class TestUtils(TestCase):
         self.compare_data([mesh], hlod, hierarchy)
 
     def test_mesh_skin_roundtrip(self):
-        self.info = print
         hlod = get_hlod()
         hlod.header.hierarchy_name = 'containerName'
         hlod.lod_arrays[0].sub_objects = [

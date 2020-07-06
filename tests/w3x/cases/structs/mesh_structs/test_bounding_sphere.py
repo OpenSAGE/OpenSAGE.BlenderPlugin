@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from tests.w3x.helpers.mesh_structs.bounding_sphere import *
-from tests.utils import *
+from tests.utils import TestCase
 
 
 class TestBoundingSphere(TestCase):

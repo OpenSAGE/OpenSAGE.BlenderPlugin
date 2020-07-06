@@ -6,9 +6,10 @@ import unittest
 from io_mesh_w3d.w3d.adaptive_delta import *
 from tests.common.helpers.animation import *
 from tests.w3d.helpers.compressed_animation import *
+from tests.utils import TestCase
 
 
-class TestAdaptiveDelta(unittest.TestCase):
+class TestAdaptiveDelta(TestCase):
     def test_get_deltas_4bit(self):
         deltaBytes = [-3, 17, -32, -101, 120, 88, -20, -1]
         deltas = get_deltas(deltaBytes, 4)

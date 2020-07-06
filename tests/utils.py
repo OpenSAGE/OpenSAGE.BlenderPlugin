@@ -68,6 +68,9 @@ class TestCase(unittest.TestCase):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
     def setUp(self):
+        namespace = self.id().split('.')
+        print(namespace[-2] + '.' + namespace[-1])
+
         self.filepath = self.outpath()
         if not os.path.exists(self.__filepath):
             os.makedirs(self.__filepath)
