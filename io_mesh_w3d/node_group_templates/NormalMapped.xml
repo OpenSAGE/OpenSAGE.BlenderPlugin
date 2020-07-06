@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="NormalMapped.fx">
+  <include file="alpha_pipeline.xml"/>
+  <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
+    <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
+    <input name="DiffuseColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="DiffuseTexture" type="NodeSocketTexture"/>
+    <input name="DiffuseTextureAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="AlphaTestEnable" type="NodeSocketBool"/>
+    <input name="NormalMap" type="NodeSocketTexture"/>
+    <input name="NormalMapStrength" type="NodeSocketTextureAlpha"/>
+    <input name="BumpScale" type="NodeSocketFloat"/>
+    <input name="AmbientColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="SpecularColor" type="NodeSocketColor"/>
+    <input name="SpecularExponent" type="NodeSocketFloat"/>
+  </node>
+
+  <nodegroup name="alpha_pipeline" type="AlphaPipeline" X="-100" Y="0"/>
+  <link from="inputs.outputs.DiffuseTexture" to="alpha_pipeline.inputs.Diffuse"/>
+  <link from="inputs.outputs.DiffuseTextureAlpha" to="alpha_pipeline.inputs.Alpha"/>
+  <link from="inputs.outputs.AlphaTestEnable" to="alpha_pipeline.inputs.DestBlend"/>
+
+  <node name="normal_map" type="ShaderNodeNormalMap" X="-100" Y="-200"/>
+  <link from="inputs.outputs.NormalMap" to="normal_map.inputs.Color"/>
+  <link from="inputs.outputs.NormalMapStrength" to="normal_map.inputs.Strength"/>
+
+  <node name="specular_shader" type="ShaderNodeEeveeSpecular" X="100" Y="0">
+    <hide id="Emissive Color" type="input"/>
+    <hide id="Clear Coat" type="input"/>
+    <hide id="Clear Coat Roughness" type="input"/>
+    <hide id="Clear Coat Normal" type="input"/>
+    <hide id="Ambient Occlusion" type="input"/>
+  </node>
+
+  <link from="inputs.outputs.DiffuseTexture" to="specular_shader.inputs.Base Color"/>
+  <link from="inputs.outputs.SpecularColor" to="specular_shader.inputs.Specular"/>
+  <link from="inputs.outputs.SpecularExponent" to="specular_shader.inputs.Roughness"/>
+  <link from="alpha_pipeline.outputs.Alpha" to="specular_shader.inputs.Transparency"/>
+  <link from="normal_map.outputs.Normal" to="specular_shader.inputs.Normal"/>
+
+  <node name="outputs" type="NodeGroupOutput" X="300" Y="0">
+    <output name="BSDF" type="NodeSocketShader"/>
+  </node>
+  <link from="specular_shader.outputs.BSDF" to="outputs.inputs.BSDF"/>
+</nodegroup>

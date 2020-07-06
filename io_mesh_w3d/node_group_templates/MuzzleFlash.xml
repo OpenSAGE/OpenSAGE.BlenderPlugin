@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="MuzzleFlash.fx">
+  <node name="inputs" type="NodeGroupInput" X="-150" Y="0">
+    <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
+    <input name="Texture_0" type="NodeSocketTexture"/>
+    <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha"/>
+    <input name="ColorEmissive" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="TexCoordTransformAngle_0" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformU_0" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformV_0" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformU_1" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformV_1" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformU_2" type="NodeSocketFloat"/>
+    <input name="TexCoordTransformV_2" type="NodeSocketFloat"/>
+  </node>
+
+  <node name="specular_shader" type="ShaderNodeEeveeSpecular" X="100" Y="0">
+    <hide id="Specular" type="input"/>
+    <hide id="Roughness" type="input"/>
+    <hide id="Transparency" type="input"/>
+    <hide id="Normal" type="input"/>
+    <hide id="Clear Coat" type="input"/>
+    <hide id="Clear Coat Roughness" type="input"/>
+    <hide id="Clear Coat Normal" type="input"/>
+    <hide id="Ambient Occlusion" type="input"/>
+  </node>
+
+  <link from="inputs.outputs.ColorEmissive" to="specular_shader.inputs.Emissive Color"/>
+  <link from="inputs.outputs.Texture_0" to="specular_shader.inputs.Base Color"/>
+
+  <node name="outputs" type="NodeGroupOutput" X="300" Y="0">
+    <output name="BSDF" type="NodeSocketShader"/>
+  </node>
+  <link from="specular_shader.outputs.BSDF" to="outputs.inputs.BSDF"/>
+</nodegroup>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="ObjectsNOD.fx">
+  <parent file="NormalMapped.xml"/>
+  <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
+    <input name="SpecMap" type="NodeSocketTexture"/>
+    <input name="SpecMapAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="ScrollingMaskTexture" type="NodeSocketTexture"/>
+    <input name="ScrollingMaskTextureAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="TexCoordTransform_0" type="NodeSocketVector4"/>
+    <input name="RecolorMultiplier" type="NodeSocketFloat"/>
+    <input name="EnvMult" type="NodeSocketFloat"/>
+  </node>
+</nodegroup>

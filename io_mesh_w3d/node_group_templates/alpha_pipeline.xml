@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="AlphaPipeline">
+  <node name="inputs" type="NodeGroupInput" X="-500" Y="0">
+    <input name="Diffuse" type="NodeSocketColor"/>
+    <input name="Alpha" type="NodeSocketFloat" default="1.0"/>
+    <input name="DestBlend" type="NodeSocketInt" default="0" min="0" max="1"/>
+  </node>
+
+  <node name="compare" type="ShaderNodeMath" mode="COMPARE" X="-300" Y="100">
+    <set id="1" default="0.0"/>
+  </node>
+  <link from="inputs.outputs.DestBlend" to="compare.inputs.0"/>
+
+  <node name="seperate_hsv" type="ShaderNodeSeparateHSV" X="-300" Y="-100"/>
+  <link from="inputs.outputs.Diffuse" to="seperate_hsv.inputs.Color"/>
+
+  <node name="multiply1" type="ShaderNodeMath" mode="MULTIPLY" X="-100" Y="100"/>
+  <link from="compare.outputs.Value" to="multiply1.inputs.0"/>
+  <link from="inputs.outputs.Alpha" to="multiply1.inputs.1"/>
+
+  <node name="multiply2" type="ShaderNodeMath" mode="MULTIPLY" X="-100" Y="-100"/>
+  <link from="inputs.outputs.DestBlend" to="multiply2.inputs.0"/>
+  <link from="seperate_hsv.outputs.V" to="multiply2.inputs.1"/>
+
+  <node name="add" type="ShaderNodeMath" mode="ADD" X="100" Y="0"/>
+  <link from="multiply1.outputs.Value" to="add.inputs.0"/>
+  <link from="multiply2.outputs.Value" to="add.inputs.1"/>
+
+  <node name="subtract" type="ShaderNodeMath" mode="SUBTRACT" X="300" Y="0">
+    <set id="0" default="1.0"/>
+  </node>
+  <link from="add.outputs.Value" to="subtract.inputs.1"/>
+
+  <node name="outputs" type="NodeGroupOutput" X="500" Y="0">
+    <output name="Alpha" type="NodeSocketFloat"/>
+  </node>
+  <link from="subtract.outputs.Value" to="outputs.inputs.Alpha"/>
+</nodegroup>

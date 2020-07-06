@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+import os
 from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save_data
@@ -439,11 +440,45 @@ CLASSES = (
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
-    TOOLS_PANEL_PT_w3d
-)
+    TOOLS_PANEL_PT_w3d)
+
+from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
+
+
+def create_node_groups():
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator().create(directory, file)
+
+
+def remove_node_groups():
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator().unregister(directory, file)
+
+
+from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketInterfaceEnum
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketInterfaceTexture
+from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketInterfaceTextureAlpha
+from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketInterfaceVector2
+from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketInterfaceVector4
 
 
 def register():
+    NodeSocketInterfaceEnum.register_classes()
+    NodeSocketInterfaceTexture.register_classes()
+    NodeSocketInterfaceTextureAlpha.register_classes()
+    NodeSocketInterfaceVector2.register_classes()
+    NodeSocketInterfaceVector4.register_classes()
+
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
 
@@ -452,10 +487,25 @@ def register():
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
+    # workaround to register the node group when the addon is active
+    # since bpy.data is not yet accessible
+    from threading import Timer
+
+    Timer(1, create_node_groups, ()).start()
+
 
 def unregister():
+    remove_node_groups()
+
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
+
+    NodeSocketInterfaceEnum.unregister_classes()
+    NodeSocketInterfaceTexture.unregister_classes()
+    NodeSocketInterfaceTextureAlpha.unregister_classes()
+    NodeSocketInterfaceVector2.unregister_classes()
+    NodeSocketInterfaceVector4.unregister_classes()
+
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 

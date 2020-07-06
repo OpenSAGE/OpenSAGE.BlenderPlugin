@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="ObjectsAlien.fx">
+  <parent file="ObjectsGDI.xml"/>
+  <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
+    <input name="EnvironmentTexture" type="NodeSocketTexture"/>
+    <input name="EnvironmentTextureAlpha" type="NodeSocketTextureAlpha"/>
+  </node>
+</nodegroup>

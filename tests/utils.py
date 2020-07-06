@@ -67,7 +67,8 @@ class TestCase(unittest.TestCase):
     def loadBlend(self, blend_file):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
-    def setUp(self):
+    @patch('threading.Timer.start')
+    def setUp(self, start):
         namespace = self.id().split('.')
         print(namespace[-2] + '.' + namespace[-1])
 
@@ -75,6 +76,10 @@ class TestCase(unittest.TestCase):
         if not os.path.exists(self.__filepath):
             os.makedirs(self.__filepath)
         bpy.ops.wm.read_homefile(use_empty=True)
+
+        from io_mesh_w3d.__init__ import create_node_groups
+        start = create_node_groups()
+
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
     def tearDown(self):
@@ -89,6 +94,7 @@ class TestCase(unittest.TestCase):
                 os.renames(self.__filepath, new_path)
             else:
                 shutil.rmtree(self.__filepath)
+
         addon_utils.disable('io_mesh_w3d')
 
     def write_read_test(

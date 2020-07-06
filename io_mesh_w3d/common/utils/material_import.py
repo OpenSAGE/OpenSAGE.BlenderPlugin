@@ -9,9 +9,9 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
-##########################################################################
+#######################################################################################################################
 # vertex material
-##########################################################################
+#######################################################################################################################
 
 def create_vertex_material(context, principleds, structure, mesh, name, triangles):
     for vertMat in structure.vert_materials:
@@ -75,9 +75,50 @@ def create_material_from_vertex_material(name, vert_mat):
     return material, principled
 
 
-##########################################################################
+#######################################################################################################################
 # shader material
-##########################################################################
+#######################################################################################################################
+
+def create_shader_material(context, node_tree, shader_material):
+    material_name = shader_material.type_name
+
+    instance = node_tree.nodes.new(type='ShaderNodeGroup')
+    instance.node_tree = bpy.data.node_groups[shader_material.type_name]
+    instance.label = shader_material.type_name
+    instance.location = (0, 300)
+    instance.width = 200
+
+    links = node_tree.links
+
+    if shader_material.header.technique is not None:
+        instance.inputs['Technique'].default_value = shader_material.header.technique
+
+    y = 300
+    for prop in shader_material.properties:
+        if prop.type == STRING_PROPERTY and prop.value != '':
+            texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+            texture_node.image = find_texture(context, prop.value)
+            texture_node.location = (-350, y)
+
+            links.new(texture_node.outputs['Color'], instance.inputs[prop.name])
+            index = instance.inputs.keys().index(prop.name)
+            links.new(texture_node.outputs['Alpha'], instance.inputs[index + 1])
+
+            uv_node = node_tree.nodes.new('ShaderNodeUVMap')
+            uv_node.location = (-550, y)
+            uv_node.uv_map = pipeline.uv_map
+            links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
+            y -= 300
+
+        elif prop.type == VEC4_PROPERTY:
+            instance.inputs[prop.name].default_value = prop.to_rgba()
+        else:
+            instance.inputs[prop.name].default_value = prop.value
+
+    output = node_tree.nodes.get('Material Output')
+    links.new(instance.outputs['BSDF'], output.inputs['Surface'])
+
+
 
 def create_material_from_shader_material(context, name, shader_mat):
     name = name + '.' + shader_mat.header.type_name
@@ -191,9 +232,9 @@ def create_material_from_shader_material(context, name, shader_mat):
     return material, principled
 
 
-##########################################################################
+#######################################################################################################################
 # set shader properties
-##########################################################################
+#######################################################################################################################
 
 
 def set_shader_properties(material, shader):
@@ -212,3 +253,5 @@ def set_shader_properties(material, shader):
     material.shader.alpha_test = str(shader.alpha_test)
     material.shader.post_detail_color_func = str(shader.post_detail_color_func)
     material.shader.post_detail_alpha_func = str(shader.post_detail_alpha_func)
+
+
