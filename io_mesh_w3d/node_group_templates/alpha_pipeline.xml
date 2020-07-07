@@ -7,7 +7,7 @@
   </node>
 
   <node name="compare" type="ShaderNodeMath" mode="COMPARE" X="-300" Y="100">
-    <set id="1" default="0.0"/>
+    <set id="1" type="NodeSocketFloat" default="0.0"/>
   </node>
   <link from="inputs.outputs.DestBlend" to="compare.inputs.0"/>
 
@@ -27,7 +27,7 @@
   <link from="multiply2.outputs.Value" to="add.inputs.1"/>
 
   <node name="subtract" type="ShaderNodeMath" mode="SUBTRACT" X="300" Y="0">
-    <set id="0" default="1.0"/>
+    <set id="0" type="NodeSocketFloat" default="1.0"/>
   </node>
   <link from="add.outputs.Value" to="subtract.inputs.1"/>
 

@@ -68,9 +68,6 @@ class NodeGroupCreator():
 
 
     def process_presets(self, socket, type, xml_node, name=None):
-        if name is None:
-            name = xml_node.get('name', xml_node.get('id'))
-
         self.process_default_value(socket, type, xml_node.get('default'))
         self.process_min_value(socket, xml_node.get('min'))
         self.process_max_value(socket, xml_node.get('max'))
@@ -137,7 +134,11 @@ class NodeGroupCreator():
                     self.create_output_node(node_tree, xml_node, node)
                 elif type == 'ShaderNodeMath':
                     node.operation = xml_node.get('mode').upper()
-                    self.process_presets(node_tree, type, xml_node)
+                    for inp in xml_node:
+                        name = inp.get('name', int(inp.get('id')))
+                        type = inp.get('type')
+                        socket = node.inputs[name]
+                        self.process_presets(socket, type, inp)
                 elif type in ['ShaderNodeEeveeSpecular', 'ShaderNodeNormalMap', 'ShaderNodeSeparateHSV']:
                     continue
                 else:

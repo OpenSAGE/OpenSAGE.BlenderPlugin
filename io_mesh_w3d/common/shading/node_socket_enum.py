@@ -8,15 +8,7 @@ from bpy.types import NodeSocketInt, NodeSocketInterfaceInt
 class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
     bl_socket_idname = 'NodeSocketEnum'
 
-    default_value: bpy.props.EnumProperty(
-        name='Direction',
-        description='Just an example',
-        items=[
-            ('0', 'DOWN', 'Where your feet are'),
-            ('1', 'UP', 'Where your head should be'),
-            ('2', 'LEFT', 'Not right'),
-            ('3', 'RIGHT', 'Not left')],
-        default='0')
+    default_value = '0'
 
     def draw(self, context, layout):
         pass
@@ -27,6 +19,7 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
     @staticmethod
     def register_classes():
         bpy.utils.register_class(NodeSocketInterfaceEnum)
+        bpy.utils.register_class(NodeSocketEnum)
         bpy.utils.register_class(NodeSocketEnumMaterialAttributes)
         bpy.utils.register_class(NodeSocketEnumDepthCompare)
         bpy.utils.register_class(NodeSocketEnumDepthMaskWrite)
@@ -42,6 +35,7 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
     @staticmethod
     def unregister_classes():
         bpy.utils.unregister_class(NodeSocketInterfaceEnum)
+        bpy.utils.unregister_class(NodeSocketEnum)
         bpy.utils.unregister_class(NodeSocketEnumMaterialAttributes)
         bpy.utils.unregister_class(NodeSocketEnumDepthCompare)
         bpy.utils.unregister_class(NodeSocketEnumDepthMaskWrite)
