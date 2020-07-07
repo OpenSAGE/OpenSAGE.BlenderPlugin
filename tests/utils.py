@@ -82,6 +82,7 @@ class TestCase(unittest.TestCase):
 
         addon_utils.enable('io_mesh_w3d', default_set=True)
 
+
     def tearDown(self):
         if os.path.exists(self.__filepath):
             if self.__save_test_data:
