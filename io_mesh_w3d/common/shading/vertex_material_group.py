@@ -53,7 +53,6 @@ class VertexMaterialGroup():
         instance.inputs['PriGradient'].default_value = str(shader.pri_gradient)
         instance.inputs['SecGradient'].default_value = str(shader.sec_gradient)
         instance.inputs['SrcBlendFunc'].default_value = str(shader.src_blend)
-        instance.inputs['Texturing'].default_value = str(shader.texturing)
         instance.inputs['DetailColorFunc'].default_value = str(shader.detail_color_func)
         instance.inputs['DetailAlphaFunc'].default_value = str(shader.detail_alpha_func)
         instance.inputs['Preset'].default_value = shader.shader_preset

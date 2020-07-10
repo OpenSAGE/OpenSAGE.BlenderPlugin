@@ -49,6 +49,7 @@ def create_vertex_material(context, mesh_struct, uv_layer):
     links = node_tree.links
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
 
+    # TODO: check for texture and uv coords!
     texture = find_texture(context, texture.file, texture.id)
     texture_node = node_tree.nodes.new('ShaderNodeTexImage')
     texture_node.image = texture
