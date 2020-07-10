@@ -11,6 +11,29 @@ from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 
+def create_materials(context, mesh_struct, mesh, triangles):
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+
+    # shader material stuff
+    if mesh_struct.shader_materials:
+        # TODO: check for no tx coords and more than 1 shader material
+        tx_coords = mesh_struct.material_passes[0].tx_coords
+        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+
+        material = create_shader_material(context, mesh_struct.shader_materials[0], uv_layer)
+        mesh.materials.append(material)
+
+    # vertex material stuff
+    elif mesh_struct.vert_materials:
+        # TODO: check for no tx coords and more than 1 vertex material / material pass
+        tx_coords = mesh_struct.material_passes[0].tx_stages[0].tx_coords[0]
+        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+
+        material = create_vertex_material(context, mesh_struct, uv_layer)
+        mesh.materials.append(material)
+
+
 def create_material(name):
     material = bpy.data.materials.new(name)
     material.use_nodes = True
@@ -114,28 +137,5 @@ def create_shader_material(context, shader_material, uv_layer):
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
 
     return material
-
-
-#######################################################################################################################
-# set shader properties
-#######################################################################################################################
-
-
-def set_shader_properties(material, shader):
-    material.shader.depth_compare = str(shader.depth_compare)
-    material.shader.depth_mask = str(shader.depth_mask)
-    material.shader.color_mask = shader.color_mask
-    material.shader.dest_blend = str(shader.dest_blend)
-    material.shader.fog_func = shader.fog_func
-    material.shader.pri_gradient = str(shader.pri_gradient)
-    material.shader.sec_gradient = str(shader.sec_gradient)
-    material.shader.src_blend = str(shader.src_blend)
-    material.shader.texturing = str(shader.texturing)
-    material.shader.detail_color_func = str(shader.detail_color_func)
-    material.shader.detail_alpha_func = str(shader.detail_alpha_func)
-    material.shader.shader_preset = shader.shader_preset
-    material.shader.alpha_test = str(shader.alpha_test)
-    material.shader.post_detail_color_func = str(shader.post_detail_color_func)
-    material.shader.post_detail_alpha_func = str(shader.post_detail_alpha_func)
 
 

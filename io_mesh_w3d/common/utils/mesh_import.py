@@ -17,7 +17,6 @@ def create_mesh(context, mesh_struct, coll):
     mesh.from_pydata(mesh_struct.verts, [], triangles)
 
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    mesh.use_auto_smooth = True
 
     mesh.update()
     mesh.validate()
@@ -62,27 +61,7 @@ def create_mesh(context, mesh_struct, coll):
         create_vertex_color_layer(mesh, mat_pass.dig, 'DIG', i)
         create_vertex_color_layer(mesh, mat_pass.scg, 'SCG', i)
 
-    b_mesh = bmesh.new()
-    b_mesh.from_mesh(mesh)
-
-    # shader material stuff
-    if mesh_struct.shader_materials:
-        # TODO: check for no tx coords and more than 1 shader material
-        tx_coords = mesh_struct.material_passes[0].tx_coords
-        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
-
-        material = create_shader_material(context, mesh_struct.shader_materials[0], uv_layer)
-        mesh.materials.append(material)
-
-    # vertex material stuff
-    elif mesh_struct.vert_materials:
-        # TODO: check for no tx coords and more than 1 vertex material / material pass
-        tx_coords = mesh_struct.material_passes[0].tx_stages[0].tx_coords[0]
-        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
-
-        material = create_vertex_material(context, mesh_struct, uv_layer)
-        mesh.materials.append(material)
-
+    create_materials(context, mesh_struct, mesh, triangles)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
