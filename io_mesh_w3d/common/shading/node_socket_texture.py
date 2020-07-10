@@ -11,8 +11,7 @@ from bpy.types import NodeSocketColor, NodeSocketInterfaceColor
 
 class NodeSocketInterfaceTexture(NodeSocketInterfaceColor):
     bl_socket_idname = 'NodeSocketTexture'
-
-    default_value = [0.0, 0.0, 0.0, 0.0]
+    type = 'STRING'
 
     def draw(self, context, layout):
         pass
@@ -32,8 +31,7 @@ class NodeSocketInterfaceTexture(NodeSocketInterfaceColor):
 
 
 class NodeSocketTexture(NodeSocketColor):
-    bl_idname = 'NodeSocketTexture'
-    bl_label = 'Texture Node Socket'
+    bl_idname: 'NodeSocketTexture'
 
     default_value: bpy.props.FloatVectorProperty(
         name='texture',
@@ -46,5 +44,4 @@ class NodeSocketTexture(NodeSocketColor):
         layout.label(text=text)
 
     def draw_color(self, context, node):
-        self.type = 'RGBA'
         return (1.0, 0.4, 0.216, 0.5)

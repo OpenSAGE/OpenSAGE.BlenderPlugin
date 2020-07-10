@@ -29,7 +29,7 @@ class NodeSocketInterfaceTextureAlpha(NodeSocketInterfaceFloat):
 
 class NodeSocketTextureAlpha(NodeSocketFloat):
     bl_idname = 'NodeSocketTextureAlpha'
-    bl_label = 'Texture Alpha Node Socket'
+    label = 'Texture Alpha Node Socket'
 
     default_value: bpy.props.FloatProperty(
         name='Texture Alpha',

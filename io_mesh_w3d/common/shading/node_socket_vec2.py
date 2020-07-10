@@ -29,7 +29,7 @@ class NodeSocketInterfaceVector2(NodeSocketInterfaceVector):
 
 class NodeSocketVector2(NodeSocketVector):
     bl_idname = 'NodeSocketVector2'
-    bl_label = 'Vector2 Node Socket'
+    label = 'Vector2 Node Socket'
 
     default_value: bpy.props.FloatVectorProperty(
         name='Vector2',

@@ -210,12 +210,12 @@ class Mesh:
             if chunk_type == W3D_CHUNK_VERTICES:
                 result.verts = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_VERTICES_2:
-                context.info('-> vertices 2 chunk is not supported')
+                context.info('-> vertices 2 chunk is not supported (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_VERTEX_NORMALS:
                 result.normals = read_list(io_stream, subchunk_end, read_vector)
             elif chunk_type == W3D_CHUNK_NORMALS_2:
-                context.info('-> normals 2 chunk is not supported')
+                context.info('-> normals 2 chunk is not supported (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_MESH_USER_TEXT:
                 result.user_text = read_string(io_stream)
@@ -242,10 +242,10 @@ class Mesh:
                 result.shader_materials = read_chunk_array(context, io_stream, subchunk_end, W3D_CHUNK_SHADER_MATERIAL,
                                                            ShaderMaterial.read)
             elif chunk_type == W3D_CHUNK_TANGENTS:
-                context.info('-> tangents are computed in blender')
+                context.info('-> tangents are computed in blender (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_BITANGENTS:
-                context.info('-> bitangents are computed in blender')
+                context.info('-> bitangents are computed in blender (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_AABBTREE:
                 result.aabbtree = AABBTree.read(context, io_stream, subchunk_end)
@@ -258,10 +258,10 @@ class Mesh:
             elif chunk_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
                 result.prelit_lightmap_multi_texture = PrelitBase.read(context, io_stream, subchunk_end, chunk_type)
             elif chunk_type == W3D_CHUNK_DEFORM:
-                context.info('-> deform chunk is not supported')
+                context.info('-> deform chunk is not supported (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             elif chunk_type == W3D_CHUNK_PS2_SHADERS:
-                context.info('-> ps2 shaders chunk is not supported')
+                context.info('-> ps2 shaders chunk is not supported (mesh: ' + result.name() + ')')
                 io_stream.seek(chunk_size, 1)
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)

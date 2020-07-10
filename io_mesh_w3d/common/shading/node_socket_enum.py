@@ -49,7 +49,11 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
 
 class NodeSocketEnum(NodeSocketInt):
     bl_idname = 'NodeSocketEnum'
-    bl_label = 'Enum Node Socket'
+    label = 'Enum Node Socket'
+
+    hide = True
+    enabled = False
+    display_shape = 'DIAMOND_DOT'
 
     default_value: bpy.props.EnumProperty(
         name='Direction',
@@ -68,7 +72,7 @@ class NodeSocketEnum(NodeSocketInt):
             layout.prop(self, 'default_value', text=text)
 
     def draw_color(self, context, node):
-        return (1.0, 0.4, 0.216, 0.5)
+        return (0.1, 0.2, 1.0, 1.0)
 
     def get(self):
         return int(self.default_value)
