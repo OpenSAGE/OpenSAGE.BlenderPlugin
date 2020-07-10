@@ -28,7 +28,6 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
         bpy.utils.register_class(NodeSocketEnumPriGradient)
         bpy.utils.register_class(NodeSocketEnumSecGradient)
         bpy.utils.register_class(NodeSocketEnumSrcBlendFunc)
-        bpy.utils.register_class(NodeSocketEnumTexturing)
         bpy.utils.register_class(NodeSocketEnumDetailColorFunc)
         bpy.utils.register_class(NodeSocketEnumDetailAlphaFunc)
 
@@ -44,7 +43,6 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
         bpy.utils.unregister_class(NodeSocketEnumPriGradient)
         bpy.utils.unregister_class(NodeSocketEnumSecGradient)
         bpy.utils.unregister_class(NodeSocketEnumSrcBlendFunc)
-        bpy.utils.unregister_class(NodeSocketEnumTexturing)
         bpy.utils.unregister_class(NodeSocketEnumDetailColorFunc)
         bpy.utils.unregister_class(NodeSocketEnumDetailAlphaFunc)
 
@@ -197,19 +195,6 @@ class NodeSocketEnumSrcBlendFunc(NodeSocketEnum):
             ('2', 'SRC_ALPHA', 'fragment RGB components multiplied by fragment A'),
             ('3', 'ONE_MINUS_SRC_ALPHA', 'fragment RGB components multiplied by fragment inverse (one minus) A')],
         default='1')
-
-
-class NodeSocketEnumTexturing(NodeSocketEnum):
-    bl_idname = 'NodeSocketEnumTexturing'
-    bl_label = 'Texturing Enum Node Socket'
-
-    default_value: bpy.props.EnumProperty(
-        name='Texturing',
-        description='todo',
-        items=[
-            ('0', 'DISABLE', 'no texturing (treat fragment initial color as 1,1,1,1) (default)'),
-            ('1', 'ENABLE', 'enable texturing')],
-        default='0')
 
 
 class NodeSocketEnumDetailColorFunc(NodeSocketEnum):

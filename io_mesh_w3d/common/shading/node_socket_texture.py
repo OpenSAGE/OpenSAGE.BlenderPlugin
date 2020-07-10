@@ -5,6 +5,10 @@ import bpy
 from bpy.types import NodeSocketColor, NodeSocketInterfaceColor
 
 
+# this does not work yet, since the type of these sockets seems to be 'RGBA', but if connected
+# only the red channel seems to be used....
+# How to set the type properly??
+
 class NodeSocketInterfaceTexture(NodeSocketInterfaceColor):
     bl_socket_idname = 'NodeSocketTexture'
 
@@ -42,4 +46,5 @@ class NodeSocketTexture(NodeSocketColor):
         layout.label(text=text)
 
     def draw_color(self, context, node):
+        self.type = 'RGBA'
         return (1.0, 0.4, 0.216, 0.5)

@@ -52,18 +52,19 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            material = create_shader_material(self, source, 'uv_layer')
+            materials.append(material)
             actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, source, actual)
 
+    # is that really a valid scenario? might only be a single shader material per mesh
     def test_duplicate_shader_material_roundtrip(self):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material(), get_shader_material()]
 
         materials = []
         for mat in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, 'meshName', mat)
+            material = create_shader_material(self, mat, 'uv_layer')
             materials.append(material)
 
         self.assertEqual(1, len(bpy.data.materials))
@@ -80,7 +81,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
@@ -90,7 +91,7 @@ class TestUtils(TestCase):
         mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
 
@@ -106,16 +107,17 @@ class TestUtils(TestCase):
         mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
             compare_shader_materials(self, source, actual)
 
     def test_default_shader_material_properties_are_not_exported(self):
         mesh = get_mesh(shader_mats=True)
+
         mesh.shader_materials[0].properties = []
 
-        (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
+        material = create_shader_material(self, mesh.shader_materials[0], 'uv_layer')
 
         actual = retrieve_shader_material(self, material, principled, w3x=False)
         self.assertEqual(0, len(actual.properties))
@@ -129,7 +131,7 @@ class TestUtils(TestCase):
         for source in mesh.shader_materials:
             source.properties = get_shader_material_properties_minimal()
 
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             actual = retrieve_shader_material(self, material, principled)
             source.properties[2].type = 5
             source.properties[2].value = get_vec4(x=1.0, y=0.2, z=0.33, w=1.0)
@@ -142,18 +144,19 @@ class TestUtils(TestCase):
             source.header.type_name = 'LoremIpsum'
             source.properties = []
 
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'DefaultW3D.fx'
             compare_shader_materials(self, source, actual)
 
+    # also not a valid scenario anymore?
     def test_shader_material_type_name_upgrade_to_normal_mapped(self):
         mesh = get_mesh(shader_mats=True)
 
         for source in mesh.shader_materials:
             source.header.type_name = 'LoremIpsum'
 
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'NormalMapped.fx'
             compare_shader_materials(self, source, actual)

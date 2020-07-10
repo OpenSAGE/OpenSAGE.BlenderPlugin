@@ -62,34 +62,27 @@ def create_mesh(context, mesh_struct, coll):
         create_vertex_color_layer(mesh, mat_pass.dig, 'DIG', i)
         create_vertex_color_layer(mesh, mat_pass.scg, 'SCG', i)
 
-    principleds = []
-
-    # vertex material stuff
-    name = mesh_struct.name()
-    if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
-
-        for i, shader in enumerate(mesh_struct.shaders):
-            set_shader_properties(mesh.materials[i], shader)
-
-    elif mesh_struct.prelit_vertex:
-        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, name, triangles)
-
-        for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
-            set_shader_properties(mesh.materials[i], shader)
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
 
     # shader material stuff
     if mesh_struct.shader_materials:
-        for i, shaderMat in enumerate(mesh_struct.shader_materials):
-            material, principled = create_material_from_shader_material(
-                context, mesh_struct.name(), shaderMat)
-            mesh.materials.append(material)
-            principleds.append(principled)
+        # TODO: check for no tx coords and more than 1 shader material
+        tx_coords = mesh_struct.material_passes[0].tx_coords
+        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
 
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-        for mat_pass in mesh_struct.material_passes:
-            get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+        material = create_shader_material(context, mesh_struct.shader_materials[0], uv_layer)
+        mesh.materials.append(material)
+
+    # vertex material stuff
+    elif mesh_struct.vert_materials:
+        # TODO: check for no tx coords and more than 1 vertex material / material pass
+        tx_coords = mesh_struct.material_passes[0].tx_stages[0].tx_coords[0]
+        uv_layer = create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+
+        material = create_vertex_material(context, mesh_struct, uv_layer)
+        mesh.materials.append(material)
+
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

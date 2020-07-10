@@ -80,6 +80,9 @@ def get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass):
         if len(mat_pass.tx_stages) > 1:
             context.warning('only one texture stage per material pass supported')
 
+    return create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+
+def create_uv_layer(mesh, b_mesh, triangles, tx_coords):
     if tx_coords is None:
         return
 

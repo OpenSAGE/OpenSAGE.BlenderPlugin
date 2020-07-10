@@ -15,7 +15,7 @@ class VertexMaterialGroup():
         instance.node_tree = bpy.data.node_groups['VertexMaterial']
         instance.label = vert_mat.vm_name
 
-        # TODO: this should be done in parsing of vm_info
+        # TODO: this should be done in parsing of vm_info?
         attributes = {'DEFAULT'}
         if vert_mat.vm_info.attributes & USE_DEPTH_CUE:
             attributes.add('USE_DEPTH_CUE')
@@ -86,10 +86,10 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketString', 'VM_ARGS_1')
         group.inputs.new('NodeSocketColor', 'Diffuse')
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
-        # Add secondary diffuse texture here?
-        group.inputs.new('NodeSocketTexture', 'DiffuseTexture')
+        # TODO: Add secondary diffuse texture here?
+        group.inputs.new('NodeSocketColor', 'DiffuseTexture')
         group.inputs['DiffuseTexture'].default_value = (0.0, 0.0, 0.0, 0.0)
-        group.inputs.new('NodeSocketTextureAlpha', 'DiffuseTextureAlpha')
+        group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketColor', 'Specular')
@@ -109,7 +109,6 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketEnumPriGradient', 'PriGradient')
         group.inputs.new('NodeSocketEnumSecGradient', 'SecGradient')
         group.inputs.new('NodeSocketEnumSrcBlendFunc', 'SrcBlendFunc')
-        group.inputs.new('NodeSocketEnumTexturing', 'Texturing')
         group.inputs.new('NodeSocketEnumDetailColorFunc', 'DetailColorFunc')
         group.inputs.new('NodeSocketEnumDetailAlphaFunc', 'DetailAlphaFunc')
         VertexMaterialGroup.addInputInt(group, 'Preset') # obsolete (w3d_file.h)
@@ -144,5 +143,6 @@ class VertexMaterialGroup():
 
     @staticmethod
     def unregister():
-        print(len(bpy.data.node_groups))
+        if not 'VertexMaterial' in bpy.data.node_groups:
+            return
         bpy.data.node_groups.remove(bpy.data.node_groups['VertexMaterial'])

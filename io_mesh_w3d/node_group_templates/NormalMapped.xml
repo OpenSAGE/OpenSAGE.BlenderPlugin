@@ -4,11 +4,11 @@
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
     <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
     <input name="DiffuseColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
-    <input name="DiffuseTexture" type="NodeSocketTexture"/>
-    <input name="DiffuseTextureAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="DiffuseTexture" type="NodeSocketColor"/>
+    <input name="DiffuseTextureAlpha" type="NodeSocketFloat"/>
     <input name="AlphaTestEnable" type="NodeSocketBool"/>
-    <input name="NormalMap" type="NodeSocketTexture"/>
-    <input name="NormalMapStrength" type="NodeSocketTextureAlpha"/>
+    <input name="NormalMap" type="NodeSocketColor"/>
+    <input name="NormalMapStrength" type="NodeSocketFloat"/>
     <input name="BumpScale" type="NodeSocketFloat"/>
     <input name="AmbientColor" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="SpecularColor" type="NodeSocketColor"/>

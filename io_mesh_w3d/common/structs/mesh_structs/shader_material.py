@@ -16,8 +16,8 @@ class ShaderMaterialHeader:
 
     @staticmethod
     def read(io_stream):
-        return ShaderMaterialHeader(
-            version=read_ubyte(io_stream),
+        return ShaderMaterialHeader(            version=read_ubyte(io_stream),
+
             type_name=read_long_fixed_string(io_stream),
             technique=read_long(io_stream))
 
