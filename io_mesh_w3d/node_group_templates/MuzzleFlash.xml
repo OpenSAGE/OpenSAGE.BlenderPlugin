@@ -2,8 +2,8 @@
 <nodegroup name="MuzzleFlash.fx">
   <node name="inputs" type="NodeGroupInput" X="-150" Y="0">
     <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
-    <input name="Texture_0" type="NodeSocketColor"/>
-    <input name="Texture_0_Alpha" type="NodeSocketFloat"/>
+    <input name="Texture_0" type="NodeSocketTexture"/>
+    <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha"/>
     <input name="ColorEmissive" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
     <input name="TexCoordTransformAngle_0" type="NodeSocketFloat"/>
     <input name="TexCoordTransformU_0" type="NodeSocketFloat"/>

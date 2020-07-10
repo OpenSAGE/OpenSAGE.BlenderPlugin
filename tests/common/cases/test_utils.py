@@ -46,7 +46,7 @@ class TestUtils(TestCase):
             compare_vertex_materials(self, source, actual)
 
     def test_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         mesh.shader_materials = [get_shader_material()]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
@@ -59,7 +59,7 @@ class TestUtils(TestCase):
 
     # is that really a valid scenario? might only be a single shader material per mesh
     def test_duplicate_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         mesh.shader_materials = [get_shader_material(), get_shader_material()]
 
         materials = []
@@ -76,8 +76,8 @@ class TestUtils(TestCase):
             compare_shader_materials(self, expected, actual)
 
     def test_shader_material_w3x_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True)]
+        mesh = get_mesh(shader_mat=True)
+        mesh.shader_materials = [get_shader_material()]
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.shader_materials:
@@ -87,8 +87,8 @@ class TestUtils(TestCase):
             compare_shader_materials(self, source, actual)
 
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
+        mesh = get_mesh(shader_mat=True)
+        mesh.shader_materials = [get_shader_material(rgb_colors=True)]
 
         for source in mesh.shader_materials:
             material = create_shader_material(self, source, 'uv_layer')
@@ -102,18 +102,8 @@ class TestUtils(TestCase):
 
             compare_shader_materials(self, source, actual)
 
-    def test_shader_material_w3x_two_tex_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
-
-        for source in mesh.shader_materials:
-            material = create_shader_material(self, source, 'uv_layer')
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
-            compare_shader_materials(self, source, actual)
-
     def test_default_shader_material_properties_are_not_exported(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
 
         mesh.shader_materials[0].properties = []
 
@@ -126,7 +116,7 @@ class TestUtils(TestCase):
         self.assertEqual(0, len(actual.properties))
 
     def test_shader_material_minimal_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
 
         for source in mesh.shader_materials:
             source.properties = get_shader_material_properties_minimal()
@@ -138,7 +128,7 @@ class TestUtils(TestCase):
             compare_shader_materials(self, source, actual)
 
     def test_shader_material_type_name_fallback(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
 
         for source in mesh.shader_materials:
             source.header.type_name = 'LoremIpsum'
@@ -151,7 +141,7 @@ class TestUtils(TestCase):
 
     # also not a valid scenario anymore?
     def test_shader_material_type_name_upgrade_to_normal_mapped(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
 
         for source in mesh.shader_materials:
             source.header.type_name = 'LoremIpsum'
@@ -388,7 +378,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK', shader_mats=True),
+            get_mesh(name='TRUNK', shader_mat=True),
             get_mesh(name='PICK')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
@@ -481,7 +471,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)
@@ -492,7 +482,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)
@@ -511,7 +501,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
@@ -535,7 +525,7 @@ class TestUtils(TestCase):
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [
             get_mesh(name='wall'),
-            get_mesh(name='tower2', shader_mats=True)]
+            get_mesh(name='tower2', shader_mat=True)]
 
         create_data(self, meshes)
 
@@ -545,7 +535,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall', hidden=True),
             get_mesh(name='tower', hidden=True),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)

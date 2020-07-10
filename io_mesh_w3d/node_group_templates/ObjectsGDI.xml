@@ -2,10 +2,10 @@
 <nodegroup name="ObjectsGDI.fx">
   <parent file="NormalMapped.xml"/>
   <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
-    <input name="SpecMap" type="NodeSocketColor"/>
-    <input name="SpecMapAlpha" type="NodeSocketFloat"/>
-    <input name="RecolorTexture" type="NodeSocketColor"/>
-    <input name="RecolorTextureAlpha" type="NodeSocketAlpha"/>
+    <input name="SpecMap" type="NodeSocketTexture"/>
+    <input name="SpecMapAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="RecolorTexture" type="NodeSocketTexture"/>
+    <input name="RecolorTextureAlpha" type="NodeSocketTextureAlpha"/>
     <input name="EnvMult" type="NodeSocketFloat"/>
   </node>
 </nodegroup>

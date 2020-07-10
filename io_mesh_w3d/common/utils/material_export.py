@@ -3,13 +3,21 @@
 
 from mathutils import Vector
 from io_mesh_w3d.common.shading.vertex_material_group import *
+from io_mesh_w3d.common.structs.mesh_structs.texture import *
+from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
+from io_mesh_w3d.w3d.structs.mesh_structs.material_pass import *
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
-from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
+
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketTexture
+from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketTextureAlpha
+from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketVector2
+from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketVector4
+from bpy.types import NodeSocketFloat, NodeSocketInt, NodeSocketBool, NodeSocketVector, NodeSocketColor
 
 
-def get_uv_coords(mesh_struct, b_mesh, uv_layer_name):
-    tx_coords = []
+def get_uv_coords(mesh_struct, b_mesh, mesh, uv_layer_name):
+    tx_coords = [Vector((0.0, 0.0))] * len(mesh.vertices)
 
     uv_layer = mesh.uv_layers[uv_layer_name]
     for j, face in enumerate(b_mesh.faces):
@@ -23,63 +31,79 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh):
     material = mesh.materials[0]
     shader_node = get_shader_node_group(context, material.node_tree)
 
-    if shader_node.node_tree.name == VertexMaterialGroup.name:
+    # TODO: check for context.file_format == W3X
+    # -> only export shader materials so convert VertexMaterial to DefaultW3D
+
+    if shader_node.node_tree.name == 'VertexMaterial':
         vert_mat, shader, tex_name, uv_layer_name = retrieve_vertex_material(context, material, shader_node)
-        mesh.vertex_materials = [vert_mat]
-        mesh.shaders = [shader]
-        mesh.textures = [Texture(file=tex_name, info=None)]
+        mesh_struct.vert_materials = [vert_mat]
+        mesh_struct.shaders = [shader]
+        mesh_struct.textures = [Texture(file=tex_name)]
 
         tx_stage = TextureStage(
-                tx_ids=[0],
-                tx_coords=get_uv_coords(uv_layer_name))
+                tx_ids=[[0]],
+                tx_coords=[get_uv_coords(mesh_struct, b_mesh, mesh, uv_layer_name)])
 
-        mesh.material_passes.append(MaterialPass(
+        mesh_struct.material_passes.append(MaterialPass(
             vertex_material_ids=[0],
             shader_ids=[0],
-            shader_material_ids=[],
-            tx_stages=[tx_stage],
-            tx_coords=[]))
+            tx_stages=[tx_stage]))
 
     else:
-        shader_mat, uv_layer_name = retrieve_shader_material(context, material, shader_node)
-        mesh.shader_materials = [shader_mat]
+        if len(mesh.materials) > 1:
+            context.warning('only 1 material supported for shader material export')
 
-        mesh.material_passes.append(MaterialPass(
-            vertex_material_ids=[],
-            shader_ids=[],
+        if len(mesh.uv_layers) > 1:
+            context.warning('only 1 uv_layer supported for shader material export')
+
+        shader_mat = retrieve_shader_material(context, material, shader_node)
+        mesh_struct.shader_materials = [shader_mat]
+
+        mesh_struct.material_passes.append(MaterialPass(
             shader_material_ids=[0],
-            tx_stages=[],
-            tx_coords=get_uv_coords(uv_layer_name)))
+            tx_coords=get_uv_coords(mesh_struct, b_mesh, mesh, mesh.uv_layers[0].name)))
 
 
 def retrieve_vertex_material(context, material, shader_node):
     node_tree = material.node_tree
 
     info = VertexMaterialInfo(
-        attributes=shader_node.inputs['Attributes'].default_value,
-        specular=get_color_value(context, node_tree, shader_node.inputs['Specular']),
+        attributes=0,
         diffuse=get_color_value(context, node_tree, shader_node.inputs['Diffuse']),
-        emissive=get_color_value(context, node_tree, shader_node.inputs['Emissive']),
         ambient=get_color_value(context, node_tree, shader_node.inputs['Ambient']),
-        translucency=get_value(context, node_tree, shader_node.inputs['Translucency'], float),
-        opacity=get_value(context, node_tree, shader_node.inputs['Opacity'], float))
+        specular=get_color_value(context, node_tree, shader_node.inputs['Specular']),
+        emissive=get_color_value(context, node_tree, shader_node.inputs['Emissive']),
+        shininess=get_value(context, node_tree, shader_node.inputs['Shininess'], float),
+        opacity=get_value(context, node_tree, shader_node.inputs['Opacity'], float),
+        translucency=get_value(context, node_tree, shader_node.inputs['Translucency'], float))
+
+
+    node_attributes = shader_node.inputs['Attributes'].default_value
+    if 'USE_DEPTH_CUE' in node_attributes:
+        info.attributes |= USE_DEPTH_CUE
+    if 'ARGB_EMISSIVE_ONLY' in node_attributes:
+        info.attributes |= ARGB_EMISSIVE_ONLY
+    if 'COPY_SPECULAR_TO_DIFFUSE' in node_attributes:
+        info.attributes |= COPY_SPECULAR_TO_DIFFUSE
+    if 'DEPTH_CUE_TO_ALPHA' in node_attributes:
+        info.attributes |= DEPTH_CUE_TO_ALPHA
+
 
     vert_mat = VertexMaterial()
     vert_mat.vm_name = shader_node.label
     vert_mat.vm_info = info
-    vert_mat.vm_args_0 = shader_node.vm_args_0
-    vert_mat.vm_args_1 = shader_node.vm_args_1
+    vert_mat.vm_args_0 = shader_node.inputs['VM_ARGS_0'].default_value
+    vert_mat.vm_args_1 = shader_node.inputs['VM_ARGS_1'].default_value
 
     shader = Shader(
         depth_compare=get_value(context, node_tree, shader_node.inputs['DepthCompare'], int),
-        depth_mask=get_value(context, node_tree, shader_node.inputs['DepthMask'], int),
+        depth_mask=get_value(context, node_tree, shader_node.inputs['DepthMaskWrite'], int),
         color_mask=get_value(context, node_tree, shader_node.inputs['ColorMask'], int),
-        dest_blend=get_value(context, node_tree, shader_node.inputs['DestBlend'], int),
         fog_func=get_value(context, node_tree, shader_node.inputs['FogFunc'], int),
+        dest_blend=get_value(context, node_tree, shader_node.inputs['DestBlendFunc'], int),
         pri_gradient=get_value(context, node_tree, shader_node.inputs['PriGradient'], int),
         sec_gradient=get_value(context, node_tree, shader_node.inputs['SecGradient'], int),
-        src_blend=get_value(context, node_tree, shader_node.inputs['SrcBlend'], int),
-        texturing=get_value(context, node_tree, shader_node.inputs['Texturing'], int), #TODO: set this based on applied texture?
+        src_blend=get_value(context, node_tree, shader_node.inputs['SrcBlendFunc'], int),
         detail_color_func=get_value(context, node_tree, shader_node.inputs['DetailColorFunc'], int),
         detail_alpha_func=get_value(context, node_tree, shader_node.inputs['DetailAlphaFunc'], int),
         shader_preset=get_value(context, node_tree, shader_node.inputs['Preset'], int),
@@ -96,51 +120,41 @@ def retrieve_shader_material(context, material, shader_node):
     node_tree = shader_node.node_tree
     name = node_tree.name
     shader_mat = ShaderMaterial(
-        header=ShaderMaterialHeader(
-            type_name=name),
-        properties=[])
+        header=ShaderMaterialHeader(type_name=name))
 
     shader_mat.header.technique_index = get_value(context, node_tree, shader_node.inputs['Technique'], int)
 
     filename = name.replace('.fx', '.xml')
-    input_types_dict = get_group_input_types(filename)
-
-    uv_map = None
 
     for input in shader_node.inputs:
-        if input.name in input_types_dict:
-            (type, default) = input_types_dict[input.name]
-
-            # because of this we need a texture socket, otherwise we would export a rgba value here!!
-            if type == 'NodeSocketTexture':
-                prop_type = STRING_PROPERTY
-                value = get_texture_value(context, node_tree, input)
-            elif type == 'NodeSocketTextureAlpha':
-                continue
-            elif type == 'NodeSocketFloat':
-                prop_type = FLOAT_PROPERTY
-                value = get_value(context, node_tree, input, float)
-            elif type == 'NodeSocketVector2':
-                prop_type = VEC2_PROPERTY
-                value = get_vec2_value(context, node_tree, input)
-            elif type == 'NodeSocketVector':
-                prop_type = VEC3_PROPERTY
-                value = get_vec_value(context, node_tree, input)
-            elif type in ['NodeSocketVector4', 'NodeSocketColor']:
-                prop_type = VEC4_PROPERTY
-                value = get_color_value(context, node_tree, input)
-            elif type == 'NodeSocketInt':
-                prop_type = LONG_PROPERTY
-                value = get_value(context, node_tree, input, int)
-            elif type == 'NodeSocketByte':
-                prop_type = BYTE_PROPERTY
-                value = get_value(context, node_tree, input, int)
-            else:
-                context.warning('Invalid node socket type: ' + type + ' !')
-            if value != default:
-                shader_mat.properties.append(ShaderMaterialProperty(type=prop_type, name=input.name, value=value))
+        if isinstance(input, NodeSocketTexture):
+            prop_type = STRING_PROPERTY
+            value = get_texture_value(context, node_tree, input)
+        elif isinstance(input, NodeSocketTextureAlpha):
+            continue
+        elif isinstance(input, NodeSocketFloat):
+            prop_type = FLOAT_PROPERTY
+            value = get_value(context, node_tree, input, float)
+        elif isinstance(input, NodeSocketVector2):
+            prop_type = VEC2_PROPERTY
+            value = get_vec2_value(context, node_tree, input)
+        elif isinstance(input, NodeSocketVector):
+            prop_type = VEC3_PROPERTY
+            value = get_vec_value(context, node_tree, input)
+        elif isinstance(input, (NodeSocketVector4, NodeSocketColor)):
+            prop_type = VEC4_PROPERTY
+            value = get_color_value(context, node_tree, input)
+        elif isinstance(input, NodeSocketInt):
+            prop_type = LONG_PROPERTY
+            value = get_value(context, node_tree, input, int)
+        elif isinstance(input, NodeSocketBool):
+            prop_type = BOOL_PROPERTY
+            value = get_value(context, node_tree, input, bool)
         else:
-            context.warning('node group input ' + input.name + ' is not defined in ' + filename)
+            context.warning('Invalid node socket type \'' + str(input) + '\'!')
+            continue
+
+        shader_mat.properties.append(ShaderMaterialProperty(type=prop_type, name=input.name, value=value))
 
     return shader_mat
 

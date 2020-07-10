@@ -354,12 +354,16 @@ def remove_node_groups():
 
 
 from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketInterfaceEnum
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketInterfaceTexture
+from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketInterfaceTextureAlpha
 from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketInterfaceVector2
 from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketInterfaceVector4
 
 
 def register():
     NodeSocketInterfaceEnum.register_classes()
+    NodeSocketInterfaceTexture.register_classes()
+    NodeSocketInterfaceTextureAlpha.register_classes()
     NodeSocketInterfaceVector2.register_classes()
     NodeSocketInterfaceVector4.register_classes()
 
@@ -382,6 +386,8 @@ def unregister():
         bpy.utils.unregister_class(class_)
 
     NodeSocketInterfaceEnum.unregister_classes()
+    NodeSocketInterfaceTexture.unregister_classes()
+    NodeSocketInterfaceTextureAlpha.unregister_classes()
     NodeSocketInterfaceVector2.unregister_classes()
     NodeSocketInterfaceVector4.unregister_classes()
 

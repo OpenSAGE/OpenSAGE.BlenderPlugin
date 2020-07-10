@@ -195,15 +195,15 @@ def get_shader_material_properties(name, rgb_color=False):
     return []
 
 
-def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):
+def get_shader_material(name='NormalMapped.fx', rgb_colors=False):
     return ShaderMaterial(
         header=get_shader_material_header(name),
-        properties=get_shader_material_properties(name, rgb_color))
+        properties=get_shader_material_properties(name, rgb_colors))
 
 
 def get_shader_material_minimal():
     shader_mat = ShaderMaterial(
-        header=get_shader_material_header())
+        header=get_shader_material_header('Minimal.fx'))
 
     shader_mat.properties = [
         get_shader_material_property(STRING_PROPERTY, 'a'),
@@ -214,11 +214,6 @@ def get_shader_material_minimal():
         get_shader_material_property(LONG_PROPERTY, 'f'),
         get_shader_material_property(BOOL_PROPERTY, 'g')]
     return shader_mat
-
-
-def get_shader_material_empty():
-    return ShaderMaterial(
-        header=get_shader_material_header())
 
 
 def compare_shader_materials(self, expected, actual):

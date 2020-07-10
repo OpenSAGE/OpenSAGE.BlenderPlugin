@@ -35,7 +35,7 @@ class VertexMaterialGroup():
         # ints: Log1Width, Log2Width, Last(Frame)
 
         instance.inputs['VM_ARGS_0'].default_value = vert_mat.vm_args_0
-        instance.inputs['VM_ARGS_0'].default_value = vert_mat.vm_args_1
+        instance.inputs['VM_ARGS_1'].default_value = vert_mat.vm_args_1
 
         instance.inputs['Diffuse'].default_value = vert_mat.vm_info.diffuse.to_vector_rgba()
         instance.inputs['Ambient'].default_value = vert_mat.vm_info.ambient.to_vector_rgba()
@@ -86,9 +86,9 @@ class VertexMaterialGroup():
         group.inputs.new('NodeSocketColor', 'Diffuse')
         group.inputs['Diffuse'].default_value = (0.8, 0.8, 0.8, 1.0)
         # TODO: Add secondary diffuse texture here?
-        group.inputs.new('NodeSocketColor', 'DiffuseTexture')
+        group.inputs.new('NodeSocketTexture', 'DiffuseTexture')
         group.inputs['DiffuseTexture'].default_value = (0.0, 0.0, 0.0, 0.0)
-        group.inputs.new('NodeSocketFloat', 'DiffuseTextureAlpha')
+        group.inputs.new('NodeSocketTextureAlpha', 'DiffuseTextureAlpha')
         group.inputs.new('NodeSocketColor', 'Ambient')
         group.inputs['Ambient'].default_value = (0.8, 0.8, 0.8, 1.0)
         group.inputs.new('NodeSocketColor', 'Specular')

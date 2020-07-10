@@ -163,6 +163,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 index = int(layer.name.split('_')[-1])
             else:
                 index = 0
+
+            if index > len(mesh_struct.material_passes) - 1:
+                continue
+
             if 'DCG' in layer.name:
                 target = mesh_struct.material_passes[index].dcg
             elif 'DIG' in layer.name:

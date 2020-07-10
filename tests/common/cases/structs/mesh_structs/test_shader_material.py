@@ -54,15 +54,6 @@ class TestShaderMaterial(TestCase):
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(prop.size(False), chunkSize)
 
-    def test_write_read_empty(self):
-        expected = get_shader_material_empty()
-
-        self.assertEqual(45, expected.header.size())
-        self.assertEqual(53, expected.size())
-
-        self.write_read_test(expected, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read,
-                             compare_shader_materials, self, True)
-
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL, output, 9, has_sub_chunks=True)
@@ -117,38 +108,24 @@ class TestShaderMaterial(TestCase):
 
     def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(w3x=True),
+            get_shader_material(),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
     def test_write_read_rgb_colors_xml(self):
         self.write_read_xml_test(
-            get_shader_material(w3x=True, two_tex=True, rgb_colors=True),
+            get_shader_material(rgb_colors=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
-    def test_write_read_xml_two_texture(self):
-        self.write_read_xml_test(
-            get_shader_material(two_tex=True),
-            'FXShader',
-            ShaderMaterial.parse,
-            compare_shader_materials)
-
-    def test_write_read_minimal_xml(self):
-        self.write_read_xml_test(
-            get_shader_material_minimal(),
-            'FXShader',
-            ShaderMaterial.parse,
-            compare_shader_materials)
-
-    def test_write_read_minimal_xml_no_technique_index(self):
+    def test_write_read_xml_no_technique_index(self):
         expected = get_shader_material_minimal()
         expected.header.technique_index = 0
         self.write_read_xml_test(expected, 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
-    def test_write_read_minimal_xml_bool_is_written_lowercase(self):
+    def test_write_read_xml_bool_is_written_lowercase(self):
         expected = get_shader_material_minimal()
 
         root = create_root()
