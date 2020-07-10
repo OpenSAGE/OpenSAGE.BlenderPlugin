@@ -65,6 +65,7 @@ def rig_object(obj, hierarchy, rig, sub_object):
     obj.parent_type = 'BONE'
 
 
+
 def get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass):
     tx_coords = None
     if mat_pass.tx_coords:
