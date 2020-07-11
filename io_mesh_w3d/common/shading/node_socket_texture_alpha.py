@@ -37,12 +37,6 @@ class NodeSocketTextureAlpha(NodeSocketFloat):
         default=1.0)
 
     def draw(self, context, layout, node, text):
-        if self.is_output or self.is_linked:
-            layout.label(text=text)
-        else:
-            layout.prop(self, 'default_value', text=text)
-
-    def draw(self, context, layout, node, text):
         layout.label(text=text)
 
     def draw_color(self, context, node):

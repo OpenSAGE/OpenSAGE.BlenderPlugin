@@ -9,9 +9,9 @@ from tests.w3d.helpers.mesh_structs.shader import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 
 
-def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
+def get_prelit(prelit_type=W3D_CHUNK_PRELIT_UNLIT, count=1):
     result = PrelitBase(
-        type=type,
+        prelit_type=prelit_type,
         mat_info=None,
         material_passes=[],
         vert_materials=[],
@@ -43,9 +43,9 @@ def get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1):
     return result
 
 
-def get_prelit_minimal(type=W3D_CHUNK_PRELIT_UNLIT):
+def get_prelit_minimal(prelit_type=W3D_CHUNK_PRELIT_UNLIT):
     return PrelitBase(
-        type=type,
+        prelit_type=prelit_type,
         mat_info=get_material_info(),
         material_passes=[],
         vert_materials=[],
@@ -54,11 +54,10 @@ def get_prelit_minimal(type=W3D_CHUNK_PRELIT_UNLIT):
 
 
 def compare_prelits(self, expected, actual):
-    self.assertEqual(expected.type, actual.type)
+    self.assertEqual(expected.prelit_type, actual.prelit_type)
     compare_material_infos(self, expected.mat_info, actual.mat_info)
 
-    self.assertEqual(len(expected.material_passes),
-                     len(actual.material_passes))
+    self.assertEqual(len(expected.material_passes), len(actual.material_passes))
     for i, mat_pass in enumerate(expected.material_passes):
         compare_material_passes(self, mat_pass, actual.material_passes[i])
 

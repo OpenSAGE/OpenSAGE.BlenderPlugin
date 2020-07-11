@@ -83,7 +83,7 @@ def create_object_list(parent, name, objects, write_func, par1=None):
             write_func(obj, xml_objects_list)
 
 
-def format(value):
+def truncate(value):
     return '{:.6f}'.format(value)
 
 
@@ -95,8 +95,8 @@ def parse_vector2(xml_vector2):
 
 def create_vector2(vec2, parent, name):
     vector = create_node(parent, name)
-    vector.set('X', format(vec2.x))
-    vector.set('Y', format(vec2.y))
+    vector.set('X', truncate(vec2.x))
+    vector.set('Y', truncate(vec2.y))
 
 
 def parse_vector(xml_vector):
@@ -108,6 +108,6 @@ def parse_vector(xml_vector):
 
 def create_vector(vec, parent, name):
     vector = create_node(parent, name)
-    vector.set('X', format(vec.x))
-    vector.set('Y', format(vec.y))
-    vector.set('Z', format(vec.z))
+    vector.set('X', truncate(vec.x))
+    vector.set('Y', truncate(vec.y))
+    vector.set('Z', truncate(vec.z))

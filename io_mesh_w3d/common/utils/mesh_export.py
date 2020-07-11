@@ -11,7 +11,7 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.material_export import *
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
+def retrieve_meshes(context, hierarchy, rig, container_name):
     mesh_structs = []
     used_textures = []
 
@@ -143,8 +143,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             face_map_names = [map.name for map in mesh_object.face_maps]
             Triangle.validate_face_map_names(context, face_map_names)
 
-            for map in mesh.face_maps:
-                for i, val in enumerate(map.data):
+            for face_map in mesh.face_maps:
+                for i, val in enumerate(face_map.data):
                     mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
 
         header.face_count = len(mesh_struct.triangles)
@@ -261,11 +261,11 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     for ver in b_mesh.verts:
         ver.select_set(False)
 
-    for i, uv_layer in enumerate(mesh.uv_layers):
+    for uv_layer in mesh.uv_layers:
         tx_coords = [None] * len(uv_layer.data)
-        for j, face in enumerate(b_mesh.faces):
+        for i, face in enumerate(b_mesh.faces):
             for loop in face.loops:
-                vert_index = mesh.polygons[j].vertices[loop.index % 3]
+                vert_index = mesh.polygons[i].vertices[loop.index % 3]
                 if tx_coords[vert_index] is not None \
                         and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)

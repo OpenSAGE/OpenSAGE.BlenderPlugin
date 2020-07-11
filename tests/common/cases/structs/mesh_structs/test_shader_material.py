@@ -21,18 +21,18 @@ class TestShaderMaterial(TestCase):
 
         name = 'InvalidProp'
         size = 8 + len(name) + 1 + 1
-        type = 0
+        prop_type = 0
 
         write_chunk_head(
             W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
-        write_long(type, io_stream)
+        write_long(prop_type, io_stream)
         write_long(len(name) + 1, io_stream)
         write_string(name, io_stream)
         write_ubyte(0x00, io_stream)  # fake data
 
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(size, chunkSize)
 
@@ -42,7 +42,7 @@ class TestShaderMaterial(TestCase):
         io_stream = io.BytesIO()
 
         prop = ShaderMaterialProperty(
-            type=0,
+            prop_type=0,
             name='InvalidProp',
             value=0x00)
 
@@ -50,7 +50,7 @@ class TestShaderMaterial(TestCase):
 
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(prop.size(False), chunkSize)
 
@@ -62,7 +62,7 @@ class TestShaderMaterial(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL, chunk_type)
 

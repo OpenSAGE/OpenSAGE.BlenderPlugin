@@ -16,10 +16,9 @@ class ShaderMaterialHeader:
 
     @staticmethod
     def read(io_stream):
-        return ShaderMaterialHeader(            version=read_ubyte(io_stream),
-
-            type_name=read_long_fixed_string(io_stream),
-            technique=read_long(io_stream))
+        return ShaderMaterialHeader(version=read_ubyte(io_stream),
+                                    type_name=read_long_fixed_string(io_stream),
+                                    technique=read_long(io_stream))
 
     @staticmethod
     def size(include_head=True):
@@ -44,8 +43,8 @@ BOOL_PROPERTY = 7
 
 
 class ShaderMaterialProperty:
-    def __init__(self, type=0, name='', value=Vector((1.0, 1.0, 1.0, 1.0))):
-        self.type = type
+    def __init__(self, prop_type=0, name='', value=Vector((1.0, 1.0, 1.0, 1.0))):
+        self.prop_type = prop_type
         self.name = name
         self.value = value
 
@@ -61,41 +60,41 @@ class ShaderMaterialProperty:
         read_long(io_stream)  # num chars
         name = read_string(io_stream)
         result = ShaderMaterialProperty(
-            type=prop_type,
+            prop_type=prop_type,
             name=name,
             value=Vector((1.0, 1.0, 1.0, 1.0)))
 
-        if result.type == STRING_PROPERTY:
+        if result.prop_type == STRING_PROPERTY:
             read_long(io_stream)  # num chars
             result.value = read_string(io_stream)
-        elif result.type == FLOAT_PROPERTY:
+        elif result.prop_type == FLOAT_PROPERTY:
             result.value = read_float(io_stream)
-        elif result.type == VEC2_PROPERTY:
+        elif result.prop_type == VEC2_PROPERTY:
             result.value = read_vector2(io_stream)
-        elif result.type == VEC4_PROPERTY:
+        elif result.prop_type == VEC4_PROPERTY:
             result.value = read_vector4(io_stream)
-        elif result.type == LONG_PROPERTY:
+        elif result.prop_type == LONG_PROPERTY:
             result.value = read_long(io_stream)
-        elif result.type == BOOL_PROPERTY:
+        elif result.prop_type == BOOL_PROPERTY:
             result.value = bool(read_ubyte(io_stream))
         else:
-            context.warning('unknown property type in shader material: ' + str(result.type))
+            context.warning('unknown property type in shader material: ' + str(result.prop_type))
         return result
 
     def size(self, include_head=True):
         size = const_size(8, include_head)
         size += len(self.name) + 1
-        if self.type == STRING_PROPERTY:
+        if self.prop_type == STRING_PROPERTY:
             size += 4 + len(self.value) + 1
-        elif self.type == FLOAT_PROPERTY:
+        elif self.prop_type == FLOAT_PROPERTY:
             size += 4
-        elif self.type == VEC2_PROPERTY:
+        elif self.prop_type == VEC2_PROPERTY:
             size += 8
-        elif self.type == VEC3_PROPERTY:
+        elif self.prop_type == VEC3_PROPERTY:
             size += 12
-        elif self.type == VEC4_PROPERTY:
+        elif self.prop_type == VEC4_PROPERTY:
             size += 16
-        elif self.type == LONG_PROPERTY:
+        elif self.prop_type == LONG_PROPERTY:
             size += 4
         else:
             size += 1
@@ -103,20 +102,20 @@ class ShaderMaterialProperty:
 
     def write(self, io_stream):
         write_chunk_head(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, self.size(False))
-        write_long(self.type, io_stream)
+        write_long(self.prop_type, io_stream)
         write_long(len(self.name) + 1, io_stream)
         write_string(self.name, io_stream)
 
-        if self.type == STRING_PROPERTY:
+        if self.prop_type == STRING_PROPERTY:
             write_long(len(self.value) + 1, io_stream)
             write_string(self.value, io_stream)
-        elif self.type == FLOAT_PROPERTY:
+        elif self.prop_type == FLOAT_PROPERTY:
             write_float(self.value, io_stream)
-        elif self.type == VEC2_PROPERTY:
+        elif self.prop_type == VEC2_PROPERTY:
             write_vector2(self.value, io_stream)
-        elif self.type == VEC4_PROPERTY:
+        elif self.prop_type == VEC4_PROPERTY:
             write_vector4(self.value, io_stream)
-        elif self.type == LONG_PROPERTY:
+        elif self.prop_type == LONG_PROPERTY:
             write_long(self.value, io_stream)
         else:
             write_ubyte(self.value, io_stream)
@@ -134,58 +133,58 @@ class ShaderMaterialProperty:
 
         if type_name == 'Float':
             if len(values) == 1:
-                constant.type = FLOAT_PROPERTY
+                constant.prop_type = FLOAT_PROPERTY
                 constant.value = get_float(values[0])
             if len(values) > 1:
-                constant.type = VEC2_PROPERTY
+                constant.prop_type = VEC2_PROPERTY
                 constant.value.x = get_float(values[0])
                 constant.value.y = get_float(values[1])
             if len(values) > 2:
-                constant.type = VEC3_PROPERTY
+                constant.prop_type = VEC3_PROPERTY
                 constant.value.z = get_float(values[2])
             if len(values) == 4:
-                constant.type = VEC4_PROPERTY
+                constant.prop_type = VEC4_PROPERTY
                 constant.value.w = get_float(values[3])
 
         elif type_name == 'Int':
-            constant.type = LONG_PROPERTY
+            constant.prop_type = LONG_PROPERTY
             constant.value = int(values[0])
         elif type_name == 'Bool':
-            constant.type = BOOL_PROPERTY
+            constant.prop_type = BOOL_PROPERTY
             constant.value = values[0] in ['True', 'true']
         else:
-            constant.type = STRING_PROPERTY
+            constant.prop_type = STRING_PROPERTY
             constant.value = values[0]
 
         return constant
 
     def create(self, parent):
-        if self.type == 1:
+        if self.prop_type == 1:
             xml_constant = create_node(parent, 'Texture')
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = self.value
 
-        elif self.type in [FLOAT_PROPERTY, VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
+        elif self.prop_type in [FLOAT_PROPERTY, VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
             xml_constant = create_node(parent, 'Float')
             xml_value = create_node(xml_constant, 'Value')
-            if self.type == FLOAT_PROPERTY:
+            if self.prop_type == FLOAT_PROPERTY:
                 xml_value.text = format(self.value)
             else:
                 xml_value.text = format(self.value.x)
 
-            if self.type in [VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
+            if self.prop_type in [VEC2_PROPERTY, VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = format(self.value.y)
 
-            if self.type in [VEC3_PROPERTY, VEC4_PROPERTY]:
+            if self.prop_type in [VEC3_PROPERTY, VEC4_PROPERTY]:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = format(self.value.z)
 
-            if self.type == VEC4_PROPERTY:
+            if self.prop_type == VEC4_PROPERTY:
                 xml_value = create_node(xml_constant, 'Value')
                 xml_value.text = format(self.value.w)
 
-        elif self.type == LONG_PROPERTY:
+        elif self.prop_type == LONG_PROPERTY:
             xml_constant = create_node(parent, 'Int')
             xml_value = create_node(xml_constant, 'Value')
             xml_value.text = str(self.value)

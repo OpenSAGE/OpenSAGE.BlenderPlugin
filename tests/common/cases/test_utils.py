@@ -607,7 +607,7 @@ class TestUtils(TestCase):
             num_time_codes=5,
             vector_len=1,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=1, value=3.0),
                         TimeCodedDatum(time_code=2, value=3.0),
@@ -618,7 +618,7 @@ class TestUtils(TestCase):
             num_time_codes=7,
             vector_len=4,
             pivot=1,
-            type=6,
+            channel_type=6,
             time_codes=[TimeCodedDatum(time_code=0, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
                         TimeCodedDatum(time_code=1, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
                         TimeCodedDatum(time_code=2, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
@@ -639,7 +639,7 @@ class TestUtils(TestCase):
             num_time_codes=2,
             vector_len=1,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=4, value=3.0)])
 

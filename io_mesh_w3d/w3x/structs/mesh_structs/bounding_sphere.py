@@ -18,5 +18,5 @@ class BoundingSphere:
 
     def create(self, parent):
         result = create_node(parent, 'BoundingSphere')
-        result.set('Radius', format(self.radius))
+        result.set('Radius', truncate(self.radius))
         create_vector(self.center, result, 'Center')

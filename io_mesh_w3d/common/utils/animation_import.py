@@ -11,11 +11,11 @@ def is_roottransform(channel):
 
 
 def is_translation(channel):
-    return channel.type < 3
+    return channel.channel_type < 3
 
 
 def is_visibility(channel):
-    return isinstance(channel, AnimationBitChannel) or channel.type == CHANNEL_VIS
+    return isinstance(channel, AnimationBitChannel) or channel.channel_type == CHANNEL_VIS
 
 
 def get_bone(rig, hierarchy, channel):
@@ -61,7 +61,7 @@ def set_keyframe(bone, channel, frame, value):
     if is_visibility(channel):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
-        set_translation(bone, channel.type, frame, value)
+        set_translation(bone, channel.channel_type, frame, value)
     else:
         set_rotation(bone, frame, value)
 

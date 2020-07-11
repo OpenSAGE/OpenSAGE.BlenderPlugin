@@ -113,7 +113,7 @@ def create_shader_material(context, shader_material, uv_layer):
 
     y = 300
     for prop in shader_material.properties:
-        if prop.type == STRING_PROPERTY and prop.value != '':
+        if prop.prop_type == STRING_PROPERTY and prop.value != '':
             texture_node = node_tree.nodes.new('ShaderNodeTexImage')
             texture_node.image = find_texture(context, prop.value)
             texture_node.location = (-350, y)
@@ -128,7 +128,7 @@ def create_shader_material(context, shader_material, uv_layer):
             links.new(uv_node.outputs['UV'], texture_node.inputs['Vector'])
             y -= 300
 
-        elif prop.type == VEC4_PROPERTY:
+        elif prop.prop_type == VEC4_PROPERTY:
             instance.inputs[prop.name].default_value = prop.to_rgba()
         else:
             instance.inputs[prop.name].default_value = prop.value
@@ -137,5 +137,3 @@ def create_shader_material(context, shader_material, uv_layer):
     links.new(instance.outputs['BSDF'], output.inputs['Surface'])
 
     return material
-
-

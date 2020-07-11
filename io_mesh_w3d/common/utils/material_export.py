@@ -41,8 +41,8 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh):
         mesh_struct.textures = [Texture(file=tex_name)]
 
         tx_stage = TextureStage(
-                tx_ids=[[0]],
-                tx_coords=[get_uv_coords(mesh_struct, b_mesh, mesh, uv_layer_name)])
+                        tx_ids=[[0]],
+                        tx_coords=[get_uv_coords(mesh_struct, b_mesh, mesh, uv_layer_name)])
 
         mesh_struct.material_passes.append(MaterialPass(
             vertex_material_ids=[0],
@@ -56,7 +56,7 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh):
         if len(mesh.uv_layers) > 1:
             context.warning('only 1 uv_layer supported for shader material export')
 
-        shader_mat = retrieve_shader_material(context, material, shader_node)
+        shader_mat = retrieve_shader_material(context, shader_node)
         mesh_struct.shader_materials = [shader_mat]
 
         mesh_struct.material_passes.append(MaterialPass(
@@ -116,7 +116,7 @@ def retrieve_vertex_material(context, material, shader_node):
     return vert_mat, shader, texture, uv_layer_name
 
 
-def retrieve_shader_material(context, material, shader_node):
+def retrieve_shader_material(context, shader_node):
     node_tree = shader_node.node_tree
     name = node_tree.name
     shader_mat = ShaderMaterial(
@@ -124,37 +124,35 @@ def retrieve_shader_material(context, material, shader_node):
 
     shader_mat.header.technique_index = get_value(context, node_tree, shader_node.inputs['Technique'], int)
 
-    filename = name.replace('.fx', '.xml')
-
-    for input in shader_node.inputs:
-        if isinstance(input, NodeSocketTexture):
+    for input_socket in shader_node.inputs:
+        if isinstance(input_socket, NodeSocketTexture):
             prop_type = STRING_PROPERTY
-            value = get_texture_value(context, node_tree, input)
-        elif isinstance(input, NodeSocketTextureAlpha):
+            value = get_texture_value(context, node_tree, input_socket)
+        elif isinstance(input_socket, NodeSocketTextureAlpha):
             continue
-        elif isinstance(input, NodeSocketFloat):
+        elif isinstance(input_socket, NodeSocketFloat):
             prop_type = FLOAT_PROPERTY
-            value = get_value(context, node_tree, input, float)
-        elif isinstance(input, NodeSocketVector2):
+            value = get_value(context, node_tree, input_socket, float)
+        elif isinstance(input_socket, NodeSocketVector2):
             prop_type = VEC2_PROPERTY
-            value = get_vec2_value(context, node_tree, input)
-        elif isinstance(input, NodeSocketVector):
+            value = get_vec2_value(context, node_tree, input_socket)
+        elif isinstance(input_socket, NodeSocketVector):
             prop_type = VEC3_PROPERTY
-            value = get_vec_value(context, node_tree, input)
-        elif isinstance(input, (NodeSocketVector4, NodeSocketColor)):
+            value = get_vec_value(context, node_tree, input_socket)
+        elif isinstance(input_socket, (NodeSocketVector4, NodeSocketColor)):
             prop_type = VEC4_PROPERTY
-            value = get_color_value(context, node_tree, input)
-        elif isinstance(input, NodeSocketInt):
+            value = get_color_value(context, node_tree, input_socket)
+        elif isinstance(input_socket, NodeSocketInt):
             prop_type = LONG_PROPERTY
-            value = get_value(context, node_tree, input, int)
-        elif isinstance(input, NodeSocketBool):
+            value = get_value(context, node_tree, input_socket, int)
+        elif isinstance(input_socket, NodeSocketBool):
             prop_type = BOOL_PROPERTY
-            value = get_value(context, node_tree, input, bool)
+            value = get_value(context, node_tree, input_socket, bool)
         else:
-            context.warning('Invalid node socket type \'' + str(input) + '\'!')
+            context.warning('Invalid node socket type \'' + str(input_socket) + '\'!')
             continue
 
-        shader_mat.properties.append(ShaderMaterialProperty(type=prop_type, name=input.name, value=value))
+        shader_mat.properties.append(ShaderMaterialProperty(prop_type=prop_type, name=input_socket.name, value=value))
 
     return shader_mat
 
@@ -181,36 +179,36 @@ def get_shader_node_group(context, node_tree):
     return None
 
 
-def get_uv_layer_name(ontext, node_tree, socket):
-    type = 'ShaderNodeUVMap'
+def get_uv_layer_name(context, node_tree, socket):
+    node_type = 'ShaderNodeUVMap'
 
     for link in socket.links:
-        if link.from_node.bl_idname == type:
+        if link.from_node.bl_idname == node_type:
             return link.from_node.uv_map
-        else:
-            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
+
+        context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
     return None
 
 
 def get_texture_value(context, node_tree, socket):
-    type = 'ShaderNodeTexImage'
+    node_type = 'ShaderNodeTexImage'
 
     for link in socket.links:
-        if link.from_node.bl_idname == type:
+        if link.from_node.bl_idname == node_type:
             return link.from_node.image.name, get_uv_layer_name(context, node_tree, link.from_node.inputs['Vector'])
-        else:
-            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
+
+        context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
     return None, None
 
 
 def get_value(context, node_tree, socket, cast):
-    type = 'ShaderNodeValue'
+    node_type = 'ShaderNodeValue'
 
     for link in socket.links:
-        if link.from_node.bl_idname == type:
+        if link.from_node.bl_idname == node_type:
             return cast(link.from_node.outputs['Value'].default_value)
-        else:
-            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
+
+        context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
     return cast(socket.default_value)
 
 
@@ -225,11 +223,11 @@ def get_vec2_value(context, node_tree, socket):
 
 
 def get_color_value(context, node_tree, socket):
-    type = 'ShaderNodeRGB'
+    node_type = 'ShaderNodeRGB'
 
     for link in socket.links:
-        if link.from_node.bl_idname == type:
+        if link.from_node.bl_idname == node_type:
             return RGBA(vec=link.from_node.outputs['Color'].default_value)
-        else:
-            context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
+
+        context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
     return RGBA(vec=socket.default_value)

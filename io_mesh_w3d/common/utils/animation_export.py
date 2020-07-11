@@ -49,7 +49,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             if timecoded:
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
-                    type=channel_type,
+                    channel_type=channel_type,
                     pivot=pivot_index)
 
                 num_keyframes = len(fcu.keyframe_points)
@@ -61,7 +61,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 else:
                     channel = AnimationChannel(
                         vector_len=vec_len,
-                        type=channel_type)
+                        channel_type=channel_type)
 
                 channel.data = []
                 channel.pivot = pivot_index

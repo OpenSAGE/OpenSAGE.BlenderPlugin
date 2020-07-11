@@ -23,17 +23,17 @@ def compare_animation_headers(self, expected, actual):
     self.assertEqual(expected.frame_rate, actual.frame_rate)
 
 
-def get_animation_channel(type=1, pivot=0):
+def get_animation_channel(channel_type=1, pivot=0):
     channel = AnimationChannel(
         first_frame=0,
         last_frame=4,
-        type=type,
+        channel_type=channel_type,
         pivot=pivot,
         unknown=0)
 
     channel.pad_bytes = [0xff, 0xff, 0xff]
 
-    if type == 6:
+    if channel_type == 6:
         channel.vector_len = 4
         channel.data = [get_quat(-.1, -2.1, -1.7, -1.7),
                         get_quat(-0.1, -2.1, 1.6, 1.6),
@@ -50,13 +50,13 @@ def compare_animation_channels(self, expected, actual):
     self.assertEqual(expected.first_frame, actual.first_frame)
     self.assertEqual(expected.last_frame, actual.last_frame)
     self.assertEqual(expected.vector_len, actual.vector_len)
-    self.assertEqual(expected.type, actual.type)
+    self.assertEqual(expected.channel_type, actual.channel_type)
     self.assertEqual(expected.pivot, actual.pivot)
     self.assertEqual(expected.unknown, actual.unknown)
 
     self.assertEqual(len(expected.data), len(actual.data))
     for i in range(len(expected.data)):
-        if expected.type < 6:
+        if expected.channel_type < 6:
             self.assertAlmostEqual(expected.data[i], actual.data[i], 5)
         else:
             compare_quats(self, expected.data[i], actual.data[i])
@@ -69,7 +69,7 @@ def get_animation_bit_channel(pivot=0, xml=False):
     return AnimationBitChannel(
         first_frame=0,
         last_frame=len(data) - 1,
-        type=0,
+        channel_type=0,
         pivot=pivot,
         default=1.0,
         data=data)
@@ -79,7 +79,7 @@ def get_animation_bit_channel_no_pad(pivot=0):
     return AnimationBitChannel(
         first_frame=0,
         last_frame=7,
-        type=0,
+        channel_type=0,
         pivot=pivot,
         default=0.0,
         data=[1.0, 1.0, 1.0, 1.0,
@@ -89,7 +89,7 @@ def get_animation_bit_channel_no_pad(pivot=0):
 def compare_animation_bit_channels(self, expected, actual):
     self.assertEqual(expected.first_frame, actual.first_frame)
     self.assertEqual(expected.last_frame, actual.last_frame)
-    self.assertEqual(expected.type, actual.type)
+    self.assertEqual(expected.channel_type, actual.channel_type)
     self.assertEqual(expected.pivot, actual.pivot)
     self.assertEqual(expected.default, actual.default)
 
@@ -101,19 +101,19 @@ def compare_animation_bit_channels(self, expected, actual):
 def get_animation(hierarchy_name='TestHierarchy', xml=False):
     return Animation(
         header=get_animation_header(hierarchy_name),
-        channels=[get_animation_channel(type=0, pivot=0),
-                  get_animation_channel(type=1, pivot=1),
-                  get_animation_channel(type=2, pivot=1),
+        channels=[get_animation_channel(channel_type=0, pivot=0),
+                  get_animation_channel(channel_type=1, pivot=1),
+                  get_animation_channel(channel_type=2, pivot=1),
 
-                  get_animation_channel(type=0, pivot=2),
-                  get_animation_channel(type=1, pivot=2),
-                  get_animation_channel(type=2, pivot=2),
-                  get_animation_channel(type=6, pivot=2),
+                  get_animation_channel(channel_type=0, pivot=2),
+                  get_animation_channel(channel_type=1, pivot=2),
+                  get_animation_channel(channel_type=2, pivot=2),
+                  get_animation_channel(channel_type=6, pivot=2),
 
-                  get_animation_channel(type=0, pivot=3),
-                  get_animation_channel(type=1, pivot=3),
-                  get_animation_channel(type=2, pivot=3),
-                  get_animation_channel(type=6, pivot=3),
+                  get_animation_channel(channel_type=0, pivot=3),
+                  get_animation_channel(channel_type=1, pivot=3),
+                  get_animation_channel(channel_type=2, pivot=3),
+                  get_animation_channel(channel_type=6, pivot=3),
 
                   get_animation_bit_channel(pivot=6, xml=xml),
                   get_animation_bit_channel(pivot=7)])
@@ -135,7 +135,7 @@ def compare_animations(self, expected, actual):
     compare_animation_headers(self, expected.header, actual.header)
 
     self.assertEqual(len(expected.channels), len(actual.channels))
-    for i, chan in enumerate(expected.channels):
+    for chan in expected.channels:
         if isinstance(chan, AnimationBitChannel):
             continue
         match_found = False
@@ -143,12 +143,12 @@ def compare_animations(self, expected, actual):
             if isinstance(act, AnimationBitChannel):
                 continue
 
-            if chan.type == act.type and chan.pivot == act.pivot:
+            if chan.channel_type == act.channel_type and chan.pivot == act.pivot:
                 compare_animation_channels(self, chan, act)
                 match_found = True
         self.assertTrue(match_found)
 
-    for i, chan in enumerate(expected.channels):
+    for chan in expected.channels:
         if isinstance(chan, AnimationChannel):
             continue
         match_found = False
@@ -156,7 +156,7 @@ def compare_animations(self, expected, actual):
             if isinstance(act, AnimationChannel):
                 continue
 
-            if chan.type == act.type and chan.pivot == act.pivot:
+            if chan.channel_type == act.channel_type and chan.pivot == act.pivot:
                 compare_animation_bit_channels(self, chan, act)
                 match_found = True
         self.assertTrue(match_found)

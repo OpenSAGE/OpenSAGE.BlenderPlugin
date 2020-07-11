@@ -44,9 +44,9 @@ class VertexInfluence:
     def create(self, parent, parent2=None):
         influence = create_node(parent, 'I')
         influence.set('Bone', str(self.bone_idx))
-        influence.set('Weight', format(self.bone_inf))
+        influence.set('Weight', truncate(self.bone_inf))
 
         if parent2 is not None:
             influence2 = create_node(parent2, 'I')
             influence2.set('Bone', str(self.xtra_idx))
-            influence2.set('Weight', format(self.xtra_inf))
+            influence2.set('Weight', truncate(self.xtra_inf))

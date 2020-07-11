@@ -14,9 +14,9 @@ W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE = 0x00000026
 
 
 class PrelitBase:
-    def __init__(self, type=W3D_CHUNK_PRELIT_UNLIT, mat_info=MaterialInfo(), material_passes=None,
+    def __init__(self, prelit_type=W3D_CHUNK_PRELIT_UNLIT, mat_info=MaterialInfo(), material_passes=None,
                  vert_materials=None, textures=None, shaders=None):
-        self.type = type
+        self.prelit_type = prelit_type
         self.mat_info = mat_info
         self.material_passes = material_passes if material_passes is not None else []
         self.vert_materials = vert_materials if vert_materials is not None else []
@@ -24,8 +24,8 @@ class PrelitBase:
         self.shaders = shaders if shaders is not None else []
 
     @staticmethod
-    def read(context, io_stream, chunk_end, type):
-        result = PrelitBase(type=type)
+    def read(context, io_stream, chunk_end, prelit_type):
+        result = PrelitBase(prelit_type=prelit_type)
 
         while io_stream.tell() < chunk_end:
             (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)

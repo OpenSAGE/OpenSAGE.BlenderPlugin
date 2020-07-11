@@ -8,8 +8,8 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 
 class TestPrelit(TestCase):
     def test_write_read(self):
-        type = W3D_CHUNK_PRELIT_VERTEX
-        expected = get_prelit(type=type)
+        prelit_type = W3D_CHUNK_PRELIT_VERTEX
+        expected = get_prelit(prelit_type=prelit_type)
 
         self.assertEqual(583, expected.size())
 
@@ -17,16 +17,16 @@ class TestPrelit(TestCase):
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, _) = read_chunk_head(io_stream)
-        self.assertEqual(type, chunkType)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
+        self.assertEqual(prelit_type, chunkType)
         self.assertEqual(expected.size(False), chunkSize)
 
-        actual = PrelitBase.read(self, io_stream, chunkSize, type)
+        actual = PrelitBase.read(self, io_stream, chunkSize, prelit_type)
         compare_prelits(self, expected, actual)
 
     def test_write_read_minimal(self):
-        type = W3D_CHUNK_PRELIT_VERTEX
-        expected = get_prelit_minimal(type=type)
+        prelit_type = W3D_CHUNK_PRELIT_VERTEX
+        expected = get_prelit_minimal(prelit_type=prelit_type)
 
         self.assertEqual(32, expected.size())
 
@@ -34,16 +34,16 @@ class TestPrelit(TestCase):
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, _) = read_chunk_head(io_stream)
-        self.assertEqual(type, chunkType)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
+        self.assertEqual(prelit_type, chunkType)
         self.assertEqual(expected.size(False), chunkSize)
 
-        actual = PrelitBase.read(self, io_stream, chunkSize, type)
+        actual = PrelitBase.read(self, io_stream, chunkSize, prelit_type)
         compare_prelits(self, expected, actual)
 
     def test_chunk_size(self):
-        type = W3D_CHUNK_PRELIT_VERTEX
-        expected = get_prelit(type=type)
+        prelit_type = W3D_CHUNK_PRELIT_VERTEX
+        expected = get_prelit(prelit_type=prelit_type)
 
         self.assertEqual(575, expected.size(False))
         self.assertEqual(583, expected.size())
@@ -56,7 +56,7 @@ class TestPrelit(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_PRELIT_VERTEX, chunk_type)
 

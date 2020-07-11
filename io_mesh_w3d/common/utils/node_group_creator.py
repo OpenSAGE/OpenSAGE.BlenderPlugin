@@ -11,80 +11,79 @@ class NodeGroupCreator():
         for child_node in xml_node:
             if child_node.tag != 'hide':
                 continue
-            id = child_node.get('id')
+            node_id = child_node.get('id')
             port_type = child_node.get('type')
 
             if port_type == 'input':
-                node.inputs[id].hide = True
+                node.inputs[node_id].hide = True
             else:
-                node.outputs[id].hide = True
+                node.outputs[node_id].hide = True
 
     def process_value_setups(self, xml_node, node):
         for child_node in xml_node:
             if child_node.tag != 'set':
                 continue
-            id = int(child_node.get('id'))
+            node_id = int(child_node.get('id'))
             value = child_node.get('value')
-            socket = node.inputs[id]
-            type = socket.type
-            self.process_default_value(socket, type, value)
+            socket = node.inputs[node_id]
+            self.process_default_value(socket, socket.type, value)
 
 
-    def process_default_value(self, socket, type, default):
+    def process_default_value(self, socket, socket_type, default):
         if default is None:
             return
-        if type == 'NodeSocketFloat':
+        if socket_type == 'NodeSocketFloat':
             socket.default_value = float(default)
-        elif type == 'NodeSocketInt':
+        elif socket_type == 'NodeSocketInt':
             socket.default_value = int(default)
-        elif type == 'NodeSocketBool':
+        elif socket_type == 'NodeSocketBool':
             socket.default_value = str(default) in ['True', 'true', '1']
-        elif type == 'NodeSocketColor':
+        elif socket_type == 'NodeSocketColor':
             values = default.split(',')
             socket.default_value = Vector((float(values[0]), float(values[1]), float(values[2]), float(values[3])))
         else:
-            print('INFO: default value for NodeSocket ' + type + ' not supported')
+            print('INFO: default value for NodeSocket ' + socket_type + ' not supported')
             return
 
 
-    def process_min_value(self, socket, min):
-        if min is None:
-            return
-        if socket.type == 'FLOAT':
-            min = float(min)
-        elif socket.type == 'INT':
-            min = int(min)
-        socket.min_value = min
-
-
-    def process_max_value(self, socket, max):
-        if max is None:
+    def process_min_value(self, socket, min_value):
+        if min_value is None:
             return
         if socket.type == 'FLOAT':
-            max = float(max)
+            min_value = float(min_value)
         elif socket.type == 'INT':
-            max = int(max)
-        socket.max_value = max
+            min_value = int(min_value)
+        socket.min_value = min_value
 
 
-    def process_presets(self, socket, type, xml_node, name=None):
-        self.process_default_value(socket, type, xml_node.get('default'))
+    def process_max_value(self, socket, max_value):
+        if max_value is None:
+            return
+        if socket.type == 'FLOAT':
+            max_value = float(max_value)
+        elif socket.type == 'INT':
+            max_value = int(max_value)
+        socket.max_value = max_value
+
+
+    def process_presets(self, socket, socket_type, xml_node):
+        self.process_default_value(socket, socket_type, xml_node.get('default'))
         self.process_min_value(socket, xml_node.get('min'))
         self.process_max_value(socket, xml_node.get('max'))
 
 
-    def create_input_node(self, node_tree, xml_node, node):
+    def create_input_node(self, node_tree, xml_node):
         for child_node in xml_node:
             if child_node.tag != 'input':
                 continue
             name = child_node.get('name')
-            type = child_node.get('type')
+            socket_type = child_node.get('type')
 
-            socket = node_tree.inputs.new(type, name)
-            self.process_presets(socket, type, child_node, name)
+            socket = node_tree.inputs.new(socket_type, name)
+            self.process_presets(socket, socket_type, child_node)
 
 
-    def create_output_node(self, node_tree, xml_node, node):
+    def create_output_node(self, node_tree, xml_node):
         for child_node in xml_node:
             if child_node.tag != 'output':
                 continue
@@ -119,8 +118,8 @@ class NodeGroupCreator():
                 nodes = NodeGroupCreator().create(directory, parent, node_tree)
 
             elif xml_node.tag == 'node':
-                type = xml_node.get('type')
-                node = node_tree.nodes.new(type)
+                node_type = xml_node.get('type')
+                node = node_tree.nodes.new(node_type)
 
                 node.location = location
                 nodes[xml_node.get('name')] = node
@@ -128,21 +127,21 @@ class NodeGroupCreator():
                 self.process_input_hides(xml_node, node)
                 self.process_value_setups(xml_node, node)
 
-                if type == 'NodeGroupInput':
-                    self.create_input_node(node_tree, xml_node, node)
-                elif type == 'NodeGroupOutput':
-                    self.create_output_node(node_tree, xml_node, node)
-                elif type == 'ShaderNodeMath':
+                if node_type == 'NodeGroupInput':
+                    self.create_input_node(node_tree, xml_node)
+                elif node_type == 'NodeGroupOutput':
+                    self.create_output_node(node_tree, xml_node)
+                elif node_type == 'ShaderNodeMath':
                     node.operation = xml_node.get('mode').upper()
                     for inp in xml_node:
                         name = inp.get('name', int(inp.get('id')))
-                        type = inp.get('type')
+                        node_type = inp.get('type')
                         socket = node.inputs[name]
-                        self.process_presets(socket, type, inp)
-                elif type in ['ShaderNodeEeveeSpecular', 'ShaderNodeNormalMap', 'ShaderNodeSeparateHSV']:
+                        self.process_presets(socket, node_type, inp)
+                elif node_type in ['ShaderNodeEeveeSpecular', 'ShaderNodeNormalMap', 'ShaderNodeSeparateHSV']:
                     continue
                 else:
-                    print('shader node type: ' + type + ' is not yet supported')
+                    print('shader node type: ' + node_type + ' is not yet supported')
 
             elif xml_node.tag == 'nodegroup':
                 nodegroup = node_tree.nodes.new(type='ShaderNodeGroup')

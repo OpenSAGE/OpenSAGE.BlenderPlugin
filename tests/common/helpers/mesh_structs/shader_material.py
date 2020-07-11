@@ -19,44 +19,44 @@ def compare_shader_material_headers(self, expected, actual):
 
 
 def get_shader_material_property(
-        _type=1, name='property', tex_name='texture.dds', value=None):
+        prop_type=1, name='property', tex_name='texture.dds', value=None):
     result = ShaderMaterialProperty(
-        type=_type,
+        prop_type=prop_type,
         name=name)
 
     if value is not None:
         result.value = value
-    elif _type == STRING_PROPERTY:
+    elif prop_type == STRING_PROPERTY:
         result.value = tex_name
-    elif _type == FLOAT_PROPERTY:
+    elif prop_type == FLOAT_PROPERTY:
         result.value = 0.25
-    elif _type == VEC2_PROPERTY:
+    elif prop_type == VEC2_PROPERTY:
         result.value = get_vec2(x=1.0, y=0.5)
-    elif _type == VEC3_PROPERTY:
+    elif prop_type == VEC3_PROPERTY:
         result.value = get_vec(x=1.0, y=0.2, z=0.33)
-    elif _type == VEC4_PROPERTY:
+    elif prop_type == VEC4_PROPERTY:
         result.value = get_vec4(x=0.33, y=0.3, z=0.1, w=1.0)
-    elif _type == LONG_PROPERTY:
+    elif prop_type == LONG_PROPERTY:
         result.value = 3
-    elif _type == BOOL_PROPERTY:
+    elif prop_type == BOOL_PROPERTY:
         result.value = True
     return result
 
 
 def compare_shader_material_properties(self, expected, actual):
     self.assertEqual(expected.name, actual.name)
-    self.assertEqual(expected.type, actual.type, 'Incorrect type: ' +
-                     str(actual.type) + ' for property: ' + actual.name)
+    self.assertEqual(expected.prop_type, actual.prop_type, 'Incorrect type: ' +
+                     str(actual.prop_type) + ' for property: ' + actual.name)
 
-    if expected.type == STRING_PROPERTY:
+    if expected.prop_type == STRING_PROPERTY:
         self.assertEqual(expected.value.split('.')[0], actual.value.split('.')[0])
-    elif expected.type == FLOAT_PROPERTY:
+    elif expected.prop_type == FLOAT_PROPERTY:
         self.assertAlmostEqual(expected.value, actual.value, 5)
-    elif expected.type == VEC2_PROPERTY:
+    elif expected.prop_type == VEC2_PROPERTY:
         compare_vectors2(self, expected.value, actual.value)
-    elif expected.type == VEC3_PROPERTY:
+    elif expected.prop_type == VEC3_PROPERTY:
         compare_vectors(self, expected.value, actual.value)
-    elif expected.type == VEC4_PROPERTY:
+    elif expected.prop_type == VEC4_PROPERTY:
         compare_vectors4(self, expected.value, actual.value)
     else:
         self.assertEqual(expected.value, actual.value)

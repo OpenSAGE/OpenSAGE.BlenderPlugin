@@ -45,10 +45,10 @@ def parse_quaternion(xml_quaternion):
 
 def create_quaternion(quat, parent, identifier='Rotation'):
     quaternion = create_node(parent, identifier)
-    quaternion.set('W', format(quat[0]))
-    quaternion.set('X', format(quat[1]))
-    quaternion.set('Y', format(quat[2]))
-    quaternion.set('Z', format(quat[3]))
+    quaternion.set('W', truncate(quat[0]))
+    quaternion.set('X', truncate(quat[1]))
+    quaternion.set('Y', truncate(quat[2]))
+    quaternion.set('Z', truncate(quat[3]))
 
 
 def parse_matrix(xml_matrix):
@@ -71,17 +71,17 @@ def parse_matrix(xml_matrix):
 
 def create_matrix(mat, parent, identifier='FixupMatrix'):
     matrix = create_node(parent, identifier)
-    matrix.set('M00', format(mat[0][0]))
-    matrix.set('M01', format(mat[0][1]))
-    matrix.set('M02', format(mat[0][2]))
-    matrix.set('M03', format(mat[0][3]))
+    matrix.set('M00', truncate(mat[0][0]))
+    matrix.set('M01', truncate(mat[0][1]))
+    matrix.set('M02', truncate(mat[0][2]))
+    matrix.set('M03', truncate(mat[0][3]))
 
-    matrix.set('M10', format(mat[1][0]))
-    matrix.set('M11', format(mat[1][1]))
-    matrix.set('M12', format(mat[1][2]))
-    matrix.set('M13', format(mat[1][3]))
+    matrix.set('M10', truncate(mat[1][0]))
+    matrix.set('M11', truncate(mat[1][1]))
+    matrix.set('M12', truncate(mat[1][2]))
+    matrix.set('M13', truncate(mat[1][3]))
 
-    matrix.set('M20', format(mat[2][0]))
-    matrix.set('M21', format(mat[2][1]))
-    matrix.set('M22', format(mat[2][2]))
-    matrix.set('M23', format(mat[2][3]))
+    matrix.set('M20', truncate(mat[2][0]))
+    matrix.set('M21', truncate(mat[2][1]))
+    matrix.set('M22', truncate(mat[2][2]))
+    matrix.set('M23', truncate(mat[2][3]))

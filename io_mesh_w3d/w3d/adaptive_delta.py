@@ -48,20 +48,19 @@ def get_deltas(delta_bytes, num_bits):
     return deltas
 
 
-def set_deltas(bytes, num_bits):
+def set_deltas(delta_bytes, num_bits):
     result = [None] * num_bits * 2
 
     if num_bits == 4:
-        for i in range(int(len(bytes) / 2)):
-            lower = bytes[i * 2]
+        for i in range(int(len(delta_bytes) / 2)):
+            lower = delta_bytes[i * 2]
             # Bitflip
             if lower < 0:
                 lower += 16
-            upper = bytes[i * 2 + 1]
+            upper = delta_bytes[i * 2 + 1]
             result[i] = (upper << 4) | lower
     else:
-        for i in range(len(bytes)):
-            byte = bytes[i]
+        for i, byte in enumerate(delta_bytes):
             # Bitflip
             byte -= 128
             if byte < -127:
@@ -90,7 +89,7 @@ def decode(channel):
             if idx >= channel.num_time_codes:
                 break
 
-            if channel.type == 6:
+            if channel.channel_type == 6:
                 # shift from wxyz to xyzw
                 index = (delta_block.vector_index + 1) % 4
                 value = result[idx - 1][index] + delta_scale * delta

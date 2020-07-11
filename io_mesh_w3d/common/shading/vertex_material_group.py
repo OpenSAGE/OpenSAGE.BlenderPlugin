@@ -29,8 +29,8 @@ class VertexMaterialGroup():
         instance.inputs['Attributes'].default_value = attributes
 
         # TODO: translate those to shader properties
-        # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, VPhase,
-        #        UStep, VStep, StepsPerSecond, Offset, Axis, UOffset, VOffset, ClampFix, UseReflect, Period, VPerScale,
+        # floats: UPerSec, VPerSec, UScale, VScale, FPS, Speed, UCenter, VCenter, UAmp, UFreq, UPhase, VAmp, VFreq, 
+        # VPhase, UStep, VStep, StepsPerSecond, Offset, Axis, UOffset, VOffset, ClampFix, UseReflect, Period, VPerScale,
         #        BumpRotation, BumpScale
         # ints: Log1Width, Log2Width, Last(Frame)
 
@@ -117,7 +117,7 @@ class VertexMaterialGroup():
 
         # create group outputs
         group_outputs = group.nodes.new('NodeGroupOutput')
-        group_outputs.location = (300,0)
+        group_outputs.location = (300, 0)
         group.outputs.new('NodeSocketShader', 'BSDF')
 
         # create and link nodes

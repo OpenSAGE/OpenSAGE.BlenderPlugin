@@ -150,12 +150,10 @@ def get_mesh(
         mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mat))
     elif prelit:
         mesh.header.attrs |= PRELIT_UNLIT | PRELIT_VERTEX | PRELIT_LIGHTMAP_MULTI_PASS | PRELIT_LIGHTMAP_MULTI_TEXTURE
-        mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
-        mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
-        mesh.prelit_lightmap_multi_pass = get_prelit(
-            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
-        mesh.prelit_lightmap_multi_texture = get_prelit(
-            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
+        mesh.prelit_unlit = get_prelit(prelit_type=W3D_CHUNK_PRELIT_UNLIT, count=1)
+        mesh.prelit_vertex = get_prelit(prelit_type=W3D_CHUNK_PRELIT_VERTEX, count=1)
+        mesh.prelit_lightmap_multi_pass = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
+        mesh.prelit_lightmap_multi_texture = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
     else:
         for i in range(mat_count):
             mesh.shaders.append(get_shader())

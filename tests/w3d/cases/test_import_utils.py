@@ -66,7 +66,7 @@ class TestImportUtilsW3D(TestCase):
         channel = TimeCodedAnimationChannel(
             num_time_codes=5,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=1, value=3.0),
                         TimeCodedDatum(time_code=2, value=3.0),
