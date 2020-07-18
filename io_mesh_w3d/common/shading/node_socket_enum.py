@@ -13,7 +13,9 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
     def draw(self, context, layout):
         pass
 
-    def draw_color(self, context):
+    @staticmethod
+    def draw_color(context):
+        del context
         return (1.0, 0.4, 0.216, 0.5)
 
     @staticmethod
@@ -66,12 +68,15 @@ class NodeSocketEnum(NodeSocketInt):
         default='0')
 
     def draw(self, context, layout, node, text):
+        del context, node
         if self.is_output or self.is_linked:
             layout.label(text=text)
         else:
             layout.prop(self, 'default_value', text=text)
 
-    def draw_color(self, context, node):
+    @staticmethod
+    def draw_color(context, node):
+        del context, node
         return (0.1, 0.2, 1.0, 1.0)
 
     def get(self):
@@ -237,4 +242,5 @@ class NodeSocketEnumDetailAlphaFunc(NodeSocketEnum):
             ('1', 'DETAIL', 'other'),
             ('2', 'SCALE', 'local * other'),
             ('3', 'INVSCALE', '~(~local * ~other) = local + (1-local)*other')],
-        default='0') 
+        default='0')
+        

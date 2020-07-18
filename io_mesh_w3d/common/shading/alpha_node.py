@@ -17,12 +17,11 @@ class AlphaNode(Node):
 
 
     def init(self, context):
+        del context
         self.inputs.new('NodeSocketFloat', "World")
         self.inputs.new('NodeSocketVector', "!")
 
         self.outputs.new('NodeSocketColor', "How")
         self.outputs.new('NodeSocketColor', "are")
         self.outputs.new('NodeSocketFloat', "you")
-
-    def update(self):
-        print('UPDATE!!!!')
+        
