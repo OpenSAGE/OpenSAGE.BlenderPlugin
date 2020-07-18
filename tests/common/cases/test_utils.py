@@ -30,7 +30,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.vert_materials:
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
+            material, _ = create_material_from_vertex_material(mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
@@ -40,22 +40,19 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
+            material, _ = create_material_from_vertex_material(mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
 
     def test_shader_material_roundtrip(self):
         mesh = get_mesh(shader_mat=True)
-        mesh.shader_materials = [get_shader_material()]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
-        for source in mesh.shader_materials:
-            material = create_shader_material(self, source, 'uv_layer')
-            materials.append(material)
-            actual = retrieve_shader_material(self, material, principled)
-            compare_shader_materials(self, source, actual)
+        material = create_shader_material(self, mesh.shader_materials[0], 'uv_layer')
+        actual = retrieve_materials(self, material, principled)
+        compare_shader_materials(self, mesh.shader_materials[0], actual)
 
     # is that really a valid scenario? might only be a single shader material per mesh
     def test_duplicate_shader_material_roundtrip(self):
@@ -102,31 +99,6 @@ class TestUtils(TestCase):
 
             compare_shader_materials(self, source, actual)
 
-    def test_default_shader_material_properties_are_not_exported(self):
-        mesh = get_mesh(shader_mat=True)
-
-        mesh.shader_materials[0].properties = []
-
-        material = create_shader_material(self, mesh.shader_materials[0], 'uv_layer')
-
-        actual = retrieve_shader_material(self, material, principled, w3x=False)
-        self.assertEqual(0, len(actual.properties))
-
-        actual = retrieve_shader_material(self, material, principled, w3x=True)
-        self.assertEqual(0, len(actual.properties))
-
-    def test_shader_material_minimal_roundtrip(self):
-        mesh = get_mesh(shader_mat=True)
-
-        for source in mesh.shader_materials:
-            source.properties = get_shader_material_properties_minimal()
-
-            material = create_shader_material(self, source, 'uv_layer')
-            actual = retrieve_shader_material(self, material, principled)
-            source.properties[2].type = 5
-            source.properties[2].value = get_vec4(x=1.0, y=0.2, z=0.33, w=1.0)
-            compare_shader_materials(self, source, actual)
-
     def test_shader_material_type_name_fallback(self):
         mesh = get_mesh(shader_mat=True)
 
@@ -154,7 +126,7 @@ class TestUtils(TestCase):
     def test_shader_roundtrip(self):
         mesh = get_mesh()
 
-        (material, _) = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
+        material, _ = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -711,7 +683,7 @@ class TestUtils(TestCase):
 
         container_name = 'containerName'
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
+        actual_hiera, rig = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:
             hierarchy.pivot_fixups = []  # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
@@ -721,7 +693,7 @@ class TestUtils(TestCase):
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
-            (actual_meshes, textures) = retrieve_meshes(
+            actual_meshes, textures = retrieve_meshes(
                 self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):

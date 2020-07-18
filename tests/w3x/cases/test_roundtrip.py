@@ -110,9 +110,8 @@ class TestRoundtripW3X(TestCase):
     def test_roundtrip_texture_name_with_dots(self):
         hierarchy_name = 'testname_skl'
         hierarchy = get_hierarchy(hierarchy_name)
-        mesh = get_mesh(name='sword', skin=True)
-        mesh.textures = [get_texture(name='tex.with.dots.in.name.but.not.used.dds'),
-                         get_texture(name='another.tex.with.dots.in.name.dds')]
+        mesh = get_mesh(name='sword', skin=True, shader_mats=True)
+        mesh.textures = [get_texture(name='tex.with.dots.in.name.dds')]
         meshes = [mesh]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
 
@@ -129,7 +128,7 @@ class TestRoundtripW3X(TestCase):
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'another.tex.with.dots.in.name.xml'))
+        self.assertTrue(os.path.exists(self.outpath() + 'tex.with.dots.in.name.xml'))
 
         self.reset_scene()
 
@@ -171,6 +170,9 @@ class TestRoundtripW3X(TestCase):
 
         # check created include entries
         root = find_root(self, self.outpath() + 'output_skn.w3x')
+        print('##############')
+        for incl in root.find('Includes').findall('Include'):
+            print(incl.get('source'))
         self.assertEqual(6, len(root.find('Includes').findall('Include')))
 
         self.reset_scene()
@@ -274,7 +276,7 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertTrue('testname_skl' in bpy.data.objects)
         self.assertTrue('testname_skl' in bpy.data.armatures)
@@ -291,7 +293,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn.sword.w3x'
         load(self)
 
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertFalse('soldier' in bpy.data.objects)
         self.assertFalse('BOUNDINGBOX' in bpy.data.objects)
@@ -303,7 +305,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn.BOUNDINGBOX.w3x'
         load(self)
 
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertFalse('soldier' in bpy.data.objects)
 
@@ -351,7 +353,7 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertTrue('testname_skl' in bpy.data.objects)
         self.assertTrue('testname_skl' in bpy.data.armatures)

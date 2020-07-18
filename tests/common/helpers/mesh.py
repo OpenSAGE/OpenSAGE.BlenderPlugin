@@ -79,8 +79,7 @@ def get_mesh(
         shader_mat=False,
         prelit=False,
         hidden=False,
-        cast_shadow=False,
-        mat_count=2):
+        cast_shadow=False):
     mesh = Mesh()
     mesh.header = get_mesh_header(name, skin, shader_mat, hidden, cast_shadow)
 
@@ -155,12 +154,11 @@ def get_mesh(
         mesh.prelit_lightmap_multi_pass = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
         mesh.prelit_lightmap_multi_texture = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
     else:
-        for i in range(mat_count):
-            mesh.shaders.append(get_shader())
-            mesh.vert_materials.append(get_vertex_material())
-            mesh.textures.append(get_texture())
+        mesh.shaders.append(get_shader())
+        mesh.vert_materials.append(get_vertex_material())
+        mesh.textures.append(get_texture())
 
-            mesh.material_passes.append(get_material_pass(index=i, shader_mat=shader_mat))
+        mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mat))
 
     if not prelit:
         mesh.mat_info = get_material_info()

@@ -92,19 +92,20 @@ class TestMesh(TestCase):
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, chunk_size, _ = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
         self.assertEqual(expected.size(False), chunk_size)
 
         for chunk in expected_chunks:
-            (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+            chunk_type, chunk_size, _ = read_chunk_head(io_stream)
             self.assertEqual(hex(chunk), hex(chunk_type))
             io_stream.seek(chunk_size, 1)
 
     def test_unsupported_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 54, has_sub_chunks=True)
+        get_mesh_header().write(output)
 
         write_chunk_head(W3D_CHUNK_VERTICES_2, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
@@ -116,13 +117,12 @@ class TestMesh(TestCase):
         write_ubyte(0x00, output)
         write_chunk_head(W3D_CHUNK_DEFORM, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
-        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output,
-                         1, has_sub_chunks=False)
+        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
 
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
@@ -143,7 +143,7 @@ class TestMesh(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 

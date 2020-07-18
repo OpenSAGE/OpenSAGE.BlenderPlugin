@@ -153,7 +153,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name):
         header.sphCenter = center
         header.sphRadius = radius
 
-        retrieve_materials(context, mesh_struct, b_mesh, mesh)
+        retrieve_materials(context, mesh_struct, b_mesh, mesh, used_textures)
 
         b_mesh.free()
 

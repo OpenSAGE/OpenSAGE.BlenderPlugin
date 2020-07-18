@@ -27,8 +27,11 @@ def get_uv_coords(mesh_struct, b_mesh, mesh, uv_layer_name):
     return tx_coords
 
 
-def retrieve_materials(context, mesh_struct, b_mesh, mesh):
+def retrieve_materials(context, mesh_struct, b_mesh, mesh, used_textures):
     material = mesh.materials[0]
+    if not material.use_nodes:
+        # TODO: support those on export
+        context.warning(' non node materials not supported')
     shader_node = get_shader_node_group(context, material.node_tree)
 
     # TODO: check for context.file_format == W3X
@@ -36,6 +39,8 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh):
 
     if shader_node.node_tree.name == 'VertexMaterial':
         vert_mat, shader, tex_name, uv_layer_name = retrieve_vertex_material(context, material, shader_node)
+        if not tex_name in used_textures:
+            used_textures.append(tex_name)
         mesh_struct.vert_materials = [vert_mat]
         mesh_struct.shaders = [shader]
         mesh_struct.textures = [Texture(file=tex_name)]
@@ -56,7 +61,9 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh):
         if len(mesh.uv_layers) > 1:
             context.warning('only 1 uv_layer supported for shader material export')
 
-        shader_mat = retrieve_shader_material(context, shader_node)
+        shader_mat, tex_name = retrieve_shader_material(context, shader_node)
+        if not tex_name in used_textures:
+            used_textures.append(tex_name)
         mesh_struct.shader_materials = [shader_mat]
 
         mesh_struct.material_passes.append(MaterialPass(
@@ -113,6 +120,8 @@ def retrieve_vertex_material(context, material, shader_node):
 
     texture, uv_layer_name = get_texture_value(context, node_tree, shader_node.inputs['DiffuseTexture'])
 
+    shader.texturing = 1 if texture is not None else 0
+
     return vert_mat, shader, texture, uv_layer_name
 
 
@@ -127,7 +136,8 @@ def retrieve_shader_material(context, shader_node):
     for input_socket in shader_node.inputs:
         if isinstance(input_socket, NodeSocketTexture):
             prop_type = STRING_PROPERTY
-            value = get_texture_value(context, node_tree, input_socket)
+            value, _ = get_texture_value(context, node_tree, input_socket)
+            tex_name = value
         elif isinstance(input_socket, NodeSocketTextureAlpha):
             continue
         elif isinstance(input_socket, NodeSocketFloat):
@@ -154,7 +164,7 @@ def retrieve_shader_material(context, shader_node):
 
         shader_mat.properties.append(ShaderMaterialProperty(prop_type=prop_type, name=input_socket.name, value=value))
 
-    return shader_mat
+    return shader_mat, tex_name
 
 
 def get_shader_node_group(context, node_tree):

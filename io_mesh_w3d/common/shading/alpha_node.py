@@ -17,7 +17,6 @@ class AlphaNode(Node):
 
 
     def init(self, context):
-        del context
         self.inputs.new('NodeSocketFloat', "World")
         self.inputs.new('NodeSocketVector', "!")
 

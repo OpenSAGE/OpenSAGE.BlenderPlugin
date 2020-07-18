@@ -13,9 +13,7 @@ class NodeSocketInterfaceEnum(NodeSocketInterfaceInt):
     def draw(self, context, layout):
         pass
 
-    @staticmethod
-    def draw_color(context):
-        del context
+    def draw_color(self, context):
         return (1.0, 0.4, 0.216, 0.5)
 
     @staticmethod
@@ -74,9 +72,7 @@ class NodeSocketEnum(NodeSocketInt):
         else:
             layout.prop(self, 'default_value', text=text)
 
-    @staticmethod
-    def draw_color(context, node):
-        del context, node
+    def draw_color(self, context, node):
         return (0.1, 0.2, 1.0, 1.0)
 
     def get(self):
