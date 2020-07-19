@@ -15,7 +15,6 @@ def create_materials(context, mesh_struct, mesh, triangles):
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
-    # shader material stuff
     if mesh_struct.shader_materials:
         # TODO: check for no tx coords and more than 1 shader material
         tx_coords = mesh_struct.material_passes[0].tx_coords
@@ -24,7 +23,6 @@ def create_materials(context, mesh_struct, mesh, triangles):
         material = create_shader_material(context, mesh_struct.shader_materials[0], uv_layer)
         mesh.materials.append(material)
 
-    # vertex material stuff
     elif mesh_struct.vert_materials:
         # TODO: check for no tx coords and more than 1 vertex material / material pass
         tx_coords = mesh_struct.material_passes[0].tx_stages[0].tx_coords[0]

@@ -170,9 +170,6 @@ class TestRoundtripW3X(TestCase):
 
         # check created include entries
         root = find_root(self, self.outpath() + 'output_skn.w3x')
-        print('##############')
-        for incl in root.find('Includes').findall('Include'):
-            print(incl.get('source'))
         self.assertEqual(6, len(root.find('Includes').findall('Include')))
 
         self.reset_scene()
