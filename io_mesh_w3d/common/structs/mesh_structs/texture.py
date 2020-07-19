@@ -40,7 +40,7 @@ W3D_CHUNK_TEXTURE_NAME = 0x00000032
 
 
 class Texture:
-    def __init__(self, id='', file='', texture_info=None):
+    def __init__(self, id='', file='', texture_info=TextureInfo()):
         self.id = id
         self.file = file
         self.texture_info = texture_info

@@ -61,7 +61,7 @@ class PrelitBase:
         return size
 
     def write(self, io_stream):
-        write_chunk_head(self.type, io_stream,
+        write_chunk_head(self.prelit_type, io_stream,
                          self.size(False), has_sub_chunks=True)
 
         self.mat_info.write(io_stream)

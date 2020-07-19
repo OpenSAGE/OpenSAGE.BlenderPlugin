@@ -71,8 +71,7 @@ class TestMeshExportUtils(TestCase):
         meshes, _ = retrieve_meshes(self, None, None, 'container_name')
 
         mesh = meshes[0]
-        self.assertEqual(mesh.textures[0].file, 'texture.dds')
-        self.assertEqual(mesh.textures[1].file, 'texture.dds')
+        self.assertEqual('texture.dds', mesh.textures[0].file)
 
     def test_retrieve_meshes_with_meshes_in_edit_mode(self):
         mesh = get_mesh()

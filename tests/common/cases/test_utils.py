@@ -54,24 +54,6 @@ class TestUtils(TestCase):
         actual = retrieve_materials(self, material, principled)
         compare_shader_materials(self, mesh.shader_materials[0], actual)
 
-    # is that really a valid scenario? might only be a single shader material per mesh
-    def test_duplicate_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mat=True)
-        mesh.shader_materials = [get_shader_material(), get_shader_material()]
-
-        materials = []
-        for mat in mesh.shader_materials:
-            material = create_shader_material(self, mat, 'uv_layer')
-            materials.append(material)
-
-        self.assertEqual(1, len(bpy.data.materials))
-        self.assertTrue('meshName.NormalMapped.fx' in bpy.data.materials)
-
-        for i, expected in enumerate(mesh.shader_materials):
-            principled = node_shader_utils.PrincipledBSDFWrapper(materials[i], is_readonly=True)
-            actual = retrieve_shader_material(self, materials[i], principled)
-            compare_shader_materials(self, expected, actual)
-
     def test_shader_material_w3x_roundtrip(self):
         mesh = get_mesh(shader_mat=True)
         mesh.shader_materials = [get_shader_material()]
@@ -80,7 +62,7 @@ class TestUtils(TestCase):
         for source in mesh.shader_materials:
             material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
+            actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, source, actual)
 
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
@@ -97,30 +79,6 @@ class TestUtils(TestCase):
                     prop.type = 5
                     prop.value = Vector((prop.value[0], prop.value[1], prop.value[2], 1.0))
 
-            compare_shader_materials(self, source, actual)
-
-    def test_shader_material_type_name_fallback(self):
-        mesh = get_mesh(shader_mat=True)
-
-        for source in mesh.shader_materials:
-            source.header.type_name = 'LoremIpsum'
-            source.properties = []
-
-            material = create_shader_material(self, source, 'uv_layer')
-            actual = retrieve_shader_material(self, material, principled)
-            source.header.type_name = 'DefaultW3D.fx'
-            compare_shader_materials(self, source, actual)
-
-    # also not a valid scenario anymore?
-    def test_shader_material_type_name_upgrade_to_normal_mapped(self):
-        mesh = get_mesh(shader_mat=True)
-
-        for source in mesh.shader_materials:
-            source.header.type_name = 'LoremIpsum'
-
-            material = create_shader_material(self, source, 'uv_layer')
-            actual = retrieve_shader_material(self, material, principled)
-            source.header.type_name = 'NormalMapped.fx'
             compare_shader_materials(self, source, actual)
 
     def test_shader_roundtrip(self):

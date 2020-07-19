@@ -110,7 +110,7 @@ class TestRoundtripW3X(TestCase):
     def test_roundtrip_texture_name_with_dots(self):
         hierarchy_name = 'testname_skl'
         hierarchy = get_hierarchy(hierarchy_name)
-        mesh = get_mesh(name='sword', skin=True, shader_mats=True)
+        mesh = get_mesh(name='sword', skin=True, shader_mat=True)
         mesh.textures = [get_texture(name='tex.with.dots.in.name.dds')]
         meshes = [mesh]
         hlod = get_hlod(hierarchy_name, hierarchy_name)

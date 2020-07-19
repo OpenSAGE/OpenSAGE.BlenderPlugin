@@ -25,13 +25,13 @@ def get_prelit(prelit_type=W3D_CHUNK_PRELIT_UNLIT, count=1):
         texture_count=count)
 
     vm_name = 'INVALID_TYPE'
-    if type == W3D_CHUNK_PRELIT_UNLIT:
+    if prelit_type == W3D_CHUNK_PRELIT_UNLIT:
         vm_name = 'W3D_CHUNK_PRELIT_UNLIT'
-    elif type == W3D_CHUNK_PRELIT_VERTEX:
+    elif prelit_type == W3D_CHUNK_PRELIT_VERTEX:
         vm_name = 'W3D_CHUNK_PRELIT_VERTEX'
-    elif type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
+    elif prelit_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS:
         vm_name = 'W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS'
-    elif type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
+    elif prelit_type == W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE:
         vm_name = 'W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE'
 
     for i in range(count):

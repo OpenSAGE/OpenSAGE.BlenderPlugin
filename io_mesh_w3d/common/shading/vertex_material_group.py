@@ -42,8 +42,8 @@ class VertexMaterialGroup():
         instance.inputs['Specular'].default_value = vert_mat.vm_info.specular.to_vector_rgba()
         instance.inputs['Emissive'].default_value = vert_mat.vm_info.emissive.to_vector_rgba()
         instance.inputs['Shininess'].default_value = vert_mat.vm_info.shininess
-        instance.inputs['Opacity'].default_value = vert_mat.vm_info.shininess
-        instance.inputs['Translucency'].default_value = vert_mat.vm_info.shininess
+        instance.inputs['Opacity'].default_value = vert_mat.vm_info.opacity
+        instance.inputs['Translucency'].default_value = vert_mat.vm_info.translucency
 
         instance.inputs['DepthCompare'].default_value = str(shader.depth_compare)
         instance.inputs['DepthMaskWrite'].default_value = str(shader.depth_mask)

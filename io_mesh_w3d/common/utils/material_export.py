@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import os
+
 from mathutils import Vector
 from io_mesh_w3d.common.shading.vertex_material_group import *
 from io_mesh_w3d.common.structs.mesh_structs.texture import *
@@ -38,12 +40,12 @@ def retrieve_materials(context, mesh_struct, b_mesh, mesh, used_textures):
     # -> only export shader materials so convert VertexMaterial to DefaultW3D
 
     if shader_node.node_tree.name == 'VertexMaterial':
-        vert_mat, shader, tex_name, uv_layer_name = retrieve_vertex_material(context, material, shader_node)
+        vert_mat, shader, tex_name, tex_path, uv_layer_name = retrieve_vertex_material(context, material, shader_node)
         if not tex_name in used_textures:
             used_textures.append(tex_name)
         mesh_struct.vert_materials = [vert_mat]
         mesh_struct.shaders = [shader]
-        mesh_struct.textures = [Texture(file=tex_name)]
+        mesh_struct.textures = [Texture(id=tex_name, file=tex_path if tex_path != '' else tex_name)]
 
         tx_stage = TextureStage(
                         tx_ids=[[0]],
@@ -118,11 +120,11 @@ def retrieve_vertex_material(context, material, shader_node):
         post_detail_color_func=get_value(context, node_tree, shader_node.inputs['PostDetailColorFunc'], int),
         post_detail_alpha_func=get_value(context, node_tree, shader_node.inputs['PostDetailAlphaFunc'], int))
 
-    texture, uv_layer_name = get_texture_value(context, node_tree, shader_node.inputs['DiffuseTexture'])
+    texture, texture_path, uv_layer_name = get_texture_value(context, node_tree, shader_node.inputs['DiffuseTexture'])
 
     shader.texturing = 1 if texture is not None else 0
 
-    return vert_mat, shader, texture, uv_layer_name
+    return vert_mat, shader, texture, texture_path, uv_layer_name
 
 
 def retrieve_shader_material(context, shader_node):
@@ -134,28 +136,31 @@ def retrieve_shader_material(context, shader_node):
     shader_mat.header.technique_index = get_value(context, node_tree, shader_node.inputs['Technique'], int)
 
     for input_socket in shader_node.inputs:
-        if isinstance(input_socket, NodeSocketTexture):
+        if input_socket.bl_idname == 'NodeSocketTexture':
             prop_type = STRING_PROPERTY
-            value, _ = get_texture_value(context, node_tree, input_socket)
+            value, _, _ = get_texture_value(context, node_tree, input_socket)
             tex_name = value
-        elif isinstance(input_socket, NodeSocketTextureAlpha):
+        elif input_socket.bl_idname == 'NodeSocketTextureAlpha':
             continue
-        elif isinstance(input_socket, NodeSocketFloat):
+        elif input_socket.bl_idname == 'NodeSocketFloat':
             prop_type = FLOAT_PROPERTY
             value = get_value(context, node_tree, input_socket, float)
-        elif isinstance(input_socket, NodeSocketVector2):
+        elif input_socket.bl_idname == 'NodeSocketVector2':
             prop_type = VEC2_PROPERTY
             value = get_vec2_value(context, node_tree, input_socket)
-        elif isinstance(input_socket, NodeSocketVector):
+        elif input_socket.bl_idname == 'NodeSocketVector':
             prop_type = VEC3_PROPERTY
             value = get_vec_value(context, node_tree, input_socket)
-        elif isinstance(input_socket, (NodeSocketVector4, NodeSocketColor)):
+        elif input_socket.bl_idname == 'NodeSocketVector4':
             prop_type = VEC4_PROPERTY
             value = get_color_value(context, node_tree, input_socket)
-        elif isinstance(input_socket, NodeSocketInt):
+        elif input_socket.bl_idname == 'NodeSocketColor':
+            prop_type = VEC4_PROPERTY
+            value = get_color_value(context, node_tree, input_socket)
+        elif input_socket.bl_idname == 'NodeSocketInt':
             prop_type = LONG_PROPERTY
             value = get_value(context, node_tree, input_socket, int)
-        elif isinstance(input_socket, NodeSocketBool):
+        elif input_socket.bl_idname == 'NodeSocketBool':
             prop_type = BOOL_PROPERTY
             value = get_value(context, node_tree, input_socket, bool)
         else:
@@ -205,10 +210,11 @@ def get_texture_value(context, node_tree, socket):
 
     for link in socket.links:
         if link.from_node.bl_idname == node_type:
-            return link.from_node.image.name, get_uv_layer_name(context, node_tree, link.from_node.inputs['Vector'])
+            image = link.from_node.image
+            return image.name, os.path.basename(image.filepath), get_uv_layer_name(context, node_tree, link.from_node.inputs['Vector'])
 
         context.error('Node ' + link.from_node.bl_idname + ' connected to ' + socket.name + ' in ' + node_tree.name + ' is not of type ' + type)
-    return None, None
+    return None, None, None
 
 
 def get_value(context, node_tree, socket, cast):
