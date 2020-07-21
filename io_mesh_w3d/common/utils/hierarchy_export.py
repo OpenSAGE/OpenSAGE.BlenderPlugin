@@ -38,22 +38,7 @@ def retrieve_hierarchy(context, container_name):
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:
-            pivot = HierarchyPivot(name=bone.name, parent_id=0)
-
-            matrix = bone.matrix
-
-            if bone.parent is not None:
-                pivot.parent_id = pivot_id_dict[bone.parent.name]
-                matrix = bone.parent.matrix.inverted() @ matrix
-
-            (translation, rotation, _) = matrix.decompose()
-            pivot.translation = translation
-            pivot.rotation = rotation
-            eulers = rotation.to_euler()
-            pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
-
-            pivot_id_dict[pivot.name] = len(hierarchy.pivots)
-            hierarchy.pivots.append(pivot)
+            process_bone(bone, pivot_id_dict, hierarchy)
 
         switch_to_pose(rig, 'POSE')
 
@@ -67,6 +52,36 @@ def retrieve_hierarchy(context, container_name):
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
     return hierarchy, rig
+
+
+def process_bone(bone, pivot_id_dict, hierarchy):
+    if bone.name in pivot_id_dict.keys():
+        return
+
+    pivot = HierarchyPivot(name=bone.name, parent_id=0)
+    matrix = bone.matrix
+
+    if bone.parent is not None:
+        if bone.parent.name not in pivot_id_dict.keys():
+            process_bone(bone.parent, pivot_id_dict, hierarchy)
+
+        pivot.parent_id = pivot_id_dict[bone.parent.name]
+        matrix = bone.parent.matrix.inverted() @ matrix
+
+    if bone.name in pivot_id_dict.keys():
+        return
+
+    translation, rotation, _ = matrix.decompose()
+    pivot.translation = translation
+    pivot.rotation = rotation
+    eulers = rotation.to_euler()
+    pivot.euler_angles = Vector((eulers.x, eulers.y, eulers.z))
+
+    pivot_id_dict[pivot.name] = len(hierarchy.pivots)
+    hierarchy.pivots.append(pivot)
+
+    for child in bone.children:
+        process_bone(child, pivot_id_dict, hierarchy)
 
 
 def process_mesh(context, mesh, hierarchy, pivot_id_dict):
@@ -88,6 +103,9 @@ def process_mesh(context, mesh, hierarchy, pivot_id_dict):
 
             pivot.parent_id = pivot_id_dict[mesh.parent.name]
             matrix = mesh.parent.matrix_local.inverted() @ matrix
+
+        if mesh.name in pivot_id_dict.keys():
+            return
 
         location, rotation, _ = matrix.decompose()
         eulers = rotation.to_euler()

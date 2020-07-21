@@ -4,12 +4,19 @@
 import bpy
 from tests.utils import TestCase
 from mathutils import Vector
+from os.path import dirname as up
 from io_mesh_w3d.import_utils import *
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.hlod import *
 from tests.common.helpers.mesh import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
 from io_mesh_w3d.common.utils.hierarchy_export import *
+
+
+def add_bone(armature, name):
+        bone = armature.edit_bones.new(name)
+        bone.head = Vector((0.0, 0.0, 0.0))
+        bone.tail = Vector((0.0, 1.0, 0.0))
 
 
 class TestHierarchyUtils(TestCase):
@@ -24,7 +31,7 @@ class TestHierarchyUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
@@ -33,7 +40,7 @@ class TestHierarchyUtils(TestCase):
 
         create_data(self, [], None, hierarchy)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
@@ -69,7 +76,7 @@ class TestHierarchyUtils(TestCase):
 
         create_data(self, [], None, hierarchy, [])
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
@@ -127,7 +134,7 @@ class TestHierarchyUtils(TestCase):
 
         create_data(self, meshes, hlod, hierarchy)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'troll_skn')
+        actual_hiera, rig = retrieve_hierarchy(self, 'troll_skn')
         compare_hierarchies(self, hierarchy, actual_hiera)
 
     def test_get_or_create_skeleton_is_case_insensitive(self):
@@ -256,3 +263,37 @@ class TestHierarchyUtils(TestCase):
         self.assertEqual(3, hierarchy.pivots[4].parent_id)
         self.assertEqual('mesh4', hierarchy.pivots[5].name)
         self.assertEqual(2, hierarchy.pivots[5].parent_id)
+
+
+    def test_retrieve_hierarchy_creates_tree_of_bones(self):
+        collection = get_collection()
+
+        self.loadBlend(up(up(up(self.relpath()))) + '/testfiles/unordered_bones.blend')
+
+        hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
+
+        self.assertEqual(11, len(hierarchy.pivots))
+
+        self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
+        self.assertEqual(-1, hierarchy.pivots[0].parent_id)
+
+        self.assertEqual('Location', hierarchy.pivots[1].name)
+        self.assertEqual(0, hierarchy.pivots[1].parent_id)
+        self.assertEqual('fx_damage_3', hierarchy.pivots[2].name)
+        self.assertEqual(1, hierarchy.pivots[2].parent_id)
+        self.assertEqual('tp_2', hierarchy.pivots[3].name)
+        self.assertEqual(0, hierarchy.pivots[3].parent_id)
+        self.assertEqual('turret_2', hierarchy.pivots[4].name)
+        self.assertEqual(3, hierarchy.pivots[4].parent_id)
+        self.assertEqual('barrel_2', hierarchy.pivots[5].name)
+        self.assertEqual(4, hierarchy.pivots[5].parent_id)
+        self.assertEqual('fx_damage_2', hierarchy.pivots[6].name)
+        self.assertEqual(4, hierarchy.pivots[6].parent_id)
+        self.assertEqual('tp_1', hierarchy.pivots[7].name)
+        self.assertEqual(0, hierarchy.pivots[7].parent_id)
+        self.assertEqual('turret_1', hierarchy.pivots[8].name)
+        self.assertEqual(7, hierarchy.pivots[8].parent_id)
+        self.assertEqual('barrel_1', hierarchy.pivots[9].name)
+        self.assertEqual(8, hierarchy.pivots[9].parent_id)
+        self.assertEqual('fx_damage_1', hierarchy.pivots[10].name)
+        self.assertEqual(8, hierarchy.pivots[10].parent_id)
