@@ -270,14 +270,19 @@ class TestHierarchyUtils(TestCase):
 
         self.loadBlend(up(up(up(self.relpath()))) + '/testfiles/unordered_bones.blend')
 
+        print('#############################################################')
+
         hierarchy, _ = retrieve_hierarchy(self, 'lorem ipsum')
+
+        for piv in hierarchy.pivots:
+            print(piv.name)
 
         self.assertEqual(11, len(hierarchy.pivots))
 
         self.assertEqual('ROOTTRANSFORM', hierarchy.pivots[0].name)
         self.assertEqual(-1, hierarchy.pivots[0].parent_id)
 
-        self.assertEqual('location', hierarchy.pivots[1].name)
+        self.assertEqual('Location', hierarchy.pivots[1].name)
         self.assertEqual(0, hierarchy.pivots[1].parent_id)
         self.assertEqual('fx_damage_3', hierarchy.pivots[2].name)
         self.assertEqual(1, hierarchy.pivots[2].parent_id)

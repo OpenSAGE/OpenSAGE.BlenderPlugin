@@ -59,7 +59,6 @@ def process_bone(bone, pivot_id_dict, hierarchy):
         return
 
     pivot = HierarchyPivot(name=bone.name, parent_id=0)
-
     matrix = bone.matrix
 
     if bone.parent is not None:
@@ -69,6 +68,9 @@ def process_bone(bone, pivot_id_dict, hierarchy):
         pivot.parent_id = pivot_id_dict[bone.parent.name]
         matrix = bone.parent.matrix.inverted() @ matrix
 
+    if bone.name in pivot_id_dict.keys():
+        return
+
     translation, rotation, _ = matrix.decompose()
     pivot.translation = translation
     pivot.rotation = rotation
@@ -77,6 +79,9 @@ def process_bone(bone, pivot_id_dict, hierarchy):
 
     pivot_id_dict[pivot.name] = len(hierarchy.pivots)
     hierarchy.pivots.append(pivot)
+
+    for child in bone.children:
+        process_bone(child, pivot_id_dict, hierarchy)
 
 
 def process_mesh(context, mesh, hierarchy, pivot_id_dict):
@@ -96,11 +101,11 @@ def process_mesh(context, mesh, hierarchy, pivot_id_dict):
                 process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
                 return
 
-            print('##### mesh:')
-            print(mesh.name)
-            print(mesh.parent.name)
             pivot.parent_id = pivot_id_dict[mesh.parent.name]
             matrix = mesh.parent.matrix_local.inverted() @ matrix
+
+        if mesh.name in pivot_id_dict.keys():
+            return
 
         location, rotation, _ = matrix.decompose()
         eulers = rotation.to_euler()
