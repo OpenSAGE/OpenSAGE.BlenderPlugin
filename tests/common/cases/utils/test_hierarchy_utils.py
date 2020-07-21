@@ -14,9 +14,9 @@ from io_mesh_w3d.common.utils.hierarchy_export import *
 
 
 def add_bone(armature, name):
-        bone = armature.edit_bones.new(name)
-        bone.head = Vector((0.0, 0.0, 0.0))
-        bone.tail = Vector((0.0, 1.0, 0.0))
+    bone = armature.edit_bones.new(name)
+    bone.head = Vector((0.0, 0.0, 0.0))
+    bone.tail = Vector((0.0, 1.0, 0.0))
 
 
 class TestHierarchyUtils(TestCase):
@@ -263,7 +263,6 @@ class TestHierarchyUtils(TestCase):
         self.assertEqual(3, hierarchy.pivots[4].parent_id)
         self.assertEqual('mesh4', hierarchy.pivots[5].name)
         self.assertEqual(2, hierarchy.pivots[5].parent_id)
-
 
     def test_retrieve_hierarchy_creates_tree_of_bones(self):
         collection = get_collection()
