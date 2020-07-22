@@ -275,10 +275,9 @@ def compare_meshes(self, expected, actual):
     self.assertEqual(len(expected.tangents), len(actual.tangents))
     self.assertEqual(len(expected.bitangents), len(actual.bitangents))
 
-    # dont know how to generate those -> might not even be used anymore
-    #self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
-    # for i, expect in enumerate(expected.shade_ids):
-    #    self.assertAlmostEqual(expect, actual.shade_ids[i])
+    self.assertEqual(len(expected.shade_ids), len(actual.shade_ids))
+    for i, expect in enumerate(expected.shade_ids):
+        self.assertAlmostEqual(expect, actual.shade_ids[i])
 
     if expected.aabbtree is not None:
         if actual.aabbtree is not None:
