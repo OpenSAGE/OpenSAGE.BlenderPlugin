@@ -531,8 +531,7 @@ class Mesh:
             for vert_inf in self.vert_infs:
                 vert_inf.create(vertex_influences, vertex_influences2)
 
-        if self.shade_ids:
-            create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
+        create_object_list(xml_mesh, 'ShadeIndices', self.shade_ids, create_value, 'I')
 
         create_object_list(xml_mesh, 'Triangles', self.triangles, Triangle.create)
 
