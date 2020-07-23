@@ -1,4 +1,5 @@
 v0.5.1
+- export dummy shade indices (they are needed for the mod SDK (at least for W3X))
 - support for mesh sorting levels
 - only display appropriate custom object properties
 - support mesh flags 'cast_shadow', 'camera oriented' and 'camera aligned'

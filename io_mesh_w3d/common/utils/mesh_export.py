@@ -61,6 +61,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         _, _, scale = mesh_object.matrix_local.decompose()
 
         for i, vertex in enumerate(mesh.vertices):
+            mesh_struct.shade_ids.append(i)
             matrix = Matrix.Identity(4)
 
             if vertex.groups:

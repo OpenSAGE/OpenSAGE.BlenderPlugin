@@ -129,7 +129,7 @@ class TestMeshExportUtils(TestCase):
         mesh = bpy.data.objects['mesh']
         mesh.data.materials.append(None)
 
-        with (patch.object(self, 'warning')) as report_func:
+        with patch.object(self, 'warning') as report_func:
             retrieve_meshes(self, None, None, 'container_name')
             report_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
 

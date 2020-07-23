@@ -92,7 +92,7 @@ class TestMesh(TestCase):
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
         self.assertEqual(expected.size(False), chunk_size)
@@ -122,7 +122,7 @@ class TestMesh(TestCase):
 
         io_stream = io.BytesIO(output.getvalue())
 
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
@@ -143,7 +143,7 @@ class TestMesh(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
