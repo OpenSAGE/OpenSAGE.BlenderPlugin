@@ -200,6 +200,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     bl_label = 'Import W3D/W3X'
     bl_options = {'UNDO'}
 
+    file_format = ''
+
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
 
     def info(self, msg):
@@ -218,9 +220,11 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
         print_version(self.info)
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
+            file_format = 'W3D'
             load(self)
         else:
             from .w3x.import_w3x import load
+            file_format = 'W3X'
             load(self)
 
         self.info('finished')
