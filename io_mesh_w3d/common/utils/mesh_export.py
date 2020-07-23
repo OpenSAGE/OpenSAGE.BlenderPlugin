@@ -45,7 +45,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         mesh = mesh_object.data
         b_mesh = prepare_bmesh(context, mesh)
 
-        (center, radius) = calculate_mesh_sphere(mesh)
+        center, radius = calculate_mesh_sphere(mesh)
         header.sph_center = center
         header.sph_radius = radius
 
@@ -58,7 +58,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for loop in mesh.loops:
             loop_dict[loop.vertex_index] = loop
 
-        (_, _, scale) = mesh_object.matrix_local.decompose()
+        _, _, scale = mesh_object.matrix_local.decompose()
 
         for i, vertex in enumerate(mesh.vertices):
             matrix = Matrix.Identity(4)
@@ -96,7 +96,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             vertex.co.z *= scale.z
             mesh_struct.verts.append(matrix @ vertex.co)
 
-            (_, rotation, _) = matrix.decompose()
+            _, rotation, _ = matrix.decompose()
 
             if i in loop_dict:
                 loop = loop_dict[i]
