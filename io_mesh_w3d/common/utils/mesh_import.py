@@ -57,12 +57,10 @@ def create_mesh(context, mesh_struct, coll):
 
             mesh_ob.face_maps[surface_type_name].add([i])
 
-
     for i, mat_pass in enumerate(mesh_struct.material_passes):
         create_vertex_color_layer(mesh, mat_pass.dcg, 'DCG', i)
         create_vertex_color_layer(mesh, mat_pass.dig, 'DIG', i)
         create_vertex_color_layer(mesh, mat_pass.scg, 'SCG', i)
-
 
     principleds = []
 
