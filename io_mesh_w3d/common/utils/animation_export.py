@@ -127,7 +127,7 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
     else:
         ani_struct = Animation(header=AnimationHeader(), channels=channels)
 
-    ani_struct.header.name = animation_name
+    ani_struct.header.name = animation_name.upper()
     ani_struct.header.hierarchy_name = hierarchy.name()
 
     start_frame = bpy.context.scene.frame_start

@@ -19,13 +19,13 @@ from tests.utils import TestCase
 
 class TestRoundtripW3X(TestCase):
     def test_roundtrip(self):
-        hierarchy_name = 'testhiera_skl'
+        hierarchy_name = 'TESTHIERA_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod('TESTMODELNAME', hierarchy_name)
         boxes = [get_collision_box()]
         animation = get_animation(hierarchy_name, xml=True)
 
@@ -64,16 +64,16 @@ class TestRoundtripW3X(TestCase):
         amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(7, len(amt.bones))
 
-        self.assertTrue('sword' in bpy.data.objects)
-        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
+        self.assertTrue('SOLDIER' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_HAM(self):
-        hierarchy_name = 'testname'
+        hierarchy_name = 'TESTNAME'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         boxes = [get_collision_box()]
@@ -100,19 +100,19 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertTrue('testname' in bpy.data.objects)
-        self.assertTrue('testname' in bpy.data.armatures)
-        amt = bpy.data.armatures['testname']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(7, len(amt.bones))
 
-        self.assertTrue('sword' in bpy.data.objects)
-        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
+        self.assertTrue('SOLDIER' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_texture_name_with_dots(self):
-        hierarchy_name = 'testname_skl'
+        hierarchy_name = 'TESTNAME_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
-        mesh = get_mesh(name='sword', skin=True)
+        mesh = get_mesh(name='SWORD', skin=True)
         mesh.textures = [get_texture(name='tex.with.dots.in.name.but.not.used.dds'),
                          get_texture(name='another.tex.with.dots.in.name.dds')]
         meshes = [mesh]
@@ -130,7 +130,7 @@ class TestRoundtripW3X(TestCase):
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.SWORD.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'another.tex.with.dots.in.name.xml'))
 
         # reset scene
@@ -140,14 +140,14 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn.w3x'
         load(self)
 
-        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
 
     def test_roundtrip_splitted(self):
-        hierarchy_name = 'testname_skl'
+        hierarchy_name = 'TESTNAME_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         boxes = [get_collision_box()]
@@ -165,8 +165,8 @@ class TestRoundtripW3X(TestCase):
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.soldier.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.SWORD.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.SOLDIER.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.TRUNK.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.BOUNDINGBOX.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
@@ -184,31 +184,31 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertTrue('testname_skl' in bpy.data.objects)
-        self.assertTrue('testname_skl' in bpy.data.armatures)
-        amt = bpy.data.armatures['testname_skl']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(7, len(amt.bones))
 
-        self.assertTrue('sword' in bpy.data.objects)
-        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
+        self.assertTrue('SOLDIER' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_no_armature(self):
-        hierarchy_name = 'TestModelName'
+        hierarchy_name = 'TESTMODELNAME'
         hierarchy = get_hierarchy(hierarchy_name)
         hierarchy.pivots = [get_roottransform(),
-                            get_hierarchy_pivot(name='sword', parent=0),
-                            get_hierarchy_pivot(name='soldier', parent=0),
+                            get_hierarchy_pivot(name='SWORD', parent=0),
+                            get_hierarchy_pivot(name='SOLDIER', parent=0),
                             get_hierarchy_pivot(name='TRUNK', parent=0)]
 
-        meshes = [get_mesh(name='sword'),
-                  get_mesh(name='soldier'),
+        meshes = [get_mesh(name='SWORD'),
+                  get_mesh(name='SOLDIER'),
                   get_mesh(name='TRUNK')]
-        hlod = get_hlod('TestModelName', hierarchy_name)
+        hlod = get_hlod(hierarchy_name, hierarchy_name)
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.sword'),
-            get_hlod_sub_object(bone=2, name='containerName.soldier'),
-            get_hlod_sub_object(bone=3, name='containerName.TRUNK')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.SWORD'),
+            get_hlod_sub_object(bone=2, name='CONTAINERNAME.SOLDIER'),
+            get_hlod_sub_object(bone=3, name='CONTAINERNAME.TRUNK')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         self.set_format('W3X')
@@ -229,18 +229,18 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertTrue('TestModelName' in bpy.data.objects)
-        self.assertTrue('TestModelName' in bpy.data.armatures)
-        self.assertTrue('sword' in bpy.data.objects)
-        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        self.assertTrue('SWORD' in bpy.data.objects)
+        self.assertTrue('SOLDIER' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_single_mesh_imports(self):
-        hierarchy_name = 'testname_skl'
+        hierarchy_name = 'TESTNAME_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
         boxes = [get_collision_box()]
@@ -265,8 +265,8 @@ class TestRoundtripW3X(TestCase):
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.soldier.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.SWORD.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output_skn.SOLDIER.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.TRUNK.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.BOUNDINGBOX.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
@@ -282,27 +282,27 @@ class TestRoundtripW3X(TestCase):
         # check created objects
         self.assertEqual(2, len(bpy.data.collections))
 
-        self.assertTrue('testname_skl' in bpy.data.objects)
-        self.assertTrue('testname_skl' in bpy.data.armatures)
-        amt = bpy.data.armatures['testname_skl']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(7, len(amt.bones))
 
-        self.assertFalse('sword' in bpy.data.objects)
-        self.assertFalse('soldier' in bpy.data.objects)
+        self.assertFalse('SWORD' in bpy.data.objects)
+        self.assertFalse('SOLDIER' in bpy.data.objects)
         self.assertFalse('BOUNDINGBOX' in bpy.data.objects)
 
         self.assertTrue('TRUNK' in bpy.data.objects)
 
         # import
-        self.filepath = self.outpath() + 'output_skn.sword.w3x'
+        self.filepath = self.outpath() + 'output_skn.SWORD.w3x'
         load(self)
 
         self.assertEqual(2, len(bpy.data.collections))
 
-        self.assertFalse('soldier' in bpy.data.objects)
+        self.assertFalse('SOLDIER' in bpy.data.objects)
         self.assertFalse('BOUNDINGBOX' in bpy.data.objects)
 
-        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
         # import
@@ -311,18 +311,18 @@ class TestRoundtripW3X(TestCase):
 
         self.assertEqual(2, len(bpy.data.collections))
 
-        self.assertFalse('soldier' in bpy.data.objects)
+        self.assertFalse('SOLDIER' in bpy.data.objects)
 
         self.assertTrue('BOUNDINGBOX' in bpy.data.objects)
-        self.assertTrue('sword' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_hlod_only_import(self):
-        hierarchy_name = 'testname_skl'
+        hierarchy_name = 'TESTNAME_SKL'
         hierarchy = get_hierarchy(hierarchy_name)
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK')]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
 
@@ -344,8 +344,8 @@ class TestRoundtripW3X(TestCase):
 
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output.sword.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'output.soldier.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output.SWORD.w3x'))
+        self.assertTrue(os.path.exists(self.outpath() + 'output.SOLDIER.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output.TRUNK.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
@@ -360,17 +360,17 @@ class TestRoundtripW3X(TestCase):
         # check created objects
         self.assertEqual(2, len(bpy.data.collections))
 
-        self.assertTrue('testname_skl' in bpy.data.objects)
-        self.assertTrue('testname_skl' in bpy.data.armatures)
-        amt = bpy.data.armatures['testname_skl']
+        self.assertTrue(hierarchy_name in bpy.data.objects)
+        self.assertTrue(hierarchy_name in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name]
         self.assertEqual(7, len(amt.bones))
 
-        self.assertTrue('sword' in bpy.data.objects)
-        self.assertTrue('soldier' in bpy.data.objects)
+        self.assertTrue('SWORD' in bpy.data.objects)
+        self.assertTrue('SOLDIER' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
 
     def test_roundtrip_mesh_is_camera_oriented(self):
-        mesh_struct = get_mesh('camera_oriented')
+        mesh_struct = get_mesh('CAMERA_ORIENTED')
         mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)
@@ -382,7 +382,7 @@ class TestRoundtripW3X(TestCase):
         save_data(self, export_settings)
 
     def test_roundtrip_mesh_is_camera_aligned(self):
-        mesh_struct = get_mesh('camera_aligned')
+        mesh_struct = get_mesh('CAMERA_ALIGNED')
         mesh_struct.header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
 
         create_mesh(self, mesh_struct, bpy.context.scene.collection)

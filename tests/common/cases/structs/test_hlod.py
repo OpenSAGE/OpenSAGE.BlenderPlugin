@@ -62,8 +62,8 @@ class TestHLod(TestCase):
     def test_name(self):
         sub_object = get_hlod_sub_object()
 
-        self.assertEqual('containerName.default', sub_object.identifier)
-        self.assertEqual('default', sub_object.name)
+        self.assertEqual('CONTAINERNAME.DEFAULT', sub_object.identifier)
+        self.assertEqual('DEFAULT', sub_object.name)
 
     def test_chunk_sizes(self):
         hlod = get_hlod_minimal()

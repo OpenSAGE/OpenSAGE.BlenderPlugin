@@ -28,7 +28,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         mesh_struct = Mesh()
         mesh_struct.header = MeshHeader(
-            mesh_name=mesh_object.name,
+            mesh_name=mesh_object.name.upper(),
             container_name=container_name)
 
         header = mesh_struct.header

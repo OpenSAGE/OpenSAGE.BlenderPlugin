@@ -11,7 +11,7 @@ def retrieve_dazzles(container_name):
     for mesh_object in get_objects('MESH'):
         if mesh_object.data.object_type != 'DAZZLE':
             continue
-        name = container_name + '.' + mesh_object.name
+        name = container_name + '.' + mesh_object.name.upper()
         dazzle = Dazzle(
             name_=name,
             type_name=mesh_object.data.dazzle_type)

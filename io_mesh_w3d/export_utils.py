@@ -34,7 +34,7 @@ def retrieve_data(context, export_settings):
         context.error('unsupported export mode: ' + export_mode + ', aborting export!')
         return None
 
-    container_name = os.path.basename(context.filepath).split('.')[0]
+    container_name = os.path.basename(context.filepath).split('.')[0].upper()
 
     if context.file_format == 'W3D' and len(container_name) > STRING_LENGTH:
         context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')

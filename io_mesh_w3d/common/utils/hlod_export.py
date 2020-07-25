@@ -24,7 +24,7 @@ def create_lod_array(meshes, hierarchy, container_name, lod_arrays):
 
     for mesh in meshes:
         sub_object = HLodSubObject(
-            name=mesh.name,
+            name=mesh.name.upper(),
             identifier=container_name + '.' + mesh.name,
             bone_index=0,
             is_box=mesh.data.object_type == 'BOX')

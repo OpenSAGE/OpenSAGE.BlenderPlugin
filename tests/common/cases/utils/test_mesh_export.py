@@ -25,7 +25,7 @@ class TestMeshExportUtils(TestCase):
 
         self.assertTrue('Cube' in bpy.data.objects)
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         self.assertEqual(1, len(meshes))
 
@@ -38,7 +38,7 @@ class TestMeshExportUtils(TestCase):
         self.assertTrue('Cube' in bpy.data.objects)
         self.assertTrue('Cube2' in bpy.data.objects)
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         self.assertEqual(2, len(meshes))
 
@@ -68,7 +68,7 @@ class TestMeshExportUtils(TestCase):
     def test_used_texture_file_ending_is_correct(self):
         create_mesh(self, get_mesh(), get_collection())
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         mesh = meshes[0]
         self.assertEqual(mesh.textures[0].file, 'texture.dds')
@@ -83,7 +83,7 @@ class TestMeshExportUtils(TestCase):
             if mesh_ob.mode != 'EDIT':
                 bpy.ops.object.mode_set(mode='EDIT')
 
-        meshes, _ = retrieve_meshes(self, None, None, 'containerName')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         compare_meshes(self, mesh, meshes[0])
 
@@ -109,7 +109,7 @@ class TestMeshExportUtils(TestCase):
             inf.bone_inf = 1.0
             inf.xtra_inf = 0.0
 
-        meshes, _ = retrieve_meshes(self, hierarchy, rig, 'containerName')
+        meshes, _ = retrieve_meshes(self, hierarchy, rig, 'CONTAINERNAME')
 
         compare_meshes(self, mesh, meshes[0])
 
@@ -120,21 +120,21 @@ class TestMeshExportUtils(TestCase):
         mesh.material_passes[1].tx_stages = []
         create_mesh(self, mesh, get_collection())
 
-        mesh_structs, textures = retrieve_meshes(self, None, None, 'container_name')
+        mesh_structs, textures = retrieve_meshes(self, None, None, 'CONTAINERNAME')
         self.assertEqual(0, len(mesh_structs[0].material_passes[0].tx_stages))
 
     def test_material_pass_does_not_contain_texture_stages_if_no_texture_is_applied(self):
-        create_mesh(self, get_mesh('mesh'), get_collection())
+        create_mesh(self, get_mesh('MESH'), get_collection())
 
-        mesh = bpy.data.objects['mesh']
+        mesh = bpy.data.objects['MESH']
         mesh.data.materials.append(None)
 
         with patch.object(self, 'warning') as report_func:
-            retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
+            retrieve_meshes(self, None, None, 'CONTAINERNAME')
+            report_func.assert_called_with('mesh \'MESH\' uses a invalid/empty material!')
 
     def test_multi_uv_vertex_splitting(self):
-        mesh = bpy.data.meshes.new('mesh')
+        mesh = bpy.data.meshes.new('MESH')
 
         b_mesh = bmesh.new()
         bmesh.ops.create_cube(b_mesh, size=1)
@@ -202,7 +202,7 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(1, len(mesh.uv_layers))
 
         with (patch.object(self, 'warning')) as report_func:
-            meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+            meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
             report_func.assert_called_with('mesh \'mesh_object\' vertex 8 is not connected to any face!')
 
         self.assertEqual(1, len(meshes))
@@ -271,7 +271,7 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
         mesh_ob.select_set(True)
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         self.assertEqual(0, len(meshes[0].material_passes[0].tx_coords))
 
@@ -297,7 +297,7 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
         mesh_ob.select_set(True)
 
-        meshes, _ = retrieve_meshes(self, None, None, 'container_name')
+        meshes, _ = retrieve_meshes(self, None, None, 'CONTAINERNAME')
 
         self.assertEqual(0, len(meshes[0].material_passes[0].tx_stages))
 

@@ -10,12 +10,12 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 from tests.w3d.helpers.version import *
 
 
-def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False, cast_shadow=False):
+def get_mesh_header(name='MESH_NAME', skin=False, shader_mats=False, hidden=False, cast_shadow=False):
     header = MeshHeader(
         version=get_version(major=4, minor=2),
         attrs=0,
         mesh_name=name,
-        container_name='containerName',
+        container_name='CONTAINERNAME',
         face_count=12,
         vert_count=8,
         matl_count=2,
@@ -74,7 +74,7 @@ def get_vertex_influences():
 
 
 def get_mesh(
-        name='meshName',
+        name='MESHNAME',
         skin=False,
         shader_mats=False,
         prelit=False,
@@ -177,7 +177,7 @@ def get_mesh(
     return mesh
 
 
-def get_mesh_two_textures(name='meshName'):
+def get_mesh_two_textures(name='MESHNAME'):
     mesh = get_mesh(name=name)
 
     mesh.shaders = [get_shader()]

@@ -34,7 +34,7 @@ def retrieve_hierarchy(context, container_name):
         root.translation = rig.delta_location
         root.rotation = rig.delta_rotation_quaternion
 
-        hierarchy.header.name = rig.data.name
+        hierarchy.header.name = rig.data.name.upper()
         hierarchy.header.center_pos = rig.location
 
         for bone in rig.pose.bones:

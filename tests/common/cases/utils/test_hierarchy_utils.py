@@ -24,14 +24,14 @@ class TestHierarchyUtils(TestCase):
         hierarchy = get_hierarchy()
         hlod = get_hlod()
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
 
         create_data(self, meshes, hlod, hierarchy)
 
-        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'CONTAINERNAME')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
@@ -40,7 +40,7 @@ class TestHierarchyUtils(TestCase):
 
         create_data(self, [], None, hierarchy)
 
-        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'CONTAINERNAME')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
@@ -48,50 +48,50 @@ class TestHierarchyUtils(TestCase):
         hierarchy = get_hierarchy()
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='bone_chassis01', parent=0),
-            get_hierarchy_pivot(name='bone_treadlf', parent=1),
-            get_hierarchy_pivot(name='bone_treadlr', parent=1),
-            get_hierarchy_pivot(name='bone_treadrf', parent=1),
-            get_hierarchy_pivot(name='bone_treadrr', parent=1),
-            get_hierarchy_pivot(name='bone_turret', parent=1),
-            get_hierarchy_pivot(name='bone_rocketpod', parent=6),
-            get_hierarchy_pivot(name='turret01', parent=7),
-            get_hierarchy_pivot(name='rocketlaunch01', parent=8),
-            get_hierarchy_pivot(name='turret02', parent=7),
-            get_hierarchy_pivot(name='rocketlaunch02', parent=10),
-            get_hierarchy_pivot(name='bone_rails', parent=6),
-            get_hierarchy_pivot(name='bone_barrel_01', parent=12),
-            get_hierarchy_pivot(name='muzzlefx01', parent=13),
-            get_hierarchy_pivot(name='muzzleflash_01', parent=13),
-            get_hierarchy_pivot(name='muzzleflash_02', parent=13),
-            get_hierarchy_pivot(name='ugrail_01', parent=13),
-            get_hierarchy_pivot(name='bone_barrel_02', parent=12),
-            get_hierarchy_pivot(name='muzzlefx02', parent=18),
-            get_hierarchy_pivot(name='ugrail_02', parent=18),
-            get_hierarchy_pivot(name='fxtrackslf', parent=1),
-            get_hierarchy_pivot(name='fxtrackslr', parent=1),
-            get_hierarchy_pivot(name='fxtracksrf', parent=1),
-            get_hierarchy_pivot(name='fxtracksrr', parent=1)]
+            get_hierarchy_pivot(name='BONE_CHASSIS01', parent=0),
+            get_hierarchy_pivot(name='BONE_TREADLF', parent=1),
+            get_hierarchy_pivot(name='BONE_TREADLR', parent=1),
+            get_hierarchy_pivot(name='BONE_TREADRF', parent=1),
+            get_hierarchy_pivot(name='BONE_TREADRR', parent=1),
+            get_hierarchy_pivot(name='BONE_TURRET', parent=1),
+            get_hierarchy_pivot(name='BONE_ROCKETPOD', parent=6),
+            get_hierarchy_pivot(name='TURRET01', parent=7),
+            get_hierarchy_pivot(name='ROCKETLAUNCH01', parent=8),
+            get_hierarchy_pivot(name='TURRET02', parent=7),
+            get_hierarchy_pivot(name='ROCKETLAUNCH02', parent=10),
+            get_hierarchy_pivot(name='BONE_RAILS', parent=6),
+            get_hierarchy_pivot(name='BONE_BARREL_01', parent=12),
+            get_hierarchy_pivot(name='MUZZLEFX01', parent=13),
+            get_hierarchy_pivot(name='MUZZLEFLASH_01', parent=13),
+            get_hierarchy_pivot(name='MUZZLEFLASH_02', parent=13),
+            get_hierarchy_pivot(name='UGRAIL_01', parent=13),
+            get_hierarchy_pivot(name='BONE_BARREL_02', parent=12),
+            get_hierarchy_pivot(name='MUZZLEFX02', parent=18),
+            get_hierarchy_pivot(name='UGRAIL_02', parent=18),
+            get_hierarchy_pivot(name='FXTRACKSLF', parent=1),
+            get_hierarchy_pivot(name='FXTRACKSLR', parent=1),
+            get_hierarchy_pivot(name='FXTRACKSRF', parent=1),
+            get_hierarchy_pivot(name='FXTRACKSRR', parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         create_data(self, [], None, hierarchy, [])
 
-        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'CONTAINERNAME')
         hierarchy.pivot_fixups = []  # roundtrip not supported
         compare_hierarchies(self, hierarchy, actual_hiera)
 
     def test_troll_roundtrip(self):
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'troll_skl'
+        hlod.header.hierarchy_name = 'TROLL_SKL'
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=32, name='troll_skn.rock'),
-            get_hlod_sub_object(bone=0, name='troll_skn.troll_mesh'),
-            get_hlod_sub_object(bone=24, name='troll_skn.trunk01')]
+            get_hlod_sub_object(bone=32, name='TROLL_SKN.ROCK'),
+            get_hlod_sub_object(bone=0, name='TROLL_SKN.TROLL_MESH'),
+            get_hlod_sub_object(bone=24, name='TROLL_SKN.TRUNK01')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
         hierarchy.pivot_fixups = []  # roundtrip not supported
-        hierarchy.header.name = 'troll_skl'
+        hierarchy.header.name = 'TROLL_SKL'
         hierarchy.pivots = [
             get_roottransform(),
             get_hierarchy_pivot(name='b_spine', parent=0),
@@ -128,13 +128,13 @@ class TestHierarchyUtils(TestCase):
             get_hierarchy_pivot(name='rock', parent=0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        meshes = [get_mesh(name='rock'),
-                  get_mesh(name='troll_mesh', skin=True),
-                  get_mesh(name='trunk01')]
+        meshes = [get_mesh(name='ROCK'),
+                  get_mesh(name='TROLL_MESH', skin=True),
+                  get_mesh(name='TRUNK01')]
 
         create_data(self, meshes, hlod, hierarchy)
 
-        actual_hiera, rig = retrieve_hierarchy(self, 'troll_skn')
+        actual_hiera, rig = retrieve_hierarchy(self, 'TROLL_SKL')
         compare_hierarchies(self, hierarchy, actual_hiera)
 
     def test_get_or_create_skeleton_is_case_insensitive(self):

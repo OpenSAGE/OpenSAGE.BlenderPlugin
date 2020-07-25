@@ -31,7 +31,7 @@ class TestCollisionBox(TestCase):
     def test_name(self):
         box = get_collision_box()
 
-        self.assertEqual('containerName.BOUNDINGBOX', box.name_)
+        self.assertEqual('CONTAINERNAME.BOUNDINGBOX', box.name_)
         self.assertEqual('BOUNDINGBOX', box.name())
 
         box.name_ = 'BOUNDINGBOX'

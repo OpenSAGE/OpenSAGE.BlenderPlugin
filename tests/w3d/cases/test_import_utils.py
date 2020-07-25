@@ -76,7 +76,7 @@ class TestImportUtilsW3D(TestCase):
 
         hlod = get_hlod()
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.MESH')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.MESH')]
 
         hierarchy = get_hierarchy()
         pivot = HierarchyPivot(
@@ -93,7 +93,7 @@ class TestImportUtilsW3D(TestCase):
         self.filepath = self.outpath() + 'output'
         create_data(self, meshes, hlod, hierarchy, [], None, animation)
 
-        obj = bpy.data.objects['TestHierarchy']
+        obj = bpy.data.objects['TESTHIERARCHY']
         for fcu in obj.animation_data.action.fcurves:
             self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
             for i, keyframe in enumerate(fcu.keyframe_points):

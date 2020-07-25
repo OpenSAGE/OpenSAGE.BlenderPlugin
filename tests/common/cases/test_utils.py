@@ -170,50 +170,51 @@ class TestUtils(TestCase):
 
     def test_boxes_roundtrip(self):
         hlod = get_hlod()
-        hlod.lod_arrays[0].sub_objects.append(get_hlod_sub_object(bone=1, name='containerName.WORLDBOX'))
+        hlod.lod_arrays[0].sub_objects.append(get_hlod_sub_object(bone=1, name='CONTAINERNAME.WORLDBOX'))
         hierarchy = get_hierarchy()
         meshes = []
-        boxes = [get_collision_box(), get_collision_box('containerName.WORLDBOX')]
+        boxes = [get_collision_box(), get_collision_box('CONTAINERNAME.WORLDBOX')]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
         self.compare_data([], None, None, boxes)
 
     def test_dazzles_roundtrip(self):
-        hlod = get_hlod(hierarchy_name='containerName')
+        hlod = get_hlod(hierarchy_name='CONTAINERNAME')
         hlod.lod_arrays[0].header.model_count = 3
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.Backlight'),
-            get_hlod_sub_object(bone=2, name='containerName.Blinklight'),
-            get_hlod_sub_object(bone=3, name='containerName.Headlight')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.BACKLIGHT'),
+            get_hlod_sub_object(bone=2, name='CONTAINERNAME.BLINKLIGHT'),
+            get_hlod_sub_object(bone=3, name='CONTAINERNAME.HEADLIGHT')]
 
-        hierarchy = get_hierarchy(name='containerName')
+        hierarchy = get_hierarchy(name='CONTAINERNAME')
         hierarchy.header.num_pivots = 4
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='Backlight', parent=0),
-            get_hierarchy_pivot(name='Blinklight', parent=1),
-            get_hierarchy_pivot(name='Headlight', parent=2)]
+            get_hierarchy_pivot(name='BACKLIGHT', parent=0),
+            get_hierarchy_pivot(name='BLINKLIGHT', parent=1),
+            get_hierarchy_pivot(name='HEADLIGHT', parent=2)]
 
-        dazzles = [get_dazzle(name='containerName.Backlight', type='REN_BRAKELIGHT'),
-                   get_dazzle(name='containerName.Blinklight', type='REN_HEADLIGHT'),
-                   get_dazzle(name='containerName.Headlight', type='REN_HEADLIGHT')]
+        dazzles = [get_dazzle(name='CONTAINERNAME.BACKLIGHT', type='REN_BRAKELIGHT'),
+                   get_dazzle(name='CONTAINERNAME.BLINKLIGHT', type='REN_HEADLIGHT'),
+                   get_dazzle(name='CONTAINERNAME.HEADLIGHT', type='REN_HEADLIGHT')]
 
         create_data(self, [], hlod, hierarchy, [], None, None, dazzles)
 
         self.compare_data([], hlod, hierarchy, [], None, None, dazzles)
 
     def test_model_with_hierarchy_name_same_as_mesh_name_roundtrip(self):
-        hierarchy = get_hierarchy('ubbarracks')
-        hierarchy.pivots = [get_roottransform(), get_hierarchy_pivot(name='ubbarracks', parent=0)]
+        name = 'UBBARRACKS'
+        hierarchy = get_hierarchy(name)
+        hierarchy.pivots = [get_roottransform(), get_hierarchy_pivot(name=name, parent=0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
-        hlod = get_hlod(hierarchy_name='ubbarracks')
+        hlod = get_hlod(hierarchy_name=name)
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.ubbarracks')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.' + name)]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
-        meshes = [get_mesh(name='ubbarracks')]
+        meshes = [get_mesh(name=name)]
 
         create_data(self, meshes, hlod, hierarchy)
 
@@ -221,12 +222,12 @@ class TestUtils(TestCase):
 
     def test_too_many_hierarchies_roundtrip(self):
         hierarchy = get_hierarchy()
-        hierarchy2 = get_hierarchy(name='TestHierarchy2')
+        hierarchy2 = get_hierarchy(name='TESTHIERARCHY2')
         hlod = get_hlod()
         boxes = [get_collision_box()]
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
 
@@ -236,11 +237,11 @@ class TestUtils(TestCase):
         self.assertEqual(2, len(get_objects('ARMATURE')))
 
         with (patch.object(self, 'error')) as error_func:
-            (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
+            (actual_hiera, rig) = retrieve_hierarchy(self, 'CONTAINERNAME')
             self.assertIsNotNone(actual_hiera)
             self.assertIsNotNone(rig)
             error_func.assert_called_with(
-                'only one armature per scene allowed! Exporting only the first one: TestHierarchy2')
+                'only one armature per scene allowed! Exporting only the first one: TESTHIERARCHY2')
 
     def test_hlod_roundtrip(self):
         hlod = get_hlod()
@@ -248,8 +249,8 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         dazzles = [get_dazzle()]
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
 
@@ -259,7 +260,7 @@ class TestUtils(TestCase):
 
     def test_mesh_only_roundtrip(self):
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         root = HierarchyPivot(
             name='ROOTTRANSFORM',
             name_id=None,
@@ -269,7 +270,7 @@ class TestUtils(TestCase):
             rotation=get_quat(),
             fixup_matrix=get_mat())
         pivot = HierarchyPivot(
-            name='tree',
+            name='TREE',
             name_id=None,
             parent_id=0,
             translation=get_vec(),
@@ -283,12 +284,12 @@ class TestUtils(TestCase):
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hlod.lod_arrays[0].header.model_count = 1
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.tree')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.TREE')]
 
-        meshes = [get_mesh(name='tree')]
+        meshes = [get_mesh(name='TREE')]
 
         create_data(self, meshes)
 
@@ -296,31 +297,31 @@ class TestUtils(TestCase):
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='parent', parent=0),
-            get_hierarchy_pivot(name='child', parent=1)]
+            get_hierarchy_pivot(name='PARENT', parent=0),
+            get_hierarchy_pivot(name='CHILD', parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [
-            get_mesh(name='mesh1'),
-            get_mesh(name='mesh2'),
-            get_mesh(name='mesh3'),
+            get_mesh(name='MESH1'),
+            get_mesh(name='MESH2'),
+            get_mesh(name='MESH3'),
 
-            get_mesh(name='mesh1_1'),
-            get_mesh(name='mesh2_1'),
-            get_mesh(name='mesh3_1'),
+            get_mesh(name='MESH1_1'),
+            get_mesh(name='MESH2_1'),
+            get_mesh(name='MESH3_1'),
 
-            get_mesh(name='mesh1_2'),
-            get_mesh(name='mesh2_2'),
-            get_mesh(name='mesh3_2'),
+            get_mesh(name='MESH1_2'),
+            get_mesh(name='MESH2_2'),
+            get_mesh(name='MESH3_2'),
 
-            get_mesh(name='mesh1_3'),
-            get_mesh(name='mesh2_3'),
-            get_mesh(name='mesh3_3')]
+            get_mesh(name='MESH1_3'),
+            get_mesh(name='MESH2_3'),
+            get_mesh(name='MESH3_3')]
 
         create_data(self, meshes, hlod, hierarchy)
 
@@ -331,8 +332,8 @@ class TestUtils(TestCase):
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
         dazzles = [get_dazzle()]
@@ -345,7 +346,7 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         hierarchy = get_hierarchy()
         meshes = [
-            get_mesh(name='sword', skin=True),
+            get_mesh(name='SWORD', skin=True),
             get_mesh(name='TRUNK', hidden=True),
             get_mesh(name='PICK', cast_shadow=True)]
 
@@ -355,24 +356,24 @@ class TestUtils(TestCase):
 
     def test_mesh_is_child_of_mesh_roundtrip(self):
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.parent'),
-            get_hlod_sub_object(bone=2, name='containerName.child')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.PARENT'),
+            get_hlod_sub_object(bone=2, name='CONTAINERNAME.CHILD')]
         hlod.lod_arrays[0].header.model_count = len(
             hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='parent', parent=0),
-            get_hierarchy_pivot(name='child', parent=1)]
+            get_hierarchy_pivot(name='PARENT', parent=0),
+            get_hierarchy_pivot(name='CHILD', parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
 
         meshes = [
-            get_mesh(name='parent'),
-            get_mesh(name='child')]
+            get_mesh(name='PARENT'),
+            get_mesh(name='CHILD')]
 
         create_data(self, meshes, hlod, hierarchy)
 
@@ -383,8 +384,8 @@ class TestUtils(TestCase):
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
-            get_mesh(name='sword', skin=True),
-            get_mesh(name='soldier', skin=True),
+            get_mesh(name='SWORD', skin=True),
+            get_mesh(name='SOLDIER', skin=True),
             get_mesh(name='TRUNK', shader_mats=True),
             get_mesh(name='PICK')]
 
@@ -403,11 +404,11 @@ class TestUtils(TestCase):
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
-            get_mesh(name='sword', skin=True)]
+            get_mesh(name='SWORD', skin=True)]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
-        sword = bpy.context.scene.objects['sword']
+        sword = bpy.context.scene.objects['SWORD']
         sword.vertex_groups.new(name='number3')
         sword.vertex_groups['number3'].add([3], 0.4, 'REPLACE')
 
@@ -415,18 +416,18 @@ class TestUtils(TestCase):
 
     def test_mesh_with_pivot_roundtrip(self):
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=1, name='containerName.sword')]
+            get_hlod_sub_object(bone=1, name='CONTAINERNAME.SWORD')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='sword', parent=0)]
+            get_hierarchy_pivot(name='SWORD', parent=0)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
-        mesh = get_mesh(name='sword')
+        mesh = get_mesh(name='SWORD')
 
         create_data(self, [mesh], hlod, hierarchy)
 
@@ -434,19 +435,19 @@ class TestUtils(TestCase):
 
     def test_mesh_with_parent_bone_roundtrip(self):
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=2, name='containerName.sword')]
+            get_hlod_sub_object(bone=2, name='CONTAINERNAME.SWORD')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='bone0', parent=0),
-            get_hierarchy_pivot(name='sword', parent=1)]
+            get_hierarchy_pivot(name='BONE0', parent=0),
+            get_hierarchy_pivot(name='SWORD', parent=1)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
-        mesh = get_mesh(name='sword')
+        mesh = get_mesh(name='SWORD')
 
         create_data(self, [mesh], hlod, hierarchy)
 
@@ -454,21 +455,21 @@ class TestUtils(TestCase):
 
     def test_mesh_skin_roundtrip(self):
         hlod = get_hlod()
-        hlod.header.hierarchy_name = 'containerName'
+        hlod.header.hierarchy_name = 'CONTAINERNAME'
         hlod.lod_arrays[0].sub_objects = [
-            get_hlod_sub_object(bone=0, name='containerName.sword')]
+            get_hlod_sub_object(bone=0, name='CONTAINERNAME.SWORD')]
         hlod.lod_arrays[0].header.model_count = len(hlod.lod_arrays[0].sub_objects)
 
         hierarchy = get_hierarchy()
-        hierarchy.header.name = 'containerName'
+        hierarchy.header.name = 'CONTAINERNAME'
         hierarchy.pivots = [
             get_roottransform(),
-            get_hierarchy_pivot(name='bone0', parent=0),
-            get_hierarchy_pivot(name='bone1', parent=1),
-            get_hierarchy_pivot(name='bone2', parent=2),
-            get_hierarchy_pivot(name='bone3', parent=3)]
+            get_hierarchy_pivot(name='BONE0', parent=0),
+            get_hierarchy_pivot(name='BONE1', parent=1),
+            get_hierarchy_pivot(name='BONE2', parent=2),
+            get_hierarchy_pivot(name='BONE3', parent=3)]
         hierarchy.header.num_pivots = len(hierarchy.pivots)
-        mesh = get_mesh(name='sword', skin=True)
+        mesh = get_mesh(name='SWORD', skin=True)
 
         create_data(self, [mesh], hlod, hierarchy)
 
@@ -476,10 +477,10 @@ class TestUtils(TestCase):
 
     def test_meshes_only_roundtrip(self):
         meshes = [
-            get_mesh(name='wall'),
-            get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
-            get_mesh(name='stone')]
+            get_mesh(name='WALL'),
+            get_mesh(name='TOWER'),
+            get_mesh(name='TOWER2', shader_mats=True),
+            get_mesh(name='STONE')]
 
         create_data(self, meshes)
 
@@ -531,8 +532,8 @@ class TestUtils(TestCase):
 
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [
-            get_mesh(name='wall'),
-            get_mesh(name='tower2', shader_mats=True)]
+            get_mesh(name='WALL'),
+            get_mesh(name='TOWER2', shader_mats=True)]
 
         create_data(self, meshes)
 
@@ -540,10 +541,10 @@ class TestUtils(TestCase):
 
     def test_hidden_meshes_roundtrip(self):
         meshes = [
-            get_mesh(name='wall', hidden=True),
-            get_mesh(name='tower', hidden=True),
-            get_mesh(name='tower2', shader_mats=True),
-            get_mesh(name='stone')]
+            get_mesh(name='WALL', hidden=True),
+            get_mesh(name='TOWER', hidden=True),
+            get_mesh(name='TOWER2', shader_mats=True),
+            get_mesh(name='STONE')]
 
         create_data(self, meshes)
 
@@ -716,9 +717,9 @@ class TestUtils(TestCase):
         boxes = boxes if boxes is not None else []
         dazzles = dazzles if dazzles is not None else []
 
-        container_name = 'containerName'
+        container_name = 'CONTAINERNAME'
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
+        actual_hiera, rig = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:
             hierarchy.pivot_fixups = []  # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
@@ -728,8 +729,7 @@ class TestUtils(TestCase):
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
-            (actual_meshes, textures) = retrieve_meshes(
-                self, actual_hiera, rig, container_name)
+            actual_meshes, textures = retrieve_meshes(self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):
                 compare_meshes(self, mesh, actual_meshes[i])
