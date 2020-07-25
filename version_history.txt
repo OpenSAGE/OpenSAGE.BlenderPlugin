@@ -9,6 +9,7 @@ v0.5.1
 - Bugfix: fix import of visibility channels of armature
 - Bugfix: handle multiple hlod, hierarchy and animation chunks
 - Bugfix: fix export when bones are not in tree order
+- Bugfix: export names (mesh, hierarchy etc) as upper - fixes w3dViewer animation loading issue
 
 v0.5.0 (10.06.20)
 - use proper enums for vertex material shader properties
