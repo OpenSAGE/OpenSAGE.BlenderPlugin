@@ -59,9 +59,9 @@ class TestRoundtripW3X(TestCase):
         load(self)
 
         # check created objects
-        self.assertTrue(hierarchy_name in bpy.data.objects)
-        self.assertTrue(hierarchy_name in bpy.data.armatures)
-        amt = bpy.data.armatures[hierarchy_name]
+        self.assertTrue(hierarchy_name.upper() in bpy.data.objects)
+        self.assertTrue(hierarchy_name.upper() in bpy.data.armatures)
+        amt = bpy.data.armatures[hierarchy_name.upper()]
         self.assertEqual(7, len(amt.bones))
 
         self.assertTrue('sword' in bpy.data.objects)

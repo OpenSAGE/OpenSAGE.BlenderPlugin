@@ -101,7 +101,7 @@ def save(context, export_settings, data_context):
         data_context.animation.create(root)
 
     elif export_mode == 'H':
-        data_context.hierarchy.header.name = data_context.container_name
+        data_context.hierarchy.header.name = data_context.container_name.upper()
         data_context.hierarchy.create(root)
 
     else:
