@@ -14,8 +14,8 @@ class CompressedAnimationHeader:
     def __init__(
             self,
             version=Version(
-                major=1,
-                minor=0),
+                major=0,
+                minor=1),
             name='',
             hierarchy_name='',
             num_frames=0,
@@ -43,9 +43,7 @@ class CompressedAnimationHeader:
         return const_size(44, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(
-            W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, io_stream,
-            self.size(False))
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, io_stream, self.size(False)) #16
         self.version.write(io_stream)
         write_fixed_string(self.name, io_stream)
         write_fixed_string(self.hierarchy_name, io_stream)
@@ -55,7 +53,7 @@ class CompressedAnimationHeader:
 
 
 class TimeCodedDatum:
-    def __init__(self, time_code=0, interpolated=True, value=None):
+    def __init__(self, time_code=0, interpolated=False, value=None):
         self.time_code = time_code
         self.interpolated = interpolated
         self.value = value
@@ -411,7 +409,7 @@ class CompressedAnimation:
         result = CompressedAnimation(header=None)
 
         while io_stream.tell() < chunk_end:
-            (chunk_type, chunk_size, _) = read_chunk_head(io_stream)
+            chunk_type, chunk_size, _ = read_chunk_head(io_stream)
             if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
