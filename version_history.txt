@@ -1,4 +1,4 @@
-v0.5.1
+v0.6.0
 - export dummy shade indices (they are needed for the mod SDK (at least for W3X))
 - support for mesh sorting levels
 - only display appropriate custom object properties
@@ -9,6 +9,8 @@ v0.5.1
 - Bugfix: fix import of visibility channels of armature
 - Bugfix: handle multiple hlod, hierarchy and animation chunks
 - Bugfix: fix export when bones are not in tree order
+- Bugfix: fix export of time coded animations
+- Bugfix: set hierarchy name always uppercase
 
 v0.5.0 (10.06.20)
 - use proper enums for vertex material shader properties
