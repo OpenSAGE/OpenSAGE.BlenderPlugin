@@ -43,7 +43,7 @@ class CompressedAnimationHeader:
         return const_size(44, include_head)
 
     def write(self, io_stream):
-        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, io_stream, self.size(False)) #16
+        write_chunk_head(W3D_CHUNK_COMPRESSED_ANIMATION_HEADER, io_stream, self.size(False))  # 16
         self.version.write(io_stream)
         write_fixed_string(self.name, io_stream)
         write_fixed_string(self.hierarchy_name, io_stream)
