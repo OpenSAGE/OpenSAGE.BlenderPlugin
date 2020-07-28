@@ -39,6 +39,6 @@ deploy:
   provider: releases
   token: "${GH_TOKEN}"
   file: "io_mesh_w3d.zip"
-  cleanup: false
+  skip_cleanup: true
   on:
     tags: true
