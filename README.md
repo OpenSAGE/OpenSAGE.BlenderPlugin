@@ -12,7 +12,7 @@ format used in Command & Conquer™: Generals and other RTS titles from Westwood
 
 ## Installing and activating
 
-Please see [Installing the plugin] (https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Installing-the-Plugin)
+Please see [Installing the plugin](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Installing-the-Plugin)
 
 ## Note
 
