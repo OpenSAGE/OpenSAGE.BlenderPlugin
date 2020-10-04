@@ -12,14 +12,7 @@ format used in Command & Conquer™: Generals and other RTS titles from Westwood
 
 ## Installing and activating
 
-Make sure you have at least Blender version 2.80 installed!
-
-To install, open Blender's **User Preferences** panel, click the **Add-ons**
-tab, click the **Install Add-on from File...** button, select
-`io_mesh_w3d-X.X.zip`, and click **Install**.
-
-To activate, open Blender's **User Preferences** panel, click the **Add-ons**
-tab, find "Import-Export: Westwood 3d (.w3d)", andclick its checkbox.
+Please see [Installing the plugin] (https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Installing-the-Plugin)
 
 ## Note
 
