@@ -1,4 +1,5 @@
 v0.6.1
+- support for floats in xml files with ',' and '.'
 
 v0.6.0 (28.7.20)
 - export dummy shade indices (they are needed for the mod SDK (at least for W3X))

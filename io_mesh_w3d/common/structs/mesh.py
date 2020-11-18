@@ -450,7 +450,7 @@ class Mesh:
                 else:
                     context.warning('multiple uv coords not yet supported!')
             elif child.tag == 'ShadeIndices':
-                result.shade_ids = parse_objects(child, 'I', parse_value, int)
+                result.shade_ids = parse_objects(child, 'I', parse_int_value)
                 context.info('shade indices are not supported')
             elif child.tag == 'BoneInfluences':
                 result.header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
