@@ -112,16 +112,34 @@ class TestIOXML(TestCase):
         self.assertEqual('uri:ea.com:eala:asset', root.get('xmlns'))
         self.assertEqual('http://www.w3.org/2001/XMLSchema-instance', root.get('xmlns:xsi'))
 
-    def test_parse_value(self):
+    def test_parse_int_value(self):
+        expected = 3
+        data = '<root><object>3</object></root>'
+        root = ET.fromstring(data)
+
+        obj = root.find('object')
+        actual = parse_int_value(obj)
+        self.assertEqual(expected, actual)
+
+    def test_parse_float_value(self):
         expected = 3.14
         data = '<root><object>3.14</object></root>'
         root = ET.fromstring(data)
 
         obj = root.find('object')
-        actual = parse_value(obj, float)
+        actual = parse_float_value(obj)
         self.assertEqual(expected, actual)
 
-    def test_create_value_(self):
+    def test_parse_float(self):
+        expected = 3.14
+        data = '<root><Vector X="3.14"/></root>'
+        root = ET.fromstring(data)
+
+        obj = root.find('Vector')
+        actual = parse_float(obj, 'X')
+        self.assertEqual(expected, actual)
+
+    def test_create_value(self):
         expected = '3.14'
         root = ET.Element('root')
         create_value(expected, root, 'object')
@@ -134,7 +152,7 @@ class TestIOXML(TestCase):
         data = '<root><o>3.14</o><o>2.14</o><o>1.14</o><o>0.14</o></root>'
         root = ET.fromstring(data)
 
-        actual = parse_objects(root, 'o', parse_value, float)
+        actual = parse_objects(root, 'o', parse_float_value)
         self.assertEqual(expected, actual)
 
     def test_parse_objects_none_found(self):
@@ -142,7 +160,7 @@ class TestIOXML(TestCase):
         data = '<root></root>'
         root = ET.fromstring(data)
 
-        actual = parse_objects(root, 'o', parse_value, float)
+        actual = parse_objects(root, 'o', parse_float_value)
         self.assertEqual(expected, actual)
 
     def test_create_object_list(self):

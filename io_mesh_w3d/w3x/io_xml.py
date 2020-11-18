@@ -65,25 +65,18 @@ def create_root():
     return root
 
 
-def parse_value(xml_obj, cast_func=str):
-    return cast_func(xml_obj.text)
-
-
 def create_value(value, parent, identifier):
     xml_obj = create_node(parent, identifier)
     xml_obj.text = str(value)
 
 
-def parse_objects(parent, name, parse_func, par1=None):
+def parse_objects(parent, name, parse_func):
     result = []
     objects = parent.findall(name)
     if not objects:
         return result
     for obj in objects:
-        if par1 is not None:
-            result.append(parse_func(obj, par1))
-        else:
-            result.append(parse_func(obj))
+        result.append(parse_func(obj))
     return result
 
 
@@ -100,10 +93,26 @@ def format(value):
     return '{:.6f}'.format(value)
 
 
+def parse_int_value(xml_obj):
+    return int(xml_obj.text)
+
+
+def get_float(str):
+    return float(str.replace(',', '.'))
+
+
+def parse_float_value(xml_obj):
+    return get_float(xml_obj.text)
+
+
+def parse_float(xml_obj, id, default=0.0):
+    return get_float(xml_obj.get(id, format(default)))
+
+
 def parse_vector2(xml_vector2):
     return Vector((
-        float(xml_vector2.get('X', 0.0)),
-        float(xml_vector2.get('Y', 0.0))))
+        parse_float(xml_vector2, 'X'),
+        parse_float(xml_vector2, 'Y')))
 
 
 def create_vector2(vec2, parent, name):
@@ -114,9 +123,9 @@ def create_vector2(vec2, parent, name):
 
 def parse_vector(xml_vector):
     return Vector((
-        float(xml_vector.get('X', 0.0)),
-        float(xml_vector.get('Y', 0.0)),
-        float(xml_vector.get('Z', 0.0))))
+        parse_float(xml_vector, 'X'),
+        parse_float(xml_vector, 'Y'),
+        parse_float(xml_vector, 'Z')))
 
 
 def create_vector(vec, parent, name):
@@ -128,10 +137,10 @@ def create_vector(vec, parent, name):
 
 def parse_quaternion(xml_quaternion):
     return Quaternion((
-        float(xml_quaternion.get('W', 1.0)),
-        float(xml_quaternion.get('X', 0.0)),
-        float(xml_quaternion.get('Y', 0.0)),
-        float(xml_quaternion.get('Z', 0.0))))
+        parse_float(xml_quaternion, 'W', 1.0),
+        parse_float(xml_quaternion, 'X'),
+        parse_float(xml_quaternion, 'Y'),
+        parse_float(xml_quaternion, 'Z')))
 
 
 def create_quaternion(quat, parent, identifier='Rotation'):
@@ -144,20 +153,20 @@ def create_quaternion(quat, parent, identifier='Rotation'):
 
 def parse_matrix(xml_matrix):
     return Matrix((
-        [float(xml_matrix.get('M00', 1.0)),
-         float(xml_matrix.get('M01', 0.0)),
-         float(xml_matrix.get('M02', 0.0)),
-         float(xml_matrix.get('M03', 0.0))],
+        [parse_float(xml_matrix, 'M00', 1.0),
+         parse_float(xml_matrix, 'M01'),
+         parse_float(xml_matrix, 'M02'),
+         parse_float(xml_matrix, 'M03')],
 
-        [float(xml_matrix.get('M10', 0.0)),
-         float(xml_matrix.get('M11', 1.0)),
-         float(xml_matrix.get('M12', 0.0)),
-         float(xml_matrix.get('M13', 0.0))],
+        [parse_float(xml_matrix, 'M10'),
+         parse_float(xml_matrix, 'M11', 1.0),
+         parse_float(xml_matrix, 'M12'),
+         parse_float(xml_matrix, 'M13')],
 
-        [float(xml_matrix.get('M20', 0.0)),
-         float(xml_matrix.get('M21', 0.0)),
-         float(xml_matrix.get('M22', 1.0)),
-         float(xml_matrix.get('M23', 0.0))]))
+        [parse_float(xml_matrix, 'M20'),
+         parse_float(xml_matrix, 'M21'),
+         parse_float(xml_matrix, 'M22', 1.0),
+         parse_float(xml_matrix, 'M23')]))
 
 
 def create_matrix(mat, parent, identifier='FixupMatrix'):

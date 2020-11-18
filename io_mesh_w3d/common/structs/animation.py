@@ -121,7 +121,7 @@ class AnimationChannel:
 
         if xml_channel.tag == 'ChannelScalar':
             for value in xml_channel:
-                result.data.append(parse_value(value, float))
+                result.data.append(parse_float_value(value))
         else:
             for value in xml_channel:
                 result.data.append(parse_quaternion(value))
@@ -216,7 +216,7 @@ class AnimationBitChannel:
             default=True)
 
         for value in xml_bit_channel:
-            result.data.append(parse_value(value, float))
+            result.data.append(parse_float_value(value))
 
         result.last_frame = result.first_frame + len(result.data) - 1
         return result
