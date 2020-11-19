@@ -135,17 +135,17 @@ class ShaderMaterialProperty:
         if type_name == 'Float':
             if len(values) == 1:
                 constant.type = FLOAT_PROPERTY
-                constant.value = float(values[0])
+                constant.value = get_float(values[0])
             if len(values) > 1:
                 constant.type = VEC2_PROPERTY
-                constant.value.x = float(values[0])
-                constant.value.y = float(values[1])
+                constant.value.x = get_float(values[0])
+                constant.value.y = get_float(values[1])
             if len(values) > 2:
                 constant.type = VEC3_PROPERTY
-                constant.value.z = float(values[2])
+                constant.value.z = get_float(values[2])
             if len(values) == 4:
                 constant.type = VEC4_PROPERTY
-                constant.value.w = float(values[3])
+                constant.value.w = get_float(values[3])
 
         elif type_name == 'Int':
             constant.type = LONG_PROPERTY

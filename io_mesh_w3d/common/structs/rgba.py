@@ -41,10 +41,10 @@ class RGBA:
 
     @staticmethod
     def parse(xml_color):
-        return RGBA(r=int(float(xml_color.get('R', 0.0)) * 255),
-                    g=int(float(xml_color.get('G', 0.0)) * 255),
-                    b=int(float(xml_color.get('B', 0.0)) * 255),
-                    a=int(float(xml_color.get('A', 0.0)) * 255))
+        return RGBA(r=int(parse_float(xml_color, 'R', 0.0) * 255),
+                    g=int(parse_float(xml_color, 'G', 0.0) * 255),
+                    b=int(parse_float(xml_color, 'B', 0.0) * 255),
+                    a=int(parse_float(xml_color, 'A', 0.0) * 255))
 
     @staticmethod
     def size():
