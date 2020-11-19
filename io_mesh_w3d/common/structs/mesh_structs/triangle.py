@@ -101,7 +101,7 @@ class Triangle:
             result.vert_ids.append(int(xml_vert.text))
 
         result.normal = parse_vector(xml_triangle.find('Nrm'))
-        result.distance = float(xml_triangle.find('Dist').text)
+        result.distance = get_float(xml_triangle.find('Dist').text)
         return result
 
     def create(self, parent):

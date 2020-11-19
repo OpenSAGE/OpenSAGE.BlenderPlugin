@@ -34,11 +34,11 @@ class VertexInfluence:
     def parse(xml_vertex_influence, xml_vertex_influence2=None):
         result = VertexInfluence(
             bone_idx=int(xml_vertex_influence.get('Bone')),
-            bone_inf=float(xml_vertex_influence.get('Weight')))
+            bone_inf=parse_float(xml_vertex_influence, 'Weight'))
 
         if xml_vertex_influence2 is not None:
             result.xtra_idx = int(xml_vertex_influence2.get('Bone'))
-            result.xtra_inf = float(xml_vertex_influence2.get('Weight'))
+            result.xtra_inf = parse_float(xml_vertex_influence2, 'Weight')
         return result
 
     def create(self, parent, parent2=None):

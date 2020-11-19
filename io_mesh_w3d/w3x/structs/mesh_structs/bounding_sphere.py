@@ -13,7 +13,7 @@ class BoundingSphere:
     @staticmethod
     def parse(xml_bounding_sphere):
         return BoundingSphere(
-            radius=float(xml_bounding_sphere.get('Radius')),
+            radius=parse_float(xml_bounding_sphere, 'Radius'),
             center=parse_vector(xml_bounding_sphere.find('Center')))
 
     def create(self, parent):
