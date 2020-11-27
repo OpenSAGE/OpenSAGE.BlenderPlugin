@@ -52,6 +52,28 @@ Mesh.dazzle_type = EnumProperty(
         ('REN_VEHICLELIGHT_WHITE', 'Ren vehicle light white', 'desc: todo')],
     default='DEFAULT')
 
+Mesh.box_type = EnumProperty(
+    name='Type',
+    description='Attributes that define the type of this box object',
+    items=[
+        ('0', 'default', 'desc: todo'),
+        ('1', 'Oriented', 'desc: todo'),
+        ('2', 'Aligned', 'desc: todo')],
+    default='0')
+
+Mesh.box_collision_types = EnumProperty(
+    name='Box Collision Types',
+    description='Attributes that define the collision type of this box object',
+    items=[
+        ('DEFAULT', 'Default', 'desc: todo', 0),
+        ('PHYSICAL', 'Physical', 'desc: physical collisions', 0x10),
+        ('PROJECTILE', 'Projectile', 'desc: projectiles (rays) collide with this', 0x20),
+        ('VIS', 'Vis', 'desc: vis rays collide with this mesh', 0x40),
+        ('CAMERA', 'Camera', 'desc: cameras collide with this mesh', 0x80),
+        ('VEHICLE', 'Vehicle', 'desc: vehicles collide with this mesh', 0x100)],
+    default=set(),
+    options={'ENUM_FLAG'})
+
 
 ##########################################################################
 # PoseBone
@@ -400,6 +422,7 @@ class ShaderProperties(PropertyGroup):
         default='1')
 
     color_mask: IntProperty(min=0, max=255, name='Color Mask')
+
     dest_blend: EnumProperty(
         name='Destination Blendfunc',
         description='Describes how this material blends',
@@ -416,6 +439,7 @@ class ShaderProperties(PropertyGroup):
              'destination pixel multiplied by fragment RGB components prior to fogging'),
         ],
         default='0')
+
     fog_func: IntProperty(min=0, max=255, name='Fog function')
 
     pri_gradient: EnumProperty(
@@ -448,6 +472,7 @@ class ShaderProperties(PropertyGroup):
              'fragment RGB components multiplied by fragment inverse (one minus) A'),
         ],
         default='1')
+
     detail_color_func: EnumProperty(
         name='Detail color function',
         items=[
@@ -466,6 +491,7 @@ class ShaderProperties(PropertyGroup):
             ('12', 'InvScaleAlt', ''),
         ],
         default='0')
+
     detail_alpha_func: EnumProperty(
         name='Detail alpha function',
         items=[
@@ -475,7 +501,9 @@ class ShaderProperties(PropertyGroup):
             ('3', 'InvScale', '~(~local * ~other) = local + (1-local)*other'),
         ],
         default='0')
-    shader_preset: bpy.props.IntProperty(min=0, max=255, name="Shader presets")
+
+    shader_preset: IntProperty(min=0, max=255, name="Shader presets")
+
     alpha_test: EnumProperty(
         name='Alpha test',
         description='Specify wether or not to alpha check',
@@ -483,6 +511,7 @@ class ShaderProperties(PropertyGroup):
             ('0', 'Disable', 'disable alpha testing (default)'),
             ('1', 'Enable', 'enable alpha testing')],
         default='0')
+
     post_detail_color_func: EnumProperty(
         name='Post-Detail color function',
         items=[
@@ -501,6 +530,7 @@ class ShaderProperties(PropertyGroup):
             ('12', 'InvScaleAlt', ''),
         ],
         default='0')
+
     post_detail_alpha_func: EnumProperty(
         name='Post-Detail alpha function',
         items=[

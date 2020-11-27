@@ -8,6 +8,14 @@ from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_BOX = 0x00000740
+ATTRIBUTE_MASK = 0xF
+COLLISION_TYPE_MASK = 0xFF0
+
+COLLISION_TYPE_PHYSICAL = 0x10
+COLLISION_TYPE_PROJECTILE = 0x20
+COLLISION_TYPE_VIS = 0x40
+COLLISION_TYPE_CAMERA = 0x80
+COLLISION_TYPE_VEHICLE = 0x100
 
 
 class CollisionBox:
@@ -42,8 +50,8 @@ class CollisionBox:
         flags = read_ulong(io_stream)
         return CollisionBox(
             version=ver,
-            box_type=(flags & 0b11),
-            collision_types=(flags & 0xFF0),
+            box_type=(flags & ATTRIBUTE_MASK),
+            collision_types=flags & COLLISION_TYPE_MASK,
             name_=read_long_fixed_string(io_stream),
             color=RGBA.read(io_stream),
             center=read_vector(io_stream),
@@ -57,7 +65,7 @@ class CollisionBox:
         write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size(False))
 
         self.version.write(io_stream)
-        write_ulong((self.collision_types & 0xFF) | (self.box_type & 0b11), io_stream)
+        write_ulong((self.collision_types & COLLISION_TYPE_MASK) | (self.box_type & ATTRIBUTE_MASK), io_stream)
         write_long_fixed_string(self.name_, io_stream)
         self.color.write(io_stream)
         write_vector(self.center, io_stream)

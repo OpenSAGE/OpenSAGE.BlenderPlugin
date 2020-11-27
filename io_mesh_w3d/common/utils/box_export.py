@@ -22,6 +22,19 @@ def retrieve_boxes(container_name):
              box_mesh.vertices[0].co.y * 2,
              box_mesh.vertices[0].co.z))
 
+        box.box_type = int(mesh_object.data.box_type)
+
+        if 'PHYSICAL' in mesh_object.data.box_collision_types:
+            box.collision_types |= COLLISION_TYPE_PHYSICAL
+        if 'PROJECTILE' in mesh_object.data.box_collision_types:
+            box.collision_types |= COLLISION_TYPE_PROJECTILE
+        if 'VIS' in mesh_object.data.box_collision_types:
+            box.collision_types |= COLLISION_TYPE_VIS
+        if 'CAMERA' in mesh_object.data.box_collision_types:
+            box.collision_types |= COLLISION_TYPE_CAMERA
+        if 'VEHICLE' in mesh_object.data.box_collision_types:
+            box.collision_types |= COLLISION_TYPE_VEHICLE
+
         for material in box_mesh.materials:
             box.color = RGBA(material.diffuse_color)
         boxes.append(box)
