@@ -268,6 +268,11 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
         elif mesh.object_type == 'DAZZLE':
             col = layout.column()
             col.prop(mesh, 'dazzle_type')
+        elif mesh.object_type == 'BOX':
+            col = layout.column()
+            col.prop(mesh, 'box_type')
+            col = layout.column()
+            col.prop(mesh, 'box_collision_types')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):

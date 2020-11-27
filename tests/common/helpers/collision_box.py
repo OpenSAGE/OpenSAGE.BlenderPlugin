@@ -10,8 +10,8 @@ from tests.w3d.helpers.version import get_version, compare_versions
 def get_collision_box(name='containerName.BOUNDINGBOX', xml=False):
     box = CollisionBox(
         version=get_version(),
-        box_type=0,
-        collision_types=0,
+        box_type=2,
+        collision_types=0x70,
         name_=name,
         color=None,
         center=get_vec(1.0, 2.0, 3.0),
@@ -24,8 +24,9 @@ def get_collision_box(name='containerName.BOUNDINGBOX', xml=False):
 
 def compare_collision_boxes(self, expected, actual):
     compare_versions(self, expected.version, actual.version)
-    self.assertEqual(expected.box_type, actual.box_type)
-    self.assertEqual(expected.collision_types, actual.collision_types)
+    if not self.file_format == 'W3X': # box type and collision type not supported in W3X
+        self.assertEqual(expected.box_type, actual.box_type)
+        self.assertEqual(expected.collision_types, actual.collision_types)
     self.assertEqual(expected.name_, actual.name_)
     if expected.color is not None:
         compare_rgbas(self, expected.color, actual.color)
