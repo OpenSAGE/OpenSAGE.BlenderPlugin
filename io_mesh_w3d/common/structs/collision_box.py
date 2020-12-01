@@ -51,7 +51,7 @@ class CollisionBox:
         return CollisionBox(
             version=ver,
             box_type=(flags & ATTRIBUTE_MASK),
-            collision_types=flags & COLLISION_TYPE_MASK,
+            collision_types=(flags & COLLISION_TYPE_MASK),
             name_=read_long_fixed_string(io_stream),
             color=RGBA.read(io_stream),
             center=read_vector(io_stream),
@@ -65,7 +65,7 @@ class CollisionBox:
         write_chunk_head(W3D_CHUNK_BOX, io_stream, self.size(False))
 
         self.version.write(io_stream)
-        write_ulong((self.collision_types & COLLISION_TYPE_MASK) | (self.box_type & ATTRIBUTE_MASK), io_stream)
+        write_ulong((self.box_type & ATTRIBUTE_MASK) | (self.collision_types & COLLISION_TYPE_MASK), io_stream)
         write_long_fixed_string(self.name_, io_stream)
         self.color.write(io_stream)
         write_vector(self.center, io_stream)

@@ -23,17 +23,19 @@ def create_box(box, coll):
     box_object.data.object_type = 'BOX'
     box_object.data.box_type = str(box.box_type)
 
-    box_object.data.box_collision_types = {'DEFAULT'}
+    box_collision_types = {'DEFAULT'}
     if box.collision_types & COLLISION_TYPE_PHYSICAL:
-        box_object.data.box_collision_types.add('PHYSICAL')
+        box_collision_types.add('PHYSICAL')
     if box.collision_types & COLLISION_TYPE_PROJECTILE:
-        box_object.data.box_collision_types.add('PROJECTILE')
+        box_collision_types.add('PROJECTILE')
     if box.collision_types & COLLISION_TYPE_VIS:
-        box_object.data.box_collision_types.add('VIS')
+        box_collision_types.add('VIS')
     if box.collision_types & COLLISION_TYPE_CAMERA:
-        box_object.data.box_collision_types.add('CAMERA')
+        box_collision_types.add('CAMERA')
     if box.collision_types & COLLISION_TYPE_VEHICLE:
-        box_object.data.box_collision_types.add('VEHICLE')
+        box_collision_types.add('VEHICLE')
+
+    box_object.data.box_collision_types = box_collision_types
 
     box_object.display_type = 'WIRE'
     mat = bpy.data.materials.new(box.name() + ".Material")
