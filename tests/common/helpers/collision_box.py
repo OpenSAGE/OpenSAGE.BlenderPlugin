@@ -11,13 +11,14 @@ def get_collision_box(name='containerName.BOUNDINGBOX', xml=False):
     box = CollisionBox(
         version=get_version(),
         box_type=2,
-        collision_types=0x70,
+        collision_types=0,
         name_=name,
         color=None,
         center=get_vec(1.0, 2.0, 3.0),
         extend=get_vec(4.0, 5.0, 6.0))
 
     if not xml:
+        box.collision_types = 0x70
         box.color = get_rgba()
     return box
 
