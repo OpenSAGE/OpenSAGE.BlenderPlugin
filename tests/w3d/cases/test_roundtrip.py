@@ -57,7 +57,7 @@ class TestRoundtripW3D(TestCase):
 
         # check created objects
         self.assertTrue(hierarchy_name.upper() in bpy.data.objects)
-        self.assertTrue(hierarchy_name.upper()in bpy.data.armatures)
+        self.assertTrue(hierarchy_name.upper() in bpy.data.armatures)
         amt = bpy.data.armatures[hierarchy_name.upper()]
         self.assertEqual(7, len(amt.bones))
 

@@ -25,7 +25,7 @@ def get_collision_box(name='containerName.BOUNDINGBOX', xml=False):
 
 def compare_collision_boxes(self, expected, actual):
     compare_versions(self, expected.version, actual.version)
-    if not self.file_format == 'W3X': # box type and collision type not supported in W3X
+    if not self.file_format == 'W3X':  # box type and collision type not supported in W3X
         self.assertEqual(expected.box_type, actual.box_type)
         self.assertEqual(expected.collision_types, actual.collision_types)
     self.assertEqual(expected.name_, actual.name_)
