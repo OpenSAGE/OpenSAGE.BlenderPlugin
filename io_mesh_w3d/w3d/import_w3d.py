@@ -55,10 +55,7 @@ def load_file(context, data_context, path=None):
                 context.warning('-> already got one animation chunk (skipping this one)!')
                 file.seek(chunk_size, 1)
         elif chunk_type == W3D_CHUNK_BOX:
-            box = CollisionBox.read(file)
-            context.info(box.box_type)
-            # context.info(box.collision_types)
-            data_context.collision_boxes.append(box)
+            data_context.collision_boxes.append(CollisionBox.read(file))
         elif chunk_type == W3D_CHUNK_DAZZLE:
             data_context.dazzles.append(Dazzle.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_MORPH_ANIMATION:
