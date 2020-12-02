@@ -1,4 +1,6 @@
-v0.6.2
+v0.6.3
+
+v0.6.2 (01.12.20)
 - support for floats in xml files with ',' and '.'
 - support more collision box properties (type, collision_type)
 
