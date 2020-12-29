@@ -13,6 +13,14 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7' ]
+        blender-version: ['2.83', '2.90', '2.91' ]
+        include:
+          - blender-version: '2.83'
+            blender-version-suffix: '5'
+          - blender-version: '2.90'
+            blender-version-suffix: '0'
+          - blender-version: '2.91'
+            blender-version-suffix: '0'
 
     steps:
     - uses: actions/checkout@v2
@@ -26,15 +34,15 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install codecov
         mkdir tmp && cd tmp
-        wget http://ftp.halifax.rwth-aachen.de/blender/release/Blender2.90/blender-2.90.0-linux64.tar.xz
-        tar xf blender-2.90.0-linux64.tar.xz
-        mv blender-2.90.0-linux64 blender
-        rm blender-2.90.0-linux64.tar.xz
+        wget http://ftp.halifax.rwth-aachen.de/blender/release/Blender${{ matrix.blender-version }}/blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux64.tar.xz
+        tar xf blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux64.tar.xz
+        mv blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux64 blender
+        rm blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux64.tar.xz
         cd ..
-        ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/2.90/scripts/addons/io_mesh_w3d
+        ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${{ matrix.blender-version }}/scripts/addons/io_mesh_w3d
         wget https://files.pythonhosted.org/packages/85/d5/818d0e603685c4a613d56f065a721013e942088047ff1027a632948bdae6/coverage-4.5.4.tar.gz#md5=c33cab2aed8780aac32880cb6c7616b7
         tar zxf coverage-4.5.4.tar.gz
-        mv coverage-4.5.4/coverage "${PWD}/tmp/blender/2.90/python/lib/python3.7"
+        mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${{ matrix.blender-version }}/python/lib/python${{ matrix.python-version }}"
         rm -rf coverage-4.5.4
     - name: run tests
       run: |
