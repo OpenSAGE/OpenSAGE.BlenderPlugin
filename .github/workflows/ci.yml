@@ -44,9 +44,30 @@ jobs:
         tar zxf coverage-4.5.4.tar.gz
         mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${{ matrix.blender-version }}/python/lib/python${{ matrix.python-version }}"
         rm -rf coverage-4.5.4
-    - name: run tests
+    - name: Test
       run: |
         ./tmp/blender/blender --factory-startup -noaudio -b --python-exit-code 1 --python ./tests/runner.py -- --coverage
-    - name: coverage
+    - name: Coverage
       run: |
         codecov
+
+  publish:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: [ ubuntu-latest ]
+
+    - name: Bundle archive
+      run: |
+        zip -r io_mesh_w3d.zip io_mesh_w3d
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: "TODO: add relase notes ."
+        draft: false
+        prerelease: true
