@@ -20,7 +20,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
-        if mesh_object.data.object_type != 'NORMAL':
+        if mesh_object.data.object_type != 'MESH':
             continue
 
         if mesh_object.mode != 'OBJECT':
