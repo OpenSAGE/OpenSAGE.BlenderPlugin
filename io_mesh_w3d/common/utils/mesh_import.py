@@ -22,7 +22,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.update()
     mesh.validate()
 
-    mesh.object_type = 'NORMAL'
+    mesh.object_type = 'MESH'
     mesh.userText = mesh_struct.user_text
     mesh.sort_level = mesh_struct.header.sort_level
     mesh.casts_shadow = mesh_struct.casts_shadow()

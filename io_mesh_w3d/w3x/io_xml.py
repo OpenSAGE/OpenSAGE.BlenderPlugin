@@ -58,6 +58,11 @@ def find_root(context, source):
     return root
 
 
+def create_named_root(name):
+    root = ET.Element(name)
+    return root
+
+
 def create_root():
     root = ET.Element('AssetDeclaration')
     root.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')

@@ -6,6 +6,7 @@ from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.custom_properties import *
+from io_mesh_w3d.geometry_export import *
 
 VERSION = (0, 6, 3)
 
@@ -13,7 +14,7 @@ bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
     'version': (0, 6, 3),
-    "blender": (2, 83, 0),
+    "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
     'warning': 'Still in Progress',
@@ -255,7 +256,7 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
         mesh = context.active_object.data
         col.prop(mesh, 'object_type')
         col = layout.column()
-        if mesh.object_type == 'NORMAL':
+        if mesh.object_type == 'MESH':
             col.prop(mesh, 'sort_level')
             col = layout.column()
             col.prop(mesh, 'casts_shadow')
@@ -273,6 +274,11 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mesh, 'box_type')
             col = layout.column()
             col.prop(mesh, 'box_collision_types')
+        elif mesh.object_type == 'GEOMETRY':
+            col = layout.column()
+            col.prop(mesh, 'geometry_type')
+            col = layout.column()
+            col.prop(mesh, 'contact_points_type')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
@@ -416,13 +422,24 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'multi_texture_enable')
 
 
+class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
+    bl_label = 'W3D Tools'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+ 
+    def draw(self, context):
+        self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
+
+
 CLASSES = (
     ExportW3D,
     ImportW3D,
     ShaderProperties,
     MESH_PROPERTIES_PANEL_PT_w3d,
     BONE_PROPERTIES_PANEL_PT_w3d,
-    MATERIAL_PROPERTIES_PANEL_PT_w3d
+    MATERIAL_PROPERTIES_PANEL_PT_w3d,
+    ExportGeometryData,
+    TOOLS_PANEL_PT_w3d
 )
 
 

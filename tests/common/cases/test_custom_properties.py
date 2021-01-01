@@ -26,9 +26,9 @@ class TestCustomProperties(TestCase):
         obj.data.userText = 'lorem ipsum'
         self.assertEqual('lorem ipsum', obj.data.userText)
 
-        object_types = ['NORMAL', 'BOX', 'DAZZLE']
+        object_types = ['MESH', 'BOX', 'DAZZLE']
 
-        self.assertEqual('NORMAL', obj.data.object_type)
+        self.assertEqual('MESH', obj.data.object_type)
         for object_type in object_types:
             obj.data.object_type = object_type
             self.assertEqual(object_type, obj.data.object_type)
