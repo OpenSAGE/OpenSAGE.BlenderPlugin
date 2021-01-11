@@ -426,7 +426,7 @@ class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
     bl_label = 'W3D Tools'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
- 
+
     def draw(self, context):
         self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
 

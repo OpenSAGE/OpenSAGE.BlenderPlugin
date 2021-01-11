@@ -6,6 +6,7 @@ from bpy_extras.io_utils import ExportHelper
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.common.utils.helpers import get_objects
 
+
 def format_str(value):
     return '{:.3f}'.format(value)
 
@@ -16,7 +17,7 @@ class ExportGeometryData(bpy.types.Operator, ExportHelper):
     bl_options = {'REGISTER', 'UNDO'}
 
     filename_ext = '.xml'
- 
+
     def execute(self, context):
         export_geometry_data(self, self.filepath)
         return {'FINISHED'}
@@ -30,7 +31,7 @@ def export_geometry_data(context, filepath):
     file = open(inifilepath, 'w')
 
     root = create_named_root('Geometry')
-    root.set('isSmall', str(False));
+    root.set('isSmall', str(False))
 
     index = 0
 
@@ -68,7 +69,17 @@ def export_geometry_data(context, filepath):
 
         create_vector(location, shape_node, 'Offset')
         if (location.length > 0.01):
-            file.write('\tGeometryOffset\t\t\t= X:' + format_str(location.x) + ' Y:' + format_str(location.y) + ' Z:' + format_str(location.z) + '\n')
+            file.write(
+                '\tGeometryOffset\t\t\t= X:' +
+                format_str(
+                    location.x) +
+                ' Y:' +
+                format_str(
+                    location.y) +
+                ' Z:' +
+                format_str(
+                    location.z) +
+                '\n')
 
         file.write('\n')
         index += 1
@@ -77,7 +88,17 @@ def export_geometry_data(context, filepath):
         contact_point_node = create_node(root, 'ContactPoint')
         location, _, _ = empty.matrix_world.decompose()
         create_vector(location, contact_point_node, 'Pos')
-        file.write('\tGeometryContactPoint\t= X:' + format_str(location.x) + ' Y:' + format_str(location.y) + ' Z:' + format_str(location.z) + '\n')
+        file.write(
+            '\tGeometryContactPoint\t= X:' +
+            format_str(
+                location.x) +
+            ' Y:' +
+            format_str(
+                location.y) +
+            ' Z:' +
+            format_str(
+                location.z) +
+            '\n')
 
     write(root, filepath)
     file.close()

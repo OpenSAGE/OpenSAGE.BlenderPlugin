@@ -17,7 +17,7 @@ def retrieve_boxes(container_name):
             name_=name,
             center=mesh_object.location)
         box_mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
-        # TODO: use mesh_object.bound_box ? 
+        # TODO: use mesh_object.bound_box ?
         box.extend = Vector(
             (box_mesh.vertices[0].co.x * 2,
              box_mesh.vertices[0].co.y * 2,
