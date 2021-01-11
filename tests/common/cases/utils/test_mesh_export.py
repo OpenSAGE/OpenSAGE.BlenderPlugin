@@ -192,7 +192,7 @@ class TestMeshExportUtils(TestCase):
             datum.uv = Vector((0.0, 0.1))
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.data.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'MESH'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -230,7 +230,7 @@ class TestMeshExportUtils(TestCase):
         b_mesh.to_mesh(mesh)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.data.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'MESH'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -264,7 +264,7 @@ class TestMeshExportUtils(TestCase):
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.data.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'MESH'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
@@ -290,7 +290,7 @@ class TestMeshExportUtils(TestCase):
         mesh.materials.append(material)
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
-        mesh_ob.data.object_type = 'NORMAL'
+        mesh_ob.data.object_type = 'MESH'
 
         coll = bpy.context.scene.collection
         coll.objects.link(mesh_ob)
