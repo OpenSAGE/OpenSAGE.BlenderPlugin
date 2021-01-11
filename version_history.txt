@@ -1,5 +1,5 @@
 v0.6.3
-- 
+- geometry data can now be exported to xml and ini
 
 v0.6.2 (01.12.20)
 - support for floats in xml files with ',' and '.'
