@@ -13,10 +13,10 @@ def make_transform_matrix(loc, rot):
     return mat_loc @ mat_rot
 
 
-def get_objects(type, object_list=None):  # MESH, ARMATURE
+def get_objects(object_type, object_list=None):  # MESH, ARMATURE
     if object_list is None:
         object_list = bpy.context.scene.objects
-    return [obj for obj in object_list if obj.type == type]
+    return [obj for obj in object_list if obj.type == object_type]
 
 
 def switch_to_pose(rig, pose):
@@ -65,7 +65,8 @@ def rig_object(obj, hierarchy, rig, sub_object):
     obj.parent_type = 'BONE'
 
 
-def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
+
+def get_or_create_uvlayer(context, mesh, b_mesh, triangles, mat_pass):
     tx_coords = None
     if mat_pass.tx_coords:
         tx_coords = mat_pass.tx_coords
@@ -80,14 +81,19 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
         if len(mat_pass.tx_stages) > 1:
             context.warning('only one texture stage per material pass supported')
 
+    return create_uv_layer(mesh, b_mesh, triangles, tx_coords)
+
+def create_uv_layer(mesh, b_mesh, triangles, tx_coords):
     if tx_coords is None:
         return
 
     uv_layer = mesh.uv_layers.new(do_init=False)
     for i, face in enumerate(b_mesh.faces):
         for loop in face.loops:
-            idx = tris[i][loop.index % 3]
+            idx = triangles[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
+
+    return uv_layer.name
 
 
 def find_texture(context, file, name=None):

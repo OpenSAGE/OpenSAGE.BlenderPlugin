@@ -3,7 +3,7 @@
 
 from mathutils import Vector
 from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 
 surface_types = [
@@ -97,7 +97,7 @@ class Triangle:
     def parse(xml_triangle):
         result = Triangle(vert_ids=[])
 
-        for i, xml_vert in enumerate(xml_triangle.findall('V')):
+        for xml_vert in xml_triangle.findall('V'):
             result.vert_ids.append(int(xml_vert.text))
 
         result.normal = parse_vector(xml_triangle.find('Nrm'))
@@ -112,4 +112,4 @@ class Triangle:
 
         create_vector(self.normal, triangle, 'Nrm')
         xml_distance = create_node(triangle, 'Dist')
-        xml_distance.text = format(self.distance)
+        xml_distance.text = truncate(self.distance)

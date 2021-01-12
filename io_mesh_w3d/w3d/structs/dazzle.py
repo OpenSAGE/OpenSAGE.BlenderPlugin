@@ -26,7 +26,7 @@ class Dazzle:
         result = Dazzle(name_='', type_name='')
 
         while io_stream.tell() < chunk_end:
-            (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+            chunk_type, chunk_size, _ = read_chunk_head(io_stream)
             if chunk_type == W3D_CHUNK_DAZZLE_NAME:
                 result.name_ = read_string(io_stream)
             elif chunk_type == W3D_CHUNK_DAZZLE_TYPENAME:

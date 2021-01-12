@@ -17,7 +17,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.from_pydata(mesh_struct.verts, [], triangles)
 
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    mesh.use_auto_smooth = True
+    mesh.use_auto_smooth = True # TODO: remove this and fix tests accordingly
 
     mesh.update()
     mesh.validate()
@@ -62,34 +62,7 @@ def create_mesh(context, mesh_struct, coll):
         create_vertex_color_layer(mesh, mat_pass.dig, 'DIG', i)
         create_vertex_color_layer(mesh, mat_pass.scg, 'SCG', i)
 
-    principleds = []
-
-    # vertex material stuff
-    name = mesh_struct.name()
-    if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
-
-        for i, shader in enumerate(mesh_struct.shaders):
-            set_shader_properties(mesh.materials[i], shader)
-
-    elif mesh_struct.prelit_vertex:
-        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, name, triangles)
-
-        for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
-            set_shader_properties(mesh.materials[i], shader)
-
-    # shader material stuff
-    if mesh_struct.shader_materials:
-        for i, shaderMat in enumerate(mesh_struct.shader_materials):
-            material, principled = create_material_from_shader_material(
-                context, mesh_struct.name(), shaderMat)
-            mesh.materials.append(material)
-            principleds.append(principled)
-
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
-        for mat_pass in mesh_struct.material_passes:
-            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+    create_materials(context, mesh_struct, mesh, triangles)
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

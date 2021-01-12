@@ -22,7 +22,7 @@ class TestMesh(TestCase):
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
     def test_write_read_variant2(self):
-        expected = get_mesh(skin=True, shader_mats=True)
+        expected = get_mesh(skin=True, shader_mat=True)
 
         self.assertEqual(4137, expected.size(False))
         self.assertEqual(4145, expected.size())
@@ -92,19 +92,20 @@ class TestMesh(TestCase):
         expected.write(io_stream)
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, chunk_size, _ = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
         self.assertEqual(expected.size(False), chunk_size)
 
         for chunk in expected_chunks:
-            (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+            chunk_type, chunk_size, _ = read_chunk_head(io_stream)
             self.assertEqual(hex(chunk), hex(chunk_type))
             io_stream.seek(chunk_size, 1)
 
     def test_unsupported_chunk_skip(self):
         output = io.BytesIO()
         write_chunk_head(W3D_CHUNK_MESH, output, 54, has_sub_chunks=True)
+        get_mesh_header().write(output)
 
         write_chunk_head(W3D_CHUNK_VERTICES_2, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
@@ -116,13 +117,12 @@ class TestMesh(TestCase):
         write_ubyte(0x00, output)
         write_chunk_head(W3D_CHUNK_DEFORM, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
-        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output,
-                         1, has_sub_chunks=False)
+        write_chunk_head(W3D_CHUNK_PS2_SHADERS, output, 1, has_sub_chunks=False)
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
 
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
@@ -143,7 +143,7 @@ class TestMesh(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
@@ -185,12 +185,12 @@ class TestMesh(TestCase):
         self.assertEqual(1113, mesh.size())
 
     def test_write_read_xml(self):
-        self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(get_mesh(shader_mat=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_write_read_xml_attributes(self):
         self.write_read_xml_test(
             get_mesh(
-                shader_mats=True,
+                shader_mat=True,
                 hidden=True,
                 cast_shadow=True),
             'W3DMesh',
@@ -202,12 +202,12 @@ class TestMesh(TestCase):
         self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_write_read_no_dot_in_identifier(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         mesh.identifier = "meshName"
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_parse_dublicate_vertices_and_normals(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         root = create_root()
         xml_mesh = create_node(root, 'W3DMesh')
         xml_mesh.set('id', 'fakeIdentifier')
@@ -228,7 +228,7 @@ class TestMesh(TestCase):
                                           call('secondary normals are not supported')])
 
     def test_parse_multiple_uv_coords(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         root = create_root()
         xml_mesh = create_node(root, 'W3DMesh')
         xml_mesh.set('id', 'fakeIdentifier')
@@ -262,7 +262,7 @@ class TestMesh(TestCase):
             report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DMesh!')
 
     def test_create_parse_single_bone_influences(self):
-        mesh = get_mesh(shader_mats=True, skin=True)
+        mesh = get_mesh(shader_mat=True, skin=True)
         mesh.multi_bone_skinned = False
 
         mesh.vert_infs = [get_vertex_influence(0, 0, 0.0, 0.0),
@@ -277,7 +277,7 @@ class TestMesh(TestCase):
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
 
     def test_create_parse_no_material_passes(self):
-        mesh = get_mesh(shader_mats=True)
+        mesh = get_mesh(shader_mat=True)
         mesh.material_passes = []
         mesh.mat_info.pass_count = 0
         self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
@@ -299,7 +299,7 @@ class TestMesh(TestCase):
                      'AABTree']
 
         root = create_root()
-        mesh = get_mesh(shader_mats=True, skin=True)
+        mesh = get_mesh(shader_mat=True, skin=True)
         mesh.create(root)
 
         for i, child in enumerate(root.find('W3DMesh')):

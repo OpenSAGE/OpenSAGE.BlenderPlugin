@@ -11,7 +11,7 @@ from io_mesh_w3d.common.utils.helpers import *
 from io_mesh_w3d.common.utils.material_export import *
 
 
-def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materials=False):
+def retrieve_meshes(context, hierarchy, rig, container_name):
     mesh_structs = []
     used_textures = []
 
@@ -143,8 +143,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             face_map_names = [map.name for map in mesh_object.face_maps]
             Triangle.validate_face_map_names(context, face_map_names)
 
-            for map in mesh.face_maps:
-                for i, val in enumerate(map.data):
+            for face_map in mesh.face_maps:
+                for i, val in enumerate(face_map.data):
                     mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
 
         header.face_count = len(mesh_struct.triangles)
@@ -153,71 +153,20 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         header.sphCenter = center
         header.sphRadius = radius
 
-        tx_stages = []
-        for i, uv_layer in enumerate(mesh.uv_layers):
-            stage = TextureStage(
-                tx_ids=[[i]],
-                tx_coords=[[Vector((0.0, 0.0))] * len(mesh_struct.verts)])
-
-            for j, face in enumerate(b_mesh.faces):
-                for loop in face.loops:
-                    vert_index = mesh_struct.triangles[j].vert_ids[loop.index % 3]
-                    stage.tx_coords[0][vert_index] = uv_layer.data[loop.index].uv.copy()
-            tx_stages.append(stage)
+        retrieve_materials(context, mesh_struct, b_mesh, mesh, used_textures)
 
         b_mesh.free()
 
-        for i, material in enumerate(mesh.materials):
-            mat_pass = MaterialPass()
-
-            if material is None:
-                context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
-                continue
-
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-
-            used_textures = get_used_textures(material, principled, used_textures)
-
-            if context.file_format == 'W3X' or (
-                    material.material_type == 'SHADER_MATERIAL' and not force_vertex_materials):
-                mat_pass.shader_material_ids = [i]
-                if i < len(tx_stages):
-                    mat_pass.tx_coords = tx_stages[i].tx_coords[0]
-                mesh_struct.shader_materials.append(
-                    retrieve_shader_material(context, material, principled))
-
-            else:
-                shader = retrieve_shader(material)
-                mesh_struct.shaders.append(shader)
-                mat_pass.shader_ids = [i]
-                mat_pass.vertex_material_ids = [i]
-
-                mesh_struct.vert_materials.append(retrieve_vertex_material(material, principled))
-
-                base_col_tex = principled.base_color_texture
-                if base_col_tex is not None and base_col_tex.image is not None:
-                    info = TextureInfo()
-                    img = base_col_tex.image
-                    filepath = os.path.basename(img.filepath)
-                    if filepath == '':
-                        filepath = img.name
-                    tex = Texture(
-                        id=img.name,
-                        file=filepath,
-                        texture_info=info)
-                    mesh_struct.textures.append(tex)
-                    shader.texturing = 1
-
-                    if i < len(tx_stages):
-                        mat_pass.tx_stages.append(tx_stages[i])
-
-            mesh_struct.material_passes.append(mat_pass)
 
         for layer in mesh.vertex_colors:
             if '_' in layer.name:
                 index = int(layer.name.split('_')[-1])
             else:
                 index = 0
+
+            if index > len(mesh_struct.material_passes) - 1:
+                continue
+
             if 'DCG' in layer.name:
                 target = mesh_struct.material_passes[index].dcg
             elif 'DIG' in layer.name:
@@ -286,9 +235,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     return mesh_structs, used_textures
 
 
-##########################################################################
+#######################################################################################################################
 # Helper methods
-##########################################################################
+#######################################################################################################################
 
 
 def prepare_bmesh(context, mesh):
@@ -312,11 +261,11 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     for ver in b_mesh.verts:
         ver.select_set(False)
 
-    for i, uv_layer in enumerate(mesh.uv_layers):
+    for uv_layer in mesh.uv_layers:
         tx_coords = [None] * len(uv_layer.data)
-        for j, face in enumerate(b_mesh.faces):
+        for i, face in enumerate(b_mesh.faces):
             for loop in face.loops:
-                vert_index = mesh.polygons[j].vertices[loop.index % 3]
+                vert_index = mesh.polygons[i].vertices[loop.index % 3]
                 if tx_coords[vert_index] is not None \
                         and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)

@@ -49,7 +49,7 @@ class TestAnimationUtils(TestCase):
         hierarchy = get_hierarchy()
         animation = get_animation()
 
-        animation.channels = [get_animation_channel(type=CHANNEL_VIS, pivot=0)]
+        animation.channels = [get_animation_channel(channel_type=CHANNEL_VIS, pivot=0)]
 
         rig = get_or_create_skeleton(hierarchy, get_collection())
 

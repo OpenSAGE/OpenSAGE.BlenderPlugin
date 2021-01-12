@@ -49,8 +49,7 @@ class TestRoundtripW3X(TestCase):
         export_settings['compression'] = 'U'
         save_data(self, export_settings)
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -92,8 +91,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'output.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
@@ -112,9 +110,8 @@ class TestRoundtripW3X(TestCase):
     def test_roundtrip_texture_name_with_dots(self):
         hierarchy_name = 'testname_skl'
         hierarchy = get_hierarchy(hierarchy_name)
-        mesh = get_mesh(name='sword', skin=True)
-        mesh.textures = [get_texture(name='tex.with.dots.in.name.but.not.used.dds'),
-                         get_texture(name='another.tex.with.dots.in.name.dds')]
+        mesh = get_mesh(name='sword', skin=True, shader_mat=True)
+        mesh.textures = [get_texture(name='tex.with.dots.in.name.dds')]
         meshes = [mesh]
         hlod = get_hlod(hierarchy_name, hierarchy_name)
 
@@ -131,10 +128,9 @@ class TestRoundtripW3X(TestCase):
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
-        self.assertTrue(os.path.exists(self.outpath() + 'another.tex.with.dots.in.name.xml'))
+        self.assertTrue(os.path.exists(self.outpath() + 'tex.with.dots.in.name.xml'))
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -176,8 +172,7 @@ class TestRoundtripW3X(TestCase):
         root = find_root(self, self.outpath() + 'output_skn.w3x')
         self.assertEqual(6, len(root.find('Includes').findall('Include')))
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -221,8 +216,7 @@ class TestRoundtripW3X(TestCase):
                            'use_existing_skeleton': False}
         save_data(self, export_settings)
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
@@ -272,15 +266,14 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.TRUNK.w3x'
         load(self)
 
         # check created objects
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertTrue('testname_skl' in bpy.data.objects)
         self.assertTrue('testname_skl' in bpy.data.armatures)
@@ -297,7 +290,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn.sword.w3x'
         load(self)
 
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertFalse('soldier' in bpy.data.objects)
         self.assertFalse('BOUNDINGBOX' in bpy.data.objects)
@@ -309,7 +302,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_skn.BOUNDINGBOX.w3x'
         load(self)
 
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertFalse('soldier' in bpy.data.objects)
 
@@ -350,15 +343,14 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'testname_skl.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
-        # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
         load(self)
 
         # check created objects
-        self.assertEqual(2, len(bpy.data.collections))
+        self.assertEqual(1, len(bpy.data.collections))
 
         self.assertTrue('testname_skl' in bpy.data.objects)
         self.assertTrue('testname_skl' in bpy.data.armatures)

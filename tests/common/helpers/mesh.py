@@ -10,7 +10,7 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 from tests.w3d.helpers.version import *
 
 
-def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False, cast_shadow=False):
+def get_mesh_header(name='mesh_name', skin=False, shader_mat=False, hidden=False, cast_shadow=False):
     header = MeshHeader(
         version=get_version(major=4, minor=2),
         attrs=0,
@@ -30,7 +30,7 @@ def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=Fals
         sph_center=get_vec(0.0, 0.0, 0.0),
         sph_radius=0.0)
 
-    if shader_mats:
+    if shader_mat:
         header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
     if skin:
         header.attrs |= GEOMETRY_TYPE_SKIN
@@ -76,13 +76,12 @@ def get_vertex_influences():
 def get_mesh(
         name='meshName',
         skin=False,
-        shader_mats=False,
+        shader_mat=False,
         prelit=False,
         hidden=False,
-        cast_shadow=False,
-        mat_count=2):
+        cast_shadow=False):
     mesh = Mesh()
-    mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow)
+    mesh.header = get_mesh_header(name, skin, shader_mat, hidden, cast_shadow)
 
     mesh.user_text = 'TestUserText'
 
@@ -104,7 +103,7 @@ def get_mesh(
                     get_vec(-0.577, -0.577, 0.577),
                     get_vec(-0.577, -0.577, -0.577)]
 
-    if shader_mats:
+    if shader_mat:
         mesh.tangents = [get_vec(0.577, 0.577, 0.577),
                          get_vec(0.577, 0.577, -0.577),
                          get_vec(0.577, -0.577, 0.577),
@@ -145,24 +144,21 @@ def get_mesh(
 
     mesh.aabbtree = get_aabbtree()
 
-    if shader_mats:
+    if shader_mat:
         mesh.shader_materials.append(get_shader_material())
-        mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mats))
+        mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mat))
     elif prelit:
         mesh.header.attrs |= PRELIT_UNLIT | PRELIT_VERTEX | PRELIT_LIGHTMAP_MULTI_PASS | PRELIT_LIGHTMAP_MULTI_TEXTURE
-        mesh.prelit_unlit = get_prelit(type=W3D_CHUNK_PRELIT_UNLIT, count=1)
-        mesh.prelit_vertex = get_prelit(type=W3D_CHUNK_PRELIT_VERTEX, count=1)
-        mesh.prelit_lightmap_multi_pass = get_prelit(
-            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
-        mesh.prelit_lightmap_multi_texture = get_prelit(
-            type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
+        mesh.prelit_unlit = get_prelit(prelit_type=W3D_CHUNK_PRELIT_UNLIT, count=1)
+        mesh.prelit_vertex = get_prelit(prelit_type=W3D_CHUNK_PRELIT_VERTEX, count=1)
+        mesh.prelit_lightmap_multi_pass = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_PASS, count=2)
+        mesh.prelit_lightmap_multi_texture = get_prelit(prelit_type=W3D_CHUNK_PRELIT_LIGHTMAP_MULTI_TEXTURE, count=2)
     else:
-        for i in range(mat_count):
-            mesh.shaders.append(get_shader())
-            mesh.vert_materials.append(get_vertex_material())
-            mesh.textures.append(get_texture())
+        mesh.shaders.append(get_shader())
+        mesh.vert_materials.append(get_vertex_material())
+        mesh.textures.append(get_texture())
 
-            mesh.material_passes.append(get_material_pass(index=i, shader_mat=shader_mats))
+        mesh.material_passes.append(get_material_pass(index=0, shader_mat=shader_mat))
 
     if not prelit:
         mesh.mat_info = get_material_info()
@@ -227,7 +223,7 @@ def get_mesh_minimal(xml=False):
 
     if xml:
         mesh.multi_bone_skinned = True
-        mesh.header = get_mesh_header(shader_mats=True, skin=True)
+        mesh.header = get_mesh_header(shader_mat=True, skin=True)
         mesh.vert_materials = []
         mesh.header.matl_count = 1
         mesh.shaders = []

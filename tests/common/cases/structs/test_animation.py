@@ -42,30 +42,49 @@ class TestAnimation(TestCase):
             Animation.read(self, io_stream, subchunk_end)
             report_func.assert_called_with('unknown chunk_type in io_stream: 0x0')
 
-    def test_validate(self):
+    def test_is_valid_if_w3d(self):
         ani = get_animation()
         self.file_format = 'W3D'
         self.assertTrue(ani.validate(self))
+
+    def test_is_valid_if_w3x(self):
+        ani = get_animation()
         self.file_format = 'W3X'
         self.assertTrue(ani.validate(self))
 
+    def test_is_invalid_if_w3d_and_too_long_name(self):
+        ani = get_animation()
         ani.header.name = 'tooooolonganiname'
         self.file_format = 'W3D'
         self.assertFalse(ani.validate(self))
+
+    def test_is_valid_if_w3x_and_too_long_name(self):
+        ani = get_animation()
+        ani.header.name = 'tooooolonganiname'
         self.file_format = 'W3X'
         self.assertTrue(ani.validate(self))
 
+    def test_is_invalid_if_w3d_and_too_long_hierarchy_name(self):
         ani = get_animation()
-        ani.header.hierarchy_name = 'tooooolonganiname'
+        ani.header.hierarchy_name = 'tooooolonghieraname'
         self.file_format = 'W3D'
         self.assertFalse(ani.validate(self))
+
+    def test_is_valid_if_w3x_and_too_long_hierarchy_name(self):
+        ani = get_animation()
+        ani.header.name = 'tooooolonghieraname'
         self.file_format = 'W3X'
         self.assertTrue(ani.validate(self))
 
+    def test_is_invalid_if_w3d_and_no_channels(self):
         ani = get_animation()
         ani.channels = []
         self.file_format = 'W3D'
         self.assertFalse(ani.validate(self))
+
+    def test_is_invalid_if_w3x_and_no_channels(self):
+        ani = get_animation()
+        ani.channels = []
         self.file_format = 'W3X'
         self.assertFalse(ani.validate(self))
 

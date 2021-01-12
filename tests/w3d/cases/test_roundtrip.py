@@ -47,7 +47,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(use_empty=True)
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
@@ -96,7 +96,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
@@ -132,7 +132,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -162,7 +162,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -194,7 +194,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -231,7 +231,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -264,7 +264,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.reset_scene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'

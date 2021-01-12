@@ -2,6 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
+import os
 from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.export_utils import save_data
@@ -303,123 +304,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
     def draw(self, context):
         layout = self.layout
         mat = context.object.active_material
-        col = layout.column()
-        col.prop(mat, 'material_type')
-
-        if mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'prelit_type')
-
-        col = layout.column()
-        col.prop(mat, 'surface_type')
-        col = layout.column()
-        col.prop(mat, 'blend_mode')
-        col = layout.column()
-        col.prop(mat, 'ambient')
-
-        if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'attributes')
-            col = layout.column()
-            col.prop(mat, 'translucency')
-            col = layout.column()
-            col.prop(mat, 'vm_args_0')
-            col = layout.column()
-            col.prop(mat, 'vm_args_1')
-
-            col = layout.column()
-            layout.label(text="Shader Properties")
-            col = layout.column()
-            col.prop(mat.shader, 'depth_compare')
-            col = layout.column()
-            col.prop(mat.shader, 'depth_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'color_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'dest_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'fog_func')
-            col = layout.column()
-            col.prop(mat.shader, 'pri_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'sec_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'src_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_alpha_func')
-            col = layout.column()
-            col.prop(mat.shader, 'shader_preset')
-            col = layout.column()
-            col.prop(mat.shader, 'alpha_test')
-            col = layout.column()
-            col.prop(mat.shader, 'post_detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader, 'post_detail_alpha_func')
-
-        else:
-            col = layout.column()
-            col.prop(mat, 'technique')
-            col.prop(mat, 'alpha_test')
-            col = layout.column()
-            col.prop(mat, 'bump_uv_scale')
-            col = layout.column()
-            col.prop(mat, 'edge_fade_out')
-            col = layout.column()
-            col.prop(mat, 'depth_write')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_0')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_1')
-            col = layout.column()
-            col.prop(mat, 'num_textures')
-            col = layout.column()
-            col.prop(mat, 'texture_1')
-            col = layout.column()
-            col.prop(mat, 'secondary_texture_blend_mode')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_1')
-            col = layout.column()
-            col.prop(mat, 'environment_texture')
-            col = layout.column()
-            col.prop(mat, 'environment_mult')
-            col = layout.column()
-            col.prop(mat, 'recolor_texture')
-            col = layout.column()
-            col.prop(mat, 'recolor_mult')
-            col = layout.column()
-            col.prop(mat, 'use_recolor')
-            col = layout.column()
-            col.prop(mat, 'house_color_pulse')
-            col = layout.column()
-            col.prop(mat, 'scrolling_mask_texture')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_angle')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_2')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_2')
-            col = layout.column()
-            col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
-            col = layout.column()
-            col.prop(mat, 'ion_hull_texture')
-            col = layout.column()
-            col.prop(mat, 'multi_texture_enable')
 
 
 class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
@@ -431,31 +315,116 @@ class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
         self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
 
 
+from io_mesh_w3d.common.shading.alpha_node import AlphaNode
+
 CLASSES = (
+    AlphaNode,
     ExportW3D,
     ImportW3D,
-    ShaderProperties,
     MESH_PROPERTIES_PANEL_PT_w3d,
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
-    TOOLS_PANEL_PT_w3d
-)
+    TOOLS_PANEL_PT_w3d)
+
+
+from io_mesh_w3d.common.shading.vertex_material_group import VertexMaterialGroup
+from io_mesh_w3d.common.utils.node_group_creator import NodeGroupCreator
+
+
+import nodeitems_utils
+from nodeitems_utils import NodeCategory, NodeItem
+
+
+# all categories in a list
+node_categories = [
+    # identifier, label, items list
+    NodeCategory('SOMENODES', "Some Nodes", items=[
+        # our basic node
+        NodeItem("CustomNodeType"),
+    ]),
+    NodeCategory('OTHERNODES', "Other Nodes", items=[
+        # the node item can have additional settings,
+        # which are applied to new nodes
+        # NB: settings values are stored as string expressions,
+        # for this reason they should be converted to strings using repr()
+        NodeItem("CustomNodeType", label="Node A", settings={
+            "my_string_prop": repr("Lorem ipsum dolor sit amet"),
+            "my_float_prop": repr(1.0),
+        }),
+        NodeItem("CustomNodeType", label="Node B", settings={
+            "my_string_prop": repr("consectetur adipisicing elit"),
+            "my_float_prop": repr(2.0),
+        }),
+    ]),
+]
+
+def create_node_groups():
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator().create(directory, file)
+
+    VertexMaterialGroup.register()
+
+
+def remove_node_groups():
+    dirname = os.path.dirname(__file__)
+    directory = os.path.join(dirname, 'node_group_templates')
+
+    for file in os.listdir(directory):
+        if not file.endswith(".xml"):
+            continue
+        NodeGroupCreator().unregister(directory, file)
+
+    VertexMaterialGroup.unregister()
+
+
+from io_mesh_w3d.common.shading.node_socket_enum import NodeSocketInterfaceEnum
+from io_mesh_w3d.common.shading.node_socket_texture import NodeSocketInterfaceTexture
+from io_mesh_w3d.common.shading.node_socket_texture_alpha import NodeSocketInterfaceTextureAlpha
+from io_mesh_w3d.common.shading.node_socket_vec2 import NodeSocketInterfaceVector2
+from io_mesh_w3d.common.shading.node_socket_vec4 import NodeSocketInterfaceVector4
 
 
 def register():
+    NodeSocketInterfaceEnum.register_classes()
+    NodeSocketInterfaceTexture.register_classes()
+    NodeSocketInterfaceTextureAlpha.register_classes()
+    NodeSocketInterfaceVector2.register_classes()
+    NodeSocketInterfaceVector4.register_classes()
+
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
-
-    Material.shader = PointerProperty(type=ShaderProperties)
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
+    nodeitems_utils.register_node_categories('CUSTOM_NODES', node_categories)
+
+    # workaround to register the node group when the addon is active
+    # since bpy.data is not yet accessible
+    from threading import Timer
+    Timer(1, create_node_groups, ()).start()
+
 
 def unregister():
+    nodeitems_utils.unregister_node_categories('CUSTOM_NODES')
+
+    remove_node_groups()
+
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
+
+    NodeSocketInterfaceEnum.unregister_classes()
+    NodeSocketInterfaceTexture.unregister_classes()
+    NodeSocketInterfaceTextureAlpha.unregister_classes()
+    NodeSocketInterfaceVector2.unregister_classes()
+    NodeSocketInterfaceVector4.unregister_classes()
+
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.remove(menu_func_export)
 

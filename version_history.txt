@@ -1,3 +1,7 @@
+v0.6.4
+- support alpha values of textures
+- support for custom shaders via xml templates
+
 v0.6.3
 - geometry data can now be exported to xml and ini
 

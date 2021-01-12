@@ -30,7 +30,7 @@ class TestUtils(TestCase):
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
         for source in mesh.vert_materials:
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
+            material, _ = create_material_from_vertex_material(mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
@@ -40,57 +40,37 @@ class TestUtils(TestCase):
 
         for source in mesh.vert_materials:
             source.vm_info.attributes = 0
-            (material, _) = create_material_from_vertex_material(mesh.name(), source)
+            material, _ = create_material_from_vertex_material(mesh.name(), source)
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
 
     def test_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material()]
+        mesh = get_mesh(shader_mat=True)
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
 
+        material = create_shader_material(self, mesh.shader_materials[0], 'uv_layer')
+        actual = retrieve_materials(self, material, principled)
+        compare_shader_materials(self, mesh.shader_materials[0], actual)
+
+    def test_shader_material_w3x_roundtrip(self):
+        mesh = get_mesh(shader_mat=True)
+        mesh.shader_materials = [get_shader_material()]
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
+
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled)
             compare_shader_materials(self, source, actual)
 
-    def test_duplicate_shader_material_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(), get_shader_material()]
-
-        materials = []
-        for mat in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, 'meshName', mat)
-            materials.append(material)
-
-        self.assertEqual(1, len(bpy.data.materials))
-        self.assertTrue('meshName.NormalMapped.fx' in bpy.data.materials)
-
-        for i, expected in enumerate(mesh.shader_materials):
-            principled = node_shader_utils.PrincipledBSDFWrapper(materials[i], is_readonly=True)
-            actual = retrieve_shader_material(self, materials[i], principled)
-            compare_shader_materials(self, expected, actual)
-
-    def test_shader_material_w3x_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True)]
-        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
-
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
-            compare_shader_materials(self, source, actual)
-
     def test_shader_material_w3x_rgb_colors_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, rgb_colors=True)]
+        mesh = get_mesh(shader_mat=True)
+        mesh.shader_materials = [get_shader_material(rgb_colors=True)]
 
         for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
+            material = create_shader_material(self, source, 'uv_layer')
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
             actual = retrieve_shader_material(self, material, principled, w3x=True)
 
@@ -101,67 +81,10 @@ class TestUtils(TestCase):
 
             compare_shader_materials(self, source, actual)
 
-    def test_shader_material_w3x_two_tex_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials = [get_shader_material(w3x=True, two_tex=True)]
-
-        for source in mesh.shader_materials:
-            (material, _) = create_material_from_shader_material(self, mesh.name(), source)
-            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
-            actual = retrieve_shader_material(self, material, principled, w3x=True)
-            compare_shader_materials(self, source, actual)
-
-    def test_default_shader_material_properties_are_not_exported(self):
-        mesh = get_mesh(shader_mats=True)
-        mesh.shader_materials[0].properties = []
-
-        (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
-
-        actual = retrieve_shader_material(self, material, principled, w3x=False)
-        self.assertEqual(0, len(actual.properties))
-
-        actual = retrieve_shader_material(self, material, principled, w3x=True)
-        self.assertEqual(0, len(actual.properties))
-
-    def test_shader_material_minimal_roundtrip(self):
-        mesh = get_mesh(shader_mats=True)
-
-        for source in mesh.shader_materials:
-            source.properties = get_shader_material_properties_minimal()
-
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
-            actual = retrieve_shader_material(self, material, principled)
-            source.properties[2].type = 5
-            source.properties[2].value = get_vec4(x=1.0, y=0.2, z=0.33, w=1.0)
-            compare_shader_materials(self, source, actual)
-
-    def test_shader_material_type_name_fallback(self):
-        mesh = get_mesh(shader_mats=True)
-
-        for source in mesh.shader_materials:
-            source.header.type_name = 'LoremIpsum'
-            source.properties = []
-
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
-            actual = retrieve_shader_material(self, material, principled)
-            source.header.type_name = 'DefaultW3D.fx'
-            compare_shader_materials(self, source, actual)
-
-    def test_shader_material_type_name_upgrade_to_normal_mapped(self):
-        mesh = get_mesh(shader_mats=True)
-
-        for source in mesh.shader_materials:
-            source.header.type_name = 'LoremIpsum'
-
-            (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
-            actual = retrieve_shader_material(self, material, principled)
-            source.header.type_name = 'NormalMapped.fx'
-            compare_shader_materials(self, source, actual)
-
     def test_shader_roundtrip(self):
         mesh = get_mesh()
 
-        (material, _) = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
+        material, _ = create_material_from_vertex_material(mesh.name(), mesh.vert_materials[0])
         expected = mesh.shaders[0]
         set_shader_properties(material, expected)
         actual = retrieve_shader(material)
@@ -385,7 +308,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='soldier', skin=True),
-            get_mesh(name='TRUNK', shader_mats=True),
+            get_mesh(name='TRUNK', shader_mat=True),
             get_mesh(name='PICK')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
@@ -478,7 +401,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)
@@ -489,7 +412,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)
@@ -508,7 +431,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
@@ -532,7 +455,7 @@ class TestUtils(TestCase):
     def test_meshes_no_textures_found_roundtrip(self):
         meshes = [
             get_mesh(name='wall'),
-            get_mesh(name='tower2', shader_mats=True)]
+            get_mesh(name='tower2', shader_mat=True)]
 
         create_data(self, meshes)
 
@@ -542,7 +465,7 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='wall', hidden=True),
             get_mesh(name='tower', hidden=True),
-            get_mesh(name='tower2', shader_mats=True),
+            get_mesh(name='tower2', shader_mat=True),
             get_mesh(name='stone')]
 
         create_data(self, meshes)
@@ -614,7 +537,7 @@ class TestUtils(TestCase):
             num_time_codes=5,
             vector_len=1,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=1, value=3.0),
                         TimeCodedDatum(time_code=2, value=3.0),
@@ -625,7 +548,7 @@ class TestUtils(TestCase):
             num_time_codes=7,
             vector_len=4,
             pivot=1,
-            type=6,
+            channel_type=6,
             time_codes=[TimeCodedDatum(time_code=0, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
                         TimeCodedDatum(time_code=1, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
                         TimeCodedDatum(time_code=2, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
@@ -646,7 +569,7 @@ class TestUtils(TestCase):
             num_time_codes=2,
             vector_len=1,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=4, value=3.0)])
 
@@ -718,7 +641,7 @@ class TestUtils(TestCase):
 
         container_name = 'containerName'
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, container_name)
+        actual_hiera, rig = retrieve_hierarchy(self, container_name)
         if hierarchy is not None:
             hierarchy.pivot_fixups = []  # roundtrip not supported
             compare_hierarchies(self, hierarchy, actual_hiera)
@@ -728,7 +651,7 @@ class TestUtils(TestCase):
             compare_hlods(self, hlod, actual_hlod)
 
         if meshes:
-            (actual_meshes, textures) = retrieve_meshes(
+            actual_meshes, textures = retrieve_meshes(
                 self, actual_hiera, rig, container_name)
             self.assertEqual(len(meshes), len(actual_meshes))
             for i, mesh in enumerate(meshes):

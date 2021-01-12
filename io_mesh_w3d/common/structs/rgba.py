@@ -64,10 +64,10 @@ class RGBA:
 
     def create(self, parent):
         color = create_node(parent, 'C')
-        color.set('R', format(self.r / 255))
-        color.set('G', format(self.g / 255))
-        color.set('B', format(self.b / 255))
-        color.set('A', format(self.a / 255))
+        color.set('R', truncate(self.r / 255))
+        color.set('G', truncate(self.g / 255))
+        color.set('B', truncate(self.b / 255))
+        color.set('A', truncate(self.a / 255))
 
     def to_vector_rgba(self, scale=255.0):
         return self.r / scale, self.g / scale, self.b / scale, self.a / scale

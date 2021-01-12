@@ -34,7 +34,7 @@ class TestImportUtilsW3D(TestCase):
         mesh_struct.material_passes[0].tx_stages.append(get_texture_stage())
 
         for mat_pass in mesh_struct.material_passes:
-            create_uvlayer(self, mesh, b_mesh, triangles, mat_pass)
+            get_or_create_uvlayer(self, mesh, b_mesh, triangles, mat_pass)
 
     def test_mesh_import_2_textures_1_vertex_material(self):
         mesh = get_mesh_two_textures()
@@ -66,7 +66,7 @@ class TestImportUtilsW3D(TestCase):
         channel = TimeCodedAnimationChannel(
             num_time_codes=5,
             pivot=1,
-            type=1,
+            channel_type=1,
             time_codes=[TimeCodedDatum(time_code=0, value=3.0),
                         TimeCodedDatum(time_code=1, value=3.0),
                         TimeCodedDatum(time_code=2, value=3.0),

@@ -21,18 +21,18 @@ class TestShaderMaterial(TestCase):
 
         name = 'InvalidProp'
         size = 8 + len(name) + 1 + 1
-        type = 0
+        prop_type = 0
 
         write_chunk_head(
             W3D_CHUNK_SHADER_MATERIAL_PROPERTY, io_stream, size)
-        write_long(type, io_stream)
+        write_long(prop_type, io_stream)
         write_long(len(name) + 1, io_stream)
         write_string(name, io_stream)
         write_ubyte(0x00, io_stream)  # fake data
 
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(size, chunkSize)
 
@@ -42,7 +42,7 @@ class TestShaderMaterial(TestCase):
         io_stream = io.BytesIO()
 
         prop = ShaderMaterialProperty(
-            type=0,
+            prop_type=0,
             name='InvalidProp',
             value=0x00)
 
@@ -50,18 +50,9 @@ class TestShaderMaterial(TestCase):
 
         io_stream = io.BytesIO(io_stream.getvalue())
 
-        (chunkType, chunkSize, chunkEnd) = read_chunk_head(io_stream)
+        chunkType, chunkSize, _ = read_chunk_head(io_stream)
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL_PROPERTY, chunkType)
         self.assertEqual(prop.size(False), chunkSize)
-
-    def test_write_read_empty(self):
-        expected = get_shader_material_empty()
-
-        self.assertEqual(45, expected.header.size())
-        self.assertEqual(53, expected.size())
-
-        self.write_read_test(expected, W3D_CHUNK_SHADER_MATERIAL, ShaderMaterial.read,
-                             compare_shader_materials, self, True)
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()
@@ -71,7 +62,7 @@ class TestShaderMaterial(TestCase):
         write_ubyte(0x00, output)
 
         io_stream = io.BytesIO(output.getvalue())
-        (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+        chunk_type, _, subchunk_end = read_chunk_head(io_stream)
 
         self.assertEqual(W3D_CHUNK_SHADER_MATERIAL, chunk_type)
 
@@ -117,38 +108,24 @@ class TestShaderMaterial(TestCase):
 
     def test_write_read_xml(self):
         self.write_read_xml_test(
-            get_shader_material(w3x=True),
+            get_shader_material(),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
     def test_write_read_rgb_colors_xml(self):
         self.write_read_xml_test(
-            get_shader_material(w3x=True, two_tex=True, rgb_colors=True),
+            get_shader_material(rgb_colors=True),
             'FXShader',
             ShaderMaterial.parse,
             compare_shader_materials)
 
-    def test_write_read_xml_two_texture(self):
-        self.write_read_xml_test(
-            get_shader_material(two_tex=True),
-            'FXShader',
-            ShaderMaterial.parse,
-            compare_shader_materials)
-
-    def test_write_read_minimal_xml(self):
-        self.write_read_xml_test(
-            get_shader_material_minimal(),
-            'FXShader',
-            ShaderMaterial.parse,
-            compare_shader_materials)
-
-    def test_write_read_minimal_xml_no_technique_index(self):
+    def test_write_read_xml_no_technique_index(self):
         expected = get_shader_material_minimal()
         expected.header.technique_index = 0
         self.write_read_xml_test(expected, 'FXShader', ShaderMaterial.parse, compare_shader_materials)
 
-    def test_write_read_minimal_xml_bool_is_written_lowercase(self):
+    def test_write_read_xml_bool_is_written_lowercase(self):
         expected = get_shader_material_minimal()
 
         root = create_root()

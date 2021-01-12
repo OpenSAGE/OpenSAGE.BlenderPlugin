@@ -3,7 +3,7 @@
 
 from mathutils import Vector
 from io_mesh_w3d.w3d.utils.helpers import *
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 W3D_CHUNK_AABBTREE_HEADER = 0x00000091
 
@@ -140,7 +140,7 @@ class AABBTree:
         result = AABBTree()
 
         while io_stream.tell() < chunk_end:
-            (chunk_type, chunk_size, subchunk_end) = read_chunk_head(io_stream)
+            chunk_type, chunk_size, subchunk_end = read_chunk_head(io_stream)
 
             if chunk_type == W3D_CHUNK_AABBTREE_HEADER:
                 result.header = AABBTreeHeader.read(io_stream)

@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.w3x.io_xml import *
+from io_mesh_w3d.common.io_xml import *
 
 
 class BoundingSphere:
@@ -18,5 +18,5 @@ class BoundingSphere:
 
     def create(self, parent):
         result = create_node(parent, 'BoundingSphere')
-        result.set('Radius', format(self.radius))
+        result.set('Radius', truncate(self.radius))
         create_vector(self.center, result, 'Center')

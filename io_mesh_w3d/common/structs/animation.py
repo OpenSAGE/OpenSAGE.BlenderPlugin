@@ -48,11 +48,11 @@ W3D_CHUNK_ANIMATION_CHANNEL = 0x00000202
 
 
 class AnimationChannel:
-    def __init__(self, first_frame=0, last_frame=0, vector_len=1, type=0, pivot=0, unknown=0, data=None):
+    def __init__(self, first_frame=0, last_frame=0, vector_len=1, channel_type=0, pivot=0, unknown=0, data=None):
         self.first_frame = first_frame
         self.last_frame = last_frame
         self.vector_len = vector_len
-        self.type = type
+        self.channel_type = channel_type
         self.pivot = pivot
         self.unknown = unknown
         self.data = data if data is not None else []
@@ -64,7 +64,7 @@ class AnimationChannel:
             first_frame=read_ushort(io_stream),
             last_frame=read_ushort(io_stream),
             vector_len=read_ushort(io_stream),
-            type=read_ushort(io_stream),
+            channel_type=read_ushort(io_stream),
             pivot=read_ushort(io_stream),
             unknown=read_ushort(io_stream))
 
@@ -91,7 +91,7 @@ class AnimationChannel:
         write_ushort(self.first_frame, io_stream)
         write_ushort(self.last_frame, io_stream)
         write_ushort(self.vector_len, io_stream)
-        write_ushort(self.type, io_stream)
+        write_ushort(self.channel_type, io_stream)
         write_ushort(self.pivot, io_stream)
         write_ushort(self.unknown, io_stream)
 
@@ -110,14 +110,14 @@ class AnimationChannel:
         type_name = xml_channel.get('Type')
 
         if type_name == 'XTranslation':
-            result.type = CHANNEL_X
+            result.channel_type = CHANNEL_X
         elif type_name == 'YTranslation':
-            result.type = CHANNEL_Y
+            result.channel_type = CHANNEL_Y
         elif type_name == 'ZTranslation':
-            result.type = CHANNEL_Z
+            result.channel_type = CHANNEL_Z
         else:
             result.vector_len = 4
-            result.type = CHANNEL_Q
+            result.channel_type = CHANNEL_Q
 
         if xml_channel.tag == 'ChannelScalar':
             for value in xml_channel:
@@ -130,11 +130,11 @@ class AnimationChannel:
         return result
 
     def create(self, parent):
-        if self.type < CHANNEL_Q:
+        if self.channel_type < CHANNEL_Q:
             channel = create_node(parent, 'ChannelScalar')
-            if self.type == CHANNEL_X:
+            if self.channel_type == CHANNEL_X:
                 channel.set('Type', 'XTranslation')
-            elif self.type == CHANNEL_Y:
+            elif self.channel_type == CHANNEL_Y:
                 channel.set('Type', 'YTranslation')
             else:
                 channel.set('Type', 'ZTranslation')
@@ -145,7 +145,7 @@ class AnimationChannel:
         channel.set('Pivot', str(self.pivot))
         channel.set('FirstFrame', str(self.first_frame))
 
-        if self.type < CHANNEL_Q:
+        if self.channel_type < CHANNEL_Q:
             for value in self.data:
                 create_value(value, channel, 'Frame')
         else:
@@ -157,10 +157,10 @@ W3D_CHUNK_ANIMATION_BIT_CHANNEL = 0x00000203
 
 
 class AnimationBitChannel:
-    def __init__(self, first_frame=0, last_frame=0, type=0, pivot=0, default=1.0, data=None):
+    def __init__(self, first_frame=0, last_frame=0, channel_type=0, pivot=0, default=1.0, data=None):
         self.first_frame = first_frame
         self.last_frame = last_frame
-        self.type = type
+        self.channel_type = channel_type
         self.pivot = pivot
         self.default = default
         self.data = data if data is not None else []
@@ -170,7 +170,7 @@ class AnimationBitChannel:
         result = AnimationBitChannel(
             first_frame=read_ushort(io_stream),
             last_frame=read_ushort(io_stream),
-            type=read_ushort(io_stream),
+            channel_type=read_ushort(io_stream),
             pivot=read_ushort(io_stream),
             default=float(read_ubyte(io_stream) / 255))
 
@@ -195,7 +195,7 @@ class AnimationBitChannel:
         write_chunk_head(W3D_CHUNK_ANIMATION_BIT_CHANNEL, io_stream, self.size(False))
         write_ushort(self.first_frame, io_stream)
         write_ushort(self.last_frame, io_stream)
-        write_ushort(self.type, io_stream)
+        write_ushort(self.channel_type, io_stream)
         write_ushort(self.pivot, io_stream)
         write_ubyte(int(self.default * 255), io_stream)
 
@@ -212,7 +212,7 @@ class AnimationBitChannel:
         result = AnimationBitChannel(
             pivot=int(xml_bit_channel.get('Pivot')),
             first_frame=int(xml_bit_channel.get('FirstFrame')),
-            type=0,
+            channel_type=0,
             default=True)
 
         for value in xml_bit_channel:

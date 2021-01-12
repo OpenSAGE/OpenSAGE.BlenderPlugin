@@ -56,8 +56,9 @@ class TestHLod(TestCase):
 
         self.assertEqual(W3D_CHUNK_HLOD, chunk_type)
 
-        self.warning = lambda text: self.assertEqual('unknown chunk_type in io_stream: 0x0', text)
-        HLod.read(self, io_stream, subchunk_end)
+        with (patch.object(self, 'warning')) as report_func:
+            HLod.read(self, io_stream, subchunk_end)
+            report_func.assert_called_with('unknown chunk_type in io_stream: 0x0')
 
     def test_name(self):
         sub_object = get_hlod_sub_object()

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<nodegroup name="Infantry.fx">
+  <include file="alpha_pipeline.xml"/>
+  <node name="inputs" type="NodeGroupInput" X="-350" Y="0">
+    <input name="Technique" type="NodeSocketInt" default="1" min="0" max="3"/>
+    <input name="ColorDiffuse" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="Texture_0" type="NodeSocketTexture"/>
+    <input name="Texture_0_Alpha" type="NodeSocketTextureAlpha"/>
+    <input name="AlphaTestEnable" type="NodeSocketBool"/>
+    <input name="RecolorTexture" type="NodeSocketTexture"/>
+    <input name="RecolorTextureAlpha" type="NodeSocketTextureAlpha"/>
+    <input name="ColorAmbient" type="NodeSocketColor" default="0.8, 0.8, 0.8, 1.0"/>
+    <input name="ColorSpecular" type="NodeSocketColor"/>
+    <input name="Shininess" type="NodeSocketFloat"/>
+    <input name="ColorEmissive" type="NodeSocketColor"/>
+    <input name="DepthWriteEnable" type="NodeSocketBool"/>
+    <input name="CullingEnable" type="NodeSocketBool"/>
+    <input name="BlendMode" type="NodeSocketInt"/>
+  </node>
+
+  <nodegroup name="alpha_pipeline" type="AlphaPipeline" X="-100" Y="0"/>
+  <link from="inputs.outputs.Texture_0" to="alpha_pipeline.inputs.Diffuse"/>
+  <link from="inputs.outputs.Texture_0_Alpha" to="alpha_pipeline.inputs.Alpha"/>
+  <link from="inputs.outputs.AlphaTestEnable" to="alpha_pipeline.inputs.DestBlend"/>
+
+  <node name="specular_shader" type="ShaderNodeEeveeSpecular" X="100" Y="0">
+    <hide id="Normal" type="input"/>
+    <hide id="Clear Coat" type="input"/>
+    <hide id="Clear Coat Roughness" type="input"/>
+    <hide id="Clear Coat Normal" type="input"/>
+    <hide id="Ambient Occlusion" type="input"/>
+  </node>
+
+  <link from="inputs.outputs.Texture_0" to="specular_shader.inputs.Base Color"/>
+  <link from="inputs.outputs.ColorSpecular" to="specular_shader.inputs.Specular"/>
+  <link from="inputs.outputs.Shininess" to="specular_shader.inputs.Roughness"/>
+  <link from="inputs.outputs.ColorEmissive" to="specular_shader.inputs.Emissive Color"/>
+  <link from="alpha_pipeline.outputs.Alpha" to="specular_shader.inputs.Transparency"/>
+
+  <node name="outputs" type="NodeGroupOutput" X="300" Y="0">
+    <output name="BSDF" type="NodeSocketShader"/>
+  </node>
+  <link from="specular_shader.outputs.BSDF" to="outputs.inputs.BSDF"/>
+</nodegroup>
