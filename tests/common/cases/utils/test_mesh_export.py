@@ -134,23 +134,13 @@ class TestMeshExportUtils(TestCase):
         meshes[0].vertex_groups[4].remove(expected_vertices)
         meshes[0].vertex_groups[3].remove(expected_vertices)
 
-        with (patch.object(self, 'warning')) as report_func:
-            retrieve_meshes(self, hierarchy, rig, 'container_name')
+        with (patch.object(self, 'error')) as report_func:
+            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
 
+            self.assertEqual(0, len(mesh_structs))
+            self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
                 report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
-
-    def test_retrieve_meshes_with_vertices_not_rigged_to_any_bone(self):
-        coll = get_collection()
-        mesh = get_mesh()
-        create_mesh(self, mesh, coll)
-
-        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
-
-        with (patch.object(self, 'warning')) as report_func:
-            retrieve_meshes(self, None, None, 'container_name')
-
-            self.assertEqual(0, report_func.call_count)
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')

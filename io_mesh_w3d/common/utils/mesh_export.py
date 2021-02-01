@@ -65,6 +65,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             if vertex.groups:
                 is_skinned = True
 
+        unskinned_vertices_error = False
+
         for i, vertex in enumerate(mesh.vertices):
             mesh_struct.shade_ids.append(i)
             matrix = Matrix.Identity(4)
@@ -94,7 +96,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
 
             elif is_skinned:
-                context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
+                unskinned_vertices_error = True
+                context.error(f'mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
 
             vertex.co.x *= scale.x
             vertex.co.y *= scale.y
@@ -119,6 +122,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     # only dummys
                     mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
                     mesh_struct.bitangents.append((rotation @ vertex.normal))
+
+        if unskinned_vertices_error:
+            return ([], [])
 
         header.min_corner = Vector(
             (mesh_object.bound_box[0][0],
