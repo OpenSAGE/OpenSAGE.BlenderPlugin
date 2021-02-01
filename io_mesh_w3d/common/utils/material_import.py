@@ -13,14 +13,11 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 # vertex material
 ##########################################################################
 
-def create_vertex_material(context, principleds, structure, mesh, name, triangles):
+def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, triangles):
     for vertMat in structure.vert_materials:
         (material, principled) = create_material_from_vertex_material(name, vertMat)
         mesh.materials.append(material)
         principleds.append(principled)
-
-    b_mesh = bmesh.new()
-    b_mesh.from_mesh(mesh)
 
     for mat_pass in structure.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)

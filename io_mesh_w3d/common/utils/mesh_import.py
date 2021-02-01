@@ -19,9 +19,6 @@ def create_mesh(context, mesh_struct, coll):
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
     mesh.use_auto_smooth = True
 
-    mesh.update()
-    mesh.validate()
-
     mesh.object_type = 'MESH'
     mesh.userText = mesh_struct.user_text
     mesh.sort_level = mesh_struct.header.sort_level
@@ -66,30 +63,36 @@ def create_mesh(context, mesh_struct, coll):
 
     # vertex material stuff
     name = mesh_struct.name()
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
+
     if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, name, triangles)
+        create_vertex_material(context, principleds, mesh_struct, mesh, b_mesh, name, triangles)
 
         for i, shader in enumerate(mesh_struct.shaders):
             set_shader_properties(mesh.materials[i], shader)
 
     elif mesh_struct.prelit_vertex:
-        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, name, triangles)
+        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, b_mesh, name, triangles)
 
         for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
             set_shader_properties(mesh.materials[i], shader)
 
     # shader material stuff
-    if mesh_struct.shader_materials:
+    elif mesh_struct.shader_materials:
         for i, shaderMat in enumerate(mesh_struct.shader_materials):
             material, principled = create_material_from_shader_material(
                 context, mesh_struct.name(), shaderMat)
             mesh.materials.append(material)
             principleds.append(principled)
 
-        b_mesh = bmesh.new()
-        b_mesh.from_mesh(mesh)
+        
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+
+    mesh.update()
+    if mesh.validate(verbose=True):
+        context.info('mesh \'' + mesh_struct.name() + '\' has been fixed')
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

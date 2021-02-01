@@ -60,25 +60,27 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         _, _, scale = mesh_object.matrix_local.decompose()
 
+        is_skinned = False
+        for vertex in mesh.vertices:
+            if vertex.groups:
+                is_skinned = True
+
         for i, vertex in enumerate(mesh.vertices):
             mesh_struct.shade_ids.append(i)
             matrix = Matrix.Identity(4)
 
             if vertex.groups:
                 vert_inf = VertexInfluence()
-                for index, pivot in enumerate(hierarchy.pivots):
-                    if pivot.name == mesh_object.vertex_groups[vertex.groups[0].group].name:
-                        vert_inf.bone_idx = index
+                vert_inf.bone_idx = find_bone_index(hierarchy, mesh_object, vertex.groups[0].group)
                 vert_inf.bone_inf = vertex.groups[0].weight
 
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True
-                    for index, pivot in enumerate(hierarchy.pivots):
-                        if pivot.name == mesh_object.vertex_groups[vertex.groups[1].group].name:
-                            vert_inf.xtra_idx = index
+                    vert_inf.xtra_idx = find_bone_index(hierarchy, mesh_object, vertex.groups[1].group)
                     vert_inf.xtra_inf = vertex.groups[1].weight
 
                 if vert_inf.bone_inf < 0.01 and vert_inf.xtra_inf < 0.01:
+                    context.warning(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights where 0!')
                     vert_inf.bone_inf = 1.0
 
                 mesh_struct.vert_infs.append(vert_inf)
@@ -89,8 +91,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
-                    context.warning('mesh \'' + mesh_object.name + '\' vertex ' +
-                                    str(i) + ' is influenced by more than 2 bones!')
+                    context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
+
+            elif is_skinned:
+                context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
 
             vertex.co.x *= scale.x
             vertex.co.y *= scale.y
@@ -304,6 +308,13 @@ def prepare_bmesh(context, mesh):
     b_mesh.to_mesh(mesh)
 
     return b_mesh
+
+
+def find_bone_index(hierarchy, mesh_object, group):
+    for index, pivot in enumerate(hierarchy.pivots):
+        if pivot.name == mesh_object.vertex_groups[group].name:
+            return index
+    return -1
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):

@@ -100,6 +100,7 @@ class TestMeshExportUtils(TestCase):
         meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
         for mesh_object in meshes:
             for i, vertex in enumerate(mesh_object.data.vertices):
+                vertex.groups 
                 if vertex.groups:
                     vertex.groups[0].weight = 0.0
                     if len(vertex.groups) > 1:
@@ -109,9 +110,46 @@ class TestMeshExportUtils(TestCase):
             inf.bone_inf = 1.0
             inf.xtra_inf = 0.0
 
-        meshes, _ = retrieve_meshes(self, hierarchy, rig, 'containerName')
+        with (patch.object(self, 'warning')) as report_func:
+            retrieve_meshes(self, hierarchy, rig, 'container_name')
+            for mesh_object in meshes:
+                for i, vertex in enumerate(mesh_object.data.vertices):
+                    if vertex.groups:
+                        report_func.assert_any_call(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights where 0!')
 
-        compare_meshes(self, mesh, meshes[0])
+    def test_retrieve_meshes_with_vertices_not_rigged_to_any_bone(self):
+        coll = get_collection()
+        mesh = get_mesh(skin=True)
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        rig_mesh(mesh, hierarchy, rig)
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+
+        expected_vertices = [6, 7]
+        meshes[0].vertex_groups[4].remove(expected_vertices)
+        meshes[0].vertex_groups[3].remove(expected_vertices)
+
+        with (patch.object(self, 'warning')) as report_func:
+            retrieve_meshes(self, hierarchy, rig, 'container_name')
+
+            for i in expected_vertices:
+                report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
+
+    def test_retrieve_meshes_with_vertices_not_rigged_to_any_bone(self):
+        coll = get_collection()
+        mesh = get_mesh()
+        create_mesh(self, mesh, coll)
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+
+        with (patch.object(self, 'warning')) as report_func:
+            retrieve_meshes(self, None, None, 'container_name')
+
+            self.assertEqual(0, report_func.call_count)
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')

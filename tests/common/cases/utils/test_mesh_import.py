@@ -35,6 +35,21 @@ class TestMeshImportUtils(TestCase):
             loop = [loop for loop in mesh.loops if loop.vertex_index == i][0]
             compare_vectors(self, mesh_struct.normals[i], loop.normal)
 
+    def test_invalid_faces_are_removed(self):
+        mesh_name = 'testmesh'
+        mesh_struct = get_mesh(mesh_name)
+
+        expected = len(mesh_struct.triangles)
+
+        mesh_struct.triangles.append(get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10))
+        mesh_struct.triangles.append(get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10))
+
+        create_mesh(self, mesh_struct, bpy.context.scene.collection)
+
+        mesh = bpy.data.meshes[mesh_name]
+
+        self.assertEqual(expected, len(mesh.polygons))
+
     def test_custom_normals_import_skinned_mesh(self):
         mesh_name = 'soldier'
         mesh_struct = get_mesh(mesh_name, skin=True)

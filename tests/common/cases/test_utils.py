@@ -292,7 +292,50 @@ class TestUtils(TestCase):
 
         create_data(self, meshes)
 
-        self.compare_data([], hlod, hierarchy)
+        self.compare_data(meshes, hlod, hierarchy)
+
+    def test_mesh_roundtrip_invalid_triangles(self):
+        hierarchy = get_hierarchy()
+        hierarchy.header.name = 'containerName'
+        root = HierarchyPivot(
+            name='ROOTTRANSFORM',
+            name_id=None,
+            parent_id=-1,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+        pivot = HierarchyPivot(
+            name='tree',
+            name_id=None,
+            parent_id=0,
+            translation=get_vec(),
+            euler_angles=get_vec(),
+            rotation=get_quat(),
+            fixup_matrix=get_mat())
+
+        hierarchy.pivots = [
+            root,
+            pivot]
+        hierarchy.header.num_pivots = len(hierarchy.pivots)
+
+        hlod = get_hlod()
+        hlod.header.hierarchy_name = 'containerName'
+        hlod.lod_arrays[0].header.model_count = 1
+        hlod.lod_arrays[0].sub_objects = [
+            get_hlod_sub_object(bone=1, name='containerName.tree')]
+
+        mesh = get_mesh(name='tree')
+        temp_tris = mesh.triangles
+        mesh.triangles = [get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10),
+                         get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10)]
+        mesh.triangles.extend(temp_tris)
+        meshes = [mesh]
+
+        create_data(self, meshes)
+
+        mesh.triangles = temp_tris
+        self.compare_data([mesh])
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()

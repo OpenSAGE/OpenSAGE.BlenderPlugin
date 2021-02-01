@@ -16,12 +16,10 @@ def retrieve_boxes(container_name):
         box = CollisionBox(
             name_=name,
             center=mesh_object.location)
-        box_mesh = mesh_object.to_mesh(preserve_all_data_layers=False, depsgraph=None)
-        # TODO: use mesh_object.bound_box ?
         box.extend = Vector(
-            (box_mesh.vertices[0].co.x * 2,
-             box_mesh.vertices[0].co.y * 2,
-             box_mesh.vertices[0].co.z))
+            (abs(mesh_object.bound_box[0][0]) * 2,
+             abs(mesh_object.bound_box[0][1]) * 2,
+             abs(mesh_object.bound_box[4][2])))
 
         box.box_type = int(mesh_object.data.box_type)
 
@@ -36,7 +34,7 @@ def retrieve_boxes(container_name):
         if 'VEHICLE' in mesh_object.data.box_collision_types:
             box.collision_types |= COLLISION_TYPE_VEHICLE
 
-        for material in box_mesh.materials:
+        for material in mesh_object.data.materials:
             box.color = RGBA(material.diffuse_color)
         boxes.append(box)
     return boxes
