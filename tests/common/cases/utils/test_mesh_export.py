@@ -100,7 +100,7 @@ class TestMeshExportUtils(TestCase):
         meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
         for mesh_object in meshes:
             for i, vertex in enumerate(mesh_object.data.vertices):
-                vertex.groups 
+                vertex.groups
                 if vertex.groups:
                     vertex.groups[0].weight = 0.0
                     if len(vertex.groups) > 1:
@@ -115,7 +115,8 @@ class TestMeshExportUtils(TestCase):
             for mesh_object in meshes:
                 for i, vertex in enumerate(mesh_object.data.vertices):
                     if vertex.groups:
-                        report_func.assert_any_call(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights where 0!')
+                        report_func.assert_any_call(
+                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights where 0!')
 
     def test_retrieve_meshes_with_vertices_not_rigged_to_any_bone(self):
         coll = get_collection()

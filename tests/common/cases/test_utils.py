@@ -328,7 +328,7 @@ class TestUtils(TestCase):
         mesh = get_mesh(name='tree')
         temp_tris = mesh.triangles
         mesh.triangles = [get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10),
-                         get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10)]
+                          get_triangle([4, 0, 1], 13, get_vec(0.0, 1.0, 0.0), 1.10)]
         mesh.triangles.extend(temp_tris)
         meshes = [mesh]
 
