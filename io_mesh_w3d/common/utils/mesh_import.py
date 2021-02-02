@@ -86,7 +86,6 @@ def create_mesh(context, mesh_struct, coll):
             mesh.materials.append(material)
             principleds.append(principled)
 
-        
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
 
