@@ -262,9 +262,7 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mesh, 'casts_shadow')
             col = layout.column()
-            col.prop(mesh, 'camera_oriented')
-            col = layout.column()
-            col.prop(mesh, 'camera_aligned')
+            col.prop(mesh, 'two_sided')
             col = layout.column()
             col.prop(mesh, 'userText')
         elif mesh.object_type == 'DAZZLE':
