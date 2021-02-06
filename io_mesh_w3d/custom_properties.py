@@ -27,6 +27,11 @@ Mesh.casts_shadow = BoolProperty(
     description='Determines if this object casts a shadow',
     default=True)
 
+Mesh.two_sided = BoolProperty(
+    name='Two sided',
+    description='Determines if this objects faces are visible from front AND back',
+    default=False)
+
 Mesh.object_type = EnumProperty(
     name='Type',
     description='Attributes that define the type of this object',

@@ -23,6 +23,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.userText = mesh_struct.user_text
     mesh.sort_level = mesh_struct.header.sort_level
     mesh.casts_shadow = mesh_struct.casts_shadow()
+    mesh.two_sided = mesh_struct.two_sided()
 
     mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
 

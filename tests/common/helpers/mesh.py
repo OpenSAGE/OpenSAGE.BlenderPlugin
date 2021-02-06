@@ -10,7 +10,7 @@ from tests.w3d.helpers.mesh_structs.prelit import *
 from tests.w3d.helpers.version import *
 
 
-def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False, cast_shadow=False):
+def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=False, cast_shadow=False, two_sided=False):
     header = MeshHeader(
         version=get_version(major=4, minor=2),
         attrs=0,
@@ -39,6 +39,8 @@ def get_mesh_header(name='mesh_name', skin=False, shader_mats=False, hidden=Fals
         header.attrs |= GEOMETRY_TYPE_HIDDEN
     if cast_shadow:
         header.attrs |= GEOMETRY_TYPE_CAST_SHADOW
+    if two_sided:
+        header.attrs |= GEOMETRY_TYPE_TWO_SIDED
     return header
 
 
@@ -80,9 +82,10 @@ def get_mesh(
         prelit=False,
         hidden=False,
         cast_shadow=False,
+        two_sided=False,
         mat_count=2):
     mesh = Mesh()
-    mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow)
+    mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow, two_sided)
 
     mesh.user_text = 'TestUserText'
 

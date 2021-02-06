@@ -390,7 +390,8 @@ class TestUtils(TestCase):
         meshes = [
             get_mesh(name='sword', skin=True),
             get_mesh(name='TRUNK', hidden=True),
-            get_mesh(name='PICK', cast_shadow=True)]
+            get_mesh(name='PICK', cast_shadow=True),
+            get_mesh(name='Brakelight', two_sided=True)]
 
         create_data(self, meshes, hlod, hierarchy)
 

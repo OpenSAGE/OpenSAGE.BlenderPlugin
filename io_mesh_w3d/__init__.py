@@ -9,6 +9,7 @@ from io_mesh_w3d.custom_properties import *
 from io_mesh_w3d.geometry_export import *
 
 VERSION = (0, 6, 4)
+OFFICIAL= False
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
@@ -27,7 +28,7 @@ bl_info = {
 def print_version(info):
     version = str(VERSION).replace('(', '').replace(')', '')
     version = version.replace(',', '.').replace(' ', '')
-    info('plugin version: ' + version)
+    info(f'plugin version: {version} (official: {OFFICIAL})')
 
 
 class ExportW3D(bpy.types.Operator, ExportHelper):
