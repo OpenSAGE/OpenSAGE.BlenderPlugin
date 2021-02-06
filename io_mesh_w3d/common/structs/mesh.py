@@ -173,6 +173,9 @@ class Mesh:
     def casts_shadow(self):
         return (self.header.attrs & GEOMETRY_TYPE_CAST_SHADOW) == GEOMETRY_TYPE_CAST_SHADOW
 
+    def two_sided(self):
+        return (self.header.attrs & GEOMETRY_TYPE_TWO_SIDED) == GEOMETRY_TYPE_TWO_SIDED
+
     def is_hidden(self):
         return (self.header.attrs & GEOMETRY_TYPE_HIDDEN) == GEOMETRY_TYPE_HIDDEN
 
