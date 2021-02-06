@@ -34,4 +34,3 @@ class TestBoxExportUtils(TestCase):
 
         compare_vectors(self, Vector((0, 0, 0)), actual.center)
         compare_vectors(self, Vector((1, 1, 1)), actual.extend)
-
