@@ -23,7 +23,7 @@ jobs:
           - blender-version: '2.90'
             blender-version-suffix: '0'
           - blender-version: '2.91'
-            blender-version-suffix: '0'
+            blender-version-suffix: '2'
 
     steps:
     - uses: actions/checkout@v2
