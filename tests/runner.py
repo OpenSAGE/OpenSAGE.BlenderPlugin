@@ -11,7 +11,6 @@ if '--coverage' in sys.argv:
     cov = coverage.Coverage()
     cov.start()
 
-
 loader = unittest.defaultTestLoader
 
 if '--prefix' in sys.argv:
@@ -19,7 +18,6 @@ if '--prefix' in sys.argv:
     if not prefix == '':
         loader.testMethodPrefix = prefix
 
-loader.testMethodPrefix = 'test_mesh_roundtrip_invalid_triangles'
 print(f'running all tests prefixed with \'{loader.testMethodPrefix}\'')
 
 suite = loader.discover('.')
