@@ -1,8 +1,10 @@
 v0.6.4
 - support mesh property 'two sided'
 - inform user on export if vertices are not rigged to any bone
+- added vertex material info mapping attributes
 - Bugfix: uv corrdinates are correct for meshes where triangles are removed on import
 - Bugfix: no negative values for bounding box extend
+- Bugfix: proper vertex material args handling
 
 v0.6.3 (17.1.2020)
 - geometry data can now be exported to xml and ini
