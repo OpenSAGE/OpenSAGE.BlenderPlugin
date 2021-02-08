@@ -12,6 +12,9 @@ ARGB_EMISSIVE_ONLY = 0x2
 COPY_SPECULAR_TO_DIFFUSE = 0x4
 DEPTH_CUE_TO_ALPHA = 0x8
 
+STAGE0_MAPPING_MASK = 0x00FF0000
+STAGE1_MAPPING_MASK = 0x0000FF00
+
 
 class VertexMaterialInfo:
     def __init__(self, attributes=0, ambient=RGBA(), diffuse=RGBA(), specular=RGBA(), emissive=RGBA(), shininess=0.0,

@@ -322,7 +322,11 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat, 'translucency')
             col = layout.column()
+            col.prop(mat, 'stage0_mapping')
+            col = layout.column()
             col.prop(mat, 'vm_args_0')
+            col = layout.column()
+            col.prop(mat, 'stage1_mapping')
             col = layout.column()
             col.prop(mat, 'vm_args_1')
 

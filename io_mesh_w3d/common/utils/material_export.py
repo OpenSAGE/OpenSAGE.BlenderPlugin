@@ -48,6 +48,9 @@ def retrieve_vertex_material(material, principled):
     if 'DEPTH_CUE_TO_ALPHA' in material.attributes:
         info.attributes |= DEPTH_CUE_TO_ALPHA
 
+    info.attributes |= int(material.stage0_mapping, 16) & STAGE0_MAPPING_MASK
+    info.attributes |= int(material.stage1_mapping, 16) & STAGE1_MAPPING_MASK
+
     vert_material = VertexMaterial(
         vm_name=material.name.split('.', 1)[-1],
         vm_info=info,
