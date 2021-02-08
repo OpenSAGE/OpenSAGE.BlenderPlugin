@@ -298,12 +298,8 @@ def compare_meshes(self, expected, actual):
         compare_vertex_influences(self, expected.vert_infs[i], actual.vert_infs[i])
 
     self.assertEqual(len(expected.triangles), len(actual.triangles))
-    print('###############')
     for i in range(len(expected.triangles)):
-        print('##')
-        print(expected.triangles[i].vert_ids)
-        print(actual.triangles[i].vert_ids)
-        #compare_triangles(self, expected.triangles[i], actual.triangles[i], is_skin)
+        compare_triangles(self, expected.triangles[i], actual.triangles[i], is_skin)
 
     self.assertEqual(len(expected.shaders), len(actual.shaders))
     for i in range(len(expected.shaders)):
