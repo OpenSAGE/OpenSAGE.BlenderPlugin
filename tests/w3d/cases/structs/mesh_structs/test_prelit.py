@@ -11,7 +11,7 @@ class TestPrelit(TestCase):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit(type=type)
 
-        self.assertEqual(583, expected.size())
+        self.assertEqual(665, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -45,8 +45,8 @@ class TestPrelit(TestCase):
         type = W3D_CHUNK_PRELIT_VERTEX
         expected = get_prelit(type=type)
 
-        self.assertEqual(575, expected.size(False))
-        self.assertEqual(583, expected.size())
+        self.assertEqual(657, expected.size(False))
+        self.assertEqual(665, expected.size())
 
     def test_unknown_chunk_skip(self):
         output = io.BytesIO()

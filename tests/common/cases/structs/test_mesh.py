@@ -16,8 +16,8 @@ class TestMesh(TestCase):
     def test_write_read(self):
         expected = get_mesh()
 
-        self.assertEqual(3137, expected.size(False))
-        self.assertEqual(3145, expected.size())
+        self.assertEqual(3301, expected.size(False))
+        self.assertEqual(3309, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
@@ -32,8 +32,8 @@ class TestMesh(TestCase):
     def test_write_read_prelit(self):
         expected = get_mesh(prelit=True)
 
-        self.assertEqual(5512, expected.size(False))
-        self.assertEqual(5520, expected.size())
+        self.assertEqual(6004, expected.size(False))
+        self.assertEqual(6012, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 

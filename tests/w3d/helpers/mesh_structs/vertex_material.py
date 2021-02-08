@@ -39,8 +39,8 @@ def get_vertex_material(vm_name='VM_NAME'):
         vm_name=vm_name,
         vm_info=get_vertex_material_info(
             attributes=attrs),
-        vm_args_0='VM_ARGS0',
-        vm_args_1='VM_ARGS1')
+        vm_args_0='UPerSec=-2.0\r\nVPerSec=0.0\r\nUScale=1.0\r\nVScale=1.0',
+        vm_args_1='UPerSec=-2.0\r\nVPerSec=0.0\r\nUScale=1.0\r\nVScale=1.0')
 
 
 def get_vertex_material_minimal():

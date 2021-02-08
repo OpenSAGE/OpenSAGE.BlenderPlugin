@@ -12,7 +12,7 @@ class TestVertexMaterial(TestCase):
         expected = get_vertex_material()
 
         self.assertEqual(40, expected.vm_info.size())
-        self.assertEqual(98, expected.size())
+        self.assertEqual(180, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
