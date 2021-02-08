@@ -54,8 +54,8 @@ def retrieve_vertex_material(material, principled):
     vert_material = VertexMaterial(
         vm_name=material.name.split('.', 1)[-1],
         vm_info=info,
-        vm_args_0=material.vm_args_0,
-        vm_args_1=material.vm_args_1)
+        vm_args_0=material.vm_args_0.replace(' ', '').replace(',', '\r\n'),
+        vm_args_1=material.vm_args_1.replace(' ', '').replace(',', '\r\n'))
 
     return vert_material
 

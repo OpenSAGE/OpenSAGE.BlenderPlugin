@@ -45,6 +45,18 @@ class TestUtils(TestCase):
             actual = retrieve_vertex_material(material, principled)
             compare_vertex_materials(self, source, actual)
 
+    def test_vertex_material_vm_args_with_spaces(self):
+        mesh = get_mesh()
+
+        for source in mesh.vert_materials:
+            (material, _) = create_material_from_vertex_material(mesh.name(), source)
+            material.vm_args_0 = ' UPerSec  =  -2.0 , VPerSec = 0.0 ,UScale = 1.0, VScale = 1.0 '
+            material.vm_args_0 = ' UPerSec  =  -2.0 , VPerSec = 0.0 ,UScale = 1.0, VScale = 1.0 '
+
+            principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+            actual = retrieve_vertex_material(material, principled)
+            compare_vertex_materials(self, source, actual)
+
     def test_shader_material_roundtrip(self):
         mesh = get_mesh(shader_mats=True)
         mesh.shader_materials = [get_shader_material()]
