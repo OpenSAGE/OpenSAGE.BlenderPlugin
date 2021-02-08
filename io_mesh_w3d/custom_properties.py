@@ -193,6 +193,56 @@ Material.translucency = FloatProperty(
     min=0.0, max=1.0,
     description='Translucency property')
 
+Material.stage0_mapping = EnumProperty(
+    name='Stage 0 Mapping',
+    description='defines the stage mapping type of this material',
+    items=[
+        ('0x00000000', 'UV', 'desc: todo'),
+        ('0x00010000', 'Environment', 'desc: todo'),
+        ('0x00020000', 'Cheap Environment', 'desc: todo'),
+        ('0x00030000', 'Screen', 'desc: todo'),
+        ('0x00040000', 'Linear Offset', 'desc: todo'),
+        ('0x00050000', 'Silhouette', 'desc: todo'),
+        ('0x00060000', 'Scale', 'desc: todo'),
+        ('0x00070000', 'Grid', 'desc: todo'),
+        ('0x00080000', 'Rotate', 'desc: todo'),
+        ('0x00090000', 'Sine Linear Offset', 'desc: todo'),
+        ('0x000A0000', 'Step Linear Offset', 'desc: todo'),
+        ('0x000B0000', 'Zigzag Linear Offset', 'desc: todo'),
+        ('0x000C0000', 'WS Classic Environment', 'desc: todo'),
+        ('0x000D0000', 'WS Environment', 'desc: todo'),
+        ('0x000E0000', 'Grid Classic Environment', 'desc: todo'),
+        ('0x000F0000', 'Grid Environment', 'desc: todo'),
+        ('0x00100000', 'Random', 'desc: todo'),
+        ('0x00110000', 'Edge', 'desc: todo'),
+        ('0x00120000', 'Bump Environment', 'desc: todo')],
+    default='0x00000000')
+
+Material.stage1_mapping = EnumProperty(
+    name='Stage 1 Mapping',
+    description='defines the stage mapping type of this material',
+    items=[
+        ('0x00000000', 'UV', 'desc: todo'),
+        ('0x00000100', 'Environment', 'desc: todo'),
+        ('0x00000200', 'Cheap Environment', 'desc: todo'),
+        ('0x00000300', 'Screen', 'desc: todo'),
+        ('0x00000400', 'Linear Offset', 'desc: todo'),
+        ('0x00000500', 'Silhouette', 'desc: todo'),
+        ('0x00000600', 'Scale', 'desc: todo'),
+        ('0x00000700', 'Grid', 'desc: todo'),
+        ('0x00000800', 'Rotate', 'desc: todo'),
+        ('0x00000900', 'Sine Linear Offset', 'desc: todo'),
+        ('0x00000A00', 'Step Linear Offset', 'desc: todo'),
+        ('0x00000B00', 'Zigzag Linear Offset', 'desc: todo'),
+        ('0x00000C00', 'WS Classic Environment', 'desc: todo'),
+        ('0x00000D00', 'WS Environment', 'desc: todo'),
+        ('0x00000E00', 'Grid Classic Environment', 'desc: todo'),
+        ('0x00000F00', 'Grid Environment', 'desc: todo'),
+        ('0x00001000', 'Random', 'desc: todo'),
+        ('0x00001100', 'Edge', 'desc: todo'),
+        ('0x00001200', 'Bump Environment', 'desc: todo')],
+    default='0x00000000')
+
 Material.vm_args_0 = StringProperty(
     name='vm_args_0',
     description='Vertex Material Arguments 0',

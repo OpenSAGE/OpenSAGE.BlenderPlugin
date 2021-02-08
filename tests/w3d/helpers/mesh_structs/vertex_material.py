@@ -5,6 +5,9 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 from tests.common.helpers.rgba import get_rgba, compare_rgbas
 
+STAGE0_MAPPING_LINEAR_OFFSET = 0x00040000
+STAGE1_MAPPING_LINEAR_OFFSET = 0x00000400
+
 
 def get_vertex_material_info(attributes=0):
     return VertexMaterialInfo(
@@ -31,7 +34,7 @@ def compare_vertex_material_infos(self, expected, actual):
 
 def get_vertex_material(vm_name='VM_NAME'):
     attrs = USE_DEPTH_CUE | ARGB_EMISSIVE_ONLY | COPY_SPECULAR_TO_DIFFUSE \
-        | DEPTH_CUE_TO_ALPHA
+        | DEPTH_CUE_TO_ALPHA | STAGE0_MAPPING_LINEAR_OFFSET | STAGE1_MAPPING_LINEAR_OFFSET
     return VertexMaterial(
         vm_name=vm_name,
         vm_info=get_vertex_material_info(

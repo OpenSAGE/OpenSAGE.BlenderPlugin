@@ -66,6 +66,9 @@ def create_material_from_vertex_material(name, vert_mat):
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
 
+    material.stage0_mapping = '0x%08X' % (attribs & STAGE0_MAPPING_MASK)
+    material.stage1_mapping = '0x%08X' % (attribs & STAGE1_MAPPING_MASK)
+
     material.vm_args_0 = vert_mat.vm_args_0
     material.vm_args_1 = vert_mat.vm_args_1
 
