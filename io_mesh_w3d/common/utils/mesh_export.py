@@ -320,10 +320,8 @@ def prepare_bmesh(context, mesh):
 
 
 def find_bone_index(hierarchy, mesh_object, group):
-    for index, pivot in enumerate(hierarchy.pivots):
-        if pivot.name == mesh_object.vertex_groups[group].name:
-            return index
-    return -1
+    indices = [i for i, pivot in enumerate(hierarchy.pivots) if pivot.name == mesh_object.vertex_groups[group].name]
+    return indices[0] if indices else -1
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):
