@@ -119,7 +119,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.tangents.append((rotation @ loop.bitangent) * -1)
                     mesh_struct.bitangents.append((rotation @ loop.tangent))
             else:
-                context.warning('mesh \'' + mesh_object.name + '\' vertex ' + str(i) + ' is not connected to any face!')
+                context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is not connected to any face!')
                 mesh_struct.normals.append(rotation @ vertex.normal)
                 if mesh.uv_layers:
                     # only dummys
@@ -184,7 +184,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             mat_pass = MaterialPass()
 
             if material is None:
-                context.warning('mesh \'' + mesh_object.name + '\' uses a invalid/empty material!')
+                context.warning(f'mesh \'{mesh_object.name}\' uses a invalid/empty material!')
                 continue
 
             principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
@@ -238,7 +238,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             elif 'SCG' in layer.name:
                 target = mesh_struct.material_passes[index].scg
             else:
-                context.warning('invalid vertex color layer name \'' + layer.name + '\'')
+                context.warning(f'invalid vertex color layer name \'{layer.name}\'')
                 continue
 
             target = [RGBA] * len(mesh.vertices)
@@ -253,17 +253,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             header.vert_channel_flags |= VERTEX_CHANNEL_BONE_ID
 
             if len(mesh_object.constraints) > 0:
-                context.warning(
-                    'mesh \'' +
-                    mesh_object.name +
-                    '\' is rigged and thus does not support any constraints!')
+                context.warning(f'mesh \'{mesh_object.name }\' is rigged and thus does not support any constraints!')
 
         else:
             if len(mesh_object.constraints) > 1:
-                context.warning(
-                    'mesh \'' +
-                    mesh_object.name +
-                    '\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
+                context.warning(f'mesh \'{mesh_object.name}\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
             for constraint in mesh_object.constraints:
                 if constraint.name == 'Copy Rotation':
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
@@ -271,12 +265,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if constraint.name == 'Damped Track':
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
                     break
-                context.warning(
-                    'mesh \'' +
-                    mesh_object.name +
-                    '\' constraint \'' +
-                    constraint.name +
-                    '\' is not supported!')
+                context.warning(f'mesh \'{mesh_object.name}\' constraint \'{constraint.name}\' is not supported!')
 
         if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT
@@ -343,10 +332,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
     if split_edges:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        context.info(
-            'mesh \'' +
-            mesh.name +
-            '\' vertices have been split because of multiple uv coordinates per vertex!')
+        context.info(f'mesh \'{mesh.name}\' vertices have been split because of multiple uv coordinates per vertex!')
     return b_mesh
 
 

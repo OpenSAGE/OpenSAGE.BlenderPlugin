@@ -31,13 +31,13 @@ def retrieve_data(context, export_settings):
     export_mode = export_settings['mode']
 
     if export_mode not in ['M', 'HM', 'HAM', 'H', 'A']:
-        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        context.error(f'unsupported export mode: {export_mode}, aborting export!')
         return None
 
     container_name = os.path.basename(context.filepath).split('.')[0]
 
     if context.file_format == 'W3D' and len(container_name) > STRING_LENGTH:
-        context.error('Filename is longer than ' + str(STRING_LENGTH) + ' characters, aborting export!')
+        context.error(f'Filename is longer than {STRING_LENGTH} characters, aborting export!')
         return None
 
     hierarchy, rig, hlod = None, None, None

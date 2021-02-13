@@ -166,7 +166,7 @@ class Mesh:
 
     def validate(self, context):
         if len(self.header.mesh_name) >= STRING_LENGTH and context.file_format == 'W3D':
-            context.error('mesh name \'' + self.header.mesh_name + '\' exceeds max length of ' + str(STRING_LENGTH))
+            context.error(f'mesh name \'{self.header.mesh_name}\' exceeds max length of {STRING_LENGTH}')
             return False
         return True
 
@@ -464,7 +464,7 @@ class Mesh:
             elif child.tag == 'AABTree':
                 result.aabbtree = AABBTree.parse(child)
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DMesh!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DMesh!')
 
         if bone_influences:
             bone_infs = bone_influences[0]

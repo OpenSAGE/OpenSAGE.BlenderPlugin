@@ -81,7 +81,7 @@ class TestExportW3D(TestCase):
         with (patch.object(self, 'error')) as error_func:
             self.assertEqual({'CANCELLED'}, save(self, export_settings, data_context))
 
-            error_func.assert_called_with('unsupported export mode: UNSUPPORTED, aborting export!')
+            error_func.assert_called_with('unsupported export mode \'UNSUPPORTED\', aborting export!')
 
     def test_hierarchy_is_written_if_mode_HM_and_not_use_existing_skeleton(self):
         export_settings = {'mode': 'HM', 'compression': 'U', 'use_existing_skeleton': False}

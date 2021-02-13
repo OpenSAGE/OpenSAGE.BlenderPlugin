@@ -9,10 +9,10 @@ def save(context, export_settings, data_context):
     filepath = context.filepath
     if not filepath.lower().endswith(context.filename_ext):
         filepath += context.filename_ext
-    context.info('Saving file: ' + filepath)
+    context.info(f'Saving file: {filepath}')
 
     export_mode = export_settings['mode']
-    context.info("export mode: " + str(export_mode))
+    context.info(f'export mode: {export_mode}')
 
     root = create_root()
     includes = create_node(root, 'Includes')
@@ -105,7 +105,7 @@ def save(context, export_settings, data_context):
         data_context.hierarchy.create(root)
 
     else:
-        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        context.error(f'unsupported export mode: \'{export_mode}\', aborting export!')
         return {'CANCELLED'}
 
     write(root, filepath)

@@ -82,7 +82,7 @@ class HierarchyPivot:
             elif child.tag == 'FixupMatrix':
                 pivot.fixup_matrix = parse_matrix(child)
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in Pivot!')
+                context.warning(f'unhandled node \'{child.tag}\' in Pivot!')
         return pivot
 
     def create(self, parent):
@@ -115,11 +115,11 @@ class Hierarchy:
         if context.file_format == 'W3X':
             return True
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('armature name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
+            context.error(f'armature name \'{self.header.name}\' exceeds max length of {STRING_LENGTH}')
             return False
         for pivot in self.pivots:
             if len(pivot.name) >= STRING_LENGTH:
-                context.error('name of object \'' + pivot.name + '\' exceeds max length of ' + str(STRING_LENGTH))
+                context.error(f'name of object \'{pivot.name}\' exceeds max length of {STRING_LENGTH}')
                 return False
         return True
 
@@ -169,7 +169,7 @@ class Hierarchy:
             if child.tag == 'Pivot':
                 result.pivots.append(HierarchyPivot.parse(context, child))
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DHierarchy!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DHierarchy!')
         return result
 
     def create(self, parent):

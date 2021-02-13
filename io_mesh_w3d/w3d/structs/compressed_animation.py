@@ -194,7 +194,7 @@ class AdaptiveDeltaAnimationChannel:
             scale=read_short(io_stream))
 
         result.data = AdaptiveDeltaData.read(io_stream, result, 4)
-        io_stream.read(3)  # read unknown bytes at the end
+        read_padding(io_stream, 3)
         return result
 
     def size(self, include_head=True):
@@ -210,8 +210,7 @@ class AdaptiveDeltaAnimationChannel:
         write_ubyte(self.type, io_stream)
         write_short(self.scale, io_stream)
         self.data.write(io_stream, self.type)
-
-        write_list(bytes([0, 0, 0]), io_stream, write_ubyte)  # write unknown bytes at the end
+        write_padding(io_stream, 3)
 
 
 class AdaptiveDeltaMotionAnimationChannel:
@@ -313,7 +312,7 @@ class MotionChannel:
             result.append(datum)
 
         if self.num_time_codes % 2 != 0:
-            read_short(io_stream)  # alignment
+            read_padding(io_stream, 2)
 
         for x in range(self.num_time_codes):
             result[x].value = read_channel_value(io_stream, self.type)
@@ -324,7 +323,7 @@ class MotionChannel:
             write_short(datum.time_code, io_stream)
 
         if self.num_time_codes % 2 != 0:
-            write_short(0, io_stream)  # alignment
+            write_padding(io_stream, 2)
 
         for datum in self.data:
             write_channel_value(datum.value, io_stream, self.type)
@@ -397,10 +396,10 @@ class CompressedAnimation:
             return True
 
         if len(self.header.name) > STRING_LENGTH:
-            context.error('animation name exceeds max length of: ' + str(STRING_LENGTH))
+            context.error(f'animation name exceeds max length of: {STRING_LENGTH}')
             return False
         if len(self.header.hierarchy_name) > STRING_LENGTH:
-            context.error('animation hierarchy name exceeds max length of: ' + str(STRING_LENGTH))
+            context.error(f'animation hierarchy name exceeds max length of: {STRING_LENGTH}')
             return False
         return True
 

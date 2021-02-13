@@ -103,9 +103,9 @@ class HLodSubObject:
                     if o_child.tag in ['Mesh', 'CollisionBox']:
                         sub_object.identifier = o_child.text
                     else:
-                        context.warning('unhandled node \'' + o_child.tag + '\' in W3DContainer RenderObject!')
+                        context.warning(f'unhandled node \'{o_child.tag}\' in W3DContainer RenderObject!')
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DContainer SubObject!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DContainer SubObject!')
         return sub_object
 
     def create(self, parent):
@@ -210,11 +210,7 @@ class HLod:
         for lod_array in self.lod_arrays:
             for sub_obj in lod_array.sub_objects:
                 if len(sub_obj.identifier) >= LARGE_STRING_LENGTH:
-                    context.error(
-                        'identifier \'' +
-                        sub_obj.identifier +
-                        '\' exceeds max length of ' +
-                        str(LARGE_STRING_LENGTH))
+                    context.error(f'identifier \'{sub_obj.identifier}\' exceeds max length of {LARGE_STRING_LENGTH}')
                     return False
         return True
 
@@ -273,7 +269,7 @@ class HLod:
             if child.tag == 'SubObject':
                 lod_array.sub_objects.append(HLodSubObject.parse(context, child))
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DContainer!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DContainer!')
 
         lod_array.header.model_count = len(lod_array.sub_objects)
         return result

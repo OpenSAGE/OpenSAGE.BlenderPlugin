@@ -7,10 +7,10 @@ def save(context, export_settings, data_context):
     if not filepath.lower().endswith(context.filename_ext):
         filepath += context.filename_ext
 
-    context.info('Saving file: ' + filepath)
+    context.info(f'Saving file: {filepath}')
 
     export_mode = export_settings['mode']
-    context.info('export mode: ' + str(export_mode))
+    context.info(f'export mode: {export_mode}')
 
     file = open(filepath, 'wb')
 
@@ -50,7 +50,7 @@ def save(context, export_settings, data_context):
         data_context.hierarchy.header.name = data_context.container_name.upper()
         data_context.hierarchy.write(file)
     else:
-        context.error('unsupported export mode: ' + export_mode + ', aborting export!')
+        context.error(f'unsupported export mode \'{export_mode}\', aborting export!')
         return {'CANCELLED'}
 
     file.close()

@@ -114,7 +114,7 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
 
     for mesh in get_objects('MESH'):
         if retrieve_channels(mesh, hierarchy, timecoded, mesh.name):
-            context.warning('Mesh \'' + mesh.name + '\' is animated, animate its parent bone instead!')
+            context.warning(f'Mesh \'{mesh.name}\' is animated, animate its parent bone instead!')
 
     if rig is not None:
         channels.extend(retrieve_channels(rig, hierarchy, timecoded))
