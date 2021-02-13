@@ -16,10 +16,10 @@ def load_file(context, data_context, path=None):
         path = context.filepath
 
     path = insensitive_path(path)
-    context.info('Loading file: ' + path)
+    context.info(f'Loading file: {path}')
 
     if not os.path.exists(path):
-        context.error('file not found: ' + path)
+        context.error(f'file not found: {path}')
         return
 
     file = open(path, 'rb')
@@ -130,7 +130,7 @@ def load(context):
         if sklpath:
             load_file(context, data_context, sklpath)
             if data_context.hierarchy is None:
-                context.error('hierarchy file not found: ' + sklpath)
+                context.error(f'hierarchy file not found: {sklpath}')
                 return
 
     create_data(context,

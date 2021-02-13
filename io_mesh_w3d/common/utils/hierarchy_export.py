@@ -43,7 +43,7 @@ def retrieve_hierarchy(context, container_name):
         switch_to_pose(rig, 'POSE')
 
     if len(rigs) > 1:
-        context.error('only one armature per scene allowed! Exporting only the first one: ' + rigs[0].name)
+        context.error(f'only one armature per scene allowed! Exporting only the first one: {rigs[0].name}')
 
     meshes = get_objects('MESH')
 
@@ -96,7 +96,7 @@ def process_mesh(context, mesh, hierarchy, pivot_id_dict):
         matrix = mesh.matrix_local
 
         if mesh.parent is not None and mesh.parent.type == 'MESH':
-            context.warning('mesh \'' + mesh.name + '\' did have a object instead of a bone as parent!')
+            context.warning(f'mesh \'{mesh.name}\' did have a object instead of a bone as parent!')
             if mesh.parent.name not in pivot_id_dict.keys():
                 process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
                 return

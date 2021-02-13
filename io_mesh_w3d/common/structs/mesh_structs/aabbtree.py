@@ -3,6 +3,7 @@
 
 from mathutils import Vector
 from io_mesh_w3d.w3d.utils.helpers import *
+from io_mesh_w3d.w3d.io_binary import *
 from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_AABBTREE_HEADER = 0x00000091
@@ -19,7 +20,7 @@ class AABBTreeHeader:
             node_count=read_ulong(io_stream),
             poly_count=read_ulong(io_stream))
 
-        io_stream.read(24)  # padding
+        read_padding(io_stream, 24)
         return result
 
     @staticmethod
@@ -31,8 +32,7 @@ class AABBTreeHeader:
         write_ulong(self.node_count, io_stream)
         write_ulong(self.poly_count, io_stream)
 
-        for _ in range(24):
-            write_ubyte(0, io_stream)  # padding
+        write_padding(io_stream, 24)
 
 
 class Children:

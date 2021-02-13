@@ -249,14 +249,10 @@ class Animation:
             return True
 
         if len(self.header.name) >= STRING_LENGTH:
-            context.error('animation name \'' + self.header.name + '\' exceeds max length of ' + str(STRING_LENGTH))
+            context.error(f'animation name \'{self.header.name}\' exceeds max length of {STRING_LENGTH}')
             return False
         if len(self.header.hierarchy_name) >= STRING_LENGTH:
-            context.error(
-                'armature name \'' +
-                self.header.hierarchy_name +
-                '\' exceeds max length of ' +
-                str(STRING_LENGTH))
+            context.error(f'armature name \'{self.header.hierarchy_name}\' exceeds max length of {STRING_LENGTH}')
             return False
         return True
 
@@ -307,9 +303,9 @@ class Animation:
                         else:
                             result.channels.append(AnimationChannel.parse(channel_child))
                     else:
-                        context.warning('unhandled node \'' + channel_child.tag + '\' in Channels!')
+                        context.warning(f'unhandled node \'{channel_child.tag}\' in Channels!')
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DAnimation!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DAnimation!')
         return result
 
     def create(self, parent):

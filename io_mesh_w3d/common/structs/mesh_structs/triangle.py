@@ -52,19 +52,11 @@ class Triangle:
     def validate_face_map_names(context, face_map_names):
         for name in face_map_names:
             if name not in surface_types:
-                context.warning(
-                    'name of face map \'' +
-                    name +
-                    '\' is not one of valid surface types: ' +
-                    str(surface_types))
+                context.warning(f'name of face map \'{name}\' is not one of valid surface types: {surface_types}')
 
     def get_surface_type_name(self, context, index):
         if self.surface_type >= len(surface_types):
-            context.warning('triangle ' +
-                            str(index) +
-                            ' has an invalid surface type \'' +
-                            str(self.surface_type) +
-                            '\'')
+            context.warning(f'triangle {index} has an invalid surface type \'{self.surface_type}\'')
             return 'Default'
         return surface_types[self.surface_type]
 

@@ -25,8 +25,8 @@ class ExportGeometryData(bpy.types.Operator, ExportHelper):
 
 def export_geometry_data(context, filepath):
     inifilepath = filepath.replace('.xml', '.ini')
-    print('exporting geometry data to xml: ' + filepath)
-    print('exporting geometry data to ini: ' + inifilepath)
+    context.info(f'exporting geometry data to xml: {filepath}')
+    context.info(f'exporting geometry data to ini: {inifilepath}')
 
     file = open(inifilepath, 'w')
 
@@ -48,38 +48,28 @@ def export_geometry_data(context, filepath):
         shape_node = create_node(root, 'Shape')
         shape_node.set('Type', type)
         if (index == 0):
-            file.write('\tGeometry\t\t\t\t= ' + type + '\n')
-            file.write('\tGeometryIsSmall\t\t\t= No' + '\n')
+            file.write(f'\tGeometry\t\t\t\t= {type}\n')
+            file.write('\tGeometryIsSmall\t\t\t= No\n')
         else:
-            file.write('\tAdditionalGeometry\t\t= ' + type + '\n')
+            file.write(f'\tAdditionalGeometry\t\t= {type}\n')
 
-        file.write('\tGeometryName\t\t\t= ' + mesh.name + '\n')
+        file.write(f'\tGeometryName\t\t\t= {mesh.name}\n')
 
         shape_node.set('MajorRadius', format_str(majorRadius))
-        file.write('\tGeometryMajorRadius\t\t= ' + format_str(majorRadius) + '\n')
+        file.write(f'\tGeometryMajorRadius\t\t= {format_str(majorRadius)}\n')
 
         if (mesh.data.geometry_type != 'SPHERE'):
             shape_node.set('MinorRadius', format_str(minorRadius))
             shape_node.set('Height', format_str(height))
-            file.write('\tGeometryMinorRadius\t\t= ' + format_str(minorRadius) + '\n')
-            file.write('\tGeometryHeight\t\t\t= ' + format_str(height) + '\n')
+            file.write(f'\tGeometryMinorRadius\t\t= {format_str(minorRadius)}\n')
+            file.write(f'\tGeometryHeight\t\t\t= {format_str(height)}\n')
 
         if (mesh.data.contact_points_type != 'NONE'):
             shape_node.set('ContactPointGeneration', str(mesh.data.contact_points_type).upper())
 
         create_vector(location, shape_node, 'Offset')
         if (location.length > 0.01):
-            file.write(
-                '\tGeometryOffset\t\t\t= X:' +
-                format_str(
-                    location.x) +
-                ' Y:' +
-                format_str(
-                    location.y) +
-                ' Z:' +
-                format_str(
-                    location.z) +
-                '\n')
+            file.write(f'\tGeometryOffset\t\t\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
 
         file.write('\n')
         index += 1
@@ -88,19 +78,8 @@ def export_geometry_data(context, filepath):
         contact_point_node = create_node(root, 'ContactPoint')
         location, _, _ = empty.matrix_world.decompose()
         create_vector(location, contact_point_node, 'Pos')
-        file.write(
-            '\tGeometryContactPoint\t= X:' +
-            format_str(
-                location.x) +
-            ' Y:' +
-            format_str(
-                location.y) +
-            ' Z:' +
-            format_str(
-                location.z) +
-            '\n')
+        file.write(f'\tGeometryContactPoint\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
 
     write(root, filepath)
     file.close()
     context.report({'INFO'}, 'exporting geometry data finished')
-    print('exporting geometry data finished')

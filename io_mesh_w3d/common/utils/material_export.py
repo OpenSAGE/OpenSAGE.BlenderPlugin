@@ -6,6 +6,8 @@ from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 
+DEFAULT_W3D = 'DefaultW3D.fx'
+
 
 def append_texture_if_valid(texture, used_textures):
     if isinstance(texture, str):
@@ -98,8 +100,8 @@ def to_vec(color):
 def retrieve_shader_material(context, material, principled, w3x=False):
     name = material.name.split('.', 1)[-1]
     if not name.endswith('.fx'):
-        context.info('\'' + name + '\' is not a valid shader name -> defaulting to: \'DefaultW3D.fx\'')
-        name = 'DefaultW3D.fx'
+        context.info(f'\'{name}\' is not a valid shader name -> defaulting to: \'{DEFAULT_W3D}\'')
+        name = DEFAULT_W3D
 
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
@@ -136,7 +138,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
 
     append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
     if principled.normalmap_texture is not None and principled.normalmap_texture.image is not None:
-        if shader_mat.header.type_name == 'DefaultW3D.fx':
+        if shader_mat.header.type_name == DEFAULT_W3D:
             shader_mat.header.type_name = 'NormalMapped.fx'
         append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
 

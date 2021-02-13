@@ -222,3 +222,12 @@ def read_fixed_list(io_stream, count, read_func, par1=None):
         else:
             result.append(read_func(io_stream))
     return result
+
+
+def read_padding(io_stream, count):
+    io_stream.read(count)
+
+
+def write_padding(io_stream, count):
+    for _ in range(count):
+        write_ubyte(0, io_stream)

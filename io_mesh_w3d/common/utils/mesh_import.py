@@ -7,7 +7,7 @@ from io_mesh_w3d.common.utils.material_import import *
 
 
 def create_mesh(context, mesh_struct, coll):
-    context.info('creating mesh \'' + mesh_struct.name() + '\'')
+    context.info(f'creating mesh \'{mesh_struct.name()}\'')
 
     triangles = []
     for triangle in mesh_struct.triangles:
@@ -92,7 +92,7 @@ def create_mesh(context, mesh_struct, coll):
 
     mesh.update()
     if mesh.validate(verbose=True):
-        context.info('mesh \'' + mesh_struct.name() + '\' has been fixed')
+        context.info(f'mesh \'{mesh_struct.name()}\' has been fixed')
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
@@ -149,7 +149,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 def create_vertex_color_layer(mesh, colors, name, index):
     if not colors:
         return
-    layer = mesh.vertex_colors.new(name=name + '_' + str(index))
+    layer = mesh.vertex_colors.new(name=f'{name}_{index}')
 
     for i, loop in enumerate(mesh.loops):
         layer.data[i].color = colors[loop.vertex_index].to_vector_rgba()

@@ -49,11 +49,11 @@ def find_root(context, source):
         strip_namespaces(it)
         root = it.root
     except BaseException:
-        context.error('file: ' + source + ' does not contain valid XML data!')
+        context.error(f'file: {source} does not contain valid XML data!')
         return None
 
     if root.tag != 'AssetDeclaration':
-        context.error('file: ' + source + ' does not contain a AssetDeclaration node!')
+        context.error(f'file: {source} does not contain a AssetDeclaration node!')
         return None
     return root
 

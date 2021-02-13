@@ -34,7 +34,7 @@ class CollisionBox:
         if context.file_format == 'W3X':
             return True
         if len(self.name_) >= LARGE_STRING_LENGTH:
-            context.error('box name \'' + self.name_ + '\' exceeds max length of: ' + str(LARGE_STRING_LENGTH))
+            context.error(f'box name \'{self.name_}\' exceeds max length of: {LARGE_STRING_LENGTH}')
             return False
         return True
 
@@ -83,7 +83,7 @@ class CollisionBox:
             elif child.tag == 'Extent':
                 result.extend = parse_vector(child)
             else:
-                context.warning('unhandled node \'' + child.tag + '\' in W3DCollisionBox!')
+                context.warning(f'unhandled node \'{child.tag}\' in W3DCollisionBox!')
         return result
 
     def create(self, parent):

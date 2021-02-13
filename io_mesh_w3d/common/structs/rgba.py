@@ -81,5 +81,4 @@ class RGBA:
         return False
 
     def __str__(self):
-        return 'RGBA(r:' + str(self.r) + ', g:' + str(self.g) + \
-               ', b:' + str(self.b) + ', a:' + str(self.a) + ')'
+        return f'RGBA({self.r}, {self.g}, {self.b}, {self.a})'

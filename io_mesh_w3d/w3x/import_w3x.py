@@ -16,10 +16,10 @@ def load_file(context, data_context, path=None):
     if path is None:
         path = context.filepath
 
-    context.info('Loading file: ' + path)
+    context.info(f'Loading file: {path}')
 
     if not os.path.exists(path):
-        context.error('file not found: ' + path)
+        context.error(f'file not found: {path}')
         return
 
     root = find_root(context, path)
@@ -98,7 +98,7 @@ def load(context):
         load_file(context, data_context, skl_path)
 
         if data_context.animation and data_context.hierarchy is None:
-            context.error('hierarchy file not found: ' + skl_path)
+            context.error(f'hierarchy file not found: {skl_path}')
             return
 
     meshes = data_context.meshes
