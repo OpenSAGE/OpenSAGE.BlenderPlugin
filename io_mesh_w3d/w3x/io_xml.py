@@ -30,7 +30,7 @@ def pretty_print(elem, level=0):
 
 def write(root, path):
     pretty_print(root)
-    xml_spec = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+    xml_spec = '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n'
     data = bytes(xml_spec, 'utf-8') + ET.tostring(root)
 
     file = open(path, 'wb')

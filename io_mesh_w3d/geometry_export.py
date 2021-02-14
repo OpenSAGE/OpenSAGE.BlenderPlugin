@@ -53,6 +53,7 @@ def export_geometry_data(context, filepath):
 
         type = str(mesh.data.geometry_type).upper()
         location, _, scale = mesh.matrix_world.decompose()
+        # TODO: use get_aa_box from box_export.py
         majorRadius = abs(mesh.bound_box[4][0] - mesh.bound_box[0][0]) * scale.x * 0.5
         minorRadius = abs(mesh.bound_box[2][1] - mesh.bound_box[0][1]) * scale.y * 0.5
         height = abs(mesh.bound_box[1][2] - mesh.bound_box[0][2]) * scale.z
@@ -96,4 +97,4 @@ def export_geometry_data(context, filepath):
 
     write(root, filepath)
     file.close()
-    context.report({'INFO'}, 'exporting geometry data finished')
+    context.info('exporting geometry data finished')
