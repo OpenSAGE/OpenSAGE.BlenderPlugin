@@ -39,6 +39,7 @@ def retrieve_boxes(container_name):
         boxes.append(box)
     return boxes
 
+
 def get_aa_box(vertices):
     minX = sys.float_info.max
     maxX = sys.float_info.min
@@ -60,4 +61,3 @@ def get_aa_box(vertices):
         maxZ = max(vertex.co.z, maxZ)
 
     return Vector((maxX - minX, maxY - minY, maxZ - minZ))
-
