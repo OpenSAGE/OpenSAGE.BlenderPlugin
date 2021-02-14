@@ -9,7 +9,7 @@ from io_mesh_w3d.custom_properties import *
 from io_mesh_w3d.geometry_export import *
 
 VERSION = (0, 6, 4)
-OFFICIAL= False
+OFFICIAL = False
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
