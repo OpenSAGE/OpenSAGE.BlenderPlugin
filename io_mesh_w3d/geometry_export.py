@@ -81,7 +81,8 @@ def export_geometry_data(context, filepath):
 
         create_vector(location, shape_node, 'Offset')
         if (location.length > 0.01):
-            file.write(f'\tGeometryOffset\t\t\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
+            file.write(
+                f'\tGeometryOffset\t\t\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
 
         file.write('\n')
         index += 1
@@ -90,7 +91,8 @@ def export_geometry_data(context, filepath):
         contact_point_node = create_node(root, 'ContactPoint')
         location, _, _ = empty.matrix_world.decompose()
         create_vector(location, contact_point_node, 'Pos')
-        file.write(f'\tGeometryContactPoint\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
+        file.write(
+            f'\tGeometryContactPoint\t= X:{format_str(location.x)} Y:{format_str(location.y)} Z:{format_str(location.z)}\n')
 
     write(root, filepath)
     file.close()
