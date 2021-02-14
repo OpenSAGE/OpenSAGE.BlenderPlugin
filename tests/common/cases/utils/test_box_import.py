@@ -25,3 +25,19 @@ class TestBoxImportUtils(TestCase):
         rig_box(box, hierarchy, fake_rig, sub_object)
 
         self.assertTrue('BOUNDINGBOX' in bpy.data.objects)
+
+    def test_import_box_collision_types(self):
+        box = get_collision_box()
+        box.collision_types = COLLISION_TYPE_PHYSICAL | COLLISION_TYPE_PROJECTILE | COLLISION_TYPE_VIS | COLLISION_TYPE_CAMERA | COLLISION_TYPE_VEHICLE
+        hlod = get_hlod()
+        sub_object = get_hlod_sub_object(bone=1, name='containerName.box')
+        hlod.lod_arrays[0].sub_objects = [sub_object]
+
+        hierarchy = get_hierarchy()
+
+        fake_rig = bpy.data.objects.new('rig', bpy.data.armatures.new('rig'))
+
+        create_box(box, bpy.context.scene.collection)
+        rig_box(box, hierarchy, fake_rig, sub_object)
+
+        self.assertTrue('BOUNDINGBOX' in bpy.data.objects)
