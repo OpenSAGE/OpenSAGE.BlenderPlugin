@@ -257,7 +257,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         else:
             if len(mesh_object.constraints) > 1:
-                context.warning(f'mesh \'{mesh_object.name}\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
+                context.warning(
+                    f'mesh \'{mesh_object.name}\' has multiple constraints applied, only \'Copy Rotation\' OR \'Damped Track\' are supported!')
             for constraint in mesh_object.constraints:
                 if constraint.name == 'Copy Rotation':
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ORIENTED
