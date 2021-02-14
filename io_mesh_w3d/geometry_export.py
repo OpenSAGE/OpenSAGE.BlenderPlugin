@@ -18,6 +18,18 @@ class ExportGeometryData(bpy.types.Operator, ExportHelper):
 
     filename_ext = '.xml'
 
+    def info(self, msg):
+        print('INFO: ' + str(msg))
+        self.report({'INFO'}, str(msg))
+
+    def warning(self, msg):
+        print('WARNING: ' + str(msg))
+        self.report({'WARNING'}, str(msg))
+
+    def error(self, msg):
+        print('ERROR: ' + str(msg))
+        self.report({'ERROR'}, str(msg))
+
     def execute(self, context):
         export_geometry_data(self, self.filepath)
         return {'FINISHED'}
