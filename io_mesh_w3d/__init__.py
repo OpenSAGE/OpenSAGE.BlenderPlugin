@@ -4,6 +4,7 @@
 import bpy
 from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
+from io_mesh_w3d.utils import ReportHelper
 from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.custom_properties import *
 from io_mesh_w3d.geometry_export import *
@@ -31,7 +32,7 @@ def print_version(info):
     info(f'plugin version: {version} (official: {OFFICIAL})')
 
 
-class ExportW3D(bpy.types.Operator, ExportHelper):
+class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
     """Export to Westwood 3D file format (.w3d/.w3x)"""
     bl_idname = 'export_mesh.westwood_w3d'
     bl_label = 'Export W3D/W3X'
@@ -104,18 +105,6 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
     will_save_settings: BoolProperty(default=False)
 
     scene_key = 'w3dExportSettings'
-
-    def info(self, msg):
-        print('INFO: ' + str(msg))
-        self.report({'INFO'}, str(msg))
-
-    def warning(self, msg):
-        print('WARNING: ' + str(msg))
-        self.report({'WARNING'}, str(msg))
-
-    def error(self, msg):
-        print('ERROR: ' + str(msg))
-        self.report({'ERROR'}, str(msg))
 
     def invoke(self, context, event):
         settings = context.scene.get(self.scene_key)
@@ -196,7 +185,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper):
         col.prop(self, 'create_texture_xmls')
 
 
-class ImportW3D(bpy.types.Operator, ImportHelper):
+class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
     """Import from Westwood 3D file format (.w3d/.w3x)"""
     bl_idname = 'import_mesh.westwood_w3d'
     bl_label = 'Import W3D/W3X'
@@ -205,18 +194,6 @@ class ImportW3D(bpy.types.Operator, ImportHelper):
     file_format = ''
 
     filter_glob: StringProperty(default='*.w3d;*.w3x', options={'HIDDEN'})
-
-    def info(self, msg):
-        print('INFO: ' + str(msg))
-        self.report({'INFO'}, str(msg))
-
-    def warning(self, msg):
-        print('WARNING: ' + str(msg))
-        self.report({'WARNING'}, str(msg))
-
-    def error(self, msg):
-        print('ERROR: ' + str(msg))
-        self.report({'ERROR'}, str(msg))
 
     def execute(self, context):
         print_version(self.info)
