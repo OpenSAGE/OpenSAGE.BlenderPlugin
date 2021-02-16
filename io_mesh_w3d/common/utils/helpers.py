@@ -3,7 +3,8 @@
 
 import bpy
 import os
-from mathutils import Quaternion, Matrix
+import sys
+from mathutils import Quaternion, Matrix, Vector
 from bpy_extras.image_utils import load_image
 
 
@@ -117,3 +118,26 @@ def find_texture(context, file, name=None):
     img.name = name
     img.alpha_mode = 'STRAIGHT'
     return img
+
+
+def get_aa_box(vertices):
+    minX = sys.float_info.max
+    maxX = sys.float_info.min
+
+    minY = sys.float_info.max
+    maxY = sys.float_info.min
+
+    minZ = sys.float_info.max
+    maxZ = sys.float_info.min
+
+    for vertex in vertices:
+        minX = min(vertex.co.x, minX)
+        maxX = max(vertex.co.x, maxX)
+
+        minY = min(vertex.co.y, minY)
+        maxY = max(vertex.co.y, maxY)
+
+        minZ = min(vertex.co.z, minZ)
+        maxZ = max(vertex.co.z, maxZ)
+
+    return Vector((maxX - minX, maxY - minY, maxZ - minZ))
