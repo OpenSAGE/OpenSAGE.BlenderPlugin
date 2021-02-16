@@ -5,7 +5,7 @@ import bpy
 from io_mesh_w3d.utils import ReportHelper
 from bpy_extras.io_utils import ExportHelper
 from io_mesh_w3d.w3x.io_xml import *
-from io_mesh_w3d.common.utils.helpers import get_objects
+from io_mesh_w3d.common.utils.helpers import *
 
 
 def format_str(value):
@@ -42,10 +42,10 @@ def export_geometry_data(context, filepath):
 
         type = str(mesh.data.geometry_type).upper()
         location, _, scale = mesh.matrix_world.decompose()
-        # TODO: use get_aa_box from box_export.py
-        majorRadius = abs(mesh.bound_box[4][0] - mesh.bound_box[0][0]) * scale.x * 0.5
-        minorRadius = abs(mesh.bound_box[2][1] - mesh.bound_box[0][1]) * scale.y * 0.5
-        height = abs(mesh.bound_box[1][2] - mesh.bound_box[0][2]) * scale.z
+        extend = get_aa_box(mesh.data.vertices)
+        majorRadius = extend.x * scale.x * 0.5
+        minorRadius = extend.y * scale.y * 0.5
+        height = extend.z * scale.z
 
         shape_node = create_node(root, 'Shape')
         shape_node.set('Type', type)
