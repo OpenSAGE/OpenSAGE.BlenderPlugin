@@ -33,13 +33,19 @@ class TestGeometryExport(TestCase):
 
             self.assertEqual('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n', xmlFile.readline())
             self.assertEqual('<Geometry isSmall="False">\n', xmlFile.readline())
-            self.assertEqual('  <Shape Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="BOX">\n', xmlFile.readline())
+            self.assertEqual(
+                '  <Shape Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="BOX">\n',
+                xmlFile.readline())
             self.assertEqual('    <Offset X="0.000000" Y="0.000000" Z="0.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
-            self.assertEqual('  <Shape ContactPointGeneration="VEHICLE" MajorRadius="0.500" Type="SPHERE">\n', xmlFile.readline())
+            self.assertEqual(
+                '  <Shape ContactPointGeneration="VEHICLE" MajorRadius="0.500" Type="SPHERE">\n',
+                xmlFile.readline())
             self.assertEqual('    <Offset X="2.000000" Y="2.000000" Z="5.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
-            self.assertEqual('  <Shape ContactPointGeneration="STRUCTURE" Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="CYLINDER">\n', xmlFile.readline())
+            self.assertEqual(
+                '  <Shape ContactPointGeneration="STRUCTURE" Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="CYLINDER">\n',
+                xmlFile.readline())
             self.assertEqual('    <Offset X="22.332001" Y="2.110000" Z="-5.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
             self.assertEqual('  <ContactPoint>\n', xmlFile.readline())
@@ -92,6 +98,7 @@ class TestGeometryExport(TestCase):
             os.remove(XML_FILE)
             os.remove(INI_FILE)
 
+
 def create_mesh(context, name):
     mesh = bpy.data.meshes.new(name)
     mesh.object_type = 'MESH'
@@ -107,7 +114,7 @@ def create_mesh(context, name):
     link_object_to_active_scene(object, bpy.context.scene.collection)
 
 
-def create_shape(context, name, type, contact_point_type, location = Vector((0, 0, 0))):
+def create_shape(context, name, type, contact_point_type, location=Vector((0, 0, 0))):
     mesh = bpy.data.meshes.new(name)
     mesh.geometry_type = type
     mesh.contact_points_type = contact_point_type
@@ -125,7 +132,8 @@ def create_shape(context, name, type, contact_point_type, location = Vector((0, 
     link_object_to_active_scene(object, bpy.context.scene.collection)
     mesh.update()
 
-def create_empty(context, location = Vector((0, 0, 0))):
+
+def create_empty(context, location=Vector((0, 0, 0))):
     empty = bpy.data.objects.new("Empty", None)
     empty.location = location
     bpy.context.scene.collection.objects.link(empty)
