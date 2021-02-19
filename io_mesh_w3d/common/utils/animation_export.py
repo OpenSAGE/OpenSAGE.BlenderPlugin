@@ -24,6 +24,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
+        fcu.update()
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
@@ -93,6 +94,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                             value=Quaternion())
                     channel.time_codes[i].value[fcu.array_index] = val
         else:
+            #fcu.convert_to_samples(channel.first_frame, channel.last_frame)
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
@@ -101,8 +103,12 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
-                        channel.data[i] = Quaternion((1.0, 0.0, 0.0, 0.0))
+                        channel.data[i] = Quaternion()
                     channel.data[i][fcu.array_index] = val
+
+            #if channel_type == 6:
+            #    for datum in channel.data:
+            #        datum.normalize()
 
         if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
