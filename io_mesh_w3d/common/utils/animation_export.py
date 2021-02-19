@@ -106,9 +106,9 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.data[i] = Quaternion()
                     channel.data[i][fcu.array_index] = val
 
-            #if channel_type == 6:
-            #    for datum in channel.data:
-            #        datum.normalize()
+        if fcu.array_index == 3:
+            for datum in channel.data:
+                datum.normalize()
 
         if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
