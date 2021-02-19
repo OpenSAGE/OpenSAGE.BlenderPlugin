@@ -142,6 +142,30 @@ class TestMeshExportUtils(TestCase):
             for i in expected_vertices:
                 report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
 
+    def test_retrieve_meshes_with_vertices_rigged_to_too_many_bones(self):
+        coll = get_collection()
+        mesh = get_mesh(skin=True)
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        rig_mesh(mesh, hierarchy, rig)
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+
+        expected_vertices = [6, 7]
+        meshes[0].vertex_groups.new(name='number3')
+        meshes[0].vertex_groups['number3'].add(expected_vertices, 0.4, 'REPLACE')
+
+        with (patch.object(self, 'error')) as report_func:
+            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+
+            self.assertEqual(0, len(mesh_structs))
+            self.assertEqual(len(expected_vertices), report_func.call_count)
+            for i in expected_vertices:
+                report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
+
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
         mesh.textures = []

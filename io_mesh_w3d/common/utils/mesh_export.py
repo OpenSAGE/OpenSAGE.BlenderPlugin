@@ -69,6 +69,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 is_skinned = True
 
         unskinned_vertices_error = False
+        overskinned_vertices_error = False
 
         for i, vertex in enumerate(mesh.vertices):
             mesh_struct.shade_ids.append(i)
@@ -96,7 +97,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     matrix = matrix @ rig.matrix_local.inverted()
 
                 if len(vertex.groups) > 2:
-                    context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
+                    overskinned_vertices_error = True
+                    context.error(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
 
             elif is_skinned:
                 unskinned_vertices_error = True
@@ -126,7 +128,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
                     mesh_struct.bitangents.append((rotation @ vertex.normal))
 
-        if unskinned_vertices_error:
+        if unskinned_vertices_error or overskinned_vertices_error:
             return ([], [])
 
         header.min_corner = Vector(
