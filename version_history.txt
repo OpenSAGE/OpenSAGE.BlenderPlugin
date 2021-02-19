@@ -1,6 +1,7 @@
 v0.6.4
 - support mesh property 'two sided'
-- inform user on export if vertices are not rigged to any bone
+- throw error on export if vertices are not rigged to any bone
+- throw error on export if vertices are rigged to more than 2 bones
 - added vertex material info mapping attributes
 - Bugfix: uv corrdinates are correct for meshes where triangles are removed on import
 - Bugfix: no negative values for bounding box extend

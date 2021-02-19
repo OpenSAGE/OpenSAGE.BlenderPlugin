@@ -458,8 +458,7 @@ class TestUtils(TestCase):
         hlod = get_hlod()
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
-        meshes = [
-            get_mesh(name='sword', skin=True)]
+        meshes = [get_mesh(name='sword', skin=True)]
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
@@ -467,7 +466,7 @@ class TestUtils(TestCase):
         sword.vertex_groups.new(name='number3')
         sword.vertex_groups['number3'].add([3], 0.4, 'REPLACE')
 
-        self.compare_data(meshes)
+        self.compare_data([])
 
     def test_mesh_with_pivot_roundtrip(self):
         hlod = get_hlod()
