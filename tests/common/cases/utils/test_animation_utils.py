@@ -59,3 +59,27 @@ class TestAnimationUtils(TestCase):
 
         self.assertEqual(1, len(ani.channels))
         self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
+
+    def tester_quaternions_are_normalized_on_export(self):
+        bpy.context.scene.frame_end = 0
+        bpy.context.scene.frame_end = 10
+
+        hiera = get_hierarchy()
+        rig = get_or_create_skeleton(hiera, get_collection())
+        bone = rig.pose.bones[0]
+        bone.rotation_quaternion = Quaternion((10, 0, 0, 0))
+        bone.keyframe_insert(data_path='rotation_quaternion', frame=0)
+
+        bone.rotation_quaternion = Quaternion((2, 0, -10, 0))
+        bone.keyframe_insert(data_path='rotation_quaternion', frame=5)
+
+        bone.rotation_quaternion = Quaternion((5, 5, -5, -5))
+        bone.keyframe_insert(data_path='rotation_quaternion', frame=10)
+
+        ani = retrieve_animation(self, 'ani_name', hiera, rig, False)
+
+        self.assertEqual(1, len(ani.channels))
+        channel = ani.channels[0]
+        self.assertEqual(11, len(channel.data))
+        for datum in channel.data:
+            self.assertAlmostEqual(1.0, datum.magnitude, 1)
