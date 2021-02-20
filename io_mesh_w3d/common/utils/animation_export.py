@@ -93,8 +93,12 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                             time_code=frame,
                             value=Quaternion())
                     channel.time_codes[i].value[fcu.array_index] = val
+
+            if fcu.array_index == 3:
+                for tc in channel.time_codes:
+                    tc.value.normalize()
+
         else:
-            #fcu.convert_to_samples(channel.first_frame, channel.last_frame)
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
@@ -106,9 +110,9 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                         channel.data[i] = Quaternion()
                     channel.data[i][fcu.array_index] = val
 
-        if fcu.array_index == 3:
-            for datum in channel.data:
-                datum.normalize()
+            if fcu.array_index == 3:
+                for datum in channel.data:
+                    datum.normalize()
 
         if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
