@@ -164,7 +164,8 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
-                report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
+                report_func.assert_any_call(
+                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
