@@ -35,11 +35,11 @@ def get_animation_channel(type=1, pivot=0):
 
     if type == 6:
         channel.vector_len = 4
-        channel.data = [get_quat(-.1, -2.1, -1.7, -1.7),
-                        get_quat(-0.1, -2.1, 1.6, 1.6),
-                        get_quat(0.9, -2.1, 1.6, 1.6),
-                        get_quat(0.9, 1.8, 1.6, 1.6),
-                        get_quat(0.9, 1.8, -1.6, 1.6)]
+        channel.data = [get_quat(-.842, -0.002, -0.512, 0.171),
+                        get_quat(1, 0, 0, 0),
+                        get_quat(0.75, 0.433, 0.433, 0.250),
+                        get_quat(0.525, 0.592, 0.158, 0.592),
+                        get_quat(0.158, 0.592, 0.525, 0.592)]
     else:
         channel.vector_len = 1
         channel.data = [3.0, 3.5, 2.0, 1.0, -1.0]

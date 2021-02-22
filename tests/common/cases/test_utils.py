@@ -681,13 +681,13 @@ class TestUtils(TestCase):
             vector_len=4,
             pivot=1,
             type=6,
-            time_codes=[TimeCodedDatum(time_code=0, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
-                        TimeCodedDatum(time_code=1, value=Quaternion((0.1, 0.8, 0.7, 0.2))),
-                        TimeCodedDatum(time_code=2, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
-                        TimeCodedDatum(time_code=3, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
-                        TimeCodedDatum(time_code=4, value=Quaternion((0.1, 0.8, 0.7, 0.1))),
-                        TimeCodedDatum(time_code=5, value=Quaternion((0.2, 0.8, 0.7, 0.1))),
-                        TimeCodedDatum(time_code=6, value=Quaternion((0.2, 0.8, 0.7, 0.1)))])
+            time_codes=[TimeCodedDatum(time_code=0, value=Quaternion((0.1, 0.73, 0.7, 0.2))),
+                        TimeCodedDatum(time_code=1, value=Quaternion((0.1, 0.73, 0.7, 0.2))),
+                        TimeCodedDatum(time_code=2, value=Quaternion((0.1, 0.73, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=3, value=Quaternion((0.1, 0.73, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=4, value=Quaternion((0.1, 0.73, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=5, value=Quaternion((0.2, 0.73, 0.7, 0.1))),
+                        TimeCodedDatum(time_code=6, value=Quaternion((0.2, 0.73, 0.7, 0.1)))])
 
         animation.time_coded_channels = [channel, channel_q]
 

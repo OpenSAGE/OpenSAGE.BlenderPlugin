@@ -84,7 +84,7 @@ class TestAnimationUtils(TestCase):
         for datum in channel.data:
             self.assertAlmostEqual(1.0, datum.magnitude, 1)
 
-    def tester_quaternions_are_normalized_on_export_timecoded(self):
+    def test_quaternions_are_normalized_on_export_timecoded(self):
         bpy.context.scene.frame_end = 0
 
         hiera = get_hierarchy()
