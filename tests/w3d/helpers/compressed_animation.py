@@ -64,10 +64,10 @@ def get_time_coded_animation_channel(type_=0, random_interpolation=True):
     if type_ == 6:
         channel.vector_len = 4
         values = [get_quat(-.842, -0.002, -0.512, 0.171),
-                    get_quat(1, 0, 0, 0),
-                    get_quat(0.75, 0.433, 0.433, 0.250),
-                    get_quat(0.525, 0.592, 0.158, 0.592),
-                    get_quat(0.158, 0.592, 0.525, 0.592)]
+                  get_quat(1, 0, 0, 0),
+                  get_quat(0.75, 0.433, 0.433, 0.250),
+                  get_quat(0.525, 0.592, 0.158, 0.592),
+                  get_quat(0.158, 0.592, 0.525, 0.592)]
     else:
         channel.vector_len = 1
         values = [3.0, 3.5, 2.0, 1.0, -1.0]
