@@ -24,7 +24,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
-        fcu.update()
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
