@@ -1,4 +1,6 @@
-v0.6.4
+v0.6.5
+
+v0.6.4 (23.3.21)
 - support mesh property 'two sided'
 - cancel export if vertices are not rigged to any bone
 - cancel export if vertices are rigged to more than 2 bones
