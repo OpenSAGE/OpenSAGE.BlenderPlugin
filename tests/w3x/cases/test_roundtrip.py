@@ -47,6 +47,7 @@ class TestRoundtripW3X(TestCase):
         self.filepath = self.outpath() + 'output_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
+        export_settings['compression_bits'] = 4
         save_data(self, export_settings)
 
         # reset scene
@@ -85,7 +86,7 @@ class TestRoundtripW3X(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HAM', 'compression': 'U', 'individual_files': False, 'create_texture_xmls': True}
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'compression_bits': 4, 'individual_files': False, 'create_texture_xmls': True}
         save_data(self, export_settings)
 
         # check created files

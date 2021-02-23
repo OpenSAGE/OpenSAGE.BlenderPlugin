@@ -26,7 +26,7 @@ class TestAnimationUtils(TestCase):
         mesh.keyframe_insert(data_path='location', index=0, frame=2)
 
         with (patch.object(self, 'warning')) as warning_func:
-            retrieve_animation(self, 'ani_name', get_hierarchy(), None, False)
+            retrieve_animation(self, 'ani_name', get_hierarchy(), None, 'U', 4)
 
             warning_func.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
 
@@ -40,7 +40,7 @@ class TestAnimationUtils(TestCase):
         bone.location = Vector((0, 3, 0))
         bone.keyframe_insert(data_path='location', index=0, frame=3)
 
-        ani = retrieve_animation(self, 'ani_name', hiera, rig, False)
+        ani = retrieve_animation(self, 'ani_name', hiera, rig, 'U', 4)
 
         self.assertEqual(1, ani.channels[0].first_frame)
         self.assertEqual(10, ani.channels[0].last_frame)
@@ -55,7 +55,7 @@ class TestAnimationUtils(TestCase):
 
         create_animation(rig, animation, hierarchy)
 
-        ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=False)
+        ani = retrieve_animation(self, 'name', hierarchy, rig, 'U', 4)
 
         self.assertEqual(1, len(ani.channels))
         self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
@@ -76,7 +76,7 @@ class TestAnimationUtils(TestCase):
         bone.rotation_quaternion = Quaternion((5, 5, -5, -5))
         bone.keyframe_insert(data_path='rotation_quaternion', frame=10)
 
-        ani = retrieve_animation(self, 'ani_name', hiera, rig, False)
+        ani = retrieve_animation(self, 'ani_name', hiera, rig, 'U', 4)
 
         self.assertEqual(1, len(ani.channels))
         channel = ani.channels[0]
@@ -99,7 +99,7 @@ class TestAnimationUtils(TestCase):
         bone.rotation_quaternion = Quaternion((5, 5, -5, -5))
         bone.keyframe_insert(data_path='rotation_quaternion', frame=10)
 
-        ani = retrieve_animation(self, 'ani_name', hiera, rig, True)
+        ani = retrieve_animation(self, 'ani_name', hiera, rig, 'TC', 4)
 
         self.assertEqual(1, len(ani.time_coded_channels))
         channel = ani.time_coded_channels[0]

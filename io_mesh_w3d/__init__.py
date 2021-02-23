@@ -84,11 +84,17 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         name='Compression',
         items=(('U', 'Uncompressed', 'This will not compress the animations'),
                ('TC', 'TimeCoded', 'This will export the animation with keyframes'),
-               # ('AD', 'AdaptiveDelta',
-               # 'This will use adaptive delta compression to reduce size'),
-               ),
+               ('AD', 'AdaptiveDelta', 'This will use adaptive delta compression to reduce size')),
         description='The method used for compressing the animation data',
         default='U')
+
+    compression_bit_count: EnumProperty(
+        name='Adaptive Delta compression bit count',
+        description='todo',
+        items=[
+            ('4_BIT', '4 bit', 'desc: compress with 4 bits'),
+            ('8_BIT', '8 bit', 'desc: compress with 8 bits')],
+        default='4_BIT')
 
     force_vertex_materials: BoolProperty(
         name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
@@ -132,8 +138,13 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         if self.will_save_settings:
             self.save_settings(context)
 
+        compression_bits = 4
+        if self.compression_bit_count == '8_BIT':
+            compression_bits = 8
+
         export_settings = {'mode': self.export_mode,
                            'compression': self.animation_compression,
+                           'compression_bits': compression_bits,
                            'use_existing_skeleton': self.use_existing_skeleton,
                            'individual_files': self.individual_files,
                            'create_texture_xmls': self.create_texture_xmls}
@@ -170,6 +181,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
     def draw_animation_settings(self):
         col = self.layout.box().column()
         col.prop(self, 'animation_compression')
+
+        if (self.animation_compression == 'AD'):
+            col = self.layout.box().column()
+            col.prop(self, 'compression_bit_count')
 
     def draw_force_vertex_materials(self):
         col = self.layout.box().column()

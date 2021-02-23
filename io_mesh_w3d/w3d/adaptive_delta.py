@@ -74,22 +74,33 @@ def decode(channel):
     data = channel.data.data
     scale = channel.data.scale
 
+    print(f'scale: {scale}')
+
     scale_factor = 1.0
     if data.bit_count == 8:
         scale_factor /= 16.0
 
     result = [None] * channel.num_time_codes
     result[0] = data.initial_value
+    print(f'initial: {data.initial_value}')
 
     for i, delta_block in enumerate(data.delta_blocks):
+        print(f'block index: {delta_block.block_index}')
         delta_scale = scale * scale_factor * DELTA_TABLE[delta_block.block_index]
+        print('delta bytes:')
+        for bytee in delta_block.delta_bytes:
+            print(bytee)
         deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
-
+        print('deltas:')
+        for delt in deltas:
+            print(delt)
+        print(f'delta_scale: {delta_scale}')
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vector_len) * 16 + j + 1
+            print(f'idx: {idx}')
             if idx >= channel.num_time_codes:
                 break
-
+            print(f'channel type: {channel.type}')
             if channel.type == 6:
                 # shift from wxyz to xyzw
                 index = (delta_block.vector_index + 1) % 4
@@ -98,7 +109,10 @@ def decode(channel):
                     result[idx] = result[idx - 1].copy()
                 result[idx][index] = value
             else:
+                print(f'old: {result[idx - 1]}')
+                print(f'delta: {delta}')
                 result[idx] = result[idx - 1] + delta_scale * delta
+                print(f'new: {result[idx]}')
     return result
 
 
@@ -107,30 +121,38 @@ def encode(channel, num_bits):
     if num_bits == 8:
         scale_factor /= 16.0
 
-    scale = 0.07435  # how to get this ???
+    scale = 0.07435  # how to get this? -> hardcoded for now
 
     num_time_codes = len(channel.data) - 1  # minus initial value
+    print(f'time codes: {num_time_codes}')
     num_delta_blocks = int(num_time_codes / 16) + 1
+    print(f'delta blocks: {num_delta_blocks}')
     deltas = [0x00] * (num_delta_blocks * 16)
+    print(f'num deltas: {len(deltas)}')
 
     default_value = None
+    old = None
 
+    #  4.3611, 4.6524
     for i, value in enumerate(channel.data):
+        print(f'i: {i}')
+        print(f'value: {value}')
         if i == 0:
-            default_value = value
+            default_value = value # 4.3611 passt
+            old = default_value
+            print(f'default_value: {default_value}')
             continue
 
         block_index = 33  # how to get this one?
+        delta_scale = scale * scale_factor * DELTA_TABLE[block_index] # 0.06609 passt
+        print(f'delta_scale: {delta_scale}')
 
-        old = default_value
-        # if i > 1:
-        #    channel.data[i - 1]
-        delta = value - old
-        delta /= (scale_factor * scale * DELTA_TABLE[block_index])
+        delta = round((value - old) / delta_scale)
+        print(f'delta: {delta}') # should be 4
+        deltas[i - 1] = delta 
+        old = value
 
-        delta = int(delta)
-        # print("delta: " + str(delta) + " index: " + str(block_index))
-        deltas[i - 1] = delta
-
+    print(f'deltas: {deltas}')
     deltas = set_deltas(deltas, num_bits)
+    print(f'len deltas: {len(deltas)}')
     return deltas
