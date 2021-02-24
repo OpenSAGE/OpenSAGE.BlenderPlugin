@@ -9,7 +9,7 @@ def fill_with_exponents_of_10(table):
         table.append(pow(10, i - 8))
 
 
-def fill_with_sinus_function(table):
+def fill_with_sinus_function(table): # values from 1.0 to 0.0
     for i in range(240):
         num = i / 240.0
         table.append(1.0 - math.sin(90.0 * num * math.pi / 180.0))
@@ -71,10 +71,13 @@ def set_deltas(bytes, num_bits):
 
 
 def decode(channel):
+    print('#### decoding channel')
     data = channel.data.data
     scale = channel.data.scale
 
-    print(f'scale: {scale}')
+    print(DELTA_TABLE)
+
+    #print(f'scale: {scale}') # 0.0676, 0.0374, 0.0398, 0.0018, 0.0030, 0.0189, 0.0520, 0.0379, 0.00414 ...
 
     scale_factor = 1.0
     if data.bit_count == 8:
@@ -82,25 +85,25 @@ def decode(channel):
 
     result = [None] * channel.num_time_codes
     result[0] = data.initial_value
-    print(f'initial: {data.initial_value}')
+    #print(f'initial: {data.initial_value}')
 
     for i, delta_block in enumerate(data.delta_blocks):
-        print(f'block index: {delta_block.block_index}')
+        #print(f'block index: {delta_block.block_index}') # 52, 18, 37, 40, 40, 23, 34, 193, 237, 213, 34, 193, 237, 216,
         delta_scale = scale * scale_factor * DELTA_TABLE[delta_block.block_index]
-        print('delta bytes:')
-        for bytee in delta_block.delta_bytes:
-            print(bytee)
+        #print('delta bytes:')
+        #for bytee in delta_block.delta_bytes:
+        #    print(bytee)
         deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
-        print('deltas:')
-        for delt in deltas:
-            print(delt)
-        print(f'delta_scale: {delta_scale}')
+        #print('deltas:')
+        #for delt in deltas:
+        #    print(delt)
+        #print(f'delta_scale: {delta_scale}')
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vector_len) * 16 + j + 1
-            print(f'idx: {idx}')
+            #print(f'idx: {idx}')
             if idx >= channel.num_time_codes:
                 break
-            print(f'channel type: {channel.type}')
+            #print(f'channel type: {channel.type}')
             if channel.type == 6:
                 # shift from wxyz to xyzw
                 index = (delta_block.vector_index + 1) % 4
@@ -109,10 +112,10 @@ def decode(channel):
                     result[idx] = result[idx - 1].copy()
                 result[idx][index] = value
             else:
-                print(f'old: {result[idx - 1]}')
-                print(f'delta: {delta}')
+                #print(f'old: {result[idx - 1]}')
+                #print(f'delta: {delta}')
                 result[idx] = result[idx - 1] + delta_scale * delta
-                print(f'new: {result[idx]}')
+                #print(f'new: {result[idx]}')
     return result
 
 

@@ -92,9 +92,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         name='Adaptive Delta compression bit count',
         description='todo',
         items=[
-            ('4_BIT', '4 bit', 'desc: compress with 4 bits'),
-            ('8_BIT', '8 bit', 'desc: compress with 8 bits')],
-        default='4_BIT')
+            ('4', '4 bit', 'desc: compress with 4 bits'),
+            ('8', '8 bit', 'desc: compress with 8 bits')],
+        default='4')
 
     force_vertex_materials: BoolProperty(
         name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
@@ -138,13 +138,9 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         if self.will_save_settings:
             self.save_settings(context)
 
-        compression_bits = 4
-        if self.compression_bit_count == '8_BIT':
-            compression_bits = 8
-
         export_settings = {'mode': self.export_mode,
                            'compression': self.animation_compression,
-                           'compression_bits': compression_bits,
+                           'compression_bits': int(self.compression_bit_count),
                            'use_existing_skeleton': self.use_existing_skeleton,
                            'individual_files': self.individual_files,
                            'create_texture_xmls': self.create_texture_xmls}
