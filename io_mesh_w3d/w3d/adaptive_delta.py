@@ -9,7 +9,7 @@ def fill_with_exponents_of_10(table):
         table.append(pow(10, i - 8))
 
 
-def fill_with_sinus_function(table): # values from 1.0 to 0.0
+def fill_with_sinus_function(table):
     for i in range(240):
         num = i / 240.0
         table.append(1.0 - math.sin(90.0 * num * math.pi / 180.0))
@@ -71,13 +71,8 @@ def set_deltas(bytes, num_bits):
 
 
 def decode(channel):
-    print('#### decoding channel')
     data = channel.data.data
     scale = channel.data.scale
-
-    print(DELTA_TABLE)
-
-    #print(f'scale: {scale}') # 0.0676, 0.0374, 0.0398, 0.0018, 0.0030, 0.0189, 0.0520, 0.0379, 0.00414 ...
 
     scale_factor = 1.0
     if data.bit_count == 8:
@@ -85,25 +80,17 @@ def decode(channel):
 
     result = [None] * channel.num_time_codes
     result[0] = data.initial_value
-    #print(f'initial: {data.initial_value}')
 
     for i, delta_block in enumerate(data.delta_blocks):
-        #print(f'block index: {delta_block.block_index}') # 52, 18, 37, 40, 40, 23, 34, 193, 237, 213, 34, 193, 237, 216,
         delta_scale = scale * scale_factor * DELTA_TABLE[delta_block.block_index]
-        #print('delta bytes:')
-        #for bytee in delta_block.delta_bytes:
-        #    print(bytee)
         deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
-        #print('deltas:')
-        #for delt in deltas:
-        #    print(delt)
-        #print(f'delta_scale: {delta_scale}')
+
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vector_len) * 16 + j + 1
-            #print(f'idx: {idx}')
+
             if idx >= channel.num_time_codes:
                 break
-            #print(f'channel type: {channel.type}')
+
             if channel.type == 6:
                 # shift from wxyz to xyzw
                 index = (delta_block.vector_index + 1) % 4
@@ -112,11 +99,47 @@ def decode(channel):
                     result[idx] = result[idx - 1].copy()
                 result[idx][index] = value
             else:
-                #print(f'old: {result[idx - 1]}')
-                #print(f'delta: {delta}')
                 result[idx] = result[idx - 1] + delta_scale * delta
-                #print(f'new: {result[idx]}')
+
     return result
+
+def find_scale(channel):
+    max_delta = 0.0
+
+    for i in range(0, len(channel.data) - 1):
+        frame = channel.data[i]
+        next_frame = channel.data[i + 1]
+
+        if channel.type < 6:
+            delta = abs(next_frame - frame)
+            if (delta > max_delta):
+                max_delta = delta
+        else:
+            for pos in range(4):
+                delta = abs(next_frame[pos] - frame[pos])
+                if (delta > max_delta):
+                    max_delta = delta
+    return max_delta / 7.0
+
+
+#int selectedFilter = -1;
+#float blockDelta = float.MaxValue;
+#for (int idf = 0; idf < 256; ++idf)
+#{
+#    Frame frame = new Frame();
+#    float delta = result.CompressFrame(frame, idf, array, null, null, 0.0f);
+#    if ((double)delta < blockDelta)
+#    {
+#        selectedFilter = idf;
+#        blockDelta = delta;
+#    }
+#}
+#Frame finalFrame = new Frame();
+#fixed (float* pFrameValues = &animationState[0])
+#{
+#    result.CompressFrame(finalFrame, selectedFilter, array, &pFrameValues[pos], &excessDelta, settings.MaxAdaptiveDeltaError);
+#    result._compressedValues.Add(finalFrame);
+#}
 
 
 def encode(channel, num_bits):
@@ -124,7 +147,7 @@ def encode(channel, num_bits):
     if num_bits == 8:
         scale_factor /= 16.0
 
-    scale = 0.07435  # how to get this? -> hardcoded for now
+    scale = find_scale(channel)
 
     num_time_codes = len(channel.data) - 1  # minus initial value
     print(f'time codes: {num_time_codes}')
@@ -136,22 +159,23 @@ def encode(channel, num_bits):
     default_value = None
     old = None
 
-    #  4.3611, 4.6524
     for i, value in enumerate(channel.data):
         print(f'i: {i}')
         print(f'value: {value}')
         if i == 0:
-            default_value = value # 4.3611 passt
+            default_value = value
             old = default_value
             print(f'default_value: {default_value}')
             continue
 
-        block_index = 33  # how to get this one?
-        delta_scale = scale * scale_factor * DELTA_TABLE[block_index] # 0.06609 passt
+        block_index = 33
+        delta_scale = scale * scale_factor * DELTA_TABLE[block_index]
         print(f'delta_scale: {delta_scale}')
 
         delta = round((value - old) / delta_scale)
-        print(f'delta: {delta}') # should be 4
+
+        print(f'teeeee: {delta_scale}')
+        print(f'delta: {delta}')
         deltas[i - 1] = delta 
         old = value
 

@@ -45,9 +45,7 @@ def retrieve_hierarchy(context, container_name):
     if len(rigs) > 1:
         context.error(f'only one armature per scene allowed! Exporting only the first one: {rigs[0].name}')
 
-    meshes = get_objects('MESH')
-
-    for mesh in meshes:
+    for mesh in get_objects('MESH'):
         process_mesh(context, mesh, hierarchy, pivot_id_dict)
 
     hierarchy.header.num_pivots = len(hierarchy.pivots)
