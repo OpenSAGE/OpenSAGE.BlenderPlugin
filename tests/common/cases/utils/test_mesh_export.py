@@ -167,6 +167,27 @@ class TestMeshExportUtils(TestCase):
                 report_func.assert_any_call(
                     f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
 
+    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh(self):
+        coll = get_collection()
+        mesh = get_mesh(name='armr')
+        create_mesh(self, mesh, coll)
+
+        mesh2 = get_mesh(name='arml')
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        with (patch.object(self, 'error')) as report_func:
+            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+
+            self.assertEqual(0, len(mesh_structs))
+            self.assertEqual(2, report_func.call_count)
+            report_func.assert_any_call(
+                    f'mesh \'{mesh.header.mesh_name}\' has same name as bone \'armr\'!')
+            report_func.assert_any_call(
+                    f'mesh \'{mesh2.header.mesh_name}\' has same name as bone \'arml\'!')
+
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
         mesh.textures = []

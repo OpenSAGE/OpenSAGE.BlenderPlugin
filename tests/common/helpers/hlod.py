@@ -48,7 +48,7 @@ def get_hlod_array(array):
     array.header = get_hlod_array_header()
 
     array.sub_objects = [
-        get_hlod_sub_object(bone=0, name='containerName.sword'),
+        get_hlod_sub_object(bone=7, name='containerName.sword'),
         get_hlod_sub_object(bone=0, name='containerName.soldier'),
         get_hlod_sub_object(bone=6, name='containerName.TRUNK'),
         get_hlod_sub_object(bone=0, name='containerName.PICK'),
