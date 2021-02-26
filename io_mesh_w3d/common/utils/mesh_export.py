@@ -15,12 +15,23 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
     mesh_structs = []
     used_textures = []
 
+    naming_error = False
+    bone_names = [bone.name for bone in rig.pose.bones] if rig != None else []
+
     switch_to_pose(rig, 'REST')
 
     depsgraph = bpy.context.evaluated_depsgraph_get()
 
     for mesh_object in get_objects('MESH'):
         if mesh_object.data.object_type != 'MESH':
+            continue
+
+        if mesh_object.name in bone_names and mesh_object.parent_bone == '':
+            naming_error = True
+            print(mesh_object.parent_bone)
+            context.error(
+                    f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\'!')
+            print(f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\'!')
             continue
 
         if mesh_object.mode != 'OBJECT':
@@ -287,6 +298,9 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         mesh_structs.append(mesh_struct)
 
     switch_to_pose(rig, 'POSE')
+
+    if naming_error:
+        return [], []
 
     return mesh_structs, used_textures
 
