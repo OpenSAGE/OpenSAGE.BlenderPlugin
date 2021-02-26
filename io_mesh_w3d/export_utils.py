@@ -84,8 +84,7 @@ def retrieve_data(context, export_settings):
                 return None
 
     if 'A' in export_mode:
-        timecoded = export_settings['compression'] == 'TC'
-        data_context.animation = retrieve_animation(context, container_name, hierarchy, rig, timecoded)
+        data_context.animation = retrieve_animation(context, container_name, hierarchy, rig, export_settings['compression'], export_settings['compression_bits'])
         if not data_context.animation.validate(context):
             context.error('aborting export!')
             return None

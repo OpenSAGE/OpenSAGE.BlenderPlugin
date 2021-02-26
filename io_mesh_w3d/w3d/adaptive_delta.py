@@ -87,6 +87,7 @@ def decode(channel):
 
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vector_len) * 16 + j + 1
+
             if idx >= channel.num_time_codes:
                 break
 
@@ -99,6 +100,7 @@ def decode(channel):
                 result[idx][index] = value
             else:
                 result[idx] = result[idx - 1] + delta_scale * delta
+
     return result
 
 
@@ -107,30 +109,28 @@ def encode(channel, num_bits):
     if num_bits == 8:
         scale_factor /= 16.0
 
-    scale = 0.07435  # how to get this ???
+    scale = 0.074 # how to find this?
 
     num_time_codes = len(channel.data) - 1  # minus initial value
     num_delta_blocks = int(num_time_codes / 16) + 1
     deltas = [0x00] * (num_delta_blocks * 16)
 
     default_value = None
+    old = None
 
     for i, value in enumerate(channel.data):
         if i == 0:
             default_value = value
+            old = default_value
             continue
 
-        block_index = 33  # how to get this one?
+        block_index = 33
+        delta_scale = scale * scale_factor * DELTA_TABLE[block_index]
 
-        old = default_value
-        # if i > 1:
-        #    channel.data[i - 1]
-        delta = value - old
-        delta /= (scale_factor * scale * DELTA_TABLE[block_index])
+        delta = round((value - old) / delta_scale)
 
-        delta = int(delta)
-        # print("delta: " + str(delta) + " index: " + str(block_index))
-        deltas[i - 1] = delta
+        deltas[i - 1] = delta 
+        old = value
 
     deltas = set_deltas(deltas, num_bits)
     return deltas

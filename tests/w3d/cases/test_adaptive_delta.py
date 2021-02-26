@@ -36,9 +36,19 @@ class TestAdaptiveDelta(TestCase):
 
         self.assertEqual(expected, actual)
 
-    def test_decode(self):
+    def testi_decode_4_bit(self):
         channel = get_motion_channel(type=0, delta_type=1, num_time_codes=5)
         expected = [4.3611, 4.6254, 4.9559, 5.4186, 5.8812]
+
+        actual = decode(channel)
+
+        self.assertEqual(len(expected), len(actual))
+        for i, value in enumerate(expected):
+            self.assertAlmostEqual(value, actual[i], 3)
+
+    def test_decode_8_bit(self):
+        channel = get_motion_channel(type=0, delta_type=2, num_time_codes=5)
+        expected = [4.3611, 4.2247, 3.8777, 3.3985, 2.8781]
 
         actual = decode(channel)
 
@@ -61,17 +71,17 @@ class TestAdaptiveDelta(TestCase):
         # self.assertEqual(len(expected), len(actual))
         # self.assertEqual(expected, actual)
 
-    def test_encode_4bit(self):
+    def testo_encode_4bit(self):
         channel = AnimationChannel(
             first_frame=0,
             last_frame=7,
             type=1,
             pivot=2,
             unknown=0,
-            data=[4.3611, 4.3611, 4.6254, 4.9559, 5.4186, 5.8812])
-        expected = []  # ?
+            data=[4.3611, 4.6254, 4.9559, 5.4186, 5.8812])
+        expected = [84, 119, 0, 0, 0, 0, 0, 0]
 
         actual = encode(channel, num_bits=4)
 
-        # self.assertEqual(len(expected), len(actual))
-        # self.assertEqual(expected, actual)
+        self.assertEqual(len(expected), len(actual))
+        self.assertEqual(expected, actual)

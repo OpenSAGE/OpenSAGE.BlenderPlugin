@@ -44,6 +44,7 @@ class TestRoundtripW3D(TestCase):
         self.filepath = self.outpath() + 'output_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'U'
+        export_settings['compression_bits'] = 4
         save_data(self, export_settings)
 
         # reset scene
@@ -93,6 +94,7 @@ class TestRoundtripW3D(TestCase):
         self.filepath = self.outpath() + 'output_comp_ani'
         export_settings['mode'] = 'A'
         export_settings['compression'] = 'TC'
+        export_settings['compression_bits'] = 4
         save_data(self, export_settings)
 
         # reset scene
@@ -128,7 +130,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HAM', 'compression': 'U'}
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'compression_bits': 4}
         save_data(self, export_settings)
 
         # reset scene
@@ -190,7 +192,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HAM', 'compression': 'U'}
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'compression_bits': 4}
         save_data(self, export_settings)
 
         # reset scene
@@ -227,7 +229,7 @@ class TestRoundtripW3D(TestCase):
 
         # export
         self.filepath = self.outpath() + 'output'
-        export_settings = {'mode': 'HAM', 'compression': 'TC'}
+        export_settings = {'mode': 'HAM', 'compression': 'TC', 'compression_bits': 4 }
         save_data(self, export_settings)
 
         # reset scene

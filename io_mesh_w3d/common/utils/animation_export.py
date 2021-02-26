@@ -16,7 +16,7 @@ def is_visibility(fcu):
     return 'visibility' in fcu.data_path or 'hide' in fcu.data_path
 
 
-def retrieve_channels(obj, hierarchy, timecoded, name=None):
+def retrieve_channels(obj, hierarchy, compression, compression_bits, name=None):
     if obj.animation_data is None or obj.animation_data.action is None:
         return []
 
@@ -46,15 +46,24 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             vec_len = 4
 
         if not (channel_type == 6 and fcu.array_index > 0):
-            if timecoded:
+            if compression == 'TC':
                 channel = TimeCodedAnimationChannel(
                     vector_len=vec_len,
                     type=channel_type,
                     pivot=pivot_index)
 
-                num_keyframes = len(fcu.keyframe_points)
-                channel.time_codes = [None] * num_keyframes
-                channel.num_time_codes = num_keyframes
+                channel.num_time_codes = len(fcu.keyframe_points)
+                channel.time_codes = [None] * channel.num_time_codes
+
+            elif compression == 'AD':
+                channel = AdaptiveDeltaAnimationChannel(
+                    vector_len=vec_len,
+                    type=channel_type,
+                    pivot=pivot_index)
+
+                channel.num_time_codes = len(fcu.keyframe_points)
+                channel.data = []
+
             else:
                 range_ = fcu.range()
 
@@ -77,7 +86,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
 
-        if timecoded:
+        if compression == 'TC':
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
@@ -96,6 +105,24 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
             if fcu.array_index == 3:
                 for tc in channel.time_codes:
                     tc.value.normalize()
+
+        elif compression == 'AD':
+            for frame in range(channel.first_frame, channel.last_frame + 1):
+                val = fcu.evaluate(frame)
+                i = frame - channel.first_frame
+
+                if is_visibility(fcu) or channel_type < 6:
+                    channel.data[i] = val
+                else:
+                    if channel.data[i] is None:
+                        channel.data[i] = Quaternion()
+                    channel.data[i][fcu.array_index] = val
+
+            if fcu.array_index == 3:
+                for value in channel.data:
+                    value.normalize()
+
+            channel.data = encode(channel, compression_bits)
 
         else:
             for frame in range(channel.first_frame, channel.last_frame + 1):
@@ -118,21 +145,25 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     return channels
 
 
-def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
+def retrieve_animation(context, animation_name, hierarchy, rig, compression, compression_bits):
     channels = []
 
     for mesh in get_objects('MESH'):
-        if retrieve_channels(mesh, hierarchy, timecoded, mesh.name):
+        if retrieve_channels(mesh, hierarchy, compression, compression_bits, mesh.name):
             context.warning(f'Mesh \'{mesh.name}\' is animated, animate its parent bone instead!')
 
     if rig is not None:
-        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
-        channels.extend(retrieve_channels(rig.data, hierarchy, timecoded))
+        channels.extend(retrieve_channels(rig, hierarchy, compression, compression_bits))
+        channels.extend(retrieve_channels(rig.data, hierarchy, compression, compression_bits))
 
-    if timecoded:
+    if compression == 'TC':
         ani_struct = CompressedAnimation(
             header=CompressedAnimationHeader(flavor=TIME_CODED_FLAVOR),
             time_coded_channels=channels)
+    elif compression == 'AD':
+        ani_struct = CompressedAnimation(
+            header=CompressedAnimationHeader(flavor=ADAPTIVE_DELTA_FLAVOR),
+            adaptive_delta_channels=channels)
     else:
         ani_struct = Animation(header=AnimationHeader(), channels=channels)
 
