@@ -103,83 +103,34 @@ def decode(channel):
 
     return result
 
-def find_scale(channel):
-    max_delta = 0.0
-
-    for i in range(0, len(channel.data) - 1):
-        frame = channel.data[i]
-        next_frame = channel.data[i + 1]
-
-        if channel.type < 6:
-            delta = abs(next_frame - frame)
-            if (delta > max_delta):
-                max_delta = delta
-        else:
-            for pos in range(4):
-                delta = abs(next_frame[pos] - frame[pos])
-                if (delta > max_delta):
-                    max_delta = delta
-    return max_delta / 7.0
-
-
-#int selectedFilter = -1;
-#float blockDelta = float.MaxValue;
-#for (int idf = 0; idf < 256; ++idf)
-#{
-#    Frame frame = new Frame();
-#    float delta = result.CompressFrame(frame, idf, array, null, null, 0.0f);
-#    if ((double)delta < blockDelta)
-#    {
-#        selectedFilter = idf;
-#        blockDelta = delta;
-#    }
-#}
-#Frame finalFrame = new Frame();
-#fixed (float* pFrameValues = &animationState[0])
-#{
-#    result.CompressFrame(finalFrame, selectedFilter, array, &pFrameValues[pos], &excessDelta, settings.MaxAdaptiveDeltaError);
-#    result._compressedValues.Add(finalFrame);
-#}
-
 
 def encode(channel, num_bits):
     scale_factor = 1.0
     if num_bits == 8:
         scale_factor /= 16.0
 
-    scale = find_scale(channel)
+    scale = 0.074 # how to find this?
 
     num_time_codes = len(channel.data) - 1  # minus initial value
-    print(f'time codes: {num_time_codes}')
     num_delta_blocks = int(num_time_codes / 16) + 1
-    print(f'delta blocks: {num_delta_blocks}')
     deltas = [0x00] * (num_delta_blocks * 16)
-    print(f'num deltas: {len(deltas)}')
 
     default_value = None
     old = None
 
     for i, value in enumerate(channel.data):
-        print(f'i: {i}')
-        print(f'value: {value}')
         if i == 0:
             default_value = value
             old = default_value
-            print(f'default_value: {default_value}')
             continue
 
         block_index = 33
         delta_scale = scale * scale_factor * DELTA_TABLE[block_index]
-        print(f'delta_scale: {delta_scale}')
 
         delta = round((value - old) / delta_scale)
 
-        print(f'teeeee: {delta_scale}')
-        print(f'delta: {delta}')
         deltas[i - 1] = delta 
         old = value
 
-    print(f'deltas: {deltas}')
     deltas = set_deltas(deltas, num_bits)
-    print(f'len deltas: {len(deltas)}')
     return deltas
