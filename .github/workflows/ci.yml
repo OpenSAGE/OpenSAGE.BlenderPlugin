@@ -19,7 +19,7 @@ jobs:
         blender-version: ['2.83', '2.90', '2.91', '2.92' ]
         include:
           - blender-version: '2.83'
-            blender-version-suffix: '5'
+            blender-version-suffix: '12'
           - blender-version: '2.90'
             blender-version-suffix: '0'
           - blender-version: '2.91'
