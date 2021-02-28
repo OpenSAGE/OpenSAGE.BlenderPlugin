@@ -294,6 +294,8 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
 
         if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
             col = layout.column()
+            col.prop(mat, 'specular_color')
+            col = layout.column()
             col.prop(mat, 'attributes')
             col = layout.column()
             col.prop(mat, 'translucency')
