@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7' ]
-        blender-version: ['2.83', '2.90', '2.91' ]
+        blender-version: ['2.83', '2.90', '2.91', '2.92' ]
         include:
           - blender-version: '2.83'
             blender-version-suffix: '5'
