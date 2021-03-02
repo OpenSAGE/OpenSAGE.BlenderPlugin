@@ -260,7 +260,7 @@ class TestUtils(TestCase):
         hierarchy = get_hierarchy()
         dazzles = [get_dazzle()]
         meshes = [
-            get_mesh(name='sword', skin=True),
+            get_mesh(name='sword', skin=False),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]
@@ -386,7 +386,7 @@ class TestUtils(TestCase):
         boxes = [get_collision_box()]
         hierarchy = get_hierarchy()
         meshes = [
-            get_mesh(name='sword', skin=True),
+            get_mesh(name='sword', skin=False),
             get_mesh(name='soldier', skin=True),
             get_mesh(name='TRUNK'),
             get_mesh(name='PICK')]

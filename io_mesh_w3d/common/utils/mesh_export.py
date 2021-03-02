@@ -28,10 +28,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
         if mesh_object.name in bone_names and mesh_object.parent_bone == '':
             naming_error = True
-            print(mesh_object.parent_bone)
             context.error(
                     f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\'!')
-            print(f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\'!')
             continue
 
         if mesh_object.mode != 'OBJECT':

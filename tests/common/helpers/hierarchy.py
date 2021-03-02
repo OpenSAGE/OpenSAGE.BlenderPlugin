@@ -71,7 +71,7 @@ def get_hierarchy(name='TestHierarchy', xml=False):
         get_hierarchy_pivot(name='arml', parent=3),
         get_hierarchy_pivot(name='armr', parent=3),
         get_hierarchy_pivot(name='TRUNK', parent=5),
-        get_hierarchy_pivot(name='sword', parent=0)]
+        get_hierarchy_pivot(name='sword_bone', parent=0)]
 
     if xml:
         hierarchy.pivots.append(

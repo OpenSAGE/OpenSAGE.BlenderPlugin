@@ -173,7 +173,7 @@ class TestMeshExportUtils(TestCase):
         create_mesh(self, mesh, coll)
 
         mesh2 = get_mesh(name='arml')
-        create_mesh(self, mesh, coll)
+        create_mesh(self, mesh2, coll)
 
         hierarchy = get_hierarchy()
         rig = get_or_create_skeleton(hierarchy, coll)
