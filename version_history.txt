@@ -1,4 +1,5 @@
 v0.6.5
+- do not allow for meshes named after bones
 - Bugfix: handling of specular and emission color
 
 v0.6.4 (23.3.21)
