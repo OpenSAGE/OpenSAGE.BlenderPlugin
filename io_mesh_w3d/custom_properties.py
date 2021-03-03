@@ -268,14 +268,6 @@ Material.ambient = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Ambient color')
 
-Material.emission = FloatVectorProperty(
-    name='Emission',
-    subtype='COLOR',
-    size=4,
-    default=(1.0, 1.0, 1.0, 0.0),
-    min=0.0, max=1.0,
-    description='Emission color')
-
 Material.alpha_test = BoolProperty(
     name='Alpha test',
     description='Enable the alpha test',

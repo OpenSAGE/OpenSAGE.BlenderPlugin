@@ -59,10 +59,10 @@ def create_material_from_vertex_material(name, vert_mat):
     principled.base_color = vert_mat.vm_info.diffuse.to_vector_rgb()
     principled.alpha = vert_mat.vm_info.opacity
     principled.specular = vert_mat.vm_info.shininess
+    principled.emission_color = vert_mat.vm_info.emissive.to_vector_rgb()
 
     material.attributes = attributes
     material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
-    material.emission = vert_mat.vm_info.emissive.to_vector_rgba()
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
 
@@ -120,7 +120,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
             material.ambient = prop.to_rgba()
         elif prop.name == 'EmissiveColor' or prop.name == 'ColorEmissive':
-            material.emission = prop.to_rgba()
+            principled.emission_color = prop.to_rgb()
         elif prop.name == 'Opacity':
             principled.alpha = prop.value
         elif prop.name == 'AlphaTestEnable':
