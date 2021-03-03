@@ -62,7 +62,7 @@ def create_material_from_vertex_material(name, vert_mat):
     principled.emission_color = vert_mat.vm_info.emissive.to_vector_rgb()
 
     material.attributes = attributes
-    material.specular_color = vert_mat.vm_info.specular.to_vector_rgb()
+    material.specular = vert_mat.vm_info.specular.to_vector_rgb()
     material.ambient = vert_mat.vm_info.ambient.to_vector_rgba()
     material.translucency = vert_mat.vm_info.translucency
 
@@ -110,7 +110,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.to_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
-            material.specular_color = prop.to_rgb()
+            material.specular = prop.to_rgb()
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = prop.value
         elif prop.name == 'Texture_0':

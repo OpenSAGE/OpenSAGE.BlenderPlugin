@@ -268,6 +268,14 @@ Material.ambient = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Ambient color')
 
+Material.specular = FloatVectorProperty(
+    name='Specular',
+    subtype='COLOR',
+    size=3,
+    default=(0.0, 0.0, 0.0),
+    min=0.0, max=1.0,
+    description='Specular color')
+
 Material.alpha_test = BoolProperty(
     name='Alpha test',
     description='Enable the alpha test',
