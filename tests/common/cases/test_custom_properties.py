@@ -109,12 +109,6 @@ class TestCustomProperties(TestCase):
         mat.ambient = (2.0, 2.0, 2.0, 2.0)
         self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.ambient))
 
-        self.assertEqual((1.0, 1.0, 1.0, 0.0), to_vec4(mat.emission))
-        mat.emission = (-1.0, -1.0, -1.0, -1.0)
-        self.assertEqual((0.0, 0.0, 0.0, 0.0), to_vec4(mat.emission))
-        mat.emission = (2.0, 2.0, 2.0, 2.0)
-        self.assertEqual((1.0, 1.0, 1.0, 1.0), to_vec4(mat.emission))
-
         self.assertEqual(True, mat.alpha_test)
 
         self.assertEqual(0, mat.blend_mode)

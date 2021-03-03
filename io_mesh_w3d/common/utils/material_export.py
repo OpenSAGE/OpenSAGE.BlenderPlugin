@@ -36,7 +36,7 @@ def retrieve_vertex_material(material, principled):
         shininess=principled.specular,
         specular=RGBA(vec=material.specular_color, a=0),
         diffuse=RGBA(vec=material.diffuse_color, a=0),
-        emissive=RGBA(vec=material.emission),
+        emissive=RGBA(vec=principled.emission_color, a=0),
         ambient=RGBA(vec=material.ambient),
         translucency=material.translucency,
         opacity=principled.alpha)
@@ -115,14 +115,14 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         append_property(shader_mat, 5, 'ColorDiffuse', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
         append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color), Vector((1.0, 1.0, 1.0, 1.0)))
         append_property(shader_mat, 5, 'ColorAmbient', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'ColorEmissive', to_vec(material.emission), Vector((1.0, 1.0, 1.0, 0.0)))
+        append_property(shader_mat, 5, 'ColorEmissive', to_vec(principled.emission_color), Vector((0.0, 0.0, 0.0, 1.0)))
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity * 200.0, 100.0)
         append_property(shader_mat, 5, 'DiffuseColor', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
         append_property(shader_mat, 5, 'SpecularColor', to_vec(material.specular_color), Vector((1.0, 1.0, 1.0, 1.0)))
         append_property(shader_mat, 5, 'AmbientColor', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'EmissiveColor', to_vec(material.emission), Vector((1.0, 1.0, 1.0, 0.0)))
+        append_property(shader_mat, 5, 'EmissiveColor', to_vec(principled.emission_color), Vector((0.0, 0.0, 0.0, 1.0)))
 
     if material.texture_1:
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
