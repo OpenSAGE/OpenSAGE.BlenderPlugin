@@ -184,9 +184,9 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(2, report_func.call_count)
             report_func.assert_any_call(
-                    f'mesh \'{mesh.header.mesh_name}\' has same name as bone \'armr\'!')
+                f'mesh \'{mesh.header.mesh_name}\' has same name as bone \'armr\'!')
             report_func.assert_any_call(
-                    f'mesh \'{mesh2.header.mesh_name}\' has same name as bone \'arml\'!')
+                f'mesh \'{mesh2.header.mesh_name}\' has same name as bone \'arml\'!')
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
