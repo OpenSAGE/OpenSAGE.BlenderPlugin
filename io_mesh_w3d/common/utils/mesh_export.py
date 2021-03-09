@@ -1,6 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import time
+
 import bpy
 import bmesh
 from mathutils import Vector, Matrix
@@ -319,11 +321,11 @@ def prepare_bmesh(context, mesh):
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
+    while split_multi_uv_vertices(context, mesh, b_mesh):
+        time.sleep(2)
+        context.info(f'mesh \'{mesh.name}\' vertices have been split because of multiple uv coordinates per vertex!')
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-    b_mesh = split_multi_uv_vertices(context, mesh, b_mesh)
-    b_mesh.to_mesh(mesh)
-
     return b_mesh
 
 
@@ -333,6 +335,11 @@ def find_bone_index(hierarchy, mesh_object, group):
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):
+    mesh.update()
+    if mesh.validate(verbose=True):
+        context.info(f'mesh \'{mesh_struct.name()}\' has been fixed')
+    b_mesh = bmesh.new()
+    b_mesh.from_mesh(mesh)
     b_mesh.verts.ensure_lookup_table()
 
     for ver in b_mesh.verts:
@@ -343,16 +350,19 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
         for j, face in enumerate(b_mesh.faces):
             for loop in face.loops:
                 vert_index = mesh.polygons[j].vertices[loop.index % 3]
-                if tx_coords[vert_index] is not None \
-                        and tx_coords[vert_index] != uv_layer.data[loop.index].uv:
+                if tx_coords[vert_index] is None:
+                    tx_coords[vert_index] = uv_layer.data[loop.index].uv
+                elif tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)
-                tx_coords[vert_index] = uv_layer.data[loop.index].uv
 
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
-    if split_edges:
+    print(len(split_edges))
+
+    if len(split_edges) > 0:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
-        context.info(f'mesh \'{mesh.name}\' vertices have been split because of multiple uv coordinates per vertex!')
-    return b_mesh
+
+    b_mesh.to_mesh(mesh)
+    return len(split_edges) > 0
 
 
 def vertices_to_vectors(vertices):
