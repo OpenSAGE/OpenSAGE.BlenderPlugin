@@ -13,7 +13,7 @@ v0.6.4 (23.3.21)
 - Bugfix: proper vertex material args handling
 - Bugfix: normalize quaternions on animation export
 
-v0.6.3 (17.1.2020)
+v0.6.3 (17.1.20)
 - geometry data can now be exported to xml and ini
 
 v0.6.2 (01.12.20)
