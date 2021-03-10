@@ -316,12 +316,16 @@ def prepare_bmesh(context, mesh):
     bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
     b_mesh.to_mesh(mesh)
     b_mesh.free()
+    mesh.update()
+    print(f'new verts: {len(mesh.vertices)}')
 
     while split_multi_uv_vertices(context, mesh, b_mesh):
         time.sleep(2)
         context.info(f'mesh \'{mesh.name}\' vertices have been split because of multiple uv coordinates per vertex!')
+
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
+    mesh.update()
     return b_mesh
 
 
@@ -331,7 +335,7 @@ def find_bone_index(hierarchy, mesh_object, group):
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):
-    mesh.update()
+    print('###   run')
     if mesh.validate(verbose=True):
         context.info(f'mesh \'{mesh_struct.name()}\' has been fixed')
     b_mesh = bmesh.new()
@@ -358,6 +362,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
 
     b_mesh.to_mesh(mesh)
+    mesh.update()
     return len(split_edges) > 0
 
 

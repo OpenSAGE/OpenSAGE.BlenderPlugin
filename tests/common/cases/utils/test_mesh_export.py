@@ -208,6 +208,24 @@ class TestMeshExportUtils(TestCase):
             retrieve_meshes(self, None, None, 'container_name')
             report_func.assert_called_with('mesh \'mesh\' uses a invalid/empty material!')
 
+    def test_multi_uv_vertex_splitting_no_splitting_if_uv_coords_match(self):
+        mesh = bpy.data.meshes.new('mesh')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.to_mesh(mesh)
+
+        tx_coords = [get_vec2(0.0, 0.0)] * 24
+
+        uv_layer = mesh.uv_layers.new(do_init=False)
+        for i, datum in enumerate(uv_layer.data):
+            datum.uv = tx_coords[i]
+
+        _mesh = prepare_bmesh(self, mesh)
+
+        self.assertEqual(8, len(_mesh.verts))
+        self.assertEqual(12, len(_mesh.faces))
+
     def test_multi_uv_vertex_splitting(self):
         mesh = bpy.data.meshes.new('mesh')
 
@@ -216,29 +234,29 @@ class TestMeshExportUtils(TestCase):
         b_mesh.to_mesh(mesh)
 
         tx_coords = [get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0),
-                     get_vec2(1.0, 1.0),
-                     get_vec2(0.0, 1.0),
-                     get_vec2(0.0, 0.0),
-                     get_vec2(1.0, 0.0)]
+                     get_vec2(0.1, 0.0),
+                     get_vec2(1.2, 0.0),
+                     get_vec2(1.3, 1.0),
+                     get_vec2(1.4, 1.0),
+                     get_vec2(0.5, 1.0),
+                     get_vec2(0.6, 0.0),
+                     get_vec2(1.7, 0.0),
+                     get_vec2(1.8, 1.0),
+                     get_vec2(0.9, 1.0),
+                     get_vec2(0.10, 0.0),
+                     get_vec2(1.11, 0.0),
+                     get_vec2(1.12, 1.0),
+                     get_vec2(0.13, 1.0),
+                     get_vec2(0.14, 0.0),
+                     get_vec2(1.15, 0.0),
+                     get_vec2(1.16, 1.0),
+                     get_vec2(0.17, 1.0),
+                     get_vec2(0.18, 0.0),
+                     get_vec2(1.19, 0.0),
+                     get_vec2(1.20, 1.0),
+                     get_vec2(0.21, 1.0),
+                     get_vec2(0.22, 0.0),
+                     get_vec2(1.23, 0.0)]
 
         uv_layer = mesh.uv_layers.new(do_init=False)
         for i, datum in enumerate(uv_layer.data):
@@ -246,7 +264,63 @@ class TestMeshExportUtils(TestCase):
 
         _mesh = prepare_bmesh(self, mesh)
 
-        self.assertEqual(24, len(_mesh.verts))
+        self.assertEqual(36, len(_mesh.verts))
+        self.assertEqual(12, len(_mesh.faces))
+
+    def test_multi_uv_vertex_splitting_triangulated(self):
+        mesh = bpy.data.meshes.new('mesh')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        bmesh.ops.triangulate(b_mesh, faces=b_mesh.faces)
+        b_mesh.to_mesh(mesh)
+
+        tx_coords = [get_vec2(0.0, 1.0),
+                     get_vec2(0.1, 0.0),
+                     get_vec2(1.2, 0.0),
+                     get_vec2(1.3, 1.0),
+                     get_vec2(1.4, 1.0),
+                     get_vec2(0.5, 1.0),
+                     get_vec2(0.6, 0.0),
+                     get_vec2(1.7, 0.0),
+                     get_vec2(1.8, 1.0),
+                     get_vec2(0.9, 1.0),
+                     get_vec2(0.10, 0.0),
+                     get_vec2(1.11, 0.0),
+                     get_vec2(1.12, 1.0),
+                     get_vec2(0.13, 1.0),
+                     get_vec2(0.14, 0.0),
+                     get_vec2(1.15, 0.0),
+                     get_vec2(1.16, 1.0),
+                     get_vec2(0.17, 1.0),
+                     get_vec2(0.18, 0.0),
+                     get_vec2(1.19, 0.0),
+                     get_vec2(1.20, 1.0),
+                     get_vec2(0.21, 1.0),
+                     get_vec2(0.22, 0.0),
+                     get_vec2(1.23, 0.0),
+                     get_vec2(1.24, 1.0),
+                     get_vec2(0.25, 1.0),
+                     get_vec2(0.26, 0.0),
+                     get_vec2(1.27, 0.0),
+                     get_vec2(1.28, 1.0),
+                     get_vec2(0.29, 1.0),
+                     get_vec2(0.30, 0.0),
+                     get_vec2(1.31, 0.0),
+                     get_vec2(1.32, 0.0),
+                     get_vec2(1.33, 1.0),
+                     get_vec2(0.34, 1.0),
+                     get_vec2(0.35, 0.0)]
+
+        uv_layer = mesh.uv_layers.new(do_init=False)
+        print(len(mesh.vertices))
+        print(len(uv_layer.data))
+        for i, datum in enumerate(uv_layer.data):
+            datum.uv = tx_coords[i]
+
+        _mesh = prepare_bmesh(self, mesh)
+
+        self.assertEqual(36, len(_mesh.verts))
         self.assertEqual(12, len(_mesh.faces))
 
     def test_mesh_with_unconnected_vertex_export(self):
