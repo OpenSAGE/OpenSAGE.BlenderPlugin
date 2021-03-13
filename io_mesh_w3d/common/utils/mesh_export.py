@@ -321,15 +321,15 @@ def prepare_bmesh(context, mesh):
     b_mesh.to_mesh(mesh)
     b_mesh.free()
     mesh.update()
-    print(f'new verts: {len(mesh.vertices)}')
+    print(f'num verts: {len(mesh.vertices)}')
 
-    while split_multi_uv_vertices(context, mesh, b_mesh):
-        time.sleep(2)
+    if split_multi_uv_vertices(context, mesh, b_mesh):
         context.info(f'mesh \'{mesh.name}\' vertices have been split because of multiple uv coordinates per vertex!')
 
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
     mesh.update()
+    print(f'num new verts: {len(mesh.vertices)}')
     return b_mesh
 
 
@@ -339,9 +339,6 @@ def find_bone_index(hierarchy, mesh_object, group):
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):
-    print('###   run')
-    if mesh.validate(verbose=True):
-        context.info(f'mesh \'{mesh_struct.name()}\' has been fixed')
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
     b_mesh.verts.ensure_lookup_table()
@@ -358,9 +355,12 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
                     tx_coords[vert_index] = uv_layer.data[loop.index].uv
                 elif tx_coords[vert_index] != uv_layer.data[loop.index].uv:
                     b_mesh.verts[vert_index].select_set(True)
+                    vert_index2 = mesh.polygons[j].vertices[(loop.index + 1) % 3]
+                    b_mesh.verts[vert_index2].select_set(True)
+                    vert_index3 = mesh.polygons[j].vertices[(loop.index - 1) % 3]
+                    b_mesh.verts[vert_index3].select_set(True)
 
     split_edges = [e for e in b_mesh.edges if e.verts[0].select and e.verts[1].select]
-    print(len(split_edges))
 
     if len(split_edges) > 0:
         bmesh.ops.split_edges(b_mesh, edges=split_edges)
