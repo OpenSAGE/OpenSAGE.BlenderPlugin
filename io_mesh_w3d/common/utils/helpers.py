@@ -91,22 +91,29 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 
+extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
+
 def find_texture(context, file, name=None):
+    file = file.rsplit('.', 1)[0]
     if name is None:
         name = file
+    else:
+        name = name.rsplit('.', 1)[0]
 
-    file = file.split('.', -1)[0]
-    if name in bpy.data.images:
-        return bpy.data.images[name]
+    for extension in extensions:
+        combined = name + extension
+        if combined in bpy.data.images:
+            return bpy.data.images[combined]
 
     path = insensitive_path(os.path.dirname(context.filepath))
     filepath = path + os.path.sep + file
-    extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
+
     img = None
     for extension in extensions:
         img = load_image(filepath + extension)
         if img is not None:
             context.info('loaded texture: ' + filepath + extension)
+            img.name = name + extension
             break
 
     if img is None:
@@ -114,8 +121,8 @@ def find_texture(context, file, name=None):
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
+        img.name = name + extensions[0]
 
-    img.name = name
     img.alpha_mode = 'STRAIGHT'
     return img
 
