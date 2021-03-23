@@ -32,10 +32,38 @@ class TestHelpers(TestCase):
 
                 report_func.assert_called()
 
+    def test_texture_file_extensions_is_dds_if_file_is_dds_but_tga_referenced(self):
+        with (patch.object(self, 'info')) as report_func:
+            for extension in extensions:
+                copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds',
+                         self.outpath() + 'texture.dds')
+
+                find_texture(self, 'texture', 'texture.tga')
+
+                # reset scene
+                bpy.ops.wm.read_homefile(use_empty=True)
+                os.remove(self.outpath() + 'texture.dds')
+
+                report_func.assert_called_with(f'loaded texture: {self.outpath()}texture.dds')
+
+    def test_texture_file_extensions_is_tga_if_file_is_tga_but_dds_referenced(self):
+        with (patch.object(self, 'info')) as report_func:
+            for extension in extensions:
+                copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds',
+                         self.outpath() + 'texture.tga')
+
+                find_texture(self, 'texture', 'texture.dds')
+
+                # reset scene
+                bpy.ops.wm.read_homefile(use_empty=True)
+                os.remove(self.outpath() + 'texture.tga')
+
+                report_func.assert_called_with(f'loaded texture: {self.outpath()}texture.tga')
+
     def test_invalid_texture_file_extension(self):
         extensions = ['.invalid']
 
-        with (patch.object(self, 'info')) as report_func:
+        with (patch.object(self, 'warning')) as report_func:
             for extension in extensions:
                 copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds',
                          self.outpath() + 'texture' + extension)
@@ -46,7 +74,7 @@ class TestHelpers(TestCase):
                 bpy.ops.wm.read_homefile(use_empty=True)
                 os.remove(self.outpath() + 'texture' + extension)
 
-                report_func.assert_not_called()
+                report_func.assert_called()
 
     def test_call_create_uv_layer_without_tx_coords(self):
         fake_mat_pass = FakeClass()

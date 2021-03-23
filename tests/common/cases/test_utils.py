@@ -445,10 +445,10 @@ class TestUtils(TestCase):
             get_mesh(name='PICK')]
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture.tga')
+                 self.outpath() + 'texture.dds')
 
         copyfile(up(up(self.relpath())) + '/testfiles/texture.dds',
-                 self.outpath() + 'texture_nrm.tga')
+                 self.outpath() + 'texture_nrm.dds')
 
         create_data(self, meshes, hlod, hierarchy, boxes)
 
