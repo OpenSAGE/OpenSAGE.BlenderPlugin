@@ -93,6 +93,7 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
 
 extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
 
+
 def find_texture(context, file, name=None):
     file = file.rsplit('.', 1)[0]
     if name is None:
