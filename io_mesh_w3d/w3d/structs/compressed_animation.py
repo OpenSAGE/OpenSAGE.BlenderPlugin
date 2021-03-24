@@ -13,9 +13,7 @@ ADAPTIVE_DELTA_FLAVOR = 1
 class CompressedAnimationHeader:
     def __init__(
             self,
-            version=Version(
-                major=1,
-                minor=0),
+            version=Version(major=0, minor=1), # is 1.0  for motion channels
             name='',
             hierarchy_name='',
             num_frames=0,
