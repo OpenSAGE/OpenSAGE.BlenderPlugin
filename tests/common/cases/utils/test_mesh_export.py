@@ -46,7 +46,7 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(42, len(mesh.verts))
 
         mesh2 = meshes[1]
-        self.assertEqual(34, len(mesh2.verts))
+        self.assertEqual(161, len(mesh2.verts))
 
     def test_trianglulation_of_sphere(self):
         mesh = bpy.data.meshes.new('sphere')
