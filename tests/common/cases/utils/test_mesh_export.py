@@ -136,12 +136,16 @@ class TestMeshExportUtils(TestCase):
                         vertex.groups[0].weight = 1.0
 
         with (patch.object(self, 'warning')) as report_func:
-            retrieve_meshes(self, hierarchy, rig, 'container_name')
+            mesh_structs, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
             for mesh_object in meshes:
                 for i, vertex in enumerate(mesh_object.data.vertices):
                     if vertex.groups and len(vertex.groups) > 1:
                         report_func.assert_any_call(
                             f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%!')
+
+            for mesh in mesh_structs:
+                for inf in mesh.vert_infs:
+                    self.assertTrue(abs(1.0 - (inf.bone_inf + inf.xtra_inf)) < 0.05)
 
     def test_retrieve_meshes_with_vertices_not_rigged_to_any_bone(self):
         coll = get_collection()
