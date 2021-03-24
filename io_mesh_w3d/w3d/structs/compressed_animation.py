@@ -14,8 +14,8 @@ class CompressedAnimationHeader:
     def __init__(
             self,
             version=Version(
-                major=0,
-                minor=1),
+                major=1,
+                minor=0),
             name='',
             hierarchy_name='',
             num_frames=0,
