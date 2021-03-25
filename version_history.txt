@@ -3,6 +3,7 @@ v0.6.5
 - inform user if both vertex bone weights do not add up to 100%
 - Bugfix: handling of specular and emission color
 - Bugfix: use proper file extension for loaded textures
+- Bugfix: split vertices with n uv-coords into n vertices
 
 v0.6.4 (23.3.21)
 - support mesh property 'two sided'
