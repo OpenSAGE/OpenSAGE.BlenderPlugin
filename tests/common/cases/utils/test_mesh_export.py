@@ -342,8 +342,7 @@ class TestMeshExportUtils(TestCase):
                      get_vec2(0.35, 0.0)]
 
         uv_layer = mesh.uv_layers.new(do_init=False)
-        print(len(mesh.vertices))
-        print(len(uv_layer.data))
+
         for i, datum in enumerate(uv_layer.data):
             datum.uv = tx_coords[i]
 
