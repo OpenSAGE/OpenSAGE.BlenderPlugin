@@ -360,6 +360,7 @@ def split_multi_uv_vertices(context, mesh, b_mesh):
 
     return b_mesh
 
+
 def vertices_to_vectors(vertices):
     vectors = []
     for vert in vertices:
