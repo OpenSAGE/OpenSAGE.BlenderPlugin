@@ -278,7 +278,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 context.warning(f'mesh \'{mesh_object.name}\' constraint \'{constraint.name}\' is not supported!')
 
         if mesh_object.name in bone_names:
-            if not (mesh_struct.is_skin() or mesh_object.parent_type == 'BONE' and mesh_object.parent_bone == mesh_object.name):
+            if not (mesh_struct.is_skin() or mesh_object.parent_type ==
+                    'BONE' and mesh_object.parent_bone == mesh_object.name):
                 naming_error = True
                 context.error(
                     f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\' but is not configured properly!')

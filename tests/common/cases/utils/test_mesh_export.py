@@ -197,7 +197,8 @@ class TestMeshExportUtils(TestCase):
                 report_func.assert_any_call(
                     f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
 
-    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(self):
+    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(
+            self):
         coll = get_collection()
         mesh = get_mesh(name='armr')
         create_mesh(self, mesh, coll)
@@ -222,24 +223,24 @@ class TestMeshExportUtils(TestCase):
         coll = get_collection()
         mesh = get_mesh(name='armr', skin=True)
         mesh.vert_infs = [get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0),
-                    get_vertex_influence(4, -1, 1.0, 0.0)]
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0),
+                          get_vertex_influence(4, -1, 1.0, 0.0)]
         create_mesh(self, mesh, coll)
 
         mesh2 = get_mesh(name='arml', skin=True)
         mesh2.vert_infs = [get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0),
-                    get_vertex_influence(5, -1, 1.0, 0.0)]
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0),
+                           get_vertex_influence(5, -1, 1.0, 0.0)]
         create_mesh(self, mesh2, coll)
 
         hierarchy = get_hierarchy()
