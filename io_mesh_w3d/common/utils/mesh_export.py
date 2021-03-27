@@ -26,12 +26,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         if mesh_object.data.object_type != 'MESH':
             continue
 
-        if mesh_object.name in bone_names and mesh_object.parent_bone == '':
-            naming_error = True
-            context.error(
-                f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\'!')
-            continue
-
         if mesh_object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='OBJECT')
 
@@ -282,6 +276,14 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     header.attrs |= GEOMETRY_TYPE_CAMERA_ALIGNED
                     break
                 context.warning(f'mesh \'{mesh_object.name}\' constraint \'{constraint.name}\' is not supported!')
+
+        if mesh_object.name in bone_names:
+            if not (mesh_struct.is_skin() or mesh_object.parent_type == 'BONE' and mesh_object.parent_bone == mesh_object.name):
+                naming_error = True
+                context.error(
+                    f'mesh \'{mesh_object.name}\' has same name as bone \'{mesh_object.name}\' but is not configured properly!')
+                context.info('EITHER apply an armature modifier to it, create a vertex group with the same name as the mesh and do the weight painting OR set the armature as parent object and the identically named bone as parent bone.')
+                continue
 
         if mesh_struct.shader_materials:
             header.vert_channel_flags |= VERTEX_CHANNEL_TANGENT | VERTEX_CHANNEL_BITANGENT

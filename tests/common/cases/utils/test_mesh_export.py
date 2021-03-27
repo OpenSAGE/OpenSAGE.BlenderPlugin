@@ -14,6 +14,7 @@ from io_mesh_w3d.common.utils.mesh_import import *
 from io_mesh_w3d.common.utils.hierarchy_import import *
 from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
+from tests.common.helpers.hlod import *
 from tests.w3d.helpers.mesh_structs.vertex_material import *
 from tests.utils import *
 from io_mesh_w3d.common.structs.mesh_structs.triangle import surface_types
@@ -196,7 +197,7 @@ class TestMeshExportUtils(TestCase):
                 report_func.assert_any_call(
                     f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
 
-    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh(self):
+    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(self):
         coll = get_collection()
         mesh = get_mesh(name='armr')
         create_mesh(self, mesh, coll)
@@ -213,9 +214,47 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(2, report_func.call_count)
             report_func.assert_any_call(
-                f'mesh \'{mesh.header.mesh_name}\' has same name as bone \'armr\'!')
+                f'mesh \'{mesh.header.mesh_name}\' has same name as bone \'armr\' but is not configured properly!')
             report_func.assert_any_call(
-                f'mesh \'{mesh2.header.mesh_name}\' has same name as bone \'arml\'!')
+                f'mesh \'{mesh2.header.mesh_name}\' has same name as bone \'arml\' but is not configured properly!')
+
+    def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_and_mesh_is_skin(self):
+        coll = get_collection()
+        mesh = get_mesh(name='armr', skin=True)
+        mesh.vert_infs = [get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0),
+                    get_vertex_influence(4, -1, 1.0, 0.0)]
+        create_mesh(self, mesh, coll)
+
+        mesh2 = get_mesh(name='arml', skin=True)
+        mesh2.vert_infs = [get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0),
+                    get_vertex_influence(5, -1, 1.0, 0.0)]
+        create_mesh(self, mesh2, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        sub_obj = get_hlod_sub_object(bone=0, name='containerName.armr')
+        rig_mesh(mesh, hierarchy, rig, sub_obj)
+        sub_obj2 = get_hlod_sub_object(bone=0, name='containerName.arml')
+        rig_mesh(mesh2, hierarchy, rig, sub_obj2)
+
+        with (patch.object(self, 'error')) as report_func:
+            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+
+            self.assertEqual(2, len(mesh_structs))
+            self.assertEqual(0, report_func.call_count)
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         mesh = get_mesh('mesh')
