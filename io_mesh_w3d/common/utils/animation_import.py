@@ -22,6 +22,8 @@ def get_bone(rig, hierarchy, channel):
     if is_roottransform(channel):
         return rig
 
+    if channel.pivot >= len(hierarchy.pivots):
+        return None
     pivot = hierarchy.pivots[channel.pivot]
 
     if is_visibility(channel) and pivot.name in rig.data.bones:
@@ -52,9 +54,9 @@ def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         bone.visibility = value
         bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
-    else:
-        bone.hide_viewport = bool(value)
-        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
+    #else:
+    #    bone.hide_viewport = bool(value)
+    #    bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):
@@ -92,6 +94,8 @@ def apply_uncompressed(bone, channel):
 def process_channels(hierarchy, channels, rig, apply_func):
     for channel in channels:
         obj = get_bone(rig, hierarchy, channel)
+        if obj == None:
+            continue
 
         apply_func(obj, channel)
 
@@ -99,6 +103,8 @@ def process_channels(hierarchy, channels, rig, apply_func):
 def process_motion_channels(hierarchy, channels, rig):
     for channel in channels:
         obj = get_bone(rig, hierarchy, channel)
+        if obj == None:
+            continue
 
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
