@@ -337,6 +337,8 @@ class MotionChannel:
             num_time_codes=read_short(io_stream),
             pivot=read_short(io_stream))
 
+        print(result.type)
+
         if result.delta_type == 0:
             result.data = result.read_time_coded_data(io_stream)
         else:
