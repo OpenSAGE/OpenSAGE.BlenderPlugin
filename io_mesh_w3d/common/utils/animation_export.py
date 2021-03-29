@@ -8,6 +8,9 @@ from io_mesh_w3d.common.structs.animation import *
 from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 
+def is_translation(channel_type):
+    return channel_type in [CHANNEL_X, CHANNEL_Y, CHANNEL_Z]
+
 def is_rotation(fcu):
     return 'rotation_quaternion' in fcu.data_path
 
@@ -24,6 +27,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
+        print(fcu.data_path)
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
@@ -39,11 +43,15 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 pivot_index = i
 
         channel_type = fcu.array_index
+        print(channel_type)
         vec_len = 1
 
         if is_rotation(fcu):
-            channel_type = 6
+            channel_type = CHANNEL_Q 
             vec_len = 4
+
+        if is_visibility(fcu):
+            channel_type = CHANNEL_VIS
 
         if not (channel_type == 6 and fcu.array_index > 0):
             if timecoded:
@@ -61,9 +69,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 if is_visibility(fcu):
                     channel = AnimationBitChannel()
                 else:
-                    channel = AnimationChannel(
-                        vector_len=vec_len,
-                        type=channel_type)
+                    channel = AnimationChannel(vector_len=vec_len, type=channel_type)
 
                 channel.data = []
                 channel.pivot = pivot_index
@@ -77,43 +83,38 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
 
+
         if timecoded:
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
 
-                if channel_type < 6:
-                    channel.time_codes[i] = TimeCodedDatum(
-                        time_code=frame,
-                        value=val)
+                if is_visibility(fcu) or is_translation(channel_type):
+                    channel.time_codes[i] = TimeCodedDatum(time_code=frame, value=val)
                 else:
                     if channel.time_codes[i] is None:
-                        channel.time_codes[i] = TimeCodedDatum(
-                            time_code=frame,
-                            value=Quaternion())
+                        channel.time_codes[i] = TimeCodedDatum(time_code=frame, value=Quaternion())
                     channel.time_codes[i].value[fcu.array_index] = val
 
-            if fcu.array_index == 3:
-                for tc in channel.time_codes:
-                    tc.value.normalize()
+                if fcu.array_index == 3:
+                    channel.time_codes[i].value.normalize()
 
         else:
             for frame in range(channel.first_frame, channel.last_frame + 1):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
 
-                if is_visibility(fcu) or channel_type < 6:
+                if is_visibility(fcu) or is_translation(channel_type):
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
                         channel.data[i] = Quaternion()
                     channel.data[i][fcu.array_index] = val
 
-            if fcu.array_index == 3:
-                for datum in channel.data:
-                    datum.normalize()
+                if fcu.array_index == 3:
+                    channel.data[i].normalize()
 
-        if channel_type < 6 or fcu.array_index == 3 or is_visibility(fcu):
+        if is_translation(channel_type) or fcu.array_index == 3 or is_visibility(fcu):
             channels.append(channel)
     return channels
 
