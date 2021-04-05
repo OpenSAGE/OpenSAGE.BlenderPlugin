@@ -18,11 +18,14 @@ def is_visibility(channel):
     return isinstance(channel, AnimationBitChannel) or channel.type == CHANNEL_VIS
 
 
-def get_bone(rig, hierarchy, channel):
+def get_bone(context, rig, hierarchy, channel):
     if is_roottransform(channel):
+        if is_visibility(channel):
+            context.warning(f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
         return rig
 
     if channel.pivot >= len(hierarchy.pivots):
+        context.warning(f'animation channel for bone with ID \'{channel.pivot}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
         return None
     pivot = hierarchy.pivots[channel.pivot]
 
@@ -54,9 +57,9 @@ def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         bone.visibility = value
         bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
-    #else:
-    #    bone.hide_viewport = bool(value)
-    #    bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
+    else:
+        bone.hide_viewport = bool(value)
+        bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
 def set_keyframe(bone, channel, frame, value):
@@ -91,18 +94,18 @@ def apply_uncompressed(bone, channel):
         set_keyframe(bone, channel, frame, data)
 
 
-def process_channels(hierarchy, channels, rig, apply_func):
+def process_channels(context, hierarchy, channels, rig, apply_func):
     for channel in channels:
-        obj = get_bone(rig, hierarchy, channel)
+        obj = get_bone(context, rig, hierarchy, channel)
         if obj == None:
             continue
 
         apply_func(obj, channel)
 
 
-def process_motion_channels(hierarchy, channels, rig):
+def process_motion_channels(context, hierarchy, channels, rig):
     for channel in channels:
-        obj = get_bone(rig, hierarchy, channel)
+        obj = get_bone(context, rig, hierarchy, channel)
         if obj == None:
             continue
 
@@ -112,17 +115,17 @@ def process_motion_channels(hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(rig, animation, hierarchy, compressed=False):
+def create_animation(context, rig, animation, hierarchy, compressed=False):
     if animation is None:
         return
 
     setup_animation(animation)
 
     if not compressed:
-        process_channels(hierarchy, animation.channels, rig, apply_uncompressed)
+        process_channels(context, hierarchy, animation.channels, rig, apply_uncompressed)
     else:
-        process_channels(hierarchy, animation.time_coded_channels, rig, apply_timecoded)
-        process_channels(hierarchy, animation.adaptive_delta_channels, rig, apply_adaptive_delta)
-        process_motion_channels(hierarchy, animation.motion_channels, rig)
+        process_channels(context, hierarchy, animation.time_coded_channels, rig, apply_timecoded)
+        process_channels(context, hierarchy, animation.adaptive_delta_channels, rig, apply_adaptive_delta)
+        process_motion_channels(context, hierarchy, animation.motion_channels, rig)
 
     bpy.context.scene.frame_set(0)
