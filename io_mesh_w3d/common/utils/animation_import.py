@@ -4,6 +4,7 @@
 import bpy
 from io_mesh_w3d.w3d.adaptive_delta import decode
 from io_mesh_w3d.common.structs.animation import *
+from io_mesh_w3d.w3d.structs.compressed_animation import *
 
 
 def is_roottransform(channel):
@@ -115,17 +116,17 @@ def process_motion_channels(context, hierarchy, channels, rig):
             apply_adaptive_delta(obj, channel)
 
 
-def create_animation(context, rig, animation, hierarchy, compressed=False):
+def create_animation(context, rig, animation, hierarchy):
     if animation is None:
         return
 
     setup_animation(animation)
 
-    if not compressed:
-        process_channels(context, hierarchy, animation.channels, rig, apply_uncompressed)
-    else:
+    if isinstance(animation, CompressedAnimation):
         process_channels(context, hierarchy, animation.time_coded_channels, rig, apply_timecoded)
         process_channels(context, hierarchy, animation.adaptive_delta_channels, rig, apply_adaptive_delta)
         process_motion_channels(context, hierarchy, animation.motion_channels, rig)
+    else:
+        process_channels(context, hierarchy, animation.channels, rig, apply_uncompressed)
 
     bpy.context.scene.frame_set(0)

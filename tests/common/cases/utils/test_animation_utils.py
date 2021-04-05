@@ -11,6 +11,7 @@ from io_mesh_w3d.common.utils.animation_export import *
 from tests.common.helpers.mesh import *
 from tests.common.helpers.hierarchy import *
 from tests.common.helpers.animation import *
+from tests.w3d.helpers.compressed_animation import *
 from tests.utils import *
 
 
@@ -35,6 +36,22 @@ class TestAnimationUtils(TestCase):
         animation = get_animation()
 
         animation.channels = [get_animation_channel(type=CHANNEL_VIS, pivot=len(hierarchy.pivots))]
+
+        rig = get_or_create_skeleton(hierarchy, get_collection())
+
+        with (patch.object(self, 'warning')) as warning_func:
+            create_animation(self, rig, animation, hierarchy)
+            warning_func.assert_called_with(f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
+
+        ani = retrieve_animation(self, 'ani_name', hierarchy, rig, False)
+
+        self.assertEqual(0, len(ani.channels))
+
+    def test_user_is_notified_if_animation_contains_channels_for_nonexisting_bones_compressed(self):
+        hierarchy = get_hierarchy()
+        animation = get_compressed_animation_empty()
+
+        animation.motion_channels = [get_motion_channel(0, 0, 22, pivot=len(hierarchy.pivots))]
 
         rig = get_or_create_skeleton(hierarchy, get_collection())
 
