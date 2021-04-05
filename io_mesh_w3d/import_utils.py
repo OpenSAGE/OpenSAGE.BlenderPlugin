@@ -57,4 +57,4 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
             create_mesh(context, mesh, collection)
 
     create_animation(context, rig, animation, hierarchy)
-    create_animation(context, rig, compressed_animation, hierarchy, compressed=True)
+    create_animation(context, rig, compressed_animation, hierarchy)

@@ -273,12 +273,12 @@ def compare_adaptive_delta_motion_animation_channels(
     compare_adaptive_delta_datas(self, expected.data, actual.data, type)
 
 
-def get_motion_channel(type, delta_type, num_time_codes=55):
+def get_motion_channel(type, delta_type, num_time_codes=55, pivot=3):
     channel = MotionChannel(
         delta_type=delta_type,
         type=type,
         num_time_codes=num_time_codes,
-        pivot=3,
+        pivot=pivot,
         data=[])
 
     if type == 6:
