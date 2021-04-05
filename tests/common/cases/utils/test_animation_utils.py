@@ -30,6 +30,22 @@ class TestAnimationUtils(TestCase):
 
             warning_func.assert_called_with('Mesh \'mesh\' is animated, animate its parent bone instead!')
 
+    def test_user_is_notified_if_animation_contains_channels_for_nonexisting_bones(self):
+        hierarchy = get_hierarchy()
+        animation = get_animation()
+
+        animation.channels = [get_animation_channel(type=CHANNEL_VIS, pivot=len(hierarchy.pivots))]
+
+        rig = get_or_create_skeleton(hierarchy, get_collection())
+
+        with (patch.object(self, 'warning')) as warning_func:
+            create_animation(self, rig, animation, hierarchy)
+            warning_func.assert_called_with(f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
+
+        ani = retrieve_animation(self, 'ani_name', hierarchy, rig, False)
+
+        self.assertEqual(0, len(ani.channels))
+
     def test_retrieve_channels_uncompressed_only_one_frame(self):
         bpy.context.scene.frame_end = 2
         bpy.context.scene.frame_end = 10
@@ -45,7 +61,7 @@ class TestAnimationUtils(TestCase):
         self.assertEqual(1, ani.channels[0].first_frame)
         self.assertEqual(10, ani.channels[0].last_frame)
 
-    def test_roottransform_visibility_channel_import(self):
+    def test_roottransform_visibility_channel_roundtrip(self):
         hierarchy = get_hierarchy()
         animation = get_animation()
 
@@ -53,7 +69,9 @@ class TestAnimationUtils(TestCase):
 
         rig = get_or_create_skeleton(hierarchy, get_collection())
 
-        create_animation(rig, animation, hierarchy)
+        with (patch.object(self, 'warning')) as warning_func:
+            create_animation(self, rig, animation, hierarchy)
+            warning_func.assert_called_with(f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
 
         ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=False)
 

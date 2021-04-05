@@ -27,7 +27,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     channels = []
 
     for fcu in obj.animation_data.action.fcurves:
-        print(fcu.data_path)
         if name is None:
             values = fcu.data_path.split('"')
             if len(values) == 1:
@@ -43,7 +42,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 pivot_index = i
 
         channel_type = fcu.array_index
-        print(channel_type)
         vec_len = 1
 
         if is_rotation(fcu):
