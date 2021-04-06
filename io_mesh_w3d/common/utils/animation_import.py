@@ -22,11 +22,13 @@ def is_visibility(channel):
 def get_bone(context, rig, hierarchy, channel):
     if is_roottransform(channel):
         if is_visibility(channel):
-            context.warning(f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
+            context.warning(
+                f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
         return rig
 
     if channel.pivot >= len(hierarchy.pivots):
-        context.warning(f'animation channel for bone with ID \'{channel.pivot}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
+        context.warning(
+            f'animation channel for bone with ID \'{channel.pivot}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
         return None
     pivot = hierarchy.pivots[channel.pivot]
 
@@ -98,7 +100,7 @@ def apply_uncompressed(bone, channel):
 def process_channels(context, hierarchy, channels, rig, apply_func):
     for channel in channels:
         obj = get_bone(context, rig, hierarchy, channel)
-        if obj == None:
+        if obj is None:
             continue
 
         apply_func(obj, channel)
@@ -107,7 +109,7 @@ def process_channels(context, hierarchy, channels, rig, apply_func):
 def process_motion_channels(context, hierarchy, channels, rig):
     for channel in channels:
         obj = get_bone(context, rig, hierarchy, channel)
-        if obj == None:
+        if obj is None:
             continue
 
         if channel.delta_type == 0:

@@ -11,6 +11,7 @@ from io_mesh_w3d.w3d.structs.compressed_animation import *
 def is_translation(channel_type):
     return channel_type in [CHANNEL_X, CHANNEL_Y, CHANNEL_Z]
 
+
 def is_rotation(fcu):
     return 'rotation_quaternion' in fcu.data_path
 
@@ -45,7 +46,7 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
         vec_len = 1
 
         if is_rotation(fcu):
-            channel_type = CHANNEL_Q 
+            channel_type = CHANNEL_Q
             vec_len = 4
 
         if is_visibility(fcu):
@@ -80,7 +81,6 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                     channel.last_frame = int(range_[1])
                 num_frames = channel.last_frame + 1 - channel.first_frame
                 channel.data = [None] * num_frames
-
 
         if timecoded:
             for i, keyframe in enumerate(fcu.keyframe_points):
