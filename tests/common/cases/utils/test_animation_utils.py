@@ -41,7 +41,8 @@ class TestAnimationUtils(TestCase):
 
         with (patch.object(self, 'warning')) as warning_func:
             create_animation(self, rig, animation, hierarchy)
-            warning_func.assert_called_with(f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
+            warning_func.assert_called_with(
+                f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
 
         ani = retrieve_animation(self, 'ani_name', hierarchy, rig, False)
 
@@ -57,7 +58,8 @@ class TestAnimationUtils(TestCase):
 
         with (patch.object(self, 'warning')) as warning_func:
             create_animation(self, rig, animation, hierarchy)
-            warning_func.assert_called_with(f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
+            warning_func.assert_called_with(
+                f'animation channel for bone with ID \'{len(hierarchy.pivots)}\' is invalid -> armature has only {len(hierarchy.pivots)} bones!')
 
         ani = retrieve_animation(self, 'ani_name', hierarchy, rig, False)
 
@@ -88,7 +90,8 @@ class TestAnimationUtils(TestCase):
 
         with (patch.object(self, 'warning')) as warning_func:
             create_animation(self, rig, animation, hierarchy)
-            warning_func.assert_called_with(f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
+            warning_func.assert_called_with(
+                f'armature \'{hierarchy.name()}\' might have been hidden due to visibility animation channels!')
 
         ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=False)
 
