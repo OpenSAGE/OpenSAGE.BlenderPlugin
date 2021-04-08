@@ -27,6 +27,8 @@ import traceback
 import bpy
 from bpy.app.handlers import persistent
 
+_package = "io_mesh_w3d"
+
 # updater import, import safely
 # Prevents popups for users with invalid python installs e.g. missing libraries
 try:
@@ -96,9 +98,9 @@ def get_user_preferences(context=None):
 		context = bpy.context
 	prefs = None
 	if hasattr(context, "user_preferences"):
-		prefs = context.user_preferences.addons.get(__package__, None)
+		prefs = context.user_preferences.addons.get(_package, None)
 	elif hasattr(context, "preferences"):
-		prefs = context.preferences.addons.get(__package__, None)
+		prefs = context.preferences.addons.get(_package, None)
 	if prefs:
 		return prefs.preferences
 	# To make the addon stable and non-exception prone, return None
@@ -237,7 +239,7 @@ class addon_updater_check_now(bpy.types.Operator):
 		if not settings:
 			if updater.verbose:
 				print("Could not get {} preferences, update check skipped".format(
-					__package__))
+					_package))
 			return {'CANCELLED'}
 		updater.set_check_interval(enable=settings.auto_check_update,
 					months=settings.updater_intrval_months,
@@ -803,7 +805,7 @@ def check_for_update_nonthreaded(self, context):
 	if not settings:
 		if updater.verbose:
 			print("Could not get {} preferences, update check skipped".format(
-				__package__))
+				_package))
 		return
 	updater.set_check_interval(enable=settings.auto_check_update,
 				months=settings.updater_intrval_months,
@@ -1369,7 +1371,7 @@ def register(bl_info):
 	# Needs to be within the same folder as the addon itself
 	# Need to supply a full, absolute path to folder
 	# updater.updater_path = # set path of updater folder, by default:
-	#			/addons/{__package__}/{__package__}_updater
+	#			/addons/{_package}/{_package}_updater
 
 	# auto create a backup of the addon when installing other versions
 	updater.backup_current = True # True by default

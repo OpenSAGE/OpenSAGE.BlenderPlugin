@@ -509,7 +509,7 @@ class DemoPreferences(bpy.types.AddonPreferences):
 		# placed within an existing draw function. Only contains:
 		#   1) check for update/update now buttons
 		#   2) toggle for auto-check (interval will be equal to what is set above)
-		# addon_updater_ops.update_settings_ui_condensed(self, context, col)
+		#addon_updater_ops.update_settings_ui_condensed(self, context, col)
 
 		# Adding another column to help show the above condensed ui as one column
 		# col = mainrow.column()
