@@ -93,7 +93,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     vert_inf.bone_inf = 1.0
 
                 if abs(vert_inf.bone_inf + vert_inf.xtra_inf - 1.0) > 0.1:
-                    context.warning(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f})')
+                    context.warning(
+                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f})')
                     vert_inf.bone_inf = 1.0 - vert_inf.xtra_inf
 
                 mesh_struct.vert_infs.append(vert_inf)
@@ -105,7 +106,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 if len(vertex.groups) > 2:
                     overskinned_vertices_error = True
-                    context.error(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})!')
+                    context.error(
+                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})!')
 
             elif is_skinned:
                 unskinned_vertices_error = True
