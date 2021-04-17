@@ -105,11 +105,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 if len(vertex.groups) > 2:
                     overskinned_vertices_error = True
-                    context.error(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
+                    context.error(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})!')
 
             elif is_skinned:
                 unskinned_vertices_error = True
-                context.error(f'mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
+                context.error(f'skinned mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
 
             vertex.co.x *= scale.x
             vertex.co.y *= scale.y
