@@ -170,7 +170,7 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
-                report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
+                report_func.assert_any_call(f'skinned mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
 
     def test_retrieve_meshes_with_vertices_rigged_to_too_many_bones(self):
         coll = get_collection()
@@ -195,7 +195,7 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
                 report_func.assert_any_call(
-                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
+                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones (3)!')
 
     def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(
             self):
