@@ -170,7 +170,8 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
-                report_func.assert_any_call(f'skinned mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
+                report_func.assert_any_call(
+                    f'skinned mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
 
     def test_retrieve_meshes_with_vertices_rigged_to_too_many_bones(self):
         coll = get_collection()
