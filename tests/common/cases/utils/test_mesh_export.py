@@ -142,7 +142,7 @@ class TestMeshExportUtils(TestCase):
                 for i, vertex in enumerate(mesh_object.data.vertices):
                     if vertex.groups and len(vertex.groups) > 1:
                         report_func.assert_any_call(
-                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%!')
+                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! (0.40, 0.40)')
 
             for mesh in mesh_structs:
                 for inf in mesh.vert_infs:
@@ -624,11 +624,11 @@ class TestMeshExportUtils(TestCase):
         create_mesh(self, mesh, get_collection())
 
         mesh = bpy.data.objects['mesh'].data
-        mesh.vertex_colors.new(name='Invalid')
+        mesh.vertex_colors.new(name='invalid')
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_any_call('invalid vertex color layer name \'Invalid\'')
+            report_func.assert_any_call('vertex color layer name \'invalid\' is not one of [DCG, DIG, SCG]')
 
         self.assertEqual(0, len(meshes[0].material_passes[0].dcg))
         self.assertEqual(0, len(meshes[0].material_passes[0].dig))

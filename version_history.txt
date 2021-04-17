@@ -1,4 +1,6 @@
 v0.6.6
+- display valid vertex color layer names if layer name is invalid
+- display actual bone weights if they do not add up to 100%
 - inform user on animation import that armature might have been hidden due to visibility channels
 - do not crash on animation import if channels reference non existing bones but inform user instead
 
