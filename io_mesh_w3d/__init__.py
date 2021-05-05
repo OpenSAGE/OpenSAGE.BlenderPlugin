@@ -8,6 +8,7 @@ from io_mesh_w3d.utils import ReportHelper
 from io_mesh_w3d.export_utils import save_data
 from io_mesh_w3d.custom_properties import *
 from io_mesh_w3d.geometry_export import *
+from io_mesh_w3d.bone_volume_export import *
 
 VERSION = (0, 6, 6)
 
@@ -254,6 +255,13 @@ class MESH_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mesh, 'geometry_type')
             col = layout.column()
             col.prop(mesh, 'contact_points_type')
+        elif mesh.object_type == 'BONE_VOLUME':
+            col = layout.column()
+            col.prop(mesh, 'mass')
+            col = layout.column()
+            col.prop(mesh, 'spinniness')
+            col = layout.column()
+            col.prop(mesh, 'contact_tag')
 
 
 class BONE_PROPERTIES_PANEL_PT_w3d(Panel):
@@ -410,6 +418,7 @@ class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
 
     def draw(self, context):
         self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
+        self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
 
 
 CLASSES = (
@@ -420,6 +429,7 @@ CLASSES = (
     BONE_PROPERTIES_PANEL_PT_w3d,
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
+    ExportBoneVolumeData,
     TOOLS_PANEL_PT_w3d
 )
 

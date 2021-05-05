@@ -39,7 +39,8 @@ Mesh.object_type = EnumProperty(
         ('MESH', 'Mesh', 'desc: just a normal mesh'),
         ('BOX', 'Box', 'desc: this object defines a boundingbox'),
         ('DAZZLE', 'Dazzle', 'desc: todo'),
-        ('GEOMETRY', 'Geometry', 'desc: defines a geometry object')],
+        ('GEOMETRY', 'Geometry', 'desc: defines a geometry object'),
+        ('BONE_VOLUME', 'Bone Volume', 'desc: defines a bone volume object')],
     default='MESH')
 
 Mesh.dazzle_type = EnumProperty(
@@ -100,6 +101,26 @@ Mesh.box_collision_types = EnumProperty(
         ('VEHICLE', 'Vehicle', 'desc: vehicles collide with this mesh', 0x100)],
     default=set(),
     options={'ENUM_FLAG'})
+
+Mesh.mass = IntProperty(
+    name='Mass',
+    description='The mass of this bone volume.',
+    default=1,
+    min=0,
+    max=99999)
+
+Mesh.spinniness = FloatProperty(
+    name='Spinniness',
+    default=0.0,
+    min=0.0, max=100.0,
+    description='Spinniness of this bone volume.')
+
+Mesh.contact_tag = EnumProperty(
+    name='Contact Tag',
+    description='defines the contact tag type of this bone volume.',
+    items=[
+        ('DEBRIS', 'debris', 'desc: debris contact tag')],
+    default='DEBRIS')
 
 
 ##########################################################################
