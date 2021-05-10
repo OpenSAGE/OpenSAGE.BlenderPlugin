@@ -7,6 +7,7 @@ from bpy_extras.io_utils import ExportHelper
 from io_mesh_w3d.w3x.io_xml import *
 from io_mesh_w3d.common.utils.helpers import *
 
+
 def format_str(value):
     return '{:.3f}'.format(value)
 
@@ -54,5 +55,3 @@ def export_bone_volume_data(context, filepath):
 
     write(root, filepath)
     context.info('exporting bone volume data finished')
-
-

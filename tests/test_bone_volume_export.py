@@ -29,7 +29,9 @@ class TestBoneVolumeExport(TestCase):
                 xmlFile.readline())
             self.assertEqual('    <Box HalfSizeX="0.500" HalfSizeY="0.500" HalfSizeZ="0.500">\n', xmlFile.readline())
             self.assertEqual('      <Translation X="0.000000" Y="0.000000" Z="0.000000" />\n', xmlFile.readline())
-            self.assertEqual('      <Rotation W="1.000000" X="0.000000" Y="0.000000" Z="0.000000" />\n', xmlFile.readline())
+            self.assertEqual(
+                '      <Rotation W="1.000000" X="0.000000" Y="0.000000" Z="0.000000" />\n',
+                xmlFile.readline())
             self.assertEqual('    </Box>\n', xmlFile.readline())
             self.assertEqual('  </BoneVolume>\n', xmlFile.readline())
             self.assertEqual(
@@ -37,10 +39,12 @@ class TestBoneVolumeExport(TestCase):
                 xmlFile.readline())
             self.assertEqual('    <Box HalfSizeX="0.500" HalfSizeY="0.500" HalfSizeZ="0.500">\n', xmlFile.readline())
             self.assertEqual('      <Translation X="22.332001" Y="2.110000" Z="-5.000000" />\n', xmlFile.readline())
-            self.assertEqual('      <Rotation W="1.000000" X="0.000000" Y="0.000000" Z="0.000000" />\n', xmlFile.readline())
+            self.assertEqual(
+                '      <Rotation W="1.000000" X="0.000000" Y="0.000000" Z="0.000000" />\n',
+                xmlFile.readline())
             self.assertEqual('    </Box>\n', xmlFile.readline())
             self.assertEqual('  </BoneVolume>\n',
-                xmlFile.readline())
+                             xmlFile.readline())
             self.assertEqual('</BoneVolumes>\n', xmlFile.readline())
 
             xmlFile.close()
