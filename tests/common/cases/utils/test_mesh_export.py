@@ -142,7 +142,7 @@ class TestMeshExportUtils(TestCase):
                 for i, vertex in enumerate(mesh_object.data.vertices):
                     if vertex.groups and len(vertex.groups) > 1:
                         report_func.assert_any_call(
-                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%!')
+                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! (0.40, 0.40)')
 
             for mesh in mesh_structs:
                 for inf in mesh.vert_infs:
@@ -170,7 +170,8 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
-                report_func.assert_any_call(f'mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
+                report_func.assert_any_call(
+                    f'skinned mesh \'{mesh.header.mesh_name}\' vertex {i} is not rigged to any bone!')
 
     def test_retrieve_meshes_with_vertices_rigged_to_too_many_bones(self):
         coll = get_collection()
@@ -195,7 +196,7 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
                 report_func.assert_any_call(
-                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones!')
+                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones (3)!')
 
     def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(
             self):
@@ -624,11 +625,11 @@ class TestMeshExportUtils(TestCase):
         create_mesh(self, mesh, get_collection())
 
         mesh = bpy.data.objects['mesh'].data
-        mesh.vertex_colors.new(name='Invalid')
+        mesh.vertex_colors.new(name='invalid')
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_any_call('invalid vertex color layer name \'Invalid\'')
+            report_func.assert_any_call('vertex color layer name \'invalid\' is not one of [DCG, DIG, SCG]')
 
         self.assertEqual(0, len(meshes[0].material_passes[0].dcg))
         self.assertEqual(0, len(meshes[0].material_passes[0].dig))

@@ -93,7 +93,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     vert_inf.bone_inf = 1.0
 
                 if abs(vert_inf.bone_inf + vert_inf.xtra_inf - 1.0) > 0.1:
-                    context.warning(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%!')
+                    context.warning(
+                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f})')
                     vert_inf.bone_inf = 1.0 - vert_inf.xtra_inf
 
                 mesh_struct.vert_infs.append(vert_inf)
@@ -105,11 +106,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 if len(vertex.groups) > 2:
                     overskinned_vertices_error = True
-                    context.error(f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones!')
+                    context.error(
+                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})!')
 
             elif is_skinned:
                 unskinned_vertices_error = True
-                context.error(f'mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
+                context.error(f'skinned mesh \'{mesh_object.name}\' vertex {i} is not rigged to any bone!')
 
             vertex.co.x *= scale.x
             vertex.co.y *= scale.y
@@ -247,7 +249,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             elif 'SCG' in layer.name:
                 target = mesh_struct.material_passes[index].scg
             else:
-                context.warning(f'invalid vertex color layer name \'{layer.name}\'')
+                context.warning(f'vertex color layer name \'{layer.name}\' is not one of [DCG, DIG, SCG]')
                 continue
 
             target = [RGBA] * len(mesh.vertices)
