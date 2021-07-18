@@ -4,7 +4,11 @@
 from io_mesh_w3d.w3d.structs.version import Version
 from io_mesh_w3d.w3d.utils.helpers import *
 
+W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
+W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL = 0x00000282
+W3D_CHUNK_COMPRESSED_BIT_CHANNEL = 0x00000283
+W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL = 0x00000284
 
 TIME_CODED_FLAVOR = 0
 ADAPTIVE_DELTA_FLAVOR = 1
@@ -190,9 +194,7 @@ class AdaptiveDeltaAnimationChannel:
             vector_len=read_ubyte(io_stream),
             type=read_ubyte(io_stream),
             scale=read_short(io_stream))
-
         result.data = AdaptiveDeltaData.read(io_stream, result, 4)
-        read_padding(io_stream, 3)
         return result
 
     def size(self, include_head=True):
@@ -370,12 +372,6 @@ class MotionChannel:
             self.data.write(io_stream, self.type)
 
 
-W3D_CHUNK_COMPRESSED_ANIMATION = 0x00000280
-W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL = 0x00000282
-W3D_CHUNK_COMPRESSED_BIT_CHANNEL = 0x00000283
-W3D_CHUNK_COMPRESSED_ANIMATION_MOTION_CHANNEL = 0x00000284
-
-
 class CompressedAnimation:
     def __init__(self, header=None, time_coded_channels=None, adaptive_delta_channels=None,
                  time_coded_bit_channels=None, motion_channels=None):
@@ -407,13 +403,21 @@ class CompressedAnimation:
 
         while io_stream.tell() < chunk_end:
             chunk_type, chunk_size, _ = read_chunk_head(io_stream)
+            start_position = io_stream.tell()
+            print('#####')
+            print(start_position)
+            print(start_position + chunk_size)
             if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
+                print(result.header.flavor)
                 if result.header.flavor == TIME_CODED_FLAVOR:
                     result.time_coded_channels.append(TimeCodedAnimationChannel.read(io_stream))
                 elif result.header.flavor == ADAPTIVE_DELTA_FLAVOR:
                     result.adaptive_delta_channels.append(AdaptiveDeltaAnimationChannel.read(io_stream))
+                    print(io_stream.tell() - (start_position + chunk_size))
+                    while io_stream.tell() < (start_position + chunk_size):
+                        read_byte(io_stream)
                 else:
                     skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
             elif chunk_type == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
@@ -422,6 +426,9 @@ class CompressedAnimation:
                 result.motion_channels.append(MotionChannel.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
+
+            if start_position + chunk_size != io_stream.tell():
+                raise Exception('fucked up!')
         return result
 
     def size(self):
