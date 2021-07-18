@@ -69,6 +69,7 @@ def set_keyframe(bone, channel, frame, value):
     if is_visibility(channel):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
+        print(f'translation : {value}')
         set_translation(bone, channel.type, frame, value)
     else:
         set_rotation(bone, frame, value)
@@ -86,7 +87,9 @@ def apply_motion_channel_time_coded(bone, channel):
 
 def apply_adaptive_delta(bone, channel):
     data = decode(channel)
+    print(f'apply channel {channel}')
     for i in range(channel.num_time_codes):
+        print(data[i])
         set_keyframe(bone, channel, i, data[i])
 
 
