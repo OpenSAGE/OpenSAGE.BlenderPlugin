@@ -71,19 +71,16 @@ def set_deltas(bytes, num_bits):
 
 
 def decode(channel):
-    data = channel.data.data
-    scale = channel.data.scale
-
     scale_factor = 1.0
-    if data.bit_count == 8:
+    if channel.data.bit_count == 8:
         scale_factor /= 16.0
 
     result = [None] * channel.num_time_codes
-    result[0] = data.initial_value
+    result[0] = channel.data.initial_value
 
-    for i, delta_block in enumerate(data.delta_blocks):
-        delta_scale = scale * scale_factor * DELTA_TABLE[delta_block.block_index]
-        deltas = get_deltas(delta_block.delta_bytes, data.bit_count)
+    for i, delta_block in enumerate(channel.data.delta_blocks):
+        delta_scale = channel.scale * scale_factor * DELTA_TABLE[delta_block.block_index]
+        deltas = get_deltas(delta_block.delta_bytes, channel.data.bit_count)
 
         for j, delta in enumerate(deltas):
             idx = int(i / channel.vector_len) * 16 + j + 1
