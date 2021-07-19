@@ -225,7 +225,7 @@ def get_adaptive_delta_animation_channel(type, num_bits=4):
     channel = AdaptiveDeltaAnimationChannel(
         pivot=3,
         type=type,
-        scale=2,
+        scale=3.14,
         num_time_codes=5,
         data=None)
 
@@ -253,7 +253,7 @@ def compare_adaptive_delta_animation_channels(self, expected, actual):
     self.assertEqual(expected.pivot, actual.pivot)
     self.assertEqual(expected.vector_len, actual.vector_len)
     self.assertEqual(expected.type, actual.type)
-    self.assertEqual(expected.scale, actual.scale)
+    self.assertAlmostEqual(expected.scale, actual.scale, 5)
     self.assertEqual(expected.num_time_codes, actual.num_time_codes)
     compare_adaptive_delta_datas(
         self, expected.data, actual.data, expected.type)

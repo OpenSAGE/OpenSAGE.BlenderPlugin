@@ -36,11 +36,21 @@ class TestAdaptiveDelta(TestCase):
 
         self.assertEqual(expected, actual)
 
-    def test_decode(self):
+    def test_decode_channel_ad(self):
+        channel = get_adaptive_delta_animation_channel(type=0)
+        expected = [4.3611, 15.5264, 29.4832, 49.0226, 68.5621]
+
+        actual = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.scale, channel.data)
+
+        self.assertEqual(len(expected), len(actual))
+        for i, value in enumerate(expected):
+            self.assertAlmostEqual(value, actual[i], 3)
+
+    def test_decode_motion_channel_ad(self):
         channel = get_motion_channel(type=0, delta_type=1, num_time_codes=5)
         expected = [4.3611, 4.6254, 4.9559, 5.4186, 5.8812]
 
-        actual = decode(channel)
+        actual = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.data.scale, channel.data.data)
 
         self.assertEqual(len(expected), len(actual))
         for i, value in enumerate(expected):

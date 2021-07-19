@@ -5,6 +5,7 @@ v0.6.6
 - do not crash on animation import if channels reference non existing bones but inform user instead
 - inform user on export if a mesh has no vertices and skip it
 - Bugfix: do not crash if mesh has more shader structs than vertex materials
+- Bugfix: read scale as float instead of short in 'AdaptiveDeltaAnimationChannel'
 
 v0.6.5 (26.3.21)
 - cancel export if a mesh and a bone share the same name and mesh is not configured properly

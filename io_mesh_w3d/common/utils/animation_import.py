@@ -69,7 +69,6 @@ def set_keyframe(bone, channel, frame, value):
     if is_visibility(channel):
         set_visibility(bone, frame, value)
     elif is_translation(channel):
-        print(f'translation : {value}')
         set_translation(bone, channel.type, frame, value)
     else:
         set_rotation(bone, frame, value)
@@ -81,15 +80,19 @@ def apply_timecoded(bone, channel):
 
 
 def apply_motion_channel_time_coded(bone, channel):
-    for dat in channel.data:
-        set_keyframe(bone, channel, dat.time_code, dat.value)
+    for datum in channel.data:
+        set_keyframe(bone, channel, datum.time_code, datum.value)
+
+
+def apply_motion_channel_adaptive_delta(bone, channel):
+    data = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.data.scale, channel.data.data)
+    for i in range(channel.num_time_codes):
+        set_keyframe(bone, channel, i, data[i])
 
 
 def apply_adaptive_delta(bone, channel):
-    data = decode(channel)
-    print(f'apply channel {channel}')
+    data = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.scale, channel.data)
     for i in range(channel.num_time_codes):
-        print(data[i])
         set_keyframe(bone, channel, i, data[i])
 
 
@@ -118,7 +121,7 @@ def process_motion_channels(context, hierarchy, channels, rig):
         if channel.delta_type == 0:
             apply_motion_channel_time_coded(obj, channel)
         else:
-            apply_adaptive_delta(obj, channel)
+            apply_motion_channel_adaptive_delta(obj, channel)
 
 
 def create_animation(context, rig, animation, hierarchy):

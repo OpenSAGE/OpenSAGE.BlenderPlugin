@@ -27,7 +27,7 @@ class TestCompressedAnimation(TestCase):
     def test_write_read_adaptive_delta(self):
         expected = get_compressed_animation(flavor=1)
 
-        self.assertEqual(3631, expected.size())
+        self.assertEqual(3639, expected.size())
 
         io_stream = io.BytesIO()
         expected.write(io_stream)
@@ -108,8 +108,8 @@ class TestCompressedAnimation(TestCase):
         self.assertEqual(44, ani.header.size(False))
 
         self.assertEqual(24, list_size(ani.time_coded_channels, False))
-        self.assertEqual(34, list_size(ani.adaptive_delta_channels, False))
+        self.assertEqual(36, list_size(ani.adaptive_delta_channels, False))
         self.assertEqual(20, list_size(ani.time_coded_bit_channels, False))
         self.assertEqual(24, list_size(ani.motion_channels, False))
 
-        self.assertEqual(154, ani.size())
+        self.assertEqual(156, ani.size())
