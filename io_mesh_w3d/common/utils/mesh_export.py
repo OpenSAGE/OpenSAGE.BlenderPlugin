@@ -51,6 +51,10 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         mesh = mesh_object.data
         b_mesh = prepare_bmesh(context, mesh)
 
+        if len(mesh.vertices) == 0:
+            context.warning(f'mesh \'{mesh.name}\' did not have a single vertex!')
+            continue
+
         center, radius = calculate_mesh_sphere(mesh)
         header.sph_center = center
         header.sph_radius = radius

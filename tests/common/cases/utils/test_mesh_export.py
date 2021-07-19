@@ -258,7 +258,7 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(2, len(mesh_structs))
             self.assertEqual(0, report_func.call_count)
 
-    def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
+    def test_material_pass_does_not_contain_texture_stages_if_no_texture_is_applied(self):
         mesh = get_mesh('mesh')
         mesh.textures = []
         mesh.material_passes[0].tx_stages = []
@@ -266,9 +266,24 @@ class TestMeshExportUtils(TestCase):
         create_mesh(self, mesh, get_collection())
 
         mesh_structs, textures = retrieve_meshes(self, None, None, 'container_name')
+
         self.assertEqual(0, len(mesh_structs[0].material_passes[0].tx_stages))
 
-    def test_material_pass_does_not_contain_texture_stages_if_no_texture_is_applied(self):
+    def test_user_is_notified_if_a_mesh_does_not_have_any_vertices(self):
+        mesh = bpy.data.meshes.new('mesh')
+        mesh.from_pydata([], [], [])
+        mesh.object_type = 'MESH'
+
+        mesh_ob = bpy.data.objects.new('mesh', mesh)
+
+        get_collection().objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+
+        with patch.object(self, 'warning') as report_func:
+            mesh_structs, _ = retrieve_meshes(self, None, None, 'container_name')
+            report_func.assert_called_with('mesh \'mesh\' did not have a single vertex!')
+
+    def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         create_mesh(self, get_mesh('mesh'), get_collection())
 
         mesh = bpy.data.objects['mesh']

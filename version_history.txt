@@ -3,6 +3,7 @@ v0.6.6
 - display actual bone weights if they do not add up to 100%
 - inform user on animation import that armature might have been hidden due to visibility channels
 - do not crash on animation import if channels reference non existing bones but inform user instead
+- inform user on export if a mesh has no vertices and skip it
 - Bugfix: do not crash if mesh has more shader structs than vertex materials
 
 v0.6.5 (26.3.21)
