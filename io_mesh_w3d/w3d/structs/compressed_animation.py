@@ -135,7 +135,6 @@ class AdaptiveDeltaBlock:
             block_index=read_ubyte(io_stream),
             delta_bytes=[])
 
-        print(result.block_index)
         result.delta_bytes = read_fixed_list(io_stream, bits * 2, read_byte)
         return result
 
@@ -160,10 +159,7 @@ class AdaptiveDeltaData:
             bit_count=bits)
 
         count = (channel.num_time_codes + 15) >> 4
-        print(result.initial_value)
-        print(count)
 
-        print('blocks:')
         for _ in range(count):
             for j in range(channel.vector_len):
                 result.delta_blocks.append(AdaptiveDeltaBlock.read(io_stream, j, bits))
@@ -197,18 +193,14 @@ class AdaptiveDeltaAnimationChannel:
             pivot=read_ushort(io_stream),
             vector_len=read_ubyte(io_stream),
             type=read_ubyte(io_stream),
-            scale=read_short(io_stream))
-        print('channel')
-        print(result.num_time_codes)
-        print(result.pivot)
-        print(result.vector_len)
-        print(result.type)
-        print(result.scale)
+            scale=read_float(io_stream))
+
         result.data = AdaptiveDeltaData.read(io_stream, result, 4)
+        read_padding(io_stream, 3)
         return result
 
     def size(self, include_head=True):
-        size = const_size(13, include_head)
+        size = const_size(15, include_head)
         size += self.data.size(self.type)
         return size
 
@@ -218,7 +210,7 @@ class AdaptiveDeltaAnimationChannel:
         write_ushort(self.pivot, io_stream)
         write_ubyte(self.vector_len, io_stream)
         write_ubyte(self.type, io_stream)
-        write_short(self.scale, io_stream)
+        write_float(self.scale, io_stream)
         self.data.write(io_stream, self.type)
         write_padding(io_stream, 3)
 
@@ -413,19 +405,13 @@ class CompressedAnimation:
 
         while io_stream.tell() < chunk_end:
             chunk_type, chunk_size, _ = read_chunk_head(io_stream)
-            start_position = io_stream.tell()
-            print('#####')
             if chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_HEADER:
                 result.header = CompressedAnimationHeader.read(io_stream)
             elif chunk_type == W3D_CHUNK_COMPRESSED_ANIMATION_CHANNEL:
-                print(result.header.flavor)
                 if result.header.flavor == TIME_CODED_FLAVOR:
                     result.time_coded_channels.append(TimeCodedAnimationChannel.read(io_stream))
                 elif result.header.flavor == ADAPTIVE_DELTA_FLAVOR:
                     result.adaptive_delta_channels.append(AdaptiveDeltaAnimationChannel.read(io_stream))
-                    #print(io_stream.tell() - (start_position + chunk_size))
-                    while io_stream.tell() < (start_position + chunk_size):
-                        read_byte(io_stream)
                 else:
                     skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
             elif chunk_type == W3D_CHUNK_COMPRESSED_BIT_CHANNEL:
@@ -434,9 +420,6 @@ class CompressedAnimation:
                 result.motion_channels.append(MotionChannel.read(io_stream))
             else:
                 skip_unknown_chunk(context, io_stream, chunk_type, chunk_size)
-
-            if start_position + chunk_size != io_stream.tell():
-                raise Exception('fucked up!')
         return result
 
     def size(self):
