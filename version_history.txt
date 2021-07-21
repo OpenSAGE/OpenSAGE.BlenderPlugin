@@ -4,6 +4,7 @@ v0.6.6
 - inform user on animation import that armature might have been hidden due to visibility channels
 - do not crash on animation import if channels reference non existing bones but inform user instead
 - inform user on export if a mesh has no vertices and skip it
+- Bugfix: read scale as float instead of short in 'AdaptiveDeltaAnimationChannel'
 - Bugfix: do not crash if mesh has more shader structs than vertex materials
 - Bugfix: read scale as float instead of short in 'AdaptiveDeltaAnimationChannel'
 
