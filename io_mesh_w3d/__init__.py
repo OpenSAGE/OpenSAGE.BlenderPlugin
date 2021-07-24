@@ -521,6 +521,7 @@ def register():
     addon_updater_ops.updater.website = "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin"
     addon_updater_ops.updater.subfolder_path = "io_mesh_w3d"
     addon_updater_ops.updater.include_branch_list = ['master']
+    addon_updater_ops.updater.verbose = False
 
     addon_updater_ops.register(bl_info)
 
@@ -534,7 +535,7 @@ def register():
 
 
 def unregister():
-    addon_updater.ops.unregister()
+    addon_updater_ops.unregister()
 
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
