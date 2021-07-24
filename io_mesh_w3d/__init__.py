@@ -10,6 +10,8 @@ from io_mesh_w3d.custom_properties import *
 from io_mesh_w3d.geometry_export import *
 from io_mesh_w3d.bone_volume_export import *
 
+from io_mesh_w3d.blender_addon_updater import addon_updater_ops
+
 VERSION = (0, 6, 7)
 
 bl_info = {
@@ -421,6 +423,87 @@ class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
         self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
 
 
+class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
+    bl_label = 'Updater Demo Panel'
+    bl_idname = 'OBJECT_PT_hello'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = 'objectmode'
+    bl_category = 'Tools'
+
+    def draw(self, context):
+        layout = self.layout
+
+        addon_updater_ops.check_for_update_background()
+
+        layout.label(text='Demo Updater Addon')
+        layout.label(text='')
+
+        col = layout.column()
+        col.scale_y = 0.7
+        col.label(text='If an update is ready,')
+        col.label(text='popup triggered by opening')
+        col.label(text='this panel, plus a box ui')
+
+        if addon_updater_ops.updater.update_ready == True:
+            layout.label(text='An update for the W3D/W3X plugin is available', icon='INFO')
+        layout.label(text='')
+
+        addon_updater_ops.update_notice_box_ui(self, context)
+
+
+@addon_updater_ops.make_annotations
+class DemoPreferences(bpy.types.AddonPreferences):
+    bl_idname = __package__
+
+    auto_check_update = bpy.props.BoolProperty(
+        name='Auto-check for Update',
+        description='If enabled, auto-check for updates using an interval',
+        default=False,
+        )
+    updater_intrval_months = bpy.props.IntProperty(
+        name='Months',
+        description='Number of months between checking for updates',
+        default=0,
+        min=0
+        )
+    updater_intrval_days = bpy.props.IntProperty(
+        name='Days',
+        description='Number of days between checking for updates',
+        default=7,
+        min=0,
+        max=31
+        )
+    updater_intrval_hours = bpy.props.IntProperty(
+        name='Hours',
+        description='Number of hours between checking for updates',
+        default=0,
+        min=0,
+        max=23
+        )
+    updater_intrval_minutes = bpy.props.IntProperty(
+        name='Minutes',
+        description='Number of minutes between checking for updates',
+        default=0,
+        min=0,
+        max=59
+        )
+
+    def draw(self, context):
+        layout = self.layout
+
+        mainrow = layout.row()
+        col = mainrow.column()
+
+        addon_updater_ops.update_settings_ui(self, context)
+
+        # Alternate draw function, which is more condensed and can be
+        # placed within an existing draw function. Only contains:
+        #   1) check for update/update now buttons
+        #   2) toggle for auto-check (interval will be equal to what is set above)
+        #addon_updater_ops.update_settings_ui_condensed(self, context, col)
+
+
 CLASSES = (
     ExportW3D,
     ImportW3D,
@@ -430,11 +513,15 @@ CLASSES = (
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
     ExportBoneVolumeData,
-    TOOLS_PANEL_PT_w3d
+    TOOLS_PANEL_PT_w3d,
+    DemoPreferences,
+    OBJECT_PT_DemoUpdaterPanel
 )
 
 
 def register():
+    addon_updater_ops.register(bl_info)
+
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
 
@@ -445,6 +532,8 @@ def register():
 
 
 def unregister():
+    addon_updater.ops.unregister()
+
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
     bpy.types.TOPBAR_MT_file_import.remove(menu_func_import)
