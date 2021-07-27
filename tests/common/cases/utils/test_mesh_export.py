@@ -198,6 +198,30 @@ class TestMeshExportUtils(TestCase):
                 report_func.assert_any_call(
                     f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones (3)!')
 
+    def test_retrieve_meshes_with_vertices_rigged_invalid_vertex_group(self):
+        coll = get_collection()
+        mesh = get_mesh(skin=True)
+        create_mesh(self, mesh, coll)
+
+        hierarchy = get_hierarchy()
+        rig = get_or_create_skeleton(hierarchy, coll)
+
+        rig_mesh(mesh, hierarchy, rig)
+
+        meshes = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+
+        vertices = [0, 1]
+        meshes[0].vertex_groups.new(name='invalid')
+        meshes[0].vertex_groups['invalid'].add(vertices, 0.4, 'REPLACE')
+
+        try:
+            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+        except Exception as e:
+            self.assertEqual('no matching pivot found for vertex group \'invalid\'', getattr(e, 'message', str(e)))
+            return
+
+        self.fail('expected exception was not thrown')
+
     def test_retrieve_meshes_with_mesh_name_identical_to_bone_name_but_bone_is_not_parent_of_mesh_nor_is_mesh_skin(
             self):
         coll = get_collection()
