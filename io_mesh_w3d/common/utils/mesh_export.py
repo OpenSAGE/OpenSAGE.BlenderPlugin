@@ -337,8 +337,10 @@ def prepare_bmesh(context, mesh):
 
 
 def find_bone_index(hierarchy, mesh_object, group):
-    indices = [i for i, pivot in enumerate(hierarchy.pivots) if pivot.name == mesh_object.vertex_groups[group].name]
-    return indices[0] if indices else -1
+    indices = [i for i, pivot in enumerate(hierarchy.pivots) if pivot.name.lower() == mesh_object.vertex_groups[group].name.lower()]
+    if indices:
+        return indices[0]
+    raise Exception(f'no matching pivot found for vertex group \'{mesh_object.vertex_groups[group].name}\'')
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):
