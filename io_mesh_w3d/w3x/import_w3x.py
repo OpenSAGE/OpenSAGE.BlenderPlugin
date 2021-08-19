@@ -80,7 +80,6 @@ def load(context):
     if data_context.hlod is None:
         if len(data_context.meshes) == 1:
             mesh = data_context.meshes[0]
-            context.info(mesh.container_name)
             path = directory + mesh.container_name() + '.w3x'
             load_file(context, data_context, path)
         elif len(data_context.collision_boxes) == 1:
