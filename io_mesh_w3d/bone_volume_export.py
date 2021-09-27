@@ -35,9 +35,9 @@ def export_bone_volume_data(context, filepath):
 
         node = create_node(root, 'BoneVolume')
         node.set('BoneName', mesh.name)
+        node.set('ContactTag', mesh.data.contact_tag)
         node.set('Mass', format_str(mesh.data.mass))
         node.set('Spinniness', format_str(mesh.data.spinniness))
-        node.set('ContactTag', mesh.data.contact_tag)
 
         location, rotation, scale = mesh.matrix_world.decompose()
         extend = get_aa_box(mesh.data.vertices)

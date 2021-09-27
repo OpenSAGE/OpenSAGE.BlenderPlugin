@@ -19,7 +19,7 @@ jobs:
         include:
           - blender-version: '2.93'
             blender-version-suffix: '4'
-            python-version: '3.9.1'
+            python-version: '3.9.2'
 
     steps:
     - uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
         ln -s ${PWD}/io_mesh_w3d ${PWD}/tmp/blender/${{ matrix.blender-version }}/scripts/addons/io_mesh_w3d
         wget https://files.pythonhosted.org/packages/85/d5/818d0e603685c4a613d56f065a721013e942088047ff1027a632948bdae6/coverage-4.5.4.tar.gz#md5=c33cab2aed8780aac32880cb6c7616b7
         tar zxf coverage-4.5.4.tar.gz
-        mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${{ matrix.blender-version }}/python/lib"
+        mv coverage-4.5.4/coverage "${PWD}/tmp/blender/${{ matrix.blender-version }}/scripts/modules"
         rm -rf coverage-4.5.4
     - name: Test
       run: |

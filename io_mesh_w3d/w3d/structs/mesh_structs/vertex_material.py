@@ -105,10 +105,10 @@ class VertexMaterial:
         if self.vm_info is not None:
             self.vm_info.write(io_stream)
 
-        if self.vm_args_0 is not '':
+        if self.vm_args_0 != '':
             write_chunk_head(W3D_CHUNK_VERTEX_MAPPER_ARGS0, io_stream, text_size(self.vm_args_0, False), io_stream)
             write_string(self.vm_args_0, io_stream)
 
-        if self.vm_args_1 is not '':
+        if self.vm_args_1 != '':
             write_chunk_head(W3D_CHUNK_VERTEX_MAPPER_ARGS1, io_stream, text_size(self.vm_args_1, False))
             write_string(self.vm_args_1, io_stream)
