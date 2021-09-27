@@ -24,7 +24,7 @@ class TestGeometryExport(TestCase):
         bpy.context.view_layer.update()
 
         xmlFile = None
-        iniFIle = None
+        iniFile = None
 
         try:
             export_geometry_data(self, XML_FILE)
@@ -34,17 +34,17 @@ class TestGeometryExport(TestCase):
             self.assertEqual('<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n', xmlFile.readline())
             self.assertEqual('<Geometry isSmall="False">\n', xmlFile.readline())
             self.assertEqual(
-                '  <Shape Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="BOX">\n',
+                '  <Shape Type="BOX" MajorRadius="0.500" MinorRadius="0.500" Height="1.000">\n',
                 xmlFile.readline())
             self.assertEqual('    <Offset X="0.000000" Y="0.000000" Z="0.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
             self.assertEqual(
-                '  <Shape ContactPointGeneration="VEHICLE" MajorRadius="0.500" Type="SPHERE">\n',
+                '  <Shape Type="SPHERE" MajorRadius="0.500" ContactPointGeneration="VEHICLE">\n',
                 xmlFile.readline())
             self.assertEqual('    <Offset X="2.000000" Y="2.000000" Z="5.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
             self.assertEqual(
-                '  <Shape ContactPointGeneration="STRUCTURE" Height="1.000" MajorRadius="0.500" MinorRadius="0.500" Type="CYLINDER">\n',
+                '  <Shape Type="CYLINDER" MajorRadius="0.500" MinorRadius="0.500" Height="1.000" ContactPointGeneration="STRUCTURE">\n',
                 xmlFile.readline())
             self.assertEqual('    <Offset X="22.332001" Y="2.110000" Z="-5.000000" />\n', xmlFile.readline())
             self.assertEqual('  </Shape>\n', xmlFile.readline())
