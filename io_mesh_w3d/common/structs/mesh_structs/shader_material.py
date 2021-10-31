@@ -79,7 +79,7 @@ class ShaderMaterialProperty:
         elif result.type == BOOL_PROPERTY:
             result.value = bool(read_ubyte(io_stream))
         else:
-            context.warning('unknown property type in shader material: ' + str(result.type))
+            context.warning(f'unknown property type \'{result.type}\' in shader material')
         return result
 
     def size(self, include_head=True):

@@ -73,11 +73,11 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
     else:
         if mat_pass.tx_stages:
             if len(mat_pass.tx_stages[0].tx_coords) == 0:
-                context.warning('texture stage did not have uv coordinates!')
+                context.warning('texture stage did not have texture coordinates!')
                 return
             tx_coords = mat_pass.tx_stages[0].tx_coords[0]
             if len(mat_pass.tx_stages[0].tx_coords) > 1:
-                context.warning('only one set of texture coords per texture stage supported')
+                context.warning('only one set of texture coordinates per texture stage supported')
         if len(mat_pass.tx_stages) > 1:
             context.warning('only one texture stage per material pass supported')
 
@@ -118,7 +118,7 @@ def find_texture(context, file, name=None):
             break
 
     if img is None:
-        context.warning(f'texture not found: {filepath} {extensions}')
+        context.warning(f'texture not found: {filepath} {extensions}. Make sure it is right next to the file you are importing!')
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
