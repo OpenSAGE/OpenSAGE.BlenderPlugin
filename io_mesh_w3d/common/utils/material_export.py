@@ -27,6 +27,11 @@ def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(material.environment_texture, used_textures)
     used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
     used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
+
+    for tex in used_textures:
+        # the engine searches for .tga by default or replaces it with .dds
+        tex = tex.split('.' , -1)[0] + '.tga'
+
     return used_textures
 
 
