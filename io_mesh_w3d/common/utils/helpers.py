@@ -118,7 +118,8 @@ def find_texture(context, file, name=None):
             break
 
     if img is None:
-        context.warning(f'texture not found: {filepath} {extensions}. Make sure it is right next to the file you are importing!')
+        context.warning(
+            f'texture not found: {filepath} {extensions}. Make sure it is right next to the file you are importing!')
         img = bpy.data.images.new(name, width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
