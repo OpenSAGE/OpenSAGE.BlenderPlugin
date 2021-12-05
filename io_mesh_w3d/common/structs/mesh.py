@@ -451,7 +451,7 @@ class Mesh:
                 if not mat_pass.tx_coords:
                     mat_pass.tx_coords = parse_objects(child, 'T', parse_vector2)
                 else:
-                    context.warning('multiple uv coords not yet supported!')
+                    context.warning('multiple uv coords are not yet supported!')
             elif child.tag == 'ShadeIndices':
                 result.shade_ids = parse_objects(child, 'I', parse_int_value)
                 context.info('shade indices are not supported')

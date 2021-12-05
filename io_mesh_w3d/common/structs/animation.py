@@ -303,7 +303,7 @@ class Animation:
                         else:
                             result.channels.append(AnimationChannel.parse(channel_child))
                     else:
-                        context.warning(f'unhandled node \'{channel_child.tag}\' in Channels!')
+                        context.warning(f'unhandled node \'{channel_child.tag}\' in W3DAnimation Channels!')
             else:
                 context.warning(f'unhandled node \'{child.tag}\' in W3DAnimation!')
         return result

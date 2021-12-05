@@ -97,7 +97,7 @@ def load(context):
         load_file(context, data_context, skl_path)
 
         if data_context.animation and data_context.hierarchy is None:
-            context.error(f'hierarchy file not found: {skl_path}')
+            context.error(f'hierarchy file not found: {skl_path}. Make sure it is right next to the file you are importing.')
             return
 
     meshes = data_context.meshes

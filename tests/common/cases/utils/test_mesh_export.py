@@ -196,7 +196,7 @@ class TestMeshExportUtils(TestCase):
             self.assertEqual(len(expected_vertices), report_func.call_count)
             for i in expected_vertices:
                 report_func.assert_any_call(
-                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones (3)!')
+                    f'mesh \'{mesh.header.mesh_name}\' vertex {i} is influenced by more than 2 bones (3)! Make sure you do weight painting on vertex basis not per face.')
 
     def test_retrieve_meshes_with_vertices_rigged_invalid_vertex_group(self):
         coll = get_collection()
@@ -217,7 +217,7 @@ class TestMeshExportUtils(TestCase):
         try:
             (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
         except Exception as e:
-            self.assertEqual('no matching pivot found for vertex group \'invalid\'', getattr(e, 'message', str(e)))
+            self.assertEqual('no matching armature bone found for vertex group \'invalid\'', getattr(e, 'message', str(e)))
             return
 
         self.fail('expected exception was not thrown')
@@ -305,7 +305,7 @@ class TestMeshExportUtils(TestCase):
 
         with patch.object(self, 'warning') as report_func:
             mesh_structs, _ = retrieve_meshes(self, None, None, 'container_name')
-            report_func.assert_called_with('mesh \'mesh\' did not have a single vertex!')
+            report_func.assert_called_with('mesh \'mesh\' does not have a single vertex!')
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
         create_mesh(self, get_mesh('mesh'), get_collection())
