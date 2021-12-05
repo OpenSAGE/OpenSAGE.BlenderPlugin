@@ -217,7 +217,12 @@ class TestMeshExportUtils(TestCase):
         try:
             (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
         except Exception as e:
-            self.assertEqual('no matching armature bone found for vertex group \'invalid\'', getattr(e, 'message', str(e)))
+            self.assertEqual(
+                'no matching armature bone found for vertex group \'invalid\'',
+                getattr(
+                    e,
+                    'message',
+                    str(e)))
             return
 
         self.fail('expected exception was not thrown')
