@@ -20,7 +20,7 @@ jobs:
           - blender-version: '2.93'
             blender-version-suffix: '4'
             python-version: '3.9.2'
-          - blender-version: '3.00'
+          - blender-version: '3.0'
             blender-version-suffix: '0'
             python-version: '3.9.2'
 
