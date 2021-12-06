@@ -10,7 +10,10 @@ def create_sphere():
     basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
 
     b_mesh = bmesh.new()
-    bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+    if bpy.app.version < (3, 0, 0):
+        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+    else:
+        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, radius=17.5)
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
