@@ -96,7 +96,7 @@ def process_mesh(context, mesh, hierarchy, pivot_id_dict):
         matrix = mesh.matrix_local
 
         if mesh.parent is not None and mesh.parent.type == 'MESH':
-            context.warning(f'mesh \'{mesh.name}\' did have a object instead of a bone as parent!')
+            context.warning(f'mesh \'{mesh.name}\' did have an object instead of a bone as parent!')
             if mesh.parent.name not in pivot_id_dict.keys():
                 process_mesh(context, mesh.parent, hierarchy, pivot_id_dict)
                 return

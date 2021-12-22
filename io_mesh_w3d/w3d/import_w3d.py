@@ -130,7 +130,8 @@ def load(context):
         if sklpath:
             load_file(context, data_context, sklpath)
             if data_context.hierarchy is None:
-                context.error(f'hierarchy file not found: {sklpath}')
+                context.error(
+                    f'hierarchy file not found: {sklpath}. Make sure it is right next to the file you are importing.')
                 return
 
     create_data(context,

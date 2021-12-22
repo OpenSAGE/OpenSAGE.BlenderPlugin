@@ -228,7 +228,7 @@ class TestMeshImportUtils(TestCase):
 
         with (patch.object(self, 'warning')) as report_func:
             create_mesh(self, mesh_struct, bpy.context.scene.collection)
-            report_func.assert_any_call('only one set of texture coords per texture stage supported')
+            report_func.assert_any_call('only one set of texture coordinates per texture stage supported')
 
     def test_mesh_import_vertex_colors_are_imported_correctly(self):
         mesh_name = 'mesh'
@@ -255,7 +255,7 @@ class TestMeshImportUtils(TestCase):
 
         with (patch.object(self, 'warning')) as report_func:
             create_mesh(self, mesh_struct, bpy.context.scene.collection)
-            report_func.assert_any_call('texture stage did not have uv coordinates!')
+            report_func.assert_any_call('texture stage did not have texture coordinates!')
 
     def test_mesh_import_mesh_has_two_shader_structs_with_single_material(self):
         mesh_name = 'mesh'
