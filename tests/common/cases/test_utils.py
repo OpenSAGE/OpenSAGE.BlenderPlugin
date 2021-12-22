@@ -559,7 +559,7 @@ class TestUtils(TestCase):
             self.assertTrue(mesh.shader_materials)
 
     def test_meshes_roundtrip_used_textures_are_correct(self):
-        expected = ['texture.dds', 'texture_nrm.dds', 'texture_spec.dds', 'texture_env.tga', 'texture_scroll.dds']
+        expected = ['texture.tga', 'texture_nrm.tga', 'texture_spec.tga', 'texture_env.tga', 'texture_scroll.tga']
         meshes = [
             get_mesh(name='wall'),
             get_mesh(name='tower'),
@@ -577,8 +577,8 @@ class TestUtils(TestCase):
 
         create_data(self, meshes)
 
-        (actual_hiera, rig) = retrieve_hierarchy(self, 'containerName')
-        (_, used_textures) = retrieve_meshes(self, actual_hiera, rig, 'containerName')
+        actual_hiera, rig = retrieve_hierarchy(self, 'containerName')
+        _, used_textures = retrieve_meshes(self, actual_hiera, rig, 'containerName')
 
         self.assertEqual(len(expected), len(used_textures))
         for i, tex in enumerate(expected):

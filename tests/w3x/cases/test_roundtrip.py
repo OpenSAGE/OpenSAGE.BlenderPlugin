@@ -128,6 +128,8 @@ class TestRoundtripW3X(TestCase):
                            'use_existing_skeleton': True}
         save_data(self, export_settings)
 
+        print(os.listdir(self.outpath()))
+
         # check created files
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.w3x'))
         self.assertTrue(os.path.exists(self.outpath() + 'output_skn.sword.w3x'))
