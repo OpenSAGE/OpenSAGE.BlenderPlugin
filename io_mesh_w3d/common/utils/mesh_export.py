@@ -52,7 +52,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         b_mesh = prepare_bmesh(context, mesh)
 
         if len(mesh.vertices) == 0:
-            context.warning(f'mesh \'{mesh.name}\' did not have a single vertex!')
+            context.warning(f'mesh \'{mesh.name}\' does not have a single vertex!')
             continue
 
         center, radius = calculate_mesh_sphere(mesh)
@@ -111,7 +111,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 if len(vertex.groups) > 2:
                     overskinned_vertices_error = True
                     context.error(
-                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})!')
+                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})! Make sure you do weight painting on vertex basis not per face.')
 
             elif is_skinned:
                 unskinned_vertices_error = True
@@ -341,7 +341,7 @@ def find_bone_index(hierarchy, mesh_object, group):
                == mesh_object.vertex_groups[group].name.lower()]
     if indices:
         return indices[0]
-    raise Exception(f'no matching pivot found for vertex group \'{mesh_object.vertex_groups[group].name}\'')
+    raise Exception(f'no matching armature bone found for vertex group \'{mesh_object.vertex_groups[group].name}\'')
 
 
 def split_multi_uv_vertices(context, mesh, b_mesh):

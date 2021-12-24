@@ -118,7 +118,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
                 self.will_save_settings = True
 
             except (AttributeError, TypeError):
-                self.error('Loading export settings failed. Removed corrupted settings')
+                self.error('Loading export settings failed. Removed corrupted settings.')
                 del context.scene[self.scene_key]
 
         return ExportHelper.invoke(self, context, event)
