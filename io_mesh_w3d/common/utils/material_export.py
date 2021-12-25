@@ -9,12 +9,21 @@ from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
 DEFAULT_W3D = 'DefaultW3D.fx'
 
 
+def set_texture_extension_to_tga(texture_name):
+    # the engine searches for .tga by default or replaces it with .dds
+    return texture_name.rsplit('.' , 1)[0] + '.tga'
+
+
 def append_texture_if_valid(texture, used_textures):
     if isinstance(texture, str):
-        if texture != '' and texture not in used_textures:
+        if texture != '':
+            texture = set_texture_extension_to_tga(texture)
+            if texture not in used_textures:
+                used_textures.append(texture)
+    elif texture is not None and texture.image is not None:
+        texture = set_texture_extension_to_tga(texture.image.name)
+        if texture not in used_textures:
             used_textures.append(texture)
-    elif texture is not None and texture.image is not None and texture.image.name not in used_textures:
-        used_textures.append(texture.image.name)
     return used_textures
 
 
@@ -27,6 +36,7 @@ def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(material.environment_texture, used_textures)
     used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
     used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
+
     return used_textures
 
 

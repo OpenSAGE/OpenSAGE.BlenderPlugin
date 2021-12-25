@@ -54,7 +54,10 @@ class TestMeshExportUtils(TestCase):
         sphere = bpy.data.objects.new('sphere', mesh)
 
         b_mesh = bmesh.new()
-        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+        if bpy.app.version < (3, 0, 0):
+            bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+        else:
+            bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, radius=17.5)
         b_mesh.to_mesh(mesh)
         b_mesh.free()
 
@@ -165,7 +168,7 @@ class TestMeshExportUtils(TestCase):
         meshes[0].vertex_groups[3].remove(expected_vertices)
 
         with (patch.object(self, 'error')) as report_func:
-            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            mesh_structs, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
 
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
@@ -190,7 +193,7 @@ class TestMeshExportUtils(TestCase):
         meshes[0].vertex_groups['number3'].add(expected_vertices, 0.4, 'REPLACE')
 
         with (patch.object(self, 'error')) as report_func:
-            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            mesh_structs, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
 
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(len(expected_vertices), report_func.call_count)
@@ -215,7 +218,7 @@ class TestMeshExportUtils(TestCase):
         meshes[0].vertex_groups['invalid'].add(vertices, 0.4, 'REPLACE')
 
         try:
-            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            retrieve_meshes(self, hierarchy, rig, 'container_name')
         except Exception as e:
             self.assertEqual(
                 'no matching armature bone found for vertex group \'invalid\'',
@@ -240,7 +243,7 @@ class TestMeshExportUtils(TestCase):
         rig = get_or_create_skeleton(hierarchy, coll)
 
         with (patch.object(self, 'error')) as report_func:
-            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            mesh_structs, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
 
             self.assertEqual(0, len(mesh_structs))
             self.assertEqual(2, report_func.call_count)
@@ -282,7 +285,7 @@ class TestMeshExportUtils(TestCase):
         rig_mesh(mesh2, hierarchy, rig, sub_obj2)
 
         with (patch.object(self, 'error')) as report_func:
-            (mesh_structs, _) = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            mesh_structs, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
 
             self.assertEqual(2, len(mesh_structs))
             self.assertEqual(0, report_func.call_count)
@@ -309,7 +312,7 @@ class TestMeshExportUtils(TestCase):
         bpy.context.view_layer.objects.active = mesh_ob
 
         with patch.object(self, 'warning') as report_func:
-            mesh_structs, _ = retrieve_meshes(self, None, None, 'container_name')
+            retrieve_meshes(self, None, None, 'container_name')
             report_func.assert_called_with('mesh \'mesh\' does not have a single vertex!')
 
     def test_user_is_notified_if_a_material_of_the_mesh_is_none(self):
@@ -579,7 +582,7 @@ class TestMeshExportUtils(TestCase):
         constraint.target = bpy.context.scene.camera
 
         with (patch.object(self, 'warning')) as report_func:
-            meshes, _ = retrieve_meshes(self, hierarchy, rig, 'container_name')
+            retrieve_meshes(self, hierarchy, rig, 'container_name')
             report_func.assert_called_with('mesh \'mesh\' is rigged and thus does not support any constraints!')
 
     def test_mesh_export_warned_if_multiple_constraints_applied(self):
@@ -678,3 +681,29 @@ class TestMeshExportUtils(TestCase):
         self.assertEqual(0, len(meshes[0].material_passes[0].dcg))
         self.assertEqual(0, len(meshes[0].material_passes[0].dig))
         self.assertEqual(0, len(meshes[0].material_passes[0].scg))
+
+    def test_mesh_export_textures_end_with_tga(self):
+        copyfile(up(up(up(self.relpath()))) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
+        self.file_format = 'W3D'
+        mesh = bpy.data.meshes.new('mesh_cube')
+
+        b_mesh = bmesh.new()
+        bmesh.ops.create_cube(b_mesh, size=1)
+        b_mesh.to_mesh(mesh)
+
+        material, principled = create_material_from_vertex_material('loem ipsum', get_vertex_material())
+        tex = find_texture(self, 'texture.dds')
+        principled.base_color_texture.image = tex
+        mesh.materials.append(material)
+
+        mesh_ob = bpy.data.objects.new('mesh_object', mesh)
+        mesh_ob.data.object_type = 'MESH'
+
+        coll = bpy.context.scene.collection
+        coll.objects.link(mesh_ob)
+        bpy.context.view_layer.objects.active = mesh_ob
+        mesh_ob.select_set(True)
+
+        _, used_textures = retrieve_meshes(self, None, None, 'container_name')
+
+        self.assertEqual('texture.tga', used_textures[0])

@@ -10,7 +10,10 @@ def create_sphere():
     basic_sphere = bpy.data.objects.new("Basic_Sphere", mesh)
 
     b_mesh = bmesh.new()
-    bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+    if bpy.app.version < (3, 0, 0):
+        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, diameter=35)
+    else:
+        bmesh.ops.create_uvsphere(b_mesh, u_segments=12, v_segments=6, radius=17.5)
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
@@ -22,8 +25,12 @@ def create_cone(name):
     cone = bpy.data.objects.new(name, mesh)
 
     b_mesh = bmesh.new()
-    bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
-                          segments=10, diameter1=0, diameter2=1.0, depth=2.0, calc_uvs=True)
+    if bpy.app.version < (3, 0, 0):
+        bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
+                              segments=10, diameter1=0, diameter2=1.0, depth=2.0, calc_uvs=True)
+    else:
+        bmesh.ops.create_cone(b_mesh, cap_ends=True, cap_tris=True,
+                              segments=10, radius1=0, radius2=0.5, depth=2.0, calc_uvs=True)
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
