@@ -11,7 +11,7 @@ DEFAULT_W3D = 'DefaultW3D.fx'
 
 def set_texture_extension_to_tga(texture_name):
     # the engine searches for .tga by default or replaces it with .dds
-    return texture_name.rsplit('.' , 1)[0] + '.tga'
+    return texture_name.rsplit('.', 1)[0] + '.tga'
 
 
 def append_texture_if_valid(texture, used_textures):
