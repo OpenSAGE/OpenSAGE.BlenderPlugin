@@ -1,4 +1,6 @@
-v0.6.8
+v0.6.9
+
+v0.6.8 (29.12.21)
 - fixed issues with api changes in blender 3.0
 - export texture names always with '.tga' extension
 
