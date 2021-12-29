@@ -1,8 +1,10 @@
-v0.6.7
-- added auto updater
-- adaptions for python 3.9 used in blender 2.93 and later
+v0.6.8
 - fixed issues with api changes in blender 3.0
 - export texture names always with '.tga' extension
+
+v0.6.7 (22.10.21)
+- added auto updater
+- adaptions for python 3.9 used in blender 2.93 and later
 - Bugfix: pivot and vertex groups are compared all lowercase
 
 v0.6.6 (24.7.21)
