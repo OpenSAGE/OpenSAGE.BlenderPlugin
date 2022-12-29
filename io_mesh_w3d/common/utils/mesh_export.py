@@ -81,25 +81,35 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
         for i, vertex in enumerate(mesh.vertices):
             mesh_struct.shade_ids.append(i)
             matrix = Matrix.Identity(4)
+            matrix_2 = Matrix.Identity(4)
 
             if vertex.groups:
                 vert_inf = VertexInfluence()
                 vert_inf.bone_idx = find_bone_index(hierarchy, mesh_object, vertex.groups[0].group)
                 vert_inf.bone_inf = vertex.groups[0].weight
 
+                # add extra influenced bones
                 if len(vertex.groups) > 1:
                     mesh_struct.multi_bone_skinned = True
                     vert_inf.xtra_idx = find_bone_index(hierarchy, mesh_object, vertex.groups[1].group)
                     vert_inf.xtra_inf = vertex.groups[1].weight
+                if len(vertex.groups) > 2:
+                    overskinned_vertices_error = True
+                    context.error(
+                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})! Make sure you do weight painting on vertex basis not per face.')
 
                 if vert_inf.bone_inf < 0.01 and vert_inf.xtra_inf < 0.01:
                     context.warning(f'mesh \'{mesh_object.name}\' vertex {i} both bone weights where 0!')
                     vert_inf.bone_inf = 1.0
+                    vert_inf.xtra_inf = 0.0
 
                 if abs(vert_inf.bone_inf + vert_inf.xtra_inf - 1.0) > 0.1:
                     context.warning(
-                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f})')
-                    vert_inf.bone_inf = 1.0 - vert_inf.xtra_inf
+                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f}). Normalized!')
+                    vert_inf.bone_inf = vert_inf.bone_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
+                    vert_inf.xtra_inf = vert_inf.xtra_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
+
+
 
                 mesh_struct.vert_infs.append(vert_inf)
 
@@ -108,10 +118,14 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 else:
                     matrix = matrix @ rig.matrix_local.inverted()
 
-                if len(vertex.groups) > 2:
-                    overskinned_vertices_error = True
-                    context.error(
-                        f'mesh \'{mesh_object.name}\' vertex {i} is influenced by more than 2 bones ({len(vertex.groups)})! Make sure you do weight painting on vertex basis not per face.')
+                if vert_inf.xtra_inf > 0:
+                    if vert_inf.xtra_idx > 0:
+                        matrix_2 = matrix_2 @ rig.data.bones[hierarchy.pivots[vert_inf.xtra_idx].name].matrix_local.inverted()
+                    else:
+                        matrix_2 = matrix_2 @ rig.matrix_local.inverted()
+                else:
+                    matrix_2 = matrix
+
 
             elif is_skinned:
                 unskinned_vertices_error = True
@@ -121,13 +135,16 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             vertex.co.y *= scale.y
             vertex.co.z *= scale.z
             mesh_struct.verts.append(matrix @ vertex.co)
+            mesh_struct.verts_2.append(matrix_2 @ vertex.co)
 
             _, rotation, _ = matrix.decompose()
+            _, rotation_2, _ = matrix_2.decompose()
 
             if i in loop_dict:
                 loop = loop_dict[i]
                 # do NOT use loop.normal here! that might result in weird shading issues
                 mesh_struct.normals.append(rotation @ vertex.normal)
+                mesh_struct.normals_2.append(rotation_2 @ vertex.normal)
 
                 if mesh.uv_layers:
                     # in order to adapt to 3ds max orientation
@@ -136,6 +153,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             else:
                 context.warning(f'mesh \'{mesh_object.name}\' vertex {i} is not connected to any face!')
                 mesh_struct.normals.append(rotation @ vertex.normal)
+                mesh_struct.normals_2.append(rotation_2 @ vertex.normal)
+
                 if mesh.uv_layers:
                     # only dummys
                     mesh_struct.tangents.append((rotation @ vertex.normal) * -1)
