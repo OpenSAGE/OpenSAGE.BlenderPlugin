@@ -105,9 +105,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
 
                 if abs(vert_inf.bone_inf + vert_inf.xtra_inf - 1.0) > 0.1:
                     context.warning(
-                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f}). Normalized!')
-                    vert_inf.bone_inf = vert_inf.bone_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
-                    vert_inf.xtra_inf = vert_inf.xtra_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
+                        f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! ({vert_inf.bone_inf:.{2}f}, {vert_inf.xtra_inf:.{2}f}). Will be normalized!')
+                    _bone_inf = vert_inf.bone_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
+                    _xtra_inf = vert_inf.xtra_inf / (vert_inf.xtra_inf + vert_inf.bone_inf)
+                    vert_inf.bone_inf = _bone_inf
+                    vert_inf.xtra_inf = _xtra_inf
 
 
 
