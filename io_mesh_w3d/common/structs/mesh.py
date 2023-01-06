@@ -316,14 +316,14 @@ class Mesh:
         write_chunk_head(W3D_CHUNK_VERTICES, io_stream, vec_list_size(self.verts, False))
         write_list(self.verts, io_stream, write_vector)
 
-        if self.multi_bone_skinned:
+        if self.multi_bone_skinned and self.verts_2:
             write_chunk_head(W3D_CHUNK_VERTICES_2, io_stream, vec_list_size(self.verts_2, False))
             write_list(self.verts_2, io_stream, write_vector)
 
         write_chunk_head(W3D_CHUNK_VERTEX_NORMALS, io_stream, vec_list_size(self.normals, False))
         write_list(self.normals, io_stream, write_vector)
 
-        if self.multi_bone_skinned:
+        if self.multi_bone_skinned and self.normals_2:
             write_chunk_head(W3D_CHUNK_NORMALS_2, io_stream, vec_list_size(self.normals_2, False))
             write_list(self.normals_2, io_stream, write_vector)
 
@@ -522,12 +522,12 @@ class Mesh:
 
         create_object_list(xml_mesh, 'Vertices', self.verts, create_vector, 'V')
 
-        if self.multi_bone_skinned:
+        if self.multi_bone_skinned and self.verts_2:
             create_object_list(xml_mesh, 'Vertices', self.verts_2, create_vector, 'V')
 
         create_object_list(xml_mesh, 'Normals', self.normals, create_vector, 'N')
 
-        if self.multi_bone_skinned:
+        if self.multi_bone_skinned and self.normals_2:
             create_object_list(xml_mesh, 'Normals', self.normals_2, create_vector, 'N')
 
         if self.tangents:
