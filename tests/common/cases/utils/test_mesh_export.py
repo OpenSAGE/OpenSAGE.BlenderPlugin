@@ -145,7 +145,7 @@ class TestMeshExportUtils(TestCase):
                 for i, vertex in enumerate(mesh_object.data.vertices):
                     if vertex.groups and len(vertex.groups) > 1:
                         report_func.assert_any_call(
-                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! (0.40, 0.40)')
+                            f'mesh \'{mesh_object.name}\' vertex {i} both bone weights did not add up to 100%! (0.40, 0.40). Will be normalized!')
 
             for mesh in mesh_structs:
                 for inf in mesh.vert_infs:
