@@ -278,6 +278,10 @@ class Mesh:
         size += text_size(self.user_text)
         size += vec_list_size(self.verts)
         size += vec_list_size(self.normals)
+        if self.multi_bone_skinned and self.verts_2:
+            size += vec_list_size(self.verts_2)
+        if self.multi_bone_skinned and self.normals_2:
+            size += vec_list_size(self.normals_2)
         size += vec_list_size(self.tangents)
         size += vec_list_size(self.bitangents)
         size += list_size(self.triangles)

@@ -24,8 +24,8 @@ class TestMesh(TestCase):
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
 
-        self.assertEqual(4137, expected.size(False))
-        self.assertEqual(4145, expected.size())
+        self.assertEqual(4345, expected.size(False))
+        self.assertEqual(4353, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True, clear_tangents)
 
@@ -286,6 +286,8 @@ class TestMesh(TestCase):
         expecteds = ['BoundingBox',
                      'BoundingSphere',
                      'Vertices',
+                     'Vertices',
+                     'Normals',
                      'Normals',
                      'Tangents',
                      'Binormals',
