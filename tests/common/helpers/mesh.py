@@ -142,6 +142,23 @@ def get_mesh(
     if skin:
         mesh.multi_bone_skinned = True
         mesh.vert_infs = get_vertex_influences()
+        # use same verts_2 as verts just for test 
+        mesh.verts_2 = [get_vec(1.0, 1.0, 1.0),
+                  get_vec(1.0, 1.0, -1.0),
+                  get_vec(1.0, -1.0, 1.0),
+                  get_vec(1.0, -1.0, -1.0),
+                  get_vec(-1.0, 1.0, 1.0),
+                  get_vec(-1.0, 1.0, -1.0),
+                  get_vec(-1.0, -1.0, 1.0),
+                  get_vec(-1.0, -1.0, -1.0)]
+        mesh.normals_2 = [get_vec(0.577, 0.577, 0.577),
+                    get_vec(0.577, 0.577, -0.577),
+                    get_vec(0.577, -0.577, 0.577),
+                    get_vec(0.577, -0.577, -0.577),
+                    get_vec(-0.577, 0.577, 0.577),
+                    get_vec(-0.577, 0.577, -0.577),
+                    get_vec(-0.577, -0.577, 0.577),
+                    get_vec(-0.577, -0.577, -0.577)]
 
     for i in range(len(mesh.verts)):
         mesh.shade_ids.append(i)
