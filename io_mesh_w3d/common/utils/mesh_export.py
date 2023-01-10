@@ -111,8 +111,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                     vert_inf.bone_inf = _bone_inf
                     vert_inf.xtra_inf = _xtra_inf
 
-
-
                 mesh_struct.vert_infs.append(vert_inf)
 
                 if vert_inf.bone_idx > 0:
@@ -127,7 +125,6 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                         matrix_2 = matrix_2 @ rig.matrix_local.inverted()
                 else:
                     matrix_2 = matrix
-
 
             elif is_skinned:
                 unskinned_vertices_error = True
