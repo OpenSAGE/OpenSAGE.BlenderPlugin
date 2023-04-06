@@ -110,7 +110,7 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
             material.diffuse_color = prop.to_rgba()
         elif prop.name == 'SpecularColor' or prop.name == 'ColorSpecular':
-            material.specular = prop.to_rgb()
+            material.specular_color = prop.to_rgb()
         elif prop.name == 'CullingEnable':
             material.use_backface_culling = prop.value
         elif prop.name == 'Texture_0':

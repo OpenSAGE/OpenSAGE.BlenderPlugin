@@ -7,6 +7,10 @@ from io_mesh_w3d.w3x.io_xml import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 
+W3D_NORMTYPE_TEXTURE = 1
+W3D_NORMTYPE_BUMP = 2
+W3D_NORMTYPE_COLORS = 5
+W3D_NORMTYPE_ALPHA = 7
 
 class ShaderMaterialHeader:
     def __init__(self, version=1, type_name='', technique=0):

@@ -128,7 +128,7 @@ class TestUtils(TestCase):
         mesh.shader_materials[0].properties = []
 
         (material, principled) = create_material_from_shader_material(self, mesh.name(), mesh.shader_materials[0])
-
+        material.specular_color = (0.0, 0.0, 0.0)
         actual = retrieve_shader_material(self, material, principled, w3x=False)
         self.assertEqual(0, len(actual.properties))
 
@@ -140,7 +140,7 @@ class TestUtils(TestCase):
 
         for source in mesh.shader_materials:
             source.properties = get_shader_material_properties_minimal()
-
+            source.header.technique = 0
             (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
             actual = retrieve_shader_material(self, material, principled)
             source.properties[2].type = 5
@@ -151,10 +151,12 @@ class TestUtils(TestCase):
         mesh = get_mesh(shader_mats=True)
 
         for source in mesh.shader_materials:
+            source.header.technique = 0
             source.header.type_name = 'LoremIpsum'
             source.properties = []
 
             (material, principled) = create_material_from_shader_material(self, mesh.name(), source)
+            material.specular_color = (0.0, 0.0, 0.0)
             actual = retrieve_shader_material(self, material, principled)
             source.header.type_name = 'DefaultW3D.fx'
             compare_shader_materials(self, source, actual)
