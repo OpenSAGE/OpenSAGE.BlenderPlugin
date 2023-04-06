@@ -148,7 +148,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
     if principled.normalmap_texture is not None and principled.normalmap_texture.image is not None:
         if shader_mat.header.type_name == DEFAULT_W3D:
             shader_mat.header.type_name = 'NormalMapped.fx'
-        shader_mat.header.technique |= W3D_NORMTYPE_BUMP
+        shader_mat.header.technique = W3D_NORMTYPE_BUMP
         append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
 
     append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
