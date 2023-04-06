@@ -12,6 +12,7 @@ W3D_NORMTYPE_BUMP = 2
 W3D_NORMTYPE_COLORS = 5
 W3D_NORMTYPE_ALPHA = 7
 
+
 class ShaderMaterialHeader:
     def __init__(self, version=1, type_name='', technique=0):
         self.version = version
