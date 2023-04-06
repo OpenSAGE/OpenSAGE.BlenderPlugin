@@ -23,6 +23,9 @@ jobs:
           - blender-version: '3.4'
             blender-version-suffix: '0'
             python-version: '3.10.9'
+          - blender-version: '3.5'
+            blender-version-suffix: '0'
+            python-version: '3.10.9'
 
     steps:
     - uses: actions/checkout@v3
