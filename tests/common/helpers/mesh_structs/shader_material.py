@@ -168,7 +168,7 @@ def get_shader_material_properties_minimal():
 
 
 def get_shader_material(w3x=False, two_tex=False, rgb_colors=False):
-    header=get_shader_material_header()
+    header = get_shader_material_header()
     if not two_tex:
         header.technique |= W3D_NORMTYPE_BUMP
     return ShaderMaterial(
