@@ -1,0 +1,27 @@
+name: Publish
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+  publish:
+    runs-on: [ ubuntu-latest ]
+
+    steps:
+    - name: Bundle archive
+      run: |
+        zip -r io_mesh_w3d.zip io_mesh_w3d -x io_mesh_w3d/blender_addon_updater/.git
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: "TODO: add relase notes ."
+        draft: false
+        prerelease: true
