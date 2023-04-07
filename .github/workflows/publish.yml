@@ -19,12 +19,8 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: ncipollo/release-action@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: ${{ github.ref }}
-        body: "TODO: add relase notes ."
+        artifacts: "io_mesh_w3d.zip"
         draft: false
         prerelease: true
