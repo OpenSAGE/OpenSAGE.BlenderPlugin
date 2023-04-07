@@ -12,7 +12,7 @@ from io_mesh_w3d.bone_volume_export import *
 
 from io_mesh_w3d.blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 6, 7)
+VERSION = (0, 6, 9)
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
