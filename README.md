@@ -1,7 +1,7 @@
 ![OpenSAGE](/art/opensage-logo.png)
 ============================================================
 
-[![Build Status](https://travis-ci.org/OpenSAGE/OpenSAGE.BlenderPlugin.svg?branch=master)](https://travis-ci.org/OpenSAGE/OpenSAGE.BlenderPlugin)
+[![Build Status](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/actions/workflows/ci.yml)
 [![Discord Chat](https://img.shields.io/discord/398393968234332161.svg?logo=discord)](https://discord.gg/G2FhZUT)
 [![codecov](https://codecov.io/gh/OpenSAGE/OpenSAGE.BlenderPlugin/branch/master/graph/badge.svg)](https://codecov.io/gh/OpenSAGE/OpenSAGE.BlenderPlugin)
 
