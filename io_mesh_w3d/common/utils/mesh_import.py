@@ -68,13 +68,13 @@ def create_mesh(context, mesh_struct, coll):
     b_mesh.from_mesh(mesh)
 
     if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, b_mesh, name, triangles)
+        create_vertex_material(context, principleds, mesh_struct, mesh, b_mesh, name, triangles, mesh_ob)
 
         for i, shader in enumerate(mesh_struct.shaders):
             set_shader_properties(mesh.materials[min(i, len(mesh.materials) - 1)], shader)
 
     elif mesh_struct.prelit_vertex:
-        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, b_mesh, name, triangles)
+        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, b_mesh, name, triangles, mesh_ob)
 
         for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
             set_shader_properties(mesh.materials[i], shader)
