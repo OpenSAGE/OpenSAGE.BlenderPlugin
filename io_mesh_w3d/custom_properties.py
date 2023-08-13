@@ -357,6 +357,11 @@ Material.texture_1 = StringProperty(
     description='TODO',
     default='')
 
+Material.damaged_texture = StringProperty(
+    name='Damaged Texture',
+    description='This texture works with the second uv map. In game, once a certain contact point bone is hit, the bounded vertices will show additional alpha channel with this texture to display damage effects (i.e, holes in the building).',
+    default='')
+
 Material.secondary_texture_blend_mode = IntProperty(
     name='Secondary texture blend mode',
     description='TODO',

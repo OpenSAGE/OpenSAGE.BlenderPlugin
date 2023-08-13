@@ -89,6 +89,7 @@ def create_mesh(context, mesh_struct, coll):
 
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+            create_uvlayer_2(context, mesh, b_mesh, triangles, mat_pass)
 
     mesh.update()
     if mesh.validate(verbose=True):

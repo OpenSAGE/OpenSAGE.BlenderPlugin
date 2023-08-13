@@ -33,6 +33,7 @@ def get_used_textures(material, principled, used_textures):
     used_textures = append_texture_if_valid(principled.specular_texture, used_textures)
 
     used_textures = append_texture_if_valid(material.texture_1, used_textures)
+    used_textures = append_texture_if_valid(material.damaged_texture, used_textures)
     used_textures = append_texture_if_valid(material.environment_texture, used_textures)
     used_textures = append_texture_if_valid(material.recolor_texture, used_textures)
     used_textures = append_texture_if_valid(material.scrolling_mask_texture, used_textures)
@@ -170,6 +171,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
     append_property(shader_mat, 7, 'UseRecolorColors', material.use_recolor)
     append_property(shader_mat, 7, 'HouseColorPulse', material.house_color_pulse)
     append_property(shader_mat, 1, 'ScrollingMaskTexture', material.scrolling_mask_texture)
+    append_property(shader_mat, 1, 'DamagedTexture', material.damaged_texture)
     append_property(shader_mat, 2, 'TexCoordTransformAngle_0', material.tex_coord_transform_angle)
     append_property(shader_mat, 2, 'TexCoordTransformU_0', material.tex_coord_transform_u_0)
     append_property(shader_mat, 2, 'TexCoordTransformV_0', material.tex_coord_transform_v_0)
