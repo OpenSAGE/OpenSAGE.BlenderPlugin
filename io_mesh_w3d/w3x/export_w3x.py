@@ -39,12 +39,11 @@ def save(context, export_settings, data_context):
                 context.info('Saving file :' + path)
                 write_struct(data_context.hierarchy, path)
 
-        for texture in data_context.textures:
-            id = texture.rsplit('.', 1)[0]
-            texture_include = Include(type='all', source='ART:' + id + '.xml')
-            texture_include.create(includes)
-
-            if export_settings['create_texture_xmls']:
+        if export_settings['create_texture_xmls']:
+            for texture in data_context.textures:
+                id = texture.rsplit('.', 1)[0]
+                texture_include = Include(type='all', source='ART:' + id + '.xml')
+                texture_include.create(includes)
                 path = directory + id + '.xml'
                 context.info('Saving file :' + path)
                 write_struct(Texture(id=id, file=texture), path)
@@ -81,10 +80,10 @@ def save(context, export_settings, data_context):
                 context.info('Saving file :' + path)
                 write_struct(Texture(id=id, file=texture), path)
 
-        for texture in data_context.textures:
-            id = texture.split('.')[0]
-            texture_include = Include(type='all', source='ART:' + id + '.xml')
-            texture_include.create(includes)
+            for texture in data_context.textures:
+                id = texture.split('.')[0]
+                texture_include = Include(type='all', source='ART:' + id + '.xml')
+                texture_include.create(includes)
 
         for box in data_context.collision_boxes:
             box.create(root)
