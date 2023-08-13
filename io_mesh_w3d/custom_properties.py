@@ -317,7 +317,7 @@ Material.bump_uv_scale = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Bump uv scale')
 
-Material.edge_fade_out = IntProperty(
+Material.edge_fade_out = FloatProperty(
     name='Edge fade out',
     description='TODO',
     default=0,
