@@ -137,4 +137,9 @@ def create_animation(context, rig, animation, hierarchy):
     else:
         process_channels(context, hierarchy, animation.channels, rig, apply_uncompressed)
 
+    if rig is not None and rig.animation_data is not None and rig.animation_data.action is not None:
+        rig.animation_data.action.name = animation.header.name
+    elif rig is not None and rig.data is not None and rig.data.animation_data is not None and rig.data.animation_data.action is not None:
+        rig.data.animation_data.action.name = animation.header.name
+
     bpy.context.scene.frame_set(0)
