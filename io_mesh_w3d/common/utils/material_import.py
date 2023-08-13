@@ -21,6 +21,7 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
 
     for mat_pass in structure.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+        create_uvlayer_2(context, mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
@@ -146,6 +147,9 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
         elif prop.name == 'Texture_1':  # second diffuse texture
             material.texture_1 = prop.value
+        elif prop.name == 'DamagedTexture':
+            find_texture(context, prop.value)
+            material.damaged_texture = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
             material.secondary_texture_blend_mode = prop.value
         elif prop.name == 'TexCoordMapper_0':
