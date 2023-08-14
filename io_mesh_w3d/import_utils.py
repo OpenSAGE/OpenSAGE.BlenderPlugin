@@ -16,6 +16,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
     dazzles = dazzles if dazzles is not None else []
     collection = get_collection(hlod)
 
+    mesh_names_map = {}
     if hlod is not None:
         current_coll = collection
         for i, lod_array in enumerate(reversed(hlod.lod_arrays)):
@@ -26,7 +27,8 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
-                        create_mesh(context, mesh, current_coll)
+                        newname = create_mesh(context, mesh, current_coll)
+                        mesh_names_map[mesh.name()] = newname
 
                 for box in boxes:
                     if box.name() == sub_object.name:
@@ -43,6 +45,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
             for sub_object in lod_array.sub_objects:
                 for mesh in meshes:
                     if mesh.name() == sub_object.name:
+                        mesh.header.mesh_name = mesh_names_map[mesh.name()]
                         rig_mesh(mesh, hierarchy, rig, sub_object)
                 for box in boxes:
                     if box.name() == sub_object.name:
