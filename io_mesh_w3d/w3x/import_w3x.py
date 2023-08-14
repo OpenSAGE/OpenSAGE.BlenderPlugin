@@ -83,9 +83,10 @@ def load(context):
             for array in data_context.hlod.lod_arrays:
                 for obj in array.sub_objects:
                     path = directory + obj.identifier + '.w3x'
-                    load_file(context, data_context, path)
+                    if os.path.exists(path):
+                        load_file(context, data_context, path)
 
-        if len(objidentifiers) != len(data_context.meshes) + len(data_context.collision_boxes):
+        if len(objidentifiers) > len(data_context.meshes) + len(data_context.collision_boxes):
             context.warning('Not all meshes loaded!')
 
     # if loaded only meshes/collision boxes, we need to find the w3d container
@@ -140,11 +141,11 @@ def load(context):
                 data_context.hierarchy = hierarchy
             else:
                 context.error(
-                    f'hierarchy not found: {data_context.animation.header.hierarchy_name}. Make sure it is in the current scene')
+                    f'Hierarchy not found: {data_context.animation.header.hierarchy_name}. Make sure it is in the current scene')
                 return {'CANCELLED'}
         else:
             context.error(
-                f'hierarchy file not found: {data_context.animation.header.hierarchy_name}. Make sure it is right next to the file you are importing.')
+                f'Hierarchy file not found: {data_context.animation.header.hierarchy_name}. Make sure it is right next to the file you are importing.')
             return {'CANCELLED'}
     
     # issue warning if single mesh is loaded without any container
@@ -158,4 +159,5 @@ def load(context):
     animation = data_context.animation
 
     create_data(context, meshes, hlod, hierarchy, boxes, animation)
+    context.info("Finished!")
     return {'FINISHED'}
