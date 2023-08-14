@@ -10,7 +10,8 @@ from io_mesh_w3d.common.structs.hlod import *
 from io_mesh_w3d.common.structs.mesh import *
 from io_mesh_w3d.common.structs.mesh_structs.texture import *
 from io_mesh_w3d.w3x.structs.include import *
-
+from io_mesh_w3d.common.utils.hierarchy_export import *
+from io_mesh_w3d.common.utils.hlod_export import *
 
 def load_file(context, data_context, path=None):
     if path is None:
@@ -89,21 +90,18 @@ def load(context):
 
     # if loaded only meshes/collision boxes, we need to find the w3d container
     if data_context.hlod is None and (len(data_context.meshes) == 1 or len(data_context.collision_boxes) == 1):
-        context.info('Looking for the container file..')
+        container_name = ""
         if len(data_context.meshes) == 1:
-            mesh = data_context.meshes[0]
-            ctr_paths_try = []
-            for hint in ctr_find_hint:
-                ctr_path = directory + mesh.container_name() + hint + '.w3x'
-                if os.path.exists(ctr_path):
-                    ctr_paths_try.append(ctr_path)
-        if len(data_context.collision_boxes) == 1:
-            box = data_context.collision_boxes[0]
-            ctr_paths_try = []
-            for hint in ctr_find_hint:
-                ctr_path = directory + box.container_name() + hint + '.w3x'
-                if os.path.exists(ctr_path):
-                    ctr_paths_try.append(ctr_path)
+            container_name = data_context.meshes[0].container_name()
+        else:
+            container_name = data_context.collision_boxes[0].container_name()
+        
+        context.info('Looking for the container file..')
+        ctr_paths_try = []
+        for hint in ctr_find_hint:
+            ctr_path = directory + container_name + hint + '.w3x'
+            if os.path.exists(ctr_path) and ctr_path != context.filepath:
+                ctr_paths_try.append(ctr_path)
             
         for ctr_path in ctr_paths_try:
             context.info(ctr_path)
@@ -118,12 +116,12 @@ def load(context):
         if data_context.hlod:
             for hint in skl_find_hint:
                 skl_path = directory + data_context.hlod.hierarchy_name() + hint + '.w3x'
-                if not skl_path in skl_paths_try and os.path.exists(skl_path):
+                if not skl_path in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
                     skl_paths_try.append(skl_path)
         if data_context.animation:
             for hint in skl_find_hint:
                 skl_path = directory + data_context.animation.header.hierarchy_name + hint + '.w3x'
-                if not skl_path in skl_paths_try and os.path.exists(skl_path):
+                if not skl_path in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
                     skl_paths_try.append(skl_path)
 
         for skl_path in skl_paths_try:
@@ -134,9 +132,20 @@ def load(context):
 
     # must load hierarchy file if animation is loaded.
     if data_context.animation and data_context.hierarchy is None:
-        context.error(
-            f'hierarchy file not found: {skl_path}. Make sure it is right next to the file you are importing.')
-        return {'FAILED'}
+        # check if we already have the container and hierarchy in blener
+        rigs = get_objects('ARMATURE')
+        if len(rigs) > 0:
+            hierarchy, _ = retrieve_hierarchy(context, "")
+            if hierarchy.header.name == data_context.animation.header.hierarchy_name:
+                data_context.hierarchy = hierarchy
+            else:
+                context.error(
+                    f'hierarchy not found: {data_context.animation.header.hierarchy_name}. Make sure it is in the current scene')
+                return {'CANCELLED'}
+        else:
+            context.error(
+                f'hierarchy file not found: {data_context.animation.header.hierarchy_name}. Make sure it is right next to the file you are importing.')
+            return {'CANCELLED'}
     
     # issue warning if single mesh is loaded without any container
     if data_context.hlod is None and (len(data_context.meshes) == 1 or len(data_context.collision_boxes) == 1):
