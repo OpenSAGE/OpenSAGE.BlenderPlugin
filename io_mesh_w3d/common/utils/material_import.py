@@ -146,6 +146,9 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'NumTextures':
             material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
         elif prop.name == 'Texture_1':  # second diffuse texture
+            # find texture just load the texture in blender
+            # multiple diffuse textures still need to be switched by hand by the user
+            find_texture(context, prop.value)
             material.texture_1 = prop.value
         elif prop.name == 'DamagedTexture':
             find_texture(context, prop.value)
