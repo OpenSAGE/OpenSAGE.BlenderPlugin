@@ -129,7 +129,7 @@ def find_texture(context, file, name=None):
         img = load_image(filepath + extension, check_existing=True)
         if img is not None:
             context.info('loaded texture: ' + filepath + extension)
-            img.name = name + extension
+            img.name = file
             break
 
     if img is None:
