@@ -17,7 +17,7 @@ def create_sphere():
     b_mesh.to_mesh(mesh)
     b_mesh.free()
 
-    return basic_sphere
+    return (basic_sphere, mesh)
 
 
 def create_cone(name):

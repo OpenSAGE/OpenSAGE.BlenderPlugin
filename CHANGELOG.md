@@ -1,5 +1,8 @@
 # Version History
 
+## v0.7.0 ()
+* delete base sphere object and mesh after hierarchy import
+
 ## v0.6.9 (06.04.23)
 * fixed export of materials with normal maps
 
