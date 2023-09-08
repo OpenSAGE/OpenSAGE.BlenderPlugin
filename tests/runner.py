@@ -4,9 +4,8 @@
 import sys
 import unittest
 
-import coverage
-
 if '--coverage' in sys.argv:
+    import coverage
     # Start collecting coverage
     cov = coverage.Coverage()
     cov.start()
