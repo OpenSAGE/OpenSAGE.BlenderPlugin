@@ -179,8 +179,8 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             vec1 = mesh.vertices[poly.vertices[0]].co
             vec2 = mesh.vertices[poly.vertices[1]].co
             vec3 = mesh.vertices[poly.vertices[2]].co
-            tri_pos = (vec1 + vec2 + vec3) / 3.0
-            triangle.distance = tri_pos.length
+            norm = (vec2 - vec1).cross(vec3 - vec1)
+            triangle.distance = norm.normalized().dot(vec1)
             mesh_struct.triangles.append(triangle)
 
         if context.file_format == 'W3X' and len(mesh_object.face_maps) > 0:
