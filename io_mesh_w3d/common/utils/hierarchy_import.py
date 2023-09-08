@@ -59,5 +59,7 @@ def create_bone_hierarchy(hierarchy, coll):
     for bone in rig.pose.bones:
         bone.custom_shape = basic_sphere
 
+    bpy.data.objects.remove(basic_sphere, do_unlink=True)
+
     bpy.ops.object.mode_set(mode='OBJECT')
     return rig
