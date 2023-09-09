@@ -103,7 +103,6 @@ def create_uvlayer_2(context, mesh, b_mesh, tris, mat_pass):
         for loop in face.loops:
             idx = tris[i][loop.index % 3]
             uv_layer.data[loop.index].uv = tx_coords_2[idx].xy
-    
 
 
 extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
