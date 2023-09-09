@@ -101,7 +101,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.update()
     if mesh.validate(verbose=True):
         context.info(f'mesh \'{actual_mesh_name}\' has been fixed')
-    
+
     return mesh.name
 
 

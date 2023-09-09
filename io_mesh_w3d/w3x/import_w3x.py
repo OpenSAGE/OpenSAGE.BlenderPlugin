@@ -13,6 +13,7 @@ from io_mesh_w3d.w3x.structs.include import *
 from io_mesh_w3d.common.utils.hierarchy_export import *
 from io_mesh_w3d.common.utils.hlod_export import *
 
+
 def load_file(context, data_context, path=None):
     if path is None:
         path = context.filepath
@@ -57,6 +58,8 @@ def load_file(context, data_context, path=None):
 
 skl_find_hint = ['', '_HRC', '_SKL']
 ctr_find_hint = ['', '_CTR']
+
+
 def load(context):
     data_context = DataContext(
         meshes=[],
@@ -75,7 +78,7 @@ def load(context):
         objidentifiers = []
         for array in data_context.hlod.lod_arrays:
             for obj in array.sub_objects:
-                if not obj.identifier in objidentifiers:
+                if obj.identifier not in objidentifiers:
                     objidentifiers.append(obj.identifier)
 
         if len(objidentifiers) != len(data_context.meshes) + len(data_context.collision_boxes):
@@ -96,14 +99,14 @@ def load(context):
             container_name = data_context.meshes[0].container_name()
         else:
             container_name = data_context.collision_boxes[0].container_name()
-        
+
         context.info('Looking for the container file..')
         ctr_paths_try = []
         for hint in ctr_find_hint:
             ctr_path = directory + container_name + hint + '.w3x'
             if os.path.exists(ctr_path) and ctr_path != context.filepath:
                 ctr_paths_try.append(ctr_path)
-            
+
         for ctr_path in ctr_paths_try:
             context.info(ctr_path)
             if load_file(context, data_context, ctr_path):
@@ -117,12 +120,12 @@ def load(context):
         if data_context.hlod:
             for hint in skl_find_hint:
                 skl_path = directory + data_context.hlod.hierarchy_name() + hint + '.w3x'
-                if not skl_path in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
+                if skl_path not in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
                     skl_paths_try.append(skl_path)
         if data_context.animation:
             for hint in skl_find_hint:
                 skl_path = directory + data_context.animation.header.hierarchy_name + hint + '.w3x'
-                if not skl_path in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
+                if skl_path not in skl_paths_try and os.path.exists(skl_path) and skl_path != context.filepath:
                     skl_paths_try.append(skl_path)
 
         for skl_path in skl_paths_try:
@@ -147,7 +150,7 @@ def load(context):
             context.error(
                 f'Hierarchy file not found: {data_context.animation.header.hierarchy_name}. Make sure it is right next to the file you are importing.')
             return {'CANCELLED'}
-    
+
     # issue warning if single mesh is loaded without any container
     if data_context.hlod is None and (len(data_context.meshes) == 1 or len(data_context.collision_boxes) == 1):
         context.warning('Loaded only single mesh! This may cause problems to export the scene.')
