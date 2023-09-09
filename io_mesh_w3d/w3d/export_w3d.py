@@ -29,6 +29,10 @@ def save(context, export_settings, data_context):
             data_context.hierarchy.header.name = data_context.container_name
             data_context.hierarchy.write(file)
 
+        if export_mode == 'HAM':
+            data_context.animation.header.hierarchy_name = data_context.container_name
+            data_context.animation.write(file)
+
         for box in data_context.collision_boxes:
             box.write(file)
 
@@ -39,9 +43,6 @@ def save(context, export_settings, data_context):
             mesh.write(file)
 
         data_context.hlod.write(file)
-        if export_mode == 'HAM':
-            data_context.animation.header.hierarchy_name = data_context.container_name
-            data_context.animation.write(file)
 
     elif export_mode == 'A':
         data_context.animation.write(file)
