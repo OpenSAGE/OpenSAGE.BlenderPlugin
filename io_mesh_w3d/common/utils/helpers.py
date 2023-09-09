@@ -91,6 +91,20 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
             uv_layer.data[loop.index].uv = tx_coords[idx].xy
 
 
+def create_uvlayer_2(context, mesh, b_mesh, tris, mat_pass):
+    tx_coords_2 = None
+    if mat_pass.tx_coords_2:
+        tx_coords_2 = mat_pass.tx_coords_2
+    else:
+        return
+
+    uv_layer = mesh.uv_layers.new(do_init=False)
+    for i, face in enumerate(b_mesh.faces):
+        for loop in face.loops:
+            idx = tris[i][loop.index % 3]
+            uv_layer.data[loop.index].uv = tx_coords_2[idx].xy
+
+
 extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
 
 
@@ -111,10 +125,10 @@ def find_texture(context, file, name=None):
 
     img = None
     for extension in extensions:
-        img = load_image(filepath + extension)
+        img = load_image(filepath + extension, check_existing=True)
         if img is not None:
             context.info('loaded texture: ' + filepath + extension)
-            img.name = name + extension
+            img.name = file
             break
 
     if img is None:

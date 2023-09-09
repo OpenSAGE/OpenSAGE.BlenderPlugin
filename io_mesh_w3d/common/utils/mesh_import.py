@@ -16,6 +16,12 @@ def create_mesh(context, mesh_struct, coll):
     mesh = bpy.data.meshes.new(mesh_struct.name())
     mesh.from_pydata(mesh_struct.verts, [], triangles)
 
+    # fix repeated opeing bug: blender will rename the new mesh with .001, .002 suffix
+    # we need to save the actual name of the mesh!
+    actual_mesh_name = mesh.name
+    if actual_mesh_name != mesh_struct.name():
+        context.warning("Mesh name automatically fixed due to duplication, new name: " + actual_mesh_name)
+
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
     mesh.use_auto_smooth = True
 
@@ -25,7 +31,7 @@ def create_mesh(context, mesh_struct, coll):
     mesh.casts_shadow = mesh_struct.casts_shadow()
     mesh.two_sided = mesh_struct.two_sided()
 
-    mesh_ob = bpy.data.objects.new(mesh_struct.name(), mesh)
+    mesh_ob = bpy.data.objects.new(actual_mesh_name, mesh)
 
     mesh_ob.use_empty_image_alpha = True
 
@@ -63,18 +69,19 @@ def create_mesh(context, mesh_struct, coll):
     principleds = []
 
     # vertex material stuff
-    name = mesh_struct.name()
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
 
     if mesh_struct.vert_materials:
-        create_vertex_material(context, principleds, mesh_struct, mesh, b_mesh, name, triangles)
+        create_vertex_material(
+            context, principleds, mesh_struct, mesh, b_mesh, actual_mesh_name, triangles)
 
         for i, shader in enumerate(mesh_struct.shaders):
             set_shader_properties(mesh.materials[min(i, len(mesh.materials) - 1)], shader)
 
     elif mesh_struct.prelit_vertex:
-        create_vertex_material(context, principleds, mesh_struct.prelit_vertex, mesh, b_mesh, name, triangles)
+        create_vertex_material(context, principleds, mesh_struct.prelit_vertex,
+                               mesh, b_mesh, actual_mesh_name, triangles)
 
         for i, shader in enumerate(mesh_struct.prelit_vertex.shaders):
             set_shader_properties(mesh.materials[i], shader)
@@ -83,16 +90,19 @@ def create_mesh(context, mesh_struct, coll):
     elif mesh_struct.shader_materials:
         for i, shaderMat in enumerate(mesh_struct.shader_materials):
             material, principled = create_material_from_shader_material(
-                context, mesh_struct.name(), shaderMat)
+                context, actual_mesh_name, shaderMat)
             mesh.materials.append(material)
             principleds.append(principled)
 
         for mat_pass in mesh_struct.material_passes:
             create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+            create_uvlayer_2(context, mesh, b_mesh, triangles, mat_pass)
 
     mesh.update()
     if mesh.validate(verbose=True):
-        context.info(f'mesh \'{mesh_struct.name()}\' has been fixed')
+        context.info(f'mesh \'{actual_mesh_name}\' has been fixed')
+
+    return mesh.name
 
 
 def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):

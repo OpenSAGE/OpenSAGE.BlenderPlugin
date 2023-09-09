@@ -125,8 +125,14 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
             context.warning(f'Mesh \'{mesh.name}\' is animated, animate its parent bone instead!')
 
     if rig is not None:
-        channels.extend(retrieve_channels(rig, hierarchy, timecoded))
-        channels.extend(retrieve_channels(rig.data, hierarchy, timecoded))
+        chnA = retrieve_channels(rig, hierarchy, timecoded)
+        if len(chnA) > 0:
+            channels.extend(chnA)
+            animation_name = rig.animation_data.action.name
+        chnB = retrieve_channels(rig.data, hierarchy, timecoded)
+        if len(chnB) > 0:
+            channels.extend(chnB)
+            animation_name = rig.animation_data.action.name
 
     if timecoded:
         ani_struct = CompressedAnimation(

@@ -464,8 +464,10 @@ class Mesh:
                 mat_pass = result.get_material_pass()
                 if not mat_pass.tx_coords:
                     mat_pass.tx_coords = parse_objects(child, 'T', parse_vector2)
+                elif not mat_pass.tx_coords_2:
+                    mat_pass.tx_coords_2 = parse_objects(child, 'T', parse_vector2)
                 else:
-                    context.warning('multiple uv coords are not yet supported!')
+                    context.warning('more than 2 uv coords in the file!')
             elif child.tag == 'ShadeIndices':
                 result.shade_ids = parse_objects(child, 'I', parse_int_value)
                 context.info('shade indices are not supported')
@@ -543,8 +545,9 @@ class Mesh:
         if self.material_passes:
             if self.material_passes[0].dcg:
                 create_object_list(xml_mesh, 'VertexColors', self.get_material_pass().dcg, RGBA.create)
-
             create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords, create_vector2, 'T')
+            if self.material_passes[0].tx_coords_2:
+                create_object_list(xml_mesh, 'TexCoords', self.material_passes[0].tx_coords_2, create_vector2, 'T')
 
         if self.vert_infs:
             vertex_influences = create_node(xml_mesh, 'BoneInfluences')

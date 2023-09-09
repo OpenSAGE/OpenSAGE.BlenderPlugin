@@ -229,6 +229,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
                 mat_pass.shader_material_ids = [i]
                 if i < len(tx_stages):
                     mat_pass.tx_coords = tx_stages[i].tx_coords[0]
+                # FIX ME: ugly solution to export second uv map!
+                # How to deal with multiple materials aganist multiple UV maps in a mesh?
+                if len(mesh.materials) == 1 and len(tx_stages) == 2:
+                    mat_pass.tx_coords_2 = tx_stages[i + 1].tx_coords[0]
+
                 mesh_struct.shader_materials.append(
                     retrieve_shader_material(context, material, principled))
 

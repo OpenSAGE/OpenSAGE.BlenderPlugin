@@ -368,6 +368,8 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col = layout.column()
             col.prop(mat, 'texture_1')
             col = layout.column()
+            col.prop(mat, 'damaged_texture')
+            col = layout.column()
             col.prop(mat, 'secondary_texture_blend_mode')
             col = layout.column()
             col.prop(mat, 'tex_coord_mapper_0')

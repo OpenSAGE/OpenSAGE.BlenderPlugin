@@ -21,6 +21,7 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
 
     for mat_pass in structure.material_passes:
         create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+        create_uvlayer_2(context, mesh, b_mesh, triangles, mat_pass)
 
         if mat_pass.tx_stages:
             tx_stage = mat_pass.tx_stages[0]
@@ -29,6 +30,7 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
             texture = structure.textures[tex_id]
             tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
+            principleds[mat_id].base_color_texture.image.name = texture.file
 
 
 def create_material_from_vertex_material(name, vert_mat):
@@ -99,12 +101,15 @@ def create_material_from_shader_material(context, name, shader_mat):
     for prop in shader_mat.properties:
         if prop.name == 'DiffuseTexture' and prop.value != '':
             principled.base_color_texture.image = find_texture(context, prop.value)
+            principled.base_color_texture.image.name = prop.value
         elif prop.name == 'NormalMap' and prop.value != '':
             principled.normalmap_texture.image = find_texture(context, prop.value)
+            principled.normalmap_texture.image.name = prop.value
         elif prop.name == 'BumpScale':
             principled.normalmap_strength = prop.value
         elif prop.name == 'SpecMap' and prop.value != '':
             principled.specular_texture.image = find_texture(context, prop.value)
+            principled.specular_texture.image.name = prop.value
         elif prop.name == 'SpecularExponent' or prop.name == 'Shininess':
             material.specular_intensity = prop.value / 200.0
         elif prop.name == 'DiffuseColor' or prop.name == 'ColorDiffuse':
@@ -115,6 +120,7 @@ def create_material_from_shader_material(context, name, shader_mat):
             material.use_backface_culling = prop.value
         elif prop.name == 'Texture_0':
             principled.base_color_texture.image = find_texture(context, prop.value)
+            principled.base_color_texture.image.name = prop.value
 
         # all props below have no effect on shading -> custom properties for roundtrip purpose
         elif prop.name == 'AmbientColor' or prop.name == 'ColorAmbient':
@@ -140,7 +146,13 @@ def create_material_from_shader_material(context, name, shader_mat):
         elif prop.name == 'NumTextures':
             material.num_textures = prop.value  # is 1 if texture_0 and texture_1 are set
         elif prop.name == 'Texture_1':  # second diffuse texture
+            # find texture just load the texture in blender
+            # multiple diffuse textures still need to be switched by hand by the user
+            find_texture(context, prop.value)
             material.texture_1 = prop.value
+        elif prop.name == 'DamagedTexture':
+            find_texture(context, prop.value)
+            material.damaged_texture = prop.value
         elif prop.name == 'SecondaryTextureBlendMode':
             material.secondary_texture_blend_mode = prop.value
         elif prop.name == 'TexCoordMapper_0':

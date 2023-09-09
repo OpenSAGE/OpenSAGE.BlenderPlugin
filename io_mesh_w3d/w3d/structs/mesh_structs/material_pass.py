@@ -80,6 +80,7 @@ class MaterialPass:
         self.shader_material_ids = shader_material_ids if shader_material_ids is not None else []
         self.tx_stages = tx_stages if tx_stages is not None else []
         self.tx_coords = tx_coords if tx_coords is not None else []
+        self.tx_coords_2 = tx_coords if tx_coords is not None else []
 
     @staticmethod
     def read(context, io_stream, chunk_end):
@@ -118,6 +119,7 @@ class MaterialPass:
         size += long_list_size(self.shader_material_ids)
         size += list_size(self.tx_stages, False)
         size += vec2_list_size(self.tx_coords)
+        #size += vec2_list_size(self.tx_coords_2)
         return size
 
     def write(self, io_stream):

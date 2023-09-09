@@ -317,7 +317,7 @@ Material.bump_uv_scale = FloatVectorProperty(
     min=0.0, max=1.0,
     description='Bump uv scale')
 
-Material.edge_fade_out = IntProperty(
+Material.edge_fade_out = FloatProperty(
     name='Edge fade out',
     description='TODO',
     default=0,
@@ -355,6 +355,11 @@ Material.num_textures = IntProperty(
 Material.texture_1 = StringProperty(
     name='Texture 1',
     description='TODO',
+    default='')
+
+Material.damaged_texture = StringProperty(
+    name='Damaged Texture',
+    description='This texture works with the second uv map. In game, once a certain contact point bone is hit, the bounded vertices will show additional alpha channel with this texture to display damage effects (i.e, holes in the building).',
     default='')
 
 Material.secondary_texture_blend_mode = IntProperty(
