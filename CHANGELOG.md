@@ -1,7 +1,9 @@
 # Version History
 
-## v0.7.0 ()
+## v0.7.0 (09.09.23)
 * delete base sphere object and mesh after hierarchy import
+* fix face distance calculation to match 3DS max exporter
+* multi-texture / multi-material support
 
 ## v0.6.9 (06.04.23)
 * fixed export of materials with normal maps
