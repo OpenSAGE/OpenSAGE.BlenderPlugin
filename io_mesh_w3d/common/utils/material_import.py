@@ -31,6 +31,8 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
             tex = find_texture(context, texture.file, texture.id)
             principleds[mat_id].base_color_texture.image = tex
             principleds[mat_id].base_color_texture.image.name = texture.file
+            principleds[mat_id].alpha_texture.image = tex
+            principleds[mat_id].alpha_texture.image.name = texture.file
 
 
 def create_material_from_vertex_material(name, vert_mat):
