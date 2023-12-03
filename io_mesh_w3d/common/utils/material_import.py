@@ -43,7 +43,6 @@ def create_material_from_vertex_material(name, vert_mat):
     material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
-    material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     attributes = {'DEFAULT'}
@@ -91,7 +90,6 @@ def create_material_from_shader_material(context, name, shader_mat):
     material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
-    material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     material.technique = shader_mat.header.technique
@@ -209,6 +207,8 @@ def create_material_from_shader_material(context, name, shader_mat):
 
 
 def set_shader_properties(material, shader):
+    material.blend_method = 'CLIP'
+    #this works for transparency until i get around to streamlining this better
     material.shader.depth_compare = str(shader.depth_compare)
     material.shader.depth_mask = str(shader.depth_mask)
     material.shader.color_mask = shader.color_mask
