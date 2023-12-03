@@ -57,6 +57,11 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
                 tex = find_texture(context, texture.file, texture.id)
                 principleds[mat_id].base_color_texture.image = tex
                 principleds[mat_id].alpha_texture.image = tex
+         
+    #Iterate through all materials and set their blend mode to Alpha Clip for transparency
+    for material in mesh.materials:
+        if material:
+            material.blend_method = 'CLIP'
 
 
 def create_material_from_vertex_material(name, vert_mat):
@@ -233,8 +238,6 @@ def create_material_from_shader_material(context, name, shader_mat):
 
 
 def set_shader_properties(material, shader):
-    material.blend_method = 'CLIP'
-    #this works for transparency until i get around to streamlining this better
     material.shader.depth_compare = str(shader.depth_compare)
     material.shader.depth_mask = str(shader.depth_mask)
     material.shader.color_mask = shader.color_mask
