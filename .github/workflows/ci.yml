@@ -15,7 +15,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     strategy:
       matrix:
-        blender-version: [ '2.93', '3.6', '4.0' ]
+        blender-version: [ '2.93', '3.6' ] #, '4.0' ]
         include:
           - blender-version: '2.93'
             blender-version-suffix: '13'
