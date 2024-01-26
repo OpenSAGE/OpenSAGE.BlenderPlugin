@@ -15,7 +15,7 @@ jobs:
     runs-on: [ ubuntu-latest ]
     strategy:
       matrix:
-        blender-version: [ '2.93', '3.6' ] #, '4.0' ]
+        blender-version: [ '2.93', '3.6', '4.0' ]
         include:
           - blender-version: '2.93'
             blender-version-suffix: '13'
@@ -23,9 +23,9 @@ jobs:
           - blender-version: '3.6'
             blender-version-suffix: '0'
             python-version: '3.10.9'
-          #- blender-version: '4.0'
-          #  blender-version-suffix: '0'
-          #  python-version: '3.10.9'
+          - blender-version: '4.0'
+            blender-version-suffix: '0'
+            python-version: '3.10.9'
 
     steps:
     - uses: actions/checkout@v3

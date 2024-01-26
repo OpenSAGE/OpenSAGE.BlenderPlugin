@@ -20,6 +20,8 @@ def get_triangle(vert_ids=None,
 def compare_triangles(self, expected, actual, is_skin=False):
     self.assertEqual(expected.vert_ids, actual.vert_ids)
     if not self.file_format == 'W3X':  # surface type is not supported in W3X file format
+        if expected.surface_type != actual.surface_type:
+            print("expected: " + str(expected.surface_type) + ", actual: " + str(actual.surface_type))
         self.assertEqual(expected.surface_type, actual.surface_type)
 
     if not is_skin:  # generated/changed by blender

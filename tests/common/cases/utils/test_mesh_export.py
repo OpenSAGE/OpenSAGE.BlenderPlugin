@@ -652,9 +652,18 @@ class TestMeshExportUtils(TestCase):
         mesh_ob = bpy.data.objects['mesh']
         mesh_ob.face_maps.clear()
 
-        mesh_ob.face_maps.new(name='InvalidSurfaceType')
+        if bpy.app.version < (4, 0, 0):
+            mesh_ob.face_maps.new(name='InvalidSurfaceType')
+        else:
+            face_map = mesh_ob.face_maps.add()
+            face_map.name = 'InvalidSurfaceType'
+
         for i, _ in enumerate(mesh.verts):
-            mesh_ob.face_maps[0].add([i])
+            if bpy.app.version < (4, 0, 0):
+                mesh_ob.face_maps[0].add([i])
+            else:
+                val = mesh_ob.face_maps[0].value.add()
+                val.value = i
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
