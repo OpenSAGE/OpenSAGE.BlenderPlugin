@@ -58,13 +58,13 @@ def create_mesh(context, mesh_struct, coll):
             surface_type_name = triangle.get_surface_type_name(context, i)
             if surface_type_name not in mesh.face_maps:
                 if bpy.app.version < (4, 0, 0):
-                    mesh.face_maps.new(name=surface_type_name)
+                    mesh_ob.face_maps.new(name=surface_type_name)
                 else:
                     face_map = mesh.face_maps.add()
                     face_map.name = surface_type_name
 
             if bpy.app.version < (4, 0, 0):
-                mesh.face_maps[surface_type_name].add([i])
+                mesh_ob.face_maps[surface_type_name].add([i])
             else:
                 val = mesh.face_maps[surface_type_name].value.add()
                 val.value = i
