@@ -3,7 +3,7 @@
 
 import bpy
 from bpy.props import *
-from bpy.types import Material, PropertyGroup, Bone, Mesh, Object, MeshPolygon
+from bpy.types import Material, PropertyGroup, Bone, Mesh, Object
 
 
 ##########################################################################

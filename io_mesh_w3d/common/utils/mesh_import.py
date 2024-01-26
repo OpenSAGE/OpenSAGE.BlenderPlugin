@@ -79,7 +79,6 @@ def create_mesh(context, mesh_struct, coll):
     # vertex material stuff
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-    b_mesh.faces.ensure_lookup_table()
                 
     if mesh_struct.vert_materials:
         create_vertex_material(

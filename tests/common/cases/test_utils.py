@@ -133,7 +133,6 @@ class TestUtils(TestCase):
         self.assertEqual(0, len(actual.properties))
 
         actual = retrieve_shader_material(self, material, principled, w3x=True)
-        self.assertEqual([], actual.properties)
         self.assertEqual(0, len(actual.properties))
 
     def test_shader_material_minimal_roundtrip(self):
