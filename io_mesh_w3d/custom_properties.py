@@ -3,7 +3,7 @@
 
 import bpy
 from bpy.props import *
-from bpy.types import Material, PropertyGroup, Bone, Mesh, Object
+from bpy.types import Material, PropertyGroup, Bone, Mesh
 
 
 ##########################################################################
@@ -122,10 +122,6 @@ Mesh.contact_tag = EnumProperty(
         ('DEBRIS', 'debris', 'desc: debris contact tag')],
     default='DEBRIS')
 
-##########################################################################
-# Object
-##########################################################################
-
 class SurfaceType(bpy.types.PropertyGroup):
     value: bpy.props.IntProperty(default=0)
 
@@ -138,7 +134,7 @@ class FaceMap(bpy.types.PropertyGroup):
 bpy.utils.register_class(FaceMap)
 
 if bpy.app.version >= (4, 0, 0):
-    Object.face_maps = CollectionProperty(type=FaceMap)
+    Mesh.face_maps = CollectionProperty(type=FaceMap)
 
 ##########################################################################
 # PoseBone
