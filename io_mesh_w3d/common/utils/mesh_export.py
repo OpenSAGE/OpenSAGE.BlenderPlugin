@@ -183,10 +183,7 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             triangle.distance = tri_pos.length
             mesh_struct.triangles.append(triangle)
 
-        if bpy.app.version < (4, 0, 0):
-            face_maps = mesh_object.face_maps
-        else:
-            face_maps = mesh.face_maps
+        face_maps = mesh.face_maps
 
         if context.file_format == 'W3X' and len(face_maps) > 0:
             context.warning('triangle surface types (mesh face maps) are not supported in W3X file format!')
@@ -195,11 +192,11 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             Triangle.validate_face_map_names(context, face_map_names)
 
             if bpy.app.version < (4, 0, 0):
-                for map in mesh_object.face_maps:
+                for map in face_maps:
                     for i, val in enumerate(map.data):
                         mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
             else:
-                for map in mesh.face_maps:
+                for map in face_maps:
                     for val in map.value:
                         if val.value < len(mesh_struct.triangles):
                             mesh_struct.triangles[val.value].set_surface_type(map.name)
