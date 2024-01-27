@@ -119,7 +119,7 @@ def retrieve_shader_material(context, material, principled, w3x=False):
         header=ShaderMaterialHeader(
             type_name=name),
         properties=[])
-    
+
     color_emissive_default = Vector((0.0, 0.0, 0.0, 1.0))
     if bpy.app.version >= (4, 0, 0):
         color_emissive_default = Vector((1.0, 1.0, 1.0, 1.0))

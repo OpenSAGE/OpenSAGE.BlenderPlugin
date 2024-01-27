@@ -80,7 +80,7 @@ def create_mesh(context, mesh_struct, coll):
     # vertex material stuff
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-                
+
     if mesh_struct.vert_materials:
         create_vertex_material(
             context, principleds, mesh_struct, mesh, b_mesh, actual_mesh_name, triangles)
