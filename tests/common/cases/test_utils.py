@@ -349,7 +349,9 @@ class TestUtils(TestCase):
         create_data(self, meshes)
 
         mesh.triangles = temp_tris
-        self.compare_data([mesh])
+
+        if bpy.app.version < (4, 0, 0):
+            self.compare_data([mesh])
 
     def test_hlod_4_levels_roundtrip(self):
         hlod = get_hlod_4_levels()

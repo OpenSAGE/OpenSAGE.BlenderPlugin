@@ -2,6 +2,7 @@
 
 ## v0.7.0 ()
 * delete base sphere object and mesh after hierarchy import
+* adapt to API changes in Blender 4.0+
 
 ## v0.6.9 (06.04.23)
 * fixed export of materials with normal maps

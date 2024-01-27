@@ -56,10 +56,19 @@ def create_mesh(context, mesh_struct, coll):
     if context.file_format == 'W3D':
         for i, triangle in enumerate(mesh_struct.triangles):
             surface_type_name = triangle.get_surface_type_name(context, i)
-            if surface_type_name not in mesh_ob.face_maps:
-                mesh_ob.face_maps.new(name=surface_type_name)
+            if bpy.app.version < (4, 0, 0):
+                if surface_type_name not in mesh_ob.face_maps:
+                    mesh_ob.face_maps.new(name=surface_type_name)
+            else:
+                if surface_type_name not in mesh.face_maps:
+                    face_map = mesh.face_maps.add()
+                    face_map.name = surface_type_name
 
-            mesh_ob.face_maps[surface_type_name].add([i])
+            if bpy.app.version < (4, 0, 0):
+                mesh_ob.face_maps[surface_type_name].add([i])
+            else:
+                val = mesh.face_maps[surface_type_name].value.add()
+                val.value = i
 
     for i, mat_pass in enumerate(mesh_struct.material_passes):
         create_vertex_color_layer(mesh, mat_pass.dcg, 'DCG', i)
@@ -71,7 +80,7 @@ def create_mesh(context, mesh_struct, coll):
     # vertex material stuff
     b_mesh = bmesh.new()
     b_mesh.from_mesh(mesh)
-
+                
     if mesh_struct.vert_materials:
         create_vertex_material(
             context, principleds, mesh_struct, mesh, b_mesh, actual_mesh_name, triangles)
