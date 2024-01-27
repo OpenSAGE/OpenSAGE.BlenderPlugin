@@ -649,8 +649,12 @@ class TestMeshExportUtils(TestCase):
         m = get_mesh('mesh')
         create_mesh(self, m, get_collection())
 
-        mesh = bpy.data.meshes['mesh']
-        mesh.face_maps.clear()
+        if bpy.app.version < (4, 0, 0):
+            mesh = bpy.data.objects['mesh']
+            mesh.face_maps.clear()
+        else:
+            mesh = bpy.data.meshes['mesh']
+            mesh.face_maps.clear()
 
         if bpy.app.version < (4, 0, 0):
             mesh.face_maps.new(name='InvalidSurfaceType')
