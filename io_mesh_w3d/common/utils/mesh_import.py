@@ -56,10 +56,11 @@ def create_mesh(context, mesh_struct, coll):
     if context.file_format == 'W3D':
         for i, triangle in enumerate(mesh_struct.triangles):
             surface_type_name = triangle.get_surface_type_name(context, i)
-            if surface_type_name not in mesh.face_maps:
-                if bpy.app.version < (4, 0, 0):
+            if bpy.app.version < (4, 0, 0):
+                if surface_type_name not in mesh_ob.face_maps:
                     mesh_ob.face_maps.new(name=surface_type_name)
-                else:
+            else:
+                if surface_type_name not in mesh.face_maps:
                     face_map = mesh.face_maps.add()
                     face_map.name = surface_type_name
 
