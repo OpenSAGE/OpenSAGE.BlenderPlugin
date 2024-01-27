@@ -122,18 +122,18 @@ Mesh.contact_tag = EnumProperty(
         ('DEBRIS', 'debris', 'desc: debris contact tag')],
     default='DEBRIS')
 
-class SurfaceType(bpy.types.PropertyGroup):
-    value: bpy.props.IntProperty(default=0)
-
-bpy.utils.register_class(SurfaceType)
-
-class FaceMap(bpy.types.PropertyGroup):
-    name: bpy.props.StringProperty(name="Face Map Name", default="Unknown")
-    value: CollectionProperty(type=SurfaceType)
-
-bpy.utils.register_class(FaceMap)
-
 if bpy.app.version >= (4, 0, 0):
+    class SurfaceType(bpy.types.PropertyGroup):
+        value: bpy.props.IntProperty(default=0)
+
+    bpy.utils.register_class(SurfaceType)
+
+    class FaceMap(bpy.types.PropertyGroup):
+        name: bpy.props.StringProperty(name="Face Map Name", default="Unknown")
+        value: CollectionProperty(type=SurfaceType)
+
+    bpy.utils.register_class(FaceMap)
+
     Mesh.face_maps = CollectionProperty(type=FaceMap)
 
 ##########################################################################
