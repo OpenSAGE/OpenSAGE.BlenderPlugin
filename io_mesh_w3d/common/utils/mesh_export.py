@@ -194,11 +194,12 @@ def retrieve_meshes(context, hierarchy, rig, container_name, force_vertex_materi
             face_map_names = [map.name for map in face_maps]
             Triangle.validate_face_map_names(context, face_map_names)
 
-            for map in face_maps:
-                if bpy.app.version < (4, 0, 0):
+            if bpy.app.version < (4, 0, 0):
+                for map in mesh_object.face_maps:
                     for i, val in enumerate(map.data):
                         mesh_struct.triangles[i].set_surface_type(face_map_names[val.value])
-                else:
+            else:
+                for map in mesh.face_maps:
                     for val in map.value:
                         if val.value < len(mesh_struct.triangles):
                             mesh_struct.triangles[val.value].set_surface_type(map.name)
