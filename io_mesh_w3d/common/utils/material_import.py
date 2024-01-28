@@ -15,7 +15,8 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 
 def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, triangles, mesh_ob):
 
-    if len(structure.material_passes) == 1 and len(structure.textures) > 1: # condition for multiple materials per single mesh object
+    if len(structure.material_passes) == 1 and len(
+            structure.textures) > 1:  # condition for multiple materials per single mesh object
         # Create the same amount of materials as textures used for this mesh
         source_mat = structure.vert_materials[0]
         for texture in structure.textures:
@@ -29,7 +30,7 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
         # Load textures
         for tex_id, texture in enumerate(structure.textures):
             texture = structure.textures[tex_id]
-            tex = find_texture(context, texture.file, texture.id)   
+            tex = find_texture(context, texture.file, texture.id)
             node_tree = mesh.materials[tex_id].node_tree
             bsdf_node = node_tree.nodes.get('Principled BSDF')
             texture_node = node_tree.nodes.new('ShaderNodeTexImage')
@@ -40,12 +41,12 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
             links.new(texture_node.outputs['Alpha'], bsdf_node.inputs['Alpha'])
 
         # Assign material to appropriate object faces
-        bpy.ops.object.mode_set(mode = 'EDIT')
+        bpy.ops.object.mode_set(mode='EDIT')
         bm = bmesh.from_edit_mesh(mesh_ob.data)
         bm.faces.ensure_lookup_table()
         for i, face in enumerate(bm.faces):
             bm.faces[i].material_index = structure.material_passes[0].tx_stages[0].tx_ids[0][i]
-        bpy.ops.object.mode_set(mode = 'OBJECT')
+        bpy.ops.object.mode_set(mode='OBJECT')
     else:
         for vertMat in structure.vert_materials:
             (material, principled) = create_material_from_vertex_material(name, vertMat)
@@ -69,8 +70,8 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
                 links = node_tree.links
                 links.new(texture_node.outputs['Color'], bsdf_node.inputs['Base Color'])
                 links.new(texture_node.outputs['Alpha'], bsdf_node.inputs['Alpha'])
-         
-    #Iterate through all materials and set their blend mode to Alpha Clip for transparency
+
+    # Iterate through all materials and set their blend mode to Alpha Clip for transparency
     for material in mesh.materials:
         if material:
             material.blend_method = 'CLIP'
