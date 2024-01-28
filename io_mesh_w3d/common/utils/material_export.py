@@ -1,6 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
+import bpy
 from mathutils import Vector
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
@@ -119,19 +120,23 @@ def retrieve_shader_material(context, material, principled, w3x=False):
             type_name=name),
         properties=[])
 
+    color_emissive_default = Vector((0.0, 0.0, 0.0, 1.0))
+    if bpy.app.version >= (4, 0, 0):
+        color_emissive_default = Vector((1.0, 1.0, 1.0, 1.0))
+
     if w3x:
         append_property(shader_mat, 2, 'Shininess', material.specular_intensity * 200.0, 100.0)
         append_property(shader_mat, 5, 'ColorDiffuse', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
         append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color), Vector((0.0, 0.0, 0.0, 1.0)))
         append_property(shader_mat, 5, 'ColorAmbient', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'ColorEmissive', to_vec(principled.emission_color), Vector((0.0, 0.0, 0.0, 1.0)))
+        append_property(shader_mat, 5, 'ColorEmissive', to_vec(principled.emission_color), color_emissive_default)
 
     else:
         append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity * 200.0, 100.0)
         append_property(shader_mat, 5, 'DiffuseColor', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
         append_property(shader_mat, 5, 'SpecularColor', to_vec(material.specular_color), Vector((0.0, 0.0, 0.0, 1.0)))
         append_property(shader_mat, 5, 'AmbientColor', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'EmissiveColor', to_vec(principled.emission_color), Vector((0.0, 0.0, 0.0, 1.0)))
+        append_property(shader_mat, 5, 'EmissiveColor', to_vec(principled.emission_color), color_emissive_default)
 
     if material.texture_1:
         append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)

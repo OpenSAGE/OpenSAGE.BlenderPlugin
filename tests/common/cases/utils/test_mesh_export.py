@@ -646,15 +646,28 @@ class TestMeshExportUtils(TestCase):
         self.assertFalse(meshes[0].is_camera_aligned())
 
     def test_mesh_export_invalid_surface_types(self):
-        mesh = get_mesh('mesh')
-        create_mesh(self, mesh, get_collection())
+        m = get_mesh('mesh')
+        create_mesh(self, m, get_collection())
 
-        mesh_ob = bpy.data.objects['mesh']
-        mesh_ob.face_maps.clear()
+        if bpy.app.version < (4, 0, 0):
+            mesh = bpy.data.objects['mesh']
+            mesh.face_maps.clear()
+        else:
+            mesh = bpy.data.meshes['mesh']
+            mesh.face_maps.clear()
 
-        mesh_ob.face_maps.new(name='InvalidSurfaceType')
-        for i, _ in enumerate(mesh.verts):
-            mesh_ob.face_maps[0].add([i])
+        if bpy.app.version < (4, 0, 0):
+            mesh.face_maps.new(name='InvalidSurfaceType')
+        else:
+            face_map = mesh.face_maps.add()
+            face_map.name = 'InvalidSurfaceType'
+
+        for i, _ in enumerate(m.verts):
+            if bpy.app.version < (4, 0, 0):
+                mesh.face_maps[0].add([i])
+            else:
+                val = mesh.face_maps[0].value.add()
+                val.value = i
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')
