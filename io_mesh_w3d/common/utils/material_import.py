@@ -29,11 +29,18 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
             tex_id = tx_stage.tx_ids[0][0]
             texture = structure.textures[tex_id]
             tex = find_texture(context, texture.file, texture.id)
-            principleds[mat_id].base_color_texture.image = tex
-            principleds[mat_id].base_color_texture.image.name = texture.file
-            principleds[mat_id].alpha_texture.image = tex
-            principleds[mat_id].alpha_texture.image.name = texture.file
 
+            node_tree = mesh.materials[mat_id].node_tree
+            bsdf_node = node_tree.nodes.get('Principled BSDF')
+
+            texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+            texture_node.image = tex
+            texture_node.location = (-350, 300)
+            texture_node.hide = True
+
+            links = node_tree.links
+            links.new(texture_node.outputs['Color'], bsdf_node.inputs['Base Color'])
+            links.new(texture_node.outputs['Alpha'], bsdf_node.inputs['Alpha'])
 
 def create_material_from_vertex_material(name, vert_mat):
     name = name + "." + vert_mat.vm_name
