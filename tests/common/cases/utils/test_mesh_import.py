@@ -214,7 +214,10 @@ class TestMeshImportUtils(TestCase):
             create_mesh(self, mesh_struct, bpy.context.scene.collection)
             report_func.assert_any_call('triangle 0 has an invalid surface type \'255\'')
 
-        mesh = bpy.data.objects[mesh_name]
+        if bpy.app.version < (4, 0, 0):
+            mesh = bpy.data.objects[mesh_name]
+        else:
+            mesh = bpy.data.meshes[mesh_name]
 
         self.assertEqual(1, len(mesh.face_maps))
         self.assertEqual('Default', mesh.face_maps[0].name)
