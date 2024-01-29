@@ -12,12 +12,12 @@ from io_mesh_w3d.bone_volume_export import *
 
 from io_mesh_w3d.blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 7, 0)
+VERSION = (0, 7, 1)
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 7, 0),
+    'version': (0, 7, 1),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
