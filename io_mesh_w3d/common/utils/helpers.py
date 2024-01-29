@@ -82,7 +82,8 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
             context.warning('only one texture stage per material pass supported')
 
     if tx_coords is None:
-        uv_layer = mesh.uv_layers.new(do_init=False)
+        if mesh is not None:
+            uv_layer = mesh.uv_layers.new(do_init=False)
         return
 
     uv_layer = mesh.uv_layers.new(do_init=False)
