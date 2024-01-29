@@ -1,6 +1,6 @@
 # Version History
 
-## v0.7.0 ()
+## v0.7.0 (29.01.24)
 * delete base sphere object and mesh after hierarchy import
 * adapt to API changes in Blender 4.0+
 
