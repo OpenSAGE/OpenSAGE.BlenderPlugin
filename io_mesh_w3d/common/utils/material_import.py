@@ -44,8 +44,9 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
         bpy.ops.object.mode_set(mode='EDIT')
         bm = bmesh.from_edit_mesh(mesh_ob.data)
         bm.faces.ensure_lookup_table()
-        for i, face in enumerate(bm.faces):
-            bm.faces[i].material_index = structure.material_passes[0].tx_stages[0].tx_ids[0][i]
+        if(bm.faces):
+            for i, face in enumerate(bm.faces):
+                bm.faces[i].material_index = structure.material_passes[0].tx_stages[0].tx_ids[0][i]
         bpy.ops.object.mode_set(mode='OBJECT')
     else:
         for vertMat in structure.vert_materials:
