@@ -30,7 +30,7 @@ def get_per_face_txcoords():
 
 def get_texture_stage(index=0):
     return TextureStage(
-        tx_ids=[[index]+[index]*index],
+        tx_ids=[[index]+[index]*max(0, index-1)],
         per_face_tx_coords=[get_per_face_txcoords()],
         tx_coords=[get_uvs()])
 
