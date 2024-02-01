@@ -13,24 +13,71 @@ from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 # vertex material
 ##########################################################################
 
-def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, triangles):
-    for vertMat in structure.vert_materials:
-        (material, principled) = create_material_from_vertex_material(name, vertMat)
-        mesh.materials.append(material)
-        principleds.append(principled)
+def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, triangles, mesh_ob):
 
-    for mat_pass in structure.material_passes:
-        create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
-        create_uvlayer_2(context, mesh, b_mesh, triangles, mat_pass)
+    if len(structure.material_passes) == 1 and len(
+            structure.textures) > 1:  # condition for multiple materials per single mesh object
+        # Create the same amount of materials as textures used for this mesh
+        source_mat = structure.vert_materials[0]
+        for texture in structure.textures:
+            source_mat.vm_name = texture.id
+            (material, principled) = create_material_from_vertex_material(name, source_mat)
+            mesh.materials.append(material)
+            principleds.append(principled)
 
-        if mat_pass.tx_stages:
-            tx_stage = mat_pass.tx_stages[0]
-            mat_id = mat_pass.vertex_material_ids[0]
-            tex_id = tx_stage.tx_ids[0][0]
+        create_uvlayer(context, mesh, b_mesh, triangles, structure.material_passes[0])
+
+        # Load textures
+        for tex_id, texture in enumerate(structure.textures):
             texture = structure.textures[tex_id]
             tex = find_texture(context, texture.file, texture.id)
-            principleds[mat_id].base_color_texture.image = tex
-            principleds[mat_id].base_color_texture.image.name = texture.file
+            node_tree = mesh.materials[tex_id].node_tree
+            bsdf_node = node_tree.nodes.get('Principled BSDF')
+            texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+            texture_node.image = tex
+            texture_node.location = (-350, 300)
+            links = node_tree.links
+            links.new(texture_node.outputs['Color'], bsdf_node.inputs['Base Color'])
+            links.new(texture_node.outputs['Alpha'], bsdf_node.inputs['Alpha'])
+
+        # Assign material to appropriate object faces
+        bpy.ops.object.mode_set(mode='EDIT')
+        bm = bmesh.from_edit_mesh(mesh_ob.data)
+        bm.faces.ensure_lookup_table()
+        for i, face in enumerate(bm.faces):
+            if(i < len(structure.material_passes[0].tx_stages[0].tx_ids[0])):
+                bm.faces[i].material_index = structure.material_passes[0].tx_stages[0].tx_ids[0][i]
+            else:
+                bm.faces[i].material_index = structure.material_passes[0].tx_stages[0].tx_ids[0][0]
+        bpy.ops.object.mode_set(mode='OBJECT')
+    else:
+        for vertMat in structure.vert_materials:
+            (material, principled) = create_material_from_vertex_material(name, vertMat)
+            mesh.materials.append(material)
+            principleds.append(principled)
+
+        for mat_pass in structure.material_passes:
+            create_uvlayer(context, mesh, b_mesh, triangles, mat_pass)
+
+            if mat_pass.tx_stages:
+                tx_stage = mat_pass.tx_stages[0]
+                mat_id = mat_pass.vertex_material_ids[0]
+                tex_id = tx_stage.tx_ids[0][0]
+                texture = structure.textures[tex_id]
+                tex = find_texture(context, texture.file, texture.id)
+                node_tree = mesh.materials[tex_id].node_tree
+                bsdf_node = node_tree.nodes.get('Principled BSDF')
+                texture_node = node_tree.nodes.new('ShaderNodeTexImage')
+                texture_node.image = tex
+                texture_node.location = (-350, 300)
+                links = node_tree.links
+                links.new(texture_node.outputs['Color'], bsdf_node.inputs['Base Color'])
+                links.new(texture_node.outputs['Alpha'], bsdf_node.inputs['Alpha'])
+
+    # Iterate through all materials and set their blend mode to Alpha Clip for transparency
+    for material in mesh.materials:
+        if material:
+            material.blend_method = 'CLIP'
 
 
 def create_material_from_vertex_material(name, vert_mat):
@@ -43,7 +90,6 @@ def create_material_from_vertex_material(name, vert_mat):
     material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
     material.use_nodes = True
-    material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     attributes = {'DEFAULT'}
@@ -91,7 +137,6 @@ def create_material_from_shader_material(context, name, shader_mat):
     material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
     material.use_nodes = True
-    material.blend_method = 'BLEND'
     material.show_transparent_back = False
 
     material.technique = shader_mat.header.technique
