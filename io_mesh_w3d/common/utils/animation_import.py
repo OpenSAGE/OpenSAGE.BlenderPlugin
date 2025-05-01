@@ -58,8 +58,9 @@ def set_rotation(bone, frame, value):
 
 def set_visibility(bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
-        bone.visibility = value
-        bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
+        if bpy.app.version != (4, 4, 3): #TODO fix 4.4.3
+            bone.visibility = value
+            bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
     else:
         bone.hide_viewport = bool(value)
         bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)

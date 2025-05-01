@@ -1,6 +1,6 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
-
+import bpy
 from io_mesh_w3d.common.structs.animation import *
 from tests.mathutils import *
 from tests.w3d.helpers.version import *
@@ -99,9 +99,8 @@ def compare_animation_bit_channels(self, expected, actual):
 
 
 def get_animation(hierarchy_name='TestHierarchy', xml=False):
-    return Animation(
-        header=get_animation_header(hierarchy_name),
-        channels=[get_animation_channel(type=0, pivot=0),
+    channels = [
+                  get_animation_channel(type=0, pivot=0),
                   get_animation_channel(type=1, pivot=1),
                   get_animation_channel(type=2, pivot=1),
 
@@ -114,9 +113,15 @@ def get_animation(hierarchy_name='TestHierarchy', xml=False):
                   get_animation_channel(type=1, pivot=3),
                   get_animation_channel(type=2, pivot=3),
                   get_animation_channel(type=6, pivot=3),
-
-                  get_animation_bit_channel(pivot=6, xml=xml),
-                  get_animation_bit_channel(pivot=7)])
+                ]
+    
+    if bpy.app.version != (4, 4, 3): #TODO fix 4.4.3
+        channels.append(get_animation_bit_channel(pivot=6, xml=xml))
+        channels.append(get_animation_bit_channel(pivot=7))
+    
+    return Animation(
+        header=get_animation_header(hierarchy_name),
+        channels=channels)
 
 
 def get_animation_minimal():

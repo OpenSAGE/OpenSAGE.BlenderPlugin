@@ -8,7 +8,7 @@
 ![Sample](/art/AotR_Umbar_Buildings.jpg)
 
 **OpenSAGE.BlenderPlugin**: a free, open source blender plugin for the [Westwood](https://de.wikipedia.org/wiki/Westwood_Studios) 3D
-format used in Command & Conquer™: Generals and other RTS titles from Westwood Studios and EA Pacific. 
+format used in Command & Conquer™: Generals and other RTS titles from Westwood Studios and EA Pacific.
 
 ## Installing and activating
 
