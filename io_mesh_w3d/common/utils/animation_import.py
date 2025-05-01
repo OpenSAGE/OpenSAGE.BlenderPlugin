@@ -56,52 +56,54 @@ def set_rotation(bone, frame, value):
     bone.keyframe_insert(data_path='rotation_quaternion', frame=frame)
 
 
-def set_visibility(bone, frame, value):
+def set_visibility(context, bone, frame, value):
     if isinstance(bone, bpy.types.Bone):
         if bpy.app.version != (4, 4, 3): #TODO fix 4.4.3
             bone.visibility = value
             bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
+        else:
+            context.warning(f'bone visibility channels are currently not supported for blender 4.4.3!')
     else:
         bone.hide_viewport = bool(value)
         bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
-def set_keyframe(bone, channel, frame, value):
+def set_keyframe(context, bone, channel, frame, value):
     if is_visibility(channel):
-        set_visibility(bone, frame, value)
+        set_visibility(context, bone, frame, value)
     elif is_translation(channel):
         set_translation(bone, channel.type, frame, value)
     else:
         set_rotation(bone, frame, value)
 
 
-def apply_timecoded(bone, channel):
+def apply_timecoded(context, bone, channel):
     for key in channel.time_codes:
-        set_keyframe(bone, channel, key.time_code, key.value)
+        set_keyframe(context, bone, channel, key.time_code, key.value)
 
 
-def apply_motion_channel_time_coded(bone, channel):
+def apply_motion_channel_time_coded(context, bone, channel):
     for datum in channel.data:
-        set_keyframe(bone, channel, datum.time_code, datum.value)
+        set_keyframe(context, bone, channel, datum.time_code, datum.value)
 
 
-def apply_motion_channel_adaptive_delta(bone, channel):
+def apply_motion_channel_adaptive_delta(context, bone, channel):
     data = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.data.scale, channel.data.data)
     for i in range(channel.num_time_codes):
-        set_keyframe(bone, channel, i, data[i])
+        set_keyframe(context, bone, channel, i, data[i])
 
 
-def apply_adaptive_delta(bone, channel):
+def apply_adaptive_delta(context, bone, channel):
     data = decode(channel.type, channel.vector_len, channel.num_time_codes, channel.scale, channel.data)
     for i in range(channel.num_time_codes):
-        set_keyframe(bone, channel, i, data[i])
+        set_keyframe(context, bone, channel, i, data[i])
 
 
-def apply_uncompressed(bone, channel):
+def apply_uncompressed(context, bone, channel):
     for index in range(channel.last_frame - channel.first_frame + 1):
         data = channel.data[index]
         frame = index + channel.first_frame
-        set_keyframe(bone, channel, frame, data)
+        set_keyframe(context, bone, channel, frame, data)
 
 
 def process_channels(context, hierarchy, channels, rig, apply_func):
@@ -110,7 +112,7 @@ def process_channels(context, hierarchy, channels, rig, apply_func):
         if obj is None:
             continue
 
-        apply_func(obj, channel)
+        apply_func(context, obj, channel)
 
 
 def process_motion_channels(context, hierarchy, channels, rig):
@@ -120,9 +122,9 @@ def process_motion_channels(context, hierarchy, channels, rig):
             continue
 
         if channel.delta_type == 0:
-            apply_motion_channel_time_coded(obj, channel)
+            apply_motion_channel_time_coded(context, obj, channel)
         else:
-            apply_motion_channel_adaptive_delta(obj, channel)
+            apply_motion_channel_adaptive_delta(context, obj, channel)
 
 
 def create_animation(context, rig, animation, hierarchy):

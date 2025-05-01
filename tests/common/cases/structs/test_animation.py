@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io
+import io, bpy
 from tests.common.helpers.animation import *
 from tests.utils import TestCase
 from unittest.mock import patch, call
@@ -12,8 +12,12 @@ class TestAnimation(TestCase):
         expected = get_animation()
 
         self.assertEqual(52, expected.header.size())
-        self.assertEqual(683, expected.size(False))
-        self.assertEqual(691, expected.size())
+        if bpy.app.version == (4, 4, 3):
+            self.assertEqual(645, expected.size(False))
+            self.assertEqual(653, expected.size())
+        else:
+            self.assertEqual(683, expected.size(False))
+            self.assertEqual(691, expected.size())
 
         self.write_read_test(expected, W3D_CHUNK_ANIMATION, Animation.read, compare_animations, self, True)
 
