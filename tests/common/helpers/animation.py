@@ -100,25 +100,25 @@ def compare_animation_bit_channels(self, expected, actual):
 
 def get_animation(hierarchy_name='TestHierarchy', xml=False):
     channels = [
-                  get_animation_channel(type=0, pivot=0),
-                  get_animation_channel(type=1, pivot=1),
-                  get_animation_channel(type=2, pivot=1),
+        get_animation_channel(type=0, pivot=0),
+        get_animation_channel(type=1, pivot=1),
+        get_animation_channel(type=2, pivot=1),
 
-                  get_animation_channel(type=0, pivot=2),
-                  get_animation_channel(type=1, pivot=2),
-                  get_animation_channel(type=2, pivot=2),
-                  get_animation_channel(type=6, pivot=2),
+        get_animation_channel(type=0, pivot=2),
+        get_animation_channel(type=1, pivot=2),
+        get_animation_channel(type=2, pivot=2),
+        get_animation_channel(type=6, pivot=2),
 
-                  get_animation_channel(type=0, pivot=3),
-                  get_animation_channel(type=1, pivot=3),
-                  get_animation_channel(type=2, pivot=3),
-                  get_animation_channel(type=6, pivot=3),
-                ]
-    
-    if bpy.app.version != (4, 4, 3): #TODO fix 4.4.3
+        get_animation_channel(type=0, pivot=3),
+        get_animation_channel(type=1, pivot=3),
+        get_animation_channel(type=2, pivot=3),
+        get_animation_channel(type=6, pivot=3),
+    ]
+
+    if bpy.app.version != (4, 4, 3):  # TODO fix 4.4.3
         channels.append(get_animation_bit_channel(pivot=6, xml=xml))
         channels.append(get_animation_bit_channel(pivot=7))
-    
+
     return Animation(
         header=get_animation_header(hierarchy_name),
         channels=channels)

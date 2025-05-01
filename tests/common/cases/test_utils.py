@@ -702,8 +702,8 @@ class TestUtils(TestCase):
         create_data(self, [], None, hierarchy, [], None, animation)
 
         time_codes = [TimeCodedDatum(time_code=0, value=3.0),
-                        TimeCodedDatum(time_code=4, value=3.0)]
-    
+                      TimeCodedDatum(time_code=4, value=3.0)]
+
         if bpy.app.version >= (4, 2, 0):
             time_codes = [TimeCodedDatum(time_code=0, value=3.0)]
 

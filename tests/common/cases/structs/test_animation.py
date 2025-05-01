@@ -1,7 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-import io, bpy
+import io
+import bpy
 from tests.common.helpers.animation import *
 from tests.utils import TestCase
 from unittest.mock import patch, call
