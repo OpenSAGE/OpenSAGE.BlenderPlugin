@@ -505,7 +505,13 @@ def OnDiffuseTextureChanged(self, context):
         self.node_tree.links.new(tex_spec.outputs["Color"], spec_sepa_node.inputs["Color"])
 
         #self.node_tree.links.new(tex_node.outputs["Color"], principled.node_principled_bsdf.inputs["Base Color"])
-        self.node_tree.links.new(tex_diffuse.outputs["Alpha"], principled.node_principled_bsdf.inputs["Alpha"])
+        if "Allied" in self.material_type or "Soviet" in self.material_type or "Japan" in self.material_type:
+            inputs = principled.node_principled_bsdf.inputs["Alpha"]
+            if inputs.is_linked:
+                link = inputs.links[0]
+                self.node_tree.links.remove(link)
+        else:
+            self.node_tree.links.new(tex_diffuse.outputs["Alpha"], principled.node_principled_bsdf.inputs["Alpha"])
 
         faction_color_node = create_node_no_repeative(nodes, 'ShaderNodeRGB', "faction_color_node")
         faction_color_node.outputs["Color"].default_value = (*self.faction_color, 1.0)  # Convert to 4D vector
