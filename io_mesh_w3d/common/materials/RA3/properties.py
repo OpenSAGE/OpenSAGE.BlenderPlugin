@@ -32,6 +32,7 @@ def OnResetMaterialType(self:Material, context):
 
         self.name = self.name.replace(self.material_type_old, self.material_type)
         self.material_type_old = self.material_type
+    OnRenderingChanged(self,context)
 
 Material.material_type = EnumProperty(
     name='Material Type',
@@ -204,6 +205,9 @@ def OnRenderingChanged(self:Material, context):
     elif self.material_type in ["MuzzleFlash","FXLightning", "Lightning", "FXProtonCollider"]:
         self.blend_method = "BLEND"    
         self.show_transparent_back = True
+    elif "Buildings" in self.material_type.__str__():
+        self.blend_method = "CLIP"    
+        self.show_transparent_back = False
     else:
         if self.alpha_test == False:
             self.blend_method = "OPAQUE"
@@ -505,13 +509,13 @@ def OnDiffuseTextureChanged(self, context):
         self.node_tree.links.new(tex_spec.outputs["Color"], spec_sepa_node.inputs["Color"])
 
         #self.node_tree.links.new(tex_node.outputs["Color"], principled.node_principled_bsdf.inputs["Base Color"])
-        if "Allied" in self.material_type or "Soviet" in self.material_type or "Japan" in self.material_type:
+        if "Buildings" in self.material_type.__str__():
+            self.node_tree.links.new(tex_diffuse.outputs["Alpha"], principled.node_principled_bsdf.inputs["Alpha"])
+        else:    
             inputs = principled.node_principled_bsdf.inputs["Alpha"]
             if inputs.is_linked:
                 link = inputs.links[0]
                 self.node_tree.links.remove(link)
-        else:
-            self.node_tree.links.new(tex_diffuse.outputs["Alpha"], principled.node_principled_bsdf.inputs["Alpha"])
 
         faction_color_node = create_node_no_repeative(nodes, 'ShaderNodeRGB', "faction_color_node")
         faction_color_node.outputs["Color"].default_value = (*self.faction_color, 1.0)  # Convert to 4D vector
@@ -617,7 +621,9 @@ def OnDamagedViewChanged(self:Material, context):
             if inputs.is_linked:
                 link = inputs.links[0]
                 self.node_tree.links.remove(link)
-            self.blend_method = "OPAQUE"
+            tex_diffuse = create_texture_node(self, context.preferences.addons["io_mesh_w3d"].preferences.texture_paths, self.diffuse_texture, "tex_diffuse")
+            self.node_tree.links.new(tex_diffuse.outputs["Alpha"], principled.node_principled_bsdf.inputs["Alpha"])
+            self.blend_method = "CLIP"
 
 Material.preview_holes = BoolProperty(
     name='Preview Damaged Model 2',
