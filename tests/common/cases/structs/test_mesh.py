@@ -19,7 +19,7 @@ class TestMesh(TestCase):
         self.assertEqual(3301, expected.size(False))
         self.assertEqual(3309, expected.size())
 
-        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
+        self.write_read_test(expected, W3D_CHUNK_MESH, W3DMesh.read, compare_meshes, self, True)
 
     def test_write_read_variant2(self):
         expected = get_mesh(skin=True, shader_mats=True)
@@ -27,7 +27,7 @@ class TestMesh(TestCase):
         self.assertEqual(4345, expected.size(False))
         self.assertEqual(4353, expected.size())
 
-        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True, clear_tangents)
+        self.write_read_test(expected, W3D_CHUNK_MESH, W3DMesh.read, compare_meshes, self, True, clear_tangents)
 
     def test_write_read_prelit(self):
         expected = get_mesh(prelit=True)
@@ -35,7 +35,7 @@ class TestMesh(TestCase):
         self.assertEqual(6004, expected.size(False))
         self.assertEqual(6012, expected.size())
 
-        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
+        self.write_read_test(expected, W3D_CHUNK_MESH, W3DMesh.read, compare_meshes, self, True)
 
     def test_write_read_empty(self):
         expected = get_mesh_empty()
@@ -43,7 +43,7 @@ class TestMesh(TestCase):
         self.assertEqual(204, expected.size(False))
         self.assertEqual(212, expected.size())
 
-        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
+        self.write_read_test(expected, W3D_CHUNK_MESH, W3DMesh.read, compare_meshes, self, True)
 
     def test_validate(self):
         mesh = get_mesh()
@@ -127,7 +127,7 @@ class TestMesh(TestCase):
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
         with (patch.object(self, 'info')) as report_func:
-            Mesh.read(self, io_stream, subchunk_end)
+            W3DMesh.read(self, io_stream, subchunk_end)
             report_func.assert_has_calls([call('-> vertices 2 chunk is not supported'),
                                           call('-> normals 2 chunk is not supported'),
                                           call('-> tangents are computed in blender'),
@@ -148,7 +148,7 @@ class TestMesh(TestCase):
         self.assertEqual(W3D_CHUNK_MESH, chunk_type)
 
         with (patch.object(self, 'warning')) as report_func:
-            Mesh.read(self, io_stream, subchunk_end)
+            W3DMesh.read(self, io_stream, subchunk_end)
             report_func.assert_called_with('unknown chunk_type in io_stream: 0x0')
 
     def test_chunk_sizes(self):
@@ -185,7 +185,7 @@ class TestMesh(TestCase):
         self.assertEqual(1113, mesh.size())
 
     def test_write_read_xml(self):
-        self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(get_mesh(shader_mats=True), 'W3DMesh', W3DMesh.parse, compare_meshes, self)
 
     def test_write_read_xml_attributes(self):
         self.write_read_xml_test(
@@ -194,17 +194,17 @@ class TestMesh(TestCase):
                 hidden=True,
                 cast_shadow=True),
             'W3DMesh',
-            Mesh.parse,
+            W3DMesh.parse,
             compare_meshes,
             self)
 
     def test_write_read_minimal_xml(self):
-        self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(get_mesh_minimal(xml=True), 'W3DMesh', W3DMesh.parse, compare_meshes, self)
 
     def test_write_read_no_dot_in_identifier(self):
         mesh = get_mesh(shader_mats=True)
         mesh.identifier = "meshName"
-        self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(mesh, 'W3DMesh', W3DMesh.parse, compare_meshes, self)
 
     def test_parse_dublicate_vertices_and_normals(self):
         mesh = get_mesh(shader_mats=True)
@@ -222,7 +222,7 @@ class TestMesh(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'info')) as report_func:
-            Mesh.parse(self, xml_objects[0])
+            W3DMesh.parse(self, xml_objects[0])
 
             report_func.assert_has_calls([call('secondary vertices are not supported'),
                                           call('secondary normals are not supported')])
@@ -241,7 +241,7 @@ class TestMesh(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            Mesh.parse(self, xml_objects[0])
+            W3DMesh.parse(self, xml_objects[0])
 
             #report_func.assert_called_with('multiple uv coords are not yet supported!')
 
@@ -257,7 +257,7 @@ class TestMesh(TestCase):
         self.assertEqual(1, len(xml_objects))
 
         with (patch.object(self, 'warning')) as report_func:
-            Mesh.parse(self, xml_objects[0])
+            W3DMesh.parse(self, xml_objects[0])
 
             report_func.assert_called_with('unhandled node \'InvalidIdentifier\' in W3DMesh!')
 
@@ -274,13 +274,13 @@ class TestMesh(TestCase):
                           get_vertex_influence(3, 0, 1.0, 0.0),
                           get_vertex_influence(3, 0, 1.0, 0.0)]
 
-        self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(mesh, 'W3DMesh', W3DMesh.parse, compare_meshes, self)
 
     def test_create_parse_no_material_passes(self):
         mesh = get_mesh(shader_mats=True)
         mesh.material_passes = []
         mesh.mat_info.pass_count = 0
-        self.write_read_xml_test(mesh, 'W3DMesh', Mesh.parse, compare_meshes, self)
+        self.write_read_xml_test(mesh, 'W3DMesh', W3DMesh.parse, compare_meshes, self)
 
     def test_node_order(self):
         expecteds = ['BoundingBox',

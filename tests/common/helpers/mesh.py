@@ -84,7 +84,7 @@ def get_mesh(
         cast_shadow=False,
         two_sided=False,
         mat_count=2):
-    mesh = Mesh()
+    mesh = W3DMesh()
     mesh.header = get_mesh_header(name, skin, shader_mats, hidden, cast_shadow, two_sided)
 
     mesh.user_text = 'TestUserText'
@@ -218,7 +218,7 @@ def get_mesh_two_textures(name='meshName'):
 
 
 def get_mesh_minimal(xml=False):
-    mesh = Mesh()
+    mesh = W3DMesh()
     mesh.header = get_mesh_header()
     mesh.user_text = 'text'
     mesh.verts = [get_vec()]
@@ -270,7 +270,7 @@ def get_mesh_minimal(xml=False):
 
 
 def get_mesh_empty():
-    mesh = Mesh()
+    mesh = W3DMesh()
     mesh.header = get_mesh_header()
     mesh.verts = [get_vec()]
     mesh.normals = [get_vec()]

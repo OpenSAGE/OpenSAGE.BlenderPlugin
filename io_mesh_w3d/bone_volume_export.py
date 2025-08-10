@@ -41,6 +41,7 @@ def export_bone_volume_data(context, filepath):
 
         location, rotation, scale = mesh.matrix_world.decompose()
         extend = get_aa_box(mesh.data.vertices)
+        center = get_aa_center(mesh.data.vertices)
         halfX = extend.x * scale.x * 0.5
         halfY = extend.y * scale.y * 0.5
         halfZ = extend.z * scale.z * 0.5
@@ -50,7 +51,7 @@ def export_bone_volume_data(context, filepath):
         box.set('HalfSizeY', format_str(halfY))
         box.set('HalfSizeZ', format_str(halfZ))
 
-        create_vector(location, box, 'Translation')
+        create_vector(location + center, box, 'Translation')
         create_quaternion(rotation, box, 'Rotation')
 
     write(root, filepath)

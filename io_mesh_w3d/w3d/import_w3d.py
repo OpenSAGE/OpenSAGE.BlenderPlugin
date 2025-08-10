@@ -29,7 +29,7 @@ def load_file(context, data_context, path=None):
         chunk_type, chunk_size, chunk_end = read_chunk_head(file)
 
         if chunk_type == W3D_CHUNK_MESH:
-            data_context.meshes.append(Mesh.read(context, file, chunk_end))
+            data_context.meshes.append(W3DMesh.read(context, file, chunk_end))
         elif chunk_type == W3D_CHUNK_HIERARCHY:
             if data_context.hierarchy is None:
                 data_context.hierarchy = Hierarchy.read(context, file, chunk_end)

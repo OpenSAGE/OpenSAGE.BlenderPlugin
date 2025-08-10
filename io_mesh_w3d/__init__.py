@@ -2,7 +2,7 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from bpy.types import Panel
+from bpy.types import Panel,Operator
 from bpy_extras.io_utils import ImportHelper, ExportHelper
 from io_mesh_w3d.utils import ReportHelper
 from io_mesh_w3d.export_utils import save_data
@@ -12,12 +12,12 @@ from io_mesh_w3d.bone_volume_export import *
 
 from io_mesh_w3d.blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 7, 1)
+VERSION = (0, 8, 2)
 
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 7, 1),
+    'version': (0, 8, 2),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
@@ -62,10 +62,10 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         name='Mode',
         items=(
             ('HM',
-             'Hierarchical Model',
+             'Hierarchy + Mesh + Contatiner',
              'This will export all the meshes of the scene with hierarchy/skeleton data'),
             ('HAM',
-             'Hierarchical Animated Model',
+             'Hierarchy + Mesh + Contatiner + Animation',
              'This will export all the meshes of the scene with hierarchy/skeleton and animation data'),
             ('A',
              'Animation',
@@ -74,7 +74,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
              'Hierarchy',
              'This will export the hierarchy/skeleton without any geometry or animation data'),
             ('M',
-             'Mesh',
+             'Mesh + Contatiner',
              'This will export a simple mesh (only the first of the scene if there are multiple), \
                 without any hierarchy/skeleton and animation data')),
         description='Select the export mode',
@@ -97,7 +97,7 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
         name='Force Vertex Materials', description='Export all materials as Vertex Materials only', default=False)
 
     individual_files: BoolProperty(
-        name='Individual files',
+        name='Individual files (3DS Max Style)',
         description='Creates an individual file for each mesh, boundingbox and the hierarchy',
         default=False)
 
@@ -145,12 +145,12 @@ class ExportW3D(bpy.types.Operator, ExportHelper, ReportHelper):
 
     def draw(self, _context):
         self.draw_general_settings()
-        if self.export_mode == 'HM':
-            self.draw_use_existing_skeleton()
-            if self.file_format == 'W3X':
-                self.draw_individual_files()
+        # if self.export_mode == 'HM':
+        #     self.draw_use_existing_skeleton()
+        if self.file_format == 'W3X':
+            self.draw_individual_files()
 
-        if self.file_format == 'W3X' and 'M' in self.export_mode:
+        #if self.file_format == 'W3X' and 'M' in self.export_mode:
             self.draw_create_texture_xmls()
 
         if self.file_format == 'W3D' and 'M' in self.export_mode:
@@ -290,130 +290,22 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         mat = context.object.active_material
         col = layout.column()
         col.prop(mat, 'material_type')
-
-        if mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'prelit_type')
-
         col = layout.column()
-        col.prop(mat, 'surface_type')
-        col = layout.column()
-        col.prop(mat, 'blend_method')
-        col = layout.column()
-        col.prop(mat, 'ambient')
+        col.prop(mat, 'technique')
 
-        if mat.material_type == 'VERTEX_MATERIAL' or mat.material_type == 'PRELIT_MATERIAL':
-            col = layout.column()
-            col.prop(mat, 'specular')
-            col = layout.column()
-            col.prop(mat, 'attributes')
-            col = layout.column()
-            col.prop(mat, 'translucency')
-            col = layout.column()
-            col.prop(mat, 'stage0_mapping')
-            col = layout.column()
-            col.prop(mat, 'vm_args_0')
-            col = layout.column()
-            col.prop(mat, 'stage1_mapping')
-            col = layout.column()
-            col.prop(mat, 'vm_args_1')
+        name, material_map = get_material_parameter_map(mat.material_type)
+        for key, value in material_map.items(): # internal functions
+            if "__" in key: 
+                col = layout.column()
+                col.prop(mat, value)
 
-            col = layout.column()
-            layout.label(text="Shader Properties")
-            col = layout.column()
-            col.prop(mat.shader, 'depth_compare')
-            col = layout.column()
-            col.prop(mat.shader, 'depth_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'color_mask')
-            col = layout.column()
-            col.prop(mat.shader, 'dest_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'fog_func')
-            col = layout.column()
-            col.prop(mat.shader, 'pri_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'sec_gradient')
-            col = layout.column()
-            col.prop(mat.shader, 'src_blend')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader, 'detail_alpha_func')
-            col = layout.column()
-            col.prop(mat.shader, 'shader_preset')
-            col = layout.column()
-            col.prop(mat.shader, 'alpha_test')
-            col = layout.column()
-            col.prop(mat.shader, 'post_detail_color_func')
-            col = layout.column()
-            col.prop(mat.shader, 'post_detail_alpha_func')
-
-        else:
-            col = layout.column()
-            col.prop(mat, 'technique')
-            col.prop(mat, 'alpha_test')
-            col = layout.column()
-            col.prop(mat, 'bump_uv_scale')
-            col = layout.column()
-            col.prop(mat, 'edge_fade_out')
-            col = layout.column()
-            col.prop(mat, 'depth_write')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_0')
-            col = layout.column()
-            col.prop(mat, 'sampler_clamp_uv_no_mip_1')
-            col = layout.column()
-            col.prop(mat, 'num_textures')
-            col = layout.column()
-            col.prop(mat, 'texture_1')
-            col = layout.column()
-            col.prop(mat, 'damaged_texture')
-            col = layout.column()
-            col.prop(mat, 'secondary_texture_blend_method')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_mapper_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_1')
-            col = layout.column()
-            col.prop(mat, 'environment_texture')
-            col = layout.column()
-            col.prop(mat, 'environment_mult')
-            col = layout.column()
-            col.prop(mat, 'recolor_texture')
-            col = layout.column()
-            col.prop(mat, 'recolor_mult')
-            col = layout.column()
-            col.prop(mat, 'use_recolor')
-            col = layout.column()
-            col.prop(mat, 'house_color_pulse')
-            col = layout.column()
-            col.prop(mat, 'scrolling_mask_texture')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_angle')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_0')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_1')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_u_2')
-            col = layout.column()
-            col.prop(mat, 'tex_coord_transform_v_2')
-            col = layout.column()
-            col.prop(mat, 'tex_ani_fps_NPR_lastFrame_frameOffset_0')
-            col = layout.column()
-            col.prop(mat, 'ion_hull_texture')
-            col = layout.column()
-            col.prop(mat, 'multi_texture_enable')
-
+        box = layout.box()
+        box.label(text="Shader Parameters", icon='PREFERENCES')
+        row = box.row()
+        for key, value in material_map.items():
+            if not "__" in key: 
+                col = row.column()
+                box.prop(mat, value)
 
 class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
     bl_label = 'W3D Tools'
@@ -423,6 +315,106 @@ class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
     def draw(self, context):
         self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
         self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
+
+
+
+
+
+
+##############################
+# 
+#  Blender Add-on Preference Page
+#
+##############################
+
+class TexturePathItem(PropertyGroup):
+    path: StringProperty(
+        name="Folder Path",
+        description="A folder path to search for textures",
+        default="",
+    )
+
+class Operator_AddTexturePath(Operator):
+    bl_idname = "addonname.add_texture_path"
+    bl_label = "Add Texture Path"
+    
+    directory: StringProperty(
+        subtype='DIR_PATH',
+        default="",
+    )
+    
+    def invoke(self, context, event):
+        context.window_manager.fileselect_add(self)
+        return {'RUNNING_MODAL'}
+    
+    def execute(self, context):
+        if self.directory:
+            prefs = context.preferences.addons[__name__].preferences
+            new_path = prefs.texture_paths.add()
+            new_path.name = self.directory
+        return {'FINISHED'}
+
+class Operator_RemoveTexturePath(Operator):
+    bl_idname = "addonname.remove_texture_path"
+    bl_label = "Remove Texture Path"
+    
+    index: IntProperty(default=0)
+    
+    def execute(self, context):
+        prefs = context.preferences.addons[__name__].preferences
+        if len(prefs.texture_paths) > self.index:
+            prefs.texture_paths.remove(self.index)
+        return {'FINISHED'}
+
+class Operator_MessageBox(Operator):
+    bl_idname = "wm.message_box"
+    bl_label = "Message"
+    bl_description = "Show a message box"
+
+    message: bpy.props.StringProperty(default="")
+
+    def execute(self, context):
+        self.report({'INFO'}, self.message)
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        self.layout.label(text=self.message)
+
+class Operator_ImportMaterialProperties(Operator):
+    bl_idname = "object.import_module"
+    bl_label = "Import Selected Module"
+    bl_description = "Manually trigger import of the selected module"
+
+    def execute(self, context):
+        preferences = context.preferences.addons[__name__].preferences
+        preferences.import_selected_module(context)
+        return {'FINISHED'}
+
+MATERIAL_MODULES = [
+    ("RA3", "RA3 Material", "Import RA3 Material module"),
+    ("CNC3", "CNC3 Material", "Import CNC3 Material module"),
+    ("Generals", "Generals Material", "Import Generals Material module"),
+]
+def set_selected_module(self, context):
+    print(self.selected_module)
+    current_file_path = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file_path)
+    file_path = current_dir + os.path.sep + 'selected_module.py'
+    try:
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(f"from io_mesh_w3d.common.materials.{self.selected_module} import *\n")
+        bpy.ops.wm.message_box(
+                'INVOKE_DEFAULT',
+                message=f'Using {self.selected_module} Material Group. Take effect at next launch!'
+            )
+    except:
+        bpy.ops.wm.message_box(
+                'INVOKE_DEFAULT',
+                message=f"Error! Materal group unchanged! Check {file_path}"
+            )
 
 
 class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
@@ -455,35 +447,50 @@ class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
 
 
 @addon_updater_ops.make_annotations
-class DemoPreferences(bpy.types.AddonPreferences):
+class PreferencesPanel(bpy.types.AddonPreferences):
     bl_idname = __package__
+
+    selected_module: EnumProperty(
+        name="Choose",
+        description="Load pre-defined materials of a specific game.\nYou can still import models from other games, the shader parameters will be converted.",
+        items=MATERIAL_MODULES,
+        default="RA3",
+        update=set_selected_module
+    )
+
+    texture_paths: CollectionProperty(
+            type=TexturePathItem,
+            name="Texture Search Paths",
+            description="List of folders to search for texture files",
+    )
+    
 
     auto_check_update = bpy.props.BoolProperty(
         name='Auto-check for Update',
         description='If enabled, auto-check for updates using an interval',
         default=False,
     )
-    updater_intrval_months = bpy.props.IntProperty(
+    updater_interval_months = bpy.props.IntProperty(
         name='Months',
         description='Number of months between checking for updates',
         default=0,
         min=0
     )
-    updater_intrval_days = bpy.props.IntProperty(
+    updater_interval_days = bpy.props.IntProperty(
         name='Days',
         description='Number of days between checking for updates',
         default=7,
         min=0,
         max=31
     )
-    updater_intrval_hours = bpy.props.IntProperty(
+    updater_interval_hours = bpy.props.IntProperty(
         name='Hours',
         description='Number of hours between checking for updates',
         default=0,
         min=0,
         max=23
     )
-    updater_intrval_minutes = bpy.props.IntProperty(
+    updater_interval_minutes = bpy.props.IntProperty(
         name='Minutes',
         description='Number of minutes between checking for updates',
         default=0,
@@ -491,11 +498,33 @@ class DemoPreferences(bpy.types.AddonPreferences):
         max=59
     )
 
+
+    active_path_index: IntProperty(default=0)
+
     def draw(self, context):
         layout = self.layout
 
-        mainrow = layout.row()
-        col = mainrow.column()
+        box = layout.box()
+        box.label(text="Material Definition Group", icon='MATERIAL')
+        box.prop(self, "selected_module")
+
+        box = layout.box()
+        box.label(text="Paths to find textures", icon='PREFERENCES')
+        row = box.row()
+        col = row.column()
+        col.template_list(
+            "UI_UL_list", 
+            "texture_paths_list",  
+            self, 
+            "texture_paths",  
+            self,  
+            "active_path_index", 
+            rows=4, 
+        )
+        col = row.column(align=True)
+        col.operator("addonname.add_texture_path", icon='ADD', text="")
+        col.operator("addonname.remove_texture_path", icon='REMOVE', text="").index = self.active_path_index
+
 
         addon_updater_ops.update_settings_ui(self, context)
 
@@ -510,7 +539,13 @@ CLASSES = (
     ExportGeometryData,
     ExportBoneVolumeData,
     TOOLS_PANEL_PT_w3d,
-    DemoPreferences,
+
+    TexturePathItem,
+    Operator_AddTexturePath,
+    Operator_RemoveTexturePath,
+    Operator_MessageBox,
+    Operator_ImportMaterialProperties,
+    PreferencesPanel,
     OBJECT_PT_DemoUpdaterPanel
 )
 

@@ -6,6 +6,8 @@ from mathutils import Vector
 from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
 from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
 from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
+from io_mesh_w3d.custom_properties import *
+import os
 
 DEFAULT_W3D = 'DefaultW3D.fx'
 
@@ -41,15 +43,26 @@ def get_used_textures(material, principled, used_textures):
 
     return used_textures
 
+def get_used_textures_global_tree():
+    used_images = []
+    for material in bpy.data.materials:
+        if material.node_tree: 
+            for node in material.node_tree.nodes:
+                if node.type == 'TEX_IMAGE': 
+                    if node.image and node.image.name != "IMG_NOT_FOUND":
+                        abs_path = bpy.path.abspath(node.image.filepath)
+                        if os.path.exists(abs_path):
+                            used_images.append((node.image.name, abs_path))
+    return used_images
 
 def retrieve_vertex_material(material, principled):
     info = VertexMaterialInfo(
         attributes=0,
         shininess=principled.specular,
-        specular=RGBA(vec=material.specular, a=0),
+        specular=RGBA(vec=material.specular_color, a=0),
         diffuse=RGBA(vec=material.diffuse_color, a=0),
         emissive=RGBA(vec=principled.emission_color, a=0),
-        ambient=RGBA(vec=material.ambient),
+        ambient=RGBA(vec=material.ambient_color4),
         translucency=material.translucency,
         opacity=principled.alpha)
 
@@ -104,91 +117,51 @@ def append_property(shader_mat, type, name, value, default=None):
     shader_mat.properties.append(ShaderMaterialProperty(
         type=type, name=name, value=value))
 
+# "para name"         "prop name"
+# "DiffuseTexture"    "diffuse_texture"
+def make_property_from_blender_property(paraname, propname, material:Material):
+    prop = material.bl_rna.properties[propname]
+    type = 0
+    value = getattr(material, propname)
+    if prop.__class__.__name__ == "StringProperty":
+        type = STRING_PROPERTY
+    elif prop.__class__.__name__ == "FloatProperty" or prop.__class__.__name__ == "FloatVectorProperty":
+        if (not hasattr(prop, "is_array")) or (hasattr(prop, "is_array") and not getattr(prop, "is_array", False)) or (hasattr(prop, "is_array") and prop.array_length == 0):
+            type = FLOAT_PROPERTY
+        elif hasattr(prop, "is_array") and getattr(prop, "is_array", False):
+            type = FLOAT_PROPERTY + prop.array_length - 1
+            if prop.subtype == "COLOR":
+                value = Vector(value)
+    elif prop.__class__.__name__ == "BoolProperty":
+        type = BOOL_PROPERTY
+    elif prop.__class__.__name__ == "IntProperty":
+        type = LONG_PROPERTY
+    else:
+        return None
+    return ShaderMaterialProperty(type=type, name=paraname, value=value)
 
 def to_vec(color):
     return Vector((color[0], color[1], color[2], color[3] if len(color) > 3 else 1.0))
 
 
-def retrieve_shader_material(context, material, principled, w3x=False):
-    name = material.name.split('.', 1)[-1]
-    if not name.endswith('.fx'):
-        context.info(f'\'{name}\' is not a valid shader name -> defaulting to: \'{DEFAULT_W3D}\'')
-        name = DEFAULT_W3D
-
+def retrieve_shader_material(context, material:Material, principled, w3x=False):
+    material_type = material.material_type
+    # shadername,      {"para name"     : "prop name" }
+    # "ObjectsAllied", {"DiffuseTexture": "diffuse_texture"}
+    shadername, para_map = get_material_parameter_map(material_type) 
     shader_mat = ShaderMaterial(
         header=ShaderMaterialHeader(
-            type_name=name),
+            type_name=shadername+".fx", technique=material.technique),
         properties=[])
-
-    color_emissive_default = Vector((0.0, 0.0, 0.0, 1.0))
-    if bpy.app.version >= (4, 0, 0):
-        color_emissive_default = Vector((1.0, 1.0, 1.0, 1.0))
-
-    if w3x:
-        append_property(shader_mat, 2, 'Shininess', material.specular_intensity * 200.0, 100.0)
-        append_property(shader_mat, 5, 'ColorDiffuse', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
-        append_property(shader_mat, 5, 'ColorSpecular', to_vec(material.specular_color), Vector((0.0, 0.0, 0.0, 1.0)))
-        append_property(shader_mat, 5, 'ColorAmbient', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'ColorEmissive', to_vec(principled.emission_color), color_emissive_default)
-
-    else:
-        append_property(shader_mat, 2, 'SpecularExponent', material.specular_intensity * 200.0, 100.0)
-        append_property(shader_mat, 5, 'DiffuseColor', to_vec(material.diffuse_color), Vector((0.8, 0.8, 0.8, 1.0)))
-        append_property(shader_mat, 5, 'SpecularColor', to_vec(material.specular_color), Vector((0.0, 0.0, 0.0, 1.0)))
-        append_property(shader_mat, 5, 'AmbientColor', to_vec(material.ambient), Vector((1.0, 1.0, 1.0, 0.0)))
-        append_property(shader_mat, 5, 'EmissiveColor', to_vec(principled.emission_color), color_emissive_default)
-
-    if material.texture_1:
-        append_property(shader_mat, 1, 'Texture_0', principled.base_color_texture)
-        append_property(shader_mat, 1, 'Texture_1', material.texture_1)
-        append_property(shader_mat, 6, 'NumTextures', material.num_textures)
-        append_property(shader_mat, 6, 'SecondaryTextureBlendMode', material.secondary_texture_blend_mode)
-        append_property(shader_mat, 6, 'TexCoordMapper_0', material.tex_coord_mapper_0)
-        append_property(shader_mat, 6, 'TexCoordMapper_1', material.tex_coord_mapper_1)
-        append_property(shader_mat, 5, 'TexCoordTransform_0', to_vec(material.tex_coord_transform_0))
-        append_property(shader_mat, 5, 'TexCoordTransform_1', to_vec(material.tex_coord_transform_1))
-    else:
-        append_property(shader_mat, 1, 'DiffuseTexture', principled.base_color_texture)
-
-    append_property(shader_mat, 1, 'NormalMap', principled.normalmap_texture)
-    if principled.normalmap_texture is not None and principled.normalmap_texture.image is not None:
-        if shader_mat.header.type_name == DEFAULT_W3D:
-            shader_mat.header.type_name = 'NormalMapped.fx'
-        shader_mat.header.technique = W3D_NORMTYPE_BUMP
-        append_property(shader_mat, 2, 'BumpScale', principled.normalmap_strength, 1.0)
-
-    append_property(shader_mat, 1, 'SpecMap', principled.specular_texture)
-    append_property(shader_mat, 7, 'CullingEnable', material.use_backface_culling)
-    append_property(shader_mat, 2, 'Opacity', principled.alpha, 1.0)
-    append_property(shader_mat, 7, 'AlphaTestEnable', material.alpha_test, True)
-    append_property(shader_mat, 6, 'BlendMode', material.blend_mode)
-    append_property(shader_mat, 3, 'BumpUVScale', material.bump_uv_scale)
-    append_property(shader_mat, 6, 'EdgeFadeOut', material.edge_fade_out)
-    append_property(shader_mat, 7, 'DepthWriteEnable', material.depth_write)
-    append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_0',
-                    material.sampler_clamp_uv_no_mip_0, Vector((0.0, 0.0, 0.0, 0.0)))
-    append_property(shader_mat, 5, 'Sampler_ClampU_ClampV_NoMip_1',
-                    material.sampler_clamp_uv_no_mip_1, Vector((0.0, 0.0, 0.0, 0.0)))
-    append_property(shader_mat, 1, 'EnvironmentTexture', material.environment_texture)
-    append_property(shader_mat, 2, 'EnvMult', material.environment_mult)
-    append_property(shader_mat, 1, 'RecolorTexture', material.recolor_texture)
-    append_property(shader_mat, 2, 'RecolorMultiplier', material.recolor_mult)
-    append_property(shader_mat, 7, 'UseRecolorColors', material.use_recolor)
-    append_property(shader_mat, 7, 'HouseColorPulse', material.house_color_pulse)
-    append_property(shader_mat, 1, 'ScrollingMaskTexture', material.scrolling_mask_texture)
-    append_property(shader_mat, 1, 'DamagedTexture', material.damaged_texture)
-    append_property(shader_mat, 2, 'TexCoordTransformAngle_0', material.tex_coord_transform_angle)
-    append_property(shader_mat, 2, 'TexCoordTransformU_0', material.tex_coord_transform_u_0)
-    append_property(shader_mat, 2, 'TexCoordTransformV_0', material.tex_coord_transform_v_0)
-    append_property(shader_mat, 2, 'TexCoordTransformU_1', material.tex_coord_transform_u_1)
-    append_property(shader_mat, 2, 'TexCoordTransformV_1', material.tex_coord_transform_v_1)
-    append_property(shader_mat, 2, 'TexCoordTransformU_2', material.tex_coord_transform_u_2)
-    append_property(shader_mat, 2, 'TexCoordTransformV_2', material.tex_coord_transform_v_2)
-    append_property(shader_mat, 5, 'TextureAnimation_FPS_NumPerRow_LastFrame_FrameOffset_0',
-                    material.tex_ani_fps_NPR_lastFrame_frameOffset_0, Vector((0.0, 0.0, 0.0, 0.0)))
-    append_property(shader_mat, 1, 'IonHullTexture', material.ion_hull_texture)
-    append_property(shader_mat, 7, 'MultiTextureEnable', material.multi_texture_enable)
-
+    
+    for paraname, propname in para_map.items():
+        if '__' in paraname: # skip plugin helper preperties
+            continue
+        prop_w3d = make_property_from_blender_property(paraname, propname, material)
+        if prop_w3d is not None:
+            shader_mat.properties.append(make_property_from_blender_property(paraname, propname, material))
+        else:
+            context.warning(f'Property "{paraname}" is not recognized and will not be written')
     return shader_mat
 
 

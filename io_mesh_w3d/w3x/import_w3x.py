@@ -37,7 +37,7 @@ def load_file(context, data_context, path=None):
                 load_file(context, data_context, os.path.join(directory, source))
 
         elif node.tag == 'W3DMesh':
-            data_context.meshes.append(Mesh.parse(context, node))
+            data_context.meshes.append(W3DMesh.parse(context, node))
         elif node.tag == 'W3DCollisionBox':
             data_context.collision_boxes.append(CollisionBox.parse(context, node))
         elif node.tag == 'W3DContainer':

@@ -94,18 +94,13 @@ def create_uvlayer(context, mesh, b_mesh, tris, mat_pass):
 
 
 def create_uvlayer_2(context, mesh, b_mesh, tris, mat_pass):
-    tx_coords_2 = None
     if mat_pass.tx_coords_2:
         tx_coords_2 = mat_pass.tx_coords_2
-    else:
         uv_layer = mesh.uv_layers.new(do_init=False)
-        return
-
-    uv_layer = mesh.uv_layers.new(do_init=False)
-    for i, face in enumerate(b_mesh.faces):
-        for loop in face.loops:
-            idx = tris[i][loop.index % 3]
-            uv_layer.data[loop.index].uv = tx_coords_2[idx].xy
+        for i, face in enumerate(b_mesh.faces):
+            for loop in face.loops:
+                idx = tris[i][loop.index % 3]
+                uv_layer.data[loop.index].uv = tx_coords_2[idx].xy
 
 
 extensions = ['.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp']
@@ -137,16 +132,76 @@ def find_texture(context, file, name=None):
     if img is None:
         context.warning(
             f'texture not found: {filepath} {extensions}. Make sure it is right next to the file you are importing!')
-        img = bpy.data.images.new(name, width=2048, height=2048)
+        if "IMG_NOT_FOUND" in bpy.data.images:
+            return bpy.data.images["IMG_NOT_FOUND"]
+        img = bpy.data.images.new("IMG_NOT_FOUND", width=2048, height=2048)
         img.generated_type = 'COLOR_GRID'
         img.source = 'GENERATED'
-        img.name = name + extensions[0]
 
     img.alpha_mode = 'STRAIGHT'
     return img
 
+def find_texture_from_path(path_list, file):
+    pure_name = file.rsplit('.', 1)[0]
 
-def get_aa_box(vertices):
+    for extension in extensions:
+        combined = pure_name + extension
+        if combined in bpy.data.images:
+            return bpy.data.images[combined]
+
+    img = None
+    for path in path_list:
+        for extension in extensions:
+            filepath = path + os.path.sep + pure_name + extension
+            img = load_image(filepath, check_existing=True)
+            if img is not None:
+                print('loaded texture: ' + filepath)
+                img.name = pure_name
+                break
+        if img is not None:
+            break
+
+    if img is None:
+        print(f'texture not found: {filepath} {extensions}. Make sure it is right next to the file you are importing!')
+        if "IMG_NOT_FOUND" in bpy.data.images:
+            return bpy.data.images["IMG_NOT_FOUND"]
+        img = bpy.data.images.new("IMG_NOT_FOUND", width=2048, height=2048)
+        img.generated_type = 'COLOR_GRID'
+        img.source = 'GENERATED'
+
+    img.alpha_mode = 'STRAIGHT'
+    return img
+
+def create_texture_node(material, path_list, file, name = None):
+    if name is None:
+        name = file
+    path_list_pref = []
+    for path in path_list:
+        path_list_pref.append(path.name)
+    path_list_full = [os.path.dirname(bpy.data.filepath), material.texture_path] + path_list_pref
+    img = find_texture_from_path(path_list_full, file)
+    img.alpha_mode = "NONE"
+    for node in material.node_tree.nodes:
+        if node.name == name:
+            print(f"Reusing existing node: {node.name}")
+            node.image = img
+            return node
+    node = material.node_tree.nodes.new("ShaderNodeTexImage")
+    node.image = img
+    node.name = name
+    return node
+
+def create_node_no_repeative(nodes, type, name):
+    for node in nodes:
+        if node.name == name:
+            print(f"Reusing existing node: {node.name}")
+            return node
+    new_node = nodes.new(type)
+    new_node.name = name
+    return new_node
+
+
+def get_aa_box(vertices, matrix_local = Matrix.Identity(4)):
     minX = sys.float_info.max
     maxX = sys.float_info.min
 
@@ -157,13 +212,23 @@ def get_aa_box(vertices):
     maxZ = sys.float_info.min
 
     for vertex in vertices:
-        minX = min(vertex.co.x, minX)
-        maxX = max(vertex.co.x, maxX)
 
-        minY = min(vertex.co.y, minY)
-        maxY = max(vertex.co.y, maxY)
+        coord = Vector(vertex.co)
 
-        minZ = min(vertex.co.z, minZ)
-        maxZ = max(vertex.co.z, maxZ)
+        minX = min((matrix_local @ coord).x, minX)
+        maxX = max((matrix_local @ coord).x, maxX)
+        minY = min((matrix_local @ coord).y, minY)
+        maxY = max((matrix_local @ coord).y, maxY)
+        minZ = min((matrix_local @ coord).z, minZ)
+        maxZ = max((matrix_local @ coord).z, maxZ)
 
     return Vector((maxX - minX, maxY - minY, maxZ - minZ))
+
+def get_aa_center(vertices, matrix_local = Matrix.Identity(4)):
+    vertex_sum = Vector((0, 0, 0))
+    vertex_count = len(vertices)
+    for vertex in vertices:
+        vertex_sum += matrix_local @ vertex.co
+
+    centroid_local = vertex_sum / vertex_count if vertex_count > 0 else Vector((0,0,0))
+    return centroid_local

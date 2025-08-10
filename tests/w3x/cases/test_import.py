@@ -88,7 +88,7 @@ class TestObjectImport(TestCase):
         load(self)
 
     @patch('io_mesh_w3d.w3x.import_w3x.create_data')
-    @patch.object(Mesh, 'container_name', return_value='')
+    @patch.object(W3DMesh, 'container_name', return_value='')
     def test_mesh_only_import(self, mesh_mock, create):
         mesh = get_mesh()
 

@@ -42,7 +42,7 @@ def export_geometry_data(context, filepath):
 
         type = str(mesh.data.geometry_type).upper()
         location, _, scale = mesh.matrix_world.decompose()
-        extend = get_aa_box(mesh.data.vertices)
+        extend = get_aa_box(mesh.data.vertices, mesh.matrix_local)
         majorRadius = extend.x * scale.x * 0.5
         minorRadius = extend.y * scale.y * 0.5
         height = extend.z * scale.z

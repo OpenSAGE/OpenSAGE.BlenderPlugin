@@ -3,111 +3,83 @@
 
 from io_mesh_w3d.export_utils import *
 from io_mesh_w3d.w3x.structs.include import *
+import os
 
 
 def save(context, export_settings, data_context):
     filepath = context.filepath
     if not filepath.lower().endswith(context.filename_ext):
         filepath += context.filename_ext
-    context.info(f'Saving file: {filepath}')
+
+    filepath_pure = os.path.splitext(filepath)[0]
+    directory = os.path.dirname(filepath) + os.path.sep
+
+    # context.info(f'Saving file: {filepath}')
 
     export_mode = export_settings['mode']
-    context.info(f'export mode: {export_mode}')
+    # context.info(f'export mode: {export_mode}')
 
     root = create_root()
-    includes = create_node(root, 'Includes')
+    # includes = create_node(root, 'Includes')
 
-    directory = os.path.dirname(context.filepath) + os.path.sep
+    # directory = os.path.dirname(context.filepath) + os.path.sep
 
-    if export_mode == 'M':
-        if len(data_context.meshes) > 1:
-            context.warning('Scene does contain multiple meshes, exporting only the first with export mode M!')
-        data_context.meshes[0].header.container_name = ''
-        data_context.meshes[0].header.mesh_name = data_context.container_name
-        data_context.meshes[0].create(root)
-
-    elif export_mode == 'HM':
-        if export_settings['use_existing_skeleton'] or export_settings['individual_files']:
-            hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.name() + '.w3x')
-            hierarchy_include.create(includes)
+    if 'H' in export_mode and data_context.hierarchy:
+        if export_settings['individual_files']:
+            path = filepath_pure + "_SKL" + context.filename_ext
+            context.info('Saving file :' + path)
+            write_struct(data_context.hierarchy, path)
         else:
             data_context.hierarchy.create(root)
-
-        if export_settings['individual_files']:
-            if not export_settings['use_existing_skeleton']:
-                path = directory + data_context.hierarchy.name() + context.filename_ext
-                context.info('Saving file :' + path)
-                write_struct(data_context.hierarchy, path)
-
-        if export_settings['create_texture_xmls']:
-            for texture in data_context.textures:
-                id = texture.rsplit('.', 1)[0]
-                texture_include = Include(type='all', source='ART:' + id + '.xml')
-                texture_include.create(includes)
-                path = directory + id + '.xml'
-                context.info('Saving file :' + path)
-                write_struct(Texture(id=id, file=texture), path)
-
+            
+    if 'M' in export_mode:
+        # obbox
         for box in data_context.collision_boxes:
             if export_settings['individual_files']:
-                box_include = Include(type='all', source='ART:' + box.name_ + '.w3x')
-                box_include.create(includes)
-                path = directory + box.name_ + context.filename_ext
+                path = directory + box.identifier() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(box, path)
             else:
                 box.create(root)
-
+        # w3dmesh
         for mesh in data_context.meshes:
             if export_settings['individual_files']:
-                mesh_include = Include(type='all', source='ART:' + mesh.identifier() + '.w3x')
-                mesh_include.create(includes)
                 path = directory + mesh.identifier() + context.filename_ext
                 context.info('Saving file :' + path)
                 write_struct(mesh, path)
             else:
                 mesh.create(root)
+        # w3dcontainer
+        if data_context.hlod:
+            if export_settings['individual_files']:
+                    path = filepath_pure + "_CTR" + context.filename_ext
+                    context.info('Saving file :' + path)
+                    write_struct(data_context.hlod, path)
+            else:
+                data_context.hlod.create(root)
 
-        data_context.hlod.create(root)
+    if "A" in export_mode and data_context.animation:
+        if export_settings['individual_files']:
+            path = directory + data_context.animation.name() + context.filename_ext
+            context.info('Saving file :' + path)
+            write_struct(data_context.animation, path)
+        else:
+            data_context.animation.create(root)
 
-    elif export_mode == 'HAM':
-        data_context.hierarchy.create(root)
+    if export_settings['create_texture_xmls']:
+        tex_path = directory + "Texture.xml"
+        context.info('Saving file :' + tex_path)
+        tex_root = create_root()
+        for t, f in data_context.textures:
+            tex = Texture(id=t, file=f)
+            tex.create(tex_root)
+        write(tex_root, tex_path)
 
-        if export_settings['create_texture_xmls']:
-            for texture in data_context.textures:
-                id = texture.split('.')[0]
-                path = directory + id + '.xml'
-                context.info('Saving file :' + path)
-                write_struct(Texture(id=id, file=texture), path)
+    if not export_settings['individual_files']:
+        context.info('Saving file :' + filepath)
+        write(root, filepath)
 
-            for texture in data_context.textures:
-                id = texture.split('.')[0]
-                texture_include = Include(type='all', source='ART:' + id + '.xml')
-                texture_include.create(includes)
+    if not data_context.hierarchy:
+        context.warning('Export incomplete')
 
-        for box in data_context.collision_boxes:
-            box.create(root)
-
-        for mesh in data_context.meshes:
-            mesh.create(root)
-
-        data_context.hlod.create(root)
-        data_context.animation.create(root)
-
-    elif export_mode == 'A':
-        hierarchy_include = Include(type='all', source='ART:' + data_context.hierarchy.header.name + '.w3x')
-        hierarchy_include.create(includes)
-        data_context.animation.create(root)
-
-    elif export_mode == 'H':
-        data_context.hierarchy.header.name = data_context.container_name.upper()
-        data_context.hierarchy.create(root)
-
-    else:
-        context.error(f'unsupported export mode: \'{export_mode}\', aborting export!')
-        return {'CANCELLED'}
-
-    write(root, filepath)
-
-    context.info('finished')
     return {'FINISHED'}
