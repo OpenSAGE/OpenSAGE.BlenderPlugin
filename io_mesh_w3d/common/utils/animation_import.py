@@ -16,7 +16,7 @@ def is_translation(channel):
 
 
 def is_visibility(channel):
-    return isinstance(channel, AnimationBitChannel) or channel.type == CHANNEL_VIS
+    return isinstance(channel, AnimationBitChannel) or isinstance(channel, TimeCodedBitChannel) or channel.type == CHANNEL_VIS
 
 
 def get_bone(context, rig, hierarchy, channel):
@@ -57,14 +57,12 @@ def set_rotation(bone, frame, value):
 
 
 def set_visibility(context, bone, frame, value):
+    value = bool(value)
     if isinstance(bone, bpy.types.Bone):
-        if bpy.app.version != (4, 4, 3):  # TODO fix 4.4.3
-            bone.visibility = value
-            bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
-        else:
-            context.warning(f'bone visibility channels are currently not supported for blender 4.4.3!')
+        bone.visibility = value
+        bone.keyframe_insert(data_path='visibility', frame=frame, options=creation_options)
     else:
-        bone.hide_viewport = bool(value)
+        bone.hide_viewport = not value
         bone.keyframe_insert(data_path='hide_viewport', frame=frame, options=creation_options)
 
 
@@ -127,8 +125,18 @@ def process_motion_channels(context, hierarchy, channels, rig):
             apply_motion_channel_adaptive_delta(context, obj, channel)
 
 
+def process_bit_channels(context, hierarchy, channels, rig):
+    for channel in channels:
+        obj = get_bone(context, rig, hierarchy, channel)
+        if obj is None:
+            continue
+
+        for datum in channel.time_codes:
+            set_visibility(context, obj, datum.time_code, datum.value)
+
+
 def create_animation(context, rig, animation, hierarchy):
-    if animation is None:
+    if animation is None or rig is None:
         return
 
     setup_animation(animation)
@@ -136,6 +144,7 @@ def create_animation(context, rig, animation, hierarchy):
     if isinstance(animation, CompressedAnimation):
         process_channels(context, hierarchy, animation.time_coded_channels, rig, apply_timecoded)
         process_channels(context, hierarchy, animation.adaptive_delta_channels, rig, apply_adaptive_delta)
+        process_bit_channels(context, hierarchy, animation.time_coded_bit_channels, rig)
         process_motion_channels(context, hierarchy, animation.motion_channels, rig)
     else:
         process_channels(context, hierarchy, animation.channels, rig, apply_uncompressed)

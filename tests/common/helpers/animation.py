@@ -115,9 +115,8 @@ def get_animation(hierarchy_name='TestHierarchy', xml=False):
         get_animation_channel(type=6, pivot=3),
     ]
 
-    if bpy.app.version != (4, 4, 3):  # TODO fix 4.4.3
-        channels.append(get_animation_bit_channel(pivot=6, xml=xml))
-        channels.append(get_animation_bit_channel(pivot=7))
+    channels.append(get_animation_bit_channel(pivot=6, xml=xml))
+    channels.append(get_animation_bit_channel(pivot=7))
 
     return Animation(
         header=get_animation_header(hierarchy_name),
