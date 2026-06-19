@@ -174,6 +174,7 @@ def retrieve_time_coded_bit_channels(obj, hierarchy, name=None):
 
 
 def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
+    requested_animation_name = animation_name
     channels = []
 
     for mesh in get_objects('MESH'):
@@ -204,6 +205,8 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
         ani_struct = Animation(header=AnimationHeader(), channels=channels)
 
     ani_struct.header.name = animation_name
+    if animation_name.endswith('Action') or 'Action.' in animation_name:
+        ani_struct.header.name = requested_animation_name
     ani_struct.header.hierarchy_name = hierarchy.name()
 
     start_frame = bpy.context.scene.frame_start

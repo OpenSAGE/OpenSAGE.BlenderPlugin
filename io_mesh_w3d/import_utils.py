@@ -61,3 +61,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
 
     create_animation(context, rig, animation, hierarchy)
     create_animation(context, rig, compressed_animation, hierarchy)
+
+    if hierarchy is not None and rig is not None:
+        rig.name = hierarchy.name()
+        rig.data.name = hierarchy.name()
