@@ -115,7 +115,7 @@ class TestAnimationUtils(TestCase):
 
         self.assertEqual(1, len(ani.channels))
         self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
-        self.assertEqual([True, False, True], ani.channels[0].data)
+        self.assertEqual([1.0, 0.0, 1.0], ani.channels[0].data)
 
     def test_compressed_bit_visibility_channel_roundtrip(self):
         hierarchy = get_hierarchy()
@@ -140,6 +140,13 @@ class TestAnimationUtils(TestCase):
         self.assertEqual(0, len(ani.time_coded_channels))
         self.assertEqual(1, len(ani.time_coded_bit_channels))
         self.assertEqual([True, False, True], [datum.value for datum in ani.time_coded_bit_channels[0].time_codes])
+
+    def test_blender_hide_visibility_values_are_converted_to_w3d_visibility(self):
+        class HideFcu:
+            data_path = 'bones["bone"].hide'
+
+        self.assertEqual(0.0, get_visibility_value(HideFcu(), True))
+        self.assertEqual(1.0, get_visibility_value(HideFcu(), False))
 
     def test_quaternions_are_normalized_on_export_uncompressed(self):
         bpy.context.scene.frame_end = 0
