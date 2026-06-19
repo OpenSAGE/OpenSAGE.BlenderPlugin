@@ -143,6 +143,9 @@ def create_animation(context, rig, animation, hierarchy):
     if animation is None or rig is None:
         return
 
+    rig_name = rig.name
+    armature_name = rig.data.name if rig.data is not None else None
+
     setup_animation(animation)
 
     if isinstance(animation, CompressedAnimation):
@@ -157,5 +160,9 @@ def create_animation(context, rig, animation, hierarchy):
         rig.animation_data.action.name = animation.header.name
     elif rig is not None and rig.data is not None and rig.data.animation_data is not None and rig.data.animation_data.action is not None:
         rig.data.animation_data.action.name = animation.header.name
+
+    rig.name = rig_name
+    if armature_name is not None:
+        rig.data.name = armature_name
 
     bpy.context.scene.frame_set(0)
