@@ -96,7 +96,7 @@ class TestImportUtilsW3D(TestCase):
         create_data(self, meshes, hlod, hierarchy, [], None, animation)
 
         obj = bpy.data.objects['TestHierarchy']
-        for fcu in obj.animation_data.action.fcurves:
+        for fcu in iter_action_fcurves(obj.animation_data):
             self.assertEqual(len(expected_frames), len(fcu.keyframe_points))
             for i, keyframe in enumerate(fcu.keyframe_points):
                 frame = int(keyframe.co.x)
