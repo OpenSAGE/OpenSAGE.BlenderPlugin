@@ -26,6 +26,38 @@ def switch_to_pose(rig, pose):
         bpy.context.view_layer.update()
 
 
+def iter_action_fcurves(animation_data):
+    if animation_data is None or animation_data.action is None:
+        return
+
+    action = animation_data.action
+
+    if hasattr(action, 'fcurves'):
+        yield from action.fcurves
+        return
+
+    action_slot = getattr(animation_data, 'action_slot', None)
+
+    for layer in getattr(action, 'layers', []):
+        for strip in getattr(layer, 'strips', []):
+            channelbag = None
+
+            if hasattr(strip, 'channelbag'):
+                channelbag = strip.channelbag(action_slot)
+            else:
+                channelbags = getattr(strip, 'channelbags', [])
+                if action_slot is None and len(channelbags) == 1:
+                    channelbag = channelbags[0]
+                else:
+                    for candidate in channelbags:
+                        if getattr(candidate, 'slot', None) == action_slot:
+                            channelbag = candidate
+                            break
+
+            if channelbag is not None:
+                yield from getattr(channelbag, 'fcurves', [])
+
+
 def insensitive_path(path):
     # find the io_stream on unix
     directory = os.path.dirname(path)
