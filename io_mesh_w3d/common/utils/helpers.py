@@ -31,12 +31,8 @@ def iter_action_fcurves(animation_data):
         return
 
     action = animation_data.action
-
-    if hasattr(action, 'fcurves'):
-        yield from action.fcurves
-        return
-
     action_slot = getattr(animation_data, 'action_slot', None)
+    found_layered_fcurves = False
 
     for layer in getattr(action, 'layers', []):
         for strip in getattr(layer, 'strips', []):
@@ -55,7 +51,12 @@ def iter_action_fcurves(animation_data):
                             break
 
             if channelbag is not None:
-                yield from getattr(channelbag, 'fcurves', [])
+                for fcu in getattr(channelbag, 'fcurves', []):
+                    found_layered_fcurves = True
+                    yield fcu
+
+    if not found_layered_fcurves and hasattr(action, 'fcurves'):
+        yield from action.fcurves
 
 
 def insensitive_path(path):
