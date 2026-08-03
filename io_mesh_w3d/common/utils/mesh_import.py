@@ -3,7 +3,7 @@
 
 import bpy
 import bmesh
-from io_mesh_w3d.common.utils.material_import import *
+from ...common.utils.material_import import *
 
 
 def create_mesh(context, mesh_struct, coll):
@@ -23,7 +23,8 @@ def create_mesh(context, mesh_struct, coll):
         context.warning("Mesh name automatically fixed due to duplication, new name: " + actual_mesh_name)
 
     mesh.normals_split_custom_set_from_vertices(mesh_struct.normals)
-    if bpy.app.version < (4, 2, 0):
+    # 'use_auto_smooth' was removed in Blender 4.1, custom split normals are always used since then
+    if bpy.app.version < (4, 1, 0):
         mesh.use_auto_smooth = True
 
     mesh.object_type = 'MESH'
@@ -169,7 +170,7 @@ def rig_mesh(mesh_struct, hierarchy, rig, sub_object=None):
 def create_vertex_color_layer(mesh, colors, name, index):
     if not colors:
         return
-    layer = mesh.vertex_colors.new(name=f'{name}_{index}')
+    layer = new_vertex_color_layer(mesh, f'{name}_{index}')
 
     for i, loop in enumerate(mesh.loops):
         layer.data[i].color = colors[loop.vertex_index].to_vector_rgba()

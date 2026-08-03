@@ -3,8 +3,8 @@
 
 import bpy
 from mathutils import Vector, Quaternion, Matrix
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.common.utils.primitives import *
+from ...common.utils.helpers import *
+from ...common.utils.primitives import *
 
 
 def get_or_create_skeleton(hierarchy, coll):

@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.io_binary import *
-from io_mesh_w3d.w3x.io_xml import *
+from ....w3d.io_binary import *
+from ....w3x.io_xml import *
 
 
 class VertexInfluence:

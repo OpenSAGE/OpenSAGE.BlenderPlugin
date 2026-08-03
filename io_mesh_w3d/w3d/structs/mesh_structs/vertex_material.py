@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.common.structs.rgba import RGBA
-from io_mesh_w3d.w3d.utils.helpers import *
+from ....common.structs.rgba import RGBA
+from ....w3d.utils.helpers import *
 
 W3D_CHUNK_VERTEX_MATERIALS = 0x0000002A
 W3D_CHUNK_VERTEX_MATERIAL_INFO = 0x0000002D

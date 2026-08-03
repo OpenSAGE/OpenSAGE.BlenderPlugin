@@ -335,8 +335,8 @@ class TestMeshExportUtils(TestCase):
         tx_coords = [get_vec2(0.0, 0.0)] * 24
 
         uv_layer = mesh.uv_layers.new(do_init=False)
-        for i, datum in enumerate(uv_layer.data):
-            datum.uv = tx_coords[i]
+        for i in range(get_uv_count(uv_layer)):
+            set_uv(uv_layer, i, tx_coords[i])
 
         _mesh = prepare_bmesh(self, mesh)
 
@@ -431,8 +431,8 @@ class TestMeshExportUtils(TestCase):
 
         uv_layer = mesh.uv_layers.new(do_init=False)
 
-        for i, datum in enumerate(uv_layer.data):
-            datum.uv = tx_coords[i]
+        for i in range(get_uv_count(uv_layer)):
+            set_uv(uv_layer, i, tx_coords[i])
 
         _mesh = prepare_bmesh(self, mesh)
 
@@ -453,8 +453,8 @@ class TestMeshExportUtils(TestCase):
         b_mesh.to_mesh(mesh)
 
         uv_layer = mesh.uv_layers.new(do_init=False)
-        for datum in uv_layer.data:
-            datum.uv = Vector((0.0, 0.1))
+        for i in range(get_uv_count(uv_layer)):
+            set_uv(uv_layer, i, Vector((0.0, 0.1)))
 
         mesh_ob = bpy.data.objects.new('mesh_object', mesh)
         mesh_ob.data.object_type = 'MESH'
@@ -685,7 +685,7 @@ class TestMeshExportUtils(TestCase):
         create_mesh(self, mesh, get_collection())
 
         mesh = bpy.data.objects['mesh'].data
-        mesh.vertex_colors.new(name='invalid')
+        new_vertex_color_layer(mesh, 'invalid')
 
         with (patch.object(self, 'warning')) as report_func:
             meshes, _ = retrieve_meshes(self, None, None, 'container_name')

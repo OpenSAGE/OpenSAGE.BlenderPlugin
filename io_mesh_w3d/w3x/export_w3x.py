@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.export_utils import *
-from io_mesh_w3d.w3x.structs.include import *
+from ..export_utils import *
+from ..w3x.structs.include import *
 
 
 def save(context, export_settings, data_context):
