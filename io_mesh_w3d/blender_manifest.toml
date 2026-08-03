@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "io_mesh_w3d"
-version = "0.7.4"
+version = "0.8.0"
 name = "Import/Export Westwood W3D Format (.w3d/.w3x)"
 tagline = "Import or export the Westwood W3D format used by SAGE games"
 maintainer = "OpenSage Developers <https://github.com/OpenSAGE>"

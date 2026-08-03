@@ -1,5 +1,24 @@
 # Version History
 
+## v0.8.0
+
+* integrated the BfMe Tools (by Brechstange) as the 'BfMe Modding' panel in the scene properties,
+  they are no longer a separate add-on: asset search paths and .big extraction, a .w3d model
+  browser with previews, an animation finder, build-up and destroy animation generators,
+  UV/structure/collision-geometry/bone helpers and a simplified export panel
+* the tools now call the W3D importer and exporter directly instead of searching `bpy.ops` for
+  something that looks like a W3D operator
+* Bugfix: the tools did not work on Blender 4.2+ at all in several places, `Action.fcurves`,
+  `Material.shadow_method` and the EEVEE `use_bloom`/`use_ssr` settings were all removed
+* Bugfix: the texture and model scans mutated Blender data from worker threads, which is not
+  thread safe, they now only do file system work off the main thread
+* Bugfix: preview generation crashed when every imported object was hidden, and could leave the
+  window on a scene that was about to be deleted
+* Bugfix: an animation search no longer reads whole .w3d files into memory
+* several hot paths are now vectorised (collision geometry analysis, bone placement, scene
+  height) or use the right data structure (UV island flood fill, per-bone lookups), the model
+  list no longer re-copies itself on every UI tick
+
 ## v0.7.4
 
 * adapt to API changes in Blender 5.2

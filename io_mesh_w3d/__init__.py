@@ -10,9 +10,10 @@ from .custom_properties import *
 from .geometry_export import *
 from .bone_volume_export import *
 
+from . import bfme
 from .blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 7, 4)
+VERSION = (0, 8, 0)
 
 # add-ons installed through the extension system (Blender 4.2+) live in the
 # 'bl_ext' package and are kept up to date by Blender itself
@@ -22,7 +23,7 @@ IS_EXTENSION = (__package__ or '').startswith('bl_ext.')
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 7, 4),
+    'version': (0, 8, 0),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
@@ -550,6 +551,9 @@ def register():
 
     Material.shader = PointerProperty(type=ShaderProperties)
 
+    # the BfMe tools build on the operators and custom properties registered above
+    bfme.register()
+
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
@@ -560,6 +564,8 @@ def unregister():
 
         for class_ in reversed(UPDATER_CLASSES):
             bpy.utils.unregister_class(class_)
+
+    bfme.unregister()
 
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)
