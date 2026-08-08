@@ -425,19 +425,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'multi_texture_enable')
 
 
-class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
-    # 'Geometry Export', not 'W3D Tools', so this doesn't collide with the BfMe tools'
-    # own 'W3D Tools' panel now that both share this tab
-    bl_label = 'Geometry Export'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'W3D Tools'
-
-    def draw(self, context):
-        self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
-        self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
-
-
 class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
     bl_label = 'Updater Demo Panel'
     bl_idname = 'OBJECT_PT_hello'
@@ -522,7 +509,6 @@ CLASSES = (
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
     ExportBoneVolumeData,
-    TOOLS_PANEL_PT_w3d
 )
 
 # the bundled updater would overwrite the add-on behind Blender's back,

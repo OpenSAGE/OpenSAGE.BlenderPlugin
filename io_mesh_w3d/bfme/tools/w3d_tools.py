@@ -725,6 +725,10 @@ class W3D_TOOLS_PT_panel(Panel):
             box.separator()
             box.operator('w3d.export_geometry', icon='EXPORT', text='Export .ini File')
 
+        box.separator()
+        box.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
+        box.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
+
         box = layout.box()
         box.label(text='Create Bones', icon='BONE_DATA')
 
