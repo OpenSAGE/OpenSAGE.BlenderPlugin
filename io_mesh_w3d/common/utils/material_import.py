@@ -253,6 +253,99 @@ def create_material_from_shader_material(context, name, shader_mat):
 ##########################################################################
 
 
+##########################################################################
+# deduplication
+#
+# create_material_from_vertex_material/create_material_from_shader_material key their
+# lookup on '<mesh name>.<material name>', so every mesh gets its own materials even
+# when several meshes reference an identical definition (common for tiled/kitbashed
+# props sharing one texture). The functions below merge those after the fact by
+# comparing the fully built Blender materials instead, since the shader chunk that
+# also affects a material's appearance is only applied once mesh creation continues
+# past the point where the material itself is created.
+##########################################################################
+
+def _hashable_value(value):
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted(value))
+    if isinstance(value, float):
+        return round(value, 6)
+    if isinstance(value, str):
+        return value
+    if hasattr(value, '__len__'):
+        return tuple(_hashable_value(v) for v in value)
+    return value
+
+
+def _material_signature(material):
+    """Signature of everything this addon writes onto a material, so two materials
+    with the same signature are guaranteed to render identically.
+
+    Every key is prefixed by which bucket it came from ('custom.', 'shader.',
+    'builtin.', 'node.'), since e.g. the custom 'specular' color property and the
+    Principled BSDF node's 'specular' input value have nothing to do with each other
+    despite sharing a name, and both need to be compared independently.
+    """
+    values = []
+
+    for prop in material.bl_rna.properties:
+        # 'cycles' is a Blender builtin, not one of ours; 'shader' is handled below
+        if prop.is_runtime and prop.identifier not in ('cycles', 'shader'):
+            values.append(('custom.' + prop.identifier, _hashable_value(getattr(material, prop.identifier))))
+
+    for prop in material.shader.bl_rna.properties:
+        if prop.is_runtime:
+            values.append(('shader.' + prop.identifier, _hashable_value(getattr(material.shader, prop.identifier))))
+
+    # everything above covers the custom W3D properties; the actual shading result
+    # also depends on a handful of Blender builtins this addon writes directly
+    values.append(('builtin.diffuse_color', _hashable_value(material.diffuse_color)))
+    values.append(('builtin.specular_color', _hashable_value(material.specular_color)))
+    values.append(('builtin.specular_intensity', round(material.specular_intensity, 6)))
+    values.append(('builtin.use_backface_culling', material.use_backface_culling))
+
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+    values.append(('node.base_color', _hashable_value(principled.base_color)))
+    values.append(('node.alpha', round(principled.alpha, 6)))
+    values.append(('node.specular', round(principled.specular, 6)))
+    values.append(('node.emission_color', _hashable_value(principled.emission_color)))
+    values.append(('node.normalmap_strength', round(principled.normalmap_strength, 6)))
+
+    for texture_slot in ('base_color_texture', 'normalmap_texture', 'specular_texture'):
+        # readonly wrappers return None outright, rather than a wrapper with no image,
+        # when nothing feeds that particular Principled BSDF input
+        texture = getattr(principled, texture_slot)
+        image = texture.image if texture is not None else None
+        values.append(('node.' + texture_slot, image.name if image else None))
+
+    values.sort()
+    return tuple(values)
+
+
+def deduplicate_materials(materials):
+    """Merge materials that are equivalent in everything this addon writes onto them,
+    keeping a single Blender material datablock per distinct definition instead of one
+    per mesh that happens to use it. Returns the number of materials merged away."""
+    canonical_by_signature = {}
+    merged = 0
+
+    # sorted so which of several equivalent materials survives as the canonical one
+    # is deterministic, rather than depending on the iteration order of a set
+    for material in sorted(materials, key=lambda mat: mat.name):
+        if material is None:
+            continue
+        signature = _material_signature(material)
+        canonical = canonical_by_signature.get(signature)
+        if canonical is None:
+            canonical_by_signature[signature] = material
+            continue
+        material.user_remap(canonical)
+        bpy.data.materials.remove(material)
+        merged += 1
+
+    return merged
+
+
 def set_shader_properties(material, shader):
     material.shader.depth_compare = str(shader.depth_compare)
     material.shader.depth_mask = str(shader.depth_mask)

@@ -18,6 +18,11 @@
 * several hot paths are now vectorised (collision geometry analysis, bone placement, scene
   height) or use the right data structure (UV island flood fill, per-bone lookups), the model
   list no longer re-copies itself on every UI tick
+* W3D/W3X import now merges materials that are identical in every property this add-on writes,
+  instead of creating one material per mesh that happens to use it. Meshes are keyed by
+  `<mesh name>.<material name>` when they're created, so a kitbashed model built from many
+  meshes that share one texture used to end up with one duplicate material per mesh; those are
+  now merged into a single material datablock once the whole file is imported
 
 ## v0.7.4
 
