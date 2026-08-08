@@ -563,9 +563,8 @@ class W3D_OT_import_model(Operator):
 class W3D_IMPORTER_PT_panel(Panel):
     bl_label = 'W3D Model Browser'
     bl_idname = 'W3D_IMPORTER_PT_panel'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
 
     def draw(self, context):

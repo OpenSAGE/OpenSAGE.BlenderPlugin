@@ -206,9 +206,8 @@ class BFME_OT_export_model(Operator):
 class BFME_PT_export_settings(Panel):
     bl_label = 'Export Settings'
     bl_idname = 'BFME_PT_export_settings'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
 
     def draw(self, context):

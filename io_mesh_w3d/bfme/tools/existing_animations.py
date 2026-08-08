@@ -161,9 +161,8 @@ class BFME_OT_import_animation(Operator):
 class EXISTING_ANIMATIONS_PT_panel(Panel):
     bl_label = 'Existing Animations'
     bl_idname = 'EXISTING_ANIMATIONS_PT_panel'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
 
     def draw(self, context):

@@ -695,9 +695,8 @@ def distributed_surface_positions(mesh_objects, count):
 class W3D_TOOLS_PT_panel(Panel):
     bl_label = 'W3D Tools'
     bl_idname = 'W3D_TOOLS_PT_panel'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
     bl_options = {'DEFAULT_CLOSED'}
 

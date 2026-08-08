@@ -2,7 +2,7 @@
 
 ## v0.8.0
 
-* integrated the BfMe Tools (by Brechstange) as the 'BfMe Modding' panel in the scene properties,
+* integrated the BfMe Tools (by Brechstange) as the 'BfMe' tab in the 3D viewport sidebar (N-panel),
   they are no longer a separate add-on: asset search paths and .big extraction, a .w3d model
   browser with previews, an animation finder, build-up and destroy animation generators,
   UV/structure/collision-geometry/bone helpers and a simplified export panel

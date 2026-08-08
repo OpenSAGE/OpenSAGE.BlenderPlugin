@@ -254,9 +254,9 @@ class TEXTURE_OT_refresh_bigs(Operator):
 class SCENE_PT_bfme(Panel):
     bl_label = 'BfMe Modding'
     bl_idname = 'SCENE_PT_bfme'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_category = 'BfMe'
 
     def draw(self, context):
         pass
@@ -265,9 +265,8 @@ class SCENE_PT_bfme(Panel):
 class TEXTURE_PT_panel(Panel):
     bl_label = 'Asset search paths'
     bl_idname = 'TEXTURE_PT_panel'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
 
     def draw_big_list(self, layout, scene, enabled_name, show_name, collection_name, label):

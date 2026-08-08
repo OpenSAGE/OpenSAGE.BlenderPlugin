@@ -102,9 +102,8 @@ def update_bone_list(_self, context):
 class BUILDUP_PT_panel(Panel):
     bl_label = 'Build-up Animation'
     bl_idname = 'BUILDUP_PT_panel'
-    bl_space_type = 'PROPERTIES'
-    bl_region_type = 'WINDOW'
-    bl_context = 'scene'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
     bl_parent_id = 'SCENE_PT_bfme'
 
     def draw(self, context):
