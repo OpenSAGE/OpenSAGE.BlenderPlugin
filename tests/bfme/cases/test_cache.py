@@ -356,12 +356,31 @@ def w3d_hlod_header(hierarchy_name, model_name='model'):
     return w3d_chunk(0x00000701, payload)
 
 
-def w3d_model(hierarchy_name=None, textures=()):
+def w3d_shader_property(name, value, prop_type=1):
+    """A shader material property chunk: type, name length, name, value length, value."""
+    payload = struct.pack('<ii', prop_type, len(name) + 1) + name.encode() + b'\x00'
+    if prop_type == 1:
+        payload += struct.pack('<i', len(value) + 1) + value.encode() + b'\x00'
+    else:
+        payload += struct.pack('<f', value)
+    return w3d_chunk(0x00000053, payload)
+
+
+def w3d_shader_material(properties):
+    """The nesting a real shader material model uses: 0x50 > 0x51 > 0x53."""
+    material = b''.join(w3d_shader_property(name, value) for name, value in properties)
+    inner = w3d_chunk(0x00000051, material, has_sub_chunks=True)
+    return w3d_chunk(0x00000050, inner, has_sub_chunks=True)
+
+
+def w3d_model(hierarchy_name=None, textures=(), shader_textures=()):
     data = b''
     if hierarchy_name is not None:
         data += w3d_chunk(0x00000700, w3d_hlod_header(hierarchy_name), has_sub_chunks=True)
     for texture in textures:
         data += w3d_texture(texture)
+    if shader_textures:
+        data += w3d_shader_material(shader_textures)
     return data
 
 
@@ -375,6 +394,26 @@ class TestDependencyScanning(CacheTestCase):
         names = dependencies.referenced_names(w3d_model(hierarchy_name='HERO_SKL'))
 
         self.assertEqual({'hero_skl'}, names)
+
+    def test_shader_material_textures_are_found(self):
+        """Most BfMe II era models are shader material models, which name their
+        textures in a string property rather than in a texture chunk.
+        """
+        data = w3d_model(shader_textures=[
+            ('DiffuseTexture', 'ARiceclifftall.tga'),
+            ('NormalMap', 'ARiceclifftall_NM.tga')])
+
+        names = dependencies.referenced_names(data)
+
+        self.assertEqual({'ariceclifftall', 'ariceclifftall_nm'}, names)
+
+    def test_non_string_shader_properties_are_ignored(self):
+        material = (w3d_shader_property('DiffuseTexture', 'skin.tga')
+                    + w3d_shader_property('BumpScale', 1.5, prop_type=2))
+        data = w3d_chunk(0x00000050, w3d_chunk(0x00000051, material, has_sub_chunks=True),
+                         has_sub_chunks=True)
+
+        self.assertEqual({'skin'}, dependencies.referenced_names(data))
 
     def test_a_model_with_no_references(self):
         self.assertEqual(set(), dependencies.referenced_names(w3d_model()))
@@ -472,6 +511,19 @@ class TestStagingForImport(CacheTestCase):
         path = cache.stage_for_import(index, 'model')
 
         self.assertEqual(cache.BIG_CACHE_DIR, os.path.dirname(path))
+
+    def test_a_texture_is_found_under_a_different_extension(self):
+        """Models routinely ask for a .tga that ships as a .dds; the index is keyed
+        by name without extension, and the importer tries every extension it knows.
+        """
+        self.loose('model.w3d', w3d_model(shader_textures=[('DiffuseTexture', 'skin.tga')]))
+        self.loose('skin.dds', b'SKIN', subdirectory='textures')
+        index = cache.build_asset_index(
+            [], [self.loose_dir, os.path.join(self.directory, 'textures')], cache.CACHE_EXTENSIONS)
+
+        cache.stage_for_import(index, 'model')
+
+        self.assertEqual(['model.w3d', 'skin.dds'], sorted(os.listdir(cache.BIG_CACHE_DIR)))
 
     def test_staging_an_unknown_key(self):
         self.assertIsNone(cache.stage_for_import({}, 'missing'))

@@ -26,9 +26,12 @@ SIZE_MASK = 0x7FFFFFFF
 STRING_LENGTH = 16
 
 W3D_CHUNK_TEXTURE_NAME = 0x00000032
+W3D_CHUNK_SHADER_MATERIAL_PROPERTY = 0x00000053
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 W3D_CHUNK_ANIMATION_HEADER = 0x00000201
 W3D_CHUNK_COMPRESSED_ANIMATION_HEADER = 0x00000281
+
+STRING_PROPERTY = 1
 
 # version(4) + lod_count(4) + model_name(16), then the hierarchy name
 HLOD_HIERARCHY_OFFSET = 24
@@ -50,6 +53,33 @@ def _terminated_string(data, start, end):
     return data[start:end].split(b'\x00', 1)[0].decode('latin-1', 'replace').strip()
 
 
+def _shader_material_property(data, start, end):
+    """The value of a string-valued shader material property, if it is one.
+
+    Shader material models, which is most of what BfMe II and later ship, name
+    their textures here rather than in a texture chunk:
+
+        long type, long name length, name\\0, long value length, value\\0
+    """
+    if start + 8 > end:
+        return None
+
+    prop_type = struct.unpack_from('<i', data, start)[0]
+    if prop_type != STRING_PROPERTY:
+        return None
+
+    name_end = data.find(b'\x00', start + 8, end)
+    if name_end < 0:
+        return None
+
+    # skip the terminator and the value's own length field
+    value_start = name_end + 1 + 4
+    if value_start > end:
+        return None
+
+    return _terminated_string(data, value_start, end)
+
+
 def _walk(data, start, end, names, depth):
     if depth > MAX_DEPTH:
         return
@@ -67,6 +97,10 @@ def _walk(data, start, end, names, depth):
 
         if chunk_type == W3D_CHUNK_TEXTURE_NAME:
             names.add(_terminated_string(data, body, body_end))
+        elif chunk_type == W3D_CHUNK_SHADER_MATERIAL_PROPERTY:
+            value = _shader_material_property(data, body, body_end)
+            if value:
+                names.add(value)
         elif chunk_type == W3D_CHUNK_HLOD_HEADER:
             names.add(_fixed_string(data, body + HLOD_HIERARCHY_OFFSET))
         elif chunk_type in (W3D_CHUNK_ANIMATION_HEADER, W3D_CHUNK_COMPRESSED_ANIMATION_HEADER):
