@@ -117,18 +117,33 @@ class BFME_OT_import_animation(Operator):
             return {'CANCELLED'}
 
         target = context.scene.existing_anim_target
+
+        # the W3D animation importer keyframes the target skeleton directly rather than
+        # building a standalone action, so if it already has one, keyframe_insert() adds
+        # to it instead of starting fresh, silently mixing the old and new animation's
+        # keyframes on the same fcurves. Detach it before importing so a clean action is
+        # created; only actually removed once the import has succeeded, so a failed
+        # import leaves the previous animation intact
+        previous_actions = self._detach_actions(target)
+
         actions_before = {action.name for action in bpy.data.actions}
         objects_before = {obj.name for obj in bpy.data.objects}
 
         try:
             result = utils.import_w3d(self.filepath)
         except RuntimeError as error:
+            self._restore_actions(target, previous_actions)
             self.report({'ERROR'}, f'Import failed: {error}')
             return {'CANCELLED'}
 
         if 'FINISHED' not in result:
+            self._restore_actions(target, previous_actions)
             self.report({'ERROR'}, f'Import failed for {os.path.basename(self.filepath)}')
             return {'CANCELLED'}
+
+        for action in previous_actions.values():
+            if action.users == 0:
+                bpy.data.actions.remove(action)
 
         action = self._imported_action(actions_before, objects_before)
         message = f'Imported {os.path.basename(self.filepath)}'
@@ -143,6 +158,38 @@ class BFME_OT_import_animation(Operator):
 
         self.report({'INFO'}, message)
         return {'FINISHED'}
+
+    @staticmethod
+    def _detach_actions(target):
+        """Clear the target's existing actions and return them, keyed by where they came from."""
+        previous = {}
+        if target is None:
+            return previous
+
+        if target.animation_data and target.animation_data.action:
+            previous['object'] = target.animation_data.action
+            target.animation_data.action = None
+
+        # bone visibility channels live on the armature data-block's own animation,
+        # separate from the object-level pose animation above
+        if target.type == 'ARMATURE' and target.data.animation_data and target.data.animation_data.action:
+            previous['data'] = target.data.animation_data.action
+            target.data.animation_data.action = None
+
+        return previous
+
+    @staticmethod
+    def _restore_actions(target, previous_actions):
+        if target is None:
+            return
+        if 'object' in previous_actions:
+            if not target.animation_data:
+                target.animation_data_create()
+            target.animation_data.action = previous_actions['object']
+        if 'data' in previous_actions:
+            if not target.data.animation_data:
+                target.data.animation_data_create()
+            target.data.animation_data.action = previous_actions['data']
 
     @staticmethod
     def _imported_action(actions_before, objects_before):

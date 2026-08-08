@@ -24,6 +24,11 @@
   `<mesh name>.<material name>` when they're created, so a kitbashed model built from many
   meshes that share one texture used to end up with one duplicate material per mesh; those are
   now merged into a single material datablock once the whole file is imported
+* Bugfix: importing a second animation onto the same skeleton from 'Existing Animations' mixed
+  its keyframes into whatever animation the skeleton already had, instead of replacing it -
+  `keyframe_insert()` adds to the currently assigned action rather than starting a fresh one.
+  The target's existing action is now detached before importing and only actually removed once
+  the import has succeeded, so a failed import doesn't lose the previous animation either
 
 ## v0.7.4
 

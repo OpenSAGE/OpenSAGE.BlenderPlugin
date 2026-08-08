@@ -11,7 +11,101 @@ from mathutils import Vector
 
 from io_mesh_w3d.bfme import utils
 from io_mesh_w3d.bfme.tools import existing_animations, export_settings, model_browser, w3d_tools
+from io_mesh_w3d.common.utils.helpers import iter_action_fcurves
 from tests.utils import TestCase
+
+
+class TestExistingAnimationsActionHandling(TestCase):
+    """The W3D animation importer keyframes the target skeleton directly rather than
+    building a standalone action, so re-importing onto a rig that already has one used
+    to mix the new keyframes into the old action instead of replacing it. These test
+    the detach/restore helpers that keep the two separate.
+    """
+
+    def create_rig_with_action(self):
+        armature_data = bpy.data.armatures.new('rig')
+        rig = bpy.data.objects.new('rig', armature_data)
+        bpy.context.scene.collection.objects.link(rig)
+        bpy.context.view_layer.objects.active = rig
+
+        bpy.ops.object.mode_set(mode='EDIT')
+        bone = armature_data.edit_bones.new('bone1')
+        bone.head = (0, 0, 0)
+        bone.tail = (0, 1, 0)
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+        pose_bone = rig.pose.bones['bone1']
+        pose_bone.location = (1, 0, 0)
+        pose_bone.keyframe_insert(data_path='location', frame=0)
+        return rig
+
+    def test_detach_actions_clears_the_object_level_action(self):
+        rig = self.create_rig_with_action()
+        original = rig.animation_data.action
+
+        previous = existing_animations.BFME_OT_import_animation._detach_actions(rig)
+
+        self.assertIsNone(rig.animation_data.action)
+        self.assertEqual(original, previous['object'])
+
+    def test_detach_actions_clears_the_data_level_action(self):
+        rig = self.create_rig_with_action()
+        rig.data.animation_data_create()
+        rig.data.animation_data.action = bpy.data.actions.new('bone_visibility')
+
+        previous = existing_animations.BFME_OT_import_animation._detach_actions(rig)
+
+        self.assertIsNone(rig.data.animation_data.action)
+        self.assertEqual('bone_visibility', previous['data'].name)
+
+    def test_detach_actions_of_a_rig_without_animation(self):
+        armature_data = bpy.data.armatures.new('rig')
+        rig = bpy.data.objects.new('rig', armature_data)
+        bpy.context.scene.collection.objects.link(rig)
+
+        self.assertEqual({}, existing_animations.BFME_OT_import_animation._detach_actions(rig))
+
+    def test_detach_actions_of_none(self):
+        self.assertEqual({}, existing_animations.BFME_OT_import_animation._detach_actions(None))
+
+    def test_restore_actions_reattaches_the_previous_action(self):
+        rig = self.create_rig_with_action()
+        original = rig.animation_data.action
+        previous = existing_animations.BFME_OT_import_animation._detach_actions(rig)
+
+        existing_animations.BFME_OT_import_animation._restore_actions(rig, previous)
+
+        self.assertEqual(original, rig.animation_data.action)
+
+    def test_detaching_before_reimport_keeps_the_previous_keyframes_intact(self):
+        """Reproduces the reported bug: without detaching first, importing a second
+        animation onto the same rig overwrites the first animation's keyframes because
+        keyframe_insert() adds to whatever action is already assigned.
+        """
+        rig = self.create_rig_with_action()
+        original_action = rig.animation_data.action
+        pose_bone = rig.pose.bones['bone1']
+
+        existing_animations.BFME_OT_import_animation._detach_actions(rig)
+
+        # simulate what the W3D animation importer does for a second animation file
+        pose_bone.location = (5, 5, 5)
+        pose_bone.keyframe_insert(data_path='location', frame=0)
+        new_action = rig.animation_data.action
+
+        self.assertNotEqual(original_action, new_action)
+
+        # read the detached action back through a throwaway carrier, since reading its
+        # fcurves requires an animation_data with both the action and its slot bound,
+        # and assigning .action alone doesn't rebind .action_slot
+        carrier = bpy.data.objects.new('carrier', bpy.data.meshes.new('carrier'))
+        carrier.animation_data_create()
+        carrier.animation_data.action = original_action
+        carrier.animation_data.action_slot = original_action.slots[0]
+        original_fcurve = next(
+            fc for fc in iter_action_fcurves(carrier.animation_data)
+            if fc.data_path == 'pose.bones["bone1"].location' and fc.array_index == 0)
+        self.assertEqual(1.0, original_fcurve.keyframe_points[0].co.y)
 
 
 class TestPreviewIndex(TestCase):
