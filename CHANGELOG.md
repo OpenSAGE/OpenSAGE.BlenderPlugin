@@ -2,10 +2,11 @@
 
 ## v0.8.0
 
-* integrated the BfMe Tools (by Brechstange) as the 'BfMe' tab in the 3D viewport sidebar (N-panel),
-  they are no longer a separate add-on: asset search paths and .big extraction, a .w3d model
-  browser with previews, an animation finder, build-up and destroy animation generators,
-  UV/structure/collision-geometry/bone helpers and a simplified export panel
+* integrated the BfMe Tools (by Brechstange) into the 'W3D Tools' tab in the 3D viewport sidebar
+  (N-panel), alongside the existing geometry/bone-volume export panel; they are no longer a
+  separate add-on: asset search paths and .big extraction, a .w3d model browser with previews, an
+  animation finder, build-up and destroy animation generators, UV/structure/collision-geometry/
+  bone helpers and a simplified export panel
 * the tools now call the W3D importer and exporter directly instead of searching `bpy.ops` for
   something that looks like a W3D operator
 * Bugfix: the tools did not work on Blender 4.2+ at all in several places, `Action.fcurves`,

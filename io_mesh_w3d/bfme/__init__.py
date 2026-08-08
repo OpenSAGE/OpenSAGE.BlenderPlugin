@@ -16,8 +16,7 @@ from .tools import (
     texture_finder,
     w3d_tools)
 
-# texture_finder owns the parent panel, so it has to be registered before the tools
-# whose panels declare it as their bl_parent_id
+# display order of the top-level panels within the 'W3D Tools' sidebar tab
 MODULES = (
     texture_finder,
     model_browser,

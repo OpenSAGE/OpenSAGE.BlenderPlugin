@@ -208,7 +208,7 @@ class BFME_PT_export_settings(Panel):
     bl_idname = 'BFME_PT_export_settings'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_parent_id = 'SCENE_PT_bfme'
+    bl_category = 'W3D Tools'
 
     def draw(self, context):
         layout = self.layout

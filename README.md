@@ -21,7 +21,8 @@ via *Edit > Preferences > Add-ons > Install*.
 ## BfMe Tools
 
 The add-on also ships the BfMe modding tools (originally a separate add-on by Brechstange), found in the
-3D viewport sidebar (press *N*) under the *BfMe* tab. They cover asset search paths and `.big` extraction,
+3D viewport sidebar (press *N*) under the *W3D Tools* tab, alongside the geometry/bone-volume export
+panel. They cover asset search paths and `.big` extraction,
 a `.w3d` model browser with previews, finding animations that fit a skeleton, build-up and destroy
 animation generators, UV/structure/collision-geometry/bone helpers and a simplified export panel.
 

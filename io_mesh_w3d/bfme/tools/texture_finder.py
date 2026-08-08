@@ -251,23 +251,12 @@ class TEXTURE_OT_refresh_bigs(Operator):
         return {'FINISHED'}
 
 
-class SCENE_PT_bfme(Panel):
-    bl_label = 'BfMe Modding'
-    bl_idname = 'SCENE_PT_bfme'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'BfMe'
-
-    def draw(self, context):
-        pass
-
-
 class TEXTURE_PT_panel(Panel):
     bl_label = 'Asset search paths'
     bl_idname = 'TEXTURE_PT_panel'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_parent_id = 'SCENE_PT_bfme'
+    bl_category = 'W3D Tools'
 
     def draw_big_list(self, layout, scene, enabled_name, show_name, collection_name, label):
         row = layout.row()
@@ -330,7 +319,6 @@ class TEXTURE_PT_panel(Panel):
 
 
 CLASSES = (
-    SCENE_PT_bfme,
     TEXTURE_PT_panel,
     TEXTURE_OT_load_files,
     TEXTURE_OT_add_path,

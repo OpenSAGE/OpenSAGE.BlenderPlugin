@@ -565,7 +565,7 @@ class W3D_IMPORTER_PT_panel(Panel):
     bl_idname = 'W3D_IMPORTER_PT_panel'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_parent_id = 'SCENE_PT_bfme'
+    bl_category = 'W3D Tools'
 
     def draw(self, context):
         layout = self.layout
