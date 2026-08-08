@@ -369,7 +369,9 @@ class W3D_OT_generate_preview(Operator):
             except OSError:
                 pass
 
-        filepath = cache.resolve(reference)
+        # the model's skeleton and textures come along, the importer looks them up
+        # by name next to the file it is given
+        filepath = cache.stage_for_import(cache.cached_asset_index(), item.key)
         if filepath is None:
             self.report({'WARNING'}, f'Could not read {item.filename}')
             return {'CANCELLED'}
@@ -548,9 +550,9 @@ class W3D_OT_import_model(Operator):
     key: StringProperty()
 
     def execute(self, _context):
-        # models inside a .big only get written out at this point, one file rather
-        # than the whole archive
-        filepath = cache.resolve(cache.cached_asset_index().get(self.key))
+        # the model and its skeleton and textures get written out at this point,
+        # rather than the whole archive
+        filepath = cache.stage_for_import(cache.cached_asset_index(), self.key)
         if filepath is None:
             self.report({'ERROR'}, f"Could not read '{self.key}'. Re-scan the models.")
             return {'CANCELLED'}

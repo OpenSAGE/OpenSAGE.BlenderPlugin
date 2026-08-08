@@ -28,6 +28,7 @@ import tempfile
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+from . import dependencies
 from .vendor.pyBIG import InDiskArchive
 
 SUPPORTED_EXTENSIONS = {'.dds', '.tga', '.jpg', '.jpeg', '.png', '.bmp'}
@@ -271,22 +272,14 @@ def asset_contains(reference, needle, chunk_size=READ_CHUNK_SIZE):
     return False
 
 
-def resolve(reference):
-    """A real filesystem path for the asset, extracting it only if it has to be.
+def materialise(reference):
+    """Write the asset into the cache directory and return its path.
 
-    Loose files are returned as they are, nothing is copied. Archive entries are
-    written into the cache directory once and reused afterwards, so that Blender,
-    which cannot read from inside a .big, has a file to open.
+    Reused when a copy of the right size is already there, so repeated imports of
+    the same model do not rewrite it.
     """
-    if reference is None:
-        return None
-
-    if reference[0] == REF_FILE:
-        path = reference[1]
-        return path if os.path.exists(path) else None
-
-    _, _, entry_name, _, size = reference
-    target = os.path.join(BIG_CACHE_DIR, os.path.basename(entry_name))
+    target = os.path.join(BIG_CACHE_DIR, asset_name(reference))
+    size = asset_size(reference)
 
     try:
         if os.path.getsize(target) == size:
@@ -296,8 +289,8 @@ def resolve(reference):
 
     ensure_cache_dir()
 
-    # serialised so two threads resolving the same asset cannot interleave their
-    # writes; the work itself is a seek and a read, so the lock is held briefly
+    # serialised so two threads materialising the same asset cannot interleave
+    # their writes; the work itself is a seek and a read, so the lock is held briefly
     with _materialise_lock:
         try:
             if os.path.getsize(target) == size:
@@ -312,7 +305,7 @@ def resolve(reference):
                     file.write(chunk)
             os.replace(temp_path, target)
         except OSError as error:
-            print(f'[BFME_CACHE] could not materialise {entry_name}: {error}')
+            print(f'[BFME_CACHE] could not materialise {asset_name(reference)}: {error}')
             try:
                 os.remove(temp_path)
             except OSError:
@@ -322,8 +315,91 @@ def resolve(reference):
     return target
 
 
+def resolve(reference):
+    """A real filesystem path for the asset, extracting it only if it has to be.
+
+    Loose files are returned as they are, nothing is copied. Archive entries are
+    written into the cache directory once and reused afterwards, so that Blender,
+    which cannot read from inside a .big, has a file to open.
+    """
+    if reference is None:
+        return None
+
+    if reference[0] == REF_FILE:
+        path = reference[1]
+        return path if os.path.exists(path) else None
+
+    return materialise(reference)
+
+
 def resolve_key(index, key):
     return resolve(index.get(key))
+
+
+MAX_DEPENDENCY_DEPTH = 4
+
+
+def dependency_keys(index, key):
+    """Every asset the given model pulls in, transitively.
+
+    A model names its skeleton and its textures; a skeleton can in turn name
+    further files, so references are followed until nothing new turns up.
+    """
+    collected = set()
+    pending = {key}
+
+    for _ in range(MAX_DEPENDENCY_DEPTH):
+        names = set()
+        for current in pending:
+            reference = index.get(current)
+            # only w3d files reference anything, textures are leaves
+            if reference is not None and asset_name(reference).lower().endswith('.w3d'):
+                names |= dependencies.referenced_names(read_asset(reference))
+
+        pending = {name for name in names if name in index and name not in collected and name != key}
+        if not pending:
+            break
+        collected |= pending
+
+    return collected
+
+
+def stage_for_import(index, key):
+    """Put a model and everything it needs in one directory, and return its path.
+
+    The W3D importer resolves a model's skeleton and textures by name relative to
+    the file it is importing, so they have to sit next to it. A loose model whose
+    dependencies are already beside it is imported where it lies and nothing is
+    copied; otherwise the model and its dependencies are gathered in the cache
+    directory, which is the only case where anything gets written.
+    """
+    reference = index.get(key)
+    if reference is None:
+        return None
+
+    needed = dependency_keys(index, key)
+
+    if reference[0] == REF_FILE:
+        directory = os.path.dirname(reference[1])
+        if all(_sits_in(index.get(name), directory) for name in needed):
+            return resolve(reference)
+
+    path = materialise(reference)
+    if path is None:
+        return None
+
+    for name in needed:
+        materialise(index[name])
+
+    return path
+
+
+def _sits_in(reference, directory):
+    """Whether the asset is already a loose file in the given directory."""
+    return (reference is not None
+            and reference[0] == REF_FILE
+            and os.path.dirname(reference[1]) == directory
+            and os.path.exists(reference[1]))
 
 
 ##########################################################################

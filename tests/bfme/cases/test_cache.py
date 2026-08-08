@@ -10,7 +10,7 @@ import shutil
 import struct
 import tempfile
 
-from io_mesh_w3d.bfme import cache
+from io_mesh_w3d.bfme import cache, dependencies
 from tests.utils import TestCase
 
 
@@ -22,7 +22,6 @@ def write_big_archive(path, entries):
     """
     names = list(entries)
 
-    header_size = 4 + 4 + 8
     index_size = sum(8 + len(name) + 1 for name in names)
     first_entry = 20
     for name in names:
@@ -338,6 +337,144 @@ class TestResolving(CacheTestCase):
 
         self.assertIsNotNone(cache.resolve_key(index, 'model'))
         self.assertIsNone(cache.resolve_key(index, 'missing'))
+
+
+def w3d_chunk(chunk_type, payload, has_sub_chunks=False):
+    size = len(payload) | (0x80000000 if has_sub_chunks else 0)
+    return struct.pack('<II', chunk_type, size) + payload
+
+
+def w3d_texture(name):
+    """A texture chunk wrapping a texture name chunk, as a real .w3d nests them."""
+    return w3d_chunk(0x00000031, w3d_chunk(0x00000032, name.encode() + b'\x00'), has_sub_chunks=True)
+
+
+def w3d_hlod_header(hierarchy_name, model_name='model'):
+    payload = (struct.pack('<II', 0x00040001, 1)
+               + model_name.encode().ljust(16, b'\x00')
+               + hierarchy_name.encode().ljust(16, b'\x00'))
+    return w3d_chunk(0x00000701, payload)
+
+
+def w3d_model(hierarchy_name=None, textures=()):
+    data = b''
+    if hierarchy_name is not None:
+        data += w3d_chunk(0x00000700, w3d_hlod_header(hierarchy_name), has_sub_chunks=True)
+    for texture in textures:
+        data += w3d_texture(texture)
+    return data
+
+
+class TestDependencyScanning(CacheTestCase):
+    def test_texture_names_are_found(self):
+        names = dependencies.referenced_names(w3d_model(textures=['Skin.dds', 'Cloth.tga']))
+
+        self.assertEqual({'skin', 'cloth'}, names)
+
+    def test_the_hierarchy_name_is_found(self):
+        names = dependencies.referenced_names(w3d_model(hierarchy_name='HERO_SKL'))
+
+        self.assertEqual({'hero_skl'}, names)
+
+    def test_a_model_with_no_references(self):
+        self.assertEqual(set(), dependencies.referenced_names(w3d_model()))
+
+    def test_garbage_is_not_mistaken_for_references(self):
+        self.assertEqual(set(), dependencies.referenced_names(b'not a w3d file at all'))
+
+    def test_a_truncated_model_does_not_raise(self):
+        data = w3d_model(hierarchy_name='HERO_SKL', textures=['Skin.dds'])
+
+        self.assertEqual(set(), dependencies.referenced_names(data[:6]))
+        dependencies.referenced_names(data[:len(data) // 2])
+
+    def test_dependency_keys_follows_a_skeleton(self):
+        archive = self.archive('assets.big', {
+            'model.w3d': w3d_model(hierarchy_name='hero_skl', textures=['skin.dds']),
+            'hero_skl.w3d': w3d_model(textures=['bones.dds']),
+            'skin.dds': b'SKIN',
+            'bones.dds': b'BONES'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual({'hero_skl', 'skin', 'bones'}, cache.dependency_keys(index, 'model'))
+
+    def test_dependency_keys_ignores_names_that_are_not_indexed(self):
+        archive = self.archive('assets.big', {
+            'model.w3d': w3d_model(textures=['present.dds', 'absent.dds']),
+            'present.dds': b'X'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual({'present'}, cache.dependency_keys(index, 'model'))
+
+    def test_dependency_keys_survives_a_reference_cycle(self):
+        archive = self.archive('assets.big', {
+            'a.w3d': w3d_model(hierarchy_name='b'),
+            'b.w3d': w3d_model(hierarchy_name='a')})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual({'b'}, cache.dependency_keys(index, 'a'))
+
+
+class TestStagingForImport(CacheTestCase):
+    def test_an_archived_model_brings_its_skeleton_and_textures_along(self):
+        archive = self.archive('assets.big', {
+            'art/model.w3d': w3d_model(hierarchy_name='hero_skl', textures=['skin.dds']),
+            'art/hero_skl.w3d': w3d_model(),
+            'art/skin.dds': b'SKIN'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        path = cache.stage_for_import(index, 'model')
+
+        # the importer looks these up by name next to the file it is given
+        self.assertEqual(cache.BIG_CACHE_DIR, os.path.dirname(path))
+        self.assertEqual(['hero_skl.w3d', 'model.w3d', 'skin.dds'],
+                         sorted(os.listdir(cache.BIG_CACHE_DIR)))
+
+    def test_unrelated_archive_entries_are_left_alone(self):
+        archive = self.archive('assets.big', {
+            'model.w3d': w3d_model(textures=['skin.dds']),
+            'skin.dds': b'SKIN',
+            'unrelated.dds': b'NOPE',
+            'other.w3d': w3d_model()})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        cache.stage_for_import(index, 'model')
+
+        self.assertEqual(['model.w3d', 'skin.dds'], sorted(os.listdir(cache.BIG_CACHE_DIR)))
+
+    def test_a_loose_model_whose_dependencies_sit_beside_it_is_not_copied(self):
+        self.loose('model.w3d', w3d_model(hierarchy_name='hero_skl', textures=['skin.dds']))
+        self.loose('hero_skl.w3d', w3d_model())
+        self.loose('skin.dds', b'SKIN')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        path = cache.stage_for_import(index, 'model')
+
+        self.assertEqual(self.loose_dir, os.path.dirname(path))
+        self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
+
+    def test_a_loose_model_is_staged_when_a_dependency_is_in_an_archive(self):
+        archive = self.archive('assets.big', {'skin.dds': b'SKIN'})
+        self.loose('model.w3d', w3d_model(textures=['skin.dds']))
+        index = cache.build_asset_index([archive], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        path = cache.stage_for_import(index, 'model')
+
+        self.assertEqual(cache.BIG_CACHE_DIR, os.path.dirname(path))
+        self.assertEqual(['model.w3d', 'skin.dds'], sorted(os.listdir(cache.BIG_CACHE_DIR)))
+
+    def test_a_loose_model_is_staged_when_a_dependency_is_in_another_folder(self):
+        self.loose('model.w3d', w3d_model(textures=['skin.dds']))
+        self.loose('skin.dds', b'SKIN', subdirectory='elsewhere')
+        index = cache.build_asset_index(
+            [], [self.loose_dir, os.path.join(self.directory, 'elsewhere')], cache.CACHE_EXTENSIONS)
+
+        path = cache.stage_for_import(index, 'model')
+
+        self.assertEqual(cache.BIG_CACHE_DIR, os.path.dirname(path))
+
+    def test_staging_an_unknown_key(self):
+        self.assertIsNone(cache.stage_for_import({}, 'missing'))
 
 
 class TestMaintenance(CacheTestCase):

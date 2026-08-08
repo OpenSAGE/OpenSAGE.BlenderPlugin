@@ -75,9 +75,9 @@ class BFME_OT_import_animation(Operator):
     key: StringProperty()
 
     def execute(self, context):
-        # animations inside a .big only get written out at this point, one file
+        # the animation and the skeleton it names get written out at this point,
         # rather than the whole archive
-        filepath = cache.resolve(cache.cached_asset_index().get(self.key))
+        filepath = cache.stage_for_import(cache.cached_asset_index(), self.key)
         if filepath is None:
             self.report({'ERROR'}, f"Could not read '{self.key}'. Search again.")
             return {'CANCELLED'}

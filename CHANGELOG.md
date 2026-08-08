@@ -31,7 +31,8 @@
   BfMe II + RotWK install (223 archives, 10 GB): indexing all 32808 assets takes 0.4 s and writes
   nothing to disk, where the previous implementation copied 6267 MB into %TEMP% before the model
   list could be shown. The per-search-path 'Load to cache' switch is gone with it, since there is
-  no longer anything to opt into
+  no longer anything to opt into. Importing or previewing a model brings its skeleton and its
+  textures along, because the W3D importer resolves those by name next to the file it is given
 * Bugfix: importing a second animation onto the same skeleton from 'Existing Animations' mixed
   its keyframes into whatever animation the skeleton already had, instead of replacing it -
   `keyframe_insert()` adds to the currently assigned action rather than starting a fresh one.
