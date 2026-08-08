@@ -15,11 +15,9 @@ class BigFileItem(PropertyGroup):
 
 
 class TextureSearchPath(PropertyGroup):
+    # loose files are referenced where they are, so there is nothing to opt into
+    # copying any more
     path: StringProperty(name='Search Path', subtype='DIR_PATH')
-    load_to_cache: BoolProperty(
-        name='Load to cache',
-        description='Copy files from this path to the cache for faster access (may take a while initially)',
-        default=False)
 
 
 INSTALL_REGISTRY_KEYS = (

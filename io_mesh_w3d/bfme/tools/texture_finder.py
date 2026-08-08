@@ -125,72 +125,71 @@ class _ThreadedOperator(Operator):
 
 
 class TEXTURE_OT_load_files(_ThreadedOperator):
-    """Load files from the configured paths and .big archives into the cache"""
+    """Reconnect missing textures from the configured paths and .big archives"""
     bl_idname = 'texture.load_files'
     bl_label = 'Load Files'
-    bl_description = 'Load textures and models from the configured paths and .big archives'
+    bl_description = 'Reconnect missing textures from the configured paths and .big archives'
 
     def collect(self, context):
         scene = context.scene
 
-        # find the images that need fixing up front, on the main thread
+        # find the images that need fixing up front, on the main thread, and work out
+        # the name to look them up by here too, since that reads image.filepath
         candidates = []
         for image in bpy.data.images:
             if image.name == 'Render Result':
                 continue
             if not image.filepath:
                 if os.path.splitext(image.name)[1].lower() in cache.SUPPORTED_EXTENSIONS:
-                    candidates.append(image.name)
+                    candidates.append((image.name, cache.asset_key(image.name)))
                 continue
             if not os.path.exists(bpy.path.abspath(image.filepath)):
-                candidates.append(image.name)
+                # a broken link still names the file it is looking for
+                candidates.append((image.name, cache.asset_key(image.filepath)))
 
         if not candidates:
             self.report({'INFO'}, 'No missing textures found in the current scene')
             return None
 
         big_paths = utils.selected_big_paths(scene)
-        cacheable = utils.search_paths(scene, cacheable_only=True)
+        search_paths = utils.search_paths(scene)
 
-        if not big_paths and not cacheable and not utils.search_paths(scene):
+        if not big_paths and not search_paths:
             self.report({'ERROR'}, 'No search paths defined')
             return None
 
-        return {'candidates': candidates, 'big_paths': big_paths, 'search_paths': cacheable}
+        return {'candidates': candidates, 'big_paths': big_paths, 'search_paths': search_paths}
 
     def work(self, job, payload):
-        index = {}
+        job.report('Indexing assets...', 20)
+        index = cache.asset_index(
+            payload['big_paths'], payload['search_paths'],
+            cache.SUPPORTED_EXTENSIONS | {'.w3d'},
+            progress=lambda done, total: job.report(f'Indexing archives ({done}/{total})...', 20))
 
-        if payload['big_paths']:
-            job.report('Loading from .big archives...', 30)
-            wanted = cache.SUPPORTED_EXTENSIONS | {'.w3d'}
-            index.update(cache.extract_bigs(payload['big_paths'], wanted))
+        # only the textures actually missing from the scene get resolved, which for
+        # a loose file is its own path and for an archive entry extracts just that one
+        job.report('Resolving textures...', 70)
+        resolved = {}
+        for name, key in payload['candidates']:
+            path = cache.resolve(index.get(key))
+            if path is not None:
+                resolved[name] = path
 
-        if payload['search_paths']:
-            job.report('Loading from search paths...', 70)
-            index.update(cache.cache_search_path_files(
-                payload['search_paths'],
-                progress=lambda done, total: job.report(f'Caching search paths ({done}/{total})...', 70)))
-
-        job.report('Fixing textures...', 95)
-        return {'index': index, 'candidates': payload['candidates']}
+        return {'resolved': resolved, 'candidates': payload['candidates']}
 
     def apply(self, context, job):
-        index = job.result['index']
+        resolved = job.result['resolved']
         candidates = job.result['candidates']
 
         fixed = 0
-        for name in candidates:
+        for name, _ in candidates:
             image = bpy.data.images.get(name)
-            if image is None:
+            path = resolved.get(name)
+            if image is None or path is None:
                 continue
 
-            lookup = os.path.basename(image.filepath) if image.filepath else image.name
-            found = index.get(os.path.splitext(lookup)[0].lower())
-            if found is None:
-                continue
-
-            image.filepath = found
+            image.filepath = path
             image.source = 'FILE'
             try:
                 image.reload()
@@ -298,11 +297,6 @@ class TEXTURE_PT_panel(Panel):
             row = box.row()
             row.prop(entry, 'path', text='')
             row.operator('texture.remove_path', text='', icon='X').index = index
-
-            row = box.row()
-            row.prop(entry, 'load_to_cache')
-            if entry.load_to_cache:
-                row.label(text='', icon='INFO')
 
         layout.operator('texture.add_path')
 

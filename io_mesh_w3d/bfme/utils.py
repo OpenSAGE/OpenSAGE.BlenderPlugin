@@ -53,11 +53,9 @@ def selected_big_paths(scene):
     return paths
 
 
-def search_paths(scene, cacheable_only=False):
+def search_paths(scene):
     paths = []
     for entry in getattr(scene, 'texture_search_paths', ()):
-        if cacheable_only and not entry.load_to_cache:
-            continue
         if not entry.path:
             continue
         absolute = bpy.path.abspath(entry.path)

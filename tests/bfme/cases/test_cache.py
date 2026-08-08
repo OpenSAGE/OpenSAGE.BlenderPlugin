@@ -1,5 +1,5 @@
 # <pep8 compliant>
-# Tests for the BfMe asset cache.
+# Tests for the BfMe asset index.
 #
 # These run against the real bpy inside Blender like the rest of the suite. The
 # original bfme tests installed a MagicMock as sys.modules['bpy'], which would have
@@ -7,246 +7,363 @@
 
 import os
 import shutil
+import struct
 import tempfile
 
 from io_mesh_w3d.bfme import cache
 from tests.utils import TestCase
 
 
-class TestCacheHelpers(TestCase):
+def write_big_archive(path, entries):
+    """Write a minimal BIG4 archive containing the given {name: bytes}.
+
+    Built by hand rather than through pyBIG so the tests exercise the index
+    against the real on-disk layout without depending on the writer.
+    """
+    names = list(entries)
+
+    header_size = 4 + 4 + 8
+    index_size = sum(8 + len(name) + 1 for name in names)
+    first_entry = 20
+    for name in names:
+        first_entry += len(name) + 1 + 8
+
+    positions = {}
+    offset = first_entry
+    for name in names:
+        positions[name] = offset
+        offset += len(entries[name])
+
+    with open(path, 'wb') as file:
+        file.write(b'BIG4')
+        file.write(struct.pack('<I', offset))
+        file.write(struct.pack('>II', len(names), index_size))
+        for name in names:
+            file.write(struct.pack('>II', positions[name], len(entries[name])))
+            file.write(name.encode('latin-1') + b'\x00')
+
+        file.write(b'\x00' * (first_entry - file.tell()))
+        for name in names:
+            file.write(entries[name])
+
+    return path
+
+
+class CacheTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.cache_dir = tempfile.mkdtemp(prefix='bfme-cache-')
-        self.index_file = os.path.join(self.cache_dir, 'index.json')
+        self.directory = tempfile.mkdtemp(prefix='bfme-cache-')
 
-        self._original_dir = cache.BIG_CACHE_DIR
-        self._original_index = cache.CACHE_INDEX_FILE
-        cache.BIG_CACHE_DIR = os.path.join(self.cache_dir, 'files')
-        cache.CACHE_INDEX_FILE = self.index_file
-        os.makedirs(cache.BIG_CACHE_DIR, exist_ok=True)
-
-        cache.invalidate_cache_index()
-        cache.invalidate_cached_file_sizes()
+        self._original_cache_dir = cache.BIG_CACHE_DIR
+        cache.BIG_CACHE_DIR = os.path.join(self.directory, 'materialised')
+        cache.invalidate_asset_index()
 
     def tearDown(self):
-        cache.BIG_CACHE_DIR = self._original_dir
-        cache.CACHE_INDEX_FILE = self._original_index
-        cache.invalidate_cache_index()
-        cache.invalidate_cached_file_sizes()
-        shutil.rmtree(self.cache_dir, ignore_errors=True)
+        cache.BIG_CACHE_DIR = self._original_cache_dir
+        cache.invalidate_asset_index()
+        shutil.rmtree(self.directory, ignore_errors=True)
         super().tearDown()
 
-    def write(self, name, content, directory=None):
-        path = os.path.join(directory or cache.BIG_CACHE_DIR, name)
+    def loose(self, name, content=b'data', subdirectory='loose'):
+        path = os.path.join(self.directory, subdirectory, name)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'wb') as file:
             file.write(content)
         return path
 
-    def test_cached_file_sizes_of_empty_directory(self):
-        self.assertEqual({}, cache.get_cached_file_sizes())
+    @property
+    def loose_dir(self):
+        return os.path.join(self.directory, 'loose')
 
-    def test_cached_file_sizes_reports_actual_sizes(self):
-        self.write('a.dds', b'1234')
-        self.write('b.tga', b'123456789')
-        cache.invalidate_cached_file_sizes()
+    def archive(self, name, entries):
+        return write_big_archive(os.path.join(self.directory, name), entries)
 
-        sizes = cache.get_cached_file_sizes()
 
-        self.assertEqual(4, sizes['a.dds'])
-        self.assertEqual(9, sizes['b.tga'])
-
-    def test_cached_file_sizes_has_no_bookkeeping_entries(self):
-        self.write('a.dds', b'1234')
-        cache.invalidate_cached_file_sizes()
-
-        # the modification time is tracked next to the data, never inside it
-        self.assertEqual(['a.dds'], list(cache.get_cached_file_sizes().keys()))
-
-    def test_cached_file_sizes_are_reused(self):
-        self.write('a.dds', b'1234')
-        cache.invalidate_cached_file_sizes()
-        first = cache.get_cached_file_sizes()
-
-        self.assertIs(first, cache.get_cached_file_sizes())
-
-    def test_invalidate_cached_file_sizes(self):
-        self.write('a.dds', b'1234')
-        cache.invalidate_cached_file_sizes()
-        first = cache.get_cached_file_sizes()
-
-        cache.invalidate_cached_file_sizes()
-
-        self.assertIsNot(first, cache.get_cached_file_sizes())
-
-    def test_missing_cache_directory_yields_no_sizes(self):
-        shutil.rmtree(cache.BIG_CACHE_DIR)
-        cache.invalidate_cached_file_sizes()
-
-        self.assertEqual({}, cache.get_cached_file_sizes())
-
-    def test_cache_index_roundtrip(self):
-        cache.save_cache_index({'files': {'a': 'b'}, 'big_signature': []})
-        cache.invalidate_cache_index()
-
-        self.assertEqual({'a': 'b'}, cache.load_cache_index()['files'])
-
-    def test_missing_cache_index_is_empty(self):
-        self.assertEqual({}, cache.load_cache_index())
-
-    def test_corrupted_cache_index_is_empty(self):
-        with open(cache.CACHE_INDEX_FILE, 'w') as file:
-            file.write('{ not json')
-        cache.invalidate_cache_index()
-
-        self.assertEqual({}, cache.load_cache_index())
-
-    def test_hash_file(self):
-        path = self.write('a.dds', b'hello world')
-
-        self.assertEqual(cache.hash_file(path), cache.hash_file(path))
-        self.assertNotEqual(cache.hash_file(path), cache.hash_file(self.write('b.dds', b'other')))
-
-    def test_copy_file_with_hash(self):
-        source = self.write('source.dds', b'payload', directory=self.cache_dir)
-        destination = os.path.join(cache.BIG_CACHE_DIR, 'copied.dds')
-
-        digest = cache.copy_file_with_hash(source, destination)
-
-        self.assertTrue(os.path.exists(destination))
-        self.assertEqual(cache.hash_file(source), digest)
-        with open(destination, 'rb') as file:
-            self.assertEqual(b'payload', file.read())
-
-    def test_copy_file_with_hash_leaves_no_temp_file_on_failure(self):
-        missing = os.path.join(self.cache_dir, 'does-not-exist.dds')
-        destination = os.path.join(cache.BIG_CACHE_DIR, 'copied.dds')
-
-        with self.assertRaises(OSError):
-            cache.copy_file_with_hash(missing, destination)
-
-        self.assertFalse(os.path.exists(destination + '.tmp'))
-
-    def test_path_signature_is_stable_and_ordered(self):
-        first = self.write('a.big', b'1234', directory=self.cache_dir)
-        second = self.write('b.big', b'12345678', directory=self.cache_dir)
-
-        signature = cache.path_signature([second, first])
-
-        self.assertEqual([first, second], [entry[0] for entry in signature])
-        self.assertEqual([4, 8], [entry[2] for entry in signature])
-        self.assertEqual(signature, cache.path_signature([first, second]))
-
-    def test_path_signature_skips_missing_files(self):
-        self.assertEqual([], cache.path_signature([os.path.join(self.cache_dir, 'gone.big')]))
+class TestAssetKeys(CacheTestCase):
+    def test_asset_key_strips_directory_and_extension(self):
+        self.assertEqual('texture', cache.asset_key('art/textures/Texture.DDS'))
 
     def test_gather_big_filepaths(self):
-        self.write('nested/deep/one.big', b'x', directory=self.cache_dir)
-        self.write('two.BIG', b'x', directory=self.cache_dir)
-        self.write('ignored.txt', b'x', directory=self.cache_dir)
+        self.archive('one.big', {'a.w3d': b'x'})
+        self.archive('two.BIG', {'b.w3d': b'x'})
+        self.loose('ignored.txt', b'x')
 
-        found = sorted(os.path.basename(path) for path in cache.gather_big_filepaths(self.cache_dir))
+        found = sorted(os.path.basename(p) for p in cache.gather_big_filepaths(self.directory))
 
         self.assertEqual(['one.big', 'two.BIG'], found)
 
     def test_gather_big_filepaths_of_missing_directory(self):
-        self.assertEqual([], cache.gather_big_filepaths(os.path.join(self.cache_dir, 'nope')))
+        self.assertEqual([], cache.gather_big_filepaths(os.path.join(self.directory, 'nope')))
+
+    def test_path_signature_is_stable_and_ordered(self):
+        first = self.loose('a.w3d', b'1234')
+        second = self.loose('b.w3d', b'12345678')
+
+        signature = cache.path_signature([second, first])
+
+        self.assertEqual([first, second], [entry[0] for entry in signature])
+        self.assertEqual(signature, cache.path_signature([first, second]))
+
+    def test_path_signature_skips_missing_files(self):
+        self.assertEqual((), cache.path_signature([os.path.join(self.directory, 'gone.big')]))
 
 
-class TestSearchPathCaching(TestCacheHelpers):
-    def setUp(self):
-        super().setUp()
-        self.source_dir = os.path.join(self.cache_dir, 'source')
-        os.makedirs(self.source_dir, exist_ok=True)
+class TestAssetIndex(CacheTestCase):
+    def test_loose_files_are_referenced_where_they_are(self):
+        path = self.loose('texture.dds')
 
-    def source(self, name, content):
-        return self.write(name, content, directory=self.source_dir)
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
 
-    def test_copies_new_files_into_the_cache(self):
-        self.source('texture.dds', b'texture data')
+        self.assertEqual([cache.REF_FILE, path], index['texture'])
 
-        index = cache.cache_search_path_files([self.source_dir])
+    def test_indexing_loose_files_copies_nothing(self):
+        self.loose('texture.dds')
 
-        self.assertIn('texture', index)
-        self.assertTrue(os.path.exists(index['texture']))
+        cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
 
-    def test_only_cacheable_extensions_are_copied(self):
-        self.source('model.w3d', b'model')
-        self.source('notes.txt', b'notes')
+        self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
 
-        index = cache.cache_search_path_files([self.source_dir])
+    def test_archive_entries_are_referenced_by_byte_range(self):
+        archive = self.archive('assets.big', {'art/w3d/model.w3d': b'MODELDATA'})
+
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        kind, path, entry, position, size = index['model']
+        self.assertEqual(cache.REF_BIG, kind)
+        self.assertEqual(archive, path)
+        self.assertEqual('art/w3d/model.w3d', entry)
+        self.assertEqual(len(b'MODELDATA'), size)
+        self.assertGreater(position, 0)
+
+    def test_indexing_an_archive_extracts_nothing(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+
+        cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
+
+    def test_unwanted_extensions_are_skipped(self):
+        archive = self.archive('assets.big', {'model.w3d': b'x', 'script.lua': b'x'})
+
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
         self.assertEqual(['model'], list(index))
 
-    def test_unchanged_file_is_not_copied_again(self):
-        self.source('texture.dds', b'texture data')
-        cache.cache_search_path_files([self.source_dir])
+    def test_first_archive_wins_a_shared_name(self):
+        first = self.archive('first.big', {'model.w3d': b'FIRST'})
+        second = self.archive('second.big', {'model.w3d': b'SECOND'})
 
-        destination = os.path.join(cache.BIG_CACHE_DIR, 'texture.dds')
-        marker = os.path.getmtime(destination)
+        index = cache.build_asset_index([first, second], [], cache.CACHE_EXTENSIONS)
 
-        cache.invalidate_cached_file_sizes()
-        cache.cache_search_path_files([self.source_dir], force_refresh=True)
+        self.assertEqual(first, index['model'][1])
 
-        self.assertEqual(marker, os.path.getmtime(destination))
+    def test_loose_files_override_archives(self):
+        archive = self.archive('assets.big', {'model.w3d': b'FROM ARCHIVE'})
+        path = self.loose('model.w3d', b'FROM DISK')
 
-    def test_changed_content_of_equal_size_is_copied_again(self):
-        self.source('texture.dds', b'aaaa')
-        cache.cache_search_path_files([self.source_dir])
+        index = cache.build_asset_index([archive], [self.loose_dir], cache.CACHE_EXTENSIONS)
 
-        # same size, so only the content hash can tell these apart
-        self.source('texture.dds', b'bbbb')
-        cache.invalidate_cached_file_sizes()
-        cache.cache_search_path_files([self.source_dir], force_refresh=True)
+        self.assertEqual([cache.REF_FILE, path], index['model'])
 
-        with open(os.path.join(cache.BIG_CACHE_DIR, 'texture.dds'), 'rb') as file:
-            self.assertEqual(b'bbbb', file.read())
+    def test_index_is_reused_until_the_inputs_change(self):
+        self.loose('texture.dds')
 
-    def test_changed_size_is_copied_again(self):
-        self.source('texture.dds', b'aaaa')
-        cache.cache_search_path_files([self.source_dir])
+        first = cache.asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
 
-        self.source('texture.dds', b'much longer content')
-        cache.invalidate_cached_file_sizes()
-        cache.cache_search_path_files([self.source_dir], force_refresh=True)
+        self.assertIs(first, cache.asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS))
 
-        with open(os.path.join(cache.BIG_CACHE_DIR, 'texture.dds'), 'rb') as file:
-            self.assertEqual(b'much longer content', file.read())
+    def test_index_is_rebuilt_when_forced(self):
+        self.loose('texture.dds')
+        first = cache.asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
 
-    def test_second_run_is_served_from_the_index(self):
-        self.source('texture.dds', b'texture data')
-        first = cache.cache_search_path_files([self.source_dir])
+        second = cache.asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS, force_refresh=True)
 
-        self.assertEqual(first, cache.cache_search_path_files([self.source_dir]))
+        self.assertIsNot(first, second)
+        self.assertEqual(first, second)
 
-    def test_no_search_paths(self):
-        self.assertEqual({}, cache.cache_search_path_files([]))
+    def test_index_is_rebuilt_when_an_archive_changes(self):
+        archive = self.archive('assets.big', {'a.w3d': b'x'})
+        cache.asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-    def test_progress_is_reported(self):
-        for index in range(250):
-            self.source(f'texture_{index}.dds', b'x' * index)
+        self.archive('assets.big', {'a.w3d': b'x', 'b.w3d': b'y'})
+        index = cache.asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-        seen = []
-        cache.cache_search_path_files([self.source_dir], progress=lambda done, total: seen.append((done, total)))
+        self.assertEqual(['a', 'b'], sorted(index))
 
-        self.assertTrue(seen)
-        self.assertEqual([250] * len(seen), [total for _, total in seen])
+    def test_cached_asset_index_does_not_build_one(self):
+        self.loose('texture.dds')
 
-    def test_clear_removes_directory_and_index(self):
-        self.source('texture.dds', b'texture data')
-        cache.cache_search_path_files([self.source_dir])
+        self.assertEqual({}, cache.cached_asset_index())
+
+
+class TestReadingAssets(CacheTestCase):
+    def test_read_a_loose_asset(self):
+        self.loose('texture.dds', b'PAYLOAD')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual(b'PAYLOAD', cache.read_asset(index['texture']))
+
+    def test_read_an_archive_asset(self):
+        archive = self.archive('assets.big', {'a.w3d': b'FIRST', 'b.w3d': b'SECOND ENTRY'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual(b'FIRST', cache.read_asset(index['a']))
+        self.assertEqual(b'SECOND ENTRY', cache.read_asset(index['b']))
+
+    def test_read_an_archive_asset_does_not_bleed_into_the_next_entry(self):
+        archive = self.archive('assets.big', {'a.w3d': b'AAAA', 'b.w3d': b'BBBB'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual(b'AAAA', cache.read_asset(index['a']))
+
+    def test_asset_contains_finds_a_match_in_an_archive_entry(self):
+        archive = self.archive('assets.big', {'a.w3d': b'head SKELETON tail'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertTrue(cache.asset_contains(index['a'], b'SKELETON'))
+
+    def test_asset_contains_reports_a_miss(self):
+        archive = self.archive('assets.big', {'a.w3d': b'nothing here'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertFalse(cache.asset_contains(index['a'], b'SKELETON'))
+
+    def test_asset_contains_finds_a_match_across_a_chunk_boundary(self):
+        needle = b'SKELETON_NAME'
+        archive = self.archive('assets.big', {'a.w3d': b'a' * 9 + needle + b'b' * 10})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertTrue(cache.asset_contains(index['a'], needle, chunk_size=10))
+
+    def test_asset_contains_of_a_loose_file(self):
+        self.loose('a.w3d', b'head SKELETON tail')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        self.assertTrue(cache.asset_contains(index['a'], b'SKELETON'))
+
+    def test_searching_an_archive_materialises_nothing(self):
+        archive = self.archive('assets.big', {'a.w3d': b'head SKELETON tail'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        cache.asset_contains(index['a'], b'SKELETON')
+
+        self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
+
+
+class TestResolving(CacheTestCase):
+    def test_a_loose_asset_resolves_to_its_own_path(self):
+        path = self.loose('texture.dds')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual(path, cache.resolve(index['texture']))
+
+    def test_resolving_a_loose_asset_copies_nothing(self):
+        self.loose('texture.dds')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+
+        cache.resolve(index['texture'])
+
+        self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
+
+    def test_a_missing_loose_asset_resolves_to_nothing(self):
+        path = self.loose('texture.dds')
+        index = cache.build_asset_index([], [self.loose_dir], cache.CACHE_EXTENSIONS)
+        os.remove(path)
+
+        self.assertIsNone(cache.resolve(index['texture']))
+
+    def test_an_archive_asset_is_materialised_on_demand(self):
+        archive = self.archive('assets.big', {'art/model.w3d': b'MODELDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        path = cache.resolve(index['model'])
+
+        self.assertEqual(os.path.join(cache.BIG_CACHE_DIR, 'model.w3d'), path)
+        with open(path, 'rb') as file:
+            self.assertEqual(b'MODELDATA', file.read())
+
+    def test_only_the_resolved_asset_is_materialised(self):
+        archive = self.archive('assets.big', {'a.w3d': b'A', 'b.w3d': b'B', 'c.w3d': b'C'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        cache.resolve(index['b'])
+
+        self.assertEqual(['b.w3d'], sorted(os.listdir(cache.BIG_CACHE_DIR)))
+
+    def test_resolving_twice_reuses_the_materialised_file(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        path = cache.resolve(index['model'])
+        marker = os.path.getmtime(path)
+
+        self.assertEqual(path, cache.resolve(index['model']))
+        self.assertEqual(marker, os.path.getmtime(path))
+
+    def test_a_truncated_materialised_file_is_rewritten(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+        path = cache.resolve(index['model'])
+
+        with open(path, 'wb') as file:
+            file.write(b'CUT')
+
+        self.assertEqual(path, cache.resolve(index['model']))
+        with open(path, 'rb') as file:
+            self.assertEqual(b'MODELDATA', file.read())
+
+    def test_a_materialised_file_of_the_right_size_is_taken_at_face_value(self):
+        """Reuse is decided on size alone. Hashing every materialised file would
+        undo the point of not copying in the first place, and the cache directory
+        is ours, so same-size tampering is out of scope.
+        """
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+        path = cache.resolve(index['model'])
+
+        with open(path, 'wb') as file:
+            file.write(b'TRUNCATED')  # same length as MODELDATA
+
+        cache.resolve(index['model'])
+
+        with open(path, 'rb') as file:
+            self.assertEqual(b'TRUNCATED', file.read())
+
+    def test_resolve_of_nothing(self):
+        self.assertIsNone(cache.resolve(None))
+
+    def test_resolve_key(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertIsNotNone(cache.resolve_key(index, 'model'))
+        self.assertIsNone(cache.resolve_key(index, 'missing'))
+
+
+class TestMaintenance(CacheTestCase):
+    def test_clear_removes_materialised_files_and_the_index(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+        index = cache.asset_index([archive], [], cache.CACHE_EXTENSIONS)
+        cache.resolve(index['model'])
 
         cache.clear()
 
         self.assertFalse(os.path.isdir(cache.BIG_CACHE_DIR))
-        self.assertFalse(os.path.exists(cache.CACHE_INDEX_FILE))
-        self.assertEqual({}, cache.load_cache_index())
+        self.assertEqual({}, cache.cached_asset_index())
+
+    def test_clear_leaves_the_source_archive_alone(self):
+        archive = self.archive('assets.big', {'model.w3d': b'MODELDATA'})
+
+        cache.clear()
+
+        self.assertTrue(os.path.exists(archive))
 
     def test_cache_stats(self):
-        self.source('texture.dds', b'texture data')
-        cache.cache_search_path_files([self.source_dir])
+        archive = self.archive('assets.big', {'a.w3d': b'A', 'b.w3d': b'B'})
+        index = cache.asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-        big_files, search_files = cache.cache_stats()
+        self.assertEqual((2, 0), cache.cache_stats())
 
-        self.assertEqual(0, big_files)
-        self.assertEqual(1, search_files)
+        cache.resolve(index['a'])
+
+        self.assertEqual((2, 1), cache.cache_stats())

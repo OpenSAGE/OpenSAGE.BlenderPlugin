@@ -9,41 +9,9 @@ from bpy.types import Operator, Panel, PropertyGroup
 
 from .. import cache, utils
 
-SCAN_CHUNK_SIZE = 256 * 1024
-
-
-def file_contains(filepath, needle, chunk_size=SCAN_CHUNK_SIZE):
-    """Whether the file contains the byte string, without reading it all at once.
-
-    A .w3d can be tens of megabytes and a search sweeps thousands of them, so the
-    file is streamed and only the tail of the previous chunk is kept around so a
-    match spanning a chunk boundary is still found.
-    """
-    overlap = len(needle) - 1
-    if overlap < 0:
-        return True
-
-    try:
-        with open(filepath, 'rb') as file:
-            tail = b''
-            while True:
-                chunk = file.read(chunk_size)
-                if not chunk:
-                    return False
-
-                buffer = tail + chunk
-                if needle in buffer:
-                    return True
-
-                # carry over the tail of the whole buffer, not just of this chunk,
-                # so nothing is dropped when a chunk is shorter than the needle
-                tail = buffer[-overlap:] if overlap else b''
-    except OSError:
-        return False
-
 
 class FoundAnimationItem(PropertyGroup):
-    filepath: StringProperty(name='Filepath')
+    key: StringProperty(name='Asset Key')
     filename: StringProperty(name='Filename')
 
 
@@ -63,39 +31,34 @@ class BFME_OT_search_animations(Operator):
         skeleton_name = target.name.strip().split('.')[0]
         scene.found_animations.clear()
 
-        directories = set(utils.search_paths(scene))
+        search_paths = list(utils.search_paths(scene))
         if bpy.data.filepath:
-            directories.add(os.path.dirname(bpy.data.filepath))
+            search_paths.append(os.path.dirname(bpy.data.filepath))
 
         utils.refresh_big_lists(scene)
-        big_paths = utils.selected_big_paths(scene)
-        if big_paths:
-            if cache.extract_bigs(big_paths, {'.w3d'}) and os.path.isdir(cache.BIG_CACHE_DIR):
-                directories.add(cache.BIG_CACHE_DIR)
+        index = cache.asset_index(utils.selected_big_paths(scene), search_paths, {'.w3d'})
 
         needle = skeleton_name.encode('utf-8')
         name_filter = scene.existing_anim_filter.strip().lower()
 
         found = 0
-        for directory in directories:
-            if not os.path.isdir(directory):
+        for key, reference in sorted(index.items()):
+            filename = cache.asset_name(reference)
+            lowered = filename.lower()
+            if not lowered.endswith('.w3d'):
                 continue
-            for root, _, files in os.walk(directory):
-                for filename in files:
-                    lowered = filename.lower()
-                    if not lowered.endswith('.w3d'):
-                        continue
-                    if name_filter and name_filter not in lowered:
-                        continue
+            if name_filter and name_filter not in lowered:
+                continue
 
-                    filepath = os.path.join(root, filename)
-                    if not file_contains(filepath, needle):
-                        continue
+            # the candidate's bytes are streamed straight out of its archive, so
+            # searching them costs no extraction and nothing lands on disk
+            if not cache.asset_contains(reference, needle):
+                continue
 
-                    item = scene.found_animations.add()
-                    item.filename = filename
-                    item.filepath = filepath
-                    found += 1
+            item = scene.found_animations.add()
+            item.filename = filename
+            item.key = key
+            found += 1
 
         if found:
             self.report({'INFO'}, f'Found {found} compatible animations.')
@@ -109,11 +72,14 @@ class BFME_OT_import_animation(Operator):
     bl_label = 'Import Animation'
     bl_description = 'Import this W3D animation and assign it to the selected skeleton'
 
-    filepath: StringProperty()
+    key: StringProperty()
 
     def execute(self, context):
-        if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, 'File not found.')
+        # animations inside a .big only get written out at this point, one file
+        # rather than the whole archive
+        filepath = cache.resolve(cache.cached_asset_index().get(self.key))
+        if filepath is None:
+            self.report({'ERROR'}, f"Could not read '{self.key}'. Search again.")
             return {'CANCELLED'}
 
         target = context.scene.existing_anim_target
@@ -130,7 +96,7 @@ class BFME_OT_import_animation(Operator):
         objects_before = {obj.name for obj in bpy.data.objects}
 
         try:
-            result = utils.import_w3d(self.filepath)
+            result = utils.import_w3d(filepath)
         except RuntimeError as error:
             self._restore_actions(target, previous_actions)
             self.report({'ERROR'}, f'Import failed: {error}')
@@ -138,7 +104,7 @@ class BFME_OT_import_animation(Operator):
 
         if 'FINISHED' not in result:
             self._restore_actions(target, previous_actions)
-            self.report({'ERROR'}, f'Import failed for {os.path.basename(self.filepath)}')
+            self.report({'ERROR'}, f'Import failed for {os.path.basename(filepath)}')
             return {'CANCELLED'}
 
         for action in previous_actions.values():
@@ -146,7 +112,7 @@ class BFME_OT_import_animation(Operator):
                 bpy.data.actions.remove(action)
 
         action = self._imported_action(actions_before, objects_before)
-        message = f'Imported {os.path.basename(self.filepath)}'
+        message = f'Imported {os.path.basename(filepath)}'
 
         if action is not None and target is not None and target.type == 'ARMATURE':
             if not target.animation_data:
@@ -228,7 +194,7 @@ class EXISTING_ANIMATIONS_PT_panel(Panel):
         for item in scene.found_animations:
             row = box.row(align=True)
             row.label(text=item.filename)
-            row.operator('bfme.import_animation', text='Import', icon='IMPORT').filepath = item.filepath
+            row.operator('bfme.import_animation', text='Import', icon='IMPORT').key = item.key
 
 
 def update_anim_target(self, _context):

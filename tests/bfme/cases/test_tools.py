@@ -9,7 +9,7 @@ import bpy
 import numpy as np
 from mathutils import Vector
 
-from io_mesh_w3d.bfme import utils
+from io_mesh_w3d.bfme import cache, utils
 from io_mesh_w3d.bfme.tools import existing_animations, export_settings, model_browser, w3d_tools
 from io_mesh_w3d.common.utils.helpers import iter_action_fcurves
 from tests.utils import TestCase
@@ -128,90 +128,80 @@ class TestPreviewIndex(TestCase):
             file.write(content)
         return path
 
-    def test_file_signature(self):
-        path = self.write('model.w3d')
+    def loose_reference(self, name='model.w3d'):
+        return [cache.REF_FILE, self.write(name)]
 
-        signature = model_browser.file_signature(path)
+    def test_reference_signature_of_a_loose_file(self):
+        reference = self.loose_reference()
+
+        signature = model_browser.reference_signature(reference)
 
         self.assertEqual(2, len(signature))
-        self.assertEqual(os.path.getsize(path), signature[1])
+        self.assertEqual(os.path.getsize(reference[1]), signature[1])
 
-    def test_file_signature_of_missing_file(self):
-        self.assertIsNone(model_browser.file_signature(os.path.join(self.directory, 'gone.w3d')))
+    def test_reference_signature_of_an_archive_entry(self):
+        archive = self.write('assets.big', b'x' * 64)
+
+        signature = model_browser.reference_signature([cache.REF_BIG, archive, 'model.w3d', 20, 9])
+
+        # the archive's own stamp plus the entry's byte range, so the signature can
+        # be taken without extracting the entry
+        self.assertEqual(4, len(signature))
+        self.assertEqual([20, 9], signature[2:])
+
+    def test_reference_signature_of_a_missing_file(self):
+        self.assertIsNone(model_browser.reference_signature(
+            [cache.REF_FILE, os.path.join(self.directory, 'gone.w3d')]))
+
+    def test_reference_signature_of_nothing(self):
+        self.assertIsNone(model_browser.reference_signature(None))
 
     def test_preview_is_invalid_without_a_preview_file(self):
-        model = self.write('model.w3d')
+        reference = self.loose_reference()
 
-        self.assertFalse(model_browser.is_preview_valid(model, os.path.join(self.directory, 'gone.png')))
+        self.assertFalse(model_browser.is_preview_valid(
+            'model', reference, os.path.join(self.directory, 'gone.png')))
 
     def test_preview_is_invalid_without_an_index_entry(self):
-        model = self.write('model.w3d')
+        reference = self.loose_reference()
         preview = self.write('model.png')
 
-        self.assertFalse(model_browser.is_preview_valid(model, preview))
+        self.assertFalse(model_browser.is_preview_valid('model', reference, preview))
 
     def test_preview_is_valid_after_being_indexed(self):
-        model = self.write('model.w3d')
+        reference = self.loose_reference()
         preview = self.write('model.png')
 
-        model_browser.update_preview_index(model, preview)
+        model_browser.update_preview_index('model', reference, preview)
 
-        self.assertTrue(model_browser.is_preview_valid(model, preview))
+        self.assertTrue(model_browser.is_preview_valid('model', reference, preview))
 
     def test_preview_becomes_invalid_when_the_model_changes(self):
-        model = self.write('model.w3d')
+        reference = self.loose_reference()
         preview = self.write('model.png')
-        model_browser.update_preview_index(model, preview)
+        model_browser.update_preview_index('model', reference, preview)
 
         self.write('model.w3d', b'changed content, different size')
 
-        self.assertFalse(model_browser.is_preview_valid(model, preview))
+        self.assertFalse(model_browser.is_preview_valid('model', reference, preview))
+
+    def test_preview_becomes_invalid_when_the_entry_moves_inside_the_archive(self):
+        archive = self.write('assets.big', b'x' * 64)
+        preview = self.write('model.png')
+        model_browser.update_preview_index('model', [cache.REF_BIG, archive, 'model.w3d', 20, 9], preview)
+
+        moved = [cache.REF_BIG, archive, 'model.w3d', 40, 9]
+
+        self.assertFalse(model_browser.is_preview_valid('model', moved, preview))
 
     def test_preview_index_roundtrip(self):
-        model = self.write('model.w3d')
+        reference = self.loose_reference()
         preview = self.write('model.png')
-        model_browser.update_preview_index(model, preview)
+        model_browser.update_preview_index('model', reference, preview)
 
         model_browser.invalidate_preview_index()
 
-        self.assertIn(model, model_browser.load_preview_index())
-
-
-class TestChunkedFileSearch(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.directory = tempfile.mkdtemp(prefix='bfme-search-')
-
-    def tearDown(self):
-        shutil.rmtree(self.directory, ignore_errors=True)
-        super().tearDown()
-
-    def write(self, content):
-        path = os.path.join(self.directory, 'model.w3d')
-        with open(path, 'wb') as file:
-            file.write(content)
-        return path
-
-    def test_finds_a_match(self):
-        path = self.write(b'header' + b'SKELETON_NAME' + b'trailer')
-
-        self.assertTrue(existing_animations.file_contains(path, b'SKELETON_NAME'))
-
-    def test_reports_a_miss(self):
-        path = self.write(b'nothing to see here')
-
-        self.assertFalse(existing_animations.file_contains(path, b'SKELETON_NAME'))
-
-    def test_finds_a_match_across_a_chunk_boundary(self):
-        needle = b'SKELETON_NAME'
-        # the needle straddles the boundary, which a naive chunked scan would miss
-        path = self.write(b'a' * 9 + needle + b'b' * 10)
-
-        self.assertTrue(existing_animations.file_contains(path, needle, chunk_size=10))
-
-    def test_missing_file_is_not_a_match(self):
-        self.assertFalse(existing_animations.file_contains(
-            os.path.join(self.directory, 'gone.w3d'), b'x'))
+        self.assertIn('model', model_browser.load_preview_index())
 
 
 class TestTextureExtensionReplacement(TestCase):

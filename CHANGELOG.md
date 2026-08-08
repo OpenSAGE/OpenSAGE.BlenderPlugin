@@ -24,6 +24,14 @@
   `<mesh name>.<material name>` when they're created, so a kitbashed model built from many
   meshes that share one texture used to end up with one duplicate material per mesh; those are
   now merged into a single material datablock once the whole file is imported
+* the asset cache is now an index of *references* instead of a copy of everything. Loose files in
+  a search path are used straight from where they are and never copied at all; entries inside a
+  .big are referenced by their byte range and only written out when something actually opens them,
+  which Blender needs because it cannot read from inside an archive. Measured against a full
+  BfMe II + RotWK install (223 archives, 10 GB): indexing all 32808 assets takes 0.4 s and writes
+  nothing to disk, where the previous implementation copied 6267 MB into %TEMP% before the model
+  list could be shown. The per-search-path 'Load to cache' switch is gone with it, since there is
+  no longer anything to opt into
 * Bugfix: importing a second animation onto the same skeleton from 'Existing Animations' mixed
   its keyframes into whatever animation the skeleton already had, instead of replacing it -
   `keyframe_insert()` adds to the currently assigned action rather than starting a fresh one.

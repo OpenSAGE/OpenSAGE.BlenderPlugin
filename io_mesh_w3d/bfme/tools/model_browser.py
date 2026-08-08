@@ -59,34 +59,46 @@ def invalidate_preview_index():
     _preview_index = None
 
 
-def file_signature(filepath):
+def reference_signature(reference):
+    """Cheap identity of an asset's contents, without materialising it.
+
+    For a loose file that is its own stamp; for an archive entry it is the
+    archive's stamp plus the entry's byte range, so a preview can be validated
+    without extracting the model first.
+    """
+    if reference is None:
+        return None
+
     try:
-        stat = os.stat(filepath)
+        stat = os.stat(reference[1])
     except OSError:
         return None
+
+    if reference[0] == cache.REF_BIG:
+        return [stat.st_mtime, stat.st_size, reference[3], reference[4]]
     return [stat.st_mtime, stat.st_size]
 
 
-def is_preview_valid(w3d_filepath, preview_path):
+def is_preview_valid(key, reference, preview_path):
     """True when a preview exists and the model has not changed since it was made."""
     if not os.path.exists(preview_path):
         return False
 
-    signature = file_signature(w3d_filepath)
+    signature = reference_signature(reference)
     if signature is None:
         return False
 
-    entry = load_preview_index().get(w3d_filepath)
+    entry = load_preview_index().get(key)
     return entry is not None and entry.get('w3d_signature') == signature
 
 
-def update_preview_index(w3d_filepath, preview_path):
-    signature = file_signature(w3d_filepath)
+def update_preview_index(key, reference, preview_path):
+    signature = reference_signature(reference)
     if signature is None:
         return
 
     index = load_preview_index()
-    index[w3d_filepath] = {
+    index[key] = {
         'w3d_signature': signature,
         'preview_path': preview_path,
         'generated_at': time.time()}
@@ -105,7 +117,9 @@ def clear_preview_images():
 
 
 class W3DModelItem(PropertyGroup):
-    filepath: StringProperty(name='Filepath')
+    # the index key rather than a path: a model that lives inside a .big has no path
+    # until it is actually needed, at which point it gets materialised on demand
+    key: StringProperty(name='Asset Key')
     filename: StringProperty(name='Filename')
 
 
@@ -131,7 +145,7 @@ class W3D_UL_model_list(UIList):
         if self.layout_type in {'DEFAULT', 'COMPACT'}:
             row = layout.row(align=True)
             row.label(text=item.filename, icon='MESH_CUBE')
-            row.operator('w3d.import_model', text='', icon='IMPORT', emboss=False).filepath = item.filepath
+            row.operator('w3d.import_model', text='', icon='IMPORT', emboss=False).key = item.key
         else:
             layout.alignment = 'CENTER'
             layout.label(text='', icon='MESH_CUBE')
@@ -154,7 +168,7 @@ class W3D_OT_scan_models(Operator):
 
     _timer = None
     _thread = None
-    _extracted = None
+    _models = None
     _pending = None
     _cursor = 0
 
@@ -166,14 +180,14 @@ class W3D_OT_scan_models(Operator):
 
         # everything the worker needs is read here, on the main thread
         big_paths = utils.selected_big_paths(scene)
-        search_paths = utils.search_paths(scene, cacheable_only=True)
+        search_paths = utils.search_paths(scene)
 
-        self._pending = self._cached_models()
+        self._pending = []
         self._cursor = 0
-        self._extracted = None
+        self._models = None
 
         self._thread = threading.Thread(
-            target=self._extract, args=(big_paths, search_paths), daemon=True)
+            target=self._scan, args=(big_paths, search_paths), daemon=True)
         self._thread.start()
 
         window_manager = context.window_manager
@@ -181,27 +195,19 @@ class W3D_OT_scan_models(Operator):
         window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
-    @staticmethod
-    def _cached_models():
-        if not os.path.isdir(cache.BIG_CACHE_DIR):
-            return []
+    def _scan(self, big_paths, search_paths):
+        """Worker thread: builds the index, extracts nothing, no bpy access."""
+        models = []
         try:
-            with os.scandir(cache.BIG_CACHE_DIR) as entries:
-                return sorted(entry.name for entry in entries if entry.name.lower().endswith('.w3d'))
-        except OSError:
-            return []
-
-    def _extract(self, big_paths, search_paths):
-        """Worker thread: filesystem only, no bpy access."""
-        try:
-            if big_paths:
-                cache.extract_bigs(big_paths, {'.w3d', '.dds', '.tga'})
-            if search_paths:
-                cache.cache_search_path_files(search_paths)
+            index = cache.asset_index(big_paths, search_paths, cache.CACHE_EXTENSIONS)
+            models = sorted(
+                (cache.asset_name(reference), key)
+                for key, reference in index.items()
+                if cache.asset_name(reference).lower().endswith('.w3d'))
         except Exception as error:
-            print(f'[BFME_MODELS] extraction failed: {error}')
+            print(f'[BFME_MODELS] indexing failed: {error}')
         finally:
-            self._extracted = self._cached_models()
+            self._models = models
 
     def modal(self, context, event):
         if event.type == 'ESC':
@@ -218,10 +224,10 @@ class W3D_OT_scan_models(Operator):
         # re-slicing the list, which would copy the remainder on every timer tick
         if self._cursor < len(self._pending):
             end = min(self._cursor + self.BATCH_SIZE, len(self._pending))
-            for filename in self._pending[self._cursor:end]:
+            for filename, key in self._pending[self._cursor:end]:
                 item = models.add()
                 item.filename = filename
-                item.filepath = os.path.join(cache.BIG_CACHE_DIR, filename)
+                item.key = key
             self._cursor = end
 
             if context.area is not None:
@@ -231,14 +237,12 @@ class W3D_OT_scan_models(Operator):
         if self._thread.is_alive():
             return {'PASS_THROUGH'}
 
-        # the worker may have extracted models that were not in the cache before
-        if self._extracted:
-            known = {item.filename for item in models}
-            new = [name for name in self._extracted if name not in known]
-            if new:
-                self._pending = new
-                self._cursor = 0
-                self._extracted = None
+        # the index is only ready once the worker is done, hand it over to be listed
+        if self._models is not None:
+            self._pending = self._models
+            self._cursor = 0
+            self._models = None
+            if self._pending:
                 return {'PASS_THROUGH'}
 
         self._close(context)
@@ -353,8 +357,10 @@ class W3D_OT_generate_preview(Operator):
 
         item = scene.w3d_models[index]
         preview_path = os.path.join(PREVIEW_CACHE_DIR, f'w3d_preview_{item.filename}.png')
+        reference = cache.cached_asset_index().get(item.key)
 
-        if is_preview_valid(item.filepath, preview_path):
+        # checked against the reference, so a cached preview costs no extraction
+        if is_preview_valid(item.key, reference, preview_path):
             if self._show(context, preview_path):
                 return {'FINISHED'}
         elif os.path.exists(preview_path):
@@ -363,7 +369,12 @@ class W3D_OT_generate_preview(Operator):
             except OSError:
                 pass
 
-        self._render(context, item.filepath, preview_path)
+        filepath = cache.resolve(reference)
+        if filepath is None:
+            self.report({'WARNING'}, f'Could not read {item.filename}')
+            return {'CANCELLED'}
+
+        self._render(context, item.key, reference, filepath, preview_path)
         return {'FINISHED'}
 
     def _show(self, context, preview_path):
@@ -383,7 +394,7 @@ class W3D_OT_generate_preview(Operator):
                 area.tag_redraw()
         return True
 
-    def _render(self, context, filepath, preview_path):
+    def _render(self, context, key, reference, filepath, preview_path):
         scene = context.scene
         scene.w3d_preview_generating = True
 
@@ -479,7 +490,7 @@ class W3D_OT_generate_preview(Operator):
 
             if os.path.exists(preview_path):
                 self._show(context, preview_path)
-                update_preview_index(filepath, preview_path)
+                update_preview_index(key, reference, preview_path)
 
         except Exception as error:
             print(f'[BFME_PREVIEW] preview generation failed: {error}')
@@ -534,29 +545,32 @@ class W3D_OT_import_model(Operator):
     bl_label = 'Import W3D Model'
     bl_description = 'Import this W3D model'
 
-    filepath: StringProperty()
+    key: StringProperty()
 
     def execute(self, _context):
-        if not self.filepath or not os.path.exists(self.filepath):
-            self.report({'ERROR'}, 'File not found.')
+        # models inside a .big only get written out at this point, one file rather
+        # than the whole archive
+        filepath = cache.resolve(cache.cached_asset_index().get(self.key))
+        if filepath is None:
+            self.report({'ERROR'}, f"Could not read '{self.key}'. Re-scan the models.")
             return {'CANCELLED'}
 
         objects_before = {obj.name for obj in bpy.data.objects}
 
         try:
-            result = utils.import_w3d(self.filepath)
+            result = utils.import_w3d(filepath)
         except RuntimeError as error:
             self.report({'ERROR'}, f'Import failed: {error}')
             return {'CANCELLED'}
 
         if 'FINISHED' not in result:
-            self.report({'ERROR'}, f'Import failed for {os.path.basename(self.filepath)}')
+            self.report({'ERROR'}, f'Import failed for {os.path.basename(filepath)}')
             return {'CANCELLED'}
 
         imported = [obj for obj in bpy.data.objects if obj.name not in objects_before]
         _flatten_principled_specular(_flatten_materials(imported))
 
-        self.report({'INFO'}, f'Imported {os.path.basename(self.filepath)}')
+        self.report({'INFO'}, f'Imported {os.path.basename(filepath)}')
         return {'FINISHED'}
 
 
