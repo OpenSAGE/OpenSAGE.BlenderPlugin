@@ -9,6 +9,7 @@ from .export_utils import save_data
 from .custom_properties import *
 from .geometry_export import *
 from .bone_volume_export import *
+from .common.utils.material_import import flatten_materials, zero_specular
 
 from . import bfme
 from .blender_addon_updater import addon_updater_ops
@@ -205,6 +206,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
 
     def execute(self, context):
         print_version(self.info)
+        objects_before = set(bpy.data.objects)
+
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
             file_format = 'W3D'
@@ -213,6 +216,9 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
             from .w3x.import_w3x import load
             file_format = 'W3X'
             load(self)
+
+        imported = [obj for obj in bpy.data.objects if obj not in objects_before]
+        zero_specular(flatten_materials(imported))
 
         self.info('finished')
         return {'FINISHED'}

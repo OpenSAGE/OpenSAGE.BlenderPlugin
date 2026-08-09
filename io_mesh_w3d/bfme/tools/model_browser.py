@@ -13,6 +13,7 @@ from bpy.types import Operator, Panel, PropertyGroup, UIList
 
 from .. import cache, utils
 from ...common.utils.helpers import set_blend_method
+from ...common.utils.material_import import flatten_materials
 
 PREVIEW_CACHE_DIR = os.path.join(tempfile.gettempdir(), 'bfme_w3d_preview')
 PREVIEW_INDEX_FILE = os.path.join(tempfile.gettempdir(), 'bfme_w3d_preview_index.json')
@@ -266,42 +267,6 @@ class W3D_OT_scan_models(Operator):
 ##########################################################################
 
 
-def _flatten_materials(objects):
-    """Every unique material used by the objects and their children, without recursion.
-
-    'Object.children' walks all objects in the file on every access, so recursing
-    over it is quadratic. 'children_recursive' resolves the whole subtree in one go.
-    """
-    seen = set()
-    materials = []
-
-    for root in objects:
-        for obj in (root, *root.children_recursive):
-            if obj.type != 'MESH' or obj.data is None:
-                continue
-            for material in obj.data.materials:
-                if material is not None and material.name not in seen:
-                    seen.add(material.name)
-                    materials.append(material)
-    return materials
-
-
-def _flatten_principled_specular(materials):
-    """Kill the specular highlight, W3D models are authored without one."""
-    for material in materials:
-        node_tree = material.node_tree
-        if node_tree is None:
-            continue
-        for node in node_tree.nodes:
-            if node.type != 'BSDF_PRINCIPLED':
-                continue
-            for input_name in ('Specular IOR Level', 'IOR Level', 'Specular'):
-                socket = node.inputs.get(input_name)
-                if socket is not None:
-                    socket.default_value = 0.0
-                    break
-
-
 def _configure_preview_scene(scene):
     render = scene.render
     render.resolution_x = PREVIEW_RESOLUTION
@@ -434,10 +399,10 @@ class W3D_OT_generate_preview(Operator):
                 scene.frame_set(int(last))
                 context.view_layer.update()
 
-            materials = _flatten_materials(new_objects)
-            for material in materials:
+            # the specular fix already happened inside import_w3d() above; only the
+            # forced alpha blending is specific to rendering a preview thumbnail
+            for material in flatten_materials(new_objects):
                 set_blend_method(material, 'BLEND')
-            _flatten_principled_specular(materials)
 
             # untextured meshes only carry a flat diffuse colour, they add nothing
             for obj in new_objects:
@@ -557,9 +522,9 @@ class W3D_OT_import_model(Operator):
             self.report({'ERROR'}, f"Could not read '{self.key}'. Re-scan the models.")
             return {'CANCELLED'}
 
-        objects_before = {obj.name for obj in bpy.data.objects}
-
         try:
+            # the specular fix runs inside the core import operator itself, so it
+            # applies here exactly as it does for File > Import
             result = utils.import_w3d(filepath)
         except RuntimeError as error:
             self.report({'ERROR'}, f'Import failed: {error}')
@@ -568,9 +533,6 @@ class W3D_OT_import_model(Operator):
         if 'FINISHED' not in result:
             self.report({'ERROR'}, f'Import failed for {os.path.basename(filepath)}')
             return {'CANCELLED'}
-
-        imported = [obj for obj in bpy.data.objects if obj.name not in objects_before]
-        _flatten_principled_specular(_flatten_materials(imported))
 
         self.report({'INFO'}, f'Imported {os.path.basename(filepath)}')
         return {'FINISHED'}

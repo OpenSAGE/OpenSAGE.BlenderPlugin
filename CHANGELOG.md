@@ -2,6 +2,12 @@
 
 ## v0.8.0
 
+* Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than
+  importing the same file through the BfMe model browser. The model browser zeroed out the
+  Principled BSDF's specular input after calling the core import operator (W3D materials do not
+  carry one; the importer's shininess value does not correspond to it), but the core operator
+  itself did not, so the two paths disagreed. The fix now lives in the core import operator, so
+  every caller gets it, and the BfMe tools' now-redundant copy of it is gone
 * integrated the BfMe Tools (by Brechstange) into the 'W3D Tools' tab in the 3D viewport sidebar
   (N-panel), alongside the existing geometry/bone-volume export panel; they are no longer a
   separate add-on: asset search paths and .big extraction, a .w3d model browser with previews, an

@@ -254,6 +254,56 @@ def create_material_from_shader_material(context, name, shader_mat):
 
 
 ##########################################################################
+# viewport appearance
+#
+# Shared by the core import operator and the BfMe tools' own import/preview paths,
+# so a model looks the same regardless of which one brought it in.
+##########################################################################
+
+
+def flatten_materials(objects):
+    """Every unique material used by the objects and their children, without recursion.
+
+    'Object.children' walks all objects in the file on every access, so recursing
+    over it is quadratic. 'children_recursive' resolves the whole subtree in one go.
+    """
+    seen = set()
+    materials = []
+
+    for root in objects:
+        for obj in (root, *root.children_recursive):
+            if obj.type != 'MESH' or obj.data is None:
+                continue
+            for material in obj.data.materials:
+                if material is not None and material.name not in seen:
+                    seen.add(material.name)
+                    materials.append(material)
+    return materials
+
+
+def zero_specular(materials):
+    """Kill the Principled BSDF specular highlight.
+
+    W3D materials are authored without one; the shininess value the importer maps
+    onto the node's specular input does not correspond to it, and leaving it in
+    place makes an imported model look shinier in Blender's viewport than the game
+    ever renders it.
+    """
+    for material in materials:
+        node_tree = material.node_tree
+        if node_tree is None:
+            continue
+        for node in node_tree.nodes:
+            if node.type != 'BSDF_PRINCIPLED':
+                continue
+            for input_name in ('Specular IOR Level', 'IOR Level', 'Specular'):
+                socket = node.inputs.get(input_name)
+                if socket is not None:
+                    socket.default_value = 0.0
+                    break
+
+
+##########################################################################
 # deduplication
 #
 # create_material_from_vertex_material/create_material_from_shader_material key their
