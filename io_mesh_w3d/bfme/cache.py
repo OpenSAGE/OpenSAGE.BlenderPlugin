@@ -132,31 +132,43 @@ def build_asset_index(big_paths, search_paths, wanted_exts, progress=None):
 
     Archives are indexed in the order they are handed in, first one to provide a
     name wins. Loose search path files are applied afterwards and override the
-    archives, matching how the caches used to be layered.
+    archives, matching how the caches used to be layered. Archives and search
+    paths are all walked in one shared thread pool so the (I/O bound) work runs
+    concurrently; the merge order below is what keeps the result deterministic,
+    not the order threads happen to finish in.
     """
     index = {}
+    valid_search_paths = [path for path in search_paths if os.path.isdir(path)]
 
-    if big_paths:
-        # the results are merged in submission order rather than completion order,
-        # so which archive wins a name does not depend on thread scheduling
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = [executor.submit(_index_archive, big_path, wanted_exts)
-                       for big_path in big_paths]
+    if not big_paths and not valid_search_paths:
+        return index
 
-            for done, future in enumerate(futures, start=1):
-                try:
-                    references = future.result()
-                except Exception as error:
-                    print(f'[BFME_CACHE] indexing thread failed: {error}')
-                    continue
-                for key, reference in references.items():
-                    index.setdefault(key, reference)
-                if progress is not None:
-                    progress(done, len(futures))
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        archive_futures = [executor.submit(_index_archive, big_path, wanted_exts)
+                            for big_path in big_paths]
+        search_futures = [executor.submit(_index_search_path, path, wanted_exts)
+                           for path in valid_search_paths]
 
-    for root_path in search_paths:
-        if os.path.isdir(root_path):
-            index.update(_index_search_path(root_path, wanted_exts))
+        # results are merged in submission order rather than completion order, so
+        # which archive wins a name does not depend on thread scheduling
+        for done, future in enumerate(archive_futures, start=1):
+            try:
+                references = future.result()
+            except Exception as error:
+                print(f'[BFME_CACHE] indexing thread failed: {error}')
+                continue
+            for key, reference in references.items():
+                index.setdefault(key, reference)
+            if progress is not None:
+                progress(done, len(archive_futures))
+
+        # loose files override archives; later search paths override earlier ones,
+        # same priority order the sequential version used
+        for future in search_futures:
+            try:
+                index.update(future.result())
+            except Exception as error:
+                print(f'[BFME_CACHE] indexing thread failed: {error}')
 
     return index
 

@@ -256,6 +256,7 @@ class TEXTURE_PT_panel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'W3D Tools'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw_big_list(self, layout, scene, enabled_name, show_name, collection_name, label):
         row = layout.row()

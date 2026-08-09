@@ -153,12 +153,26 @@ class W3D_UL_model_list(UIList):
 
     def filter_items(self, _context, data, propname):
         items = getattr(data, propname)
-        if not self.filter_name:
-            return [self.bitflag_filter_item] * len(items), []
+        # items added by the background auto-refresh are appended, not inserted in
+        # order, so the list is sorted for display rather than relying on insertion
+        # order
+        order = bpy.types.UI_UL_list.sort_items_by_name(items, 'filename')
 
-        flags = bpy.types.UI_UL_list.filter_items_by_name(
-            self.filter_name, self.bitflag_filter_item, items, 'filename', reverse=False)
-        return flags, []
+        if not self.filter_name:
+            flags = [self.bitflag_filter_item] * len(items)
+        else:
+            flags = bpy.types.UI_UL_list.filter_items_by_name(
+                self.filter_name, self.bitflag_filter_item, items, 'filename', reverse=False)
+        return flags, order
+
+
+def _collect_w3d_models(big_paths, search_paths, force_refresh=False):
+    """Build the asset index and pick out the .w3d models. No bpy access, worker-thread safe."""
+    index = cache.asset_index(big_paths, search_paths, cache.CACHE_EXTENSIONS, force_refresh=force_refresh)
+    return sorted(
+        (cache.asset_name(reference), key)
+        for key, reference in index.items()
+        if cache.asset_name(reference).lower().endswith('.w3d'))
 
 
 class W3D_OT_scan_models(Operator):
@@ -200,11 +214,7 @@ class W3D_OT_scan_models(Operator):
         """Worker thread: builds the index, extracts nothing, no bpy access."""
         models = []
         try:
-            index = cache.asset_index(big_paths, search_paths, cache.CACHE_EXTENSIONS)
-            models = sorted(
-                (cache.asset_name(reference), key)
-                for key, reference in index.items()
-                if cache.asset_name(reference).lower().endswith('.w3d'))
+            models = _collect_w3d_models(big_paths, search_paths)
         except Exception as error:
             print(f'[BFME_MODELS] indexing failed: {error}')
         finally:
@@ -260,6 +270,123 @@ class W3D_OT_scan_models(Operator):
         if self._timer is not None:
             context.window_manager.event_timer_remove(self._timer)
             self._timer = None
+
+
+##########################################################################
+# automatic background refresh
+##########################################################################
+
+# while a background scan is running, poll this often for its completion
+AUTO_REFRESH_POLL_INTERVAL = 0.5
+# once idle, wait this long before starting the next background scan
+AUTO_REFRESH_IDLE_INTERVAL = 20.0
+# fires the first scan shortly after Blender starts, so the list is populated
+# without the user ever pressing 'Scan W3D Models'
+AUTO_REFRESH_FIRST_INTERVAL = 1.0
+
+_auto_refresh_thread = None
+_auto_refresh_result = None
+
+
+def _auto_refresh_worker(big_paths, search_paths):
+    """Worker thread: rebuilds the index and picks out .w3d models, no bpy access.
+
+    Forces a full rebuild instead of trusting the cached signature: a search
+    path's own mtime only changes when a direct child is added or removed, not
+    when a file further down changes, so the cheap signature check alone would
+    miss most real edits. A full rebuild is well under a second even for a full
+    install, so redoing it periodically is cheap enough to just always do it.
+    """
+    global _auto_refresh_result
+    try:
+        _auto_refresh_result = _collect_w3d_models(big_paths, search_paths, force_refresh=True)
+    except Exception as error:
+        print(f'[BFME_MODELS] auto refresh failed: {error}')
+        _auto_refresh_result = None
+
+
+def _apply_scan_results(scene, models):
+    """Merge freshly scanned models into scene.w3d_models, touching only what
+    changed so the user's current selection and scroll position survive an
+    automatic refresh.
+    """
+    items = scene.w3d_models
+    existing_keys = {item.key for item in items}
+    fresh_filenames = {key: filename for filename, key in models}
+    fresh_keys = set(fresh_filenames)
+
+    removed_keys = existing_keys - fresh_keys
+    added_keys = fresh_keys - existing_keys
+    if not removed_keys and not added_keys:
+        return False
+
+    active_item = items[scene.w3d_active_model_index] \
+        if 0 <= scene.w3d_active_model_index < len(items) else None
+    active_key = active_item.key if active_item is not None else None
+    active_removed = active_key is not None and active_key in removed_keys
+
+    if removed_keys:
+        # CollectionProperty.remove() is index based, remove from the end so
+        # earlier indices stay valid while iterating
+        for index in reversed(range(len(items))):
+            if items[index].key in removed_keys:
+                items.remove(index)
+
+    for key in added_keys:
+        item = items.add()
+        item.filename = fresh_filenames[key]
+        item.key = key
+
+    if active_removed:
+        scene.w3d_active_model_index = 0  # the old selection is gone, this picks a fresh preview
+    elif active_key is not None:
+        # the collection was mutated, the item's index may have shifted even
+        # though the item itself was untouched
+        for index, item in enumerate(items):
+            if item.key == active_key:
+                if index != scene.w3d_active_model_index:
+                    scene.w3d_active_model_index = index
+                break
+
+    return True
+
+
+def _auto_refresh_tick():
+    """Registered with bpy.app.timers. Periodically rebuilds the model index in a
+    background thread and merges the result in, so the browser stays current
+    without the user ever pressing 'Scan W3D Models'.
+    """
+    global _auto_refresh_thread, _auto_refresh_result
+
+    if _auto_refresh_thread is not None:
+        if _auto_refresh_thread.is_alive():
+            return AUTO_REFRESH_POLL_INTERVAL
+
+        _auto_refresh_thread = None
+        scene = bpy.context.scene
+        if _auto_refresh_result is not None and scene is not None and hasattr(scene, 'w3d_models'):
+            if _apply_scan_results(scene, _auto_refresh_result):
+                window_manager = getattr(bpy.context, 'window_manager', None)
+                if window_manager is not None:
+                    for window in window_manager.windows:
+                        for area in window.screen.areas:
+                            area.tag_redraw()
+        _auto_refresh_result = None
+        return AUTO_REFRESH_IDLE_INTERVAL
+
+    scene = bpy.context.scene
+    if scene is None or not hasattr(scene, 'w3d_models'):
+        return AUTO_REFRESH_IDLE_INTERVAL
+
+    big_paths = utils.selected_big_paths(scene)
+    search_paths = utils.search_paths(scene)
+    if not big_paths and not search_paths:
+        return AUTO_REFRESH_IDLE_INTERVAL  # nothing configured yet, nothing to scan
+
+    _auto_refresh_thread = threading.Thread(
+        target=_auto_refresh_worker, args=(big_paths, search_paths), daemon=True)
+    _auto_refresh_thread.start()
+    return AUTO_REFRESH_POLL_INTERVAL
 
 
 ##########################################################################
@@ -544,6 +671,7 @@ class W3D_IMPORTER_PT_panel(Panel):
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = 'W3D Tools'
+    bl_options = {'DEFAULT_CLOSED'}
 
     def draw(self, context):
         layout = self.layout
@@ -604,8 +732,20 @@ def register():
     scene.w3d_preview_image = StringProperty(default='')
     scene.w3d_preview_generating = BoolProperty(default=False)
 
+    # persistent so the auto-refresh survives switching to a different .blend file,
+    # not just a fresh Blender start
+    if not bpy.app.timers.is_registered(_auto_refresh_tick):
+        bpy.app.timers.register(_auto_refresh_tick, first_interval=AUTO_REFRESH_FIRST_INTERVAL, persistent=True)
+
 
 def unregister():
+    global _auto_refresh_thread, _auto_refresh_result
+
+    if bpy.app.timers.is_registered(_auto_refresh_tick):
+        bpy.app.timers.unregister(_auto_refresh_tick)
+    _auto_refresh_thread = None
+    _auto_refresh_result = None
+
     if bpy.app.timers.is_registered(_generate_preview_deferred):
         bpy.app.timers.unregister(_generate_preview_deferred)
 

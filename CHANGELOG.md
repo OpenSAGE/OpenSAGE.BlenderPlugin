@@ -2,6 +2,17 @@
 
 ## v0.8.0
 
+* the W3D Tools sub-panels (asset search paths, .big extraction, model browser, animation
+  finder, build-up/destroy animation, export settings) are now collapsed by default, matching
+  the outer 'W3D Tools' panel, instead of all expanding on every install
+* the W3D Model Browser now scans automatically: a background timer indexes the configured
+  search paths and .big archives shortly after Blender starts and periodically afterwards, so
+  the list is populated and kept in sync with what is on disk without ever pressing 'Scan W3D
+  Models'. Only what actually changed is merged in, so the current selection and scroll
+  position survive a refresh; the manual scan button still works exactly as before for an
+  immediate, on demand rescan
+* search paths are now indexed in parallel with .big archives instead of after them
+  sequentially, using the same thread pool
 * Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than
   importing the same file through the BfMe model browser. The model browser zeroed out the
   Principled BSDF's specular input after calling the core import operator (W3D materials do not
