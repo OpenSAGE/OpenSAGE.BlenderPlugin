@@ -2,6 +2,13 @@
 
 ## v0.8.0
 
+* Bugfix: a model whose texture happened to share a base name with an unrelated
+  .w3d file (e.g. a 'pfence01' texture next to an unrelated 'pfence01.w3d' prop
+  model, both real BfMe II assets) could import or preview without that texture.
+  The asset index only kept one reference per name, so the model silently shadowed
+  the texture depending on which .big got scanned first. Textures and .w3d files
+  are now kept in their own lookup so a model's dependencies always resolve to the
+  right kind of asset regardless of what else happens to share its name
 * the W3D Tools sub-panels (asset search paths, .big extraction, model browser, animation
   finder, build-up/destroy animation, export settings) are now collapsed by default, matching
   the outer 'W3D Tools' panel, instead of all expanding on every install

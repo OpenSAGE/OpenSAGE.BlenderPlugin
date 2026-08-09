@@ -93,38 +93,78 @@ def asset_key(name):
 ##########################################################################
 
 
+def _is_model_extension(ext):
+    return ext == '.w3d'
+
+
 def _index_archive(big_path, wanted_exts):
     """Reference every wanted entry of one archive, without reading any file data.
 
     Opening an archive only parses its entry table, so this stays cheap even for
-    multi gigabyte archives.
+    multi gigabyte archives. Returns (all references, models only, textures only):
+    a texture and an unrelated .w3d file can share a base name (a 'pfence01'
+    texture next to an unrelated 'pfence01.w3d' prop model, for instance), and if
+    they were merged into one dict here already, whichever came first would
+    silently win before the caller ever gets a chance to keep both.
     """
     references = {}
+    model_references = {}
+    texture_references = {}
     try:
         archive = InDiskArchive(big_path)
     except Exception as error:
         print(f'[BFME_CACHE] could not open {os.path.basename(big_path)}: {error}')
-        return references
+        return references, model_references, texture_references
 
     for entry_name, entry in archive.entries.items():
-        if os.path.splitext(entry_name)[1].lower() not in wanted_exts:
+        ext = os.path.splitext(entry_name)[1].lower()
+        if ext not in wanted_exts:
             continue
-        references.setdefault(
-            asset_key(entry_name),
-            [REF_BIG, big_path, entry_name, entry.position, entry.size])
+        key = asset_key(entry_name)
+        reference = [REF_BIG, big_path, entry_name, entry.position, entry.size]
+        references.setdefault(key, reference)
+        bucket = model_references if _is_model_extension(ext) else texture_references
+        bucket.setdefault(key, reference)
 
-    return references
+    return references, model_references, texture_references
 
 
 def _index_search_path(root_path, wanted_exts):
-    """Reference every wanted loose file below a search path. Nothing is copied."""
+    """Reference every wanted loose file below a search path. Nothing is copied.
+
+    Returns (all references, models only, textures only), see _index_archive().
+    """
     references = {}
+    model_references = {}
+    texture_references = {}
     for directory, _, files in os.walk(root_path):
         for filename in files:
-            if os.path.splitext(filename)[1].lower() not in wanted_exts:
+            ext = os.path.splitext(filename)[1].lower()
+            if ext not in wanted_exts:
                 continue
-            references[asset_key(filename)] = [REF_FILE, os.path.join(directory, filename)]
-    return references
+            key = asset_key(filename)
+            reference = [REF_FILE, os.path.join(directory, filename)]
+            references[key] = reference
+            bucket = model_references if _is_model_extension(ext) else texture_references
+            bucket[key] = reference
+    return references, model_references, texture_references
+
+
+class AssetIndex(dict):
+    """A flat asset key -> reference map, plus same-name texture/model buckets.
+
+    A texture and an unrelated .w3d file can share a base name in the real asset
+    libraries (a 'pfence01' texture next to an unrelated 'pfence01.w3d' prop
+    model, for instance). The flat mapping only keeps one of the two - whichever
+    wins the same priority order as everything else - so dependency resolution
+    looks names up in 'textures' or 'models' instead, which cannot shadow one
+    another. Behaves exactly like a plain dict otherwise.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.textures = {}
+        self.models = {}
 
 
 def build_asset_index(big_paths, search_paths, wanted_exts, progress=None):
@@ -137,7 +177,7 @@ def build_asset_index(big_paths, search_paths, wanted_exts, progress=None):
     concurrently; the merge order below is what keeps the result deterministic,
     not the order threads happen to finish in.
     """
-    index = {}
+    index = AssetIndex()
     valid_search_paths = [path for path in search_paths if os.path.isdir(path)]
 
     if not big_paths and not valid_search_paths:
@@ -153,12 +193,16 @@ def build_asset_index(big_paths, search_paths, wanted_exts, progress=None):
         # which archive wins a name does not depend on thread scheduling
         for done, future in enumerate(archive_futures, start=1):
             try:
-                references = future.result()
+                references, model_references, texture_references = future.result()
             except Exception as error:
                 print(f'[BFME_CACHE] indexing thread failed: {error}')
                 continue
             for key, reference in references.items():
                 index.setdefault(key, reference)
+            for key, reference in model_references.items():
+                index.models.setdefault(key, reference)
+            for key, reference in texture_references.items():
+                index.textures.setdefault(key, reference)
             if progress is not None:
                 progress(done, len(archive_futures))
 
@@ -166,9 +210,13 @@ def build_asset_index(big_paths, search_paths, wanted_exts, progress=None):
         # same priority order the sequential version used
         for future in search_futures:
             try:
-                index.update(future.result())
+                references, model_references, texture_references = future.result()
             except Exception as error:
                 print(f'[BFME_CACHE] indexing thread failed: {error}')
+                continue
+            index.update(references)
+            index.models.update(model_references)
+            index.textures.update(texture_references)
 
     return index
 
@@ -352,26 +400,48 @@ MAX_DEPENDENCY_DEPTH = 4
 
 
 def dependency_keys(index, key):
-    """Every asset the given model pulls in, transitively.
+    """Every asset the given model pulls in, transitively, as {name: reference}.
 
     A model names its skeleton and its textures; a skeleton can in turn name
     further files, so references are followed until nothing new turns up.
+    Texture and hierarchy names are looked up in their own bucket rather than
+    the flat index: a texture and an unrelated .w3d file can share a base name
+    in the real asset libraries, and the flat index only keeps one of the two.
     """
-    collected = set()
+    models = getattr(index, 'models', index)
+    textures = getattr(index, 'textures', index)
+
+    collected = {}
     pending = {key}
 
     for _ in range(MAX_DEPENDENCY_DEPTH):
-        names = set()
+        texture_names = set()
+        hierarchy_names = set()
         for current in pending:
-            reference = index.get(current)
             # only w3d files reference anything, textures are leaves
-            if reference is not None and asset_name(reference).lower().endswith('.w3d'):
-                names |= dependencies.referenced_names(read_asset(reference))
+            reference = models.get(current)
+            if reference is not None:
+                found_textures, found_hierarchies = dependencies.referenced_names_by_kind(read_asset(reference))
+                texture_names |= found_textures
+                hierarchy_names |= found_hierarchies
 
-        pending = {name for name in names if name in index and name not in collected and name != key}
+        pending = set()
+        for name in hierarchy_names:
+            if name == key or name in collected:
+                continue
+            reference = models.get(name)
+            if reference is not None:
+                collected[name] = reference
+                pending.add(name)  # only hierarchies can reference anything further
+        for name in texture_names:
+            if name == key or name in collected:
+                continue
+            reference = textures.get(name)
+            if reference is not None:
+                collected[name] = reference
+
         if not pending:
             break
-        collected |= pending
 
     return collected
 
@@ -393,15 +463,15 @@ def stage_for_import(index, key):
 
     if reference[0] == REF_FILE:
         directory = os.path.dirname(reference[1])
-        if all(_sits_in(index.get(name), directory) for name in needed):
+        if all(_sits_in(dep_reference, directory) for dep_reference in needed.values()):
             return resolve(reference)
 
     path = materialise(reference)
     if path is None:
         return None
 
-    for name in needed:
-        materialise(index[name])
+    for dep_reference in needed.values():
+        materialise(dep_reference)
 
     return path
 

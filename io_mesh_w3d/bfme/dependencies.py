@@ -80,7 +80,7 @@ def _shader_material_property(data, start, end):
     return _terminated_string(data, value_start, end)
 
 
-def _walk(data, start, end, names, depth):
+def _walk(data, start, end, texture_names, hierarchy_names, depth):
     if depth > MAX_DEPTH:
         return
 
@@ -96,19 +96,42 @@ def _walk(data, start, end, names, depth):
             return
 
         if chunk_type == W3D_CHUNK_TEXTURE_NAME:
-            names.add(_terminated_string(data, body, body_end))
+            texture_names.add(_terminated_string(data, body, body_end))
         elif chunk_type == W3D_CHUNK_SHADER_MATERIAL_PROPERTY:
             value = _shader_material_property(data, body, body_end)
             if value:
-                names.add(value)
+                texture_names.add(value)
         elif chunk_type == W3D_CHUNK_HLOD_HEADER:
-            names.add(_fixed_string(data, body + HLOD_HIERARCHY_OFFSET))
+            hierarchy_names.add(_fixed_string(data, body + HLOD_HIERARCHY_OFFSET))
         elif chunk_type in (W3D_CHUNK_ANIMATION_HEADER, W3D_CHUNK_COMPRESSED_ANIMATION_HEADER):
-            names.add(_fixed_string(data, body + ANIMATION_HIERARCHY_OFFSET))
+            hierarchy_names.add(_fixed_string(data, body + ANIMATION_HIERARCHY_OFFSET))
         elif raw_size & SUB_CHUNK_FLAG:
-            _walk(data, body, body_end, names, depth + 1)
+            _walk(data, body, body_end, texture_names, hierarchy_names, depth + 1)
 
         offset = body_end
+
+
+def _normalise(names):
+    # texture names carry an extension, hierarchy names do not
+    return {name.rsplit('.', 1)[0].lower() for name in names if name}
+
+
+def referenced_names_by_kind(data):
+    """(texture names, hierarchy names) a .w3d refers to, without extensions.
+
+    Kept separate because a texture and an unrelated .w3d file can share a base
+    name in the real asset libraries (a 'pfence01' texture next to an unrelated
+    'pfence01.w3d' prop model, for instance); the asset index looks each kind up
+    in its own bucket so one cannot shadow the other.
+    """
+    texture_names = set()
+    hierarchy_names = set()
+    try:
+        _walk(data, 0, len(data), texture_names, hierarchy_names, 0)
+    except (struct.error, IndexError):
+        pass
+
+    return _normalise(texture_names), _normalise(hierarchy_names)
 
 
 def referenced_names(data):
@@ -117,11 +140,5 @@ def referenced_names(data):
     Returned in the same shape the asset index is keyed by, so they can be looked
     up directly.
     """
-    names = set()
-    try:
-        _walk(data, 0, len(data), names, 0)
-    except (struct.error, IndexError):
-        pass
-
-    # texture names carry an extension, hierarchy names do not
-    return {name.rsplit('.', 1)[0].lower() for name in names if name}
+    texture_names, hierarchy_names = referenced_names_by_kind(data)
+    return texture_names | hierarchy_names

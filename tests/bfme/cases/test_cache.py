@@ -194,6 +194,18 @@ class TestAssetIndex(CacheTestCase):
 
         self.assertEqual({}, cache.cached_asset_index())
 
+    def test_a_texture_and_a_same_named_model_both_survive_in_their_own_bucket(self):
+        """The flat index can only keep one of the two for a shared name; the
+        typed buckets underneath must keep both, or dependency resolution has no
+        way to tell them apart.
+        """
+        archive = self.archive('assets.big', {'pfence01.w3d': b'MODEL', 'pfence01.tga': b'TEXTURE'})
+
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        self.assertEqual(b'MODEL', cache.read_asset(index.models['pfence01']))
+        self.assertEqual(b'TEXTURE', cache.read_asset(index.textures['pfence01']))
+
 
 class TestReadingAssets(CacheTestCase):
     def test_read_a_loose_asset(self):
@@ -421,6 +433,22 @@ class TestDependencyScanning(CacheTestCase):
     def test_garbage_is_not_mistaken_for_references(self):
         self.assertEqual(set(), dependencies.referenced_names(b'not a w3d file at all'))
 
+    def test_referenced_names_by_kind_separates_textures_from_the_skeleton(self):
+        data = w3d_model(hierarchy_name='hero_skl', textures=['skin.dds'])
+
+        textures, hierarchies = dependencies.referenced_names_by_kind(data)
+
+        self.assertEqual({'skin'}, textures)
+        self.assertEqual({'hero_skl'}, hierarchies)
+
+    def test_referenced_names_by_kind_puts_shader_textures_in_the_texture_set(self):
+        data = w3d_model(shader_textures=[('DiffuseTexture', 'skin.tga')])
+
+        textures, hierarchies = dependencies.referenced_names_by_kind(data)
+
+        self.assertEqual({'skin'}, textures)
+        self.assertEqual(set(), hierarchies)
+
     def test_a_truncated_model_does_not_raise(self):
         data = w3d_model(hierarchy_name='HERO_SKL', textures=['Skin.dds'])
 
@@ -435,7 +463,7 @@ class TestDependencyScanning(CacheTestCase):
             'bones.dds': b'BONES'})
         index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-        self.assertEqual({'hero_skl', 'skin', 'bones'}, cache.dependency_keys(index, 'model'))
+        self.assertEqual({'hero_skl', 'skin', 'bones'}, set(cache.dependency_keys(index, 'model')))
 
     def test_dependency_keys_ignores_names_that_are_not_indexed(self):
         archive = self.archive('assets.big', {
@@ -443,7 +471,7 @@ class TestDependencyScanning(CacheTestCase):
             'present.dds': b'X'})
         index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-        self.assertEqual({'present'}, cache.dependency_keys(index, 'model'))
+        self.assertEqual({'present'}, set(cache.dependency_keys(index, 'model')))
 
     def test_dependency_keys_survives_a_reference_cycle(self):
         archive = self.archive('assets.big', {
@@ -451,7 +479,38 @@ class TestDependencyScanning(CacheTestCase):
             'b.w3d': w3d_model(hierarchy_name='a')})
         index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
 
-        self.assertEqual({'b'}, cache.dependency_keys(index, 'a'))
+        self.assertEqual({'b'}, set(cache.dependency_keys(index, 'a')))
+
+    def test_dependency_keys_resolves_the_reference_for_each_name(self):
+        """stage_for_import() materialises straight off these references, without
+        looking the names back up in the flat index - see the collision test below
+        for why that matters.
+        """
+        archive = self.archive('assets.big', {
+            'model.w3d': w3d_model(textures=['skin.dds']),
+            'skin.dds': b'SKIN'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        deps = cache.dependency_keys(index, 'model')
+
+        self.assertEqual(index.textures['skin'], deps['skin'])
+
+    def test_dependency_keys_does_not_confuse_a_texture_with_a_same_named_model(self):
+        """A texture and an unrelated .w3d model can share a base name in the real
+        asset libraries (a 'pfence01' texture next to an unrelated 'pfence01.w3d'
+        prop model, for instance). The flat index only keeps one of the two, so
+        this must not resolve through it.
+        """
+        archive = self.archive('assets.big', {
+            'model.w3d': w3d_model(shader_textures=[('DiffuseTexture', 'pfence01.tga')]),
+            # an unrelated model that happens to share a base name with the texture
+            'pfence01.w3d': w3d_model(),
+            'pfence01.tga': b'TEXTUREDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        deps = cache.dependency_keys(index, 'model')
+
+        self.assertEqual(b'TEXTUREDATA', cache.read_asset(deps['pfence01']))
 
 
 class TestStagingForImport(CacheTestCase):
@@ -527,6 +586,25 @@ class TestStagingForImport(CacheTestCase):
 
     def test_staging_an_unknown_key(self):
         self.assertIsNone(cache.stage_for_import({}, 'missing'))
+
+    def test_staging_brings_the_texture_not_a_same_named_model(self):
+        """The regression this guards: a fence prop model and the fence texture
+        both happened to be named 'pfence01' in the real assets, and the model
+        that used the texture ended up with the prop model staged in its place,
+        so the importer could not find any texture file at all.
+        """
+        archive = self.archive('assets.big', {
+            'art/model.w3d': w3d_model(shader_textures=[('DiffuseTexture', 'pfence01.tga')]),
+            'art/pfence01.w3d': w3d_model(),
+            'art/pfence01.tga': b'TEXTUREDATA'})
+        index = cache.build_asset_index([archive], [], cache.CACHE_EXTENSIONS)
+
+        cache.stage_for_import(index, 'model')
+
+        staged = sorted(os.listdir(cache.BIG_CACHE_DIR))
+        self.assertEqual(['model.w3d', 'pfence01.tga'], staged)
+        with open(os.path.join(cache.BIG_CACHE_DIR, 'pfence01.tga'), 'rb') as file:
+            self.assertEqual(b'TEXTUREDATA', file.read())
 
 
 class TestMaintenance(CacheTestCase):
