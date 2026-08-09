@@ -124,6 +124,19 @@ class W3DModelItem(PropertyGroup):
     filename: StringProperty(name='Filename')
 
 
+# bumped whenever scene.w3d_models is mutated, so the UIList's cached sort/filter
+# result is thrown away exactly when it stops being valid
+_list_generation = 0
+_filter_cache = None
+
+
+def invalidate_list_cache():
+    global _list_generation, _filter_cache
+
+    _list_generation += 1
+    _filter_cache = None
+
+
 def _generate_preview_deferred():
     """Timer callback, so selecting a list entry does not render inside the update."""
     try:
@@ -152,7 +165,17 @@ class W3D_UL_model_list(UIList):
             layout.label(text='', icon='MESH_CUBE')
 
     def filter_items(self, _context, data, propname):
+        global _filter_cache
+
         items = getattr(data, propname)
+        # Blender calls this on every redraw of the list, including every frame of
+        # a scroll. Sorting and filtering a full install's worth of models costs
+        # more than a frame's budget on its own (~15 ms for 20k), so the result is
+        # cached and only recomputed when the list or the filter actually changed.
+        key = (_list_generation, len(items), self.filter_name)
+        if _filter_cache is not None and _filter_cache[0] == key:
+            return _filter_cache[1], _filter_cache[2]
+
         # items added by the background auto-refresh are appended, not inserted in
         # order, so the list is sorted for display rather than relying on insertion
         # order
@@ -163,6 +186,8 @@ class W3D_UL_model_list(UIList):
         else:
             flags = bpy.types.UI_UL_list.filter_items_by_name(
                 self.filter_name, self.bitflag_filter_item, items, 'filename', reverse=False)
+
+        _filter_cache = (key, flags, order)
         return flags, order
 
 
@@ -192,6 +217,7 @@ class W3D_OT_scan_models(Operator):
     def execute(self, context):
         scene = context.scene
         scene.w3d_models.clear()
+        invalidate_list_cache()
 
         # drop any auto-refresh batch still being applied, so it does not keep
         # inserting into the list this operator just cleared
@@ -247,6 +273,7 @@ class W3D_OT_scan_models(Operator):
                 item.filename = filename
                 item.key = key
             self._cursor = end
+            invalidate_list_cache()
 
             if context.area is not None:
                 context.area.tag_redraw()
@@ -285,11 +312,17 @@ class W3D_OT_scan_models(Operator):
 
 # while a background scan is running, poll this often for its completion
 AUTO_REFRESH_POLL_INTERVAL = 0.5
-# once idle, wait this long before starting the next background scan
-AUTO_REFRESH_IDLE_INTERVAL = 20.0
-# fires the first scan shortly after Blender starts, so the list is populated
-# without the user ever pressing 'Scan W3D Models'
-AUTO_REFRESH_FIRST_INTERVAL = 1.0
+# once idle, wait this long before starting the next background scan. A rescan
+# walks every configured archive and search path, which on a full install is
+# real I/O; assets change rarely enough that doing it more often than this buys
+# nothing and just keeps a worker busy while the user is trying to work
+AUTO_REFRESH_IDLE_INTERVAL = 120.0
+# fires the first scan after Blender starts, so the list is populated without the
+# user ever pressing 'Scan W3D Models'. Deliberately not immediate: the first scan
+# of a session reads every configured archive header with a cold file cache, which
+# on a full install is seconds of disk I/O, and starting that while Blender is
+# still opening its own files just makes both slower
+AUTO_REFRESH_FIRST_INTERVAL = 8.0
 # collection edits are applied this many items at a time, and this often, so a
 # first-time scan with thousands of models does not stall Blender for the one
 # frame it would take to insert them all at once; matches W3D_OT_scan_models's
@@ -322,11 +355,23 @@ def _auto_refresh_worker(big_paths, search_paths):
 
 
 def _tag_redraw():
+    """Redraw just the sidebar the model list lives in.
+
+    Tagging whole areas would force a full 3D viewport redraw as well, which for
+    a batched refresh means re-rendering the scene once per batch for the sake of
+    a list nobody may even be looking at.
+    """
     window_manager = getattr(bpy.context, 'window_manager', None)
-    if window_manager is not None:
-        for window in window_manager.windows:
-            for area in window.screen.areas:
-                area.tag_redraw()
+    if window_manager is None:
+        return
+
+    for window in window_manager.windows:
+        for area in window.screen.areas:
+            if area.type != 'VIEW_3D':
+                continue
+            for region in area.regions:
+                if region.type == 'UI':
+                    region.tag_redraw()
 
 
 def _begin_apply(scene, models):
@@ -376,6 +421,7 @@ def _apply_pending_batch():
             if items[index].key in batch:
                 items.remove(index)
         _auto_refresh_pending_remove = _auto_refresh_pending_remove[AUTO_REFRESH_BATCH_SIZE:]
+        invalidate_list_cache()
         _tag_redraw()
         return AUTO_REFRESH_BATCH_INTERVAL
 
@@ -387,6 +433,7 @@ def _apply_pending_batch():
             item = items.add()
             item.filename = filename
             item.key = key
+        invalidate_list_cache()
         _tag_redraw()
         if _auto_refresh_pending_add:
             return AUTO_REFRESH_BATCH_INTERVAL

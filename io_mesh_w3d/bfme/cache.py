@@ -249,9 +249,16 @@ def invalidate_asset_index():
 
 
 def cached_asset_index():
-    """The index as it currently stands, without building one."""
-    with _index_lock:
-        return _asset_index[1]
+    """The index as it currently stands, without building one.
+
+    Deliberately does not take _index_lock: a background rebuild holds that lock
+    for as long as the rebuild takes, and this is called from the main thread on
+    import and preview, where blocking on it is a visible freeze. _asset_index is
+    only ever replaced by a single tuple assignment, which is atomic, so reading
+    it without the lock yields either the old index or the new one, never a torn
+    one.
+    """
+    return _asset_index[1]
 
 
 ##########################################################################

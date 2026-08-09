@@ -23,6 +23,18 @@
   to insert them all in one go
 * search paths are now indexed in parallel with .big archives instead of after them
   sequentially, using the same thread pool
+* the model list's sort and filter result is cached instead of being recomputed on every
+  redraw. Blender calls a UIList's filter_items() for each redraw, including every frame of
+  a scroll, and sorting a full install's worth of models costs more than a frame's budget on
+  its own (~15 ms for 21k models), which made the list impossible to scroll smoothly. It is
+  now recomputed only when the list or the filter text actually changes
+* a background refresh only redraws the sidebar region the list lives in, rather than tagging
+  every area and forcing a full 3D viewport redraw once per batch
+* the first automatic scan of a session now starts a few seconds after Blender rather than
+  immediately, so reading every archive header with a cold file cache does not compete with
+  Blender's own startup I/O, and periodic rescans are much further apart
+* looking up the cached asset index no longer waits on the index lock, so importing or
+  previewing a model while a background rescan happens to be running does not stall
 * Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than
   importing the same file through the BfMe model browser. The model browser zeroed out the
   Principled BSDF's specular input after calling the core import operator (W3D materials do not
