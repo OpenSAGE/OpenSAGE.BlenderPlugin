@@ -17,7 +17,10 @@
   the list is populated and kept in sync with what is on disk without ever pressing 'Scan W3D
   Models'. Only what actually changed is merged in, so the current selection and scroll
   position survive a refresh; the manual scan button still works exactly as before for an
-  immediate, on demand rescan
+  immediate, on demand rescan. The merge itself is applied in small batches spread across
+  several timer ticks rather than all at once, so a large first-time scan (tens of thousands
+  of models is a real install size) does not stall Blender for the single frame it would take
+  to insert them all in one go
 * search paths are now indexed in parallel with .big archives instead of after them
   sequentially, using the same thread pool
 * Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than

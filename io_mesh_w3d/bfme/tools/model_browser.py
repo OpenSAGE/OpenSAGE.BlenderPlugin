@@ -193,6 +193,13 @@ class W3D_OT_scan_models(Operator):
         scene = context.scene
         scene.w3d_models.clear()
 
+        # drop any auto-refresh batch still being applied, so it does not keep
+        # inserting into the list this operator just cleared
+        global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
+        _auto_refresh_pending_add = None
+        _auto_refresh_pending_remove = None
+        _auto_refresh_active_key = None
+
         # everything the worker needs is read here, on the main thread
         big_paths = utils.selected_big_paths(scene)
         search_paths = utils.search_paths(scene)
@@ -283,9 +290,18 @@ AUTO_REFRESH_IDLE_INTERVAL = 20.0
 # fires the first scan shortly after Blender starts, so the list is populated
 # without the user ever pressing 'Scan W3D Models'
 AUTO_REFRESH_FIRST_INTERVAL = 1.0
+# collection edits are applied this many items at a time, and this often, so a
+# first-time scan with thousands of models does not stall Blender for the one
+# frame it would take to insert them all at once; matches W3D_OT_scan_models's
+# own batch size for the same reason
+AUTO_REFRESH_BATCH_SIZE = 500
+AUTO_REFRESH_BATCH_INTERVAL = 0.05
 
 _auto_refresh_thread = None
 _auto_refresh_result = None
+_auto_refresh_pending_add = None
+_auto_refresh_pending_remove = None
+_auto_refresh_active_key = None
 
 
 def _auto_refresh_worker(big_paths, search_paths):
@@ -305,11 +321,21 @@ def _auto_refresh_worker(big_paths, search_paths):
         _auto_refresh_result = None
 
 
-def _apply_scan_results(scene, models):
-    """Merge freshly scanned models into scene.w3d_models, touching only what
-    changed so the user's current selection and scroll position survive an
-    automatic refresh.
+def _tag_redraw():
+    window_manager = getattr(bpy.context, 'window_manager', None)
+    if window_manager is not None:
+        for window in window_manager.windows:
+            for area in window.screen.areas:
+                area.tag_redraw()
+
+
+def _begin_apply(scene, models):
+    """Diff freshly scanned models against scene.w3d_models and queue the result
+    for a batched apply, so the caller's timer tick returns quickly regardless
+    of how large the diff is.
     """
+    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
+
     items = scene.w3d_models
     existing_keys = {item.key for item in items}
     fresh_filenames = {key: filename for filename, key in models}
@@ -322,33 +348,65 @@ def _apply_scan_results(scene, models):
 
     active_item = items[scene.w3d_active_model_index] \
         if 0 <= scene.w3d_active_model_index < len(items) else None
-    active_key = active_item.key if active_item is not None else None
-    active_removed = active_key is not None and active_key in removed_keys
+    _auto_refresh_active_key = active_item.key if active_item is not None else None
 
-    if removed_keys:
+    _auto_refresh_pending_remove = list(removed_keys)
+    _auto_refresh_pending_add = [(key, fresh_filenames[key]) for key in added_keys]
+    return True
+
+
+def _apply_pending_batch():
+    """Apply one batch of a diff queued by _begin_apply(). Returns the next delay."""
+    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
+
+    scene = bpy.context.scene
+    if scene is None or not hasattr(scene, 'w3d_models'):
+        _auto_refresh_pending_add = None
+        _auto_refresh_pending_remove = None
+        _auto_refresh_active_key = None
+        return AUTO_REFRESH_IDLE_INTERVAL
+
+    items = scene.w3d_models
+
+    if _auto_refresh_pending_remove:
+        batch = set(_auto_refresh_pending_remove[:AUTO_REFRESH_BATCH_SIZE])
         # CollectionProperty.remove() is index based, remove from the end so
         # earlier indices stay valid while iterating
         for index in reversed(range(len(items))):
-            if items[index].key in removed_keys:
+            if items[index].key in batch:
                 items.remove(index)
+        _auto_refresh_pending_remove = _auto_refresh_pending_remove[AUTO_REFRESH_BATCH_SIZE:]
+        _tag_redraw()
+        return AUTO_REFRESH_BATCH_INTERVAL
 
-    for key in added_keys:
-        item = items.add()
-        item.filename = fresh_filenames[key]
-        item.key = key
+    if _auto_refresh_pending_add:
+        batch, _auto_refresh_pending_add = (
+            _auto_refresh_pending_add[:AUTO_REFRESH_BATCH_SIZE],
+            _auto_refresh_pending_add[AUTO_REFRESH_BATCH_SIZE:])
+        for key, filename in batch:
+            item = items.add()
+            item.filename = filename
+            item.key = key
+        _tag_redraw()
+        if _auto_refresh_pending_add:
+            return AUTO_REFRESH_BATCH_INTERVAL
 
-    if active_removed:
-        scene.w3d_active_model_index = 0  # the old selection is gone, this picks a fresh preview
-    elif active_key is not None:
-        # the collection was mutated, the item's index may have shifted even
-        # though the item itself was untouched
+    # both queues are drained now; fix up the active selection once, at the end,
+    # rather than after every batch
+    _auto_refresh_pending_add = None
+    _auto_refresh_pending_remove = None
+
+    if _auto_refresh_active_key is not None:
         for index, item in enumerate(items):
-            if item.key == active_key:
+            if item.key == _auto_refresh_active_key:
                 if index != scene.w3d_active_model_index:
                     scene.w3d_active_model_index = index
                 break
+        else:
+            scene.w3d_active_model_index = 0  # the old selection is gone
+    _auto_refresh_active_key = None
 
-    return True
+    return AUTO_REFRESH_IDLE_INTERVAL
 
 
 def _auto_refresh_tick():
@@ -357,6 +415,10 @@ def _auto_refresh_tick():
     without the user ever pressing 'Scan W3D Models'.
     """
     global _auto_refresh_thread, _auto_refresh_result
+    global _auto_refresh_pending_add, _auto_refresh_pending_remove
+
+    if _auto_refresh_pending_add is not None or _auto_refresh_pending_remove is not None:
+        return _apply_pending_batch()
 
     if _auto_refresh_thread is not None:
         if _auto_refresh_thread.is_alive():
@@ -365,12 +427,9 @@ def _auto_refresh_tick():
         _auto_refresh_thread = None
         scene = bpy.context.scene
         if _auto_refresh_result is not None and scene is not None and hasattr(scene, 'w3d_models'):
-            if _apply_scan_results(scene, _auto_refresh_result):
-                window_manager = getattr(bpy.context, 'window_manager', None)
-                if window_manager is not None:
-                    for window in window_manager.windows:
-                        for area in window.screen.areas:
-                            area.tag_redraw()
+            if _begin_apply(scene, _auto_refresh_result):
+                _auto_refresh_result = None
+                return AUTO_REFRESH_BATCH_INTERVAL
         _auto_refresh_result = None
         return AUTO_REFRESH_IDLE_INTERVAL
 
@@ -740,11 +799,15 @@ def register():
 
 def unregister():
     global _auto_refresh_thread, _auto_refresh_result
+    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
 
     if bpy.app.timers.is_registered(_auto_refresh_tick):
         bpy.app.timers.unregister(_auto_refresh_tick)
     _auto_refresh_thread = None
     _auto_refresh_result = None
+    _auto_refresh_pending_add = None
+    _auto_refresh_pending_remove = None
+    _auto_refresh_active_key = None
 
     if bpy.app.timers.is_registered(_generate_preview_deferred):
         bpy.app.timers.unregister(_generate_preview_deferred)
