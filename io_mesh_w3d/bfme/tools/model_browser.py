@@ -165,39 +165,49 @@ class W3D_UL_model_list(UIList):
             layout.label(text='', icon='MESH_CUBE')
 
     def filter_items(self, _context, data, propname):
+        """Blender calls this for every redraw of the list, including every frame
+        of a scroll, so it has to stay cheap for a full install's worth of models.
+
+        The reorder array is always empty: the list is only ever filled by the
+        startup scan or the 'Scan W3D Models' button, both of which insert in
+        sorted order already. Handing Blender a real reordering instead would
+        make it redo that mapping on every redraw, which is what made the list
+        impossible to scroll smoothly.
+        """
         global _filter_cache
 
         items = getattr(data, propname)
-        # Blender calls this on every redraw of the list, including every frame of
-        # a scroll. Sorting and filtering a full install's worth of models costs
-        # more than a frame's budget on its own (~15 ms for 20k), so the result is
-        # cached and only recomputed when the list or the filter actually changed.
-        key = (_list_generation, len(items), self.filter_name)
-        if _filter_cache is not None and _filter_cache[0] == key:
-            return _filter_cache[1], _filter_cache[2]
-
-        # items added by the background auto-refresh are appended, not inserted in
-        # order, so the list is sorted for display rather than relying on insertion
-        # order
-        order = bpy.types.UI_UL_list.sort_items_by_name(items, 'filename')
 
         if not self.filter_name:
-            flags = [self.bitflag_filter_item] * len(items)
-        else:
-            flags = bpy.types.UI_UL_list.filter_items_by_name(
-                self.filter_name, self.bitflag_filter_item, items, 'filename', reverse=False)
+            return [self.bitflag_filter_item] * len(items), []
 
-        _filter_cache = (key, flags, order)
-        return flags, order
+        # matching every name against the filter is the one part that is not cheap,
+        # so it is cached until the list or the filter text actually changes
+        key = (_list_generation, len(items), self.filter_name)
+        if _filter_cache is not None and _filter_cache[0] == key:
+            return _filter_cache[1], []
+
+        flags = bpy.types.UI_UL_list.filter_items_by_name(
+            self.filter_name, self.bitflag_filter_item, items, 'filename', reverse=False)
+
+        _filter_cache = (key, flags)
+        return flags, []
 
 
 def _collect_w3d_models(big_paths, search_paths, force_refresh=False):
-    """Build the asset index and pick out the .w3d models. No bpy access, worker-thread safe."""
+    """Build the asset index and pick out the .w3d models. No bpy access, worker-thread safe.
+
+    Sorted case insensitively, because this order is what ends up in the list:
+    the UIList deliberately does no reordering of its own, so that a redraw stays
+    cheap even with tens of thousands of models.
+    """
     index = cache.asset_index(big_paths, search_paths, cache.CACHE_EXTENSIONS, force_refresh=force_refresh)
-    return sorted(
+    models = [
         (cache.asset_name(reference), key)
         for key, reference in index.items()
-        if cache.asset_name(reference).lower().endswith('.w3d'))
+        if cache.asset_name(reference).lower().endswith('.w3d')]
+    models.sort(key=lambda model: model[0].lower())
+    return models
 
 
 class W3D_OT_scan_models(Operator):
@@ -219,12 +229,12 @@ class W3D_OT_scan_models(Operator):
         scene.w3d_models.clear()
         invalidate_list_cache()
 
-        # drop any auto-refresh batch still being applied, so it does not keep
-        # inserting into the list this operator just cleared
-        global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
-        _auto_refresh_pending_add = None
-        _auto_refresh_pending_remove = None
-        _auto_refresh_active_key = None
+        # drop the startup scan if it is still filling the list, so it does not
+        # keep inserting into the list this operator just cleared
+        global _startup_pending, _startup_cursor, _startup_active_key
+        _startup_pending = None
+        _startup_cursor = 0
+        _startup_active_key = None
 
         # everything the worker needs is read here, on the main thread
         big_paths = utils.selected_big_paths(scene)
@@ -307,59 +317,54 @@ class W3D_OT_scan_models(Operator):
 
 
 ##########################################################################
-# automatic background refresh
+# scan once per Blender session
 ##########################################################################
 
-# while a background scan is running, poll this often for its completion
-AUTO_REFRESH_POLL_INTERVAL = 0.5
-# once idle, wait this long before starting the next background scan. A rescan
-# walks every configured archive and search path, which on a full install is
-# real I/O; assets change rarely enough that doing it more often than this buys
-# nothing and just keeps a worker busy while the user is trying to work
-AUTO_REFRESH_IDLE_INTERVAL = 120.0
-# fires the first scan after Blender starts, so the list is populated without the
-# user ever pressing 'Scan W3D Models'. Deliberately not immediate: the first scan
-# of a session reads every configured archive header with a cold file cache, which
-# on a full install is seconds of disk I/O, and starting that while Blender is
-# still opening its own files just makes both slower
-AUTO_REFRESH_FIRST_INTERVAL = 8.0
-# collection edits are applied this many items at a time, and this often, so a
-# first-time scan with thousands of models does not stall Blender for the one
-# frame it would take to insert them all at once; matches W3D_OT_scan_models's
-# own batch size for the same reason
-AUTO_REFRESH_BATCH_SIZE = 500
-AUTO_REFRESH_BATCH_INTERVAL = 0.05
+# The model list is only ever filled in two places: once per Blender session by
+# the timer below, and whenever the user presses 'Scan W3D Models'. There is no
+# periodic rescan. Both paths insert the models in sorted order, which is what
+# lets the UIList hand Blender an empty reorder array and stay cheap to redraw.
 
-_auto_refresh_thread = None
-_auto_refresh_result = None
-_auto_refresh_pending_add = None
-_auto_refresh_pending_remove = None
-_auto_refresh_active_key = None
+# while the scan is running, poll this often for its completion
+STARTUP_SCAN_POLL_INTERVAL = 0.5
+# the scan starts this long after the add-on is registered. Deliberately not
+# immediate: the first scan of a session reads every configured archive header
+# with a cold file cache, which on a full install is seconds of disk I/O, and
+# starting that while Blender is still opening its own files makes both slower
+STARTUP_SCAN_DELAY = 8.0
+# the models are inserted this many at a time, and this often, so a full install's
+# worth of them does not stall Blender for the one frame it would take to insert
+# them all at once; matches W3D_OT_scan_models's own batch size for the same reason
+STARTUP_SCAN_BATCH_SIZE = 500
+STARTUP_SCAN_BATCH_INTERVAL = 0.05
+
+_startup_thread = None
+_startup_result = None
+_startup_pending = None
+_startup_cursor = 0
+_startup_active_key = None
+# set once this session's scan is over. Returning None already unregisters the
+# timer, this makes the 'scans exactly once' guarantee hold in the code itself
+# rather than only in the timer contract
+_startup_scan_done = False
 
 
-def _auto_refresh_worker(big_paths, search_paths):
-    """Worker thread: rebuilds the index and picks out .w3d models, no bpy access.
-
-    Forces a full rebuild instead of trusting the cached signature: a search
-    path's own mtime only changes when a direct child is added or removed, not
-    when a file further down changes, so the cheap signature check alone would
-    miss most real edits. A full rebuild is well under a second even for a full
-    install, so redoing it periodically is cheap enough to just always do it.
-    """
-    global _auto_refresh_result
+def _startup_scan_worker(big_paths, search_paths):
+    """Worker thread: builds the index and picks out the models, no bpy access."""
+    global _startup_result
     try:
-        _auto_refresh_result = _collect_w3d_models(big_paths, search_paths, force_refresh=True)
+        _startup_result = _collect_w3d_models(big_paths, search_paths, force_refresh=True)
     except Exception as error:
-        print(f'[BFME_MODELS] auto refresh failed: {error}')
-        _auto_refresh_result = None
+        print(f'[BFME_MODELS] startup scan failed: {error}')
+        _startup_result = []
 
 
 def _tag_redraw():
     """Redraw just the sidebar the model list lives in.
 
     Tagging whole areas would force a full 3D viewport redraw as well, which for
-    a batched refresh means re-rendering the scene once per batch for the sake of
-    a list nobody may even be looking at.
+    a batched fill means re-rendering the scene once per batch for the sake of a
+    list nobody may even be looking at.
     """
     window_manager = getattr(bpy.context, 'window_manager', None)
     if window_manager is None:
@@ -374,125 +379,113 @@ def _tag_redraw():
                     region.tag_redraw()
 
 
-def _begin_apply(scene, models):
-    """Diff freshly scanned models against scene.w3d_models and queue the result
-    for a batched apply, so the caller's timer tick returns quickly regardless
-    of how large the diff is.
-    """
-    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
+def _finish_startup_scan(scene, items):
+    """Restore the previous selection once the list has been filled."""
+    global _startup_pending, _startup_cursor, _startup_active_key, _startup_scan_done
 
-    items = scene.w3d_models
-    existing_keys = {item.key for item in items}
-    fresh_filenames = {key: filename for filename, key in models}
-    fresh_keys = set(fresh_filenames)
+    _startup_pending = None
+    _startup_cursor = 0
+    _startup_scan_done = True
 
-    removed_keys = existing_keys - fresh_keys
-    added_keys = fresh_keys - existing_keys
-    if not removed_keys and not added_keys:
-        return False
-
-    active_item = items[scene.w3d_active_model_index] \
-        if 0 <= scene.w3d_active_model_index < len(items) else None
-    _auto_refresh_active_key = active_item.key if active_item is not None else None
-
-    _auto_refresh_pending_remove = list(removed_keys)
-    _auto_refresh_pending_add = [(key, fresh_filenames[key]) for key in added_keys]
-    return True
-
-
-def _apply_pending_batch():
-    """Apply one batch of a diff queued by _begin_apply(). Returns the next delay."""
-    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
-
-    scene = bpy.context.scene
-    if scene is None or not hasattr(scene, 'w3d_models'):
-        _auto_refresh_pending_add = None
-        _auto_refresh_pending_remove = None
-        _auto_refresh_active_key = None
-        return AUTO_REFRESH_IDLE_INTERVAL
-
-    items = scene.w3d_models
-
-    if _auto_refresh_pending_remove:
-        batch = set(_auto_refresh_pending_remove[:AUTO_REFRESH_BATCH_SIZE])
-        # CollectionProperty.remove() is index based, remove from the end so
-        # earlier indices stay valid while iterating
-        for index in reversed(range(len(items))):
-            if items[index].key in batch:
-                items.remove(index)
-        _auto_refresh_pending_remove = _auto_refresh_pending_remove[AUTO_REFRESH_BATCH_SIZE:]
-        invalidate_list_cache()
-        _tag_redraw()
-        return AUTO_REFRESH_BATCH_INTERVAL
-
-    if _auto_refresh_pending_add:
-        batch, _auto_refresh_pending_add = (
-            _auto_refresh_pending_add[:AUTO_REFRESH_BATCH_SIZE],
-            _auto_refresh_pending_add[AUTO_REFRESH_BATCH_SIZE:])
-        for key, filename in batch:
-            item = items.add()
-            item.filename = filename
-            item.key = key
-        invalidate_list_cache()
-        _tag_redraw()
-        if _auto_refresh_pending_add:
-            return AUTO_REFRESH_BATCH_INTERVAL
-
-    # both queues are drained now; fix up the active selection once, at the end,
-    # rather than after every batch
-    _auto_refresh_pending_add = None
-    _auto_refresh_pending_remove = None
-
-    if _auto_refresh_active_key is not None:
+    if _startup_active_key is not None:
         for index, item in enumerate(items):
-            if item.key == _auto_refresh_active_key:
+            if item.key == _startup_active_key:
                 if index != scene.w3d_active_model_index:
                     scene.w3d_active_model_index = index
                 break
         else:
-            scene.w3d_active_model_index = 0  # the old selection is gone
-    _auto_refresh_active_key = None
+            scene.w3d_active_model_index = 0  # the model it pointed at is gone
+    _startup_active_key = None
 
-    return AUTO_REFRESH_IDLE_INTERVAL
+    _tag_redraw()
+    return None  # unregisters the timer: this runs once per Blender session
 
 
-def _auto_refresh_tick():
-    """Registered with bpy.app.timers. Periodically rebuilds the model index in a
-    background thread and merges the result in, so the browser stays current
-    without the user ever pressing 'Scan W3D Models'.
+def _apply_startup_batch():
+    """Insert one batch of the scanned models. Returns the next delay, or None
+    once the list is complete and the timer should stop.
     """
-    global _auto_refresh_thread, _auto_refresh_result
-    global _auto_refresh_pending_add, _auto_refresh_pending_remove
-
-    if _auto_refresh_pending_add is not None or _auto_refresh_pending_remove is not None:
-        return _apply_pending_batch()
-
-    if _auto_refresh_thread is not None:
-        if _auto_refresh_thread.is_alive():
-            return AUTO_REFRESH_POLL_INTERVAL
-
-        _auto_refresh_thread = None
-        scene = bpy.context.scene
-        if _auto_refresh_result is not None and scene is not None and hasattr(scene, 'w3d_models'):
-            if _begin_apply(scene, _auto_refresh_result):
-                _auto_refresh_result = None
-                return AUTO_REFRESH_BATCH_INTERVAL
-        _auto_refresh_result = None
-        return AUTO_REFRESH_IDLE_INTERVAL
+    global _startup_pending, _startup_cursor
 
     scene = bpy.context.scene
     if scene is None or not hasattr(scene, 'w3d_models'):
-        return AUTO_REFRESH_IDLE_INTERVAL
+        _startup_pending = None
+        return None
+
+    items = scene.w3d_models
+    end = min(_startup_cursor + STARTUP_SCAN_BATCH_SIZE, len(_startup_pending))
+    for filename, key in _startup_pending[_startup_cursor:end]:
+        item = items.add()
+        item.filename = filename
+        item.key = key
+    _startup_cursor = end
+    invalidate_list_cache()
+
+    if _startup_cursor < len(_startup_pending):
+        # only the last batch redraws: the list is not worth showing half filled,
+        # and a redraw per batch is exactly the churn this is meant to avoid
+        return STARTUP_SCAN_BATCH_INTERVAL
+
+    return _finish_startup_scan(scene, items)
+
+
+def _startup_scan_tick():
+    """Registered with bpy.app.timers, runs once per Blender session.
+
+    Scans in a worker thread, then fills the list in batches on the main thread
+    and unregisters itself. Nothing rescans afterwards; that is what the
+    'Scan W3D Models' button is for.
+    """
+    global _startup_thread, _startup_result, _startup_pending, _startup_cursor
+    global _startup_active_key, _startup_scan_done
+
+    if _startup_pending is not None:
+        return _apply_startup_batch()
+
+    if _startup_scan_done:
+        return None  # this session already had its one scan
+
+    if _startup_thread is not None:
+        if _startup_thread.is_alive():
+            return STARTUP_SCAN_POLL_INTERVAL
+
+        _startup_thread = None
+        models, _startup_result = _startup_result, None
+
+        scene = bpy.context.scene
+        if not models or scene is None or not hasattr(scene, 'w3d_models'):
+            _startup_scan_done = True
+            return None
+
+        items = scene.w3d_models
+        _startup_active_key = items[scene.w3d_active_model_index].key \
+            if 0 <= scene.w3d_active_model_index < len(items) else None
+
+        # the scan is authoritative, so the list is refilled from it rather than
+        # diffed against whatever the opened .blend happened to have saved
+        items.clear()
+        invalidate_list_cache()
+
+        _startup_pending = models
+        _startup_cursor = 0
+        return STARTUP_SCAN_BATCH_INTERVAL
+
+    scene = bpy.context.scene
+    if scene is None or not hasattr(scene, 'w3d_models'):
+        _startup_scan_done = True
+        return None
 
     big_paths = utils.selected_big_paths(scene)
     search_paths = utils.search_paths(scene)
     if not big_paths and not search_paths:
-        return AUTO_REFRESH_IDLE_INTERVAL  # nothing configured yet, nothing to scan
+        # nothing configured, nothing to scan; the button covers it once there is
+        _startup_scan_done = True
+        return None
 
-    _auto_refresh_thread = threading.Thread(
-        target=_auto_refresh_worker, args=(big_paths, search_paths), daemon=True)
-    _auto_refresh_thread.start()
-    return AUTO_REFRESH_POLL_INTERVAL
+    _startup_thread = threading.Thread(
+        target=_startup_scan_worker, args=(big_paths, search_paths), daemon=True)
+    _startup_thread.start()
+    return STARTUP_SCAN_POLL_INTERVAL
 
 
 ##########################################################################
@@ -838,23 +831,26 @@ def register():
     scene.w3d_preview_image = StringProperty(default='')
     scene.w3d_preview_generating = BoolProperty(default=False)
 
-    # persistent so the auto-refresh survives switching to a different .blend file,
-    # not just a fresh Blender start
-    if not bpy.app.timers.is_registered(_auto_refresh_tick):
-        bpy.app.timers.register(_auto_refresh_tick, first_interval=AUTO_REFRESH_FIRST_INTERVAL, persistent=True)
+    # persistent so opening a .blend during the delay does not cancel the one scan
+    # this session gets; the callback unregisters itself once the list is filled
+    if not bpy.app.timers.is_registered(_startup_scan_tick):
+        bpy.app.timers.register(_startup_scan_tick, first_interval=STARTUP_SCAN_DELAY, persistent=True)
 
 
 def unregister():
-    global _auto_refresh_thread, _auto_refresh_result
-    global _auto_refresh_pending_add, _auto_refresh_pending_remove, _auto_refresh_active_key
+    global _startup_thread, _startup_result, _startup_pending, _startup_cursor
+    global _startup_active_key, _startup_scan_done
 
-    if bpy.app.timers.is_registered(_auto_refresh_tick):
-        bpy.app.timers.unregister(_auto_refresh_tick)
-    _auto_refresh_thread = None
-    _auto_refresh_result = None
-    _auto_refresh_pending_add = None
-    _auto_refresh_pending_remove = None
-    _auto_refresh_active_key = None
+    if bpy.app.timers.is_registered(_startup_scan_tick):
+        bpy.app.timers.unregister(_startup_scan_tick)
+    _startup_thread = None
+    _startup_result = None
+    _startup_pending = None
+    _startup_cursor = 0
+    _startup_active_key = None
+    # re-enabling the add-on counts as a fresh session and scans again
+    _startup_scan_done = False
+    invalidate_list_cache()
 
     if bpy.app.timers.is_registered(_generate_preview_deferred):
         bpy.app.timers.unregister(_generate_preview_deferred)

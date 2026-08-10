@@ -12,27 +12,26 @@
 * the W3D Tools sub-panels (asset search paths, .big extraction, model browser, animation
   finder, build-up/destroy animation, export settings) are now collapsed by default, matching
   the outer 'W3D Tools' panel, instead of all expanding on every install
-* the W3D Model Browser now scans automatically: a background timer indexes the configured
-  search paths and .big archives shortly after Blender starts and periodically afterwards, so
-  the list is populated and kept in sync with what is on disk without ever pressing 'Scan W3D
-  Models'. Only what actually changed is merged in, so the current selection and scroll
-  position survive a refresh; the manual scan button still works exactly as before for an
-  immediate, on demand rescan. The merge itself is applied in small batches spread across
-  several timer ticks rather than all at once, so a large first-time scan (tens of thousands
-  of models is a real install size) does not stall Blender for the single frame it would take
-  to insert them all in one go
+* the W3D Model Browser scans once per Blender session on its own, so the list is populated
+  without pressing 'Scan W3D Models' first. That and the button are the only two things that
+  ever scan; there is no periodic rescan competing with the UI. The scan runs in a worker
+  thread and its results are inserted in small batches spread over several timer ticks, so a
+  full install's worth of models (tens of thousands) never stalls Blender for the single
+  frame it would take to insert them at once. Press the button to pick up assets that changed
+  on disk since Blender started
 * search paths are now indexed in parallel with .big archives instead of after them
   sequentially, using the same thread pool
-* the model list's sort and filter result is cached instead of being recomputed on every
-  redraw. Blender calls a UIList's filter_items() for each redraw, including every frame of
-  a scroll, and sorting a full install's worth of models costs more than a frame's budget on
-  its own (~15 ms for 21k models), which made the list impossible to scroll smoothly. It is
-  now recomputed only when the list or the filter text actually changes
-* a background refresh only redraws the sidebar region the list lives in, rather than tagging
-  every area and forcing a full 3D viewport redraw once per batch
-* the first automatic scan of a session now starts a few seconds after Blender rather than
-  immediately, so reading every archive header with a cold file cache does not compete with
-  Blender's own startup I/O, and periodic rescans are much further apart
+* the model list no longer does any work per redraw. Blender calls a UIList's filter_items()
+  for every redraw, including every frame of a scroll, so with a full install's worth of
+  models the list could not be scrolled smoothly: sorting them there cost ~15 ms per redraw,
+  more than a 60 fps frame budget on its own, and handing Blender a 21k entry reorder array
+  made it redo that mapping every redraw too. Both scan paths now insert the models in sorted
+  order, so the list needs no reordering at all, and matching against the filter text is
+  cached until the list or the text changes. A redraw went from ~15 ms to ~0.01 ms
+* filling the list only redraws the sidebar region it lives in, once, rather than tagging
+  every area and forcing a full 3D viewport redraw per batch
+* the scan starts a few seconds after Blender rather than immediately, so reading every
+  archive header with a cold file cache does not compete with Blender's own startup I/O
 * looking up the cached asset index no longer waits on the index lock, so importing or
   previewing a model while a background rescan happens to be running does not stall
 * Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than
