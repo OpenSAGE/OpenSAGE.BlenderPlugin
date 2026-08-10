@@ -2,6 +2,18 @@
 
 ## v0.8.0
 
+* Bugfix: exporting a mesh with vertices bound to two bones could leave the two weights not
+  summing to 100%, or occasionally drop a small (e.g. 1%) secondary weight entirely, turning a
+  two-bone vertex into a rigidly single-bone one. Blender stores vertex group weights as
+  float32, so an intended weight like 42% is actually stored as 0.41999998; writing that out
+  by truncating (`int(weight * 100)`) rounded it down to 41, silently losing up to a whole
+  percentage point on each side independently. The game blends a multi-bone vertex as
+  `weight0 * position0 + weight1 * position1`, with each position stored in its own bone's
+  local space, so a missing percentage point under-scaled the result - harmless at bind pose,
+  but once the affected bone rotated away from it during animation this became a visibly large
+  offset, while single-bone vertices (100%/0%, no rounding boundary to lose) were unaffected.
+  The second weight is now written as the exact complement of the first, which always sums to
+  100% by construction
 * the 'Existing Animations' tab is now 'Bindings and Animation', with two sub-tabs:
   * 'Existing Animations' is the previous animation search, its results list can now be
     collapsed
