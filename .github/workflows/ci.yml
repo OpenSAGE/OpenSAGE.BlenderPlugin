@@ -44,7 +44,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install codecov
         mkdir tmp && cd tmp
-        wget https://github.com/blender/blender/releases/download/v${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}/blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux-x64.tar.xz
+        wget https://download.blender.org/release/Blender${{ matrix.blender-version }}/blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux-x64.tar.xz
         tar xf blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux-x64.tar.xz
         mv blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux-x64 blender
         rm blender-${{ matrix.blender-version }}.${{ matrix.blender-version-suffix }}-linux-x64.tar.xz
