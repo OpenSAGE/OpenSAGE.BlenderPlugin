@@ -2,6 +2,18 @@
 
 ## v0.8.0
 
+* the 'Existing Animations' tab is now 'Bindings and Animation', with two sub-tabs:
+  * 'Existing Animations' is the previous animation search, its results list can now be
+    collapsed
+  * 'Bindings' adds an 'Auto-Bind' button: pick an armature, and every mesh in the scene
+    that has no Armature modifier yet gets one, with every vertex weighted to its nearest
+    one or two deforming bones (inverse-distance to the bone's line segment), normalised
+    to sum to exactly 100%. A 'Show Weights' toggle bakes the result into a vertex color
+    layer, switches every 3D viewport to solid shading with vertex colors and the
+    wireframe overlay on, gives each bone a distinct color, and puts the armature into
+    Pose Mode (bone colors only render in Edit/Pose Mode). Any vertex not bound to exactly
+    1-2 bones summing to ~100% - unbound, over-bound, or otherwise off - is shown in
+    magenta instead of blending in
 * Bugfix: a model whose texture happened to share a base name with an unrelated
   .w3d file (e.g. a 'pfence01' texture next to an unrelated 'pfence01.w3d' prop
   model, both real BfMe II assets) could import or preview without that texture.

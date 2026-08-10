@@ -8,6 +8,8 @@ its custom mesh and material properties.
 
 from . import settings
 from .tools import (
+    bindings,
+    bindings_and_animation,
     build_up_animation,
     destroy_animation,
     existing_animations,
@@ -16,11 +18,15 @@ from .tools import (
     texture_finder,
     w3d_tools)
 
-# display order of the top-level panels within the 'W3D Tools' sidebar tab
+# registration order within the 'W3D Tools' sidebar tab. 'bindings' and
+# 'existing_animations' own no panel of their own, their operators and
+# properties are drawn as the two sub-tabs of 'bindings_and_animation'
 MODULES = (
     texture_finder,
     model_browser,
     existing_animations,
+    bindings,
+    bindings_and_animation,
     build_up_animation,
     destroy_animation,
     export_settings,

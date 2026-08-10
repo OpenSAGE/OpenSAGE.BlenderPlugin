@@ -4,8 +4,8 @@
 import os
 
 import bpy
-from bpy.props import CollectionProperty, PointerProperty, StringProperty
-from bpy.types import Operator, Panel, PropertyGroup
+from bpy.props import BoolProperty, CollectionProperty, PointerProperty, StringProperty
+from bpy.types import Operator, PropertyGroup
 
 from .. import cache, utils
 
@@ -171,31 +171,29 @@ class BFME_OT_import_animation(Operator):
         return None
 
 
-class EXISTING_ANIMATIONS_PT_panel(Panel):
-    bl_label = 'Existing Animations'
-    bl_idname = 'EXISTING_ANIMATIONS_PT_panel'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-    bl_category = 'W3D Tools'
-    bl_options = {'DEFAULT_CLOSED'}
+def draw(layout, scene):
+    """Drawn as the 'Existing Animations' sub-tab of the Bindings and Animation panel."""
+    layout.prop(scene, 'existing_anim_target')
+    layout.prop(scene, 'existing_anim_filter')
+    layout.row().operator('bfme.search_animations', icon='VIEWZOOM')
 
-    def draw(self, context):
-        layout = self.layout
-        scene = context.scene
+    if not len(scene.found_animations):
+        return
 
-        layout.prop(scene, 'existing_anim_target')
-        layout.prop(scene, 'existing_anim_filter')
-        layout.row().operator('bfme.search_animations', icon='VIEWZOOM')
+    box = layout.box()
+    header = box.row()
+    header.label(text=f'Found {len(scene.found_animations)} files:')
+    expanded = scene.existing_anim_results_expanded
+    header.prop(scene, 'existing_anim_results_expanded', text='',
+                icon='TRIA_DOWN' if expanded else 'TRIA_RIGHT', emboss=False)
 
-        if not len(scene.found_animations):
-            return
+    if not expanded:
+        return
 
-        box = layout.box()
-        box.label(text=f'Found {len(scene.found_animations)} files:')
-        for item in scene.found_animations:
-            row = box.row(align=True)
-            row.label(text=item.filename)
-            row.operator('bfme.import_animation', text='Import', icon='IMPORT').key = item.key
+    for item in scene.found_animations:
+        row = box.row(align=True)
+        row.label(text=item.filename)
+        row.operator('bfme.import_animation', text='Import', icon='IMPORT').key = item.key
 
 
 def update_anim_target(self, _context):
@@ -210,10 +208,10 @@ def update_anim_target(self, _context):
 CLASSES = (
     FoundAnimationItem,
     BFME_OT_search_animations,
-    BFME_OT_import_animation,
-    EXISTING_ANIMATIONS_PT_panel)
+    BFME_OT_import_animation)
 
-SCENE_PROPERTIES = ('existing_anim_target', 'found_animations', 'existing_anim_filter')
+SCENE_PROPERTIES = (
+    'existing_anim_target', 'found_animations', 'existing_anim_filter', 'existing_anim_results_expanded')
 
 
 def register():
@@ -230,6 +228,8 @@ def register():
     scene.found_animations = CollectionProperty(type=FoundAnimationItem)
     scene.existing_anim_filter = StringProperty(
         name='Filter Name', description='Only show files containing this string', default='')
+    scene.existing_anim_results_expanded = BoolProperty(
+        name='Show Results', description='Show the list of found animation files', default=True)
 
 
 def unregister():
