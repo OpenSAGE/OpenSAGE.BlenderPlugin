@@ -19,13 +19,21 @@
     collapsed
   * 'Bindings' adds an 'Auto-Bind' button: pick an armature, and every mesh in the scene
     that has no Armature modifier yet gets one, with every vertex weighted to its nearest
-    one or two deforming bones (inverse-distance to the bone's line segment), normalised
-    to sum to exactly 100%. A 'Show Weights' toggle bakes the result into a vertex color
-    layer, switches every 3D viewport to solid shading with vertex colors and the
-    wireframe overlay on, gives each bone a distinct color, and puts the armature into
-    Pose Mode (bone colors only render in Edit/Pose Mode). Any vertex not bound to exactly
-    1-2 bones summing to ~100% - unbound, over-bound, or otherwise off - is shown in
-    magenta instead of blending in
+    deforming bone(s). This was calibrated against several real exported assets (both
+    hard-surface armor/weapons and organic creatures/characters): a vertex is bound
+    rigidly (100%) to its single nearest bone unless a second one is nearly as close, in
+    which case both contribute, favouring whichever is closer rather than an even split.
+    No pure distance rule reproduces hand weight-painting exactly - real riggers use body
+    topology a geometric measure cannot see - so this favours staying rigid unless a
+    vertex is clearly near a joint, since a wrongly blended hard-surface part is more
+    visibly wrong than a joint vertex left rigid. A 'Show Weights' toggle bakes the
+    result into a vertex color layer, gives each bone a distinct color, a small colored
+    marker sphere and a visible name (a W3D hierarchy's pivot bones are usually near
+    zero length and otherwise easy to miss entirely), switches every 3D viewport to
+    solid shading with vertex colors and the wireframe overlay on, and puts the armature
+    into Pose Mode (bone colors only render in Edit/Pose Mode). Any vertex whose weights
+    do not sum to ~100%, however many bones they are spread over, is shown in white
+    instead of blending in
 * Bugfix: a model whose texture happened to share a base name with an unrelated
   .w3d file (e.g. a 'pfence01' texture next to an unrelated 'pfence01.w3d' prop
   model, both real BfMe II assets) could import or preview without that texture.

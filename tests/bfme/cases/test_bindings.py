@@ -101,6 +101,56 @@ class TestNearestBoneWeights(TestCase):
         self.assertEqual((3, 0), indices.shape)
         self.assertEqual((3, 0), weights.shape)
 
+    def test_a_second_bone_far_beyond_the_threshold_gets_zero_weight(self):
+        """A vertex sitting well within one bone's own region (the other
+        candidate is much farther away) ends up rigidly bound to just the
+        nearest one - the far bone's slot is still returned, but at weight 0.
+        """
+        distances = np.array([[1.0, 10.0]])
+
+        indices, weights = bindings.nearest_bone_weights(distances, blend_ratio_threshold=1.2)
+
+        self.assertEqual(0.0, weights[0, 1])
+        self.assertAlmostEqual(1.0, weights[0, 0])
+
+    def test_a_second_bone_within_the_threshold_gets_a_distance_weighted_share(self):
+        """Near a joint boundary - the two candidate bones are close in
+        distance to each other - both contribute, favouring the closer one.
+        """
+        distances = np.array([[1.0, 1.15]])
+
+        indices, weights = bindings.nearest_bone_weights(distances, blend_ratio_threshold=1.2)
+
+        self.assertGreater(weights[0, 1], 0.0)
+        self.assertGreater(weights[0, 0], weights[0, 1])
+        self.assertAlmostEqual(1.0, weights[0].sum())
+
+    def test_the_blend_cutoff_is_relative_to_the_nearest_bone_not_absolute(self):
+        """The same ratio should behave the same regardless of how big the
+        absolute distances are - it is a ratio cutoff, not a fixed radius.
+        """
+        close_up = np.array([[0.1, 0.12]])  # ratio 1.2
+        far_away = np.array([[10.0, 12.0]])  # same ratio 1.2
+
+        _, weights_close = bindings.nearest_bone_weights(close_up, blend_ratio_threshold=1.2)
+        _, weights_far = bindings.nearest_bone_weights(far_away, blend_ratio_threshold=1.2)
+
+        # not an exact match: DISTANCE_EPSILON's relative effect differs slightly
+        # between the two absolute scales, negligible next to the ratio it preserves
+        np.testing.assert_allclose(weights_close, weights_far, atol=1e-5)
+
+    def test_a_zero_weight_slot_never_dominates_the_sum(self):
+        """A vertex right on top of one bone, with the others far away, is
+        fully rigid: the near bone gets 100%, everything else gets 0%.
+        """
+        distances = np.array([[0.0, 5.0, 8.0]])
+
+        indices, weights = bindings.nearest_bone_weights(distances, max_bones=3, blend_ratio_threshold=1.2)
+
+        self.assertAlmostEqual(1.0, weights[0, 0])
+        self.assertEqual(0.0, weights[0, 1])
+        self.assertEqual(0.0, weights[0, 2])
+
 
 ##########################################################################
 # weight status / visualisation colors, no bpy needed
@@ -117,11 +167,18 @@ class TestVertexWeightStatus(TestCase):
     def test_no_bones_is_a_problem(self):
         self.assertEqual('problem', bindings.vertex_weight_status([]))
 
-    def test_more_than_two_bones_is_a_problem(self):
-        self.assertEqual('problem', bindings.vertex_weight_status([(0, 0.34), (1, 0.33), (2, 0.33)]))
+    def test_more_than_two_bones_summing_to_one_is_ok(self):
+        """Bone count on its own is not the problem; only the weight sum is -
+        see test_weights_not_summing_to_one_is_a_problem below for the case
+        that actually is one, whatever the bone count.
+        """
+        self.assertEqual('ok', bindings.vertex_weight_status([(0, 0.34), (1, 0.33), (2, 0.33)]))
 
     def test_weights_not_summing_to_one_is_a_problem(self):
         self.assertEqual('problem', bindings.vertex_weight_status([(0, 0.3), (1, 0.3)]))
+
+    def test_many_bones_not_summing_to_one_is_still_a_problem(self):
+        self.assertEqual('problem', bindings.vertex_weight_status([(0, 0.3), (1, 0.3), (2, 0.1)]))
 
     def test_a_tiny_floating_point_drift_is_still_ok(self):
         self.assertEqual('ok', bindings.vertex_weight_status([(0, 0.6000001), (1, 0.3999998)]))
@@ -143,6 +200,12 @@ class TestBoneColor(TestCase):
 
 
 class TestVertexDisplayColor(TestCase):
+    def test_the_problem_color_is_white(self):
+        """Not magenta: magenta could plausibly be confused with a bone's own
+        hue in the sweep bone_color() produces; white cannot.
+        """
+        self.assertEqual((1.0, 1.0, 1.0), bindings.PROBLEM_COLOR)
+
     def test_a_problem_vertex_gets_the_problem_color(self):
         color = bindings.vertex_display_color([(0, 0.3), (1, 0.3)], [(1, 0, 0), (0, 1, 0)])
 
@@ -228,7 +291,11 @@ class TestBindObjectToArmature(BindingsTestCase):
         self.assertEqual(1, len(modifiers))
         self.assertEqual(armature, modifiers[0].object)
 
-    def test_a_vertex_next_to_one_bone_is_still_weighted_to_two_when_more_exist(self):
+    def test_a_vertex_far_from_every_other_bone_is_rigidly_bound(self):
+        """Well within one bone's own region, with the next-closest bone much
+        farther away: rigid, matching how real hard-surface assets (armor,
+        weapons) are actually bound - see the module docstring.
+        """
         armature = self.create_armature({
             'near': ((0, 0, 0), (0, 0, 1)),
             'far': ((10, 0, 0), (10, 0, 1))})
@@ -238,9 +305,26 @@ class TestBindObjectToArmature(BindingsTestCase):
         bindings.bind_object_to_armature(obj, armature, names, heads, tails)
 
         weights = self._vertex_weights(obj, 0)
-        self.assertEqual({'near', 'far'}, set(weights))
+        self.assertEqual({'near': 1.0}, weights)
+
+    def test_a_vertex_near_a_joint_boundary_blends_favouring_the_closer_bone(self):
+        """Two bones whose segments pass close enough to each other that a
+        vertex between them sits nearly the same distance from both - what
+        sitting right at a joint looks like - blends, favouring whichever one
+        is actually closer rather than an even split.
+        """
+        armature = self.create_armature({
+            'a': ((0, 0, 0), (0, 0, 1)),
+            'b': ((1, 0, 0), (1, 0, 1))})
+        obj = self.create_mesh('m', [(0.47, 0, 0.5)])  # 0.47 from 'a', 0.53 from 'b' - ratio 1.13
+        names, heads, tails = bindings._deform_bone_segments(armature)
+
+        bindings.bind_object_to_armature(obj, armature, names, heads, tails)
+
+        weights = self._vertex_weights(obj, 0)
+        self.assertEqual({'a', 'b'}, set(weights))
         self.assertAlmostEqual(1.0, sum(weights.values()), places=5)
-        self.assertGreater(weights['near'], weights['far'])
+        self.assertGreater(weights['a'], weights['b'])
 
     def test_never_weights_a_vertex_to_more_than_two_bones(self):
         armature = self.create_armature({
@@ -289,12 +373,12 @@ class TestBindObjectToArmature(BindingsTestCase):
         names, heads, tails = bindings._deform_bone_segments(armature)
         bindings.bind_object_to_armature(obj, armature, names, heads, tails)
 
-        # move the vertex to sit exactly on bone 'b' and re-bind
+        # move the vertex to sit exactly on bone 'b' (far from 'a' now) and re-bind
         obj.data.vertices[0].co = Vector((5, 0, 0.5))
         bindings.bind_object_to_armature(obj, armature, names, heads, tails)
 
         weights = self._vertex_weights(obj, 0)
-        self.assertGreater(weights['b'], weights['a'])
+        self.assertEqual({'b': 1.0}, weights)
 
     def test_an_object_with_no_vertices_is_left_alone(self):
         armature = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
@@ -383,7 +467,10 @@ class TestWeightColorBaking(BindingsTestCase):
         color = self._first_vertex_color(obj)
         self.assertEqual(bindings.PROBLEM_COLOR, tuple(round(c, 2) for c in color[:3]))
 
-    def test_an_over_bound_vertex_gets_the_problem_color(self):
+    def test_a_vertex_bound_to_three_bones_summing_to_100_percent_is_not_a_problem(self):
+        """Bone count alone is not what makes a binding a problem - see the
+        next test for the one that actually is a problem, despite having the
+        same number of bones."""
         armature = self.create_armature({
             'a': ((0, 0, 0), (0, 0, 1)),
             'b': ((1, 0, 0), (1, 0, 1)),
@@ -392,6 +479,24 @@ class TestWeightColorBaking(BindingsTestCase):
         modifier = obj.modifiers.new(name='Armature', type='ARMATURE')
         modifier.object = armature
         for name, weight in (('a', 0.34), ('b', 0.33), ('c', 0.33)):
+            group = obj.vertex_groups.new(name=name)
+            group.add([0], weight, 'REPLACE')
+        bpy.context.scene.bfme_bind_target = armature
+
+        bindings.refresh_weight_display(bpy.context.scene)
+
+        color = self._first_vertex_color(obj)
+        self.assertNotEqual(bindings.PROBLEM_COLOR, tuple(round(c, 2) for c in color[:3]))
+
+    def test_a_vertex_whose_weights_do_not_sum_to_100_percent_gets_the_problem_color(self):
+        armature = self.create_armature({
+            'a': ((0, 0, 0), (0, 0, 1)),
+            'b': ((1, 0, 0), (1, 0, 1)),
+            'c': ((2, 0, 0), (2, 0, 1))})
+        obj = self.create_mesh('m', [(1, 0, 0.5)])
+        modifier = obj.modifiers.new(name='Armature', type='ARMATURE')
+        modifier.object = armature
+        for name, weight in (('a', 0.3), ('b', 0.3), ('c', 0.1)):  # sums to 0.7
             group = obj.vertex_groups.new(name=name)
             group.add([0], weight, 'REPLACE')
         bpy.context.scene.bfme_bind_target = armature
@@ -456,3 +561,81 @@ class TestShowWeightsToggle(BindingsTestCase):
 
         self.assertFalse(scene.bfme_bind_show_weights)
         self.assertEqual('OBJECT', armature.mode)
+
+
+class TestBoneMarkers(BindingsTestCase):
+    """A W3D hierarchy's pivot bones are usually near zero length, easy to miss
+    entirely in the viewport; Show Weights gives each one a small colored
+    sphere and a visible name.
+    """
+
+    def test_show_weights_gives_every_bone_a_marker_and_shows_names(self):
+        armature = self.create_armature({
+            'a': ((0, 0, 0), (0, 0, 1)),
+            'b': ((1, 0, 0), (1, 0, 1))})
+        obj = self.create_mesh('m', [(0, 0, 0.5)])
+        names, heads, tails = bindings._deform_bone_segments(armature)
+        bindings.bind_object_to_armature(obj, armature, names, heads, tails)
+        scene = bpy.context.scene
+        scene.bfme_bind_target = armature
+
+        scene.bfme_bind_show_weights = True
+
+        marker = bpy.data.objects.get(bindings.BONE_MARKER_NAME)
+        self.assertIsNotNone(marker)
+        for pose_bone in armature.pose.bones:
+            self.assertEqual(marker, pose_bone.custom_shape)
+        self.assertTrue(armature.data.show_names)
+        self.assertTrue(armature.show_in_front)
+
+    def test_the_marker_is_not_linked_into_any_collection(self):
+        """It only ever exists as a shape source, never as a scene object of
+        its own that could show up in the outliner or get rendered."""
+        armature = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        scene = bpy.context.scene
+        scene.bfme_bind_target = armature
+
+        scene.bfme_bind_show_weights = True
+
+        marker = bpy.data.objects.get(bindings.BONE_MARKER_NAME)
+        self.assertIsNotNone(marker)
+        self.assertEqual(0, len(marker.users_collection))
+
+    def test_toggling_off_clears_the_markers_and_removes_the_shared_object(self):
+        armature = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        scene = bpy.context.scene
+        scene.bfme_bind_target = armature
+
+        scene.bfme_bind_show_weights = True
+        self.assertIsNotNone(bpy.data.objects.get(bindings.BONE_MARKER_NAME))
+
+        scene.bfme_bind_show_weights = False
+
+        self.assertIsNone(bpy.data.objects.get(bindings.BONE_MARKER_NAME))
+        self.assertIsNone(bpy.data.meshes.get(bindings.BONE_MARKER_NAME))
+        for pose_bone in armature.pose.bones:
+            self.assertIsNone(pose_bone.custom_shape)
+        self.assertFalse(armature.data.show_names)
+        self.assertFalse(armature.show_in_front)
+
+    def test_the_marker_radius_scales_with_the_armature_size(self):
+        small = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        small.scale = (0.1, 0.1, 0.1)
+        bpy.context.view_layer.update()
+        big = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        big.scale = (10, 10, 10)
+        bpy.context.view_layer.update()
+
+        self.assertGreater(bindings._bone_marker_radius(big), bindings._bone_marker_radius(small))
+
+    def test_switching_target_while_shown_moves_the_markers_to_the_new_armature(self):
+        first = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        second = self.create_armature({'bone': ((0, 0, 0), (0, 0, 1))})
+        scene = bpy.context.scene
+        scene.bfme_bind_target = first
+        scene.bfme_bind_show_weights = True
+
+        scene.bfme_bind_target = second
+
+        self.assertIsNone(first.pose.bones['bone'].custom_shape)
+        self.assertIsNotNone(second.pose.bones['bone'].custom_shape)
