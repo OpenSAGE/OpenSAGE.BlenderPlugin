@@ -74,6 +74,24 @@ class TestImportUtilsW3D(TestCase):
         self.assertTrue('mesh1.VM_NAME' in bpy.data.materials)
         self.assertFalse('mesh2.VM_NAME' in bpy.data.materials)
 
+    def test_deduplicate_materials_ignores_foreign_addon_properties(self):
+        # simulates a third-party addon (e.g. BlenderKit) registering its own custom
+        # runtime property on Material; such properties must not block deduplication,
+        # even when their values differ between the two materials being compared
+        bpy.types.Material.foreign_addon_prop = bpy.props.StringProperty(default='')
+        try:
+            mat_a, _ = create_material_from_vertex_material('mesh1', get_vertex_material())
+            mat_b, _ = create_material_from_vertex_material('mesh2', get_vertex_material())
+            mat_a.foreign_addon_prop = 'a'
+            mat_b.foreign_addon_prop = 'b'
+
+            merged = deduplicate_materials([mat_a, mat_b])
+
+            self.assertEqual(1, merged)
+            self.assertEqual(1, len(bpy.data.materials))
+        finally:
+            del bpy.types.Material.foreign_addon_prop
+
     def test_deduplicate_materials_keeps_differing_materials_separate(self):
         vm_b = get_vertex_material()
         vm_b.vm_info.diffuse.r = 250

@@ -7,6 +7,7 @@ from bpy_extras import node_shader_utils
 
 from ...common.utils.helpers import *
 from ...w3d.structs.mesh_structs.vertex_material import *
+from ...custom_properties import MATERIAL_PROPERTY_NAMES
 
 
 ##########################################################################
@@ -339,8 +340,10 @@ def _material_signature(material):
     values = []
 
     for prop in material.bl_rna.properties:
-        # 'cycles' is a Blender builtin, not one of ours; 'shader' is handled below
-        if prop.is_runtime and prop.identifier not in ('cycles', 'shader'):
+        # only compare properties this addon itself registers; other addons (e.g.
+        # BlenderKit) may register their own runtime properties on Material, and
+        # those must not block deduplication of otherwise-identical materials
+        if prop.identifier in MATERIAL_PROPERTY_NAMES:
             values.append(('custom.' + prop.identifier, _hashable_value(getattr(material, prop.identifier))))
 
     for prop in material.shader.bl_rna.properties:

@@ -2,6 +2,15 @@
 
 ## v0.8.0
 
+* Bugfix: importing a W3D model created a separate material per object even when several
+  objects shared the exact same texture/material definition, instead of reusing one shared
+  material. The importer already deduplicates materials after import by comparing everything
+  it writes onto each `Material` datablock, but that comparison also picked up custom
+  properties registered by *other* installed addons (e.g. BlenderKit adds its own property to
+  every Material). Since those third-party values differ per material instance, every
+  comparison reported a difference on that property alone, so materials were never merged.
+  The comparison now only looks at the properties this addon itself registers on Material,
+  so unrelated addons can no longer block deduplication
 * Bugfix: exporting a mesh with vertices bound to two bones could leave the two weights not
   summing to 100%, or occasionally drop a small (e.g. 1%) secondary weight entirely, turning a
   two-bone vertex into a rigidly single-bone one. Blender stores vertex group weights as
