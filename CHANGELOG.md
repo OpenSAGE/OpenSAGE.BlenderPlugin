@@ -1,6 +1,6 @@
 # Version History
 
-## v0.8.0
+## v0.9.0
 
 * Bugfix: importing a W3D model created a separate material per object even when several
   objects shared the exact same texture/material definition, instead of reusing one shared

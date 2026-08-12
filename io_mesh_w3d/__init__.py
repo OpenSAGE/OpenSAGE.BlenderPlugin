@@ -14,7 +14,7 @@ from .common.utils.material_import import flatten_materials, zero_specular
 from . import bfme
 from .blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 8, 0)
+VERSION = (0, 9, 0)
 
 # add-ons installed through the extension system (Blender 4.2+) live in the
 # 'bl_ext' package and are kept up to date by Blender itself
@@ -24,7 +24,7 @@ IS_EXTENSION = (__package__ or '').startswith('bl_ext.')
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 8, 0),
+    'version': (0, 9, 0),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
