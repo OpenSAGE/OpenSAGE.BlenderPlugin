@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.io_binary import *
+from ....w3d.io_binary import *
 
 W3D_CHUNK_SHADERS = 0x00000029
 

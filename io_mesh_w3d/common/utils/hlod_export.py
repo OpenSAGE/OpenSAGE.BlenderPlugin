@@ -3,8 +3,8 @@
 
 import bpy
 
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.common.structs.hlod import *
+from ...common.utils.helpers import *
+from ...common.structs.hlod import *
 
 
 screen_sizes = [MAX_SCREEN_SIZE, 1.0, 0.3, 0.03]

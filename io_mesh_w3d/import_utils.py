@@ -3,11 +3,12 @@
 
 import bpy
 
-from io_mesh_w3d.common.utils.mesh_import import *
-from io_mesh_w3d.common.utils.hierarchy_import import *
-from io_mesh_w3d.common.utils.animation_import import *
-from io_mesh_w3d.common.utils.box_import import *
-from io_mesh_w3d.w3d.utils.dazzle_import import *
+from .common.utils.mesh_import import *
+from .common.utils.hierarchy_import import *
+from .common.utils.material_import import deduplicate_materials
+from .common.utils.animation_import import *
+from .common.utils.box_import import *
+from .w3d.utils.dazzle_import import *
 
 
 def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animation=None, compressed_animation=None,
@@ -15,6 +16,10 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
     boxes = boxes if boxes is not None else []
     dazzles = dazzles if dazzles is not None else []
     collection = get_collection(hlod)
+
+    # every mesh gets its own materials during creation below, even when several
+    # meshes reference an identical definition; merge those once everything is built
+    materials_before = set(bpy.data.materials)
 
     mesh_names_map = {}
     if hlod is not None:
@@ -61,3 +66,7 @@ def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animatio
 
     create_animation(context, rig, animation, hierarchy)
     create_animation(context, rig, compressed_animation, hierarchy)
+
+    merged = deduplicate_materials(set(bpy.data.materials) - materials_before)
+    if merged:
+        context.info(f'merged {merged} duplicate material(s)')

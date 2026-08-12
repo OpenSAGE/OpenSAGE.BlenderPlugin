@@ -1,14 +1,14 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.common.structs.data_context import *
+from .common.structs.data_context import *
 
-from io_mesh_w3d.common.utils.mesh_export import *
-from io_mesh_w3d.common.utils.hierarchy_export import *
-from io_mesh_w3d.common.utils.animation_export import *
-from io_mesh_w3d.common.utils.hlod_export import *
-from io_mesh_w3d.common.utils.box_export import *
-from io_mesh_w3d.w3d.utils.dazzle_export import *
+from .common.utils.mesh_export import *
+from .common.utils.hierarchy_export import *
+from .common.utils.animation_export import *
+from .common.utils.hlod_export import *
+from .common.utils.box_export import *
+from .w3d.utils.dazzle_export import *
 
 
 def save_data(context, export_settings):

@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.common.structs.collision_box import *
+from ...common.utils.helpers import *
+from ...common.structs.collision_box import *
 
 
 def create_box(box, coll):

@@ -14,6 +14,18 @@ format used in Command & Conquer™: Generals and other RTS titles from Westwood
 
 Please see [Installing the plugin](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Installing-the-Plugin)
 
+Supported Blender versions are 2.93 up to 5.2. On Blender 4.2 and newer the released `io_mesh_w3d.zip`
+can be dropped into Blender to install it as an extension, older versions install it as a legacy add-on
+via *Edit > Preferences > Add-ons > Install*.
+
+## BfMe Tools
+
+The add-on also ships the BfMe modding tools (originally a separate add-on by Brechstange), found in the
+3D viewport sidebar (press *N*) under the *W3D Tools* tab, alongside the geometry/bone-volume export
+panel. They cover asset search paths and `.big` extraction,
+a `.w3d` model browser with previews, finding animations that fit a skeleton, build-up and destroy
+animation generators, UV/structure/collision-geometry/bone helpers and a simplified export panel.
+
 ## Setting up for development
 
 Please see [Setting up for development](https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin/wiki/Development-Setup)

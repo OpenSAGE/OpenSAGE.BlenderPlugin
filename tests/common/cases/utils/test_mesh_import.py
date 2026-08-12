@@ -241,14 +241,16 @@ class TestMeshImportUtils(TestCase):
 
         mesh = bpy.data.objects[mesh_name].data
 
-        self.assertEqual(6, len(mesh.vertex_colors))
+        layers = get_vertex_color_layers(mesh)
 
-        self.assertEqual('DCG_0', mesh.vertex_colors[0].name)
-        self.assertEqual('DIG_0', mesh.vertex_colors[1].name)
-        self.assertEqual('SCG_0', mesh.vertex_colors[2].name)
-        self.assertEqual('DCG_1', mesh.vertex_colors[3].name)
-        self.assertEqual('DIG_1', mesh.vertex_colors[4].name)
-        self.assertEqual('SCG_1', mesh.vertex_colors[5].name)
+        self.assertEqual(6, len(layers))
+
+        self.assertEqual('DCG_0', layers[0].name)
+        self.assertEqual('DIG_0', layers[1].name)
+        self.assertEqual('SCG_0', layers[2].name)
+        self.assertEqual('DCG_1', layers[3].name)
+        self.assertEqual('DIG_1', layers[4].name)
+        self.assertEqual('SCG_1', layers[5].name)
 
     def test_mesh_import_tx_stage_has_no_tx_coords(self):
         mesh_name = 'mesh'

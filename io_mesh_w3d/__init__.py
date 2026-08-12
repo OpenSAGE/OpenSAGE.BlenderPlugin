@@ -4,20 +4,27 @@
 import bpy
 from bpy.types import Panel
 from bpy_extras.io_utils import ImportHelper, ExportHelper
-from io_mesh_w3d.utils import ReportHelper
-from io_mesh_w3d.export_utils import save_data
-from io_mesh_w3d.custom_properties import *
-from io_mesh_w3d.geometry_export import *
-from io_mesh_w3d.bone_volume_export import *
+from .utils import ReportHelper
+from .export_utils import save_data
+from .custom_properties import *
+from .geometry_export import *
+from .bone_volume_export import *
+from .common.utils.material_import import flatten_materials, zero_specular
 
-from io_mesh_w3d.blender_addon_updater import addon_updater_ops
+from . import bfme
+from .blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 7, 3)
+VERSION = (0, 9, 0)
 
+# add-ons installed through the extension system (Blender 4.2+) live in the
+# 'bl_ext' package and are kept up to date by Blender itself
+IS_EXTENSION = (__package__ or '').startswith('bl_ext.')
+
+# 'bl_info' is only used for legacy installs, extensions are described by 'blender_manifest.toml'
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 7, 3),
+    'version': (0, 9, 0),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
@@ -199,6 +206,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
 
     def execute(self, context):
         print_version(self.info)
+        objects_before = set(bpy.data.objects)
+
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
             file_format = 'W3D'
@@ -207,6 +216,9 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
             from .w3x.import_w3x import load
             file_format = 'W3X'
             load(self)
+
+        imported = [obj for obj in bpy.data.objects if obj not in objects_before]
+        zero_specular(flatten_materials(imported))
 
         self.info('finished')
         return {'FINISHED'}
@@ -298,7 +310,11 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
         col = layout.column()
         col.prop(mat, 'surface_type')
         col = layout.column()
-        col.prop(mat, 'blend_method')
+        # 'blend_method' is deprecated since Blender 4.2, EEVEE Next uses 'surface_render_method'
+        if bpy.app.version < (4, 2, 0):
+            col.prop(mat, 'blend_method')
+        else:
+            col.prop(mat, 'surface_render_method')
         col = layout.column()
         col.prop(mat, 'ambient')
 
@@ -415,16 +431,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'multi_texture_enable')
 
 
-class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
-    bl_label = 'W3D Tools'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-
-    def draw(self, context):
-        self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
-        self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
-
-
 class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
     bl_label = 'Updater Demo Panel'
     bl_idname = 'OBJECT_PT_hello'
@@ -509,35 +515,52 @@ CLASSES = (
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
     ExportBoneVolumeData,
-    TOOLS_PANEL_PT_w3d,
+)
+
+# the bundled updater would overwrite the add-on behind Blender's back,
+# extensions are updated through their repository instead
+UPDATER_CLASSES = (
     DemoPreferences,
     OBJECT_PT_DemoUpdaterPanel
 )
 
 
 def register():
-    addon_updater_ops._package = 'io_mesh_w3d'
-    addon_updater_ops.updater.addon = 'io_mesh_w3d'
-    addon_updater_ops.updater.user = "OpenSAGE"
-    addon_updater_ops.updater.repo = "OpenSAGE.BlenderPlugin"
-    addon_updater_ops.updater.website = "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin"
-    addon_updater_ops.updater.subfolder_path = "io_mesh_w3d"
-    addon_updater_ops.updater.include_branch_list = ['master']
-    addon_updater_ops.updater.verbose = False
-
-    addon_updater_ops.register(bl_info)
-
     for class_ in CLASSES:
         bpy.utils.register_class(class_)
 
+    if not IS_EXTENSION:
+        addon_updater_ops._package = 'io_mesh_w3d'
+        addon_updater_ops.updater.addon = 'io_mesh_w3d'
+        addon_updater_ops.updater.user = "OpenSAGE"
+        addon_updater_ops.updater.repo = "OpenSAGE.BlenderPlugin"
+        addon_updater_ops.updater.website = "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin"
+        addon_updater_ops.updater.subfolder_path = "io_mesh_w3d"
+        addon_updater_ops.updater.include_branch_list = ['master']
+        addon_updater_ops.updater.verbose = False
+
+        addon_updater_ops.register(bl_info)
+
+        for class_ in UPDATER_CLASSES:
+            bpy.utils.register_class(class_)
+
     Material.shader = PointerProperty(type=ShaderProperties)
+
+    # the BfMe tools build on the operators and custom properties registered above
+    bfme.register()
 
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
 
 def unregister():
-    addon_updater_ops.unregister()
+    if not IS_EXTENSION:
+        addon_updater_ops.unregister()
+
+        for class_ in reversed(UPDATER_CLASSES):
+            bpy.utils.unregister_class(class_)
+
+    bfme.unregister()
 
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)

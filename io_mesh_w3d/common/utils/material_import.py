@@ -5,8 +5,9 @@ import bpy
 import bmesh
 from bpy_extras import node_shader_utils
 
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
+from ...common.utils.helpers import *
+from ...w3d.structs.mesh_structs.vertex_material import *
+from ...custom_properties import MATERIAL_PROPERTY_NAMES
 
 
 ##########################################################################
@@ -77,7 +78,7 @@ def create_vertex_material(context, principleds, structure, mesh, b_mesh, name, 
     # Iterate through all materials and set their blend mode to Alpha Clip for transparency
     for material in mesh.materials:
         if material:
-            material.blend_method = 'CLIP'
+            set_blend_method(material, 'CLIP')
 
 
 def create_material_from_vertex_material(name, vert_mat):
@@ -89,8 +90,8 @@ def create_material_from_vertex_material(name, vert_mat):
 
     material = bpy.data.materials.new(name)
     material.material_type = 'VERTEX_MATERIAL'
-    material.use_nodes = True
-    material.show_transparent_back = False
+    enable_nodes(material)
+    set_transparency_overlap(material, False)
 
     attributes = {'DEFAULT'}
     attribs = vert_mat.vm_info.attributes
@@ -136,8 +137,8 @@ def create_material_from_shader_material(context, name, shader_mat):
 
     material = bpy.data.materials.new(name)
     material.material_type = 'SHADER_MATERIAL'
-    material.use_nodes = True
-    material.show_transparent_back = False
+    enable_nodes(material)
+    set_transparency_overlap(material, False)
 
     material.technique = shader_mat.header.technique
 
@@ -251,6 +252,151 @@ def create_material_from_shader_material(context, name, shader_mat):
 ##########################################################################
 # set shader properties
 ##########################################################################
+
+
+##########################################################################
+# viewport appearance
+#
+# Shared by the core import operator and the BfMe tools' own import/preview paths,
+# so a model looks the same regardless of which one brought it in.
+##########################################################################
+
+
+def flatten_materials(objects):
+    """Every unique material used by the objects and their children, without recursion.
+
+    'Object.children' walks all objects in the file on every access, so recursing
+    over it is quadratic. 'children_recursive' resolves the whole subtree in one go.
+    """
+    seen = set()
+    materials = []
+
+    for root in objects:
+        for obj in (root, *root.children_recursive):
+            if obj.type != 'MESH' or obj.data is None:
+                continue
+            for material in obj.data.materials:
+                if material is not None and material.name not in seen:
+                    seen.add(material.name)
+                    materials.append(material)
+    return materials
+
+
+def zero_specular(materials):
+    """Kill the Principled BSDF specular highlight.
+
+    W3D materials are authored without one; the shininess value the importer maps
+    onto the node's specular input does not correspond to it, and leaving it in
+    place makes an imported model look shinier in Blender's viewport than the game
+    ever renders it.
+    """
+    for material in materials:
+        node_tree = material.node_tree
+        if node_tree is None:
+            continue
+        for node in node_tree.nodes:
+            if node.type != 'BSDF_PRINCIPLED':
+                continue
+            for input_name in ('Specular IOR Level', 'IOR Level', 'Specular'):
+                socket = node.inputs.get(input_name)
+                if socket is not None:
+                    socket.default_value = 0.0
+                    break
+
+
+##########################################################################
+# deduplication
+#
+# create_material_from_vertex_material/create_material_from_shader_material key their
+# lookup on '<mesh name>.<material name>', so every mesh gets its own materials even
+# when several meshes reference an identical definition (common for tiled/kitbashed
+# props sharing one texture). The functions below merge those after the fact by
+# comparing the fully built Blender materials instead, since the shader chunk that
+# also affects a material's appearance is only applied once mesh creation continues
+# past the point where the material itself is created.
+##########################################################################
+
+def _hashable_value(value):
+    if isinstance(value, (set, frozenset)):
+        return tuple(sorted(value))
+    if isinstance(value, float):
+        return round(value, 6)
+    if isinstance(value, str):
+        return value
+    if hasattr(value, '__len__'):
+        return tuple(_hashable_value(v) for v in value)
+    return value
+
+
+def _material_signature(material):
+    """Signature of everything this addon writes onto a material, so two materials
+    with the same signature are guaranteed to render identically.
+
+    Every key is prefixed by which bucket it came from ('custom.', 'shader.',
+    'builtin.', 'node.'), since e.g. the custom 'specular' color property and the
+    Principled BSDF node's 'specular' input value have nothing to do with each other
+    despite sharing a name, and both need to be compared independently.
+    """
+    values = []
+
+    for prop in material.bl_rna.properties:
+        # only compare properties this addon itself registers; other addons (e.g.
+        # BlenderKit) may register their own runtime properties on Material, and
+        # those must not block deduplication of otherwise-identical materials
+        if prop.identifier in MATERIAL_PROPERTY_NAMES:
+            values.append(('custom.' + prop.identifier, _hashable_value(getattr(material, prop.identifier))))
+
+    for prop in material.shader.bl_rna.properties:
+        if prop.is_runtime:
+            values.append(('shader.' + prop.identifier, _hashable_value(getattr(material.shader, prop.identifier))))
+
+    # everything above covers the custom W3D properties; the actual shading result
+    # also depends on a handful of Blender builtins this addon writes directly
+    values.append(('builtin.diffuse_color', _hashable_value(material.diffuse_color)))
+    values.append(('builtin.specular_color', _hashable_value(material.specular_color)))
+    values.append(('builtin.specular_intensity', round(material.specular_intensity, 6)))
+    values.append(('builtin.use_backface_culling', material.use_backface_culling))
+
+    principled = node_shader_utils.PrincipledBSDFWrapper(material, is_readonly=True)
+    values.append(('node.base_color', _hashable_value(principled.base_color)))
+    values.append(('node.alpha', round(principled.alpha, 6)))
+    values.append(('node.specular', round(principled.specular, 6)))
+    values.append(('node.emission_color', _hashable_value(principled.emission_color)))
+    values.append(('node.normalmap_strength', round(principled.normalmap_strength, 6)))
+
+    for texture_slot in ('base_color_texture', 'normalmap_texture', 'specular_texture'):
+        # readonly wrappers return None outright, rather than a wrapper with no image,
+        # when nothing feeds that particular Principled BSDF input
+        texture = getattr(principled, texture_slot)
+        image = texture.image if texture is not None else None
+        values.append(('node.' + texture_slot, image.name if image else None))
+
+    values.sort()
+    return tuple(values)
+
+
+def deduplicate_materials(materials):
+    """Merge materials that are equivalent in everything this addon writes onto them,
+    keeping a single Blender material datablock per distinct definition instead of one
+    per mesh that happens to use it. Returns the number of materials merged away."""
+    canonical_by_signature = {}
+    merged = 0
+
+    # sorted so which of several equivalent materials survives as the canonical one
+    # is deterministic, rather than depending on the iteration order of a set
+    for material in sorted(materials, key=lambda mat: mat.name):
+        if material is None:
+            continue
+        signature = _material_signature(material)
+        canonical = canonical_by_signature.get(signature)
+        if canonical is None:
+            canonical_by_signature[signature] = material
+            continue
+        material.user_remap(canonical)
+        bpy.data.materials.remove(material)
+        merged += 1
+
+    return merged
 
 
 def set_shader_properties(material, shader):

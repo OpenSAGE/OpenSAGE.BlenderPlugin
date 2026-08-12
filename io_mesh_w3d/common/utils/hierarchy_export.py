@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.common.structs.hierarchy import *
+from ...common.utils.helpers import *
+from ...common.structs.hierarchy import *
 
 
 pick_plane_names = ['PICK']

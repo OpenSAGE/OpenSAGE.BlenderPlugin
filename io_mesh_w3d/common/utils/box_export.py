@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.common.structs.collision_box import *
+from ...common.utils.helpers import *
+from ...common.structs.collision_box import *
 
 
 def retrieve_boxes(container_name):

@@ -2,14 +2,14 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.common.structs.mesh_structs.aabbtree import *
-from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
-from io_mesh_w3d.common.structs.mesh_structs.triangle import *
-from io_mesh_w3d.common.structs.mesh_structs.vertex_influence import *
-from io_mesh_w3d.w3d.structs.mesh_structs.prelit import *
-from io_mesh_w3d.w3d.structs.version import Version
-from io_mesh_w3d.w3x.structs.mesh_structs.bounding_box import *
-from io_mesh_w3d.w3x.structs.mesh_structs.bounding_sphere import *
+from ...common.structs.mesh_structs.aabbtree import *
+from ...common.structs.mesh_structs.shader_material import *
+from ...common.structs.mesh_structs.triangle import *
+from ...common.structs.mesh_structs.vertex_influence import *
+from ...w3d.structs.mesh_structs.prelit import *
+from ...w3d.structs.version import Version
+from ...w3x.structs.mesh_structs.bounding_box import *
+from ...w3x.structs.mesh_structs.bounding_sphere import *
 
 W3D_CHUNK_MESH_HEADER = 0x0000001F
 

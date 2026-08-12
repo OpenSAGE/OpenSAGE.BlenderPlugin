@@ -150,6 +150,12 @@ Bone.visibility = FloatProperty(
 # Material
 ##########################################################################
 
+# Snapshot before/after our own assignments below, so MATERIAL_PROPERTY_NAMES
+# reflects exactly the properties this addon registers, regardless of
+# whether third-party addons (e.g. BlenderKit) register their own runtime
+# properties on Material before or after this module is imported.
+_material_props_before_registration = frozenset(
+    prop.identifier for prop in Material.bl_rna.properties if prop.is_runtime)
 
 Material.material_type = EnumProperty(
     name='Material Type',
@@ -508,6 +514,13 @@ Material.multi_texture_enable = BoolProperty(
     name='Multi texture enable',
     description='Todo',
     default=False)
+
+# The set of Material property identifiers registered by this addon (and
+# only this addon). Used to build material signatures for deduplication
+# without being thrown off by other addons' custom properties on Material.
+MATERIAL_PROPERTY_NAMES = frozenset(
+    prop.identifier for prop in Material.bl_rna.properties
+    if prop.is_runtime) - _material_props_before_registration
 
 ##########################################################################
 # Material.Shader

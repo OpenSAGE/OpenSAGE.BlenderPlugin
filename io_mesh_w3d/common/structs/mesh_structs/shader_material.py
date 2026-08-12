@@ -2,8 +2,8 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 from mathutils import Vector
-from io_mesh_w3d.w3d.utils.helpers import *
-from io_mesh_w3d.w3x.io_xml import *
+from ....w3d.utils.helpers import *
+from ....w3x.io_xml import *
 
 W3D_CHUNK_SHADER_MATERIAL_HEADER = 0x52
 

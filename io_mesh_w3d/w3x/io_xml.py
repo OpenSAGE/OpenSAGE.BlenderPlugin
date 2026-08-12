@@ -17,7 +17,8 @@ def write_struct(struct, path):
 
 def pretty_print(elem, level=0):
     i = '\n' + level * '  '
-    if elem:
+    # testing the truth value of an element is deprecated, check the child count instead
+    if len(elem):
         elem.text = i + '  '
         elem.tail = i
         for elem in elem:

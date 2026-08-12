@@ -2,9 +2,9 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.w3d.adaptive_delta import decode
-from io_mesh_w3d.common.structs.animation import *
-from io_mesh_w3d.w3d.structs.compressed_animation import *
+from ...w3d.adaptive_delta import decode
+from ...common.structs.animation import *
+from ...w3d.structs.compressed_animation import *
 
 
 def is_roottransform(channel):

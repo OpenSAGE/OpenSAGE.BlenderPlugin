@@ -1,7 +1,7 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.utils.helpers import *
+from ....w3d.utils.helpers import *
 
 W3D_CHUNK_MATERIAL_INFO = 0x00000028
 

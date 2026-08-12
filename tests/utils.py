@@ -67,6 +67,12 @@ class TestCase(unittest.TestCase):
     def loadBlend(self, blend_file):
         bpy.ops.wm.open_mainfile(filepath=self.relpath(blend_file))
 
+    def resetToDefaultScene(self):
+        # 'use_factory_startup' pins this to Blender's bundled default scene (one
+        # 'Collection' with a cube, camera and light), regardless of what the
+        # developer running the tests has saved as their own startup.blend
+        bpy.ops.wm.read_homefile(app_template='', use_factory_startup=True)
+
     def setUp(self):
         namespace = self.id().split('.')
         print(namespace[-2] + '.' + namespace[-1])

@@ -1,9 +1,9 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.w3d.structs.version import Version
-from io_mesh_w3d.w3d.utils.helpers import *
-from io_mesh_w3d.w3x.io_xml import *
+from ...w3d.structs.version import Version
+from ...w3d.utils.helpers import *
+from ...w3x.io_xml import *
 
 W3D_CHUNK_HLOD_HEADER = 0x00000701
 
