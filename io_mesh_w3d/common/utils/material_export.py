@@ -3,9 +3,9 @@
 
 import bpy
 from mathutils import Vector
-from io_mesh_w3d.w3d.structs.mesh_structs.shader import *
-from io_mesh_w3d.w3d.structs.mesh_structs.vertex_material import *
-from io_mesh_w3d.common.structs.mesh_structs.shader_material import *
+from ...w3d.structs.mesh_structs.shader import *
+from ...w3d.structs.mesh_structs.vertex_material import *
+from ...common.structs.mesh_structs.shader_material import *
 
 DEFAULT_W3D = 'DefaultW3D.fx'
 

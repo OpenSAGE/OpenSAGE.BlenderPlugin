@@ -1,8 +1,8 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.common.utils.helpers import *
-from io_mesh_w3d.w3d.structs.dazzle import *
+from ...common.utils.helpers import *
+from ...w3d.structs.dazzle import *
 
 
 def retrieve_dazzles(container_name):

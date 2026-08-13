@@ -1,17 +1,17 @@
 # <pep8 compliant>
 # Written by Stephan Vedder and Michael Schnabel
 
-from io_mesh_w3d.import_utils import *
-from io_mesh_w3d.common.structs.animation import *
-from io_mesh_w3d.common.structs.collision_box import *
-from io_mesh_w3d.common.structs.data_context import *
-from io_mesh_w3d.common.structs.hierarchy import *
-from io_mesh_w3d.common.structs.hlod import *
-from io_mesh_w3d.common.structs.mesh import *
-from io_mesh_w3d.common.structs.mesh_structs.texture import *
-from io_mesh_w3d.w3x.structs.include import *
-from io_mesh_w3d.common.utils.hierarchy_export import *
-from io_mesh_w3d.common.utils.hlod_export import *
+from ..import_utils import *
+from ..common.structs.animation import *
+from ..common.structs.collision_box import *
+from ..common.structs.data_context import *
+from ..common.structs.hierarchy import *
+from ..common.structs.hlod import *
+from ..common.structs.mesh import *
+from ..common.structs.mesh_structs.texture import *
+from ..w3x.structs.include import *
+from ..common.utils.hierarchy_export import *
+from ..common.utils.hlod_export import *
 
 
 def load_file(context, data_context, path=None):

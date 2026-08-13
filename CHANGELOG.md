@@ -1,5 +1,17 @@
 # Version History
 
+## v0.7.4
+
+* adapt to API changes in Blender 5.2
+* the add-on can now be installed as an extension (Blender 4.2+), the release archive works for both
+  the extension and the legacy add-on install
+* replaced deprecated API usage: `Material.blend_method` -> `Material.surface_render_method`,
+  `Material.show_transparent_back` -> `Material.use_transparency_overlap`, `Material.use_nodes`,
+  `Mesh.vertex_colors` -> `Mesh.color_attributes` and `MeshUVLoopLayer.data` -> `MeshUVLoopLayer.uv`
+* transparency of imported materials is applied again in EEVEE Next (Blender 4.2+)
+* Bugfix: import no longer fails on Blender 4.1 (`Mesh.use_auto_smooth` was removed there, not in 4.2)
+* Bugfix: do not rely on the deprecated truth value of xml elements when writing w3x files
+
 ## v0.7.3
 
 * adapt to API changes in Blender 5.1+

@@ -1,0 +1,36 @@
+schema_version = "1.0.0"
+
+id = "io_mesh_w3d"
+version = "0.7.4"
+name = "Import/Export Westwood W3D Format (.w3d/.w3x)"
+tagline = "Import or export the Westwood W3D format used by SAGE games"
+maintainer = "OpenSage Developers <https://github.com/OpenSAGE>"
+type = "add-on"
+
+website = "https://github.com/OpenSAGE/OpenSAGE.BlenderPlugin"
+
+tags = ["Import-Export"]
+
+# The extension system was introduced in Blender 4.2, older versions install
+# this add-on through the legacy 'bl_info' path instead.
+blender_version_min = "4.2.0"
+
+license = [
+  "SPDX:LGPL-3.0-or-later",
+]
+
+[permissions]
+files = "Import and export W3D/W3X models, animations and textures"
+network = "Check github for new releases of this add-on"
+
+[build]
+paths_exclude_pattern = [
+  "__pycache__/",
+  "/.git/",
+  "/*.zip",
+  "/blender_addon_updater/.git/",
+  "/blender_addon_updater/tests/",
+  "/blender_addon_updater/images/",
+  "*_updater_status.json",
+  "/blender_addon_updater/io_mesh_w3d.blender_addon_updater_updater/",
+]

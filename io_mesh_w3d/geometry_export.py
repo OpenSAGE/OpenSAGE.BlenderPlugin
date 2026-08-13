@@ -2,10 +2,10 @@
 # Written by Stephan Vedder and Michael Schnabel
 
 import bpy
-from io_mesh_w3d.utils import ReportHelper
+from .utils import ReportHelper
 from bpy_extras.io_utils import ExportHelper
-from io_mesh_w3d.w3x.io_xml import *
-from io_mesh_w3d.common.utils.helpers import *
+from .w3x.io_xml import *
+from .common.utils.helpers import *
 
 
 def format_str(value):

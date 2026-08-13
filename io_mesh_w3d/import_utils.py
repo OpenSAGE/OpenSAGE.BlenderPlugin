@@ -3,11 +3,11 @@
 
 import bpy
 
-from io_mesh_w3d.common.utils.mesh_import import *
-from io_mesh_w3d.common.utils.hierarchy_import import *
-from io_mesh_w3d.common.utils.animation_import import *
-from io_mesh_w3d.common.utils.box_import import *
-from io_mesh_w3d.w3d.utils.dazzle_import import *
+from .common.utils.mesh_import import *
+from .common.utils.hierarchy_import import *
+from .common.utils.animation_import import *
+from .common.utils.box_import import *
+from .w3d.utils.dazzle_import import *
 
 
 def create_data(context, meshes, hlod=None, hierarchy=None, boxes=None, animation=None, compressed_animation=None,
