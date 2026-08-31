@@ -20,6 +20,16 @@ def is_visibility(fcu):
     return 'visibility' in fcu.data_path or 'hide' in fcu.data_path
 
 
+def is_visibility_channel(channel):
+    return isinstance(channel, TimeCodedBitChannel) or isinstance(channel, AnimationBitChannel) or channel.type == CHANNEL_VIS
+
+
+def get_visibility_value(fcu, value):
+    if 'hide' in fcu.data_path:
+        return float(not bool(value))
+    return float(bool(value))
+
+
 def retrieve_channels(obj, hierarchy, timecoded, name=None):
     if obj.animation_data is None or obj.animation_data.action is None:
         return []
@@ -87,7 +97,9 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 frame = int(keyframe.co.x)
                 val = keyframe.co.y
 
-                if is_visibility(fcu) or is_translation(channel_type):
+                if is_visibility(fcu):
+                    channel.time_codes[i] = TimeCodedDatum(time_code=frame, value=get_visibility_value(fcu, val))
+                elif is_translation(channel_type):
                     channel.time_codes[i] = TimeCodedDatum(time_code=frame, value=val)
                 else:
                     if channel.time_codes[i] is None:
@@ -102,7 +114,9 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
                 val = fcu.evaluate(frame)
                 i = frame - channel.first_frame
 
-                if is_visibility(fcu) or is_translation(channel_type):
+                if is_visibility(fcu):
+                    channel.data[i] = get_visibility_value(fcu, val)
+                elif is_translation(channel_type):
                     channel.data[i] = val
                 else:
                     if channel.data[i] is None:
@@ -117,7 +131,50 @@ def retrieve_channels(obj, hierarchy, timecoded, name=None):
     return channels
 
 
+def create_time_coded_bit_channel(fcu, pivot_index):
+    channel = TimeCodedBitChannel(
+        num_time_codes=len(fcu.keyframe_points),
+        pivot=pivot_index,
+        type=CHANNEL_VIS,
+        default_value=1,
+        time_codes=[])
+
+    for keyframe in fcu.keyframe_points:
+        channel.time_codes.append(TimeCodedBitDatum(
+            time_code=int(keyframe.co.x),
+            value=bool(get_visibility_value(fcu, keyframe.co.y))))
+    return channel
+
+
+def retrieve_time_coded_bit_channels(obj, hierarchy, name=None):
+    if obj.animation_data is None or obj.animation_data.action is None:
+        return []
+
+    channels = []
+    for fcu in iter_action_fcurves(obj.animation_data):
+        if not is_visibility(fcu):
+            continue
+
+        if name is None:
+            values = fcu.data_path.split('"')
+            if len(values) == 1:
+                pivot_name = 'ROOTTRANSFORM'
+            else:
+                pivot_name = values[1]
+        else:
+            pivot_name = name
+
+        pivot_index = 0
+        for i, pivot in enumerate(hierarchy.pivots):
+            if pivot.name == pivot_name:
+                pivot_index = i
+
+        channels.append(create_time_coded_bit_channel(fcu, pivot_index))
+    return channels
+
+
 def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
+    requested_animation_name = animation_name
     channels = []
 
     for mesh in get_objects('MESH'):
@@ -132,16 +189,24 @@ def retrieve_animation(context, animation_name, hierarchy, rig, timecoded):
         chnB = retrieve_channels(rig.data, hierarchy, timecoded)
         if len(chnB) > 0:
             channels.extend(chnB)
-            animation_name = rig.animation_data.action.name
+            animation_name = rig.data.animation_data.action.name
 
     if timecoded:
+        bit_channels = []
+        if rig is not None:
+            bit_channels.extend(retrieve_time_coded_bit_channels(rig, hierarchy))
+            bit_channels.extend(retrieve_time_coded_bit_channels(rig.data, hierarchy))
+
         ani_struct = CompressedAnimation(
             header=CompressedAnimationHeader(flavor=TIME_CODED_FLAVOR),
-            time_coded_channels=channels)
+            time_coded_channels=[channel for channel in channels if not is_visibility_channel(channel)],
+            time_coded_bit_channels=bit_channels)
     else:
         ani_struct = Animation(header=AnimationHeader(), channels=channels)
 
     ani_struct.header.name = animation_name
+    if animation_name.endswith('Action') or 'Action.' in animation_name:
+        ani_struct.header.name = requested_animation_name
     ani_struct.header.hierarchy_name = hierarchy.name()
 
     start_frame = bpy.context.scene.frame_start

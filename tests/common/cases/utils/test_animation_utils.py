@@ -98,6 +98,56 @@ class TestAnimationUtils(TestCase):
         self.assertEqual(1, len(ani.channels))
         self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
 
+    def test_roottransform_visibility_values_roundtrip(self):
+        hierarchy = get_hierarchy()
+        animation = get_animation()
+        animation.channels = [AnimationBitChannel(
+            first_frame=0,
+            last_frame=2,
+            type=CHANNEL_VIS,
+            pivot=0,
+            data=[True, False, True])]
+
+        rig = get_or_create_skeleton(hierarchy, get_collection())
+
+        create_animation(self, rig, animation, hierarchy)
+        ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=False)
+
+        self.assertEqual(1, len(ani.channels))
+        self.assertTrue(isinstance(ani.channels[0], AnimationBitChannel))
+        self.assertEqual([1.0, 0.0, 1.0], ani.channels[0].data)
+
+    def test_compressed_bit_visibility_channel_roundtrip(self):
+        hierarchy = get_hierarchy()
+        animation = get_compressed_animation_empty()
+        animation.header.num_frames = 3
+        animation.time_coded_bit_channels = [TimeCodedBitChannel(
+            num_time_codes=3,
+            pivot=0,
+            type=CHANNEL_VIS,
+            default_value=True,
+            time_codes=[
+                TimeCodedBitDatum(time_code=0, value=True),
+                TimeCodedBitDatum(time_code=1, value=False),
+                TimeCodedBitDatum(time_code=2, value=True),
+            ])]
+
+        rig = get_or_create_skeleton(hierarchy, get_collection())
+
+        create_animation(self, rig, animation, hierarchy)
+        ani = retrieve_animation(self, 'name', hierarchy, rig, timecoded=True)
+
+        self.assertEqual(0, len(ani.time_coded_channels))
+        self.assertEqual(1, len(ani.time_coded_bit_channels))
+        self.assertEqual([True, False, True], [datum.value for datum in ani.time_coded_bit_channels[0].time_codes])
+
+    def test_blender_hide_visibility_values_are_converted_to_w3d_visibility(self):
+        class HideFcu:
+            data_path = 'bones["bone"].hide'
+
+        self.assertEqual(0.0, get_visibility_value(HideFcu(), True))
+        self.assertEqual(1.0, get_visibility_value(HideFcu(), False))
+
     def test_quaternions_are_normalized_on_export_uncompressed(self):
         bpy.context.scene.frame_end = 0
         bpy.context.scene.frame_end = 10

@@ -15,6 +15,7 @@
 ## v0.7.3
 
 * adapt to API changes in Blender 5.1+
+* enhance visibility channel handling and add tests for roundtrip functionality
 
 ## v0.7.2 (01.05.25)
 
