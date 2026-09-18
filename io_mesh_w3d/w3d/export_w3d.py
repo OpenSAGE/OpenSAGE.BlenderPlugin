@@ -23,10 +23,18 @@ def save(context, export_settings, data_context):
         mesh.write(file)
 
     elif export_mode == 'HM' or export_mode == 'HAM':
-        if export_mode == 'HAM' \
-                or not export_settings['use_existing_skeleton']:
+        # 'use existing skeleton' means the hierarchy this file's geometry/animation
+        # binds to already exists elsewhere under its own name (e.g. the base model
+        # this is a build-up/destroy animation variant of) - renaming it to this
+        # file's own name would produce a hierarchy the game does not recognise as
+        # the same object, so the animation silently never shows up in-game
+        rename_hierarchy = not export_settings.get('use_existing_skeleton', False)
+        write_hierarchy = export_mode == 'HAM' or rename_hierarchy
+
+        if rename_hierarchy:
             data_context.hlod.header.hierarchy_name = data_context.container_name
             data_context.hierarchy.header.name = data_context.container_name
+        if write_hierarchy:
             data_context.hierarchy.write(file)
 
         for box in data_context.collision_boxes:
@@ -40,7 +48,8 @@ def save(context, export_settings, data_context):
 
         data_context.hlod.write(file)
         if export_mode == 'HAM':
-            data_context.animation.header.hierarchy_name = data_context.container_name
+            if rename_hierarchy:
+                data_context.animation.header.hierarchy_name = data_context.container_name
             data_context.animation.write(file)
 
     elif export_mode == 'A':

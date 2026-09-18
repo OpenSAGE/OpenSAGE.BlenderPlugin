@@ -190,3 +190,61 @@ class TestExportW3D(TestCase):
         self.assertEqual('containerName', data_context.hierarchy.header.name)
         self.assertEqual('containerName', data_context.hlod.header.hierarchy_name)
         self.assertEqual('containerName', data_context.animation.header.hierarchy_name)
+
+    def test_hierarchy_name_is_kept_for_HAM_and_use_existing_skeleton(self):
+        """A build-up/destroy animation exported as HAM under its own file name (e.g.
+        'hb_w_walls_a.w3d') must keep referencing the base model's hierarchy (e.g.
+        'HB_W_STALLS'), or the game does not recognise it as an animation of that
+        object and it never plays. 'Use Existing Skeleton' is what says so.
+        """
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'use_existing_skeleton': True}
+
+        hierarchy_name = 'HB_W_STALLS'
+
+        data_context = DataContext(
+            container_name='hb_w_walls_a',
+            meshes=[get_mesh(name='sword', skin=True)],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name),
+            animation=get_animation(hierarchy_name))
+
+        self.filepath = self.outpath() + 'output_skn'
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.assertEqual(hierarchy_name, data_context.hierarchy.header.name)
+        self.assertEqual(hierarchy_name, data_context.hlod.header.hierarchy_name)
+        self.assertEqual(hierarchy_name, data_context.animation.header.hierarchy_name)
+
+    def test_hierarchy_chunk_is_still_written_for_HAM_and_use_existing_skeleton(self):
+        """Unlike HM, HAM always embeds mesh geometry, so its hierarchy has to be
+        written along with it even when 'Use Existing Skeleton' only asks that it
+        keep the base model's name rather than being skipped outright."""
+        export_settings = {'mode': 'HAM', 'compression': 'U', 'use_existing_skeleton': True}
+
+        hierarchy_name = 'HB_W_STALLS'
+
+        data_context = DataContext(
+            container_name='hb_w_walls_a',
+            meshes=[get_mesh(name='sword', skin=True)],
+            hierarchy=get_hierarchy(hierarchy_name),
+            hlod=get_hlod('TestModelName', hierarchy_name),
+            animation=get_animation(hierarchy_name))
+
+        self.filepath = self.outpath() + 'output_skn'
+
+        self.assertEqual({'FINISHED'}, save(self, export_settings, data_context))
+
+        self.filepath += '.w3d'
+        file = open(self.filepath, 'rb')
+        filesize = os.path.getsize(self.filepath)
+
+        hierarchy_found = False
+        while file.tell() < filesize:
+            (chunk_type, chunk_size, chunk_end) = read_chunk_head(file)
+            if chunk_type == W3D_CHUNK_HIERARCHY:
+                hierarchy_found = True
+            skip_unknown_chunk(self, file, chunk_type, chunk_size)
+
+        file.close()
+        self.assertTrue(hierarchy_found)

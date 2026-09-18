@@ -50,7 +50,7 @@ class TestRoundtripW3X(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -93,7 +93,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
@@ -134,7 +134,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'another.tex.with.dots.in.name.xml'))
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -177,7 +177,7 @@ class TestRoundtripW3X(TestCase):
         self.assertEqual(6, len(root.find('Includes').findall('Include')))
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3x'
@@ -222,7 +222,7 @@ class TestRoundtripW3X(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'
@@ -273,7 +273,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.TRUNK.w3x'
@@ -351,7 +351,7 @@ class TestRoundtripW3X(TestCase):
         self.assertTrue(os.path.exists(self.outpath() + 'texture.xml'))
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3x'

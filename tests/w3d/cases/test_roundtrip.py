@@ -96,7 +96,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output_skn.w3d'
@@ -132,7 +132,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -162,7 +162,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -194,7 +194,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -231,7 +231,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -264,7 +264,7 @@ class TestRoundtripW3D(TestCase):
         save_data(self, export_settings)
 
         # reset scene
-        bpy.ops.wm.read_homefile(app_template='')
+        self.resetToDefaultScene()
 
         # import
         self.filepath = self.outpath() + 'output.w3d'
@@ -279,3 +279,42 @@ class TestRoundtripW3D(TestCase):
         self.assertTrue('sword' in bpy.data.objects)
         self.assertTrue('soldier' in bpy.data.objects)
         self.assertTrue('TRUNK' in bpy.data.objects)
+
+
+class TestImportOperatorAppliesSameFixupsAsBfmeTools(TestCase):
+    """The BfMe tools' own import path used to zero out a material's Principled
+    BSDF specular after calling the core import operator, so File > Import and
+    the BfMe model browser produced different-looking materials for the same
+    file. The fix belongs in the operator itself so every caller gets it; this
+    exercises the actual bpy.ops.import_mesh.westwood_w3d operator, not the
+    lower level load()/create_data() the other roundtrip tests use, since that
+    is where the fixup runs.
+    """
+
+    def test_import_operator_zeroes_specular(self):
+        mesh = get_mesh(name='sword')  # get_mesh() uses vertex materials with shininess=0.5
+        self.filepath = self.outpath() + 'output'
+        create_data(self, [mesh])
+
+        export_settings = {'mode': 'M'}
+        save_data(self, export_settings)
+
+        # the factory default scene this resets to already carries materials of its
+        # own (the default Cube material, grease pencil's 'Dots Stroke'), which are
+        # not part of the import and legitimately keep Blender's own default
+        self.resetToDefaultScene()
+        materials_before = set(bpy.data.materials)
+
+        self.filepath = self.outpath() + 'output.w3d'
+        result = bpy.ops.import_mesh.westwood_w3d(filepath=self.filepath)
+
+        self.assertEqual({'FINISHED'}, result)
+
+        imported_materials = [m for m in bpy.data.materials if m not in materials_before and m.node_tree]
+        self.assertTrue(imported_materials)
+        for material in imported_materials:
+            principled = next(n for n in material.node_tree.nodes if n.type == 'BSDF_PRINCIPLED')
+            socket = (principled.inputs.get('Specular IOR Level')
+                      or principled.inputs.get('IOR Level')
+                      or principled.inputs.get('Specular'))
+            self.assertEqual(0.0, socket.default_value)

@@ -1,5 +1,212 @@
 # Version History
 
+## v0.9.0
+
+* Bugfix: exporting a mesh, texture name, vertex material or dazzle whose name or 'User Text'
+  (Object Data Properties > W3D Properties) contained a character outside ASCII - an umlaut,
+  an accented letter, anything needing more than one byte in UTF-8 - silently corrupted the
+  rest of the file. Every such string is preceded by a byte count so a reader knows how far
+  it runs; that count was computed from the number of *characters* while the string itself is
+  written as UTF-8 *bytes*, which take more space than characters for exactly this kind of
+  text. The declared count came out too small, so the chunk after the string was read (or
+  read by the game) starting a few bytes into what was still string content - garbage from
+  there on, sometimes readable enough that the file loaded but was missing whatever came
+  after, sometimes not. Every writer that counts these strings now counts encoded bytes
+* Bugfix: a build-up/destroy animation exported as 'Hierarchical Animated Model' under its
+  own file name (e.g. a 'hb_w_walls_a.w3d' generated from 'hb_w_stalls') exported without
+  errors but never played in-game. Not an encoding issue: HAM export always renamed the
+  embedded hierarchy to the output file's own name, so 'HB_W_STALLS' became 'hb_w_walls_a'
+  inside the file, and the game no longer recognised it as an animation of the original
+  building. 'Use Existing Skeleton' now also applies to HAM mode - it still embeds the
+  hierarchy, HAM needs its own geometry either way, but keeps the original model's name
+  instead of renaming it. Auto-Detect does not enable it on its own (see below), so exporting
+  a build-up/destroy animation this way still needs it checked by hand
+* Bugfix: clicking 'Create Build-up Animation' or 'Create Destroy Animation' again renamed
+  the action to 'name.001', 'name.002', ... instead of reusing the configured name, since
+  a new action was always created rather than replacing one of the same name already there.
+  Both now remove an existing action of that name first, so repeated clicks always leave
+  exactly the one requested name, matching the in-game animation state name it has to equal
+* Export Settings' 'Auto-Detect Settings' no longer looks at whichever object happens to be
+  active, which on a multi-object model depended on what was last clicked and could enable
+  or skip 'Use Existing Skeleton' apparently at random. It looks at the scene's armature
+  directly instead (the same one every other BfMe tool assumes), and now covers four cases
+  by comparing the armature's collection to its own name and checking for an animation:
+  matching with no animation exports the whole model (Hierarchical Model); matching with an
+  animation exports just that (Hierarchical Animated Model, named after the animation); a
+  differing collection with no animation assumes a mesh-only part of a model exported
+  elsewhere (Hierarchical Model, Use Existing Skeleton); anything else falls back to a plain
+  model export. Note the animation case leaves 'Use Existing Skeleton' unchecked, so as
+  exported this way the embedded hierarchy is renamed to the animation's own name rather than
+  kept as the base model's (see the HAM bugfix above) - check the box by hand when the
+  animation needs to bind to the model this armature already is in-game. The detected path
+  now also prefers the current .blend's own save location over where a model was imported
+  from, and importing a model through the W3D Model Browser now actually records that path
+  for the fallback to use - it was previously never written anywhere, and even once it was,
+  it pointed at the temporary cache directory a model got staged into (to sit its textures
+  next to it for the import) rather than its real, original mod folder
+* the automatic piece count in Destroy Animation's 'Splitting Objects' list is about half of
+  what it used to compute: real assets were ending up fractured into far more sub-objects
+  than a destruction animation needs
+* the W3D Model Browser lists a model once per asset source that ships it, instead of only
+  the one that won overall. The list is grouped under a header per source: each asset search
+  path is a source of its own, named after its mod folder ('Edain-Mod', 'aotr', ...), and the
+  selected archives of a game form one ('BfMe 2', 'BfMe RotWK'). On a setup with three mods and
+  both games that is 1302 more models, e.g. Edain's and AOTR's quite different 'duoin_skn'.
+  Within one source only the copy that source uses is listed, e.g. a patch archive's over the
+  base game's. The name filter keeps a header exactly when a model below it matches.
+  Previewing or importing a model takes that source's copy, and its skeleton and textures from
+  that source first, then from the game archives, and only then from another mod, as the game
+  itself would. Models of different sources are staged in separate cache directories and get
+  separate previews, so one never overwrites the other
+* Bugfix: the W3D Model Browser did not list some models, and some previews were missing
+  textures. Both came from a model and a texture sharing a name, which is common in mods
+  ('art/w3d/hu_r_treb.w3d' using 'art/compiledtextures/hu_r_treb.dds'):
+  * the list was built from the part of the asset index that keeps only one asset per name,
+    so whenever the texture won that slot the model was left out - 157 models on a full
+    Edain + BfMe II setup. The list, the preview and the import now look models up among
+    models only. The texture finder had the mirror image of this and could relink a missing
+    texture to a same-named .w3d; it now looks among textures only
+  * collecting what a model needs next to it skipped any texture named like the model
+    itself, so that texture was never staged for the preview or the import. When it was
+    the only one, the model was even imported where it lies, away from all its textures
+  * searching 'Existing Animations' rebuilt the shared asset index with .w3d files only,
+    after which every preview and import from the model browser found no textures at all
+    until the next scan. All tools now index the same file types, which now also includes
+    .jpg/.png/.bmp textures a model may use
+  * previews rendered before this fix are rendered again once, since they were kept for as
+    long as the model itself did not change
+* Bugfix: editing a value in a list of the BfMe tools - Build-Up and Destroy Animation's
+  per-bone timings, Destroy Animation's splitting objects - froze Blender for several
+  seconds on every change. The W3D Model Browser kept its model list on the scene, a full
+  install's worth of rows, and on every such edit Blender looks up where the edited property
+  lives by walking the scene's registered lists, the model list included. That took about
+  3.4 s with 29,000 models and grows with the square of the list's size. The list now lives on
+  the window manager, where it is out of that walk: the same lookup takes well under a
+  millisecond. It is not saved into .blend files anymore either, where it added around 25 MB,
+  and opening a file saved with the list on the scene drops it from there
+* Bugfix: importing some W3D models (mostly older Renegade/BFME-era assets) failed outright
+  with a `UnicodeDecodeError`. String fields (mesh user text, texture names, shader/vertex
+  material names and arguments) were always decoded as UTF-8, but older exporters wrote them
+  in the Windows ANSI codepage, so any non-ASCII byte broke the import. Reading now falls
+  back to Windows-1252 whenever a string isn't valid UTF-8
+* Bugfix: importing a W3D model created a separate material per object even when several
+  objects shared the exact same texture/material definition, instead of reusing one shared
+  material. The importer already deduplicates materials after import by comparing everything
+  it writes onto each `Material` datablock, but that comparison also picked up custom
+  properties registered by *other* installed addons (e.g. BlenderKit adds its own property to
+  every Material). Since those third-party values differ per material instance, every
+  comparison reported a difference on that property alone, so materials were never merged.
+  The comparison now only looks at the properties this addon itself registers on Material,
+  so unrelated addons can no longer block deduplication
+* Bugfix: exporting a mesh with vertices bound to two bones could leave the two weights not
+  summing to 100%, or occasionally drop a small (e.g. 1%) secondary weight entirely, turning a
+  two-bone vertex into a rigidly single-bone one. Blender stores vertex group weights as
+  float32, so an intended weight like 42% is actually stored as 0.41999998; writing that out
+  by truncating (`int(weight * 100)`) rounded it down to 41, silently losing up to a whole
+  percentage point on each side independently. The game blends a multi-bone vertex as
+  `weight0 * position0 + weight1 * position1`, with each position stored in its own bone's
+  local space, so a missing percentage point under-scaled the result - harmless at bind pose,
+  but once the affected bone rotated away from it during animation this became a visibly large
+  offset, while single-bone vertices (100%/0%, no rounding boundary to lose) were unaffected.
+  The second weight is now written as the exact complement of the first, which always sums to
+  100% by construction
+* the 'Existing Animations' tab is now 'Bindings and Animation', with two sub-tabs:
+  * 'Existing Animations' is the previous animation search, its results list can now be
+    collapsed
+  * 'Bindings' adds an 'Auto-Bind' button: pick an armature, and every mesh in the scene
+    that has no Armature modifier yet gets one, with every vertex weighted to its nearest
+    deforming bone(s). This was calibrated against several real exported assets (both
+    hard-surface armor/weapons and organic creatures/characters): a vertex is bound
+    rigidly (100%) to its single nearest bone unless a second one is nearly as close, in
+    which case both contribute, favouring whichever is closer rather than an even split.
+    No pure distance rule reproduces hand weight-painting exactly - real riggers use body
+    topology a geometric measure cannot see - so this favours staying rigid unless a
+    vertex is clearly near a joint, since a wrongly blended hard-surface part is more
+    visibly wrong than a joint vertex left rigid. A 'Show Weights' toggle bakes the
+    result into a vertex color layer, gives each bone a distinct color, a small colored
+    marker sphere and a visible name (a W3D hierarchy's pivot bones are usually near
+    zero length and otherwise easy to miss entirely), switches every 3D viewport to
+    solid shading with vertex colors and the wireframe overlay on, and puts the armature
+    into Pose Mode (bone colors only render in Edit/Pose Mode). Any vertex whose weights
+    do not sum to ~100%, however many bones they are spread over, is shown in white
+    instead of blending in
+* Bugfix: a model whose texture happened to share a base name with an unrelated
+  .w3d file (e.g. a 'pfence01' texture next to an unrelated 'pfence01.w3d' prop
+  model, both real BfMe II assets) could import or preview without that texture.
+  The asset index only kept one reference per name, so the model silently shadowed
+  the texture depending on which .big got scanned first. Textures and .w3d files
+  are now kept in their own lookup so a model's dependencies always resolve to the
+  right kind of asset regardless of what else happens to share its name
+* the W3D Tools sub-panels (asset search paths, .big extraction, model browser, animation
+  finder, build-up/destroy animation, export settings) are now collapsed by default, matching
+  the outer 'W3D Tools' panel, instead of all expanding on every install
+* the W3D Model Browser scans once per Blender session on its own, so the list is populated
+  without pressing 'Scan W3D Models' first. That and the button are the only two things that
+  ever scan; there is no periodic rescan competing with the UI. The scan runs in a worker
+  thread and its results are inserted in small batches spread over several timer ticks, so a
+  full install's worth of models (tens of thousands) never stalls Blender for the single
+  frame it would take to insert them at once. Press the button to pick up assets that changed
+  on disk since Blender started
+* search paths are now indexed in parallel with .big archives instead of after them
+  sequentially, using the same thread pool
+* the model list no longer does any work per redraw. Blender calls a UIList's filter_items()
+  for every redraw, including every frame of a scroll, so with a full install's worth of
+  models the list could not be scrolled smoothly: sorting them there cost ~15 ms per redraw,
+  more than a 60 fps frame budget on its own, and handing Blender a 21k entry reorder array
+  made it redo that mapping every redraw too. Both scan paths now insert the models in sorted
+  order, so the list needs no reordering at all, and matching against the filter text is
+  cached until the list or the text changes. A redraw went from ~15 ms to ~0.01 ms
+* filling the list only redraws the sidebar region it lives in, once, rather than tagging
+  every area and forcing a full 3D viewport redraw per batch
+* the scan starts a few seconds after Blender rather than immediately, so reading every
+  archive header with a cold file cache does not compete with Blender's own startup I/O
+* looking up the cached asset index no longer waits on the index lock, so importing or
+  previewing a model while a background rescan happens to be running does not stall
+* Bugfix: importing through File > Import > Westwood W3D produced shinier looking materials than
+  importing the same file through the BfMe model browser. The model browser zeroed out the
+  Principled BSDF's specular input after calling the core import operator (W3D materials do not
+  carry one; the importer's shininess value does not correspond to it), but the core operator
+  itself did not, so the two paths disagreed. The fix now lives in the core import operator, so
+  every caller gets it, and the BfMe tools' now-redundant copy of it is gone
+* integrated the BfMe Tools (by Brechstange) into the 'W3D Tools' tab in the 3D viewport sidebar
+  (N-panel), alongside the existing geometry/bone-volume export panel; they are no longer a
+  separate add-on: asset search paths and .big extraction, a .w3d model browser with previews, an
+  animation finder, build-up and destroy animation generators, UV/structure/collision-geometry/
+  bone helpers and a simplified export panel
+* the tools now call the W3D importer and exporter directly instead of searching `bpy.ops` for
+  something that looks like a W3D operator
+* Bugfix: the tools did not work on Blender 4.2+ at all in several places, `Action.fcurves`,
+  `Material.shadow_method` and the EEVEE `use_bloom`/`use_ssr` settings were all removed
+* Bugfix: the texture and model scans mutated Blender data from worker threads, which is not
+  thread safe, they now only do file system work off the main thread
+* Bugfix: preview generation crashed when every imported object was hidden, and could leave the
+  window on a scene that was about to be deleted
+* Bugfix: an animation search no longer reads whole .w3d files into memory
+* several hot paths are now vectorised (collision geometry analysis, bone placement, scene
+  height) or use the right data structure (UV island flood fill, per-bone lookups), the model
+  list no longer re-copies itself on every UI tick
+* W3D/W3X import now merges materials that are identical in every property this add-on writes,
+  instead of creating one material per mesh that happens to use it. Meshes are keyed by
+  `<mesh name>.<material name>` when they're created, so a kitbashed model built from many
+  meshes that share one texture used to end up with one duplicate material per mesh; those are
+  now merged into a single material datablock once the whole file is imported
+* the asset cache is now an index of *references* instead of a copy of everything. Loose files in
+  a search path are used straight from where they are and never copied at all; entries inside a
+  .big are referenced by their byte range and only written out when something actually opens them,
+  which Blender needs because it cannot read from inside an archive. Measured against a full
+  BfMe II + RotWK install (223 archives, 10 GB): indexing all 32808 assets takes 0.4 s and writes
+  nothing to disk, where the previous implementation copied 6267 MB into %TEMP% before the model
+  list could be shown. The per-search-path 'Load to cache' switch is gone with it, since there is
+  no longer anything to opt into. Importing or previewing a model brings its skeleton and its
+  textures along, because the W3D importer resolves those by name next to the file it is given;
+  this covers both classic texture chunks and the shader material properties most BfMe II era
+  models use, and finds a texture even when the model asks for a .tga that ships as a .dds
+* Bugfix: importing a second animation onto the same skeleton from 'Existing Animations' mixed
+  its keyframes into whatever animation the skeleton already had, instead of replacing it -
+  `keyframe_insert()` adds to the currently assigned action rather than starting a fresh one.
+  The target's existing action is now detached before importing and only actually removed once
+  the import has succeeded, so a failed import doesn't lose the previous animation either
+
 ## v0.7.4
 
 * adapt to API changes in Blender 5.2

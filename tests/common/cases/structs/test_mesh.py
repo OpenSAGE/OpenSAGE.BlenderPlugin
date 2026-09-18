@@ -37,6 +37,20 @@ class TestMesh(TestCase):
 
         self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
 
+    def test_write_read_non_ascii_user_text(self):
+        """A user_text containing a character outside ASCII ('Boite693' with an 'i'
+        with a circumflex, exactly what a real broken export used) used to make
+        size() under-report how many bytes write() actually produces - the mesh
+        chunk then declared itself shorter than it really was, corrupting anything
+        that came after it for any reader trusting that declared size, the game
+        included. write_read_test()'s own size()-vs-actual-bytes assertion is
+        already the check that catches this; the point of this test is the string.
+        """
+        expected = get_mesh()
+        expected.user_text = 'ClonedFromObject = Bo\xeete693 00000171182A7B60'
+
+        self.write_read_test(expected, W3D_CHUNK_MESH, Mesh.read, compare_meshes, self, True)
+
     def test_write_read_empty(self):
         expected = get_mesh_empty()
 

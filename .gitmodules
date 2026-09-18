@@ -1,3 +1,6 @@
 [submodule "io_mesh_w3d/blender_addon_updater"]
 	path = io_mesh_w3d/blender_addon_updater
 	url = https://github.com/OpenSAGE/blender-addon-updater.git
+[submodule "io_mesh_w3d/bfme/vendor/pyBIG"]
+	path = io_mesh_w3d/bfme/vendor/pyBIG
+	url = https://github.com/ClementJ18/pyBIG.git

@@ -20,6 +20,14 @@ class TestIOBinary(TestCase):
                 bytes(expected, 'UTF-8') + struct.pack('B', 0b0))
             self.assertEqual(expected, read_string(io_stream))
 
+    def test_read_string_falls_back_to_cp1252_for_invalid_utf8(self):
+        # older W3D exporters wrote user_text/name fields in the Windows ANSI
+        # codepage; a byte like 0xee is not valid UTF-8 on its own but must
+        # still be read instead of raising
+        raw = b'Ver\xeenderung' + struct.pack('B', 0b0)
+        io_stream = io.BytesIO(raw)
+        self.assertEqual('Ver\xeenderung', read_string(io_stream))
+
     def test_write_string(self):
         expecteds = [
             'Teststring',
@@ -31,6 +39,20 @@ class TestIOBinary(TestCase):
 
             self.assertEqual(expected + '\x00',
                              io_stream.getvalue().decode('utf-8'))
+
+    def test_write_string_of_a_non_ascii_character_round_trips(self):
+        """'Boite693' with an 'i' with a circumflex - the field itself round trips
+        fine (read_string finds the actual null terminator regardless), it is
+        text_size() that has to agree with how many bytes this writes, see
+        test_text_size_of_a_non_ascii_character below.
+        """
+        expected = 'ClonedFromObject = Bo\xeete693 00000171182A7B60'
+
+        io_stream = io.BytesIO()
+        write_string(expected, io_stream)
+        io_stream.seek(0)
+
+        self.assertEqual(expected, read_string(io_stream))
 
     def test_read_fixed_string(self):
         inputs = [
@@ -63,6 +85,29 @@ class TestIOBinary(TestCase):
                 expected += '\x00'
 
             self.assertEqual(expected, io_stream.getvalue().decode('utf-8'))
+
+    def test_write_fixed_string_of_a_non_ascii_character_stays_16_bytes(self):
+        """A character outside ASCII is 2-4 bytes in UTF-8: padding worked out from
+        len(string) (characters) rather than the encoded byte count used to write
+        too few null bytes, so the field grew past its fixed 16 bytes and shifted
+        every chunk after it - corruption invisible until something else tries to
+        read the file.
+        """
+        # 15 characters, but 'î' alone is 2 bytes, so 16 bytes encoded
+        value = 'Bo\xeete693 12345'
+
+        io_stream = io.BytesIO()
+        write_fixed_string(value, io_stream)
+
+        self.assertEqual(STRING_LENGTH, len(io_stream.getvalue()))
+
+    def test_write_long_fixed_string_of_a_non_ascii_character_stays_32_bytes(self):
+        value = 'Bo\xeete693 123456789012345678'
+
+        io_stream = io.BytesIO()
+        write_long_fixed_string(value, io_stream)
+
+        self.assertEqual(LARGE_STRING_LENGTH, len(io_stream.getvalue()))
 
     def test_read_long_fixed_string(self):
         inputs = [

@@ -15,7 +15,7 @@ jobs:
         submodules: 'true'
     - name: Bundle archive
       run: |
-        zip -r io_mesh_w3d.zip io_mesh_w3d -x io_mesh_w3d/blender_addon_updater/.git
+        zip -r io_mesh_w3d.zip io_mesh_w3d -x io_mesh_w3d/blender_addon_updater/.git io_mesh_w3d/bfme/vendor/pyBIG/.git
 
     - name: Create Release
       id: create_release

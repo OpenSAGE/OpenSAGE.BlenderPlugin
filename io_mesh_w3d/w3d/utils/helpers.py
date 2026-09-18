@@ -29,9 +29,15 @@ def const_size(size, include_head=True):
 
 
 def text_size(text, include_head=True):
+    """Bytes write_string(text, ...) actually writes: the chunk header this feeds
+    into must declare that many, not len(text) - a character outside ASCII (an
+    umlaut, say) is 2-4 bytes in UTF-8, and a chunk that under-declares its own
+    size corrupts everything written after it for any reader trusting that size,
+    the game included.
+    """
     if len(text) == 0:
         return 0
-    size = len(text) + 1
+    size = len(text.encode('utf-8')) + 1
     if include_head:
         size += HEAD
     return size

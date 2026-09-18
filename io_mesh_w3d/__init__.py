@@ -9,10 +9,12 @@ from .export_utils import save_data
 from .custom_properties import *
 from .geometry_export import *
 from .bone_volume_export import *
+from .common.utils.material_import import flatten_materials, zero_specular
 
+from . import bfme
 from .blender_addon_updater import addon_updater_ops
 
-VERSION = (0, 7, 4)
+VERSION = (0, 9, 0)
 
 # add-ons installed through the extension system (Blender 4.2+) live in the
 # 'bl_ext' package and are kept up to date by Blender itself
@@ -22,7 +24,7 @@ IS_EXTENSION = (__package__ or '').startswith('bl_ext.')
 bl_info = {
     'name': 'Import/Export Westwood W3D Format (.w3d/.w3x)',
     'author': 'OpenSage Developers',
-    'version': (0, 7, 4),
+    'version': (0, 9, 0),
     "blender": (2, 90, 0),
     'location': 'File > Import/Export > Westwood W3D (.w3d/.w3x)',
     'description': 'Import or Export the Westwood W3D-Format (.w3d/.w3x)',
@@ -204,6 +206,8 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
 
     def execute(self, context):
         print_version(self.info)
+        objects_before = set(bpy.data.objects)
+
         if self.filepath.lower().endswith('.w3d'):
             from .w3d.import_w3d import load
             file_format = 'W3D'
@@ -212,6 +216,9 @@ class ImportW3D(bpy.types.Operator, ImportHelper, ReportHelper):
             from .w3x.import_w3x import load
             file_format = 'W3X'
             load(self)
+
+        imported = [obj for obj in bpy.data.objects if obj not in objects_before]
+        zero_specular(flatten_materials(imported))
 
         self.info('finished')
         return {'FINISHED'}
@@ -424,16 +431,6 @@ class MATERIAL_PROPERTIES_PANEL_PT_w3d(Panel):
             col.prop(mat, 'multi_texture_enable')
 
 
-class TOOLS_PANEL_PT_w3d(bpy.types.Panel):
-    bl_label = 'W3D Tools'
-    bl_space_type = 'VIEW_3D'
-    bl_region_type = 'UI'
-
-    def draw(self, context):
-        self.layout.operator('scene.export_geometry_data', icon='CUBE', text='Export Geometry Data')
-        self.layout.operator('scene.export_bone_volume_data', icon='BONE_DATA', text='Export Bone Volume Data')
-
-
 class OBJECT_PT_DemoUpdaterPanel(bpy.types.Panel):
     bl_label = 'Updater Demo Panel'
     bl_idname = 'OBJECT_PT_hello'
@@ -518,7 +515,6 @@ CLASSES = (
     MATERIAL_PROPERTIES_PANEL_PT_w3d,
     ExportGeometryData,
     ExportBoneVolumeData,
-    TOOLS_PANEL_PT_w3d
 )
 
 # the bundled updater would overwrite the add-on behind Blender's back,
@@ -550,6 +546,9 @@ def register():
 
     Material.shader = PointerProperty(type=ShaderProperties)
 
+    # the BfMe tools build on the operators and custom properties registered above
+    bfme.register()
+
     bpy.types.TOPBAR_MT_file_import.append(menu_func_import)
     bpy.types.TOPBAR_MT_file_export.append(menu_func_export)
 
@@ -560,6 +559,8 @@ def unregister():
 
         for class_ in reversed(UPDATER_CLASSES):
             bpy.utils.unregister_class(class_)
+
+    bfme.unregister()
 
     for class_ in reversed(CLASSES):
         bpy.utils.unregister_class(class_)

@@ -60,6 +60,75 @@ class TestImportUtilsW3D(TestCase):
         self.assertEqual(1, len(bpy.data.materials))
         self.assertTrue('meshName.VM_NAME' in bpy.data.materials)
 
+    def test_deduplicate_materials_merges_identical_materials_from_different_meshes(self):
+        mat_a, _ = create_material_from_vertex_material('mesh1', get_vertex_material())
+        mat_b, _ = create_material_from_vertex_material('mesh2', get_vertex_material())
+
+        self.assertEqual(2, len(bpy.data.materials))
+        self.assertNotEqual(mat_a, mat_b)
+
+        merged = deduplicate_materials([mat_a, mat_b])
+
+        self.assertEqual(1, merged)
+        self.assertEqual(1, len(bpy.data.materials))
+        self.assertTrue('mesh1.VM_NAME' in bpy.data.materials)
+        self.assertFalse('mesh2.VM_NAME' in bpy.data.materials)
+
+    def test_deduplicate_materials_ignores_foreign_addon_properties(self):
+        # simulates a third-party addon (e.g. BlenderKit) registering its own custom
+        # runtime property on Material; such properties must not block deduplication,
+        # even when their values differ between the two materials being compared
+        bpy.types.Material.foreign_addon_prop = bpy.props.StringProperty(default='')
+        try:
+            mat_a, _ = create_material_from_vertex_material('mesh1', get_vertex_material())
+            mat_b, _ = create_material_from_vertex_material('mesh2', get_vertex_material())
+            mat_a.foreign_addon_prop = 'a'
+            mat_b.foreign_addon_prop = 'b'
+
+            merged = deduplicate_materials([mat_a, mat_b])
+
+            self.assertEqual(1, merged)
+            self.assertEqual(1, len(bpy.data.materials))
+        finally:
+            del bpy.types.Material.foreign_addon_prop
+
+    def test_deduplicate_materials_keeps_differing_materials_separate(self):
+        vm_b = get_vertex_material()
+        vm_b.vm_info.diffuse.r = 250
+
+        mat_a, _ = create_material_from_vertex_material('mesh1', get_vertex_material())
+        mat_b, _ = create_material_from_vertex_material('mesh2', vm_b)
+
+        merged = deduplicate_materials([mat_a, mat_b])
+
+        self.assertEqual(0, merged)
+        self.assertEqual(2, len(bpy.data.materials))
+
+    def test_deduplicate_materials_redirects_mesh_slots_to_the_canonical_material(self):
+        mat_a, _ = create_material_from_vertex_material('mesh1', get_vertex_material())
+        mat_b, _ = create_material_from_vertex_material('mesh2', get_vertex_material())
+
+        mesh = bpy.data.meshes.new('probe')
+        mesh.materials.append(mat_b)
+
+        deduplicate_materials([mat_a, mat_b])
+
+        self.assertEqual(mat_a, mesh.materials[0])
+
+    def test_meshes_sharing_a_material_definition_share_one_material_on_import(self):
+        meshes = [get_mesh(name='mesh1', mat_count=1), get_mesh(name='mesh2', mat_count=1)]
+
+        copyfile(up(up(self.relpath())) + '/testfiles/texture.dds', self.outpath() + 'texture.dds')
+
+        create_data(self, meshes)
+
+        mesh1 = bpy.data.objects['mesh1'].data
+        mesh2 = bpy.data.objects['mesh2'].data
+
+        self.assertEqual(1, len(mesh1.materials))
+        self.assertEqual(1, len(mesh2.materials))
+        self.assertEqual(mesh1.materials[0], mesh2.materials[0])
+
     def test_only_needed_keyframe_creation(self):
         animation = get_compressed_animation_empty()
 
